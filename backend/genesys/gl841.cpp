@@ -867,8 +867,7 @@ static void gl841_init_motor_regs(Genesys_Device* dev, const Genesys_Sensor& sen
         fast_exposure = dev->motor.slopes[0].maximum_start_speed;
     }
 
-    sanei_genesys_create_slope_table3(
-	dev,
+    sanei_genesys_create_slope_table3(dev->motor,
 	fast_slope_table,
         256,
 	fast_slope_steps,
@@ -1031,8 +1030,7 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
   how many steps we need for slow acceleration and how much steps we are
   allowed to use.
  */
-    slow_slope_time = sanei_genesys_create_slope_table3 (
-	dev,
+    slow_slope_time = sanei_genesys_create_slope_table3(dev->motor,
 	slow_slope_table, 256,
 	256,
 	scan_step_type,
@@ -1041,8 +1039,7 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
 	&slow_slope_steps,
     nullptr);
 
-     sanei_genesys_create_slope_table3 (
-	dev,
+     sanei_genesys_create_slope_table3(dev->motor,
 	back_slope_table, 256,
 	256,
 	scan_step_type,
@@ -1067,8 +1064,7 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
     DBG(DBG_info, "%s: Maximum allowed slope steps for fast slope: %d\n", __func__,
         fast_slope_steps);
 
-    fast_slope_time = sanei_genesys_create_slope_table3 (
-	dev,
+    fast_slope_time = sanei_genesys_create_slope_table3(dev->motor,
 	fast_slope_table, 256,
 	fast_slope_steps,
 	0,

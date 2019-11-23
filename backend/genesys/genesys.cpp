@@ -434,14 +434,14 @@ SANE_Int sanei_genesys_generate_slope_table(std::vector<uint16_t>& slope_table,
  * @return               Time for acceleration
  * @note  all times in pixel time
  */
-SANE_Int sanei_genesys_create_slope_table3(Genesys_Device * dev,
+SANE_Int sanei_genesys_create_slope_table3(const Genesys_Motor& motor,
                                            std::vector<uint16_t>& slope_table,
                                    int max_step,
 				   unsigned int use_steps,
 				   int step_type,
                                    int exposure_time,
-				   double yres,
-				   unsigned int *used_steps,
+                                           unsigned yres,
+                                           unsigned int *used_steps,
                                            unsigned int *final_exposure)
 {
   unsigned int sum_time = 0;
@@ -450,26 +450,18 @@ SANE_Int sanei_genesys_create_slope_table3(Genesys_Device * dev,
   unsigned int vstart;
   unsigned int vfinal;
 
-    DBG(DBG_proc, "%s: step_type = %d, exposure_time = %d, yres = %g\n", __func__,
+    DBG(DBG_proc, "%s: step_type = %d, exposure_time = %d, yres = %d\n", __func__,
         step_type, exposure_time, yres);
 
   /* final speed */
-    vtarget = static_cast<unsigned>((exposure_time * yres) / dev->motor.base_ydpi);
+    vtarget = (exposure_time * yres) / motor.base_ydpi;
 
-    vstart = dev->motor.slopes[step_type].maximum_start_speed;
-    vend = dev->motor.slopes[step_type].maximum_speed;
+    vstart = motor.slopes[step_type].maximum_start_speed;
+    vend = motor.slopes[step_type].maximum_speed;
 
-  vtarget >>= step_type;
-  if (vtarget > 65535)
-    vtarget = 65535;
-
-  vstart >>= step_type;
-  if (vstart > 65535)
-    vstart = 65535;
-
-  vend >>= step_type;
-  if (vend > 65535)
-    vend = 65535;
+    vtarget = std::min(vtarget >> step_type, 65535u);
+    vstart = std::min(vstart >> step_type, 65535u);
+    vend = std::min(vend >> step_type, 65535u);
 
   sum_time = sanei_genesys_generate_slope_table (slope_table,
                                                  max_step,
@@ -477,13 +469,13 @@ SANE_Int sanei_genesys_create_slope_table3(Genesys_Device * dev,
 						 vtarget,
 						 vstart,
 						 vend,
-                                                 dev->motor.slopes[step_type].minimum_steps << step_type,
-                                                 dev->motor.slopes[step_type].g,
+                                                 motor.slopes[step_type].minimum_steps << step_type,
+                                                 motor.slopes[step_type].g,
                                                  used_steps,
 						 &vfinal);
 
     if (final_exposure) {
-        *final_exposure = static_cast<unsigned>((vfinal * dev->motor.base_ydpi) / yres);
+        *final_exposure = (vfinal * motor.base_ydpi) / yres;
     }
 
   DBG(DBG_proc, "%s: returns sum_time=%d, completed\n", __func__, sum_time);

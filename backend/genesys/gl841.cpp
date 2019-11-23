@@ -573,6 +573,9 @@ static void gl841_send_slope_table(Genesys_Device* dev, int table_nr,
       DBG(DBG_io, "%s: %s\n", __func__, msg);
     }
 
+    if (dev->interface->is_mock()) {
+        dev->interface->record_slope_table(table_nr, slope_table);
+    }
     dev->interface->write_buffer(0x3c, start_address + table_nr * 0x200, table.data(), steps * 2);
 }
 

@@ -82,6 +82,8 @@ public:
 
     void record_progress_message(const char* msg) override;
 
+    void record_slope_table(unsigned table_nr, const std::vector<std::uint16_t>& steps) override;
+
     void record_key_value(const std::string& key, const std::string& value) override;
 
     void test_checkpoint(const std::string& name) override;

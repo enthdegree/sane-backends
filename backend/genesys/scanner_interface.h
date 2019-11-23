@@ -48,6 +48,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <string>
+#include <vector>
 
 namespace genesys {
 
@@ -98,6 +99,8 @@ public:
     }
 
     virtual void record_progress_message(const char* msg) = 0;
+
+    virtual void record_slope_table(unsigned table_nr, const std::vector<std::uint16_t>& steps) = 0;
 
     virtual void record_key_value(const std::string& key, const std::string& value) = 0;
 

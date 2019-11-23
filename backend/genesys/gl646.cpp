@@ -841,6 +841,9 @@ static void gl646_send_slope_table(Genesys_Device* dev, int table_nr,
       table[i * 2 + 1] = slope_table[i] >> 8;
     }
 
+    if (dev->interface->is_mock()) {
+        dev->interface->record_slope_table(table_nr, slope_table);
+    }
     dev->interface->write_buffer(0x3c, start_address + table_nr * 0x100, table.data(), steps * 2);
 }
 

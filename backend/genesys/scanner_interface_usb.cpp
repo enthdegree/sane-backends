@@ -494,6 +494,13 @@ void ScannerInterfaceUsb::record_progress_message(const char* msg)
     sanei_usb_testing_record_message(msg);
 }
 
+void ScannerInterfaceUsb::record_slope_table(unsigned table_nr,
+                                             const std::vector<std::uint16_t>& steps)
+{
+    (void) table_nr;
+    (void) steps;
+}
+
 void ScannerInterfaceUsb::record_key_value(const std::string& key, const std::string& value)
 {
     (void) key;

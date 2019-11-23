@@ -212,6 +212,18 @@ void build_checkpoint(const genesys::Genesys_Device& dev,
         << "iface.cached_fe_regs: "
         << genesys::format_indent_braced_list(4, iface.cached_fe_regs()) << "\n\n"
         << "iface.last_progress_message: " << iface.last_progress_message() << "\n\n";
+    out << "iface.slope_tables: {\n";
+    for (const auto& kv : iface.recorded_slope_tables()) {
+        out << "    " << kv.first << ": {";
+        for (unsigned i = 0; i < kv.second.size(); ++i) {
+            if (i % 10 == 0) {
+                out << "\n       ";
+            }
+            out << ' ' << kv.second[i];
+        }
+        out << "\n    }\n";
+    }
+    out << "}\n";
     if (iface.recorded_key_values().empty()) {
         out << "iface.recorded_key_values: []\n";
     } else {
@@ -221,6 +233,7 @@ void build_checkpoint(const genesys::Genesys_Device& dev,
         }
         out << "}\n";
     }
+    iface.recorded_key_values().clear();
     out << "\n";
 }
 

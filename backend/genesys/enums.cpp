@@ -45,6 +45,7 @@
 
 #include "enums.h"
 #include "genesys.h"
+#include <iomanip>
 
 namespace genesys {
 
@@ -120,5 +121,11 @@ std::ostream& operator<<(std::ostream& out, StepType type)
     return out;
 }
 
+std::ostream& operator<<(std::ostream& out, ScanFlag flags)
+{
+    StreamStateSaver state_saver{out};
+    out << "0x" << std::hex << static_cast<unsigned>(flags);
+    return out;
+}
 
 } // namespace genesys

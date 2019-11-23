@@ -342,10 +342,10 @@ static void gl646_setup_registers(Genesys_Device* dev,
 
   /* select XPA */
     regs->find_reg(0x03).value &= ~REG_0x03_XPASEL;
-    if (session.params.flags & SCAN_FLAG_USE_XPA) {
+    if ((session.params.flags & ScanFlag::USE_XPA) != ScanFlag::NONE) {
         regs->find_reg(0x03).value |= REG_0x03_XPASEL;
     }
-    regs->state.is_xpa_on = session.params.flags & SCAN_FLAG_USE_XPA;
+    regs->state.is_xpa_on = (session.params.flags & ScanFlag::USE_XPA) != ScanFlag::NONE;
 
   /* R04 */
   /* monochrome / color scan */
@@ -1911,12 +1911,12 @@ static void setup_for_scan(Genesys_Device* dev,
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = settings.scan_mode;
     session.params.color_filter = settings.color_filter;
-    session.params.flags = 0;
+    session.params.flags = ScanFlag::NONE;
     if (settings.scan_method == ScanMethod::TRANSPARENCY) {
-        session.params.flags |= SCAN_FLAG_USE_XPA;
+        session.params.flags |= ScanFlag::USE_XPA;
     }
     if (xcorrection) {
-        session.params.flags |= SCAN_FLAG_USE_XCORRECTION;
+        session.params.flags |= ScanFlag::USE_XCORRECTION;
     }
     compute_session(dev, session, sensor);
 
@@ -3510,9 +3510,9 @@ ScanSession CommandSetGl646::calculate_scan_session(const Genesys_Device* dev,
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = settings.scan_mode;
     session.params.color_filter = settings.color_filter;
-    session.params.flags = SCAN_FLAG_USE_XCORRECTION;
+    session.params.flags = ScanFlag::USE_XCORRECTION;
     if (settings.scan_method == ScanMethod::TRANSPARENCY) {
-        session.params.flags |= SCAN_FLAG_USE_XPA;
+        session.params.flags |= ScanFlag::USE_XPA;
     }
     compute_session(dev, session, sensor);
 

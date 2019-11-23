@@ -756,7 +756,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   /* enable shading */
     r = sanei_genesys_get_address (reg, REG_0x01);
     r->value &= ~REG_0x01_SCAN;
-    if ((session.params.flags & SCAN_FLAG_DISABLE_SHADING) ||
+    if (has_flag(session.params.flags, ScanFlag::DISABLE_SHADING) ||
         (dev->model->flags & GENESYS_FLAG_NO_CALIBRATION))
     {
         r->value &= ~REG_0x01_DVDSET;
@@ -777,7 +777,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     }
 
     sanei_genesys_set_lamp_power(dev, sensor, *reg,
-                                 !(session.params.flags & SCAN_FLAG_DISABLE_LAMP));
+                                 !has_flag(session.params.flags, ScanFlag::DISABLE_LAMP));
 
     // BW threshold
     dev->interface->write_register(REG_0x114, dev->settings.threshold);
@@ -902,7 +902,7 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
         slope_dpi = session.params.yres;
     }
 
-    if(session.params.flags & SCAN_FLAG_FEEDING) {
+    if (has_flag(session.params.flags, ScanFlag::FEEDING)) {
         exposure_time = 2304;
     } else {
         exposure_time = get_sensor_profile(dev->model->asic_type, sensor, session.params.xres,
@@ -927,10 +927,10 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
 
     mflags = 0;
-    if (session.params.flags & SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE) {
+    if (has_flag(session.params.flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE)) {
         mflags |= MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE;
     }
-    if (session.params.flags & SCAN_FLAG_FEEDING) {
+    if (has_flag(session.params.flags, ScanFlag::FEEDING)) {
         mflags |= MOTOR_FLAG_FEED;
     }
     gl124_init_motor_regs_scan(dev, sensor, reg, motor_profile, exposure_time, slope_dpi,
@@ -981,7 +981,7 @@ ScanSession CommandSetGl124::calculate_scan_session(const Genesys_Device* dev,
     session.params.scan_method = settings.scan_method;
     session.params.scan_mode = settings.scan_mode;
     session.params.color_filter = settings.color_filter;
-    session.params.flags = 0;
+    session.params.flags = ScanFlag::NONE;
 
     compute_session(dev, session, sensor);
 
@@ -1258,9 +1258,9 @@ void CommandSetGl124::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::GRAY;
     session.params.color_filter = ColorFilter::RED;
-    session.params.flags = SCAN_FLAG_DISABLE_SHADING |
-                           SCAN_FLAG_DISABLE_GAMMA |
-                           SCAN_FLAG_IGNORE_LINE_DISTANCE;
+    session.params.flags = ScanFlag::DISABLE_SHADING |
+                           ScanFlag::DISABLE_GAMMA |
+                           ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, sensor);
 
     gl124_init_scan_regs(dev, sensor, &local_reg, session);
@@ -1351,11 +1351,11 @@ static void gl124_feed(Genesys_Device* dev, unsigned int steps, int reverse)
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = dev->settings.color_filter;
-    session.params.flags = SCAN_FLAG_DISABLE_SHADING |
-                           SCAN_FLAG_DISABLE_GAMMA |
-                           SCAN_FLAG_FEEDING |
-                           SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
-                           SCAN_FLAG_IGNORE_LINE_DISTANCE;
+    session.params.flags = ScanFlag::DISABLE_SHADING |
+                           ScanFlag::DISABLE_GAMMA |
+                           ScanFlag::FEEDING |
+                           ScanFlag::DISABLE_BUFFER_FULL_MOVE |
+                           ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, sensor);
 
     gl124_init_scan_regs(dev, sensor, &local_reg, session);
@@ -1442,10 +1442,10 @@ void CommandSetGl124::search_start_position(Genesys_Device* dev) const
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::GRAY;
     session.params.color_filter = ColorFilter::GREEN;
-    session.params.flags = SCAN_FLAG_DISABLE_SHADING |
-                           SCAN_FLAG_DISABLE_GAMMA |
-                           SCAN_FLAG_IGNORE_LINE_DISTANCE |
-                           SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE;
+    session.params.flags = ScanFlag::DISABLE_SHADING |
+                           ScanFlag::DISABLE_GAMMA |
+                           ScanFlag::IGNORE_LINE_DISTANCE |
+                           ScanFlag::DISABLE_BUFFER_FULL_MOVE;
     compute_session(dev, session, sensor);
 
     gl124_init_scan_regs(dev, sensor, &local_reg, session);
@@ -1509,11 +1509,11 @@ void CommandSetGl124::init_regs_for_coarse_calibration(Genesys_Device* dev,
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = dev->settings.scan_mode;
     session.params.color_filter = dev->settings.color_filter;
-    session.params.flags = SCAN_FLAG_DISABLE_SHADING |
-                           SCAN_FLAG_DISABLE_GAMMA |
-                           SCAN_FLAG_SINGLE_LINE |
-                           SCAN_FLAG_FEEDING |
-                           SCAN_FLAG_IGNORE_LINE_DISTANCE;
+    session.params.flags = ScanFlag::DISABLE_SHADING |
+                           ScanFlag::DISABLE_GAMMA |
+                           ScanFlag::SINGLE_LINE |
+                           ScanFlag::FEEDING |
+                           ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, sensor);
 
     gl124_init_scan_regs(dev, sensor, &regs, session);
@@ -1576,10 +1576,10 @@ void CommandSetGl124::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = ColorFilter::RED;
-    session.params.flags = SCAN_FLAG_DISABLE_SHADING |
-                           SCAN_FLAG_DISABLE_GAMMA |
-                           SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE |
-                           SCAN_FLAG_IGNORE_LINE_DISTANCE;
+    session.params.flags = ScanFlag::DISABLE_SHADING |
+                           ScanFlag::DISABLE_GAMMA |
+                           ScanFlag::DISABLE_BUFFER_FULL_MOVE |
+                           ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, sensor);
 
     try {
@@ -1657,7 +1657,7 @@ void CommandSetGl124::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = dev->settings.scan_mode;
     session.params.color_filter = dev->settings.color_filter;
-    session.params.flags = 0;
+    session.params.flags = ScanFlag::NONE;
     compute_session(dev, session, sensor);
 
     gl124_init_scan_regs(dev, sensor, &dev->reg, session);
@@ -1798,10 +1798,10 @@ static void move_to_calibration_area(Genesys_Device* dev, const Genesys_Sensor& 
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = dev->settings.color_filter;
-    session.params.flags = SCAN_FLAG_DISABLE_SHADING |
-                           SCAN_FLAG_DISABLE_GAMMA |
-                           SCAN_FLAG_SINGLE_LINE |
-                           SCAN_FLAG_IGNORE_LINE_DISTANCE;
+    session.params.flags = ScanFlag::DISABLE_SHADING |
+                           ScanFlag::DISABLE_GAMMA |
+                           ScanFlag::SINGLE_LINE |
+                           ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, sensor);
 
     gl124_init_scan_regs(dev, sensor, &regs, session);
@@ -1881,10 +1881,10 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = dev->settings.color_filter;
-    session.params.flags = SCAN_FLAG_DISABLE_SHADING |
-                           SCAN_FLAG_DISABLE_GAMMA |
-                           SCAN_FLAG_SINGLE_LINE |
-                           SCAN_FLAG_IGNORE_LINE_DISTANCE;
+    session.params.flags = ScanFlag::DISABLE_SHADING |
+                           ScanFlag::DISABLE_GAMMA |
+                           ScanFlag::SINGLE_LINE |
+                           ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, sensor);
 
     gl124_init_scan_regs(dev, sensor, &regs, session);
@@ -2056,10 +2056,10 @@ void CommandSetGl124::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = dev->settings.color_filter;
-    session.params.flags = SCAN_FLAG_DISABLE_SHADING |
-                           SCAN_FLAG_DISABLE_GAMMA |
-                           SCAN_FLAG_SINGLE_LINE |
-                           SCAN_FLAG_IGNORE_LINE_DISTANCE;
+    session.params.flags = ScanFlag::DISABLE_SHADING |
+                           ScanFlag::DISABLE_GAMMA |
+                           ScanFlag::SINGLE_LINE |
+                           ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, sensor);
 
     gl124_init_scan_regs(dev, sensor, &regs, session);
@@ -2216,10 +2216,10 @@ void CommandSetGl124::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = dev->settings.color_filter;
-    session.params.flags = SCAN_FLAG_DISABLE_SHADING |
-                           SCAN_FLAG_DISABLE_GAMMA |
-                           SCAN_FLAG_SINGLE_LINE |
-                           SCAN_FLAG_IGNORE_LINE_DISTANCE;
+    session.params.flags = ScanFlag::DISABLE_SHADING |
+                           ScanFlag::DISABLE_GAMMA |
+                           ScanFlag::SINGLE_LINE |
+                           ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, sensor);
 
     try {
@@ -2332,10 +2332,10 @@ void CommandSetGl124::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = dev->settings.color_filter;
-    session.params.flags = SCAN_FLAG_DISABLE_SHADING |
-                           SCAN_FLAG_DISABLE_GAMMA |
-                           SCAN_FLAG_SINGLE_LINE |
-                           SCAN_FLAG_IGNORE_LINE_DISTANCE;
+    session.params.flags = ScanFlag::DISABLE_SHADING |
+                           ScanFlag::DISABLE_GAMMA |
+                           ScanFlag::SINGLE_LINE |
+                           ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, sensor);
 
     gl124_init_scan_regs(dev, sensor, reg, session);

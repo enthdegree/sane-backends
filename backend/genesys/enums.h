@@ -410,6 +410,59 @@ enum class AsicType : unsigned
     GL124,
 };
 
+
+enum class ScanFlag : unsigned
+{
+    NONE = 0,
+    SINGLE_LINE = 1 << 0,
+    DISABLE_SHADING = 1 << 1,
+    DISABLE_GAMMA = 1 << 2,
+    DISABLE_BUFFER_FULL_MOVE = 1 << 3,
+    IGNORE_LINE_DISTANCE = 1 << 4,
+    DISABLE_LAMP = 1 << 5,
+    CALIBRATION = 1 << 6,
+    FEEDING = 1 << 7,
+    USE_XPA = 1 << 8,
+    ENABLE_LEDADD = 1 << 9,
+    USE_XCORRECTION = 1 << 10,
+};
+
+inline ScanFlag operator|(ScanFlag left, ScanFlag right)
+{
+    return static_cast<ScanFlag>(static_cast<unsigned>(left) | static_cast<unsigned>(right));
+}
+
+inline ScanFlag& operator|=(ScanFlag& left, ScanFlag right)
+{
+    left = left | right;
+    return left;
+}
+
+inline ScanFlag operator&(ScanFlag left, ScanFlag right)
+{
+    return static_cast<ScanFlag>(static_cast<unsigned>(left) & static_cast<unsigned>(right));
+}
+
+inline bool has_flag(ScanFlag flags, ScanFlag which)
+{
+    return (flags & which) == which;
+}
+
+inline void serialize(std::istream& str, ScanFlag& x)
+{
+    unsigned value;
+    serialize(str, value);
+    x = static_cast<ScanFlag>(value);
+}
+
+inline void serialize(std::ostream& str, ScanFlag& x)
+{
+    unsigned value = static_cast<unsigned>(x);
+    serialize(str, value);
+}
+
+std::ostream& operator<<(std::ostream& out, ScanFlag flags);
+
 } // namespace genesys
 
 #endif // BACKEND_GENESYS_ENUMS_H

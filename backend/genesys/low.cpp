@@ -600,7 +600,7 @@ void sanei_genesys_set_motor_power(Genesys_Register_Set& regs, bool set)
 
 bool should_enable_gamma(const ScanSession& session, const Genesys_Sensor& sensor)
 {
-    if (session.params.flags & SCAN_FLAG_DISABLE_GAMMA) {
+    if ((session.params.flags & ScanFlag::DISABLE_GAMMA) != ScanFlag::NONE) {
         return false;
     }
     if (sensor.gamma[0] == 1.0f || sensor.gamma[1] == 1.0f || sensor.gamma[2] == 1.0f) {
@@ -851,7 +851,7 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
 
         // startx cannot be below dummy pixel value
         s.pixel_startx = sensor.dummy_pixel;
-        if ((s.params.flags & SCAN_FLAG_USE_XCORRECTION) && sensor.ccd_start_xoffset > 0) {
+        if (has_flag(s.params.flags, ScanFlag::USE_XCORRECTION) && sensor.ccd_start_xoffset > 0) {
             s.pixel_startx = sensor.ccd_start_xoffset;
         }
         s.pixel_startx += s.params.startx;
@@ -1045,7 +1045,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
 
     if (dev->model->asic_type == AsicType::GL843) {
         if ((s.params.yres > 1200) && // FIXME: maybe ccd_size_divisor is the one that controls this?
-            ((s.params.flags & SCAN_FLAG_IGNORE_LINE_DISTANCE) == 0) &&
+            !has_flag(s.params.flags, ScanFlag::IGNORE_LINE_DISTANCE) &&
             (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
         {
             s.num_staggered_lines = (4 * s.params.yres) / dev->motor.base_ydpi;
@@ -1068,7 +1068,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     s.color_shift_lines_b = (s.color_shift_lines_b * s.params.yres) / dev->motor.base_ydpi;
 
     s.max_color_shift_lines = 0;
-    if (s.params.channels > 1 && !(s.params.flags & SCAN_FLAG_IGNORE_LINE_DISTANCE)) {
+    if (s.params.channels > 1 && !has_flag(s.params.flags, ScanFlag::IGNORE_LINE_DISTANCE)) {
         s.max_color_shift_lines = std::max(s.color_shift_lines_r, std::max(s.color_shift_lines_g,
                                                                            s.color_shift_lines_b));
     }
@@ -1182,7 +1182,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     {
         // no 16 bit gamma for this ASIC
         if (s.params.depth == 16) {
-            s.params.flags |= SCAN_FLAG_DISABLE_GAMMA;
+            s.params.flags |= ScanFlag::DISABLE_GAMMA;
         }
     }
 

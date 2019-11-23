@@ -242,17 +242,6 @@ extern StaticInit<std::vector<Motor_Profile>> gl124_motor_profiles;
 
 constexpr unsigned SLOPE_TABLE_SIZE = 1024;
 
-#define SCAN_FLAG_SINGLE_LINE               0x001
-#define SCAN_FLAG_DISABLE_SHADING           0x002
-#define SCAN_FLAG_DISABLE_GAMMA             0x004
-#define SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE  0x008
-#define SCAN_FLAG_IGNORE_LINE_DISTANCE      0x010
-#define SCAN_FLAG_DISABLE_LAMP              0x040
-#define SCAN_FLAG_CALIBRATION               0x100
-#define SCAN_FLAG_FEEDING                   0x200
-#define SCAN_FLAG_USE_XPA                   0x400
-#define SCAN_FLAG_ENABLE_LEDADD             0x800
-#define SCAN_FLAG_USE_XCORRECTION          0x1000
 #define MOTOR_FLAG_AUTO_GO_HOME             0x01
 #define MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE 0x02
 #define MOTOR_FLAG_FEED                     0x04

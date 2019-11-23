@@ -45,8 +45,71 @@
 
 #include "motor.h"
 #include "utilities.h"
+#include <cmath>
 
 namespace genesys {
+
+unsigned MotorSlope::get_table_step_shifted(unsigned step, StepType step_type) const
+{
+    // first two steps are always equal to the initial speed
+    if (step < 2) {
+        return initial_speed_w >> static_cast<unsigned>(step_type);
+    }
+    step--;
+
+    float initial_speed_v = 1.0f / initial_speed_w;
+    float speed_v = std::sqrt(initial_speed_v * initial_speed_v + 2 * acceleration * step);
+    return static_cast<unsigned>(1.0f / speed_v) >> static_cast<unsigned>(step_type);
+}
+
+MotorSlopeTable create_slope_table(const MotorSlope& slope, unsigned target_speed_w,
+                                   StepType step_type, unsigned steps_alignment,
+                                   unsigned min_size)
+{
+    DBG_HELPER_ARGS(dbg, "target_speed_w: %d, step_type: %d, steps_alignment: %d, min_size: %d",
+                    target_speed_w, static_cast<unsigned>(step_type), steps_alignment, min_size);
+    MotorSlopeTable table;
+
+    unsigned step_shift = static_cast<unsigned>(step_type);
+
+    unsigned target_speed_shifted_w = target_speed_w >> step_shift;
+    unsigned max_speed_shifted_w = slope.max_speed_w >> step_shift;
+
+    if (target_speed_shifted_w < max_speed_shifted_w) {
+        dbg.log(DBG_warn, "failed to reach target speed");
+    }
+
+    unsigned final_speed = std::max(target_speed_shifted_w, max_speed_shifted_w);
+
+    table.table.reserve(MotorSlopeTable::SLOPE_TABLE_SIZE);
+
+    while (true) {
+        unsigned current = slope.get_table_step_shifted(table.table.size(), step_type);
+        if (current <= final_speed) {
+            break;
+        }
+        table.table.push_back(current);
+        table.pixeltime_sum += current;
+    }
+
+    // make sure the target speed (or the max speed if target speed is too high) is present in
+    // the table
+    table.table.push_back(final_speed);
+    table.pixeltime_sum += table.table.back();
+
+    // fill the table up to the specified size
+    while (table.table.size() % steps_alignment != 0 || table.table.size() < min_size) {
+        table.table.push_back(table.table.back());
+        table.pixeltime_sum += table.table.back();
+    }
+
+    table.scan_steps = table.table.size();
+
+    // fill the rest of the table with the final speed
+    table.table.resize(MotorSlopeTable::SLOPE_TABLE_SIZE, final_speed);
+
+    return table;
+}
 
 std::ostream& operator<<(std::ostream& out, const MotorSlope& slope)
 {

@@ -137,7 +137,22 @@ struct MotorSlope
 
     // acceleration in steps per pixeltime squared.
     float acceleration = 0;
+
+    unsigned get_table_step_shifted(unsigned step, StepType step_type) const;
 };
+
+struct MotorSlopeTable
+{
+    constexpr static unsigned SLOPE_TABLE_SIZE = 1024;
+
+    std::vector<std::uint16_t> table;
+    unsigned scan_steps = 0;
+    unsigned pixeltime_sum = 0;
+};
+
+MotorSlopeTable create_slope_table(const MotorSlope& slope, unsigned target_speed_w,
+                                   StepType step_type, unsigned steps_alignment,
+                                   unsigned min_size);
 
 class Genesys_Motor_Slope
 {

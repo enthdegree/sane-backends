@@ -239,7 +239,7 @@ extern Motor_Profile gl846_motor_profiles[];
 extern Motor_Profile gl847_motor_profiles[];
 extern Motor_Profile gl124_motor_profiles[];
 
-#define SLOPE_TABLE_SIZE 1024
+constexpr unsigned SLOPE_TABLE_SIZE = 1024;
 
 #define SCAN_FLAG_SINGLE_LINE               0x001
 #define SCAN_FLAG_DISABLE_SHADING           0x002

@@ -1318,12 +1318,6 @@ void CommandSetGl843::set_powersaving(Genesys_Device* dev, int delay /* in minut
     DBG_HELPER_ARGS(dbg, "delay = %d", delay);
 }
 
-static void gl843_start_action(Genesys_Device* dev)
-{
-    DBG_HELPER(dbg);
-    dev->interface->write_register(0x0f, 0x01);
-}
-
 static void gl843_stop_action_no_move(Genesys_Device* dev, Genesys_Register_Set* reg)
 {
     DBG_HELPER(dbg);
@@ -1719,11 +1713,7 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
     val |= REG_0x01_SCAN;
     dev->interface->write_register(REG_0x01, val);
 
-    if (start_motor) {
-        dev->interface->write_register(REG_0x0F, 1);
-    } else {
-        dev->interface->write_register(REG_0x0F, 0);
-    }
+    scanner_start_action(*dev, start_motor);
 }
 
 
@@ -1777,7 +1767,7 @@ static void gl843_park_xpa_lamp(Genesys_Device* dev)
     dev->interface->write_registers(local_reg);
     gl843_set_xpa_motor_power(dev, true);
     try {
-        gl843_start_action(dev);
+        scanner_start_action(*dev, true);
     } catch (...) {
         catch_all_exceptions(__func__, [&]() { gl843_stop_action(dev); });
         // restore original registers
@@ -1886,7 +1876,7 @@ void CommandSetGl843::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     dev->interface->write_registers(local_reg);
 
     try {
-        gl843_start_action(dev);
+        scanner_start_action(*dev, true);
     } catch (...) {
         catch_all_exceptions(__func__, [&]() { gl843_stop_action(dev); });
         // restore original registers
@@ -2102,7 +2092,7 @@ static void gl843_feed(Genesys_Device* dev, unsigned int steps)
     dev->interface->write_registers(local_reg);
 
     try {
-        gl843_start_action(dev);
+        scanner_start_action(*dev, true);
     } catch (...) {
         catch_all_exceptions(__func__, [&]() { gl843_stop_action(dev); });
         // restore original registers

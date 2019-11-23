@@ -1543,6 +1543,28 @@ void sanei_genesys_asic_init(Genesys_Device* dev, bool /*max_regs*/)
     dev->cmd_set->set_powersaving(dev, 15);
 }
 
+void scanner_start_action(Genesys_Device& dev, bool start_motor)
+{
+    DBG_HELPER(dbg);
+    switch (dev.model->asic_type) {
+        case AsicType::GL646:
+        case AsicType::GL841:
+        case AsicType::GL843:
+        case AsicType::GL845:
+        case AsicType::GL846:
+        case AsicType::GL847:
+        case AsicType::GL124:
+            break;
+        default:
+            throw SaneException("Unsupported chip");
+    }
+
+    if (start_motor) {
+        dev.interface->write_register(0x0f, 0x01);
+    } else {
+        dev.interface->write_register(0x0f, 0);
+    }
+}
 
 void sanei_genesys_set_dpihw(Genesys_Register_Set& regs, const Genesys_Sensor& sensor,
                              unsigned dpihw)

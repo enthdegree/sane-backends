@@ -422,6 +422,8 @@ extern void sanei_genesys_wait_for_home(Genesys_Device* dev);
 
 extern void sanei_genesys_asic_init(Genesys_Device* dev, bool cold);
 
+void scanner_start_action(Genesys_Device& dev, bool start_motor);
+
 const Motor_Profile& sanei_genesys_get_motor_profile(const std::vector<Motor_Profile>& motors,
                                                      MotorId motor_id, int exposure);
 

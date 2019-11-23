@@ -123,17 +123,6 @@ print_status (uint8_t val)
 }
 
 /**
- * start scanner's motor
- * @param dev scanner's device
- */
-static void gl646_start_motor(Genesys_Device* dev)
-{
-    DBG_HELPER(dbg);
-    dev->interface->write_register(0x0f, 0x01);
-}
-
-
-/**
  * stop scanner's motor
  * @param dev scanner's device
  */
@@ -1212,8 +1201,7 @@ void CommandSetGl646::load_document(Genesys_Device* dev) const
 
     dev->interface->write_registers(regs);
 
-    gl646_start_motor(dev);
-
+    scanner_start_action(*dev, true);
 
   count = 0;
   do
@@ -1383,7 +1371,7 @@ void CommandSetGl646::eject_document(Genesys_Device* dev) const
 
     dev->interface->write_registers(regs);
 
-    gl646_start_motor(dev);
+    scanner_start_action(*dev, true);
 
   /* loop until paper sensor tells paper is out, and till motor is running */
   /* use a 30 timeout */

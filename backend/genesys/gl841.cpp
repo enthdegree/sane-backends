@@ -1865,12 +1865,6 @@ void CommandSetGl841::set_powersaving(Genesys_Device* dev, int delay /* in minut
     dev->interface->write_registers(local_reg);
 }
 
-static void gl841_start_action(Genesys_Device* dev)
-{
-    DBG_HELPER(dbg);
-    dev->interface->write_register(0x0f, 0x01);
-}
-
 static void gl841_stop_action(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
@@ -1967,7 +1961,7 @@ void CommandSetGl841::eject_document(Genesys_Device* dev) const
     dev->interface->write_registers(local_reg);
 
     try {
-        gl841_start_action(dev);
+        scanner_start_action(*dev, true);
     } catch (...) {
         catch_all_exceptions(__func__, [&]() { gl841_stop_action(dev); });
         // restore original registers
@@ -2161,6 +2155,7 @@ void CommandSetGl841::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
     local_reg.init_reg(0x01, reg->get8(0x01) | REG_0x01_SCAN);
     local_reg.init_reg(0x0d, 0x01);
 
+    // scanner_start_action(dev, start_motor)
     if (start_motor) {
         local_reg.init_reg(0x0f, 0x01);
     } else {
@@ -2205,7 +2200,7 @@ static void gl841_feed(Genesys_Device* dev, int steps)
     dev->interface->write_registers(local_reg);
 
     try {
-        gl841_start_action(dev);
+        scanner_start_action(*dev, true);
     } catch (...) {
         catch_all_exceptions(__func__, [&]() { gl841_stop_action (dev); });
         // restore original registers
@@ -2321,7 +2316,7 @@ void CommandSetGl841::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     dev->interface->write_registers(local_reg);
 
     try {
-        gl841_start_action(dev);
+        scanner_start_action(*dev, true);
     } catch (...) {
         catch_all_exceptions(__func__, [&]() { gl841_stop_action(dev); });
         // restore original registers

@@ -109,8 +109,6 @@ static Memory_layout layouts[]={
 	}
 };
 
-static void gl124_start_action(Genesys_Device* dev);
-
 static void gl124_feed(Genesys_Device* dev, unsigned int steps, int reverse);
 
 static void gl124_stop_action(Genesys_Device* dev);

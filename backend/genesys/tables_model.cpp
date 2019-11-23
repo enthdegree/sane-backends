@@ -439,8 +439,8 @@ void genesys_init_usb_device_tables()
     model.resolutions = {
         {
             { ScanMethod::FLATBED },
-            { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 },
-            { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100 },
+            { 1200, 600, 300 },
+            { 1200, 600, 300 },
         }
     };
 
@@ -448,11 +448,11 @@ void genesys_init_usb_device_tables()
     model.bpp_color_values = { 8, 16 };
 
     model.x_offset = 6.0;
-    model.y_offset = 13.00;
-    model.x_size = 217.9;
-    model.y_size = 315.0;
+    model.y_offset = 12.00;
+    model.x_size = 215.9;
+    model.y_size = 297.0;
 
-    model.y_offset_calib_white = 3.0;
+    model.y_offset_calib_white = 0.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 8.0;
@@ -466,25 +466,25 @@ void genesys_init_usb_device_tables()
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
 
-    model.ld_shift_r = 0;
-    model.ld_shift_g = 24;
-    model.ld_shift_b = 48;
+    model.ld_shift_r = 96;
+    model.ld_shift_g = 48;
+    model.ld_shift_b = 0;
 
     model.line_mode_color_order = ColorOrder::RGB;
 
     model.is_cis = false;
     model.is_sheetfed = false;
     model.sensor_id = SensorId::CCD_CANON_4400F;
-    model.adc_id = AdcId::G4050;
+    model.adc_id = AdcId::CANON_4400F;
     model.gpio_id = GpioId::CANON_4400F;
-    model.motor_id = MotorId::G4050;
-    model.flags = GENESYS_FLAG_NO_CALIBRATION |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
+    model.motor_id = MotorId::CANON_4400F;
+    model.flags = GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_STAGGERED_LINE |
                   GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_DARK_CALIBRATION |
                   GENESYS_FLAG_FULL_HWDPI_MODE |
-                  GENESYS_FLAG_CUSTOM_GAMMA;
+                  GENESYS_FLAG_CUSTOM_GAMMA |
+                  GENESYS_FLAG_SHADING_REPARK;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;
     model.shading_lines = 100;
     model.shading_ta_lines = 0;

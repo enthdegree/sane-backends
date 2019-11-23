@@ -291,8 +291,12 @@ gl843_init_registers (Genesys_Device * dev)
 
     SETREG(0x22, 0x01);
     SETREG(0x23, 0x01);
-    if (dev->model->model_id == ModelId::CANON_4400F ||
-        dev->model->model_id == ModelId::CANON_8600F)
+    if (dev->model->model_id == ModelId::CANON_4400F)
+    {
+        SETREG(0x22, 0x64);
+        SETREG(0x23, 0x64);
+    }
+    if (dev->model->model_id == ModelId::CANON_8600F)
     {
         SETREG(0x22, 0xc8);
         SETREG(0x23, 0xc8);
@@ -370,7 +374,7 @@ gl843_init_registers (Genesys_Device * dev)
   // 0x5b-0x5c: GMMADDR[0:15] address for gamma or motor tables download
   // SENSOR_DEF
 
-    // DECSEL[0:2]: The number of deceleratino steps after touching home sensor
+    // DECSEL[0:2]: The number of deceleration steps after touching home sensor
     // STOPTIM[0:4]: The stop duration between change of directions in
     // backtracking
     SETREG(0x5e, 0x23);
@@ -896,9 +900,13 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
         fast_step_type = step_type;
     }
 
+    unsigned fast_yres = sanei_genesys_get_lowest_ydpi(dev);
+    if (dev->model->model_id == ModelId::CANON_4400F) {
+        fast_yres = scan_yres;
+    }
   sanei_genesys_slope_table(fast_table,
                             &fast_steps,
-                            sanei_genesys_get_lowest_ydpi(dev),
+                            fast_yres,
                             exposure,
                             dev->motor.base_ydpi,
                             fast_step_type,
@@ -3360,7 +3368,9 @@ void CommandSetGl843::send_shading_data(Genesys_Device* dev, const Genesys_Senso
         strpixel = dev->session.pixel_startx;
         endpixel = dev->session.pixel_endx;
 
-        if (dev->model->model_id == ModelId::CANON_8600F) {
+        if (dev->model->model_id == ModelId::CANON_4400F ||
+            dev->model->model_id == ModelId::CANON_8600F)
+        {
             int half_ccd_factor = dev->session.optical_resolution /
                                   sensor.get_logical_hwdpi(dev->session.output_resolution);
             strpixel /= half_ccd_factor * sensor.ccd_pixels_per_system_pixel();

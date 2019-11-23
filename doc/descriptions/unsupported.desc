@@ -305,13 +305,6 @@
 :status :unsupported
 :comment "Probably unsupported. See link."
 
-:model "CanoScan 4400F"
-:url "unsupported/canon-4400.html"
-:interface "USB"
-:usbid "0x04a9" "0x2228"
-:status :unsupported
-:comment "GL843 based, to be added to genesys backend"
-
 :model "CanoScan 5000F"
 :url "unsupported/canon-5000f.html"
 :interface "USB"

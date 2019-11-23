@@ -483,6 +483,35 @@ void genesys_init_motor_tables()
 
 
     motor = Genesys_Motor();
+    motor.id = MotorId::CANON_4400F;
+    motor.base_ydpi = 2400;
+    motor.optical_ydpi = 9600;
+
+    slope = Genesys_Motor_Slope(); // full step
+    slope.maximum_start_speed = 3961;
+    slope.maximum_speed = 240;
+    slope.minimum_steps = 246;
+    slope.g = 0.8f;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope(); // half step
+    slope.maximum_start_speed = 3961;
+    slope.maximum_speed = 240;
+    slope.minimum_steps = 246;
+    slope.g = 0.8f;
+    motor.slopes.push_back(slope);
+
+    slope = Genesys_Motor_Slope(); // quarter step
+    slope.maximum_start_speed = 3961;
+    slope.maximum_speed = 240;
+    slope.minimum_steps = 246;
+    slope.g = 0.8f;
+    motor.slopes.push_back(slope);
+
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
     motor.id = MotorId::CANON_8400F;
     motor.base_ydpi = 1600;
     motor.optical_ydpi = 6400;

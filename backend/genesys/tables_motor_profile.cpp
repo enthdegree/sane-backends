@@ -527,7 +527,7 @@ static uint32_t g4050_xpa[] = {
     0
 };
 
-static uint32_t cs4400f_fast[] = {
+static uint32_t motor_speeds_cs4400f_1[] = {
     49152, 49152, 31144, 23652, 19538, 16822, 14908, 13442, 12288, 11356,
     10590, 9922, 9362, 8886, 8456, 8064, 7728, 7418, 7148, 6882,
     6664, 6446, 6252, 6060, 5890, 5740, 5586, 5450, 5322, 5198,
@@ -780,10 +780,10 @@ static std::uint32_t motor_speeds_plustek_7500i_2[] = {
 Motor_Profile gl843_motor_profiles[] = {
     { MotorId::KVSS080, 8000, StepType::HALF, kvss080 },
     { MotorId::G4050, 8016, StepType::HALF, g4050_fast },
-    { MotorId::G4050, 11640, StepType::HALF, cs4400f_fast },
     { MotorId::G4050, 15624, StepType::HALF, g4050_xpa },
     { MotorId::G4050, 42752, StepType::QUARTER, g4050_max },
     { MotorId::G4050, 56064, StepType::HALF, g4050_high },
+    { MotorId::CANON_4400F, 11640, StepType::HALF, motor_speeds_cs4400f_1},
     { MotorId::CANON_8400F, 50000, StepType::QUARTER, cs8400f_fast },
     { MotorId::CANON_8600F, 0x59d8, StepType::QUARTER, motor_speeds_cs8600f }, // FIXME: if the exposure is lower then we'll select another motor
     { MotorId::PLUSTEK_OPTICFILM_7200I, 0x19c8, StepType::HALF, motor_speeds_plustek_7200i_1},

@@ -345,10 +345,6 @@ SANE_Int sanei_genesys_generate_slope_table(std::vector<uint16_t>& slope_table, 
 			      unsigned int steps, double g,
 			      unsigned int *used_steps, unsigned int *vfinal);
 
-SANE_Int sanei_genesys_create_slope_table(Genesys_Device * dev, std::vector<uint16_t>& slope_table,
-                                          int steps, int step_type, int exposure_time,
-                                          bool same_speed, double yres);
-
 SANE_Int sanei_genesys_create_slope_table3(Genesys_Device * dev,
                                            std::vector<uint16_t>& slope_table, int max_step,
 				   unsigned int use_steps,

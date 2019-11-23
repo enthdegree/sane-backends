@@ -1210,9 +1210,9 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   if (exposure < 0) {
       throw std::runtime_error("Exposure not defined in sensor definition");
   }
-    const Motor_Profile& motor_profile = *sanei_genesys_get_motor_profile(gl843_motor_profiles,
-                                                                          dev->model->motor_id,
-                                                                          exposure);
+    const auto& motor_profile = sanei_genesys_get_motor_profile(*gl843_motor_profiles,
+                                                                dev->model->motor_id,
+                                                                exposure);
 
   DBG(DBG_info, "%s : exposure=%d pixels\n", __func__, exposure);
     DBG(DBG_info, "%s : scan_step_type=%d\n", __func__,

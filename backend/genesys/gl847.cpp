@@ -785,9 +785,9 @@ static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
     exposure_time = get_sensor_profile(dev->model->asic_type, sensor,
                                        session.params.xres, 1).exposure_lperiod;
-    const Motor_Profile& motor_profile = *sanei_genesys_get_motor_profile(gl847_motor_profiles,
-                                                                          dev->model->motor_id,
-                                                                          exposure_time);
+    const auto& motor_profile = sanei_genesys_get_motor_profile(*gl847_motor_profiles,
+                                                                dev->model->motor_id,
+                                                                exposure_time);
 
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
     DBG(DBG_info, "%s : scan_step_type=%d\n", __func__,

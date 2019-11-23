@@ -920,9 +920,9 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
         exposure_time = get_sensor_profile(dev->model->asic_type, sensor, session.params.xres,
                                            session.ccd_size_divisor).exposure_lperiod;
     }
-    const Motor_Profile& motor_profile = *sanei_genesys_get_motor_profile(gl124_motor_profiles,
-                                                                          dev->model->motor_id,
-                                                                          exposure_time);
+    const auto& motor_profile = sanei_genesys_get_motor_profile(*gl124_motor_profiles,
+                                                                dev->model->motor_id,
+                                                                exposure_time);
 
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
   DBG(DBG_info, "%s : scan_step_type=%d\n", __func__, static_cast<unsigned>(motor_profile.step_type));

@@ -1639,19 +1639,16 @@ void sanei_genesys_wait_for_home(Genesys_Device* dev)
  * @param exposure exposure time
  * @return a pointer to a Motor_Profile struct
  */
-Motor_Profile* sanei_genesys_get_motor_profile(Motor_Profile *motors, MotorId motor_id,
-                                               int exposure)
+const Motor_Profile& sanei_genesys_get_motor_profile(const std::vector<Motor_Profile>& motors,
+                                                     MotorId motor_id, int exposure)
 {
-  unsigned int i;
   int idx;
 
-  i=0;
   idx=-1;
-  while(motors[i].exposure!=0)
-    {
+    for (std::size_t i = 0; i < motors.size(); ++i) {
         // exact match
         if (motors[i].motor_id == motor_id && motors[i].exposure==exposure) {
-          return &(motors[i]);
+            return motors[i];
         }
 
         // closest match
@@ -1675,7 +1672,6 @@ Motor_Profile* sanei_genesys_get_motor_profile(Motor_Profile *motors, MotorId mo
                 }
             }
         }
-      i++;
     }
 
   /* default fallback */
@@ -1685,7 +1681,7 @@ Motor_Profile* sanei_genesys_get_motor_profile(Motor_Profile *motors, MotorId mo
       idx=0;
     }
 
-  return &(motors[idx]);
+    return motors[idx];
 }
 
 /** @brief generate slope table

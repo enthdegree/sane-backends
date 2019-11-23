@@ -832,9 +832,6 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
 
   int use_fast_fed, coeff;
   unsigned int lincnt;
-    std::vector<uint16_t> scan_table;
-    std::vector<uint16_t> fast_table;
-  int scan_steps,fast_steps;
   unsigned int feedl,factor,dist;
   GenesysRegister *r;
   uint32_t z1, z2;
@@ -876,23 +873,19 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     }
 
   /* scan and backtracking slope table */
-  sanei_genesys_slope_table(scan_table,
-                            &scan_steps,
-                            scan_yres,
-                            exposure,
-                            dev->motor.base_ydpi,
-                            factor,
-                              motor_profile);
-    gl843_send_slope_table(dev, SCAN_TABLE, scan_table, scan_steps * factor);
-    gl843_send_slope_table(dev, BACKTRACK_TABLE, scan_table, scan_steps * factor);
+    auto scan_table = sanei_genesys_slope_table(scan_yres, exposure, dev->motor.base_ydpi,
+                                                factor, motor_profile);
+
+    gl843_send_slope_table(dev, SCAN_TABLE, scan_table.table, scan_table.scan_steps * factor);
+    gl843_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table, scan_table.scan_steps * factor);
 
   /* STEPNO */
     r = sanei_genesys_get_address(reg, REG_STEPNO);
-  r->value = scan_steps;
+    r->value = scan_table.scan_steps;
 
   /* FSHDEC */
     r = sanei_genesys_get_address(reg, REG_FSHDEC);
-  r->value = scan_steps;
+    r->value = scan_table.scan_steps;
 
   /* fast table */
     // BUG: looks like for fast moves we use inconsistent step type
@@ -908,33 +901,28 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     if (dev->model->model_id == ModelId::CANON_4400F) {
         fast_yres = scan_yres;
     }
-  sanei_genesys_slope_table(fast_table,
-                            &fast_steps,
-                            fast_yres,
-                            exposure,
-                            dev->motor.base_ydpi,
-                            factor,
-                              fast_motor_profile);
-    gl843_send_slope_table(dev, STOP_TABLE, fast_table, fast_steps * factor);
-    gl843_send_slope_table(dev, FAST_TABLE, fast_table, fast_steps * factor);
-    gl843_send_slope_table(dev, HOME_TABLE, fast_table, fast_steps * factor);
+    auto fast_table = sanei_genesys_slope_table(fast_yres, exposure, dev->motor.base_ydpi,
+                                                factor, fast_motor_profile);
+    gl843_send_slope_table(dev, STOP_TABLE, fast_table.table, fast_table.scan_steps * factor);
+    gl843_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.scan_steps * factor);
+    gl843_send_slope_table(dev, HOME_TABLE, fast_table.table, fast_table.scan_steps * factor);
 
   /* FASTNO */
     r = sanei_genesys_get_address(reg, REG_FASTNO);
-  r->value = fast_steps;
+    r->value = fast_table.scan_steps;
 
   /* FMOVNO */
     r = sanei_genesys_get_address(reg, REG_FMOVNO);
-  r->value = fast_steps;
+    r->value = fast_table.scan_steps;
 
   /* substract acceleration distance from feedl */
   feedl=feed_steps;
     feedl <<= static_cast<unsigned>(motor_profile.step_type);
 
-  dist = scan_steps;
+    dist = scan_table.scan_steps;
   if (use_fast_fed)
     {
-        dist += fast_steps*2;
+        dist += fast_table.scan_steps*2;
     }
   DBG(DBG_io2, "%s: acceleration distance=%d\n", __func__, dist);
 
@@ -950,12 +938,12 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
   DBG(DBG_io, "%s: feedl=%d\n", __func__, feedl);
 
   /* doesn't seem to matter that much */
-  sanei_genesys_calculate_zmod (use_fast_fed,
+    sanei_genesys_calculate_zmod(use_fast_fed,
 				  exposure,
-				  scan_table,
-				  scan_steps,
+                                 scan_table.table,
+                                 scan_table.scan_steps,
 				  feedl,
-                                  scan_steps,
+                                 scan_table.scan_steps,
                                   &z1,
                                   &z2);
   if(scan_yres>600)
@@ -979,7 +967,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
 
   /* steps for STOP table */
     r = sanei_genesys_get_address(reg, REG_FMOVDEC);
-  r->value = fast_steps;
+    r->value = fast_table.scan_steps;
 
   /* Vref XXX STEF XXX : optical divider or step type ? */
   r = sanei_genesys_get_address (reg, 0x80);

@@ -1695,22 +1695,22 @@ const Motor_Profile& sanei_genesys_get_motor_profile(const std::vector<Motor_Pro
  * @param factor shrink factor for the slope
  * @param motor_profile motor profile
  */
-int sanei_genesys_slope_table(std::vector<uint16_t>& slope,
-                              int* steps, int dpi, int exposure, int base_dpi,
-                              int factor, const Motor_Profile& motor_profile)
+MotorSlopeTable sanei_genesys_slope_table(int dpi, int exposure, int base_dpi,
+                                          int factor, const Motor_Profile& motor_profile)
 {
+    MotorSlopeTable table;
 int sum, i;
 uint16_t target,current;
 
     unsigned step_shift = static_cast<unsigned>(motor_profile.step_type);
-    slope.clear();
+    table.table.clear();
 
 	/* required speed */
     target = ((exposure * dpi) / base_dpi) >> step_shift;
         DBG (DBG_io2, "%s: exposure=%d, dpi=%d, target=%d\n", __func__, exposure, dpi, target);
 
 	/* fill result with target speed */
-    slope.resize(SLOPE_TABLE_SIZE, target);
+    table.table.resize(SLOPE_TABLE_SIZE, target);
 
 	/* use profile to build table */
         i=0;
@@ -1721,8 +1721,8 @@ uint16_t target,current;
 
     // loop on profile copying and apply step type
     while (motor_profile.table[i] != 0 && current >= target) {
-        slope[i]=current;
-        sum+=slope[i];
+        table.table[i]=current;
+        sum += table.table[i];
         i++;
         current = motor_profile.table[i] >> step_shift;
     }
@@ -1730,8 +1730,8 @@ uint16_t target,current;
         /* ensure last step is required speed in case profile doesn't contain it */
         if(current!=0 && current<target)
           {
-            slope[i]=target;
-            sum+=slope[i];
+        table.table[i] = target;
+        sum += table.table[i];
             i++;
           }
 
@@ -1747,22 +1747,23 @@ uint16_t target,current;
         /* align on factor */
         while(i%factor!=0)
           {
-            slope[i+1]=slope[i];
-            sum+=slope[i];
+        table.table[i+1] = table.table[i];
+        sum += table.table[i];
             i++;
           }
 
         /* ensure minimal slope size */
         while(i<2*factor)
           {
-            slope[i+1]=slope[i];
-            sum+=slope[i];
+        table.table[i+1] = table.table[i];
+        sum += table.table[i];
             i++;
           }
 
-        // return used steps and taken time
-        *steps=i/factor;
-	return sum;
+    // return used steps and taken time
+    table.scan_steps = i / factor;
+    table.pixeltime_sum = sum;
+    return table;
 }
 
 /** @brief returns the lowest possible ydpi for the device

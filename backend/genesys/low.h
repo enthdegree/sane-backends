@@ -425,8 +425,8 @@ extern void sanei_genesys_asic_init(Genesys_Device* dev, bool cold);
 const Motor_Profile& sanei_genesys_get_motor_profile(const std::vector<Motor_Profile>& motors,
                                                      MotorId motor_id, int exposure);
 
-int sanei_genesys_slope_table(std::vector<uint16_t>& slope, int *steps, int dpi, int exposure,
-                              int base_dpi, int factor, const Motor_Profile& motor_profile);
+MotorSlopeTable sanei_genesys_slope_table(int dpi, int exposure, int base_dpi,
+                                          int factor, const Motor_Profile& motor_profile);
 
 /** @brief find lowest motor resolution for the device.
  * Parses the resolution list for motor and

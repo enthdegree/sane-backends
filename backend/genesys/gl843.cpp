@@ -817,9 +817,9 @@ void CommandSetGl843::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
 static void gl843_init_motor_regs_scan(Genesys_Device* dev,
                                        const Genesys_Sensor& sensor,
                                        Genesys_Register_Set* reg,
+                                       const Motor_Profile& motor_profile,
                                        unsigned int exposure,
                                        unsigned scan_yres,
-                                       StepType step_type,
                                        unsigned int scan_lines,
                                        unsigned int scan_dummy,
                                        unsigned int feed_steps,
@@ -827,7 +827,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
 {
     DBG_HELPER_ARGS(dbg, "exposure=%d, scan_yres=%d, step_type=%d, scan_lines=%d, scan_dummy=%d, "
                          "feed_steps=%d, flags=%x",
-                    exposure, scan_yres, static_cast<unsigned>(step_type), scan_lines, scan_dummy,
+                    exposure, scan_yres, static_cast<unsigned>(motor_profile.step_type), scan_lines, scan_dummy,
                     feed_steps, flags);
 
   int use_fast_fed, coeff;
@@ -881,10 +881,8 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
                             scan_yres,
                             exposure,
                             dev->motor.base_ydpi,
-                            step_type,
                             factor,
-                            dev->model->motor_id,
-                            gl843_motor_profiles);
+                              motor_profile);
     gl843_send_slope_table(dev, SCAN_TABLE, scan_table, scan_steps * factor);
     gl843_send_slope_table(dev, BACKTRACK_TABLE, scan_table, scan_steps * factor);
 
@@ -897,10 +895,14 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
   r->value = scan_steps;
 
   /* fast table */
+    // BUG: looks like for fast moves we use inconsistent step type
     StepType fast_step_type = StepType::FULL;
-    if (static_cast<unsigned>(step_type) <= static_cast<unsigned>(fast_step_type)) {
-        fast_step_type = step_type;
+    if (static_cast<unsigned>(motor_profile.step_type) <= static_cast<unsigned>(fast_step_type)) {
+        fast_step_type = motor_profile.step_type;
     }
+
+    Motor_Profile fast_motor_profile = motor_profile;
+    fast_motor_profile.step_type = fast_step_type;
 
     unsigned fast_yres = sanei_genesys_get_lowest_ydpi(dev);
     if (dev->model->model_id == ModelId::CANON_4400F) {
@@ -911,10 +913,8 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
                             fast_yres,
                             exposure,
                             dev->motor.base_ydpi,
-                            fast_step_type,
                             factor,
-                            dev->model->motor_id,
-                            gl843_motor_profiles);
+                              fast_motor_profile);
     gl843_send_slope_table(dev, STOP_TABLE, fast_table, fast_steps * factor);
     gl843_send_slope_table(dev, FAST_TABLE, fast_table, fast_steps * factor);
     gl843_send_slope_table(dev, HOME_TABLE, fast_table, fast_steps * factor);
@@ -929,7 +929,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
 
   /* substract acceleration distance from feedl */
   feedl=feed_steps;
-    feedl <<= static_cast<unsigned>(step_type);
+    feedl <<= static_cast<unsigned>(motor_profile.step_type);
 
   dist = scan_steps;
   if (use_fast_fed)
@@ -974,8 +974,8 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
   r->value &= 0xf0;		/* 0 dummy lines */
   r->value |= scan_dummy;	/* dummy lines */
 
-    reg->set8_mask(REG_0x67, static_cast<unsigned>(step_type) << REG_0x67S_STEPSEL, 0xc0);
-    reg->set8_mask(REG_0x68, static_cast<unsigned>(step_type) << REG_0x68S_FSTPSEL, 0xc0);
+    reg->set8_mask(REG_0x67, static_cast<unsigned>(motor_profile.step_type) << REG_0x67S_STEPSEL, 0xc0);
+    reg->set8_mask(REG_0x68, static_cast<unsigned>(motor_profile.step_type) << REG_0x68S_FSTPSEL, 0xc0);
 
   /* steps for STOP table */
     r = sanei_genesys_get_address(reg, REG_FMOVDEC);
@@ -1210,12 +1210,13 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
   if (exposure < 0) {
       throw std::runtime_error("Exposure not defined in sensor definition");
   }
-    StepType scan_step_type = sanei_genesys_compute_step_type(gl843_motor_profiles,
-                                                              dev->model->motor_id,
-                                                              exposure);
+    const Motor_Profile& motor_profile = *sanei_genesys_get_motor_profile(gl843_motor_profiles,
+                                                                          dev->model->motor_id,
+                                                                          exposure);
 
   DBG(DBG_info, "%s : exposure=%d pixels\n", __func__, exposure);
-    DBG(DBG_info, "%s : scan_step_type=%d\n", __func__, static_cast<unsigned>(scan_step_type));
+    DBG(DBG_info, "%s : scan_step_type=%d\n", __func__,
+        static_cast<unsigned>(motor_profile.step_type));
 
     // now _LOGICAL_ optical values used are known, setup registers
     gl843_init_optical_regs_scan(dev, sensor, reg, exposure, session);
@@ -1235,7 +1236,7 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     unsigned scan_lines = dev->model->is_cis ? session.output_line_count * session.params.channels
                                              : session.output_line_count;
 
-    gl843_init_motor_regs_scan(dev, sensor, reg, exposure, slope_dpi, scan_step_type,
+    gl843_init_motor_regs_scan(dev, sensor, reg, motor_profile, exposure, slope_dpi,
                                scan_lines, dummy, session.params.starty, mflags);
 
     dev->read_buffer.clear();

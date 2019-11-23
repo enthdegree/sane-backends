@@ -1688,22 +1688,6 @@ Motor_Profile* sanei_genesys_get_motor_profile(Motor_Profile *motors, MotorId mo
   return &(motors[idx]);
 }
 
-/**@brief compute motor step type to use
- * compute the step type (full, half, quarter, ...) to use based
- * on target resolution
- * @return 0 for full step
- *         1 for half step
- *         2 for quarter step
- *         3 for eighth step
- */
-StepType sanei_genesys_compute_step_type(Motor_Profile* motors, MotorId motor_id, int exposure)
-{
-Motor_Profile *profile;
-
-    profile = sanei_genesys_get_motor_profile(motors, motor_id, exposure);
-    return profile->step_type;
-}
-
 /** @brief generate slope table
  * Generate the slope table to use for the scan using a reference slope
  * table.
@@ -1712,20 +1696,17 @@ Motor_Profile *profile;
  * @param dpi   desired motor resolution
  * @param exposure exposure used
  * @param base_dpi base resolution of the motor
- * @param step_type step type used for scan
  * @param factor shrink factor for the slope
- * @param motor_type motor id
- * @param motors motor profile database
+ * @param motor_profile motor profile
  */
 int sanei_genesys_slope_table(std::vector<uint16_t>& slope,
-                              int* steps, int dpi, int exposure, int base_dpi, StepType step_type,
-                              int factor, MotorId motor_id, Motor_Profile* motors)
+                              int* steps, int dpi, int exposure, int base_dpi,
+                              int factor, const Motor_Profile& motor_profile)
 {
 int sum, i;
 uint16_t target,current;
-Motor_Profile *profile;
 
-    unsigned step_shift = static_cast<unsigned>(step_type);
+    unsigned step_shift = static_cast<unsigned>(motor_profile.step_type);
     slope.clear();
 
 	/* required speed */
@@ -1735,23 +1716,20 @@ Motor_Profile *profile;
 	/* fill result with target speed */
     slope.resize(SLOPE_TABLE_SIZE, target);
 
-        profile=sanei_genesys_get_motor_profile(motors, motor_id, exposure);
-
 	/* use profile to build table */
         i=0;
 	sum=0;
 
-        /* first step is always used unmodified */
-        current=profile->table[0];
+    // first step is always used unmodified
+    current = motor_profile.table[0];
 
-        /* loop on profile copying and apply step type */
-        while(profile->table[i]!=0 && current>=target)
-          {
-            slope[i]=current;
-            sum+=slope[i];
-            i++;
-        current = profile->table[i] >> step_shift;
-          }
+    // loop on profile copying and apply step type
+    while (motor_profile.table[i] != 0 && current >= target) {
+        slope[i]=current;
+        sum+=slope[i];
+        i++;
+        current = motor_profile.table[i] >> step_shift;
+    }
 
         /* ensure last step is required speed in case profile doesn't contain it */
         if(current!=0 && current<target)
@@ -1762,10 +1740,9 @@ Motor_Profile *profile;
           }
 
         /* range checking */
-        if(profile->table[i]==0 && DBG_LEVEL >= DBG_warn && current>target)
-          {
+    if (motor_profile.table[i] == 0 && DBG_LEVEL >= DBG_warn && current > target) {
             DBG (DBG_warn,"%s: short slope table, failed to reach %d. target too low ?\n",__func__,target);
-          }
+    }
         if(i<3 && DBG_LEVEL >= DBG_warn)
           {
             DBG (DBG_warn,"%s: short slope table, failed to reach %d. target too high ?\n",__func__,target);

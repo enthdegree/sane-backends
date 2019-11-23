@@ -371,9 +371,9 @@ void CommandSetGl846::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
 static void gl846_init_motor_regs_scan(Genesys_Device* dev,
                                        const Genesys_Sensor& sensor,
                                        Genesys_Register_Set* reg,
+                                       const Motor_Profile& motor_profile,
                                        unsigned int scan_exposure_time,
                                        unsigned scan_yres,
-                                       StepType step_type,
                                        unsigned int scan_lines,
                                        unsigned int scan_dummy,
                                        unsigned int feed_steps,
@@ -381,8 +381,8 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
 {
     DBG_HELPER_ARGS(dbg, "scan_exposure_time=%d, scan_yres=%d, step_type=%d, scan_lines=%d, "
                          "scan_dummy=%d, feed_steps=%d, flags=%x",
-                    scan_exposure_time, scan_yres, static_cast<unsigned>(step_type), scan_lines,
-                    scan_dummy, feed_steps, flags);
+                    scan_exposure_time, scan_yres, static_cast<unsigned>(motor_profile.step_type),
+                    scan_lines, scan_dummy, feed_steps, flags);
   int use_fast_fed;
   unsigned int fast_dpi;
     std::vector<uint16_t> scan_table;
@@ -435,30 +435,30 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
                             scan_yres,
                             scan_exposure_time,
                             dev->motor.base_ydpi,
-                            step_type,
                             factor,
-                            dev->model->motor_id,
-                            gl846_motor_profiles);
+                              motor_profile);
     gl846_send_slope_table(dev, SCAN_TABLE, scan_table, scan_steps * factor);
     gl846_send_slope_table(dev, BACKTRACK_TABLE, scan_table, scan_steps * factor);
 
   /* fast table */
   fast_dpi=sanei_genesys_get_lowest_ydpi(dev);
 
-    StepType fast_step_type = step_type;
-    if (static_cast<unsigned>(step_type) >= static_cast<unsigned>(StepType::QUARTER)) {
+    // BUG: looks like for fast moves we use inconsistent step type
+    StepType fast_step_type = motor_profile.step_type;
+    if (static_cast<unsigned>(motor_profile.step_type) >= static_cast<unsigned>(StepType::QUARTER)) {
         fast_step_type = StepType::QUARTER;
     }
+
+    Motor_Profile fast_motor_profile = motor_profile;
+    fast_motor_profile.step_type = fast_step_type;
 
   sanei_genesys_slope_table(fast_table,
                             &fast_steps,
                             fast_dpi,
                             scan_exposure_time,
                             dev->motor.base_ydpi,
-                            fast_step_type,
                             factor,
-                            dev->model->motor_id,
-                            gl846_motor_profiles);
+                              fast_motor_profile);
 
   /* manual override of high start value */
   fast_table[0]=fast_table[1];
@@ -482,7 +482,7 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
     }
   else
     {
-        feedl <<= static_cast<unsigned>(step_type);
+        feedl <<= static_cast<unsigned>(motor_profile.step_type);
       dist=scan_steps*factor;
       if (flags & MOTOR_FLAG_FEED)
         dist *=2;
@@ -513,9 +513,9 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
 
   /* if quarter step, bipolar Vref2 */
   /* XXX STEF XXX GPIO
-  if (step_type > 1)
+  if (motor_profile.step_type > 1)
     {
-      if (step_type < 3)
+      if (motor_profile.step_type < 3)
         {
             val = effective & ~REG_0x6C_GPIO13;
         }
@@ -568,10 +568,10 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
                                  &z2);
 
   DBG(DBG_info, "%s: z1 = %d\n", __func__, z1);
-    reg->set24(REG_0x60, z1 | (static_cast<unsigned>(step_type) << (16 + REG_0x60S_STEPSEL)));
+    reg->set24(REG_0x60, z1 | (static_cast<unsigned>(motor_profile.step_type) << (16 + REG_0x60S_STEPSEL)));
 
   DBG(DBG_info, "%s: z2 = %d\n", __func__, z2);
-    reg->set24(REG_0x63, z2 | (static_cast<unsigned>(step_type) << (16 + REG_0x63S_FSTPSEL)));
+    reg->set24(REG_0x63, z2 | (static_cast<unsigned>(motor_profile.step_type) << (16 + REG_0x63S_FSTPSEL)));
 
   r = sanei_genesys_get_address (reg, 0x1e);
   r->value &= 0xf0;		/* 0 dummy lines */
@@ -775,13 +775,13 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
 
     exposure_time = get_sensor_profile(dev->model->asic_type, sensor,
                                        session.params.xres, 1).exposure_lperiod;
-    StepType scan_step_type = sanei_genesys_compute_step_type(gl846_motor_profiles,
-                                                              dev->model->motor_id,
-                                                              exposure_time);
+    const Motor_Profile& motor_profile = *sanei_genesys_get_motor_profile(gl846_motor_profiles,
+                                                                          dev->model->motor_id,
+                                                                          exposure_time);
 
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
     DBG(DBG_info, "%s : scan_step_type=%d\n", __func__,
-        static_cast<unsigned>(scan_step_type));
+        static_cast<unsigned>(motor_profile.step_type));
 
   /* we enable true gray for cis scanners only, and just when doing
    * scan since color calibration is OK for this mode
@@ -802,7 +802,7 @@ static void gl846_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
         mflags |= MOTOR_FLAG_FEED;
     }
 
-    gl846_init_motor_regs_scan(dev, sensor, reg, exposure_time, slope_dpi, scan_step_type,
+    gl846_init_motor_regs_scan(dev, sensor, reg, motor_profile, exposure_time, slope_dpi,
                                dev->model->is_cis ? session.output_line_count * session.params.channels
                                                   : session.output_line_count,
                                dummy, move, mflags);

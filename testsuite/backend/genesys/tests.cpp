@@ -30,6 +30,7 @@ int main()
     genesys::test_calibration_parsing();
     genesys::test_image();
     genesys::test_image_pipeline();
+    genesys::test_motor();
     genesys::test_row_buffer();
     genesys::test_utilities();
     return finish_tests();

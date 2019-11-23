@@ -88,6 +88,7 @@
 #include "sensor.h"
 #include "serialize.h"
 #include "settings.h"
+#include "static_init.h"
 #include "register.h"
 
 #include <algorithm>
@@ -514,40 +515,6 @@ inline T clamp(const T& value, const T& lo, const T& hi)
 /*---------------------------------------------------------------------------*/
 /*                ASIC specific functions declarations                       */
 /*---------------------------------------------------------------------------*/
-
-void add_function_to_run_at_backend_exit(std::function<void()> function);
-
-// calls functions added via add_function_to_run_at_backend_exit() in reverse order of being
-// added.
-void run_functions_at_backend_exit();
-
-template<class T>
-class StaticInit {
-public:
-    StaticInit() = default;
-    StaticInit(const StaticInit&) = delete;
-    StaticInit& operator=(const StaticInit&) = delete;
-
-    template<class... Args>
-    void init(Args&& ... args)
-    {
-        ptr_ = std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-        add_function_to_run_at_backend_exit([this](){ deinit(); });
-    }
-
-    void deinit()
-    {
-        ptr_.reset();
-    }
-
-    const T* operator->() const { return ptr_.get(); }
-    T* operator->() { return ptr_.get(); }
-    const T& operator*() const { return *ptr_.get(); }
-    T& operator*() { return *ptr_.get(); }
-
-private:
-    std::unique_ptr<T> ptr_;
-};
 
 extern StaticInit<std::vector<Genesys_Sensor>> s_sensors;
 extern StaticInit<SensorProfile> s_fallback_sensor_profile_gl124;

@@ -1979,23 +1979,4 @@ void sanei_genesys_load_lut(unsigned char* lut,
     }
 }
 
-static std::unique_ptr<std::vector<std::function<void()>>> s_functions_run_at_backend_exit;
-
-void add_function_to_run_at_backend_exit(std::function<void()> function)
-{
-    if (!s_functions_run_at_backend_exit)
-        s_functions_run_at_backend_exit.reset(new std::vector<std::function<void()>>());
-    s_functions_run_at_backend_exit->push_back(std::move(function));
-}
-
-void run_functions_at_backend_exit()
-{
-    for (auto it = s_functions_run_at_backend_exit->rbegin();
-         it != s_functions_run_at_backend_exit->rend(); ++it)
-    {
-        (*it)();
-    }
-    s_functions_run_at_backend_exit.reset();
-}
-
 } // namespace genesys

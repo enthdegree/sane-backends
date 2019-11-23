@@ -438,7 +438,7 @@ SANE_Int sanei_genesys_create_slope_table3(const Genesys_Motor& motor,
                                            std::vector<uint16_t>& slope_table,
                                    int max_step,
 				   unsigned int use_steps,
-				   int step_type,
+                                           StepType step_type,
                                    int exposure_time,
                                            unsigned yres,
                                            unsigned int *used_steps,
@@ -451,17 +451,18 @@ SANE_Int sanei_genesys_create_slope_table3(const Genesys_Motor& motor,
   unsigned int vfinal;
 
     DBG(DBG_proc, "%s: step_type = %d, exposure_time = %d, yres = %d\n", __func__,
-        step_type, exposure_time, yres);
+        static_cast<unsigned>(step_type), exposure_time, yres);
 
   /* final speed */
     vtarget = (exposure_time * yres) / motor.base_ydpi;
 
-    vstart = motor.slopes[step_type].maximum_start_speed;
-    vend = motor.slopes[step_type].maximum_speed;
+    unsigned u_step_type = static_cast<unsigned>(step_type);
+    vstart = motor.get_slope(step_type).maximum_start_speed;
+    vend = motor.get_slope(step_type).maximum_speed;
 
-    vtarget = std::min(vtarget >> step_type, 65535u);
-    vstart = std::min(vstart >> step_type, 65535u);
-    vend = std::min(vend >> step_type, 65535u);
+    vtarget = std::min(vtarget >> u_step_type, 65535u);
+    vstart = std::min(vstart >> u_step_type, 65535u);
+    vend = std::min(vend >> u_step_type, 65535u);
 
   sum_time = sanei_genesys_generate_slope_table (slope_table,
                                                  max_step,
@@ -469,8 +470,8 @@ SANE_Int sanei_genesys_create_slope_table3(const Genesys_Motor& motor,
 						 vtarget,
 						 vstart,
 						 vend,
-                                                 motor.slopes[step_type].minimum_steps << step_type,
-                                                 motor.slopes[step_type].g,
+                                                 motor.get_slope(step_type).minimum_steps << u_step_type,
+                                                 motor.get_slope(step_type).g,
                                                  used_steps,
 						 &vfinal);
 
@@ -551,12 +552,11 @@ void sanei_genesys_create_default_gamma_table(Genesys_Device* dev,
     Note: The enhance option of the scanners does _not_ help. It only halves
           the amount of pixels transfered.
  */
-SANE_Int
-sanei_genesys_exposure_time2 (Genesys_Device * dev, float ydpi,
-                              int step_type, int endpixel, int exposure_by_led)
+SANE_Int sanei_genesys_exposure_time2(Genesys_Device * dev, float ydpi,
+                                      StepType step_type, int endpixel, int exposure_by_led)
 {
   int exposure_by_ccd = endpixel + 32;
-    int exposure_by_motor = static_cast<int>((dev->motor.slopes[step_type].maximum_speed *
+    int exposure_by_motor = static_cast<int>((dev->motor.get_slope(step_type).maximum_speed *
                                               dev->motor.base_ydpi) / ydpi);
 
   int exposure = exposure_by_ccd;
@@ -568,7 +568,8 @@ sanei_genesys_exposure_time2 (Genesys_Device * dev, float ydpi,
     exposure = exposure_by_led;
 
     DBG(DBG_info, "%s: ydpi=%d, step=%d, endpixel=%d led=%d => exposure=%d\n", __func__,
-        static_cast<int>(ydpi), step_type, endpixel, exposure_by_led, exposure);
+        static_cast<int>(ydpi), static_cast<unsigned>(step_type), endpixel,
+        exposure_by_led, exposure);
   return exposure;
 }
 

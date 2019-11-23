@@ -97,10 +97,26 @@ struct Genesys_Motor
     int base_ydpi = 0;
     // maximum resolution in y-direction. Unit: 1/inch
     int optical_ydpi = 0;
-    // maximum step type. 0-2
-    int max_step_type = 0;
     // slopes to derive individual slopes from
     std::vector<Genesys_Motor_Slope> slopes;
+
+    Genesys_Motor_Slope& get_slope(StepType step_type)
+    {
+        return slopes[static_cast<unsigned>(step_type)];
+    }
+
+    const Genesys_Motor_Slope& get_slope(StepType step_type) const
+    {
+        return slopes[static_cast<unsigned>(step_type)];
+    }
+
+    StepType max_step_type() const
+    {
+        if (slopes.empty()) {
+            throw std::runtime_error("Slopes table is empty");
+        }
+        return static_cast<StepType>(slopes.size() - 1);
+    }
 };
 
 std::ostream& operator<<(std::ostream& out, const Genesys_Motor& motor);

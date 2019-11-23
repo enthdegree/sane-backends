@@ -108,4 +108,17 @@ std::ostream& operator<<(std::ostream& out, ColorFilter mode)
     return out;
 }
 
+std::ostream& operator<<(std::ostream& out, StepType type)
+{
+    switch (type) {
+        case StepType::FULL: out << "1/1"; break;
+        case StepType::HALF: out << "1/2"; break;
+        case StepType::QUARTER: out << "1/4"; break;
+        case StepType::EIGHTH: out << "1/8"; break;
+        default: out << static_cast<unsigned>(type); break;
+    }
+    return out;
+}
+
+
 } // namespace genesys

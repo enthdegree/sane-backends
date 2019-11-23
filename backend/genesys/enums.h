@@ -379,6 +379,25 @@ enum class StepType : unsigned
     EIGHTH = 3,
 };
 
+std::ostream& operator<<(std::ostream& out, StepType type);
+
+inline bool operator<(StepType lhs, StepType rhs)
+{
+    return static_cast<unsigned>(lhs) < static_cast<unsigned>(rhs);
+}
+inline bool operator<=(StepType lhs, StepType rhs)
+{
+    return static_cast<unsigned>(lhs) <= static_cast<unsigned>(rhs);
+}
+inline bool operator>(StepType lhs, StepType rhs)
+{
+    return static_cast<unsigned>(lhs) > static_cast<unsigned>(rhs);
+}
+inline bool operator>=(StepType lhs, StepType rhs)
+{
+    return static_cast<unsigned>(lhs) >= static_cast<unsigned>(rhs);
+}
+
 enum class AsicType : unsigned
 {
     UNKNOWN = 0,

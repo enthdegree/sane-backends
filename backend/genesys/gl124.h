@@ -47,9 +47,8 @@
 #include "genesys.h"
 #include "command_set.h"
 
-#define SETREG(adr,val) { dev->reg.init_reg(adr, val); }
-
 namespace genesys {
+namespace gl124 {
 
 typedef struct
 {
@@ -109,10 +108,6 @@ static Memory_layout layouts[]={
 		0x01, 0x24, 0x08, 0x91, 0x08, 0x92, 0x0f, 0xff
 	}
 };
-
-
-#define MOVE_DPI 200
-#define MOVE_EXPOSURE 2304
 
 static void gl124_start_action(Genesys_Device* dev);
 
@@ -197,6 +192,16 @@ public:
     void asic_boot(Genesys_Device* dev, bool cold) const override;
 };
 
+enum SlopeTable
+{
+    SCAN_TABLE = 0, // table 1 at 0x4000
+    BACKTRACK_TABLE = 1, // table 2 at 0x4800
+    STOP_TABLE = 2, // table 3 at 0x5000
+    FAST_TABLE = 3, // table 4 at 0x5800
+    HOME_TABLE = 4, // table 5 at 0x6000
+};
+
+} // namespace gl124
 } // namespace genesys
 
 #endif // BACKEND_GENESYS_GL124_H

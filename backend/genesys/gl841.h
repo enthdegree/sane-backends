@@ -47,9 +47,8 @@
 #ifndef BACKEND_GENESYS_GL841_H
 #define BACKEND_GENESYS_GL841_H
 
-#define INITREG(adr,val) {dev->reg.init_reg(adr, val); }
-
 namespace genesys {
+namespace gl841 {
 
 /**
  * prototypes declaration in case of unit testing
@@ -138,6 +137,7 @@ public:
     void asic_boot(Genesys_Device* dev, bool cold) const override;
 };
 
+} // namespace gl841
 } // namespace genesys
 
 #endif // BACKEND_GENESYS_GL841_H

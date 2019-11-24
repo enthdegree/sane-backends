@@ -52,6 +52,7 @@
 #include <vector>
 
 namespace genesys {
+namespace gl843 {
 
 // Set address for writing data
 static void gl843_set_buffer_address(Genesys_Device* dev, uint32_t addr)
@@ -137,110 +138,110 @@ gl843_init_registers (Genesys_Device * dev)
 
     DBG_HELPER(dbg);
 
-  dev->reg.clear();
+    dev->reg.clear();
 
-  SETREG(0x01, 0x00);
-  SETREG (0x02, 0x78);
-  SETREG (0x03, 0x1f);
+    dev->reg.init_reg(0x01, 0x00);
+    dev->reg.init_reg(0x02, 0x78);
+    dev->reg.init_reg(0x03, 0x1f);
     if (dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
         dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
         dev->model->model_id == ModelId::HP_SCANJET_4850C)
     {
-        SETREG(0x03, 0x1d);
+        dev->reg.init_reg(0x03, 0x1d);
     }
     if (dev->model->model_id == ModelId::CANON_8400F) {
-        SETREG(0x03, 0x1c);
+        dev->reg.init_reg(0x03, 0x1c);
     }
 
-    SETREG(0x04, 0x10);
+    dev->reg.init_reg(0x04, 0x10);
     if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I ||
         dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
         dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I)
     {
-        SETREG(0x04, 0x22);
+        dev->reg.init_reg(0x04, 0x22);
     }
 
-  // fine tune upon device description
-  SETREG (0x05, 0x80);
+    // fine tune upon device description
+    dev->reg.init_reg(0x05, 0x80);
     if (dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
         dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
         dev->model->model_id == ModelId::HP_SCANJET_4850C)
     {
-      SETREG (0x05, 0x08);
+      dev->reg.init_reg(0x05, 0x08);
     }
 
     const auto& sensor = sanei_genesys_find_sensor_any(dev);
     sanei_genesys_set_dpihw(dev->reg, sensor, sensor.optical_res);
 
-  // TODO: on 8600F the windows driver turns off GAIN4 which is recommended
-  SETREG (0x06, 0xd8); /* SCANMOD=110, PWRBIT and GAIN4 */
+    // TODO: on 8600F the windows driver turns off GAIN4 which is recommended
+    dev->reg.init_reg(0x06, 0xd8); /* SCANMOD=110, PWRBIT and GAIN4 */
     if (dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
         dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
         dev->model->model_id == ModelId::HP_SCANJET_4850C)
     {
-        SETREG(0x06, 0xd8); /* SCANMOD=110, PWRBIT and GAIN4 */
+        dev->reg.init_reg(0x06, 0xd8); /* SCANMOD=110, PWRBIT and GAIN4 */
     }
     if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I) {
-        SETREG(0x06, 0xd0);
+        dev->reg.init_reg(0x06, 0xd0);
     }
     if (dev->model->model_id == ModelId::CANON_4400F ||
         dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
         dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I)
     {
-        SETREG(0x06, 0xf0); /* SCANMOD=111, PWRBIT and no GAIN4 */
+        dev->reg.init_reg(0x06, 0xf0); /* SCANMOD=111, PWRBIT and no GAIN4 */
     }
 
-  SETREG (0x08, 0x00);
-  SETREG (0x09, 0x00);
-  SETREG (0x0a, 0x00);
+  dev->reg.init_reg(0x08, 0x00);
+  dev->reg.init_reg(0x09, 0x00);
+  dev->reg.init_reg(0x0a, 0x00);
     if (dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
         dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
         dev->model->model_id == ModelId::HP_SCANJET_4850C)
     {
-        SETREG(0x0a, 0x18);
+        dev->reg.init_reg(0x0a, 0x18);
     }
     if (dev->model->model_id == ModelId::CANON_8400F) {
-        SETREG(0x0a, 0x10);
+        dev->reg.init_reg(0x0a, 0x10);
     }
 
-  // This register controls clock and RAM settings and is further modified in
-  // gl843_boot
-  SETREG (0x0b, 0x6a);
+    // This register controls clock and RAM settings and is further modified in
+    // gl843_boot
+    dev->reg.init_reg(0x0b, 0x6a);
 
     if (dev->model->model_id == ModelId::CANON_4400F) {
-        SETREG(0x0b, 0x69); // 16M only
+        dev->reg.init_reg(0x0b, 0x69); // 16M only
     }
     if (dev->model->model_id == ModelId::CANON_8600F) {
-        SETREG(0x0b, 0x89);
+        dev->reg.init_reg(0x0b, 0x89);
     }
     if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I) {
-        SETREG(0x0b, 0x2a);
+        dev->reg.init_reg(0x0b, 0x2a);
     }
     if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
         dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I) {
-        SETREG(0x0b, 0x4a);
+        dev->reg.init_reg(0x0b, 0x4a);
     }
     if (dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
         dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
         dev->model->model_id == ModelId::HP_SCANJET_4850C)
     {
-        SETREG(0x0b, 0x69);
+        dev->reg.init_reg(0x0b, 0x69);
     }
 
     if (dev->model->model_id != ModelId::CANON_8400F &&
         dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7200I &&
         dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7300)
     {
-        SETREG (0x0c, 0x00);
+        dev->reg.init_reg(0x0c, 0x00);
     }
 
-  // EXPR[0:15], EXPG[0:15], EXPB[0:15]: Exposure time settings.
-  SETREG(0x10, 0x00); // SENSOR_DEF
-  SETREG(0x11, 0x00); // SENSOR_DEF
-  SETREG(0x12, 0x00); // SENSOR_DEF
-  SETREG(0x13, 0x00); // SENSOR_DEF
-  SETREG(0x14, 0x00); // SENSOR_DEF
-  SETREG(0x15, 0x00); // SENSOR_DEF
+    // EXPR[0:15], EXPG[0:15], EXPB[0:15]: Exposure time settings.
+    dev->reg.init_reg(0x10, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x11, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x12, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x13, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x14, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x15, 0x00); // SENSOR_DEF
     if (dev->model->model_id == ModelId::CANON_4400F ||
         dev->model->model_id == ModelId::CANON_8600F)
     {
@@ -257,317 +258,314 @@ gl843_init_registers (Genesys_Device * dev)
         dev->reg.set16(REG_EXPB, 0x10f0);
     }
 
-  // CCD signal settings.
-  SETREG(0x16, 0x33); // SENSOR_DEF
-  SETREG(0x17, 0x1c); // SENSOR_DEF
-  SETREG(0x18, 0x10); // SENSOR_DEF
+    // CCD signal settings.
+    dev->reg.init_reg(0x16, 0x33); // SENSOR_DEF
+    dev->reg.init_reg(0x17, 0x1c); // SENSOR_DEF
+    dev->reg.init_reg(0x18, 0x10); // SENSOR_DEF
 
-  // EXPDMY[0:7]: Exposure time of dummy lines.
-  SETREG(0x19, 0x2a); // SENSOR_DEF
+    // EXPDMY[0:7]: Exposure time of dummy lines.
+    dev->reg.init_reg(0x19, 0x2a); // SENSOR_DEF
 
-  // Various CCD clock settings.
-  SETREG(0x1a, 0x04); // SENSOR_DEF
-  SETREG(0x1b, 0x00); // SENSOR_DEF
-  SETREG(0x1c, 0x20); // SENSOR_DEF
-  SETREG(0x1d, 0x04); // SENSOR_DEF
+    // Various CCD clock settings.
+    dev->reg.init_reg(0x1a, 0x04); // SENSOR_DEF
+    dev->reg.init_reg(0x1b, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x1c, 0x20); // SENSOR_DEF
+    dev->reg.init_reg(0x1d, 0x04); // SENSOR_DEF
 
-    SETREG(0x1e, 0x10);
+    dev->reg.init_reg(0x1e, 0x10);
     if (dev->model->model_id == ModelId::CANON_4400F ||
         dev->model->model_id == ModelId::CANON_8600F)
     {
-        SETREG(0x1e, 0x20);
+        dev->reg.init_reg(0x1e, 0x20);
     }
     if (dev->model->model_id == ModelId::CANON_8400F) {
-        SETREG(0x1e, 0xa0);
+        dev->reg.init_reg(0x1e, 0xa0);
     }
 
-  SETREG (0x1f, 0x01);
+    dev->reg.init_reg(0x1f, 0x01);
     if (dev->model->model_id == ModelId::CANON_8600F) {
-      SETREG(0x1f, 0xff);
+      dev->reg.init_reg(0x1f, 0xff);
     }
 
-  SETREG (0x20, 0x10);
-  SETREG (0x21, 0x04);
+    dev->reg.init_reg(0x20, 0x10);
+    dev->reg.init_reg(0x21, 0x04);
 
-    SETREG(0x22, 0x01);
-    SETREG(0x23, 0x01);
-    if (dev->model->model_id == ModelId::CANON_4400F)
-    {
-        SETREG(0x22, 0x64);
-        SETREG(0x23, 0x64);
+    dev->reg.init_reg(0x22, 0x01);
+    dev->reg.init_reg(0x23, 0x01);
+    if (dev->model->model_id == ModelId::CANON_4400F) {
+        dev->reg.init_reg(0x22, 0x64);
+        dev->reg.init_reg(0x23, 0x64);
     }
-    if (dev->model->model_id == ModelId::CANON_8600F)
-    {
-        SETREG(0x22, 0xc8);
-        SETREG(0x23, 0xc8);
+    if (dev->model->model_id == ModelId::CANON_8600F) {
+        dev->reg.init_reg(0x22, 0xc8);
+        dev->reg.init_reg(0x23, 0xc8);
     }
     if (dev->model->model_id == ModelId::CANON_8400F) {
-        SETREG(0x22, 0x50);
-        SETREG(0x23, 0x50);
+        dev->reg.init_reg(0x22, 0x50);
+        dev->reg.init_reg(0x23, 0x50);
     }
 
-  SETREG (0x24, 0x04);
-  SETREG (0x25, 0x00);
-  SETREG (0x26, 0x00);
-  SETREG (0x27, 0x00);
-  SETREG (0x2c, 0x02);
-  SETREG (0x2d, 0x58);
-  // BWHI[0:7]: high level of black and white threshold
-  SETREG (0x2e, 0x80);
-  // BWLOW[0:7]: low level of black and white threshold
-  SETREG (0x2f, 0x80);
-  SETREG (0x30, 0x00);
-  SETREG (0x31, 0x14);
-  SETREG (0x32, 0x27);
-  SETREG (0x33, 0xec);
+    dev->reg.init_reg(0x24, 0x04);
+    dev->reg.init_reg(0x25, 0x00);
+    dev->reg.init_reg(0x26, 0x00);
+    dev->reg.init_reg(0x27, 0x00);
+    dev->reg.init_reg(0x2c, 0x02);
+    dev->reg.init_reg(0x2d, 0x58);
+    // BWHI[0:7]: high level of black and white threshold
+    dev->reg.init_reg(0x2e, 0x80);
+    // BWLOW[0:7]: low level of black and white threshold
+    dev->reg.init_reg(0x2f, 0x80);
+    dev->reg.init_reg(0x30, 0x00);
+    dev->reg.init_reg(0x31, 0x14);
+    dev->reg.init_reg(0x32, 0x27);
+    dev->reg.init_reg(0x33, 0xec);
 
-  // DUMMY: CCD dummy and optically black pixel count
-  SETREG (0x34, 0x24);
-    if (dev->model->model_id == ModelId::CANON_8600F)
-    {
-      SETREG(0x34, 0x14);
+    // DUMMY: CCD dummy and optically black pixel count
+    dev->reg.init_reg(0x34, 0x24);
+    if (dev->model->model_id == ModelId::CANON_8600F) {
+        dev->reg.init_reg(0x34, 0x14);
     }
     if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
         dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I)
     {
-        SETREG(0x34, 0x3c);
+        dev->reg.init_reg(0x34, 0x3c);
     }
 
-  // MAXWD: If available buffer size is less than 2*MAXWD words, then
-  // "buffer full" state will be set.
-  SETREG (0x35, 0x00);
-  SETREG (0x36, 0xff);
-  SETREG (0x37, 0xff);
+    // MAXWD: If available buffer size is less than 2*MAXWD words, then
+    // "buffer full" state will be set.
+    dev->reg.init_reg(0x35, 0x00);
+    dev->reg.init_reg(0x36, 0xff);
+    dev->reg.init_reg(0x37, 0xff);
 
-  // LPERIOD: Line period or exposure time for CCD or CIS.
-  SETREG(0x38, 0x55); // SENSOR_DEF
-  SETREG(0x39, 0xf0); // SENSOR_DEF
+    // LPERIOD: Line period or exposure time for CCD or CIS.
+    dev->reg.init_reg(0x38, 0x55); // SENSOR_DEF
+    dev->reg.init_reg(0x39, 0xf0); // SENSOR_DEF
 
-  // FEEDL[0:24]: The number of steps of motor movement.
-  SETREG(0x3d, 0x00);
-  SETREG (0x3e, 0x00);
-  SETREG (0x3f, 0x01);
+    // FEEDL[0:24]: The number of steps of motor movement.
+    dev->reg.init_reg(0x3d, 0x00);
+    dev->reg.init_reg(0x3e, 0x00);
+    dev->reg.init_reg(0x3f, 0x01);
 
-  // Latch points for high and low bytes of R, G and B channels of AFE. If
-  // multiple clocks per pixel are consumed, then the setting defines during
-  // which clock the corresponding value will be read.
-  // RHI[0:4]: The latch point for high byte of R channel.
-  // RLOW[0:4]: The latch point for low byte of R channel.
-  // GHI[0:4]: The latch point for high byte of G channel.
-  // GLOW[0:4]: The latch point for low byte of G channel.
-  // BHI[0:4]: The latch point for high byte of B channel.
-  // BLOW[0:4]: The latch point for low byte of B channel.
-  SETREG(0x52, 0x01); // SENSOR_DEF
-  SETREG(0x53, 0x04); // SENSOR_DEF
-  SETREG(0x54, 0x07); // SENSOR_DEF
-  SETREG(0x55, 0x0a); // SENSOR_DEF
-  SETREG(0x56, 0x0d); // SENSOR_DEF
-  SETREG(0x57, 0x10); // SENSOR_DEF
+    // Latch points for high and low bytes of R, G and B channels of AFE. If
+    // multiple clocks per pixel are consumed, then the setting defines during
+    // which clock the corresponding value will be read.
+    // RHI[0:4]: The latch point for high byte of R channel.
+    // RLOW[0:4]: The latch point for low byte of R channel.
+    // GHI[0:4]: The latch point for high byte of G channel.
+    // GLOW[0:4]: The latch point for low byte of G channel.
+    // BHI[0:4]: The latch point for high byte of B channel.
+    // BLOW[0:4]: The latch point for low byte of B channel.
+    dev->reg.init_reg(0x52, 0x01); // SENSOR_DEF
+    dev->reg.init_reg(0x53, 0x04); // SENSOR_DEF
+    dev->reg.init_reg(0x54, 0x07); // SENSOR_DEF
+    dev->reg.init_reg(0x55, 0x0a); // SENSOR_DEF
+    dev->reg.init_reg(0x56, 0x0d); // SENSOR_DEF
+    dev->reg.init_reg(0x57, 0x10); // SENSOR_DEF
 
-  // VSMP[0:4]: The position of the image sampling pulse for AFE in cycles.
-  // VSMPW[0:2]: The length of the image sampling pulse for AFE in cycles.
-  SETREG(0x58, 0x1b); // SENSOR_DEF
+    // VSMP[0:4]: The position of the image sampling pulse for AFE in cycles.
+    // VSMPW[0:2]: The length of the image sampling pulse for AFE in cycles.
+    dev->reg.init_reg(0x58, 0x1b); // SENSOR_DEF
 
-  SETREG(0x59, 0x00); // SENSOR_DEF
-  SETREG(0x5a, 0x40); // SENSOR_DEF
+    dev->reg.init_reg(0x59, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x5a, 0x40); // SENSOR_DEF
 
-  // 0x5b-0x5c: GMMADDR[0:15] address for gamma or motor tables download
-  // SENSOR_DEF
+    // 0x5b-0x5c: GMMADDR[0:15] address for gamma or motor tables download
+    // SENSOR_DEF
 
     // DECSEL[0:2]: The number of deceleration steps after touching home sensor
     // STOPTIM[0:4]: The stop duration between change of directions in
     // backtracking
-    SETREG(0x5e, 0x23);
+    dev->reg.init_reg(0x5e, 0x23);
     if (dev->model->model_id == ModelId::CANON_4400F) {
-        SETREG(0x5e, 0x3f);
+        dev->reg.init_reg(0x5e, 0x3f);
     }
     if (dev->model->model_id == ModelId::CANON_8400F) {
-        SETREG(0x5e, 0x85);
+        dev->reg.init_reg(0x5e, 0x85);
     }
     if (dev->model->model_id == ModelId::CANON_8600F) {
-        SETREG(0x5e, 0x1f);
+        dev->reg.init_reg(0x5e, 0x1f);
     }
     if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
         dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I)
     {
-        SETREG(0x5e, 0x01);
+        dev->reg.init_reg(0x5e, 0x01);
     }
 
     //FMOVDEC: The number of deceleration steps in table 5 for auto-go-home
-    SETREG(0x5f, 0x01);
+    dev->reg.init_reg(0x5f, 0x01);
     if (dev->model->model_id == ModelId::CANON_4400F) {
-        SETREG(0x5f, 0xf0);
+        dev->reg.init_reg(0x5f, 0xf0);
     }
     if (dev->model->model_id == ModelId::CANON_8600F) {
-        SETREG(0x5f, 0xf0);
+        dev->reg.init_reg(0x5f, 0xf0);
     }
     if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
         dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I)
     {
-        SETREG(0x5f, 0x01);
+        dev->reg.init_reg(0x5f, 0x01);
     }
 
-  // Z1MOD[0:20]
-  SETREG (0x60, 0x00);
-  SETREG (0x61, 0x00);
-  SETREG (0x62, 0x00);
+    // Z1MOD[0:20]
+    dev->reg.init_reg(0x60, 0x00);
+    dev->reg.init_reg(0x61, 0x00);
+    dev->reg.init_reg(0x62, 0x00);
 
-  // Z2MOD[0:20]
-  SETREG (0x63, 0x00);
-  SETREG (0x64, 0x00);
-  SETREG (0x65, 0x00);
+    // Z2MOD[0:20]
+    dev->reg.init_reg(0x63, 0x00);
+    dev->reg.init_reg(0x64, 0x00);
+    dev->reg.init_reg(0x65, 0x00);
 
-  // STEPSEL[0:1]. Motor movement step mode selection for tables 1-3 in
-  // scanning mode.
-  // MTRPWM[0:5]. Motor phase PWM duty cycle setting for tables 1-3
-  SETREG (0x67, 0x7f);
-  // FSTPSEL[0:1]: Motor movement step mode selection for tables 4-5 in
-  // command mode.
-  // FASTPWM[5:0]: Motor phase PWM duty cycle setting for tables 4-5
-  SETREG (0x68, 0x7f);
+    // STEPSEL[0:1]. Motor movement step mode selection for tables 1-3 in
+    // scanning mode.
+    // MTRPWM[0:5]. Motor phase PWM duty cycle setting for tables 1-3
+    dev->reg.init_reg(0x67, 0x7f);
+    // FSTPSEL[0:1]: Motor movement step mode selection for tables 4-5 in
+    // command mode.
+    // FASTPWM[5:0]: Motor phase PWM duty cycle setting for tables 4-5
+    dev->reg.init_reg(0x68, 0x7f);
 
     if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300) {
-        SETREG(0x67, 0x80);
-        SETREG(0x68, 0x80);
+        dev->reg.init_reg(0x67, 0x80);
+        dev->reg.init_reg(0x68, 0x80);
     }
 
-  // FSHDEC[0:7]: The number of deceleration steps after scanning is finished
-  // (table 3)
-  SETREG (0x69, 0x01);
+    // FSHDEC[0:7]: The number of deceleration steps after scanning is finished
+    // (table 3)
+    dev->reg.init_reg(0x69, 0x01);
     if (dev->model->model_id == ModelId::CANON_8600F) {
-      SETREG(0x69, 64);
+        dev->reg.init_reg(0x69, 64);
     }
 
-  // FMOVNO[0:7] The number of acceleration or deceleration steps for fast
-  // moving (table 4)
-  SETREG (0x6a, 0x04);
+    // FMOVNO[0:7] The number of acceleration or deceleration steps for fast
+    // moving (table 4)
+    dev->reg.init_reg(0x6a, 0x04);
     if (dev->model->model_id == ModelId::CANON_8600F) {
-      SETREG(0x69, 64);
+        dev->reg.init_reg(0x69, 64);
     }
 
     // GPIO-related register bits
-    SETREG(0x6b, 0x30);
+    dev->reg.init_reg(0x6b, 0x30);
     if (dev->model->model_id == ModelId::CANON_4400F ||
         dev->model->model_id == ModelId::CANON_8600F)
     {
-        SETREG(0x6b, 0x72);
+        dev->reg.init_reg(0x6b, 0x72);
     }
     if (dev->model->model_id == ModelId::CANON_8400F) {
-        SETREG(0x6b, 0xb1);
+        dev->reg.init_reg(0x6b, 0xb1);
     }
     if (dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
         dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
         dev->model->model_id == ModelId::HP_SCANJET_4850C)
     {
-        SETREG(0x6b, 0xf4);
+        dev->reg.init_reg(0x6b, 0xf4);
     }
     if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I ||
         dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
         dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I)
     {
-        SETREG(0x6b, 0x31);
+        dev->reg.init_reg(0x6b, 0x31);
     }
 
-  // 0x6c, 0x6d, 0x6e, 0x6f are set according to gpio tables. See
-  // gl843_init_gpio.
+    // 0x6c, 0x6d, 0x6e, 0x6f are set according to gpio tables. See
+    // gl843_init_gpio.
 
     // RSH[0:4]: The position of rising edge of CCD RS signal in cycles
     // RSL[0:4]: The position of falling edge of CCD RS signal in cycles
     // CPH[0:4]: The position of rising edge of CCD CP signal in cycles.
     // CPL[0:4]: The position of falling edge of CCD CP signal in cycles
-    SETREG(0x70, 0x01); // SENSOR_DEF
-    SETREG(0x71, 0x03); // SENSOR_DEF
-    SETREG(0x72, 0x04); // SENSOR_DEF
-    SETREG(0x73, 0x05); // SENSOR_DEF
+    dev->reg.init_reg(0x70, 0x01); // SENSOR_DEF
+    dev->reg.init_reg(0x71, 0x03); // SENSOR_DEF
+    dev->reg.init_reg(0x72, 0x04); // SENSOR_DEF
+    dev->reg.init_reg(0x73, 0x05); // SENSOR_DEF
 
     if (dev->model->model_id == ModelId::CANON_4400F) {
-        SETREG(0x70, 0x01);
-        SETREG(0x71, 0x03);
-        SETREG(0x72, 0x01);
-        SETREG(0x73, 0x03);
+        dev->reg.init_reg(0x70, 0x01);
+        dev->reg.init_reg(0x71, 0x03);
+        dev->reg.init_reg(0x72, 0x01);
+        dev->reg.init_reg(0x73, 0x03);
     }
     if (dev->model->model_id == ModelId::CANON_8400F) {
-        SETREG(0x70, 0x01);
-        SETREG(0x71, 0x03);
-        SETREG(0x72, 0x03);
-        SETREG(0x73, 0x04);
+        dev->reg.init_reg(0x70, 0x01);
+        dev->reg.init_reg(0x71, 0x03);
+        dev->reg.init_reg(0x72, 0x03);
+        dev->reg.init_reg(0x73, 0x04);
     }
     if (dev->model->model_id == ModelId::CANON_8600F) {
-        SETREG(0x70, 0x00);
-        SETREG(0x71, 0x02);
-        SETREG(0x72, 0x02);
-        SETREG(0x73, 0x04);
+        dev->reg.init_reg(0x70, 0x00);
+        dev->reg.init_reg(0x71, 0x02);
+        dev->reg.init_reg(0x72, 0x02);
+        dev->reg.init_reg(0x73, 0x04);
     }
     if (dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
         dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
         dev->model->model_id == ModelId::HP_SCANJET_4850C)
     {
-        SETREG(0x70, 0x00);
-        SETREG(0x71, 0x02);
-        SETREG(0x72, 0x00);
-        SETREG(0x73, 0x00);
+        dev->reg.init_reg(0x70, 0x00);
+        dev->reg.init_reg(0x71, 0x02);
+        dev->reg.init_reg(0x72, 0x00);
+        dev->reg.init_reg(0x73, 0x00);
     }
 
-  // CK1MAP[0:17], CK3MAP[0:17], CK4MAP[0:17]: CCD clock bit mapping setting.
-  SETREG(0x74, 0x00); // SENSOR_DEF
-  SETREG(0x75, 0x00); // SENSOR_DEF
-  SETREG(0x76, 0x3c); // SENSOR_DEF
-  SETREG(0x77, 0x00); // SENSOR_DEF
-  SETREG(0x78, 0x00); // SENSOR_DEF
-  SETREG(0x79, 0x9f); // SENSOR_DEF
-  SETREG(0x7a, 0x00); // SENSOR_DEF
-  SETREG(0x7b, 0x00); // SENSOR_DEF
-  SETREG(0x7c, 0x55); // SENSOR_DEF
+    // CK1MAP[0:17], CK3MAP[0:17], CK4MAP[0:17]: CCD clock bit mapping setting.
+    dev->reg.init_reg(0x74, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x75, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x76, 0x3c); // SENSOR_DEF
+    dev->reg.init_reg(0x77, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x78, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x79, 0x9f); // SENSOR_DEF
+    dev->reg.init_reg(0x7a, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x7b, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x7c, 0x55); // SENSOR_DEF
 
     // various AFE settings
-    SETREG(0x7d, 0x00);
+    dev->reg.init_reg(0x7d, 0x00);
     if (dev->model->model_id == ModelId::CANON_8400F) {
-        SETREG(0x7d, 0x20);
+        dev->reg.init_reg(0x7d, 0x20);
     }
 
-  // GPOLED[x]: LED vs GPIO settings
-  SETREG(0x7e, 0x00);
+    // GPOLED[x]: LED vs GPIO settings
+    dev->reg.init_reg(0x7e, 0x00);
 
-  // BSMPDLY, VSMPDLY
-  // LEDCNT[0:1]: Controls led blinking and its period
-  SETREG (0x7f, 0x00);
+    // BSMPDLY, VSMPDLY
+    // LEDCNT[0:1]: Controls led blinking and its period
+    dev->reg.init_reg(0x7f, 0x00);
 
     // VRHOME, VRMOVE, VRBACK, VRSCAN: Vref settings of the motor driver IC for
     // moving in various situations.
-    SETREG(0x80, 0x00);
+    dev->reg.init_reg(0x80, 0x00);
     if (dev->model->model_id == ModelId::CANON_4400F) {
-        SETREG(0x80, 0x0c);
+        dev->reg.init_reg(0x80, 0x0c);
     }
     if (dev->model->model_id == ModelId::CANON_8400F) {
-        SETREG(0x80, 0x28);
+        dev->reg.init_reg(0x80, 0x28);
     }
     if (dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
         dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
         dev->model->model_id == ModelId::HP_SCANJET_4850C)
     {
-        SETREG(0x80, 0x50);
+        dev->reg.init_reg(0x80, 0x50);
     }
     if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
         dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I)
     {
-        SETREG(0x80, 0x0f);
+        dev->reg.init_reg(0x80, 0x0f);
     }
 
     if (dev->model->model_id != ModelId::CANON_4400F) {
-      SETREG (0x81, 0x00);
-      SETREG (0x82, 0x00);
-      SETREG (0x83, 0x00);
-      SETREG (0x84, 0x00);
-      SETREG (0x85, 0x00);
-      SETREG (0x86, 0x00);
+        dev->reg.init_reg(0x81, 0x00);
+        dev->reg.init_reg(0x82, 0x00);
+        dev->reg.init_reg(0x83, 0x00);
+        dev->reg.init_reg(0x84, 0x00);
+        dev->reg.init_reg(0x85, 0x00);
+        dev->reg.init_reg(0x86, 0x00);
     }
 
-    SETREG(0x87, 0x00);
+    dev->reg.init_reg(0x87, 0x00);
     if (dev->model->model_id == ModelId::CANON_4400F ||
         dev->model->model_id == ModelId::CANON_8400F ||
         dev->model->model_id == ModelId::CANON_8600F)
     {
-        SETREG(0x87, 0x02);
+        dev->reg.init_reg(0x87, 0x02);
     }
 
     // MTRPLS[0:7]: The width of the ADF motor trigger signal pulse.
@@ -575,38 +573,38 @@ gl843_init_registers (Genesys_Device * dev)
         dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7200I &&
         dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7300)
     {
-        SETREG(0x94, 0xff);
+        dev->reg.init_reg(0x94, 0xff);
     }
 
-  // 0x95-0x97: SCANLEN[0:19]: Controls when paper jam bit is set in sheetfed
-  // scanners.
+    // 0x95-0x97: SCANLEN[0:19]: Controls when paper jam bit is set in sheetfed
+    // scanners.
 
-  // ONDUR[0:15]: The duration of PWM ON phase for LAMP control
-  // OFFDUR[0:15]: The duration of PWM OFF phase for LAMP control
-  // both of the above are in system clocks
+    // ONDUR[0:15]: The duration of PWM ON phase for LAMP control
+    // OFFDUR[0:15]: The duration of PWM OFF phase for LAMP control
+    // both of the above are in system clocks
     if (dev->model->model_id == ModelId::CANON_8600F) {
-      SETREG(0x98, 0x00);
-      SETREG(0x99, 0x00);
-      SETREG(0x9a, 0x00);
-      SETREG(0x9b, 0x00);
+        dev->reg.init_reg(0x98, 0x00);
+        dev->reg.init_reg(0x99, 0x00);
+        dev->reg.init_reg(0x9a, 0x00);
+        dev->reg.init_reg(0x9b, 0x00);
     }
     if (dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
         dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
         dev->model->model_id == ModelId::HP_SCANJET_4850C)
     {
         // TODO: move to set for scan
-        SETREG(0x98, 0x03);
-        SETREG(0x99, 0x30);
-        SETREG(0x9a, 0x01);
-        SETREG(0x9b, 0x80);
+        dev->reg.init_reg(0x98, 0x03);
+        dev->reg.init_reg(0x99, 0x30);
+        dev->reg.init_reg(0x9a, 0x01);
+        dev->reg.init_reg(0x9b, 0x80);
     }
 
     // RMADLY[0:1], MOTLAG, CMODE, STEPTIM, MULDMYLN, IFRS
-    SETREG(0x9d, 0x04);
+    dev->reg.init_reg(0x9d, 0x04);
     if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
         dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I)
     {
-        SETREG(0x9d, 0x00);
+        dev->reg.init_reg(0x9d, 0x00);
     }
     if (dev->model->model_id == ModelId::CANON_4400F ||
         dev->model->model_id == ModelId::CANON_8400F ||
@@ -616,27 +614,27 @@ gl843_init_registers (Genesys_Device * dev)
         dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
         dev->model->model_id == ModelId::HP_SCANJET_4850C)
     {
-        SETREG(0x9d, 0x08); // sets the multiplier for slope tables
+        dev->reg.init_reg(0x9d, 0x08); // sets the multiplier for slope tables
     }
 
 
-  // SEL3INV, TGSTIME[0:2], TGWTIME[0:2]
+    // SEL3INV, TGSTIME[0:2], TGWTIME[0:2]
     if (dev->model->model_id != ModelId::CANON_8400F &&
         dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7200I &&
         dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7300)
     {
-      SETREG(0x9e, 0x00); // SENSOR_DEF
+      dev->reg.init_reg(0x9e, 0x00); // SENSOR_DEF
     }
 
     if (dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7300) {
-        SETREG(0xa2, 0x0f);
+        dev->reg.init_reg(0xa2, 0x0f);
     }
 
     // RFHSET[0:4]: Refresh time of SDRAM in units of 2us
     if (dev->model->model_id == ModelId::CANON_4400F ||
         dev->model->model_id == ModelId::CANON_8600F)
     {
-        SETREG(0xa2, 0x1f);
+        dev->reg.init_reg(0xa2, 0x1f);
     }
 
     // 0xa6-0xa9: controls gpio, see gl843_gpio_init
@@ -647,17 +645,17 @@ gl843_init_registers (Genesys_Device * dev)
         dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7200I &&
         dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7300)
     {
-        SETREG(0xaa, 0x00);
+        dev->reg.init_reg(0xaa, 0x00);
     }
 
     // GPOM9, MULSTOP[0-2], NODECEL, TB3TB1, TB5TB2, FIX16CLK. Not documented
     if (dev->model->model_id != ModelId::CANON_8400F &&
         dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7200I &&
         dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7300) {
-        SETREG(0xab, 0x50);
+        dev->reg.init_reg(0xab, 0x50);
     }
     if (dev->model->model_id == ModelId::CANON_4400F) {
-        SETREG(0xab, 0x00);
+        dev->reg.init_reg(0xab, 0x00);
     }
     if (dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
         dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
@@ -665,20 +663,20 @@ gl843_init_registers (Genesys_Device * dev)
     {
         // BUG: this should apply to ModelId::CANON_CANOSCAN_8600F too, but due to previous bug
         // the 8400F case overwrote it
-        SETREG(0xab, 0x40);
+        dev->reg.init_reg(0xab, 0x40);
     }
 
-  // VRHOME[3:2], VRMOVE[3:2], VRBACK[3:2]: Vref setting of the motor driver IC
-  // for various situations.
+    // VRHOME[3:2], VRMOVE[3:2], VRBACK[3:2]: Vref setting of the motor driver IC
+    // for various situations.
     if (dev->model->model_id == ModelId::CANON_8600F ||
         dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
         dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
         dev->model->model_id == ModelId::HP_SCANJET_4850C)
     {
-        SETREG(0xac, 0x00);
+        dev->reg.init_reg(0xac, 0x00);
     }
 
-  dev->calib_reg = dev->reg;
+    dev->calib_reg = dev->reg;
 
     if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I) {
         uint8_t data[32] = {
@@ -3433,4 +3431,5 @@ std::unique_ptr<CommandSet> create_gl843_cmd_set()
     return std::unique_ptr<CommandSet>(new CommandSetGl843{});
 }
 
+} // namespace gl843
 } // namespace genesys

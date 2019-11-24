@@ -62,25 +62,25 @@ namespace genesys {
  * setup the hardware dependent functions
  */
 
-std::unique_ptr<CommandSet> create_gl124_cmd_set();
-std::unique_ptr<CommandSet> create_gl646_cmd_set();
-std::unique_ptr<CommandSet> create_gl841_cmd_set();
-std::unique_ptr<CommandSet> create_gl843_cmd_set();
-std::unique_ptr<CommandSet> create_gl846_cmd_set();
-std::unique_ptr<CommandSet> create_gl847_cmd_set();
+namespace gl124 { std::unique_ptr<CommandSet> create_gl124_cmd_set(); }
+namespace gl646 { std::unique_ptr<CommandSet> create_gl646_cmd_set(); }
+namespace gl841 { std::unique_ptr<CommandSet> create_gl841_cmd_set(); }
+namespace gl843 { std::unique_ptr<CommandSet> create_gl843_cmd_set(); }
+namespace gl846 { std::unique_ptr<CommandSet> create_gl846_cmd_set(); }
+namespace gl847 { std::unique_ptr<CommandSet> create_gl847_cmd_set(); }
 
 void sanei_genesys_init_cmd_set(Genesys_Device* dev)
 {
   DBG_INIT ();
     DBG_HELPER(dbg);
     switch (dev->model->asic_type) {
-        case AsicType::GL646: dev->cmd_set = create_gl646_cmd_set(); break;
-        case AsicType::GL841: dev->cmd_set = create_gl841_cmd_set(); break;
-        case AsicType::GL843: dev->cmd_set = create_gl843_cmd_set(); break;
+        case AsicType::GL646: dev->cmd_set = gl646::create_gl646_cmd_set(); break;
+        case AsicType::GL841: dev->cmd_set = gl841::create_gl841_cmd_set(); break;
+        case AsicType::GL843: dev->cmd_set = gl843::create_gl843_cmd_set(); break;
         case AsicType::GL845: // since only a few reg bits differs we handle both together
-        case AsicType::GL846: dev->cmd_set = create_gl846_cmd_set(); break;
-        case AsicType::GL847: dev->cmd_set = create_gl847_cmd_set(); break;
-        case AsicType::GL124: dev->cmd_set = create_gl124_cmd_set(); break;
+        case AsicType::GL846: dev->cmd_set = gl846::create_gl846_cmd_set(); break;
+        case AsicType::GL847: dev->cmd_set = gl847::create_gl847_cmd_set(); break;
+        case AsicType::GL124: dev->cmd_set = gl124::create_gl124_cmd_set(); break;
         default: throw SaneException(SANE_STATUS_INVAL, "unknown ASIC type");
     }
 }

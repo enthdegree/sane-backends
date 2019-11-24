@@ -32,6 +32,7 @@
 
 #include <assert.h>
 #include "lgetopt.h"
+#include <inttypes.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -1317,7 +1318,8 @@ advance (Image * image)
 static SANE_Status
 scan_it (FILE *ofp)
 {
-  int i, len, first_frame = 1, offset = 0, must_buffer = 0, hundred_percent;
+  int i, len, first_frame = 1, offset = 0, must_buffer = 0;
+  uint64_t hundred_percent = 0;
   SANE_Byte min = 0xff, max = 0;
   SANE_Parameters parm;
   SANE_Status status;
@@ -1325,7 +1327,7 @@ scan_it (FILE *ofp)
   static const char *format_name[] = {
     "gray", "RGB", "red", "green", "blue"
   };
-  SANE_Word total_bytes = 0, expected_bytes;
+  uint64_t total_bytes = 0, expected_bytes;
   SANE_Int hang_over = -1;
 #ifdef HAVE_LIBPNG
   int pngrow = 0;
@@ -1486,7 +1488,7 @@ scan_it (FILE *ofp)
 	  offset = parm.format - SANE_FRAME_RED;
 	  image.x = image.y = 0;
 	}
-      hundred_percent = parm.bytes_per_line * parm.lines
+      hundred_percent = ((uint64_t)parm.bytes_per_line) * parm.lines
 	* ((parm.format == SANE_FRAME_RGB || parm.format == SANE_FRAME_GRAY) ? 1:3);
 
       while (1)
@@ -1498,7 +1500,12 @@ scan_it (FILE *ofp)
           if (progr > 100.)
 	    progr = 100.;
           if (progress)
-	    fprintf (stderr, "Progress: %3.1f%%\r", progr);
+            {
+              if (parm.lines >= 0)
+                fprintf(stderr, "Progress: %3.1f%%\r", progr);
+              else
+                fprintf(stderr, "Progress: (unknown)\r");
+            }
 
 	  if (status != SANE_STATUS_GOOD)
 	    {
@@ -1760,7 +1767,7 @@ cleanup:
     free (image.data);
 
 
-  expected_bytes = parm.bytes_per_line * parm.lines *
+  expected_bytes = ((uint64_t)parm.bytes_per_line) * parm.lines *
     ((parm.format == SANE_FRAME_RGB
       || parm.format == SANE_FRAME_GRAY) ? 1 : 3);
   if (parm.lines < 0)
@@ -1769,10 +1776,10 @@ cleanup:
     {
       fprintf (stderr,
 	       "%s: WARNING: read more data than announced by backend "
-	       "(%u/%u)\n", prog_name, total_bytes, expected_bytes);
+               "(%" PRIu64 "/%" PRIu64 ")\n", prog_name, total_bytes, expected_bytes);
     }
   else if (verbose)
-    fprintf (stderr, "%s: read %u bytes in total\n", prog_name, total_bytes);
+    fprintf (stderr, "%s: read %" PRIu64 " bytes in total\n", prog_name, total_bytes);
 
   return status;
 }

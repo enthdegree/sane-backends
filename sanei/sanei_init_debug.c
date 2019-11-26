@@ -156,7 +156,7 @@ sanei_debug_msg
           gettimeofday (&tv, NULL);
           t = localtime (&tv.tv_sec);
 
-          fprintf (stderr, "[%02d:%02d:%02d] [%s] ", t->tm_hour, t->tm_min, t->tm_sec, be);
+          fprintf (stderr, "[%02d:%02d:%02d.%06ld] [%s] ", t->tm_hour, t->tm_min, t->tm_sec, tv.tv_usec, be);
           vfprintf (stderr, fmt, ap);
 	}
 

@@ -53,15 +53,6 @@
 namespace genesys {
 namespace gl124 {
 
-static void gl124_homsnr_gpio(Genesys_Device* dev)
-{
-    DBG_HELPER(dbg);
-
-    uint8_t val = dev->interface->read_register(REG_0x32);
-    val &= ~REG_0x32_GPIO10;
-    dev->interface->write_register(REG_0x32, val);
-}
-
 /** @brief set all registers to default values .
  * This function is called only once at the beginning and
  * fills register startup values for registers reused across scans.
@@ -1018,9 +1009,7 @@ static void gl124_stop_action(Genesys_Device* dev)
     std::uint8_t val40;
   unsigned int loop;
 
-    // post scan gpio : without that HOMSNR is unreliable
-    gl124_homsnr_gpio(dev);
-
+    dev->cmd_set->update_home_sensor_gpio(*dev);
     scanner_read_print_status(*dev);
 
     val40 = dev->interface->read_register(REG_0x100);
@@ -1197,8 +1186,7 @@ void CommandSetGl124::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
   int loop = 0;
 
     // post scan gpio : without that HOMSNR is unreliable
-    gl124_homsnr_gpio(dev);
-
+    dev->cmd_set->update_home_sensor_gpio(*dev);
     auto status = scanner_read_reliable_status(*dev);
 
     if (status.is_at_home) {
@@ -1257,9 +1245,7 @@ void CommandSetGl124::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
         throw;
     }
 
-    // post scan gpio : without that HOMSNR is unreliable
-    gl124_homsnr_gpio(dev);
-
+    update_home_sensor_gpio(*dev);
     if (is_testing_mode()) {
         dev->interface->test_checkpoint("slow_back_home");
         return;
@@ -2501,6 +2487,15 @@ void CommandSetGl124::update_hardware_sensors(Genesys_Scanner* s) const
         s->buttons[BUTTON_EMAIL_SW].write((val & 0x08) == 0);
         s->buttons[BUTTON_FILE_SW].write((val & 0x10) == 0);
     }
+}
+
+void CommandSetGl124::update_home_sensor_gpio(Genesys_Device& dev) const
+{
+    DBG_HELPER(dbg);
+
+    std::uint8_t val = dev.interface->read_register(REG_0x32);
+    val &= ~REG_0x32_GPIO10;
+    dev.interface->write_register(REG_0x32, val);
 }
 
 bool CommandSetGl124::needs_home_before_init_regs_for_scan(Genesys_Device* dev) const

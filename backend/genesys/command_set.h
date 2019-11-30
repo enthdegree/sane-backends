@@ -107,6 +107,16 @@ public:
     // Updates hardware sensor information in Genesys_Scanner.val[].
     virtual void update_hardware_sensors(struct Genesys_Scanner* s) const = 0;
 
+    /** Whether the scanner needs to call update_home_sensor_gpio before reading the status of the
+        home sensor. On some chipsets this is unreliable until update_home_sensor_gpio() is called.
+    */
+    virtual bool needs_update_home_sensor_gpio() const { return false; }
+
+    /** Needed on some chipsets before reading the status of the home sensor to make this operation
+        reliable.
+    */
+    virtual void update_home_sensor_gpio(Genesys_Device& dev) const { (void) dev; }
+
     // functions for sheetfed scanners
 
     // load document into scanner

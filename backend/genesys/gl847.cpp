@@ -352,22 +352,6 @@ static void gl847_set_ad_fe(Genesys_Device* dev, uint8_t set)
     }
 }
 
-static void gl847_homsnr_gpio(Genesys_Device* dev)
-{
-    DBG_HELPER(dbg);
-    uint8_t val;
-
-    if (dev->model->gpio_id == GpioId::CANON_LIDE_700F) {
-        val = dev->interface->read_register(REG_0x6C);
-        val &= ~REG_0x6C_GPIO10;
-        dev->interface->write_register(REG_0x6C, val);
-    } else {
-        val = dev->interface->read_register(REG_0x6C);
-        val |= REG_0x6C_GPIO10;
-        dev->interface->write_register(REG_0x6C, val);
-    }
-}
-
 // Set values of analog frontend
 void CommandSetGl847::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set) const
 {
@@ -867,8 +851,7 @@ static void gl847_stop_action(Genesys_Device* dev)
     uint8_t val;
   unsigned int loop;
 
-    // post scan gpio : without that HOMSNR is unreliable
-    gl847_homsnr_gpio(dev);
+    dev->cmd_set->update_home_sensor_gpio(*dev);
     scanner_read_print_status(*dev);
 
     uint8_t val40 = dev->interface->read_register(REG_0x40);
@@ -1000,8 +983,7 @@ void CommandSetGl847::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
   int loop = 0;
   ScanColorMode scan_mode;
 
-    // post scan gpio : without that HOMSNR is unreliable
-    gl847_homsnr_gpio(dev);
+    update_home_sensor_gpio(*dev);
 
     // first read gives HOME_SENSOR true
     auto status = scanner_read_reliable_status(*dev);
@@ -1061,8 +1043,7 @@ void CommandSetGl847::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
         throw;
     }
 
-    // post scan gpio : without that HOMSNR is unreliable
-    gl847_homsnr_gpio(dev);
+    update_home_sensor_gpio(*dev);
 
     if (is_testing_mode()) {
         dev->interface->test_checkpoint("slow_back_home");
@@ -1852,6 +1833,21 @@ void CommandSetGl847::update_hardware_sensors(Genesys_Scanner* s) const
     s->buttons[BUTTON_FILE_SW].write((val & file) == 0);
     s->buttons[BUTTON_EMAIL_SW].write((val & email) == 0);
     s->buttons[BUTTON_COPY_SW].write((val & copy) == 0);
+}
+
+void CommandSetGl847::update_home_sensor_gpio(Genesys_Device& dev) const
+{
+    DBG_HELPER(dbg);
+
+    if (dev.model->gpio_id == GpioId::CANON_LIDE_700F) {
+        std::uint8_t val = dev.interface->read_register(REG_0x6C);
+        val &= ~REG_0x6C_GPIO10;
+        dev.interface->write_register(REG_0x6C, val);
+    } else {
+        std::uint8_t val = dev.interface->read_register(REG_0x6C);
+        val |= REG_0x6C_GPIO10;
+        dev.interface->write_register(REG_0x6C, val);
+    }
 }
 
 /** @brief search for a full width black or white strip.

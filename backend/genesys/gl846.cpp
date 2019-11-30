@@ -327,15 +327,6 @@ static void gl846_set_adi_fe(Genesys_Device* dev, uint8_t set)
     }
 }
 
-static void gl846_homsnr_gpio(Genesys_Device* dev)
-{
-    DBG_HELPER(dbg);
-
-    uint8_t val = dev->interface->read_register(REG_0x6C);
-    val |= 0x41;
-    dev->interface->write_register(REG_0x6C, val);
-}
-
 // Set values of analog frontend
 void CommandSetGl846::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set) const
 {
@@ -855,8 +846,7 @@ static void gl846_stop_action(Genesys_Device* dev)
     DBG_HELPER(dbg);
   unsigned int loop;
 
-    // post scan gpio : without that HOMSNR is unreliable
-    gl846_homsnr_gpio(dev);
+    dev->cmd_set->update_home_sensor_gpio(*dev);
     scanner_read_print_status(*dev);
 
     uint8_t val40 = dev->interface->read_register(REG_0x40);
@@ -947,8 +937,7 @@ void CommandSetGl846::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
   int loop = 0;
   ScanColorMode scan_mode;
 
-    // post scan gpio : without that HOMSNR is unreliable
-    gl846_homsnr_gpio(dev);
+    update_home_sensor_gpio(*dev);
 
     // first read gives HOME_SENSOR true
     auto status = scanner_read_reliable_status(*dev);
@@ -1011,8 +1000,7 @@ void CommandSetGl846::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
         throw;
     }
 
-    // post scan gpio : without that HOMSNR is unreliable
-    gl846_homsnr_gpio(dev);
+    update_home_sensor_gpio(*dev);
 
     if (is_testing_mode()) {
         dev->interface->test_checkpoint("slow_back_home");
@@ -1781,6 +1769,16 @@ void CommandSetGl846::update_hardware_sensors(Genesys_Scanner* s) const
     s->buttons[BUTTON_FILE_SW].write((val & file) == 0);
     s->buttons[BUTTON_EMAIL_SW].write((val & email) == 0);
     s->buttons[BUTTON_COPY_SW].write((val & copy) == 0);
+}
+
+
+void CommandSetGl846::update_home_sensor_gpio(Genesys_Device& dev) const
+{
+    DBG_HELPER(dbg);
+
+    std::uint8_t val = dev.interface->read_register(REG_0x6C);
+    val |= 0x41;
+    dev.interface->write_register(REG_0x6C, val);
 }
 
 /** @brief search for a full width black or white strip.

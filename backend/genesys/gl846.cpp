@@ -935,7 +935,6 @@ void CommandSetGl846::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
   Genesys_Register_Set local_reg;
   int loop = 0;
-  ScanColorMode scan_mode;
 
     update_home_sensor_gpio(*dev);
 
@@ -954,10 +953,6 @@ void CommandSetGl846::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     unsigned resolution = sanei_genesys_get_lowest_ydpi(dev);
 
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
-
-  /* TODO add scan_mode to the API */
-  scan_mode= dev->settings.scan_mode;
-  dev->settings.scan_mode = ScanColorMode::LINEART;
 
     ScanSession session;
     session.params.xres = resolution;
@@ -978,8 +973,6 @@ void CommandSetGl846::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     compute_session(dev, session, sensor);
 
     gl846_init_scan_regs(dev, sensor, &local_reg, session);
-
-  dev->settings.scan_mode=scan_mode;
 
     // clear scan and feed count
     dev->interface->write_register(REG_0x0D, REG_0x0D_CLRLNCNT | REG_0x0D_CLRMCNT);

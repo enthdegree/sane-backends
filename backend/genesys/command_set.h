@@ -108,6 +108,8 @@ public:
 
     virtual void wait_for_motor_stop(Genesys_Device* dev) const = 0;
     virtual void slow_back_home(Genesys_Device* dev, bool wait_until_home) const = 0;
+    virtual void slow_back_home_ta(Genesys_Device& dev) const = 0;
+
     virtual void rewind(Genesys_Device* dev) const = 0;
 
     virtual bool has_rewind() const { return true; }

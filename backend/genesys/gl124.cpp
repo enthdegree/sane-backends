@@ -1181,6 +1181,12 @@ void CommandSetGl124::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     scanner_slow_back_home(*dev, wait_until_home);
 }
 
+void CommandSetGl124::slow_back_home_ta(Genesys_Device& dev) const
+{
+    (void) dev;
+    throw SaneException("not implemented");
+}
+
 /** @brief moves the slider to steps at motor base dpi
  * @param dev device to work on
  * @param steps number of steps to move

@@ -1727,8 +1727,10 @@ void CommandSetGl843::end_scan(Genesys_Device* dev, Genesys_Register_Set* reg,
 /** @brief park XPA lamp
  * park the XPA lamp if needed
  */
-void gl843_park_xpa_lamp(Genesys_Device* dev)
+void CommandSetGl843::slow_back_home_ta(Genesys_Device& devr) const
 {
+    Genesys_Device* dev = &devr;
+
     DBG_HELPER(dbg);
   Genesys_Register_Set local_reg;
   GenesysRegister *r;

@@ -282,6 +282,7 @@ public:
 
     void wait_for_motor_stop(Genesys_Device* dev) const override;
     void slow_back_home(Genesys_Device* dev, bool wait_until_home) const override;
+    void slow_back_home_ta(Genesys_Device& dev) const override;
     void rewind(Genesys_Device* dev) const override;
 
     bool has_rewind() const override { return false; }

@@ -960,7 +960,7 @@ void scanner_slow_back_home(Genesys_Device& dev, bool wait_until_home)
     }
 
     if (dev.needs_home_ta) {
-        gl843::gl843_park_xpa_lamp(&dev);
+        dev.cmd_set->slow_back_home_ta(dev);
     }
 
     if (dev.cmd_set->needs_update_home_sensor_gpio()) {

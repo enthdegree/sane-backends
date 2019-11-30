@@ -19,6 +19,7 @@ $ make install
          - optional:  git
      (b) missing development packages
          - libusb-dev or libusb-devel or libusb-compat-devel
+         - libusb-1.0.0-dev or similar
          - libjpeg-dev or libjpeg8-dev or libjpeg-turbo-devel or turbojpeg-devel
          - libpng-dev or similar
 

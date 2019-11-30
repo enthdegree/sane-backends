@@ -242,12 +242,12 @@ cleanup_device_list (void)
 }
 
 static void
-find_scanners (void)
+find_scanners (SANE_Bool local_only)
 {
   unsigned i, nscanners;
 
   cleanup_device_list ();
-  nscanners = pixma_find_scanners (conf_devices);
+  nscanners = pixma_find_scanners (conf_devices, local_only);
   PDBG (pixma_dbg (3, "pixma_find_scanners() found %u devices\n", nscanners));
   dev_list =
     (const SANE_Device **) calloc (nscanners + 1, sizeof (*dev_list));
@@ -1602,11 +1602,9 @@ sane_exit (void)
 SANE_Status
 sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 {
-  UNUSED (local_only);
-
   if (!device_list)
     return SANE_STATUS_INVAL;
-  find_scanners ();
+  find_scanners (local_only);
   *device_list = dev_list;
   return (dev_list) ? SANE_STATUS_GOOD : SANE_STATUS_NO_MEM;
 }
@@ -1623,7 +1621,7 @@ sane_open (SANE_String_Const name, SANE_Handle * h)
     return SANE_STATUS_INVAL;
 
   *h = NULL;
-  nscanners = pixma_find_scanners (conf_devices);
+  nscanners = pixma_find_scanners (conf_devices, SANE_FALSE);
   if (nscanners == 0)
     return SANE_STATUS_INVAL;
   if (name[0] == '\0')

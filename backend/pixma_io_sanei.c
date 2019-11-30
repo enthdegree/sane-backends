@@ -55,6 +55,7 @@
 #include "pixma_bjnp.h"
 
 #include "../include/sane/sanei_usb.h"
+#include "../include/sane/sane.h"
 
 
 #ifdef __GNUC__
@@ -349,7 +350,7 @@ pixma_io_cleanup (void)
 
 unsigned
 pixma_collect_devices (const char **conf_devices,
-                       const struct pixma_config_t *const pixma_devices[])
+                       const struct pixma_config_t *const pixma_devices[], SANE_Bool local_only)
 {
   unsigned i, j;
   struct scanner_info_t *si;
@@ -374,7 +375,9 @@ pixma_collect_devices (const char **conf_devices,
             }
         }
     }
-  sanei_bjnp_find_devices(conf_devices, attach_bjnp, pixma_devices);
+  if (! local_only)
+    sanei_bjnp_find_devices(conf_devices, attach_bjnp, pixma_devices);
+
   si = first_scanner;
   while (j < nscanners)
     {

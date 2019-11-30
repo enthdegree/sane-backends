@@ -45,6 +45,9 @@
 #ifndef PIXMA_H
 #define PIXMA_H
 
+#include "../include/sane/sane.h"
+
+
 /*!
  * \mainpage Scanner driver for Canon PIXMA MP series
  * \section example Sample code for application
@@ -404,7 +407,7 @@ void pixma_set_debug_level (int level);
  *
  *  \return The number of scanners found currently. The return value is
  *  guaranteed to be valid until the next call to pixma_find_scanners(). */
-int pixma_find_scanners (const char **conf_devices);
+int pixma_find_scanners (const char **conf_devices, SANE_Bool local_only);
 
 /** Return the model name of the device \a devnr. */
 const char *pixma_get_device_model (unsigned devnr);

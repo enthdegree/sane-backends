@@ -58,7 +58,7 @@
 #include "pixma_io.h"
 
 #include "../include/sane/sanei_usb.h"
-
+#include "../include/sane/sane.h"
 
 #ifdef __GNUC__
 # define UNUSED(v) (void) v
@@ -1164,9 +1164,9 @@ pixma_fill_gamma_table (double gamma, uint8_t * table, unsigned n)
 }
 
 int
-pixma_find_scanners (const char **conf_devices)
+pixma_find_scanners (const char **conf_devices, SANE_Bool local_only)
 {
-  return pixma_collect_devices (conf_devices, pixma_devices);
+  return pixma_collect_devices (conf_devices, pixma_devices, local_only);
 }
 
 const char *

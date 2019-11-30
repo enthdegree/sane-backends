@@ -93,7 +93,7 @@ void pixma_io_cleanup (void);
  *  \return Number of devices found */
 unsigned pixma_collect_devices (const char ** conf_devices,
                                 const struct pixma_config_t *const
-				pixma_devices[]);
+				pixma_devices[], SANE_Bool local_only);
 
 /** Get device configuration. */
 const struct pixma_config_t *pixma_get_device_config (unsigned devnr);

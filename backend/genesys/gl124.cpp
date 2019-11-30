@@ -491,7 +491,7 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
                                        unsigned int scan_dummy,
                                        unsigned int feed_steps,
                                        ScanColorMode scan_mode,
-                                       unsigned int flags)
+                                       MotorFlag flags)
 {
     DBG_HELPER(dbg);
   int use_fast_fed;
@@ -506,7 +506,8 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
     DBG(DBG_info, "%s : scan_exposure_time=%d, scan_yres=%d, step_type=%d, scan_lines=%d, "
       "scan_dummy=%d, feed_steps=%d, scan_mode=%d, flags=%x\n", __func__, scan_exposure_time,
         scan_yres, static_cast<unsigned>(motor_profile.step_type), scan_lines, scan_dummy,
-        feed_steps, static_cast<unsigned>(scan_mode), flags);
+        feed_steps, static_cast<unsigned>(scan_mode),
+        static_cast<unsigned>(flags));
 
   /* we never use fast fed since we do manual feed for the scans */
   use_fast_fed=0;
@@ -567,11 +568,11 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
         r02 &= ~REG_0x02_FASTFED;
     }
 
-    if (flags & MOTOR_FLAG_AUTO_GO_HOME)
+    if (has_flag(flags, MotorFlag::AUTO_GO_HOME)) {
         r02 |= REG_0x02_AGOHOME;
+    }
 
-    if ((flags & MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE)
-            ||(yres>=sensor.optical_res))
+    if (has_flag(flags, MotorFlag::DISABLE_BUFFER_FULL_MOVE) || (yres >= sensor.optical_res))
     {
         r02 |= REG_0x02_ACDCDIS;
     }
@@ -612,7 +613,7 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
     feedl <<= static_cast<unsigned>(motor_profile.step_type);
 
     dist = scan_table.scan_steps;
-    if (flags & MOTOR_FLAG_FEED) {
+    if (has_flag(flags, MotorFlag::FEED)) {
         dist *= 2;
     }
     if (use_fast_fed) {
@@ -889,7 +890,6 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     session.assert_computed();
 
   int move;
-    unsigned int mflags;
   int exposure_time;
 
   int dummy = 0;
@@ -926,12 +926,12 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     move = session.params.starty;
   DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
 
-    mflags = 0;
+    MotorFlag mflags = MotorFlag::NONE;
     if (has_flag(session.params.flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE)) {
-        mflags |= MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE;
+        mflags |= MotorFlag::DISABLE_BUFFER_FULL_MOVE;
     }
     if (has_flag(session.params.flags, ScanFlag::FEEDING)) {
-        mflags |= MOTOR_FLAG_FEED;
+        mflags |= MotorFlag::FEED;
     }
     gl124_init_motor_regs_scan(dev, sensor, reg, motor_profile, exposure_time, slope_dpi,
                                dev->model->is_cis ? session.output_line_count * session.params.channels :

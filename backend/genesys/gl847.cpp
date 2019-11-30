@@ -411,12 +411,12 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
                                        unsigned int scan_lines,
                                        unsigned int scan_dummy,
                                        unsigned int feed_steps,
-                                       unsigned int flags)
+                                       MotorFlag flags)
 {
     DBG_HELPER_ARGS(dbg, "scan_exposure_time=%d, can_yres=%d, step_type=%d, scan_lines=%d, "
                          "scan_dummy=%d, feed_steps=%d, flags=%x",
                     scan_exposure_time, scan_yres, static_cast<unsigned>(motor_profile.step_type),
-                    scan_lines, scan_dummy, feed_steps, flags);
+                    scan_lines, scan_dummy, feed_steps, static_cast<unsigned>(flags));
   int use_fast_fed;
   unsigned int fast_dpi;
     int factor;
@@ -432,8 +432,7 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
 
   use_fast_fed=0;
   /* no fast fed since feed works well */
-  if(dev->settings.yres==4444 && feed_steps>100
-     && ((flags & MOTOR_FLAG_FEED)==0))
+    if (dev->settings.yres==4444 && feed_steps > 100 && (!has_flag(flags, MotorFlag::FEED)))
     {
       use_fast_fed=1;
     }
@@ -447,15 +446,17 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
   r->value = 0x00;
   sanei_genesys_set_motor_power(*reg, true);
 
-  if (use_fast_fed)
-    r->value |= REG_0x02_FASTFED;
-  else
-    r->value &= ~REG_0x02_FASTFED;
+    if (use_fast_fed) {
+        r->value |= REG_0x02_FASTFED;
+    } else {
+        r->value &= ~REG_0x02_FASTFED;
+    }
 
-  if (flags & MOTOR_FLAG_AUTO_GO_HOME)
-    r->value |= REG_0x02_AGOHOME | REG_0x02_NOTHOME;
+    if (has_flag(flags, MotorFlag::AUTO_GO_HOME)) {
+        r->value |= REG_0x02_AGOHOME | REG_0x02_NOTHOME;
+    }
 
-  if ((flags & MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE)
+  if (has_flag(flags, MotorFlag::DISABLE_BUFFER_FULL_MOVE)
       ||(scan_yres>=sensor.optical_res))
     {
         r->value |= REG_0x02_ACDCDIS;
@@ -504,8 +505,9 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
     {
         feedl <<= static_cast<unsigned>(motor_profile.step_type);
       dist=scan_table.scan_steps*factor;
-      if (flags & MOTOR_FLAG_FEED)
-        dist *=2;
+        if (has_flag(flags, MotorFlag::FEED)) {
+            dist *= 2;
+        }
     }
   DBG(DBG_io2, "%s: scan steps=%d\n", __func__, scan_table.scan_steps);
   DBG(DBG_io2, "%s: acceleration distance=%d\n", __func__, dist);
@@ -752,7 +754,6 @@ static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     session.assert_computed();
 
   int move;
-  unsigned int mflags; /**> motor flags */
   int exposure_time;
 
   int slope_dpi = 0;
@@ -789,12 +790,12 @@ static void gl847_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     move = session.params.starty;
     DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
 
-  mflags=0;
+    MotorFlag mflags = MotorFlag::NONE;
     if (has_flag(session.params.flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE)) {
-        mflags |= MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE;
+        mflags |= MotorFlag::DISABLE_BUFFER_FULL_MOVE;
     }
     if (has_flag(session.params.flags, ScanFlag::FEEDING)) {
-        mflags |= MOTOR_FLAG_FEED;
+        mflags |= MotorFlag::FEED;
   }
 
     gl847_init_motor_regs_scan(dev, sensor, reg, motor_profile, exposure_time, slope_dpi,

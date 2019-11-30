@@ -823,12 +823,12 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
                                        unsigned int scan_lines,
                                        unsigned int scan_dummy,
                                        unsigned int feed_steps,
-                                       unsigned int flags)
+                                       MotorFlag flags)
 {
     DBG_HELPER_ARGS(dbg, "exposure=%d, scan_yres=%d, step_type=%d, scan_lines=%d, scan_dummy=%d, "
                          "feed_steps=%d, flags=%x",
-                    exposure, scan_yres, static_cast<unsigned>(motor_profile.step_type), scan_lines, scan_dummy,
-                    feed_steps, flags);
+                    exposure, scan_yres, static_cast<unsigned>(motor_profile.step_type),
+                    scan_lines, scan_dummy, feed_steps, static_cast<unsigned>(flags));
 
   int use_fast_fed, coeff;
   unsigned int lincnt;
@@ -841,8 +841,9 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
 
   use_fast_fed = 0;
 
-  if((scan_yres>=300 && feed_steps>900) || (flags & MOTOR_FLAG_FEED))
-    use_fast_fed=1;
+    if ((scan_yres >= 300 && feed_steps > 900) || (has_flag(flags, MotorFlag::FEED))) {
+        use_fast_fed = 1;
+    }
 
   lincnt=scan_lines;
     reg->set24(REG_LINCNT, lincnt);
@@ -860,12 +861,12 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     }
 
   /* in case of automatic go home, move until home sensor */
-    if (flags & MOTOR_FLAG_AUTO_GO_HOME) {
+    if (has_flag(flags, MotorFlag::AUTO_GO_HOME)) {
         r->value |= REG_0x02_AGOHOME | REG_0x02_NOTHOME;
     }
 
   /* disable backtracking */
-  if ((flags & MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE)
+  if (has_flag(flags, MotorFlag::DISABLE_BUFFER_FULL_MOVE)
       ||(scan_yres>=2400)
       ||(scan_yres>=sensor.optical_res))
     {
@@ -1172,7 +1173,6 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     DBG_HELPER(dbg);
     session.assert_computed();
 
-  unsigned int mflags;
   int exposure;
 
   int slope_dpi = 0;
@@ -1210,15 +1210,15 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     gl843_init_optical_regs_scan(dev, sensor, reg, exposure, session);
 
   /*** motor parameters ***/
-    mflags = 0;
+    MotorFlag mflags = MotorFlag::NONE;
     if (has_flag(session.params.flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE)) {
-        mflags |= MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE;
+        mflags |= MotorFlag::DISABLE_BUFFER_FULL_MOVE;
     }
     if (has_flag(session.params.flags, ScanFlag::FEEDING)) {
-        mflags |= MOTOR_FLAG_FEED;
+        mflags |= MotorFlag::FEED;
     }
     if (has_flag(session.params.flags, ScanFlag::USE_XPA)) {
-        mflags |= MOTOR_FLAG_USE_XPA;
+        mflags |= MotorFlag::USE_XPA;
     }
 
     unsigned scan_lines = dev->model->is_cis ? session.output_line_count * session.params.channels

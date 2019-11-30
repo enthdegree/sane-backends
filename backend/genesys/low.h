@@ -242,11 +242,6 @@ extern StaticInit<std::vector<Motor_Profile>> gl124_motor_profiles;
 
 constexpr unsigned SLOPE_TABLE_SIZE = 1024;
 
-#define MOTOR_FLAG_AUTO_GO_HOME             0x01
-#define MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE 0x02
-#define MOTOR_FLAG_FEED                     0x04
-#define MOTOR_FLAG_USE_XPA                  0x08
-
 /*--------------------------------------------------------------------------*/
 /*       common functions needed by low level specific functions            */
 /*--------------------------------------------------------------------------*/

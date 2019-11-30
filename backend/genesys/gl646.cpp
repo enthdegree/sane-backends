@@ -63,6 +63,10 @@ namespace {
 constexpr unsigned CALIBRATION_LINES = 10;
 } // namespace
 
+static void gl646_send_slope_table(Genesys_Device* dev, int table_nr,
+                                   const std::vector<uint16_t>& slope_table,
+                                   int steps);
+
 /**
  * reads value from gpio endpoint
  */
@@ -88,38 +92,6 @@ static void gl646_gpio_output_enable(IUsbDevice& usb_dev, uint8_t value)
 {
     DBG_HELPER_ARGS(dbg, "(0x%02x)", value);
     usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, GPIO_OUTPUT_ENABLE, INDEX, 1, &value);
-}
-
-bool CommandSetGl646::get_gain4_bit(Genesys_Register_Set* regs) const
-{
-    GenesysRegister *r = sanei_genesys_get_address(regs, 0x06);
-    return (r && (r->value & REG_0x06_GAIN4));
-}
-
-bool CommandSetGl646::test_buffer_empty_bit(SANE_Byte val) const
-{
-    return (val & REG_0x41_BUFEMPTY);
-}
-
-/**
- * decodes and prints content of status (0x41) register
- * @param val value read from reg41
- */
-static void
-print_status (uint8_t val)
-{
-  char msg[80];
-
-    std::sprintf(msg, "%s%s%s%s%s%s%s%s",
-                 val & REG_0x41_PWRBIT ? "PWRBIT " : "",
-                 val & REG_0x41_BUFEMPTY ? "BUFEMPTY " : "",
-                 val & REG_0x41_FEEDFSH ? "FEEDFSH " : "",
-                 val & REG_0x41_SCANFSH ? "SCANFSH " : "",
-                 val & REG_0x41_HOMESNR ? "HOMESNR " : "",
-                 val & REG_0x41_LAMPSTS ? "LAMPSTS " : "",
-                 val & REG_0x41_FEBUSY ? "FEBUSY " : "",
-                 val & REG_0x41_MOTMFLG ? "MOTMFLG" : "");
-  DBG(DBG_info, "status=%s\n", msg);
 }
 
 /**
@@ -194,24 +166,9 @@ static int get_cksel(SensorId sensor_id, int required, unsigned channels)
   return 1;
 }
 
-/**
- * Setup register and motor tables for a scan at the
- * given resolution and color mode. TODO try to not use any filed from
- * the device.
- * @param dev          pointer to a struct describing the device
- * @param regs         register set to fill
- * @param slope_table1 first motor table to fill
- * @param slope_table2 second motor table to fill
- * @note No harcoded SENSOR or MOTOR 'names' should be present and
- * registers are set from settings tables and flags related
- * to the hardware capabilities.
- * */
-static void gl646_setup_registers(Genesys_Device* dev,
-                                  const Genesys_Sensor& sensor,
-                                  Genesys_Register_Set* regs,
-                                  const ScanSession& session,
-                                  std::vector<uint16_t>& slope_table1,
-                                  std::vector<uint16_t>& slope_table2)
+void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                                 Genesys_Register_Set* regs,
+                                                 const ScanSession& session) const
 {
     DBG_HELPER(dbg);
     session.assert_computed();
@@ -261,6 +218,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
     }
 
   /* now generate slope tables : we are not using generate_slope_table3 yet */
+    std::vector<std::uint16_t> slope_table1, slope_table2;
   sanei_genesys_generate_slope_table (slope_table1, motor->steps1,
 				      motor->steps1 + 1, motor->vend1,
 				      motor->vstart1, motor->vend1,
@@ -303,7 +261,12 @@ static void gl646_setup_registers(Genesys_Device* dev,
 
   /* setup motor power and direction */
   sanei_genesys_set_motor_power(*regs, true);
-    regs->find_reg(0x02).value &= ~REG_0x02_MTRREV;
+
+    if (has_flag(session.params.flags, ScanFlag::REVERSE)) {
+        regs->find_reg(0x02).value |= REG_0x02_MTRREV;
+    } else {
+        regs->find_reg(0x02).value &= ~REG_0x02_MTRREV;
+    }
 
   /* fastfed enabled (2 motor slope tables) */
     if (motor->fastfed) {
@@ -421,6 +384,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
   /* move distance must be adjusted to take into account the extra lines
    * read to reorder data */
   feedl = move;
+
     if (session.num_staggered_lines + session.max_color_shift_lines > 0 && feedl != 0) {
         int feed_offset = ((session.max_color_shift_lines + session.num_staggered_lines) * dev->motor.optical_ydpi) /
                 motor->dpi;
@@ -592,6 +556,9 @@ static void gl646_setup_registers(Genesys_Device* dev,
                 break;
         }
     }
+
+    gl646_send_slope_table(dev, 0, slope_table1, regs->get8(0x21));
+    gl646_send_slope_table(dev, 1, slope_table2, regs->get8(0x6b));
 }
 
 
@@ -1129,7 +1096,6 @@ void CommandSetGl646::load_document(Genesys_Device* dev) const
   Genesys_Register_Set regs(Genesys_Register_Set::SEQUENTIAL);
   unsigned int used, vfinal, count;
     std::vector<uint16_t> slope_table;
-  uint8_t val;
 
   /* no need to load document is flatbed scanner */
     if (!dev->model->is_sheetfed) {
@@ -1138,15 +1104,15 @@ void CommandSetGl646::load_document(Genesys_Device* dev) const
       return;
     }
 
-    val = sanei_genesys_get_status(dev);
+    auto status = scanner_read_status(*dev);
 
-  /* HOMSNR is set if a document is inserted */
-    if ((val & REG_0x41_HOMESNR)) {
+    // home sensor is set if a document is inserted
+    if (status.is_at_home) {
       /* if no document, waits for a paper event to start loading */
       /* with a 60 seconde minutes timeout                        */
       count = 0;
-      do
-	{
+        std::uint8_t val = 0;
+        do {
             gl646_gpio_read(dev->interface->get_usb_device(), &val);
 
 	  DBG(DBG_info, "%s: GPIO=0x%02x\n", __func__, val);
@@ -1206,10 +1172,10 @@ void CommandSetGl646::load_document(Genesys_Device* dev) const
   count = 0;
   do
     {
-        val = sanei_genesys_get_status(dev);
+        status = scanner_read_status(*dev);
         dev->interface->sleep_ms(200);
       count++;
-    } while ((val & REG_0x41_MOTMFLG) && (count < 300));
+    } while (status.is_motor_enabled && (count < 300));
 
   if (count == 300)
     {
@@ -1234,15 +1200,12 @@ void CommandSetGl646::load_document(Genesys_Device* dev) const
 void CommandSetGl646::detect_document_end(Genesys_Device* dev) const
 {
     DBG_HELPER(dbg);
-  uint8_t val, gpio;
+    std::uint8_t gpio;
     unsigned int bytes_left;
 
     // test for document presence
-    val = sanei_genesys_get_status(dev);
-  if (DBG_LEVEL > DBG_info)
-    {
-      print_status (val);
-    }
+    scanner_read_print_status(*dev);
+
     gl646_gpio_read(dev->interface->get_usb_device(), &gpio);
   DBG(DBG_info, "%s: GPIO=0x%02x\n", __func__, gpio);
 
@@ -1296,7 +1259,7 @@ void CommandSetGl646::eject_document(Genesys_Device* dev) const
   Genesys_Register_Set regs((Genesys_Register_Set::SEQUENTIAL));
   unsigned int used, vfinal, count;
     std::vector<uint16_t> slope_table;
-  uint8_t gpio, state;
+    std::uint8_t gpio;
 
   /* at the end there will be noe more document */
     dev->document = false;
@@ -1307,16 +1270,10 @@ void CommandSetGl646::eject_document(Genesys_Device* dev) const
   DBG(DBG_info, "%s: GPIO=0x%02x\n", __func__, gpio);
 
     // test status : paper event + HOMESNR -> no more doc ?
-    state = sanei_genesys_get_status(dev);
+    auto status = scanner_read_status(*dev);
 
-  DBG(DBG_info, "%s: state=0x%02x\n", __func__, state);
-  if (DBG_LEVEL > DBG_info)
-    {
-      print_status (state);
-    }
-
-  /* HOMSNR=0 if no document inserted */
-    if ((state & REG_0x41_HOMESNR) != 0) {
+    // home sensor is set when document is inserted
+    if (status.is_at_home) {
         dev->document = false;
       DBG(DBG_info, "%s: no more document to eject\n", __func__);
       DBG(DBG_proc, "%s: end\n", __func__);
@@ -1327,12 +1284,11 @@ void CommandSetGl646::eject_document(Genesys_Device* dev) const
     dev->interface->write_register(0x01, 0xb0);
 
   /* wait for motor to stop */
-  do
-    {
+    do {
         dev->interface->sleep_ms(200);
-        state = sanei_genesys_get_status(dev);
+        status = scanner_read_status(*dev);
     }
-    while (state & REG_0x41_MOTMFLG);
+    while (status.is_motor_enabled);
 
   /* set up to fast move before scan then move until document is detected */
   regs.init_reg(0x01, 0xb0);
@@ -1376,14 +1332,12 @@ void CommandSetGl646::eject_document(Genesys_Device* dev) const
   /* loop until paper sensor tells paper is out, and till motor is running */
   /* use a 30 timeout */
   count = 0;
-  do
-    {
-        state = sanei_genesys_get_status(dev);
+    do {
+        status = scanner_read_status(*dev);
 
-      print_status (state);
         dev->interface->sleep_ms(200);
       count++;
-    } while (((state & REG_0x41_HOMESNR) == 0) && (count < 150));
+    } while (!status.is_at_home && (count < 150));
 
     // read GPIO on exit
     gl646_gpio_read(dev->interface->get_usb_device(), &gpio);
@@ -1419,52 +1373,39 @@ static void end_scan_impl(Genesys_Device* dev, Genesys_Register_Set* reg, bool c
 {
     DBG_HELPER_ARGS(dbg, "check_stop = %d, eject = %d", check_stop, eject);
   int i = 0;
-  uint8_t val, scanfsh = 0;
+    uint8_t scanfsh = 0;
 
   /* we need to compute scanfsh before cancelling scan */
     if (dev->model->is_sheetfed) {
-        val = sanei_genesys_get_status(dev);
-
-        if (val & REG_0x41_SCANFSH) {
+        auto status = scanner_read_status(*dev);
+        if (status.is_scanning_finished) {
             scanfsh = 1;
         }
-      if (DBG_LEVEL > DBG_io2)
-	{
-	  print_status (val);
-	}
     }
 
   /* ends scan */
-    val = reg->get8(0x01);
+    std::uint8_t val = reg->get8(0x01);
     val &= ~REG_0x01_SCAN;
     reg->set8(0x01, val);
     dev->interface->write_register(0x01, val);
 
   /* for sheetfed scanners, we may have to eject document */
     if (dev->model->is_sheetfed) {
-        if (eject && dev->document)
-	{
+        if (eject && dev->document) {
             dev->cmd_set->eject_document(dev);
 	}
-      if (check_stop)
-	{
+        if (check_stop) {
 	  for (i = 0; i < 30; i++)	/* do not wait longer than wait 3 seconds */
 	    {
-            val = sanei_genesys_get_status(dev);
+                auto status = scanner_read_status(*dev);
+                if (status.is_scanning_finished) {
+                    scanfsh = 1;
+                }
 
-                if (val & REG_0x41_SCANFSH) {
-                scanfsh = 1;
-            }
-
-          if (DBG_LEVEL > DBG_io2)
-		{
-		  print_status (val);
-		}
-
-                if (!(val & REG_0x41_MOTMFLG) && (val & REG_0x41_FEEDFSH) && scanfsh) {
-		  DBG(DBG_proc, "%s: scanfeed finished\n", __func__);
-		  break;	/* leave for loop */
-		}
+                if (!status.is_motor_enabled && status.is_feeding_finished && scanfsh) {
+                    DBG(DBG_proc, "%s: scanfeed finished\n", __func__);
+                    break;	/* leave for loop */
+                }
 
                 dev->interface->sleep_ms(100);
             }
@@ -1472,30 +1413,25 @@ static void end_scan_impl(Genesys_Device* dev, Genesys_Register_Set* reg, bool c
     }
   else				/* flat bed scanners */
     {
-      if (check_stop)
-    {
+        if (check_stop) {
       for (i = 0; i < 300; i++)	/* do not wait longer than wait 30 seconds */
         {
-            val = sanei_genesys_get_status(dev);
 
-                if (val & REG_0x41_SCANFSH) {
-                scanfsh = 1;
-            }
-	      if (DBG_LEVEL > DBG_io)
-		{
-		  print_status (val);
-		}
+                auto status = scanner_read_status(*dev);
 
-                if (!(val & REG_0x41_MOTMFLG) && (val & REG_0x41_FEEDFSH) && scanfsh)
-		{
+                if (status.is_scanning_finished) {
+                    scanfsh = 1;
+                }
+
+                if (!status.is_motor_enabled && status.is_feeding_finished && scanfsh) {
 		  DBG(DBG_proc, "%s: scanfeed finished\n", __func__);
-		  break;	/* leave while loop */
-		}
+                    break;
+                }
 
-                if ((!(val & REG_0x41_MOTMFLG)) && (val & REG_0x41_HOMESNR)) {
+                if (!status.is_motor_enabled && status.is_at_home) {
 		  DBG(DBG_proc, "%s: head at home\n", __func__);
-		  break;	/* leave while loop */
-		}
+                    break;
+                }
 
                 dev->interface->sleep_ms(100);
             }
@@ -1520,44 +1456,38 @@ void CommandSetGl646::end_scan(Genesys_Device* dev, Genesys_Register_Set* reg,
 void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) const
 {
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d\n", wait_until_home);
-  Genesys_Settings settings;
-  uint8_t val;
   int i;
   int loop = 0;
 
-    val = sanei_genesys_get_status(dev);
-
-  if (DBG_LEVEL > DBG_io)
-    {
-      print_status (val);
-    }
-
+    auto status = scanner_read_status(*dev);
   dev->scanhead_position_in_steps = 0;
 
-    if (val & REG_0x41_HOMESNR)	{
+    if (status.is_at_home) {
       DBG(DBG_info, "%s: end since already at home\n", __func__);
-      return;
+        return;
     }
 
   /* stop motor if needed */
-    if (val & REG_0x41_MOTMFLG) {
+    if (status.is_motor_enabled) {
         gl646_stop_motor(dev);
         dev->interface->sleep_ms(200);
     }
 
   /* when scanhead is moving then wait until scanhead stops or timeout */
   DBG(DBG_info, "%s: ensuring that motor is off\n", __func__);
-    val = REG_0x41_MOTMFLG;
-    for (i = 400; i > 0 && (val & REG_0x41_MOTMFLG); i--) {
+    for (i = 400; i > 0; i--) {
         // do not wait longer than 40 seconds, count down to get i = 0 when busy
 
-        val = sanei_genesys_get_status(dev);
+        status = scanner_read_status(*dev);
 
-        if (((val & (REG_0x41_MOTMFLG | REG_0x41_HOMESNR)) == REG_0x41_HOMESNR)) {
-            // at home and motor is off
+        if (!status.is_motor_enabled && status.is_at_home) {
             DBG(DBG_info, "%s: already at home and not moving\n", __func__);
             return;
         }
+        if (!status.is_motor_enabled) {
+            break;
+        }
+
         dev->interface->sleep_ms(100);
     }
 
@@ -1567,33 +1497,38 @@ void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     }
 
     // setup for a backward scan of 65535 steps, with no actual data reading
-    settings.scan_method = dev->model->default_method;
-  settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-    settings.xres = sanei_genesys_get_lowest_dpi(dev);
-  settings.yres = settings.xres;
-  settings.tl_x = 0;
-  settings.tl_y = 0;
-  settings.pixels = 600;
-    settings.requested_pixels = settings.pixels;
-  settings.lines = 1;
-  settings.depth = 8;
-  settings.color_filter = ColorFilter::RED;
+    auto resolution = sanei_genesys_get_lowest_dpi(dev);
 
-  settings.disable_interpolation = 0;
-  settings.threshold = 0;
-
-    const auto& sensor = sanei_genesys_find_sensor(dev, settings.xres, 3,
+    const auto& sensor = sanei_genesys_find_sensor(dev, resolution, 3,
                                                    dev->model->default_method);
 
-    setup_for_scan(dev, sensor, &dev->reg, settings, true, true, true);
+    ScanSession session;
+    session.params.xres = resolution;
+    session.params.yres = resolution;
+    session.params.startx = 0;
+    session.params.starty = 65535;
+    session.params.pixels = 600;
+    session.params.requested_pixels = 600;
+    session.params.lines = 1;
+    session.params.depth = 8;
+    session.params.channels = 3;
+    session.params.scan_method = dev->model->default_method;
+    session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    session.params.color_filter = ColorFilter::RED;
+    session.params.flags = ScanFlag::USE_XCORRECTION |
+                            ScanFlag::REVERSE;
+    if (dev->model->default_method == ScanMethod::TRANSPARENCY) {
+        session.params.flags |= ScanFlag::USE_XPA;
+    }
+    compute_session(dev, session, sensor);
+
+    init_regs_for_scan_session(dev, sensor, &dev->reg, session);
 
   /* backward , no actual data scanned TODO more setup flags to avoid this register manipulations ? */
-    dev->reg.find_reg(0x02).value |= REG_0x02_MTRREV;
     dev->reg.find_reg(0x01).value &= ~REG_0x01_SCAN;
-    dev->reg.set24(REG_FEEDL, 65535);
 
     // sets frontend
-    gl646_set_fe(dev, sensor, AFE_SET, settings.xres);
+    gl646_set_fe(dev, sensor, AFE_SET, resolution);
 
   /* write scan registers */
     try {
@@ -1621,10 +1556,9 @@ void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     {
       while (loop < 300)		/* do not wait longer then 30 seconds */
 	{
-        val = sanei_genesys_get_status(dev);
+            auto status = scanner_read_status(*dev);
 
-	  if (val & 0x08)	/* home sensor */
-	    {
+            if (status.is_at_home) {
 	      DBG(DBG_info, "%s: reached home position\n", __func__);
 	      DBG(DBG_proc, "%s: end\n", __func__);
                 dev->interface->sleep_ms(500);
@@ -1779,7 +1713,7 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 
     // we don't want top offset, but we need right margin to be the same than the one for the final
     // scan
-    setup_for_scan(dev, calib_sensor, &dev->reg, settings, true, false, false);
+    setup_for_scan(dev, calib_sensor, &dev->reg, settings, true, false, false, false);
 
   /* used when sending shading calibration data */
   dev->calib_pixels = settings.pixels;
@@ -1828,15 +1762,7 @@ void CommandSetGl646::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
 
     ScanSession session = calculate_scan_session(dev, sensor, dev->settings);
 
-    std::vector<uint16_t> slope_table0;
-    std::vector<uint16_t> slope_table1;
-
-    // set up correct values for scan (gamma and shading enabled)
-    gl646_setup_registers(dev, sensor, &dev->reg, session, slope_table0, slope_table1);
-
-    // send computed slope tables
-    gl646_send_slope_table(dev, 0, slope_table0, dev->reg.get8(0x21));
-    gl646_send_slope_table(dev, 1, slope_table1, dev->reg.get8(0x6b));
+    init_regs_for_scan_session(dev, sensor, &dev->reg, session);
 
   /* gamma is only enabled at final scan time */
     if (dev->settings.depth < 16) {
@@ -1861,7 +1787,8 @@ static void setup_for_scan(Genesys_Device* dev,
                            Genesys_Settings settings,
                            bool split,
                            bool xcorrection,
-                           bool ycorrection)
+                           bool ycorrection,
+                           bool reverse)
 {
     DBG_HELPER(dbg);
 
@@ -1918,17 +1845,12 @@ static void setup_for_scan(Genesys_Device* dev,
     if (xcorrection) {
         session.params.flags |= ScanFlag::USE_XCORRECTION;
     }
+    if (reverse) {
+        session.params.flags |= ScanFlag::REVERSE;
+    }
     compute_session(dev, session, sensor);
 
-    std::vector<uint16_t> slope_table0;
-    std::vector<uint16_t> slope_table1;
-
-    // set up correct values for scan (gamma and shading enabled)
-    gl646_setup_registers(dev, sensor, regs, session, slope_table0, slope_table1);
-
-    // send computed slope tables
-    gl646_send_slope_table(dev, 0, slope_table0, regs->get8(0x21));
-    gl646_send_slope_table(dev, 1, slope_table1, regs->get8(0x6b));
+    dev->cmd_set->init_regs_for_scan_session(dev, sensor, regs, session);
 }
 
 /**
@@ -2702,7 +2624,7 @@ void CommandSetGl646::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
   settings.threshold = 0;
 
     // setup for scan
-    setup_for_scan(dev, local_sensor, &dev->reg, settings, true, false, false);
+    setup_for_scan(dev, local_sensor, &dev->reg, settings, true, false, false, false);
 
   /* we are not going to move, so clear these bits */
     dev->reg.find_reg(0x02).value &= ~(REG_0x02_FASTFED | REG_0x02_AGOHOME);
@@ -2756,7 +2678,7 @@ static void gl646_repark_head(Genesys_Device* dev)
     const auto& sensor = sanei_genesys_find_sensor(dev, settings.xres, 3,
                                                    dev->model->default_method);
 
-    setup_for_scan(dev, sensor, &dev->reg, settings, false, false, false);
+    setup_for_scan(dev, sensor, &dev->reg, settings, false, false, false, false);
 
   /* TODO seems wrong ... no effective scan */
     dev->reg.find_reg(0x01).value &= ~REG_0x01_SCAN;
@@ -2792,17 +2714,12 @@ void CommandSetGl646::init(Genesys_Device* dev) const
   uint32_t addr = 0xdead;
   size_t len;
 
-    // to detect real power up condition, we write to REG_0x41 with pwrbit set, then read it back. When
-    // scanner is cold (just replugged) PWRBIT will be set in the returned value
-    std::uint8_t cold = sanei_genesys_get_status(dev);
-  DBG(DBG_info, "%s: status=0x%02x\n", __func__, cold);
-    cold = !(cold & REG_0x41_PWRBIT);
-  if (cold)
-    {
+    // to detect real power up condition, we write to REG_0x41 with pwrbit set, then read it back.
+    // When scanner is cold (just replugged) PWRBIT will be set in the returned value
+    auto status = scanner_read_status(*dev);
+    if (status.is_replugged) {
       DBG(DBG_info, "%s: device is cold\n", __func__);
-    }
-  else
-    {
+    } else {
       DBG(DBG_info, "%s: device is hot\n", __func__);
     }
 
@@ -2826,13 +2743,14 @@ void CommandSetGl646::init(Genesys_Device* dev) const
       dev->calib_reg = dev->reg;
     }
 
-  /* execute physical unit init only if cold */
-  if (cold)
+    // execute physical unit init only if cold
+    if (status.is_replugged)
     {
       DBG(DBG_info, "%s: device is cold\n", __func__);
 
         val = 0x04;
-        dev->interface->get_usb_device().control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, VALUE_INIT, INDEX, 1, &val);
+        dev->interface->get_usb_device().control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER,
+                                                     VALUE_INIT, INDEX, 1, &val);
 
         // ASIC reset
         dev->interface->write_register(0x0e, 0x00);
@@ -2846,7 +2764,7 @@ void CommandSetGl646::init(Genesys_Device* dev) const
 
         // Set powersaving(default = 15 minutes)
         dev->cmd_set->set_powersaving(dev, 15);
-    }				/* end if cold */
+    }
 
     // Set analog frontend
     gl646_set_fe(dev, sensor, AFE_INIT, 0);
@@ -2967,7 +2885,7 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
 
   /* setup for move then scan */
     split = !(move && settings.tl_y > 0);
-    setup_for_scan(dev, sensor, &dev->reg, settings, split, false, false);
+    setup_for_scan(dev, sensor, &dev->reg, settings, split, false, false, !forward);
 
   /* allocate memory fo scan : LINCNT may have been adjusted for CCD reordering */
     if (dev->model->is_cis) {
@@ -3010,11 +2928,6 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
 
       /* no automatic go home if no movement */
         dev->reg.find_reg(0x02).value &= ~REG_0x02_AGOHOME;
-    }
-    if (!forward) {
-        dev->reg.find_reg(0x02).value |= REG_0x02_MTRREV;
-    } else {
-        dev->reg.find_reg(0x02).value &= ~REG_0x02_MTRREV;
     }
 
   /* no automatic go home when using XPA */

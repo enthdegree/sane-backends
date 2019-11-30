@@ -109,9 +109,9 @@ static Memory_layout layouts[]={
 	}
 };
 
-static void gl124_feed(Genesys_Device* dev, unsigned int steps, int reverse);
+void gl124_feed(Genesys_Device* dev, unsigned int steps, int reverse);
 
-static void gl124_stop_action(Genesys_Device* dev);
+void gl124_stop_action(Genesys_Device* dev);
 
 static void gl124_send_slope_table(Genesys_Device* dev, int table_nr,
                                    const std::vector<uint16_t>& slope_table, int steps);
@@ -137,9 +137,9 @@ public:
 
     void init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const override;
 
-    bool get_gain4_bit(Genesys_Register_Set * reg) const override;
-
-    bool test_buffer_empty_bit(std::uint8_t val) const override;
+    void init_regs_for_scan_session(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                    Genesys_Register_Set* reg,
+                                    const ScanSession& session) const override;
 
     void set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set) const override;
     void set_powersaving(Genesys_Device* dev, int delay) const override;
@@ -168,6 +168,10 @@ public:
     void rewind(Genesys_Device* dev) const override;
 
     void update_hardware_sensors(struct Genesys_Scanner* s) const override;
+
+    bool needs_update_home_sensor_gpio() const override { return true; }
+
+    void update_home_sensor_gpio(Genesys_Device& dev) const override;
 
     void load_document(Genesys_Device* dev) const override;
 

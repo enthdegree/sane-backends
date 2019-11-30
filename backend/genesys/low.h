@@ -89,6 +89,7 @@
 #include "serialize.h"
 #include "settings.h"
 #include "static_init.h"
+#include "status.h"
 #include "register.h"
 
 #include <algorithm>
@@ -196,15 +197,6 @@
 #define MOTOR_SPEED_MAX		350
 #define DARK_VALUE		0
 
-#define PWRBIT	        0x80
-#define BUFEMPTY	0x40
-#define FEEDFSH	        0x20
-#define SCANFSH	        0x10
-#define HOMESNR	        0x08
-#define LAMPSTS	        0x04
-#define FEBUSY	        0x02
-#define MOTORENB	0x01
-
 #define MAX_RESOLUTIONS 13
 #define MAX_DPI 4
 
@@ -242,11 +234,6 @@ extern StaticInit<std::vector<Motor_Profile>> gl124_motor_profiles;
 
 constexpr unsigned SLOPE_TABLE_SIZE = 1024;
 
-#define MOTOR_FLAG_AUTO_GO_HOME             0x01
-#define MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE 0x02
-#define MOTOR_FLAG_FEED                     0x04
-#define MOTOR_FLAG_USE_XPA                  0x08
-
 /*--------------------------------------------------------------------------*/
 /*       common functions needed by low level specific functions            */
 /*--------------------------------------------------------------------------*/
@@ -263,9 +250,17 @@ inline GenesysRegister* sanei_genesys_get_address(Genesys_Register_Set* regs, ui
 
 extern void sanei_genesys_init_cmd_set(Genesys_Device* dev);
 
-std::uint8_t sanei_genesys_get_status(Genesys_Device* dev);
+// reads the status of the scanner
+Status scanner_read_status(Genesys_Device& dev);
 
-extern void sanei_genesys_print_status (uint8_t val);
+// reads the status of the scanner reliably. This is done by reading the status twice. The first
+// read sometimes returns the home sensor as engaged when this is not true.
+Status scanner_read_reliable_status(Genesys_Device& dev);
+
+// reads and prints the scanner status
+void scanner_read_print_status(Genesys_Device& dev);
+
+void debug_print_status(DebugMessageHelper& dbg, Status status);
 
 extern void sanei_genesys_write_ahb(Genesys_Device* dev, uint32_t addr, uint32_t size,
                                     uint8_t* data);
@@ -357,6 +352,8 @@ extern void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Se
                                                  const uint8_t* src_data, int start_pixel, int dpi,
                                                  int width, int height);
 
+void scanner_slow_back_home(Genesys_Device& dev, bool wait_until_home);
+
 extern void sanei_genesys_write_file(const char* filename, const std::uint8_t* data,
                                      std::size_t length);
 
@@ -406,6 +403,8 @@ inline SensorExposure sanei_genesys_fixup_exposure(SensorExposure exposure)
     exposure.blue = sanei_genesys_fixup_exposure_value(exposure.blue);
     return exposure;
 }
+
+bool get_registers_gain4_bit(AsicType asic_type, const Genesys_Register_Set& regs);
 
 extern void sanei_genesys_wait_for_home(Genesys_Device* dev);
 

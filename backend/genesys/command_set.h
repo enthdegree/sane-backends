@@ -76,9 +76,12 @@ public:
                                        Genesys_Register_Set& regs) const = 0;
     virtual void init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const = 0;
 
-    virtual bool get_gain4_bit(Genesys_Register_Set * reg) const = 0;
-
-    virtual bool test_buffer_empty_bit(std::uint8_t val) const = 0;
+    /** Set up registers for a scan. Similar to init_regs_for_scan except that the session is
+        already computed from the session
+    */
+    virtual void init_regs_for_scan_session(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                            Genesys_Register_Set* reg,
+                                            const ScanSession& session) const= 0;
 
     virtual void set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, std::uint8_t set) const = 0;
     virtual void set_powersaving(Genesys_Device* dev, int delay) const = 0;
@@ -88,6 +91,7 @@ public:
                             Genesys_Register_Set* regs, bool start_motor) const = 0;
     virtual void end_scan(Genesys_Device* dev, Genesys_Register_Set* regs,
                           bool check_stop) const = 0;
+
 
     /**
      * Send gamma tables to ASIC
@@ -110,6 +114,16 @@ public:
 
     // Updates hardware sensor information in Genesys_Scanner.val[].
     virtual void update_hardware_sensors(struct Genesys_Scanner* s) const = 0;
+
+    /** Whether the scanner needs to call update_home_sensor_gpio before reading the status of the
+        home sensor. On some chipsets this is unreliable until update_home_sensor_gpio() is called.
+    */
+    virtual bool needs_update_home_sensor_gpio() const { return false; }
+
+    /** Needed on some chipsets before reading the status of the home sensor to make this operation
+        reliable.
+    */
+    virtual void update_home_sensor_gpio(Genesys_Device& dev) const { (void) dev; }
 
     // functions for sheetfed scanners
 

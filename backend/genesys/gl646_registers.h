@@ -98,6 +98,7 @@ static constexpr RegMask REG_0x05_GMMENB = 0x08;
 static constexpr RegMask REG_0x05_LEDADD = 0x04;
 static constexpr RegMask REG_0x05_BASESEL = 0x03;
 
+static constexpr RegAddr REG_0x06 = 0x06;
 static constexpr RegMask REG_0x06_PWRBIT = 0x10;
 static constexpr RegMask REG_0x06_GAIN4 = 0x08;
 static constexpr RegMask REG_0x06_OPTEST = 0x07;

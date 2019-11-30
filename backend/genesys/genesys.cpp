@@ -62,6 +62,10 @@
 
 #include "genesys.h"
 #include "conv.h"
+#include "gl124_registers.h"
+#include "gl843_registers.h"
+#include "gl846_registers.h"
+#include "gl847_registers.h"
 #include "usb_device.h"
 #include "utilities.h"
 #include "scanner_interface_usb.h"
@@ -865,6 +869,217 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
 
     DBG(DBG_proc, "%s: ccd_start_xoffset = %d, left = %d, top = %d\n", __func__,
         sensor.ccd_start_xoffset, left, top);
+}
+
+namespace gl843 {
+    void gl843_park_xpa_lamp(Genesys_Device* dev);
+    void gl843_stop_action(Genesys_Device* dev);
+} // namespace gl843
+
+namespace gl846 {
+    void gl846_stop_action(Genesys_Device* dev);
+} // namespace gl846
+
+namespace gl847 {
+    void gl847_stop_action(Genesys_Device* dev);
+} // namespace gl847
+
+namespace gl124 {
+    void gl124_feed(Genesys_Device* dev, unsigned int steps, int reverse);
+    void gl124_setup_scan_gpio(Genesys_Device* dev, int resolution);
+    void gl124_stop_action(Genesys_Device* dev);
+} // namespace gl124
+
+void scanner_clear_scan_and_feed_counts(Genesys_Device& dev)
+{
+    switch (dev.model->asic_type) {
+        case AsicType::GL843: {
+            dev.interface->write_register(gl843::REG_0x0D,
+                                          gl843::REG_0x0D_CLRLNCNT | gl843::REG_0x0D_CLRMCNT);
+            break;
+        }
+        case AsicType::GL845:
+        case AsicType::GL846: {
+            dev.interface->write_register(gl846::REG_0x0D,
+                                          gl846::REG_0x0D_CLRLNCNT | gl846::REG_0x0D_CLRMCNT);
+            break;
+        }
+        case AsicType::GL847:{
+            dev.interface->write_register(gl847::REG_0x0D,
+                                          gl847::REG_0x0D_CLRLNCNT | gl847::REG_0x0D_CLRMCNT);
+            break;
+        }
+        case AsicType::GL124:{
+            dev.interface->write_register(gl124::REG_0x0D,
+                                          gl124::REG_0x0D_CLRLNCNT | gl124::REG_0x0D_CLRMCNT);
+            break;
+        }
+        default:
+            throw SaneException("Unsupported asic type");
+    }
+}
+
+void scanner_stop_action(Genesys_Device& dev)
+{
+    switch (dev.model->asic_type) {
+        case AsicType::GL843: {
+            gl843::gl843_stop_action(&dev);
+            break;
+        }
+        case AsicType::GL845:
+        case AsicType::GL846: {
+            gl846::gl846_stop_action(&dev);
+            break;
+        }
+        case AsicType::GL847:{
+            gl847::gl847_stop_action(&dev);
+            break;
+        }
+        case AsicType::GL124:{
+            gl124::gl124_stop_action(&dev);
+            break;
+        }
+        default:
+            throw SaneException("Unsupported asic type");
+    }
+}
+
+void scanner_slow_back_home(Genesys_Device& dev, bool wait_until_home)
+{
+    DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
+
+    switch (dev.model->asic_type) {
+        case AsicType::GL843:
+        case AsicType::GL845:
+        case AsicType::GL846:
+        case AsicType::GL847:
+        case AsicType::GL124:
+            break;
+        default:
+            throw SaneException("Unsupported asic type");
+    }
+
+    if (dev.needs_home_ta) {
+        gl843::gl843_park_xpa_lamp(&dev);
+    }
+
+    if (dev.cmd_set->needs_update_home_sensor_gpio()) {
+        dev.cmd_set->update_home_sensor_gpio(dev);
+    }
+
+    auto status = scanner_read_reliable_status(dev);
+
+    if (dev.model->asic_type == AsicType::GL843) {
+        dev.scanhead_position_in_steps = 0;
+    }
+
+    if (status.is_at_home) {
+        dbg.log(DBG_info, "already at home");
+        dev.scanhead_position_in_steps = 0;
+        return;
+    }
+
+    if (dev.model->model_id == ModelId::CANON_LIDE_210) {
+        // feed a little first
+        gl124::gl124_feed(&dev, 20, true);
+    }
+
+    Genesys_Register_Set local_reg = dev.reg;
+    unsigned resolution = sanei_genesys_get_lowest_ydpi(&dev);
+
+    const auto& sensor = sanei_genesys_find_sensor(&dev, resolution, 1, dev.model->default_method);
+
+    ScanSession session;
+    session.params.xres = resolution;
+    session.params.yres = resolution;
+    session.params.startx = 100;
+    if (dev.model->asic_type == AsicType::GL843) {
+        session.params.starty = 40000;
+    } else {
+        session.params.starty = 30000;
+    }
+    session.params.pixels = 100;
+    session.params.lines = 100;
+    session.params.depth = 8;
+    session.params.channels = 1;
+    session.params.scan_method = dev.settings.scan_method;
+    if (dev.model->asic_type == AsicType::GL843) {
+        session.params.scan_mode = ScanColorMode::LINEART;
+        session.params.color_filter = dev.settings.color_filter;
+    } else {
+        session.params.scan_mode = ScanColorMode::GRAY;
+        session.params.color_filter = ColorFilter::RED;
+    }
+    session.params.flags =  ScanFlag::DISABLE_SHADING |
+                            ScanFlag::DISABLE_GAMMA |
+                            ScanFlag::IGNORE_LINE_DISTANCE |
+                            ScanFlag::REVERSE;
+    if (dev.model->asic_type == AsicType::GL843) {
+        session.params.flags |= ScanFlag::DISABLE_BUFFER_FULL_MOVE;
+    }
+
+    compute_session(&dev, session, sensor);
+
+    dev.cmd_set->init_regs_for_scan_session(&dev, sensor, &local_reg, session);
+
+    scanner_clear_scan_and_feed_counts(dev);
+
+    // FIXME: why we do differently than other asics here?
+    if (dev.model->asic_type == AsicType::GL843) {
+        local_reg.find_reg(gl843::REG_0x01).value &= ~gl843::REG_0x01_SCAN;
+    }
+
+    dev.interface->write_registers(local_reg);
+
+    if (dev.model->asic_type == AsicType::GL124) {
+        gl124::gl124_setup_scan_gpio(&dev, resolution);
+    }
+
+    try {
+        scanner_start_action(dev, true);
+    } catch (...) {
+        catch_all_exceptions(__func__, [&]() { scanner_stop_action(dev); });
+        // restore original registers
+        catch_all_exceptions(__func__, [&]()
+        {
+            dev.interface->write_registers(dev.reg);
+        });
+        throw;
+    }
+
+    if (dev.cmd_set->needs_update_home_sensor_gpio()) {
+        dev.cmd_set->update_home_sensor_gpio(dev);
+    }
+
+    if (is_testing_mode()) {
+        dev.interface->test_checkpoint("slow_back_home");
+        return;
+    }
+
+    if (wait_until_home) {
+        for (unsigned i = 0; i < 300; ++i) {
+            auto status = scanner_read_status(dev);
+
+            if (status.is_at_home) {
+                dbg.log(DBG_info, "reached home position");
+                if (dev.model->asic_type == AsicType::GL846 ||
+                    dev.model->asic_type == AsicType::GL847)
+                {
+                    scanner_stop_action(dev);
+                }
+                dev.scanhead_position_in_steps = 0;
+                return;
+            }
+
+            dev.interface->sleep_ms(100);
+        }
+
+        // when we come here then the scanner needed too much time for this, so we better stop
+        // the motor
+        catch_all_exceptions(__func__, [&](){ scanner_stop_action(dev); });
+        throw SaneException(SANE_STATUS_IO_ERROR, "timeout while waiting for scanhead to go home");
+    }
+    dbg.log(DBG_info, "scanhead is still moving");
 }
 
 void sanei_genesys_calculate_zmod(bool two_table,
@@ -2094,7 +2309,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
      Wn = white average for column n
      Dn = dark average for column n
    */
-    if (dev->cmd_set->get_gain4_bit(&dev->calib_reg)) {
+    if (get_registers_gain4_bit(dev->model->asic_type, dev->calib_reg)) {
         coeff = 0x4000;
     } else {
         coeff = 0x2000;

@@ -43,28 +43,24 @@
 
 #define DEBUG_DECLARE_ONLY
 
-#include "static_init.h"
-#include <vector>
+#include "status.h"
+#include <iostream>
 
 namespace genesys {
 
-static std::unique_ptr<std::vector<std::function<void()>>> s_functions_run_at_backend_exit;
-
-void add_function_to_run_at_backend_exit(const std::function<void()>& function)
+std::ostream& operator<<(std::ostream& out, Status status)
 {
-    if (!s_functions_run_at_backend_exit)
-        s_functions_run_at_backend_exit.reset(new std::vector<std::function<void()>>());
-    s_functions_run_at_backend_exit->push_back(std::move(function));
-}
-
-void run_functions_at_backend_exit()
-{
-    for (auto it = s_functions_run_at_backend_exit->rbegin();
-         it != s_functions_run_at_backend_exit->rend(); ++it)
-    {
-        (*it)();
-    }
-    s_functions_run_at_backend_exit.reset();
+    out << "Status{\n"
+        << "    replugged: " << (status.is_replugged ? "yes" : "no") << '\n'
+        << "    is_buffer_empty: " << (status.is_buffer_empty ? "yes" : "no") << '\n'
+        << "    is_feeding_finished: " << (status.is_feeding_finished ? "yes" : "no") << '\n'
+        << "    is_scanning_finished: " << (status.is_scanning_finished ? "yes" : "no") << '\n'
+        << "    is_at_home: " << (status.is_at_home ? "yes" : "no") << '\n'
+        << "    is_lamp_on: " << (status.is_lamp_on ? "yes" : "no") << '\n'
+        << "    is_front_end_busy: " << (status.is_front_end_busy ? "yes" : "no") << '\n'
+        << "    is_motor_enabled: " << (status.is_motor_enabled ? "yes" : "no") << '\n'
+        << "}\n";
+    return out;
 }
 
 } // namespace genesys

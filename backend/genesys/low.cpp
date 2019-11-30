@@ -48,6 +48,13 @@
 #include "assert.h"
 #include "test_settings.h"
 
+#include "gl124_registers.h"
+#include "gl841_registers.h"
+#include "gl843_registers.h"
+#include "gl846_registers.h"
+#include "gl847_registers.h"
+#include "gl646_registers.h"
+
 #include <cstdio>
 #include <cmath>
 #include <vector>
@@ -259,36 +266,73 @@ void sanei_genesys_set_buffer_address(Genesys_Device* dev, uint32_t addr)
 /*                       Medium level functions                             */
 /* ------------------------------------------------------------------------ */
 
-/** read the status register
- */
-std::uint8_t sanei_genesys_get_status(Genesys_Device* dev)
+Status scanner_read_status(Genesys_Device& dev)
 {
     DBG_HELPER(dbg);
-    std::uint16_t address = 0x41;
-    if (dev->model->asic_type == AsicType::GL124) {
-        address = 0x101;
+    std::uint16_t address = 0;
+
+    switch (dev.model->asic_type) {
+        case AsicType::GL124: address = 0x101; break;
+        case AsicType::GL646:
+        case AsicType::GL841:
+        case AsicType::GL843:
+        case AsicType::GL845:
+        case AsicType::GL846:
+        case AsicType::GL847: address = 0x41; break;
+        default: throw SaneException("Unsupported asic type");
     }
-    return dev->interface->read_register(address);
+
+    // same for all chips
+    constexpr std::uint8_t PWRBIT = 0x80;
+    constexpr std::uint8_t BUFEMPTY	= 0x40;
+    constexpr std::uint8_t FEEDFSH = 0x20;
+    constexpr std::uint8_t SCANFSH = 0x10;
+    constexpr std::uint8_t HOMESNR = 0x08;
+    constexpr std::uint8_t LAMPSTS = 0x04;
+    constexpr std::uint8_t FEBUSY = 0x02;
+    constexpr std::uint8_t MOTORENB	= 0x01;
+
+    auto value = dev.interface->read_register(address);
+    Status status;
+    status.is_replugged = !(value & PWRBIT);
+    status.is_buffer_empty = value & BUFEMPTY;
+    status.is_feeding_finished = value & FEEDFSH;
+    status.is_scanning_finished = value & SCANFSH;
+    status.is_at_home = value & HOMESNR;
+    status.is_lamp_on = value & LAMPSTS;
+    status.is_front_end_busy = value & FEBUSY;
+    status.is_motor_enabled = value & MOTORENB;
+
+    if (DBG_LEVEL >= DBG_io) {
+        debug_print_status(dbg, status);
+    }
+
+    return status;
+}
+
+Status scanner_read_reliable_status(Genesys_Device& dev)
+{
+    DBG_HELPER(dbg);
+
+    scanner_read_status(dev);
+    dev.interface->sleep_ms(100);
+    return scanner_read_status(dev);
+}
+
+void scanner_read_print_status(Genesys_Device& dev)
+{
+    scanner_read_status(dev);
 }
 
 /**
  * decodes and prints content of status register
  * @param val value read from status register
  */
-void sanei_genesys_print_status (uint8_t val)
+void debug_print_status(DebugMessageHelper& dbg, Status val)
 {
-  char msg[80];
-
-  sprintf (msg, "%s%s%s%s%s%s%s%s",
-	   val & PWRBIT ? "PWRBIT " : "",
-	   val & BUFEMPTY ? "BUFEMPTY " : "",
-	   val & FEEDFSH ? "FEEDFSH " : "",
-	   val & SCANFSH ? "SCANFSH " : "",
-	   val & HOMESNR ? "HOMESNR " : "",
-	   val & LAMPSTS ? "LAMPSTS " : "",
-	   val & FEBUSY ? "FEBUSY " : "",
-	   val & MOTORENB ? "MOTORENB" : "");
-  DBG(DBG_info, "status=%s\n", msg);
+    std::stringstream str;
+    str << val;
+    dbg.vlog(DBG_info, "status=%s\n", str.str().c_str());
 }
 
 #if 0
@@ -393,12 +437,12 @@ void sanei_genesys_read_scancnt(Genesys_Device* dev, unsigned int* words)
 bool sanei_genesys_is_buffer_empty(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  uint8_t val = 0;
 
     dev->interface->sleep_ms(1);
-    val = sanei_genesys_get_status(dev);
 
-    if (dev->cmd_set->test_buffer_empty_bit(val)) {
+    auto status = scanner_read_status(*dev);
+
+    if (status.is_buffer_empty) {
       /* fix timing issue on USB3 (or just may be too fast) hardware
        * spotted by John S. Weber <jweber53@gmail.com>
        */
@@ -420,7 +464,7 @@ void wait_until_buffer_non_empty(Genesys_Device* dev, bool check_status_twice)
 
         if (check_status_twice) {
             // FIXME: this only to preserve previous behavior, can be removed
-            sanei_genesys_get_status(dev);
+            scanner_read_status(*dev);
         }
 
         bool empty = sanei_genesys_is_buffer_empty(dev);
@@ -1600,13 +1644,33 @@ void sanei_genesys_set_dpihw(Genesys_Register_Set& regs, const Genesys_Sensor& s
     regs.set8_mask(0x05, dpihw_setting, REG_0x05_DPIHW_MASK);
 }
 
+bool get_registers_gain4_bit(AsicType asic_type, const Genesys_Register_Set& regs)
+{
+    switch (asic_type) {
+        case AsicType::GL646:
+            return static_cast<bool>(regs.get8(gl646::REG_0x06) & gl646::REG_0x06_GAIN4);
+        case AsicType::GL841:
+            return static_cast<bool>(regs.get8(gl841::REG_0x06) & gl841::REG_0x06_GAIN4);
+        case AsicType::GL843:
+            return static_cast<bool>(regs.get8(gl843::REG_0x06) & gl843::REG_0x06_GAIN4);
+        case AsicType::GL845:
+        case AsicType::GL846:
+            return static_cast<bool>(regs.get8(gl846::REG_0x06) & gl846::REG_0x06_GAIN4);
+        case AsicType::GL847:
+            return static_cast<bool>(regs.get8(gl847::REG_0x06) & gl847::REG_0x06_GAIN4);
+        case AsicType::GL124:
+            return static_cast<bool>(regs.get8(gl124::REG_0x06) & gl124::REG_0x06_GAIN4);
+        default:
+            throw SaneException("Unsupported chipset");
+    }
+}
+
 /**
  * Wait for the scanning head to park
  */
 void sanei_genesys_wait_for_home(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  uint8_t val;
 
   /* clear the parking status whatever the outcome of the function */
     dev->parking = false;
@@ -1617,13 +1681,11 @@ void sanei_genesys_wait_for_home(Genesys_Device* dev)
 
     // read initial status, if head isn't at home and motor is on we are parking, so we wait.
     // gl847/gl124 need 2 reads for reliable results
-    val = sanei_genesys_get_status(dev);
+    auto status = scanner_read_status(*dev);
     dev->interface->sleep_ms(10);
-    val = sanei_genesys_get_status(dev);
+    status = scanner_read_status(*dev);
 
-  /* if at home, return */
-  if(val & HOMESNR)
-    {
+    if (status.is_at_home) {
 	  DBG (DBG_info,
 	       "%s: already at home\n", __func__);
         return;
@@ -1636,16 +1698,11 @@ void sanei_genesys_wait_for_home(Genesys_Device* dev)
       dev->interface->sleep_ms(100);
         elapsed_ms += 100;
 
-        val = sanei_genesys_get_status(dev);
-
-          if (DBG_LEVEL >= DBG_io2)
-            {
-              sanei_genesys_print_status (val);
-            }
-    } while (elapsed_ms < timeout_ms && !(val & HOMESNR));
+        status = scanner_read_status(*dev);
+    } while (elapsed_ms < timeout_ms && !status.is_at_home);
 
   /* if after the timeout, head is still not parked, error out */
-    if (elapsed_ms >= timeout_ms && !(val & HOMESNR)) {
+    if (elapsed_ms >= timeout_ms && !status.is_at_home) {
         DBG (DBG_error, "%s: failed to reach park position in %dseconds\n", __func__,
              timeout_ms / 1000);
         throw SaneException(SANE_STATUS_IO_ERROR, "failed to reach park position");

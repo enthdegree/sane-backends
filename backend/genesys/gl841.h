@@ -71,9 +71,9 @@ public:
 
     void init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const override;
 
-    bool get_gain4_bit(Genesys_Register_Set* reg) const override;
-
-    bool test_buffer_empty_bit(std::uint8_t val) const override;
+    void init_regs_for_scan_session(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                    Genesys_Register_Set* reg,
+                                    const ScanSession& session) const override;
 
     void set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set) const override;
     void set_powersaving(Genesys_Device* dev, int delay) const override;

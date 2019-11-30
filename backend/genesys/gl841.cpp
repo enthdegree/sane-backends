@@ -68,17 +68,6 @@ static int gl841_exposure_time(Genesys_Device *dev, const Genesys_Sensor& sensor
                                int start,
                                int used_pixels);
 
-bool CommandSetGl841::get_gain4_bit(Genesys_Register_Set* regs) const
-{
-    GenesysRegister *r = sanei_genesys_get_address(regs, 0x06);
-    return (r && (r->value & REG_0x06_GAIN4));
-}
-
-bool CommandSetGl841::test_buffer_empty_bit(SANE_Byte val) const
-{
-    return (val & REG_0x41_BUFEMPTY);
-}
-
 /** copy sensor specific settings */
 /* *dev  : device infos
    *regs : registers to be set
@@ -836,9 +825,10 @@ uint8_t *table;
 static void gl841_init_motor_regs(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                   Genesys_Register_Set* reg, unsigned int feed_steps,/*1/base_ydpi*/
                                   /*maybe float for half/quarter step resolution?*/
-                                  unsigned int action, unsigned int flags)
+                                  unsigned int action, MotorFlag flags)
 {
-    DBG_HELPER_ARGS(dbg, "feed_steps=%d, action=%d, flags=%x", feed_steps, action, flags);
+    DBG_HELPER_ARGS(dbg, "feed_steps=%d, action=%d, flags=%x", feed_steps, action,
+                    static_cast<unsigned>(flags));
     unsigned int fast_exposure = 0;
     int use_fast_fed = 0;
     std::vector<uint16_t> fast_slope_table;
@@ -893,7 +883,7 @@ SCAN:
 flags \ use_fast_fed    ! 0         1
 ------------------------\--------------------
                       0 ! 0,1,2     0,1,2,3
-MOTOR_FLAG_AUTO_GO_HOME ! 0,1,2,4   0,1,2,3,4
+MotorFlag::AUTO_GO_HOME ! 0,1,2,4   0,1,2,3,4
 OFF:       none
 FEED:      3
 GO_HOME:   3
@@ -948,12 +938,17 @@ HOME_FREE: 3
     else
 	r->value &= ~0x08;
 
-    if (flags & MOTOR_FLAG_AUTO_GO_HOME)
-	r->value |= 0x20;
-    else
-	r->value &= ~0x20;
+    if (has_flag(flags, MotorFlag::AUTO_GO_HOME)) {
+        r->value |= 0x20;
+    } else {
+        r->value &= ~0x20;
+    }
 
     r->value &= ~0x40;
+
+    if (has_flag(flags, MotorFlag::REVERSE)) {
+        r->value |= REG_0x02_MTRREV;
+    }
 
     gl841_send_slope_table(dev, 3, fast_slope_table, 256);
 
@@ -989,12 +984,12 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
                                        // number of scan lines to add in a scan_lines line
                                        unsigned int feed_steps,/*1/base_ydpi*/
                                        // maybe float for half/quarter step resolution?
-                                       unsigned int flags)
+                                       MotorFlag flags)
 {
     DBG_HELPER_ARGS(dbg, "scan_exposure_time=%d, scan_yres=%d, scan_step_type=%d, scan_lines=%d,"
                          " scan_dummy=%d, feed_steps=%d, flags=%x",
                     scan_exposure_time, scan_yres, static_cast<unsigned>(scan_step_type),
-                    scan_lines, scan_dummy, feed_steps, flags);
+                    scan_lines, scan_dummy, feed_steps, static_cast<unsigned>(flags));
     unsigned int fast_exposure;
     int use_fast_fed = 0;
     unsigned int fast_time;
@@ -1136,7 +1131,7 @@ SCAN:
 flags \ use_fast_fed    ! 0         1
 ------------------------\--------------------
                       0 ! 0,1,2     0,1,2,3
-MOTOR_FLAG_AUTO_GO_HOME ! 0,1,2,4   0,1,2,3,4
+MotorFlag::AUTO_GO_HOME ! 0,1,2,4   0,1,2,3,4
 OFF:       none
 FEED:      3
 GO_HOME:   3
@@ -1187,15 +1182,16 @@ HOME_FREE: 3
     else
 	r->value &= ~0x08;
 
-    if (flags & MOTOR_FLAG_AUTO_GO_HOME)
+    if (has_flag(flags, MotorFlag::AUTO_GO_HOME))
 	r->value |= 0x20;
     else
 	r->value &= ~0x20;
 
-    if (flags & MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE)
-	r->value |= 0x40;
-    else
-	r->value &= ~0x40;
+    if (has_flag(flags, MotorFlag::DISABLE_BUFFER_FULL_MOVE)) {
+        r->value |= 0x40;
+    } else {
+        r->value &= ~0x40;
+    }
 
     gl841_send_slope_table(dev, 0, slow_slope_table, 256);
 
@@ -1207,7 +1203,7 @@ HOME_FREE: 3
         gl841_send_slope_table(dev, 3, fast_slope_table, 256);
     }
 
-    if (flags & MOTOR_FLAG_AUTO_GO_HOME) {
+    if (has_flag(flags, MotorFlag::AUTO_GO_HOME)) {
         gl841_send_slope_table(dev, 4, fast_slope_table, 256);
     }
 
@@ -1537,10 +1533,9 @@ static StepType gl841_scan_step_type(Genesys_Device *dev, int yres)
     return type;
 }
 
-// set up registers for an actual scan this function sets up the scanner to scan in normal or single
-// line mode
-static void gl841_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                 Genesys_Register_Set* reg, const ScanSession& session)
+void CommandSetGl841::init_regs_for_scan_session(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                                 Genesys_Register_Set* reg,
+                                                 const ScanSession& session) const
 {
     DBG_HELPER(dbg);
     session.assert_computed();
@@ -1646,12 +1641,13 @@ dummy \ scanned lines
         gl841_init_motor_regs_off(reg, dev->model->is_cis ? session.output_line_count * session.params.channels
                                                           : session.output_line_count);
     } else {
+        auto motor_flag = has_flag(session.params.flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE) ?
+                              MotorFlag::DISABLE_BUFFER_FULL_MOVE : MotorFlag::NONE;
+
         gl841_init_motor_regs_scan(dev, sensor, reg, exposure_time, slope_dpi, scan_step_type,
                                    dev->model->is_cis ? session.output_line_count * session.params.channels
                                                       : session.output_line_count,
-                                   dummy, move,
-                                   has_flag(session.params.flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE) ?
-                                   MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE : 0);
+                                   dummy, move, motor_flag);
   }
 
     dev->read_buffer.clear();
@@ -1869,14 +1865,9 @@ static void gl841_stop_action(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
   Genesys_Register_Set local_reg;
-    uint8_t val;
   unsigned int loop;
 
-    val = sanei_genesys_get_status(dev);
-  if (DBG_LEVEL >= DBG_io)
-    {
-      sanei_genesys_print_status (val);
-    }
+    scanner_read_print_status(*dev);
 
     uint8_t val40 = dev->interface->read_register(0x40);
 
@@ -1904,9 +1895,6 @@ static void gl841_stop_action(Genesys_Device* dev)
   loop = 10;
     while (loop > 0) {
         val40 = dev->interface->read_register(0x40);
-        if (DBG_LEVEL >= DBG_io) {
-            sanei_genesys_print_status(val);
-        }
 
       /* if scanner is in command mode, we are done */
         if (!(val40 & REG_0x40_DATAENB) && !(val40 & REG_0x40_MOTMFLG)) {
@@ -1946,7 +1934,8 @@ void CommandSetGl841::eject_document(Genesys_Device* dev) const
 
   local_reg.clear();
 
-    sanei_genesys_get_status(dev);
+    // FIXME: unused result
+    scanner_read_status(*dev);
 
     gl841_stop_action(dev);
 
@@ -1955,8 +1944,7 @@ void CommandSetGl841::eject_document(Genesys_Device* dev) const
   gl841_init_optical_regs_off(&local_reg);
 
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
-  gl841_init_motor_regs(dev, sensor, &local_reg,
-			65536,MOTOR_ACTION_FEED,0);
+    gl841_init_motor_regs(dev, sensor, &local_reg, 65536, MOTOR_ACTION_FEED, MotorFlag::NONE);
 
     dev->interface->write_registers(local_reg);
 
@@ -2183,7 +2171,6 @@ static void gl841_feed(Genesys_Device* dev, int steps)
 {
     DBG_HELPER_ARGS(dbg, "steps = %d", steps);
   Genesys_Register_Set local_reg;
-  uint8_t val;
   int loop;
 
     gl841_stop_action(dev);
@@ -2195,7 +2182,7 @@ static void gl841_feed(Genesys_Device* dev, int steps)
 
   gl841_init_optical_regs_off(&local_reg);
 
-  gl841_init_motor_regs(dev, sensor, &local_reg, steps,MOTOR_ACTION_FEED,0);
+    gl841_init_motor_regs(dev, sensor, &local_reg, steps, MOTOR_ACTION_FEED, MotorFlag::NONE);
 
     dev->interface->write_registers(local_reg);
 
@@ -2220,10 +2207,10 @@ static void gl841_feed(Genesys_Device* dev, int steps)
   loop = 0;
   while (loop < 300)		/* do not wait longer then 30 seconds */
   {
-        val = sanei_genesys_get_status(dev);
+        auto status = scanner_read_status(*dev);
 
-        if (!(val & REG_0x41_MOTORENB)) {	/* motor enabled */
-          DBG(DBG_proc, "%s: finished\n", __func__);
+        if (!status.is_motor_enabled) {
+            DBG(DBG_proc, "%s: finished\n", __func__);
 	  dev->scanhead_position_in_steps += steps;
             return;
       }
@@ -2266,26 +2253,11 @@ void CommandSetGl841::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     dev->cmd_set->save_power(dev, false);
 
     // first read gives HOME_SENSOR true
-    val = sanei_genesys_get_status(dev);
-
-  if (DBG_LEVEL >= DBG_io)
-    {
-      sanei_genesys_print_status (val);
-    }
-    dev->interface->sleep_ms(100);
-
-    // second is reliable
-    val = sanei_genesys_get_status(dev);
-
-  if (DBG_LEVEL >= DBG_io)
-    {
-      sanei_genesys_print_status (val);
-    }
+    auto status = scanner_read_reliable_status(*dev);
 
   dev->scanhead_position_in_steps = 0;
 
-    if (val & REG_0x41_HOMESNR)	/* is sensor at home? */
-    {
+    if (status.is_at_home) {
       DBG(DBG_info, "%s: already at home, completed\n", __func__);
       dev->scanhead_position_in_steps = 0;
       return;
@@ -2297,7 +2269,7 @@ void CommandSetGl841::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     dev->interface->write_register(REG_0x01, r->value);
 
   /* if motor is on, stop current action */
-    if (val & REG_0x41_MOTORENB) {
+    if (status.is_motor_enabled) {
         gl841_stop_action(dev);
     }
 
@@ -2305,11 +2277,9 @@ void CommandSetGl841::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
 
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
 
-  gl841_init_motor_regs(dev, sensor, &local_reg, 65536,MOTOR_ACTION_GO_HOME,0);
+    gl841_init_motor_regs(dev, sensor, &local_reg, 65536, MOTOR_ACTION_GO_HOME, MotorFlag::REVERSE);
 
-  /* set up for reverse and no scan */
-    r = sanei_genesys_get_address(&local_reg, REG_0x02);
-    r->value |= REG_0x02_MTRREV;
+    // set up for no scan
     r = sanei_genesys_get_address(&local_reg, REG_0x01);
     r->value &= ~REG_0x01_SCAN;
 
@@ -2336,10 +2306,8 @@ void CommandSetGl841::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     {
       while (loop < 300)		/* do not wait longer then 30 seconds */
 	{
-        val = sanei_genesys_get_status(dev);
-
-        if (val & REG_0x41_HOMESNR)	/* home sensor */
-	    {
+            auto status = scanner_read_status(*dev);
+            if (status.is_at_home) {
 	      DBG(DBG_info, "%s: reached home position\n", __func__);
 	      DBG(DBG_proc, "%s: finished\n", __func__);
           return;
@@ -2395,7 +2363,7 @@ void CommandSetGl841::search_start_position(Genesys_Device* dev) const
                            ScanFlag::DISABLE_BUFFER_FULL_MOVE;
     compute_session(dev, session, sensor);
 
-    gl841_init_scan_regs(dev, sensor, &local_reg, session);
+    init_regs_for_scan_session(dev, sensor, &local_reg, session);
 
     // send to scanner
     dev->interface->write_registers(local_reg);
@@ -2462,7 +2430,7 @@ void CommandSetGl841::init_regs_for_coarse_calibration(Genesys_Device* dev,
                            ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, sensor);
 
-    gl841_init_scan_regs(dev, sensor, &regs, session);
+    init_regs_for_scan_session(dev, sensor, &regs, session);
 
   DBG(DBG_info, "%s: optical sensor res: %d dpi, actual res: %d\n", __func__,
       sensor.optical_res / sensor.ccd_pixels_per_system_pixel(), dev->settings.xres);
@@ -2534,7 +2502,7 @@ void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
                            ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, calib_sensor);
 
-    gl841_init_scan_regs(dev, calib_sensor, &regs, session);
+    init_regs_for_scan_session(dev, calib_sensor, &regs, session);
 
   dev->scanhead_position_in_steps += dev->calib_lines + starty;
 
@@ -2625,7 +2593,7 @@ void CommandSetGl841::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     session.params.flags = flags;
     compute_session(dev, session, sensor);
 
-    gl841_init_scan_regs(dev, sensor, &dev->reg, session);
+    init_regs_for_scan_session(dev, sensor, &dev->reg, session);
 }
 
 
@@ -2706,7 +2674,7 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
                            ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, calib_sensor_base);
 
-    gl841_init_scan_regs(dev, calib_sensor_base, &regs, session);
+    init_regs_for_scan_session(dev, calib_sensor_base, &regs, session);
 
     dev->interface->write_registers(regs);
 
@@ -2917,7 +2885,7 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
                            ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, calib_sensor);
 
-    gl841_init_scan_regs(dev, calib_sensor, &regs, session);
+    dev->cmd_set->init_regs_for_scan_session(dev, calib_sensor, &regs, session);
 
   total_size = num_pixels * 3 * 2 * 1;
 
@@ -3047,7 +3015,7 @@ void CommandSetGl841::offset_calibration(Genesys_Device* dev, const Genesys_Sens
                            ScanFlag::DISABLE_LAMP;
     compute_session(dev, session, calib_sensor);
 
-    gl841_init_scan_regs(dev, calib_sensor, &regs, session);
+    init_regs_for_scan_session(dev, calib_sensor, &regs, session);
 
   total_size = num_pixels * channels * 2 * 1;	/* colors * bytes_per_color * scan lines */
 
@@ -3417,7 +3385,7 @@ void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys
                            ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, calib_sensor);
 
-    gl841_init_scan_regs(dev, calib_sensor, &regs, session);
+    init_regs_for_scan_session(dev, calib_sensor, &regs, session);
 
     dev->interface->write_registers(regs);
 
@@ -3570,7 +3538,7 @@ void CommandSetGl841::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
                            ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, sensor);
 
-    gl841_init_scan_regs(dev, sensor, local_reg, session);
+    init_regs_for_scan_session(dev, sensor, local_reg, session);
 
     num_pixels = session.output_pixels;
 
@@ -3601,7 +3569,6 @@ static void sanei_gl841_repark_head(Genesys_Device* dev)
  */
 void CommandSetGl841::init(Genesys_Device* dev) const
 {
-  uint8_t val;
   size_t size;
 
   DBG_INIT ();
@@ -3612,11 +3579,11 @@ void CommandSetGl841::init(Genesys_Device* dev) const
   /* Check if the device has already been initialized and powered up */
   if (dev->already_initialized)
     {
-        val = sanei_genesys_get_status(dev);
-        if (val & REG_0x41_PWRBIT) {
-	  DBG(DBG_info, "%s: already initialized\n", __func__);
-      return;
-	}
+        auto status = scanner_read_status(*dev);
+        if (!status.is_replugged) {
+            DBG(DBG_info, "%s: already initialized\n", __func__);
+            return;
+        }
     }
 
   dev->dark_average_data.clear();
@@ -3689,7 +3656,7 @@ void CommandSetGl841::init(Genesys_Device* dev) const
                            ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, calib_sensor);
 
-    gl841_init_scan_regs(dev, calib_sensor, &regs, session);
+    init_regs_for_scan_session(dev, calib_sensor, &regs, session);
 
     dev->interface->write_registers(regs);
 
@@ -3819,7 +3786,7 @@ void CommandSetGl841::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
     size = pixels * channels * lines * (session.params.depth / 8);
     std::vector<uint8_t> data(size);
 
-    gl841_init_scan_regs(dev, sensor, &local_reg, session);
+    init_regs_for_scan_session(dev, sensor, &local_reg, session);
 
   /* set up for reverse or forward */
   r = sanei_genesys_get_address(&local_reg, 0x02);

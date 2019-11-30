@@ -56,7 +56,7 @@ namespace gl846 {
  * */
 static void gl846_feed(Genesys_Device* dev, unsigned int steps);
 
-static void gl846_stop_action(Genesys_Device* dev);
+void gl846_stop_action(Genesys_Device* dev);
 
 
 

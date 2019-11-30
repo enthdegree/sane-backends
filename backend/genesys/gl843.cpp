@@ -1325,7 +1325,7 @@ static void gl843_stop_action_no_move(Genesys_Device* dev, Genesys_Register_Set*
     dev->interface->sleep_ms(100);
 }
 
-static void gl843_stop_action(Genesys_Device* dev)
+void gl843_stop_action(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
   unsigned int loop;
@@ -1727,7 +1727,7 @@ void CommandSetGl843::end_scan(Genesys_Device* dev, Genesys_Register_Set* reg,
 /** @brief park XPA lamp
  * park the XPA lamp if needed
  */
-static void gl843_park_xpa_lamp(Genesys_Device* dev)
+void gl843_park_xpa_lamp(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
   Genesys_Register_Set local_reg;
@@ -1788,99 +1788,7 @@ static void gl843_park_xpa_lamp(Genesys_Device* dev)
  * */
 void CommandSetGl843::slow_back_home(Genesys_Device* dev, bool wait_until_home) const
 {
-    DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
-  Genesys_Register_Set local_reg;
-  GenesysRegister *r;
-  int loop = 0;
-
-    if (dev->needs_home_ta) {
-        gl843_park_xpa_lamp(dev);
-    }
-
-  /* regular slow back home */
-  dev->scanhead_position_in_steps = 0;
-
-    auto status = scanner_read_reliable_status(*dev);
-
-    if (status.is_at_home) {
-        return;
-    }
-
-  local_reg = dev->reg;
-    unsigned resolution = sanei_genesys_get_lowest_ydpi(dev);
-
-    const auto& sensor = sanei_genesys_find_sensor(dev, resolution, 1, dev->model->default_method);
-
-    ScanSession session;
-    session.params.xres = resolution;
-    session.params.yres = resolution;
-    session.params.startx = 100;
-    session.params.starty = 40000;
-    session.params.pixels = 100;
-    session.params.lines = 100;
-    session.params.depth = 8;
-    session.params.channels = 1;
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = ScanColorMode::LINEART;
-    session.params.color_filter = dev->settings.color_filter;
-    session.params.flags =  ScanFlag::DISABLE_SHADING |
-                            ScanFlag::DISABLE_GAMMA |
-                            ScanFlag::DISABLE_BUFFER_FULL_MOVE |
-                            ScanFlag::IGNORE_LINE_DISTANCE |
-                            ScanFlag::REVERSE;
-    compute_session(dev, session, sensor);
-
-    init_regs_for_scan_session(dev, sensor, &local_reg, session);
-
-    // clear scan and feed count
-    dev->interface->write_register(REG_0x0D, REG_0x0D_CLRLNCNT | REG_0x0D_CLRMCNT);
-
-    // set up for no scan
-    r = sanei_genesys_get_address(&local_reg, REG_0x01);
-    r->value &= ~REG_0x01_SCAN;
-
-    dev->interface->write_registers(local_reg);
-
-    try {
-        scanner_start_action(*dev, true);
-    } catch (...) {
-        catch_all_exceptions(__func__, [&]() { gl843_stop_action(dev); });
-        // restore original registers
-        catch_all_exceptions(__func__, [&]()
-        {
-            dev->interface->write_registers(dev->reg);
-        });
-        throw;
-    }
-
-    if (is_testing_mode()) {
-        dev->interface->test_checkpoint("slow_back_home");
-        return;
-    }
-
-  if (wait_until_home)
-    {
-
-      while (loop < 300)	/* do not wait longer then 30 seconds */
-	{
-            auto status = scanner_read_status(*dev);
-
-            if (status.is_at_home) {
-	      DBG(DBG_info, "%s: reached home position\n", __func__);
-	      DBG(DBG_proc, "%s: finished\n", __func__);
-                return;
-            }
-            dev->interface->sleep_ms(100);
-	  ++loop;
-        }
-
-        // when we come here then the scanner needed too much time for this, so we better stop
-        // the motor
-        catch_all_exceptions(__func__, [&](){ gl843_stop_action(dev); });
-        throw SaneException(SANE_STATUS_IO_ERROR, "timeout while waiting for scanhead to go home");
-    }
-
-  DBG(DBG_info, "%s: scanhead is still moving\n", __func__);
+    scanner_slow_back_home(*dev, wait_until_home);
 }
 
 // Automatically set top-left edge of the scan area by scanning a 200x200 pixels area at 600 dpi

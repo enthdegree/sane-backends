@@ -352,6 +352,8 @@ extern void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Se
                                                  const uint8_t* src_data, int start_pixel, int dpi,
                                                  int width, int height);
 
+void scanner_slow_back_home(Genesys_Device& dev, bool wait_until_home);
+
 extern void sanei_genesys_write_file(const char* filename, const std::uint8_t* data,
                                      std::size_t length);
 

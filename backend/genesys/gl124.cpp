@@ -1000,7 +1000,7 @@ void CommandSetGl124::set_powersaving(Genesys_Device* dev, int delay /* in minut
     }
 }
 
-static void gl124_stop_action(Genesys_Device* dev)
+void gl124_stop_action(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
     std::uint8_t val40;
@@ -1056,7 +1056,7 @@ static void gl124_stop_action(Genesys_Device* dev)
  * @param *dev device to set up
  * @param resolution dpi of the target scan
  */
-static void gl124_setup_scan_gpio(Genesys_Device* dev, int resolution)
+void gl124_setup_scan_gpio(Genesys_Device* dev, int resolution)
 {
     DBG_HELPER(dbg);
 
@@ -1178,97 +1178,7 @@ void CommandSetGl124::rewind(Genesys_Device* dev) const
  */
 void CommandSetGl124::slow_back_home(Genesys_Device* dev, bool wait_until_home) const
 {
-    DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
-  Genesys_Register_Set local_reg;
-  int loop = 0;
-
-    // post scan gpio : without that HOMSNR is unreliable
-    dev->cmd_set->update_home_sensor_gpio(*dev);
-    auto status = scanner_read_reliable_status(*dev);
-
-    if (status.is_at_home) {
-      DBG (DBG_info, "%s: already at home, completed\n", __func__);
-      dev->scanhead_position_in_steps = 0;
-        return;
-    }
-
-    // feed a little first
-    if (dev->model->model_id == ModelId::CANON_LIDE_210) {
-        gl124_feed(dev, 20, true);
-    }
-
-  local_reg = dev->reg;
-    unsigned resolution = sanei_genesys_get_lowest_dpi(dev);
-
-  const auto& sensor = sanei_genesys_find_sensor_any(dev);
-
-    ScanSession session;
-    session.params.xres = resolution;
-    session.params.yres = resolution;
-    session.params.startx = 100;
-    session.params.starty = 30000;
-    session.params.pixels = 100;
-    session.params.lines = 100;
-    session.params.depth = 8;
-    session.params.channels = 1;
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = ScanColorMode::GRAY;
-    session.params.color_filter = ColorFilter::RED;
-    session.params.flags = ScanFlag::DISABLE_SHADING |
-                           ScanFlag::DISABLE_GAMMA |
-                           ScanFlag::IGNORE_LINE_DISTANCE |
-                           ScanFlag::REVERSE;
-    compute_session(dev, session, sensor);
-
-    init_regs_for_scan_session(dev, sensor, &local_reg, session);
-
-    // clear scan and feed count
-    dev->interface->write_register(REG_0x0D, REG_0x0D_CLRLNCNT | REG_0x0D_CLRMCNT);
-
-
-    dev->interface->write_registers(local_reg);
-
-    gl124_setup_scan_gpio(dev,resolution);
-
-    try {
-        scanner_start_action(*dev, true);
-    } catch (...) {
-        catch_all_exceptions(__func__, [&]() { gl124_stop_action(dev); });
-        // restore original registers
-        catch_all_exceptions(__func__, [&]()
-        {
-            dev->interface->write_registers(dev->reg);
-        });
-        throw;
-    }
-
-    update_home_sensor_gpio(*dev);
-    if (is_testing_mode()) {
-        dev->interface->test_checkpoint("slow_back_home");
-        return;
-    }
-
-  if (wait_until_home)
-    {
-
-        while (loop < 300) {
-            status = scanner_read_status(*dev);
-
-            if (status.is_at_home) {
-                DBG(DBG_info, "%s: reached home position\n", __func__);
-              dev->scanhead_position_in_steps = 0;
-            return;
-	    }
-            dev->interface->sleep_ms(100);
-	  ++loop;
-	}
-
-      /* when we come here then the scanner needed too much time for this, so we better stop the motor */
-      gl124_stop_action (dev);
-        throw SaneException(SANE_STATUS_IO_ERROR, "timeout while waiting for scanhead to go home");
-    }
-
-  DBG(DBG_info, "%s: scanhead is still moving\n", __func__);
+    scanner_slow_back_home(*dev, wait_until_home);
 }
 
 /** @brief moves the slider to steps at motor base dpi
@@ -1276,7 +1186,7 @@ void CommandSetGl124::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
  * @param steps number of steps to move
  * @param reverse true is moving backward
  * */
-static void gl124_feed(Genesys_Device* dev, unsigned int steps, int reverse)
+void gl124_feed(Genesys_Device* dev, unsigned int steps, int reverse)
 {
     DBG_HELPER_ARGS(dbg, "steps=%d", steps);
   Genesys_Register_Set local_reg;

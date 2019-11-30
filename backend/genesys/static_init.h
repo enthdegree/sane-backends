@@ -41,58 +41,48 @@
    If you do not wish that, delete this exception notice.
 */
 
-#ifndef BACKEND_GENESYS_SCANNER_INTERFACE_USB_H
-#define BACKEND_GENESYS_SCANNER_INTERFACE_USB_H
+#ifndef BACKEND_GENESYS_STATIC_INIT_H
+#define BACKEND_GENESYS_STATIC_INIT_H
 
-#include "scanner_interface.h"
-#include "usb_device.h"
+#include <functional>
+#include <memory>
 
 namespace genesys {
 
-class ScannerInterfaceUsb : public ScannerInterface
-{
+void add_function_to_run_at_backend_exit(const std::function<void()>& function);
+
+// calls functions added via add_function_to_run_at_backend_exit() in reverse order of being
+// added.
+void run_functions_at_backend_exit();
+
+template<class T>
+class StaticInit {
 public:
-    ScannerInterfaceUsb(Genesys_Device* dev);
+    StaticInit() = default;
+    StaticInit(const StaticInit&) = delete;
+    StaticInit& operator=(const StaticInit&) = delete;
 
-    ~ScannerInterfaceUsb() override;
+    template<class... Args>
+    void init(Args&& ... args)
+    {
+        ptr_ = std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+        add_function_to_run_at_backend_exit([this](){ deinit(); });
+    }
 
-    bool is_mock() const override;
+    void deinit()
+    {
+        ptr_.reset();
+    }
 
-    std::uint8_t read_register(std::uint16_t address) override;
-    void write_register(std::uint16_t address, std::uint8_t value) override;
-    void write_registers(const Genesys_Register_Set& regs) override;
-
-    void write_0x8c(std::uint8_t index, std::uint8_t value) override;
-    void bulk_read_data(std::uint8_t addr, std::uint8_t* data, std::size_t size) override;
-    void bulk_write_data(std::uint8_t addr, std::uint8_t* data, std::size_t size) override;
-
-    void write_buffer(std::uint8_t type, std::uint32_t addr, std::uint8_t* data,
-                      std::size_t size, Flags flags) override;
-    void write_gamma(std::uint8_t type, std::uint32_t addr, std::uint8_t* data,
-                     std::size_t size, Flags flags) override;
-
-    void write_ahb(std::uint32_t addr, std::uint32_t size, std::uint8_t* data) override;
-
-    std::uint16_t read_fe_register(std::uint8_t address) override;
-    void write_fe_register(std::uint8_t address, std::uint16_t value) override;
-
-    IUsbDevice& get_usb_device() override;
-
-    void sleep_us(unsigned microseconds) override;
-
-    void record_progress_message(const char* msg) override;
-
-    void record_slope_table(unsigned table_nr, const std::vector<std::uint16_t>& steps) override;
-
-    void record_key_value(const std::string& key, const std::string& value) override;
-
-    void test_checkpoint(const std::string& name) override;
+    const T* operator->() const { return ptr_.get(); }
+    T* operator->() { return ptr_.get(); }
+    const T& operator*() const { return *ptr_.get(); }
+    T& operator*() { return *ptr_.get(); }
 
 private:
-    Genesys_Device* dev_;
-    UsbDevice usb_dev_;
+    std::unique_ptr<T> ptr_;
 };
 
 } // namespace genesys
 
-#endif
+#endif // BACKEND_GENESYS_STATIC_INIT_H

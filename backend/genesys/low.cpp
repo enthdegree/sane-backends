@@ -600,7 +600,7 @@ void sanei_genesys_set_motor_power(Genesys_Register_Set& regs, bool set)
 
 bool should_enable_gamma(const ScanSession& session, const Genesys_Sensor& sensor)
 {
-    if (session.params.flags & SCAN_FLAG_DISABLE_GAMMA) {
+    if ((session.params.flags & ScanFlag::DISABLE_GAMMA) != ScanFlag::NONE) {
         return false;
     }
     if (sensor.gamma[0] == 1.0f || sensor.gamma[1] == 1.0f || sensor.gamma[2] == 1.0f) {
@@ -851,7 +851,7 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
 
         // startx cannot be below dummy pixel value
         s.pixel_startx = sensor.dummy_pixel;
-        if ((s.params.flags & SCAN_FLAG_USE_XCORRECTION) && sensor.ccd_start_xoffset > 0) {
+        if (has_flag(s.params.flags, ScanFlag::USE_XCORRECTION) && sensor.ccd_start_xoffset > 0) {
             s.pixel_startx = sensor.ccd_start_xoffset;
         }
         s.pixel_startx += s.params.startx;
@@ -1045,7 +1045,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
 
     if (dev->model->asic_type == AsicType::GL843) {
         if ((s.params.yres > 1200) && // FIXME: maybe ccd_size_divisor is the one that controls this?
-            ((s.params.flags & SCAN_FLAG_IGNORE_LINE_DISTANCE) == 0) &&
+            !has_flag(s.params.flags, ScanFlag::IGNORE_LINE_DISTANCE) &&
             (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
         {
             s.num_staggered_lines = (4 * s.params.yres) / dev->motor.base_ydpi;
@@ -1068,7 +1068,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     s.color_shift_lines_b = (s.color_shift_lines_b * s.params.yres) / dev->motor.base_ydpi;
 
     s.max_color_shift_lines = 0;
-    if (s.params.channels > 1 && !(s.params.flags & SCAN_FLAG_IGNORE_LINE_DISTANCE)) {
+    if (s.params.channels > 1 && !has_flag(s.params.flags, ScanFlag::IGNORE_LINE_DISTANCE)) {
         s.max_color_shift_lines = std::max(s.color_shift_lines_r, std::max(s.color_shift_lines_g,
                                                                            s.color_shift_lines_b));
     }
@@ -1182,7 +1182,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     {
         // no 16 bit gamma for this ASIC
         if (s.params.depth == 16) {
-            s.params.flags |= SCAN_FLAG_DISABLE_GAMMA;
+            s.params.flags |= ScanFlag::DISABLE_GAMMA;
         }
     }
 
@@ -1543,6 +1543,28 @@ void sanei_genesys_asic_init(Genesys_Device* dev, bool /*max_regs*/)
     dev->cmd_set->set_powersaving(dev, 15);
 }
 
+void scanner_start_action(Genesys_Device& dev, bool start_motor)
+{
+    DBG_HELPER(dbg);
+    switch (dev.model->asic_type) {
+        case AsicType::GL646:
+        case AsicType::GL841:
+        case AsicType::GL843:
+        case AsicType::GL845:
+        case AsicType::GL846:
+        case AsicType::GL847:
+        case AsicType::GL124:
+            break;
+        default:
+            throw SaneException("Unsupported chip");
+    }
+
+    if (start_motor) {
+        dev.interface->write_register(0x0f, 0x01);
+    } else {
+        dev.interface->write_register(0x0f, 0);
+    }
+}
 
 void sanei_genesys_set_dpihw(Genesys_Register_Set& regs, const Genesys_Sensor& sensor,
                              unsigned dpihw)
@@ -1639,19 +1661,16 @@ void sanei_genesys_wait_for_home(Genesys_Device* dev)
  * @param exposure exposure time
  * @return a pointer to a Motor_Profile struct
  */
-Motor_Profile* sanei_genesys_get_motor_profile(Motor_Profile *motors, MotorId motor_id,
-                                               int exposure)
+const Motor_Profile& sanei_genesys_get_motor_profile(const std::vector<Motor_Profile>& motors,
+                                                     MotorId motor_id, int exposure)
 {
-  unsigned int i;
   int idx;
 
-  i=0;
   idx=-1;
-  while(motors[i].exposure!=0)
-    {
+    for (std::size_t i = 0; i < motors.size(); ++i) {
         // exact match
         if (motors[i].motor_id == motor_id && motors[i].exposure==exposure) {
-          return &(motors[i]);
+            return motors[i];
         }
 
         // closest match
@@ -1675,7 +1694,6 @@ Motor_Profile* sanei_genesys_get_motor_profile(Motor_Profile *motors, MotorId mo
                 }
             }
         }
-      i++;
     }
 
   /* default fallback */
@@ -1685,23 +1703,7 @@ Motor_Profile* sanei_genesys_get_motor_profile(Motor_Profile *motors, MotorId mo
       idx=0;
     }
 
-  return &(motors[idx]);
-}
-
-/**@brief compute motor step type to use
- * compute the step type (full, half, quarter, ...) to use based
- * on target resolution
- * @return 0 for full step
- *         1 for half step
- *         2 for quarter step
- *         3 for eighth step
- */
-StepType sanei_genesys_compute_step_type(Motor_Profile* motors, MotorId motor_id, int exposure)
-{
-Motor_Profile *profile;
-
-    profile = sanei_genesys_get_motor_profile(motors, motor_id, exposure);
-    return profile->step_type;
+    return motors[idx];
 }
 
 /** @brief generate slope table
@@ -1712,60 +1714,53 @@ Motor_Profile *profile;
  * @param dpi   desired motor resolution
  * @param exposure exposure used
  * @param base_dpi base resolution of the motor
- * @param step_type step type used for scan
  * @param factor shrink factor for the slope
- * @param motor_type motor id
- * @param motors motor profile database
+ * @param motor_profile motor profile
  */
-int sanei_genesys_slope_table(std::vector<uint16_t>& slope,
-                              int* steps, int dpi, int exposure, int base_dpi, StepType step_type,
-                              int factor, MotorId motor_id, Motor_Profile* motors)
+MotorSlopeTable sanei_genesys_slope_table(int dpi, int exposure, int base_dpi,
+                                          int factor, const Motor_Profile& motor_profile)
 {
+    MotorSlopeTable table;
 int sum, i;
 uint16_t target,current;
-Motor_Profile *profile;
 
-    unsigned step_shift = static_cast<unsigned>(step_type);
-    slope.clear();
+    unsigned step_shift = static_cast<unsigned>(motor_profile.step_type);
+    table.table.clear();
 
 	/* required speed */
     target = ((exposure * dpi) / base_dpi) >> step_shift;
         DBG (DBG_io2, "%s: exposure=%d, dpi=%d, target=%d\n", __func__, exposure, dpi, target);
 
 	/* fill result with target speed */
-    slope.resize(SLOPE_TABLE_SIZE, target);
-
-        profile=sanei_genesys_get_motor_profile(motors, motor_id, exposure);
+    table.table.resize(SLOPE_TABLE_SIZE, target);
 
 	/* use profile to build table */
         i=0;
 	sum=0;
 
-        /* first step is always used unmodified */
-        current=profile->table[0];
+    // first step is always used unmodified
+    current = motor_profile.table[0];
 
-        /* loop on profile copying and apply step type */
-        while(profile->table[i]!=0 && current>=target)
-          {
-            slope[i]=current;
-            sum+=slope[i];
-            i++;
-        current = profile->table[i] >> step_shift;
-          }
+    // loop on profile copying and apply step type
+    while (motor_profile.table[i] != 0 && current >= target) {
+        table.table[i]=current;
+        sum += table.table[i];
+        i++;
+        current = motor_profile.table[i] >> step_shift;
+    }
 
         /* ensure last step is required speed in case profile doesn't contain it */
         if(current!=0 && current<target)
           {
-            slope[i]=target;
-            sum+=slope[i];
+        table.table[i] = target;
+        sum += table.table[i];
             i++;
           }
 
         /* range checking */
-        if(profile->table[i]==0 && DBG_LEVEL >= DBG_warn && current>target)
-          {
+    if (motor_profile.table[i] == 0 && DBG_LEVEL >= DBG_warn && current > target) {
             DBG (DBG_warn,"%s: short slope table, failed to reach %d. target too low ?\n",__func__,target);
-          }
+    }
         if(i<3 && DBG_LEVEL >= DBG_warn)
           {
             DBG (DBG_warn,"%s: short slope table, failed to reach %d. target too high ?\n",__func__,target);
@@ -1774,22 +1769,23 @@ Motor_Profile *profile;
         /* align on factor */
         while(i%factor!=0)
           {
-            slope[i+1]=slope[i];
-            sum+=slope[i];
+        table.table[i+1] = table.table[i];
+        sum += table.table[i];
             i++;
           }
 
         /* ensure minimal slope size */
         while(i<2*factor)
           {
-            slope[i+1]=slope[i];
-            sum+=slope[i];
+        table.table[i+1] = table.table[i];
+        sum += table.table[i];
             i++;
           }
 
-        // return used steps and taken time
-        *steps=i/factor;
-	return sum;
+    // return used steps and taken time
+    table.scan_steps = i / factor;
+    table.pixeltime_sum = sum;
+    return table;
 }
 
 /** @brief returns the lowest possible ydpi for the device
@@ -2000,25 +1996,6 @@ void sanei_genesys_load_lut(unsigned char* lut,
 	  lut_p16++;
 	}
     }
-}
-
-static std::unique_ptr<std::vector<std::function<void()>>> s_functions_run_at_backend_exit;
-
-void add_function_to_run_at_backend_exit(std::function<void()> function)
-{
-    if (!s_functions_run_at_backend_exit)
-        s_functions_run_at_backend_exit.reset(new std::vector<std::function<void()>>());
-    s_functions_run_at_backend_exit->push_back(std::move(function));
-}
-
-void run_functions_at_backend_exit()
-{
-    for (auto it = s_functions_run_at_backend_exit->rbegin();
-         it != s_functions_run_at_backend_exit->rend(); ++it)
-    {
-        (*it)();
-    }
-    s_functions_run_at_backend_exit.reset();
 }
 
 } // namespace genesys

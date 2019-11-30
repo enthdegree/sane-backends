@@ -144,7 +144,7 @@ struct SetupParams {
 
     ColorFilter color_filter = static_cast<ColorFilter>(NOT_SET);
 
-    unsigned flags = NOT_SET;
+    ScanFlag flags;
 
     unsigned get_requested_pixels() const
     {
@@ -160,8 +160,7 @@ struct SetupParams {
             pixels == NOT_SET || lines == NOT_SET ||depth == NOT_SET || channels == NOT_SET ||
             scan_method == static_cast<ScanMethod>(NOT_SET) ||
             scan_mode == static_cast<ScanColorMode>(NOT_SET) ||
-            color_filter == static_cast<ColorFilter>(NOT_SET) ||
-            flags == NOT_SET)
+            color_filter == static_cast<ColorFilter>(NOT_SET))
         {
             throw std::runtime_error("SetupParams are not valid");
         }

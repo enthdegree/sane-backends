@@ -28,6 +28,7 @@ namespace genesys {
 void test_calibration_parsing();
 void test_image();
 void test_image_pipeline();
+void test_motor();
 void test_row_buffer();
 void test_utilities();
 

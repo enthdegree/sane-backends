@@ -513,6 +513,7 @@ libgenesys_la_SOURCES = genesys/genesys.cpp genesys/genesys.h \
     genesys/sensor.h genesys/sensor.cpp \
     genesys/settings.h genesys/settings.cpp \
     genesys/serialize.h \
+    genesys/static_init.h genesys/static_init.cpp \
     genesys/tables_frontend.cpp \
     genesys/tables_gpo.cpp \
     genesys/tables_model.cpp \

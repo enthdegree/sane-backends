@@ -777,22 +777,103 @@ static std::uint32_t motor_speeds_plustek_7500i_2[] = {
     7200 dpi: 31250, 11000, 11000,
 */
 
-Motor_Profile gl843_motor_profiles[] = {
-    { MotorId::KVSS080, 8000, StepType::HALF, kvss080 },
-    { MotorId::G4050, 8016, StepType::HALF, g4050_fast },
-    { MotorId::G4050, 15624, StepType::HALF, g4050_xpa },
-    { MotorId::G4050, 42752, StepType::QUARTER, g4050_max },
-    { MotorId::G4050, 56064, StepType::HALF, g4050_high },
-    { MotorId::CANON_4400F, 11640, StepType::HALF, motor_speeds_cs4400f_1},
-    { MotorId::CANON_8400F, 50000, StepType::QUARTER, cs8400f_fast },
-    { MotorId::CANON_8600F, 0x59d8, StepType::QUARTER, motor_speeds_cs8600f }, // FIXME: if the exposure is lower then we'll select another motor
-    { MotorId::PLUSTEK_OPTICFILM_7200I, 0x19c8, StepType::HALF, motor_speeds_plustek_7200i_1},
-    { MotorId::PLUSTEK_OPTICFILM_7200I, 0x2538, StepType::HALF, motor_speeds_plustek_7200i_2},
-    { MotorId::PLUSTEK_OPTICFILM_7300, 0x2f44, StepType::QUARTER, motor_speeds_plustek_7300_1},
-    { MotorId::PLUSTEK_OPTICFILM_7500I, 0x2f44, StepType::QUARTER, motor_speeds_plustek_7500i_1},
-    { MotorId::PLUSTEK_OPTICFILM_7500I, 0x2af8, StepType::QUARTER, motor_speeds_plustek_7500i_2},
-    { MotorId::UNKNOWN, 0, StepType::FULL, nullptr },
-};
+StaticInit<std::vector<Motor_Profile>> gl843_motor_profiles;
+
+void genesys_init_motor_profile_tables_gl843()
+{
+    gl843_motor_profiles.init();
+
+    auto profile = Motor_Profile();
+    profile.motor_id = MotorId::KVSS080;
+    profile.exposure = 8000;
+    profile.step_type = StepType::HALF;
+    profile.table = kvss080;
+    gl843_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::G4050;
+    profile.exposure = 8016;
+    profile.step_type = StepType::HALF;
+    profile.table = g4050_fast;
+    gl843_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::G4050;
+    profile.exposure = 15624;
+    profile.step_type = StepType::HALF;
+    profile.table = g4050_xpa;
+    gl843_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::G4050;
+    profile.exposure = 42752;
+    profile.step_type = StepType::QUARTER;
+    profile.table = g4050_max;
+    gl843_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::G4050;
+    profile.exposure = 56064;
+    profile.step_type = StepType::HALF;
+    profile.table = g4050_high;
+    gl843_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_4400F;
+    profile.exposure = 11640;
+    profile.step_type = StepType::HALF;
+    profile.table = motor_speeds_cs4400f_1;
+    gl843_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_8400F;
+    profile.exposure = 50000;
+    profile.step_type = StepType::QUARTER;
+    profile.table = cs8400f_fast;
+    gl843_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_8600F;
+    profile.exposure = 0x59d8;
+    profile.step_type = StepType::QUARTER;
+    profile.table = motor_speeds_cs8600f; // FIXME: if the exposure is lower then we'll select another motor
+    gl843_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::PLUSTEK_OPTICFILM_7200I;
+    profile.exposure = 0x19c8;
+    profile.step_type = StepType::HALF;
+    profile.table = motor_speeds_plustek_7200i_1;
+    gl843_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::PLUSTEK_OPTICFILM_7200I;
+    profile.exposure = 0x2538;
+    profile.step_type = StepType::HALF;
+    profile.table = motor_speeds_plustek_7200i_2;
+    gl843_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::PLUSTEK_OPTICFILM_7300;
+    profile.exposure = 0x2f44;
+    profile.step_type = StepType::QUARTER;
+    profile.table = motor_speeds_plustek_7300_1;
+    gl843_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::PLUSTEK_OPTICFILM_7500I;
+    profile.exposure = 0x2f44;
+    profile.step_type = StepType::QUARTER;
+    profile.table = motor_speeds_plustek_7500i_1;
+    gl843_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::PLUSTEK_OPTICFILM_7500I;
+    profile.exposure = 0x2af8;
+    profile.step_type = StepType::QUARTER;
+    profile.table = motor_speeds_plustek_7500i_2;
+    gl843_motor_profiles->push_back(profile);
+}
 
 /* base motor slopes in full step unit */
 /* target=((exposure * dpi) / base_dpi)>>step_type; */
@@ -902,15 +983,26 @@ static uint32_t img101_high[] = {
     0
 };
 
-/**
- * database of motor profiles
- */
+StaticInit<std::vector<Motor_Profile>> gl846_motor_profiles;
 
-Motor_Profile gl846_motor_profiles[] = {
-    { MotorId::IMG101, 11000, StepType::HALF, img101_high},
-    { MotorId::PLUSTEK_OPTICBOOK_3800, 11000, StepType::HALF, img101_high},
-    { MotorId::UNKNOWN, 0, StepType::FULL, nullptr },
-};
+void genesys_init_motor_profile_tables_gl846()
+{
+    gl846_motor_profiles.init();
+
+    auto profile = Motor_Profile();
+    profile.motor_id = MotorId::IMG101;
+    profile.exposure = 11000;
+    profile.step_type = StepType::HALF;
+    profile.table = img101_high;
+    gl846_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::PLUSTEK_OPTICBOOK_3800;
+    profile.exposure = 11000;
+    profile.step_type = StepType::HALF;
+    profile.table = img101_high;
+    gl846_motor_profiles->push_back(profile);
+}
 
 /* base motor sopes in full step unit */
 /* target=((exposure * dpi) / base_dpi)>>step_type; */
@@ -1048,39 +1140,128 @@ static uint32_t lide700_high[] = {
     15864, 15864, 15864, 15864, 15864, 15864
 };
 
-/* 5190 trop
- * 5186 pas assez
- */
-/*
-static uint32_t lide200_max[] = { 124992, 124992, 124992, 124992, 124992, 124992, 124992, 124992, 124992, 124992, 124992, 124992, 124992, 124992, 124992, 124992, 124992, 2219,2212,2205,2198,2190,2183,2176,2168,2161,2154,2146,2139,2132,2125,2117,2110,2103,2095,2088,2081,2073,2066,2059,2052,2044,2037,2030,2022,2015,2008,2001,1993,1986,1979,1971,1964,1957,1949,1942,1935,1928,1920,1913,1906,1898,1891,1884,1876,1869,1862,1855,1847,1840,1833,1825,1818,1811,1803,1796,1789,1782,1774,1767,1760,1752,1745,1738,1731,1723,1716,1709,1701,1694,1687,1679,1672,1665,1658,1650,1643,1636,1628,1621,1614,1606,1599,1592,1585,1577,1570,1563,1555,1548,1541,1533,1526,1519,1512,1504,1497,1490,1482,1475,1468,1461,1453,1446,1439,1431,1424,1417,1409,1402,1395,1388,1380,1373,1366,1358,1351,1344,1336,1329,1322,1315,1307,1300,1293,1285,1278,1271,1263,1256,1249,1242,1234,1227,1220,1212,1205,1198,1191,1183,1176,1169,1161,1154,1147,1139,1132,1125,1118,1110,1103,1096,1088,1081,1074,1066,1059,1052,1045,1037,1030,1023,1015,1008,1001,993,986,979,972,964,957,950,942,935,928,921,913,906,899,891,884,877,869,862,855,848,840,833,826,818,811,804,796,789,782,775,767,760,753,745,738,731,723,716,709,702,694,687,680,672,665,658,651,643,636,629,621,614,607,599,592,585,578,570,563,556,534,534, 0};
-*/
-
 /**
  * database of motor profiles
  */
 
-Motor_Profile gl847_motor_profiles[] = {
-    { MotorId::CANON_LIDE_100, 2848, StepType::HALF   , lide200_base },
-    { MotorId::CANON_LIDE_100, 1424, StepType::HALF   , lide200_base },
-    { MotorId::CANON_LIDE_100, 1432, StepType::HALF   , lide200_base },
-    { MotorId::CANON_LIDE_100, 2712, StepType::QUARTER, lide200_medium },
-    { MotorId::CANON_LIDE_100, 5280, StepType::EIGHTH , lide200_high },
+StaticInit<std::vector<Motor_Profile>> gl847_motor_profiles;
 
-    { MotorId::CANON_LIDE_200,  2848, StepType::HALF   , lide200_base },
-    { MotorId::CANON_LIDE_200,  1424, StepType::HALF   , lide200_base },
-    { MotorId::CANON_LIDE_200,  1432, StepType::HALF   , lide200_base },
-    { MotorId::CANON_LIDE_200,  2712, StepType::QUARTER, lide200_medium },
-    { MotorId::CANON_LIDE_200,  5280, StepType::EIGHTH , lide200_high },
-    { MotorId::CANON_LIDE_200, 10416, StepType::EIGHTH , lide200_high },
+void genesys_init_motor_profile_tables_gl847()
+{
+    gl847_motor_profiles.init();
 
-    { MotorId::CANON_LIDE_700,  2848, StepType::HALF  , lide200_base },
-    { MotorId::CANON_LIDE_700,  1424, StepType::HALF  , lide200_base },
-    { MotorId::CANON_LIDE_700,  1504, StepType::HALF  , lide200_base },
-    { MotorId::CANON_LIDE_700,  2696, StepType::HALF  , lide700_medium }, /* 2696 , 2838 */
-    { MotorId::CANON_LIDE_700, 10576, StepType::EIGHTH, lide700_high },
+    auto profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_LIDE_100;
+    profile.exposure = 2848;
+    profile.step_type = StepType::HALF;
+    profile.table = lide200_base;
+    gl847_motor_profiles->push_back(profile);
 
-    { MotorId::UNKNOWN, 0, StepType::FULL, nullptr },
-};
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_LIDE_100;
+    profile.exposure = 1424;
+    profile.step_type = StepType::HALF;
+    profile.table = lide200_base;
+    gl847_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_LIDE_100;
+    profile.exposure = 1432;
+    profile.step_type = StepType::HALF;
+    profile.table = lide200_base;
+    gl847_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_LIDE_100;
+    profile.exposure = 2712;
+    profile.step_type = StepType::QUARTER;
+    profile.table = lide200_medium;
+    gl847_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_LIDE_100;
+    profile.exposure = 5280;
+    profile.step_type = StepType::EIGHTH;
+    profile.table = lide200_high;
+    gl847_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_LIDE_200;
+    profile.exposure = 2848;
+    profile.step_type = StepType::HALF;
+    profile.table = lide200_base;
+    gl847_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_LIDE_200;
+    profile.exposure = 1424;
+    profile.step_type = StepType::HALF;
+    profile.table = lide200_base;
+    gl847_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_LIDE_200;
+    profile.exposure = 1432;
+    profile.step_type = StepType::HALF;
+    profile.table = lide200_base;
+    gl847_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_LIDE_200;
+    profile.exposure = 2712;
+    profile.step_type = StepType::QUARTER;
+    profile.table = lide200_medium;
+    gl847_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_LIDE_200;
+    profile.exposure = 5280;
+    profile.step_type = StepType::EIGHTH;
+    profile.table = lide200_high;
+    gl847_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_LIDE_200;
+    profile.exposure = 10416;
+    profile.step_type = StepType::EIGHTH;
+    profile.table = lide200_high;
+    gl847_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_LIDE_700;
+    profile.exposure = 2848;
+    profile.step_type = StepType::HALF;
+    profile.table = lide200_base;
+    gl847_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_LIDE_700;
+    profile.exposure = 1424;
+    profile.step_type = StepType::HALF;
+    profile.table = lide200_base;
+    gl847_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_LIDE_700;
+    profile.exposure = 1504;
+    profile.step_type = StepType::HALF;
+    profile.table = lide200_base;
+    gl847_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_LIDE_700;
+    profile.exposure = 2696;
+    profile.step_type = StepType::HALF;
+    profile.table = lide700_medium;
+    gl847_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_LIDE_700;
+    profile.exposure = 10576;
+    profile.step_type = StepType::EIGHTH;
+    profile.table = lide700_high;
+    gl847_motor_profiles->push_back(profile);
+}
 
 static uint32_t lide210_fast[] = {
     62496, 2343, 2343, 2343, 2343, 2343, 2343, 2343, 2343, 2051,
@@ -1194,24 +1375,104 @@ static uint32_t lide110_max[] = { 62496, 31296, 10432, 0 };
 static uint32_t lide120_max[] = { 62592, 62592, 41728, 31296, 10432, 0 };
 static uint32_t lide210_max[] = { 62496, 31296, 20864, 10432, 0 };
 
-// NEXT LPERIOD=PREVIOUS*2-192
-Motor_Profile gl124_motor_profiles[] = {
-    { MotorId::CANON_LIDE_110,  2768, StepType::FULL, lide210_fast },
-    { MotorId::CANON_LIDE_110,  5360, StepType::HALF, lide110_ok },
-    { MotorId::CANON_LIDE_110, 10528, StepType::HALF, lide110_slow },
-    { MotorId::CANON_LIDE_110, 20864, StepType::QUARTER, lide110_max },
+StaticInit<std::vector<Motor_Profile>> gl124_motor_profiles;
 
-    { MotorId::CANON_LIDE_120,  4608, StepType::FULL, lide120_fast },
-    { MotorId::CANON_LIDE_120,  5360, StepType::HALF, lide120_ok },
-    { MotorId::CANON_LIDE_120, 10528, StepType::QUARTER, lide120_slow },
-    { MotorId::CANON_LIDE_120, 20864, StepType::QUARTER, lide120_max },
+void genesys_init_motor_profile_tables_gl124()
+{
+    gl124_motor_profiles.init();
 
-    { MotorId::CANON_LIDE_210,  2768, StepType::FULL, lide210_fast },
-    { MotorId::CANON_LIDE_210,  5360, StepType::HALF, lide110_ok },
-    { MotorId::CANON_LIDE_210, 10528, StepType::HALF, lide110_slow },
-    { MotorId::CANON_LIDE_210, 20864, StepType::QUARTER, lide210_max },
+    // NEXT LPERIOD=PREVIOUS*2-192
+    Motor_Profile profile;
+    profile.motor_id = MotorId::CANON_LIDE_110;
+    profile.exposure = 2768;
+    profile.step_type = StepType::FULL;
+    profile.table = lide210_fast;
+    gl124_motor_profiles->push_back(profile);
 
-    { MotorId::UNKNOWN, 0, StepType::FULL, nullptr },
-};
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_LIDE_110;
+    profile.exposure = 5360;
+    profile.step_type = StepType::HALF;
+    profile.table = lide110_ok;
+    gl124_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_LIDE_110;
+    profile.exposure = 10528;
+    profile.step_type = StepType::HALF;
+    profile.table = lide110_slow;
+    gl124_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_LIDE_110;
+    profile.exposure = 20864;
+    profile.step_type = StepType::QUARTER;
+    profile.table = lide110_max;
+    gl124_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_LIDE_120;
+    profile.exposure = 4608;
+    profile.step_type = StepType::FULL;
+    profile.table = lide120_fast;
+    gl124_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_LIDE_120;
+    profile.exposure = 5360;
+    profile.step_type = StepType::HALF;
+    profile.table = lide120_ok;
+    gl124_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_LIDE_120;
+    profile.exposure = 10528;
+    profile.step_type = StepType::QUARTER;
+    profile.table = lide120_slow;
+    gl124_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_LIDE_120;
+    profile.exposure = 20864;
+    profile.step_type = StepType::QUARTER;
+    profile.table = lide120_max;
+    gl124_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_LIDE_210;
+    profile.exposure = 2768;
+    profile.step_type = StepType::FULL;
+    profile.table = lide210_fast;
+    gl124_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_LIDE_210;
+    profile.exposure = 5360;
+    profile.step_type = StepType::HALF;
+    profile.table = lide110_ok;
+    gl124_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_LIDE_210;
+    profile.exposure = 10528;
+    profile.step_type = StepType::HALF;
+    profile.table = lide110_slow;
+    gl124_motor_profiles->push_back(profile);
+
+    profile = Motor_Profile();
+    profile.motor_id = MotorId::CANON_LIDE_210;
+    profile.exposure = 20864;
+    profile.step_type = StepType::QUARTER;
+    profile.table = lide210_max;
+    gl124_motor_profiles->push_back(profile);
+}
+
+void genesys_init_motor_profile_tables()
+{
+    genesys_init_motor_profile_tables_gl843();
+    genesys_init_motor_profile_tables_gl846();
+    genesys_init_motor_profile_tables_gl847();
+    genesys_init_motor_profile_tables_gl124();
+}
 
 } // namespace genesys

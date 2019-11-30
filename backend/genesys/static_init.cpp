@@ -41,58 +41,28 @@
    If you do not wish that, delete this exception notice.
 */
 
-#ifndef BACKEND_GENESYS_SCANNER_INTERFACE_USB_H
-#define BACKEND_GENESYS_SCANNER_INTERFACE_USB_H
-
-#include "scanner_interface.h"
-#include "usb_device.h"
+#include "static_init.h"
+#include <vector>
 
 namespace genesys {
 
-class ScannerInterfaceUsb : public ScannerInterface
+static std::unique_ptr<std::vector<std::function<void()>>> s_functions_run_at_backend_exit;
+
+void add_function_to_run_at_backend_exit(const std::function<void()>& function)
 {
-public:
-    ScannerInterfaceUsb(Genesys_Device* dev);
+    if (!s_functions_run_at_backend_exit)
+        s_functions_run_at_backend_exit.reset(new std::vector<std::function<void()>>());
+    s_functions_run_at_backend_exit->push_back(std::move(function));
+}
 
-    ~ScannerInterfaceUsb() override;
-
-    bool is_mock() const override;
-
-    std::uint8_t read_register(std::uint16_t address) override;
-    void write_register(std::uint16_t address, std::uint8_t value) override;
-    void write_registers(const Genesys_Register_Set& regs) override;
-
-    void write_0x8c(std::uint8_t index, std::uint8_t value) override;
-    void bulk_read_data(std::uint8_t addr, std::uint8_t* data, std::size_t size) override;
-    void bulk_write_data(std::uint8_t addr, std::uint8_t* data, std::size_t size) override;
-
-    void write_buffer(std::uint8_t type, std::uint32_t addr, std::uint8_t* data,
-                      std::size_t size, Flags flags) override;
-    void write_gamma(std::uint8_t type, std::uint32_t addr, std::uint8_t* data,
-                     std::size_t size, Flags flags) override;
-
-    void write_ahb(std::uint32_t addr, std::uint32_t size, std::uint8_t* data) override;
-
-    std::uint16_t read_fe_register(std::uint8_t address) override;
-    void write_fe_register(std::uint8_t address, std::uint16_t value) override;
-
-    IUsbDevice& get_usb_device() override;
-
-    void sleep_us(unsigned microseconds) override;
-
-    void record_progress_message(const char* msg) override;
-
-    void record_slope_table(unsigned table_nr, const std::vector<std::uint16_t>& steps) override;
-
-    void record_key_value(const std::string& key, const std::string& value) override;
-
-    void test_checkpoint(const std::string& name) override;
-
-private:
-    Genesys_Device* dev_;
-    UsbDevice usb_dev_;
-};
+void run_functions_at_backend_exit()
+{
+    for (auto it = s_functions_run_at_backend_exit->rbegin();
+         it != s_functions_run_at_backend_exit->rend(); ++it)
+    {
+        (*it)();
+    }
+    s_functions_run_at_backend_exit.reset();
+}
 
 } // namespace genesys
-
-#endif

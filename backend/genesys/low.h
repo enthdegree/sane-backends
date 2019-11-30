@@ -88,6 +88,7 @@
 #include "sensor.h"
 #include "serialize.h"
 #include "settings.h"
+#include "static_init.h"
 #include "register.h"
 
 #include <algorithm>
@@ -234,24 +235,13 @@ struct Motor_Profile
         uint32_t *table;  // 0-terminated slope table at full step (i.e. step_type == 0)
 };
 
-extern Motor_Profile gl843_motor_profiles[];
-extern Motor_Profile gl846_motor_profiles[];
-extern Motor_Profile gl847_motor_profiles[];
-extern Motor_Profile gl124_motor_profiles[];
+extern StaticInit<std::vector<Motor_Profile>> gl843_motor_profiles;
+extern StaticInit<std::vector<Motor_Profile>> gl846_motor_profiles;
+extern StaticInit<std::vector<Motor_Profile>> gl847_motor_profiles;
+extern StaticInit<std::vector<Motor_Profile>> gl124_motor_profiles;
 
-#define SLOPE_TABLE_SIZE 1024
+constexpr unsigned SLOPE_TABLE_SIZE = 1024;
 
-#define SCAN_FLAG_SINGLE_LINE               0x001
-#define SCAN_FLAG_DISABLE_SHADING           0x002
-#define SCAN_FLAG_DISABLE_GAMMA             0x004
-#define SCAN_FLAG_DISABLE_BUFFER_FULL_MOVE  0x008
-#define SCAN_FLAG_IGNORE_LINE_DISTANCE      0x010
-#define SCAN_FLAG_DISABLE_LAMP              0x040
-#define SCAN_FLAG_CALIBRATION               0x100
-#define SCAN_FLAG_FEEDING                   0x200
-#define SCAN_FLAG_USE_XPA                   0x400
-#define SCAN_FLAG_ENABLE_LEDADD             0x800
-#define SCAN_FLAG_USE_XCORRECTION          0x1000
 #define MOTOR_FLAG_AUTO_GO_HOME             0x01
 #define MOTOR_FLAG_DISABLE_BUFFER_FULL_MOVE 0x02
 #define MOTOR_FLAG_FEED                     0x04
@@ -336,7 +326,7 @@ extern void sanei_genesys_set_buffer_address(Genesys_Device* dev, uint32_t addr)
 
 unsigned sanei_genesys_get_bulk_max_size(AsicType asic_type);
 
-SANE_Int sanei_genesys_exposure_time2(Genesys_Device * dev, float ydpi, int step_type,
+SANE_Int sanei_genesys_exposure_time2(Genesys_Device * dev, float ydpi, StepType step_type,
                                       int endpixel, int led_exposure);
 
 SANE_Int sanei_genesys_generate_slope_table(std::vector<uint16_t>& slope_table, unsigned int max_steps,
@@ -345,15 +335,11 @@ SANE_Int sanei_genesys_generate_slope_table(std::vector<uint16_t>& slope_table, 
 			      unsigned int steps, double g,
 			      unsigned int *used_steps, unsigned int *vfinal);
 
-SANE_Int sanei_genesys_create_slope_table(Genesys_Device * dev, std::vector<uint16_t>& slope_table,
-                                          int steps, int step_type, int exposure_time,
-                                          bool same_speed, double yres);
-
-SANE_Int sanei_genesys_create_slope_table3(Genesys_Device * dev,
+SANE_Int sanei_genesys_create_slope_table3(const Genesys_Motor& motor,
                                            std::vector<uint16_t>& slope_table, int max_step,
 				   unsigned int use_steps,
-				   int step_type, int exposure_time,
-				   double yres,
+                                           StepType step_type, int exposure_time,
+                                           unsigned yres,
 				   unsigned int *used_steps,
                                    unsigned int *final_exposure);
 
@@ -425,14 +411,13 @@ extern void sanei_genesys_wait_for_home(Genesys_Device* dev);
 
 extern void sanei_genesys_asic_init(Genesys_Device* dev, bool cold);
 
-Motor_Profile* sanei_genesys_get_motor_profile(Motor_Profile *motors, MotorId motor_id,
-                                               int exposure);
+void scanner_start_action(Genesys_Device& dev, bool start_motor);
 
-StepType sanei_genesys_compute_step_type(Motor_Profile* motors, MotorId motor_id, int exposure);
+const Motor_Profile& sanei_genesys_get_motor_profile(const std::vector<Motor_Profile>& motors,
+                                                     MotorId motor_id, int exposure);
 
-int sanei_genesys_slope_table(std::vector<uint16_t>& slope, int *steps, int dpi, int exposure,
-                              int base_dpi, StepType step_type, int factor, MotorId motor_id,
-                              Motor_Profile *motors);
+MotorSlopeTable sanei_genesys_slope_table(int dpi, int exposure, int base_dpi,
+                                          int factor, const Motor_Profile& motor_profile);
 
 /** @brief find lowest motor resolution for the device.
  * Parses the resolution list for motor and
@@ -522,40 +507,6 @@ inline T clamp(const T& value, const T& lo, const T& hi)
 /*                ASIC specific functions declarations                       */
 /*---------------------------------------------------------------------------*/
 
-void add_function_to_run_at_backend_exit(std::function<void()> function);
-
-// calls functions added via add_function_to_run_at_backend_exit() in reverse order of being
-// added.
-void run_functions_at_backend_exit();
-
-template<class T>
-class StaticInit {
-public:
-    StaticInit() = default;
-    StaticInit(const StaticInit&) = delete;
-    StaticInit& operator=(const StaticInit&) = delete;
-
-    template<class... Args>
-    void init(Args&& ... args)
-    {
-        ptr_ = std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-        add_function_to_run_at_backend_exit([this](){ deinit(); });
-    }
-
-    void deinit()
-    {
-        ptr_.reset();
-    }
-
-    const T* operator->() const { return ptr_.get(); }
-    T* operator->() { return ptr_.get(); }
-    const T& operator*() const { return *ptr_.get(); }
-    T& operator*() { return *ptr_.get(); }
-
-private:
-    std::unique_ptr<T> ptr_;
-};
-
 extern StaticInit<std::vector<Genesys_Sensor>> s_sensors;
 extern StaticInit<SensorProfile> s_fallback_sensor_profile_gl124;
 extern StaticInit<SensorProfile> s_fallback_sensor_profile_gl846;
@@ -569,6 +520,7 @@ void genesys_init_sensor_tables();
 void genesys_init_frontend_tables();
 void genesys_init_gpo_tables();
 void genesys_init_motor_tables();
+void genesys_init_motor_profile_tables();
 void genesys_init_usb_device_tables();
 
 template<class T>

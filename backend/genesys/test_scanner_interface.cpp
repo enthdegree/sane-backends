@@ -183,6 +183,17 @@ void TestScannerInterface::sleep_us(unsigned microseconds)
     (void) microseconds;
 }
 
+void TestScannerInterface::record_slope_table(unsigned table_nr,
+                                              const std::vector<std::uint16_t>& steps)
+{
+    slope_tables_[table_nr] = steps;
+}
+
+std::map<unsigned, std::vector<std::uint16_t>>& TestScannerInterface::recorded_slope_tables()
+{
+    return slope_tables_;
+}
+
 void TestScannerInterface::record_progress_message(const char* msg)
 {
     last_progress_message_ = msg;

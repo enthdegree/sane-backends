@@ -434,14 +434,14 @@ SANE_Int sanei_genesys_generate_slope_table(std::vector<uint16_t>& slope_table,
  * @return               Time for acceleration
  * @note  all times in pixel time
  */
-SANE_Int sanei_genesys_create_slope_table3(Genesys_Device * dev,
+SANE_Int sanei_genesys_create_slope_table3(const Genesys_Motor& motor,
                                            std::vector<uint16_t>& slope_table,
                                    int max_step,
 				   unsigned int use_steps,
-				   int step_type,
+                                           StepType step_type,
                                    int exposure_time,
-				   double yres,
-				   unsigned int *used_steps,
+                                           unsigned yres,
+                                           unsigned int *used_steps,
                                            unsigned int *final_exposure)
 {
   unsigned int sum_time = 0;
@@ -450,26 +450,21 @@ SANE_Int sanei_genesys_create_slope_table3(Genesys_Device * dev,
   unsigned int vstart;
   unsigned int vfinal;
 
-    DBG(DBG_proc, "%s: step_type = %d, exposure_time = %d, yres = %g\n", __func__,
-        step_type, exposure_time, yres);
+    DBG(DBG_proc, "%s: step_type = %d, exposure_time = %d, yres = %d\n", __func__,
+        static_cast<unsigned>(step_type), exposure_time, yres);
 
   /* final speed */
-    vtarget = static_cast<unsigned>((exposure_time * yres) / dev->motor.base_ydpi);
+    vtarget = (exposure_time * yres) / motor.base_ydpi;
 
-    vstart = dev->motor.slopes[step_type].maximum_start_speed;
-    vend = dev->motor.slopes[step_type].maximum_speed;
+    const auto& slope = motor.get_slope(step_type).legacy();
 
-  vtarget >>= step_type;
-  if (vtarget > 65535)
-    vtarget = 65535;
+    unsigned u_step_type = static_cast<unsigned>(step_type);
+    vstart = slope.maximum_start_speed;
+    vend = slope.maximum_speed;
 
-  vstart >>= step_type;
-  if (vstart > 65535)
-    vstart = 65535;
-
-  vend >>= step_type;
-  if (vend > 65535)
-    vend = 65535;
+    vtarget = std::min(vtarget >> u_step_type, 65535u);
+    vstart = std::min(vstart >> u_step_type, 65535u);
+    vend = std::min(vend >> u_step_type, 65535u);
 
   sum_time = sanei_genesys_generate_slope_table (slope_table,
                                                  max_step,
@@ -477,295 +472,13 @@ SANE_Int sanei_genesys_create_slope_table3(Genesys_Device * dev,
 						 vtarget,
 						 vstart,
 						 vend,
-                                                 dev->motor.slopes[step_type].minimum_steps << step_type,
-                                                 dev->motor.slopes[step_type].g,
+                                                 slope.minimum_steps << u_step_type,
+                                                 slope.g,
                                                  used_steps,
 						 &vfinal);
 
     if (final_exposure) {
-        *final_exposure = static_cast<unsigned>((vfinal * dev->motor.base_ydpi) / yres);
-    }
-
-  DBG(DBG_proc, "%s: returns sum_time=%d, completed\n", __func__, sum_time);
-
-  return sum_time;
-}
-
-
-/* alternate slope table creation function        */
-/* the hardcoded values (g and vstart) will go in a motor struct */
-SANE_Int genesys_create_slope_table2(Genesys_Device* dev, std::vector<uint16_t>& slope_table,
-                                     int steps,
-			     int step_type, int exposure_time,
-                                    bool same_speed, double yres)
-{
-  double t, g;
-  SANE_Int sum = 0;
-  int vstart, vend;
-  int i;
-
-  DBG(DBG_proc, "%s: %d steps, step_type = %d, "
-      "exposure_time = %d, same_speed = %d, yres = %.2f\n", __func__, steps,
-      step_type, exposure_time, same_speed, yres);
-
-  /* start speed */
-    if (dev->model->motor_id == MotorId::MD_5345) {
-      if (yres < dev->motor.base_ydpi / 6)
-	vstart = 2500;
-      else
-	vstart = 2000;
-    }
-  else
-    {
-        if (steps == 2) {
-            vstart = exposure_time;
-        } else if (steps == 3) {
-            vstart = 2 * exposure_time;
-        } else if (steps == 4) {
-            vstart = static_cast<int>(1.5 * exposure_time);
-        } else if (steps == 120) {
-            vstart = static_cast<int>(1.81674 * exposure_time);
-        } else {
-            vstart = exposure_time;
-        }
-    }
-
-  /* final speed */
-    vend = static_cast<int>((exposure_time * yres) / (dev->motor.base_ydpi * (1 << step_type)));
-
-  /*
-     type=1 : full
-     type=2 : half
-     type=4 : quarter
-     vend * type * base_ydpi / exposure = yres
-   */
-
-  /* acceleration */
-  switch (steps)
-    {
-    case 255:
-      /* test for special case: fast moving slope */
-      /* todo: a 'fast' boolean parameter should be better */
-      if (vstart == 2000)
-	g = 0.2013;
-      else
-	g = 0.1677;
-      break;
-    case 120:
-      g = 0.5;
-      break;
-    case 67:
-      g = 0.5;
-      break;
-    case 64:
-      g = 0.2555;
-      break;
-    case 44:
-      g = 0.5;
-      break;
-    case 4:
-      g = 0.5;
-      break;
-    case 3:
-      g = 1;
-      break;
-    case 2:
-      vstart = vend;
-      g = 1;
-      break;
-    default:
-      g = 0.2635;
-    }
-
-  /* if same speed, no 'g' */
-  sum = 0;
-  if (same_speed)
-    {
-      for (i = 0; i < 255; i++)
-	{
-	  slope_table[i] = vend;
-	  sum += slope_table[i];
-	  DBG (DBG_io, "slope_table[%3d] = %5d\n", i, slope_table[i]);
-	}
-    }
-  else
-    {
-      for (i = 0; i < steps; i++)
-	{
-            t = std::pow(static_cast<double>(i) / static_cast<double>(steps - 1), g);
-            slope_table[i] = static_cast<std::uint16_t>(vstart * (1 - t) + t * vend);
-	  DBG (DBG_io, "slope_table[%3d] = %5d\n", i, slope_table[i]);
-	  sum += slope_table[i];
-	}
-      for (i = steps; i < 255; i++)
-	{
-	  slope_table[i] = vend;
-	  DBG (DBG_io, "slope_table[%3d] = %5d\n", i, slope_table[i]);
-	  sum += slope_table[i];
-	}
-    }
-
-  DBG(DBG_proc, "%s: returns sum=%d, completed\n", __func__, sum);
-
-  return sum;
-}
-
-/* Generate slope table for motor movement */
-/* todo: check details */
-SANE_Int sanei_genesys_create_slope_table(Genesys_Device * dev, std::vector<uint16_t>& slope_table,
-                                          int steps, int step_type, int exposure_time,
-                                          bool same_speed, double yres)
-{
-  double t;
-  double start_speed;
-  double g;
-  uint32_t time_period;
-  int sum_time = 0;
-  int i, divider;
-  int same_step;
-
-    if (dev->model->motor_id == MotorId::MD_5345 ||
-        dev->model->motor_id == MotorId::HP2300 ||
-        dev->model->motor_id == MotorId::HP2400)
-    {
-        return genesys_create_slope_table2(dev, slope_table, steps, step_type, exposure_time,
-                                           same_speed, yres);
-    }
-
-  DBG(DBG_proc, "%s: %d steps, step_type = %d, exposure_time = %d, same_speed =%d\n", __func__,
-      steps, step_type, exposure_time, same_speed);
-  DBG(DBG_proc, "%s: yres = %.2f\n", __func__, yres);
-
-  g = 0.6;
-  start_speed = 0.01;
-  same_step = 4;
-  divider = 1 << step_type;
-
-    time_period = static_cast<std::uint32_t>(yres * exposure_time /
-                                             dev->motor.base_ydpi /*MOTOR_GEAR */ );
-  if ((time_period < 2000) && (same_speed))
-    same_speed = false;
-
-  time_period = time_period / divider;
-
-  if (same_speed)
-    {
-      for (i = 0; i < steps; i++)
-	{
-            slope_table[i] = static_cast<std::uint16_t>(time_period);
-	  sum_time += time_period;
-
-	  DBG (DBG_io, "slope_table[%d] = %d\n", i, time_period);
-	}
-      DBG(DBG_info, "%s: returns sum_time=%d, completed\n", __func__, sum_time);
-      return sum_time;
-    }
-
-  if (time_period > MOTOR_SPEED_MAX * 5)
-    {
-      g = 1.0;
-      start_speed = 0.05;
-      same_step = 2;
-    }
-  else if (time_period > MOTOR_SPEED_MAX * 4)
-    {
-      g = 0.8;
-      start_speed = 0.04;
-      same_step = 2;
-    }
-  else if (time_period > MOTOR_SPEED_MAX * 3)
-    {
-      g = 0.7;
-      start_speed = 0.03;
-      same_step = 2;
-    }
-  else if (time_period > MOTOR_SPEED_MAX * 2)
-    {
-      g = 0.6;
-      start_speed = 0.02;
-      same_step = 3;
-    }
-
-    if (dev->model->motor_id == MotorId::ST24) {
-      steps = 255;
-        switch (static_cast<int>(yres))
-	{
-	case 2400:
-	  g = 0.1672;
-	  start_speed = 1.09;
-	  break;
-	case 1200:
-	  g = 1;
-	  start_speed = 6.4;
-	  break;
-	case 600:
-	  g = 0.1672;
-	  start_speed = 1.09;
-	  break;
-	case 400:
-	  g = 0.2005;
-	  start_speed = 20.0 / 3.0 /*7.5 */ ;
-	  break;
-	case 300:
-	  g = 0.253;
-	  start_speed = 2.182;
-	  break;
-	case 150:
-	  g = 0.253;
-	  start_speed = 4.367;
-	  break;
-	default:
-	  g = 0.262;
-	  start_speed = 7.29;
-	}
-      same_step = 1;
-    }
-
-  if (steps <= same_step)
-    {
-        time_period = static_cast<std::uint32_t>(yres * exposure_time /
-                                                 dev->motor.base_ydpi /*MOTOR_GEAR */ );
-      time_period = time_period / divider;
-
-      if (time_period > 65535)
-	time_period = 65535;
-
-      for (i = 0; i < same_step; i++)
-	{
-        slope_table[i] = static_cast<std::uint16_t>(time_period);
-	  sum_time += time_period;
-
-	  DBG (DBG_io, "slope_table[%d] = %d\n", i, time_period);
-	}
-
-      DBG(DBG_proc, "%s: returns sum_time=%d, completed\n", __func__, sum_time);
-      return sum_time;
-    }
-
-  for (i = 0; i < steps; i++)
-    {
-        double j = static_cast<double>(i) - same_step + 1;	/* start from 1/16 speed */
-
-        if (j <= 0) {
-            t = 0;
-        } else {
-            t = std::pow(j / (steps - same_step), g);
-        }
-
-        // time required for full steps
-        time_period = static_cast<std::uint32_t>(yres * exposure_time /
-                                                 dev->motor.base_ydpi /*MOTOR_GEAR */  *
-                                                 (start_speed + (1 - start_speed) * t));
-
-      time_period = time_period / divider;
-        if (time_period > 65535) {
-            time_period = 65535;
-        }
-
-        slope_table[i] = static_cast<std::uint16_t>(time_period);
-      sum_time += time_period;
-
-      DBG (DBG_io, "slope_table[%d] = %d\n", i, slope_table[i]);
+        *final_exposure = (vfinal * motor.base_ydpi) / yres;
     }
 
   DBG(DBG_proc, "%s: returns sum_time=%d, completed\n", __func__, sum_time);
@@ -841,12 +554,11 @@ void sanei_genesys_create_default_gamma_table(Genesys_Device* dev,
     Note: The enhance option of the scanners does _not_ help. It only halves
           the amount of pixels transfered.
  */
-SANE_Int
-sanei_genesys_exposure_time2 (Genesys_Device * dev, float ydpi,
-                              int step_type, int endpixel, int exposure_by_led)
+SANE_Int sanei_genesys_exposure_time2(Genesys_Device * dev, float ydpi,
+                                      StepType step_type, int endpixel, int exposure_by_led)
 {
   int exposure_by_ccd = endpixel + 32;
-    int exposure_by_motor = static_cast<int>((dev->motor.slopes[step_type].maximum_speed *
+    int exposure_by_motor = static_cast<int>((dev->motor.get_slope(step_type).legacy().maximum_speed *
                                               dev->motor.base_ydpi) / ydpi);
 
   int exposure = exposure_by_ccd;
@@ -858,7 +570,8 @@ sanei_genesys_exposure_time2 (Genesys_Device * dev, float ydpi,
     exposure = exposure_by_led;
 
     DBG(DBG_info, "%s: ydpi=%d, step=%d, endpixel=%d led=%d => exposure=%d\n", __func__,
-        static_cast<int>(ydpi), step_type, endpixel, exposure_by_led, exposure);
+        static_cast<int>(ydpi), static_cast<unsigned>(step_type), endpixel,
+        exposure_by_led, exposure);
   return exposure;
 }
 
@@ -4710,6 +4423,7 @@ void sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
   genesys_init_frontend_tables();
     genesys_init_gpo_tables();
     genesys_init_motor_tables();
+    genesys_init_motor_profile_tables();
     genesys_init_usb_device_tables();
 
 

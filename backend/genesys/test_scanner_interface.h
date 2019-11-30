@@ -90,6 +90,10 @@ public:
 
     const std::string& last_progress_message() const;
 
+    void record_slope_table(unsigned table_nr, const std::vector<std::uint16_t>& steps) override;
+
+    std::map<unsigned, std::vector<std::uint16_t>>& recorded_slope_tables();
+
     void record_key_value(const std::string& key, const std::string& value) override;
 
     std::map<std::string, std::string>& recorded_key_values();
@@ -106,6 +110,9 @@ private:
     TestUsbDevice usb_dev_;
 
     TestCheckpointCallback checkpoint_callback_;
+
+    std::map<unsigned, std::vector<std::uint16_t>> slope_tables_;
+
     std::string last_progress_message_;
     std::map<std::string, std::string> key_values_;
 };

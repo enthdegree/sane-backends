@@ -82,7 +82,7 @@ std::ostream& operator<<(std::ostream& out, const SetupParams& params)
         << "    startx: " << params.startx << " starty: " << params.starty << '\n'
         << "    scan_mode: " << params.scan_mode << '\n'
         << "    color_filter: " << params.color_filter << '\n'
-        << "    flags: 0x" << std::hex << params.flags << std::dec << '\n'
+        << "    flags: " << params.flags << '\n'
         << "}";
     return out;
 }

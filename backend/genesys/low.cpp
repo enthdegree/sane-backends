@@ -305,6 +305,26 @@ Status scanner_read_status(Genesys_Device& dev)
     return status;
 }
 
+Status scanner_read_reliable_status(Genesys_Device& dev)
+{
+    DBG_HELPER(dbg);
+
+    auto status = scanner_read_status(dev);
+    if (DBG_LEVEL >= DBG_io) {
+        debug_print_status(dbg, status);
+    }
+
+    dev.interface->sleep_ms(100);
+
+    // second is reliable
+    status = scanner_read_status(dev);
+    if (DBG_LEVEL >= DBG_io) {
+        debug_print_status(dbg, status);
+    }
+
+    return status;
+}
+
 /**
  * decodes and prints content of status register
  * @param val value read from status register

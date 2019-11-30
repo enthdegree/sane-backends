@@ -957,17 +957,7 @@ void CommandSetGl846::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     gl846_homsnr_gpio(dev);
 
     // first read gives HOME_SENSOR true
-    auto status = scanner_read_status(*dev);
-    if (DBG_LEVEL >= DBG_io) {
-        debug_print_status(dbg, status);
-    }
-    dev->interface->sleep_ms(100);
-
-    // second is reliable
-    status = scanner_read_status(*dev);
-    if (DBG_LEVEL >= DBG_io) {
-        debug_print_status(dbg, status);
-    }
+    auto status = scanner_read_reliable_status(*dev);
 
   /* is sensor at home? */
     if (status.is_at_home) {

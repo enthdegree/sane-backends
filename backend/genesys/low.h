@@ -250,7 +250,12 @@ inline GenesysRegister* sanei_genesys_get_address(Genesys_Register_Set* regs, ui
 
 extern void sanei_genesys_init_cmd_set(Genesys_Device* dev);
 
+// reads the status of the scanner
 Status scanner_read_status(Genesys_Device& dev);
+
+// reads the status of the scanner reliably. This is done by reading the status twice. The first
+// read sometimes returns the home sensor as engaged when this is not true.
+Status scanner_read_reliable_status(Genesys_Device& dev);
 
 extern void debug_print_status(DebugMessageHelper& dbg, Status status);
 

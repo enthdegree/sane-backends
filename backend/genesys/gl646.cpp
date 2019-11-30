@@ -63,6 +63,10 @@ namespace {
 constexpr unsigned CALIBRATION_LINES = 10;
 } // namespace
 
+static void gl646_send_slope_table(Genesys_Device* dev, int table_nr,
+                                   const std::vector<uint16_t>& slope_table,
+                                   int steps);
+
 /**
  * reads value from gpio endpoint
  */
@@ -177,9 +181,7 @@ static int get_cksel(SensorId sensor_id, int required, unsigned channels)
 static void gl646_setup_registers(Genesys_Device* dev,
                                   const Genesys_Sensor& sensor,
                                   Genesys_Register_Set* regs,
-                                  const ScanSession& session,
-                                  std::vector<uint16_t>& slope_table1,
-                                  std::vector<uint16_t>& slope_table2)
+                                  const ScanSession& session)
 {
     DBG_HELPER(dbg);
     session.assert_computed();
@@ -229,6 +231,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
     }
 
   /* now generate slope tables : we are not using generate_slope_table3 yet */
+    std::vector<std::uint16_t> slope_table1, slope_table2;
   sanei_genesys_generate_slope_table (slope_table1, motor->steps1,
 				      motor->steps1 + 1, motor->vend1,
 				      motor->vstart1, motor->vend1,
@@ -565,6 +568,9 @@ static void gl646_setup_registers(Genesys_Device* dev,
                 break;
         }
     }
+
+    gl646_send_slope_table(dev, 0, slope_table1, regs->get8(0x21));
+    gl646_send_slope_table(dev, 1, slope_table2, regs->get8(0x6b));
 }
 
 
@@ -1763,15 +1769,8 @@ void CommandSetGl646::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
 
     ScanSession session = calculate_scan_session(dev, sensor, dev->settings);
 
-    std::vector<uint16_t> slope_table0;
-    std::vector<uint16_t> slope_table1;
-
     // set up correct values for scan (gamma and shading enabled)
-    gl646_setup_registers(dev, sensor, &dev->reg, session, slope_table0, slope_table1);
-
-    // send computed slope tables
-    gl646_send_slope_table(dev, 0, slope_table0, dev->reg.get8(0x21));
-    gl646_send_slope_table(dev, 1, slope_table1, dev->reg.get8(0x6b));
+    gl646_setup_registers(dev, sensor, &dev->reg, session);
 
   /* gamma is only enabled at final scan time */
     if (dev->settings.depth < 16) {
@@ -1859,15 +1858,8 @@ static void setup_for_scan(Genesys_Device* dev,
     }
     compute_session(dev, session, sensor);
 
-    std::vector<uint16_t> slope_table0;
-    std::vector<uint16_t> slope_table1;
-
     // set up correct values for scan (gamma and shading enabled)
-    gl646_setup_registers(dev, sensor, regs, session, slope_table0, slope_table1);
-
-    // send computed slope tables
-    gl646_send_slope_table(dev, 0, slope_table0, regs->get8(0x21));
-    gl646_send_slope_table(dev, 1, slope_table1, regs->get8(0x6b));
+    gl646_setup_registers(dev, sensor, regs, session);
 }
 
 /**

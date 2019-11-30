@@ -397,6 +397,7 @@ static void gl646_setup_registers(Genesys_Device* dev,
   /* move distance must be adjusted to take into account the extra lines
    * read to reorder data */
   feedl = move;
+
     if (session.num_staggered_lines + session.max_color_shift_lines > 0 && feedl != 0) {
         int feed_offset = ((session.max_color_shift_lines + session.num_staggered_lines) * dev->motor.optical_ydpi) /
                 motor->dpi;
@@ -1468,7 +1469,6 @@ void CommandSetGl646::end_scan(Genesys_Device* dev, Genesys_Register_Set* reg,
 void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) const
 {
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d\n", wait_until_home);
-  Genesys_Settings settings;
   int i;
   int loop = 0;
 
@@ -1510,32 +1510,39 @@ void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     }
 
     // setup for a backward scan of 65535 steps, with no actual data reading
-    settings.scan_method = dev->model->default_method;
-  settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-    settings.xres = sanei_genesys_get_lowest_dpi(dev);
-  settings.yres = settings.xres;
-  settings.tl_x = 0;
-  settings.tl_y = 0;
-  settings.pixels = 600;
-    settings.requested_pixels = settings.pixels;
-  settings.lines = 1;
-  settings.depth = 8;
-  settings.color_filter = ColorFilter::RED;
+    auto resolution = sanei_genesys_get_lowest_dpi(dev);
 
-  settings.disable_interpolation = 0;
-  settings.threshold = 0;
-
-    const auto& sensor = sanei_genesys_find_sensor(dev, settings.xres, 3,
+    const auto& sensor = sanei_genesys_find_sensor(dev, resolution, 3,
                                                    dev->model->default_method);
 
-    setup_for_scan(dev, sensor, &dev->reg, settings, true, true, true, true);
+    ScanSession session;
+    session.params.xres = resolution;
+    session.params.yres = resolution;
+    session.params.startx = 0;
+    session.params.starty = 65535;
+    session.params.pixels = 600;
+    session.params.requested_pixels = 600;
+    session.params.lines = 1;
+    session.params.depth = 8;
+    session.params.channels = 3;
+    session.params.scan_method = dev->model->default_method;
+    session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    session.params.color_filter = ColorFilter::RED;
+    session.params.flags = ScanFlag::USE_XCORRECTION |
+                            ScanFlag::REVERSE;
+    if (dev->model->default_method == ScanMethod::TRANSPARENCY) {
+        session.params.flags |= ScanFlag::USE_XPA;
+    }
+    compute_session(dev, session, sensor);
+
+    // set up correct values for scan (gamma and shading enabled)
+    gl646_setup_registers(dev, sensor, &dev->reg, session);
 
   /* backward , no actual data scanned TODO more setup flags to avoid this register manipulations ? */
     dev->reg.find_reg(0x01).value &= ~REG_0x01_SCAN;
-    dev->reg.set24(REG_FEEDL, 65535);
 
     // sets frontend
-    gl646_set_fe(dev, sensor, AFE_SET, settings.xres);
+    gl646_set_fe(dev, sensor, AFE_SET, resolution);
 
   /* write scan registers */
     try {

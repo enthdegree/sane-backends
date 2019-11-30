@@ -41,27 +41,27 @@
 
 :model "TS5300 series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x188B"
+:usbid "0x04a9" "0x188b"
 :status :good
 
 :model "TS5380 series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x188C"
+:usbid "0x04a9" "0x188c"
 :status :good
 
 :model "TS6300 series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x188D"
+:usbid "0x04a9" "0x188d"
 :status :good
 
 :model "TS6380 series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x188E"
+:usbid "0x04a9" "0x188e"
 :status :good
 
 :model "TS7330 series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x188F"
+:usbid "0x04a9" "0x188f"
 :status :good
 
 :model "TS8300 series"
@@ -91,12 +91,12 @@
 
 :model "TS3300 series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x18A2"
+:usbid "0x04a9" "0x18a2"
 :status :good
 
 :model "E3300 series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x18A3"
+:usbid "0x04a9" "0x18a3"
 :status :good
 
 ; ---- V370 --------------------------
@@ -112,12 +112,12 @@
 
 :model "TS8230 series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x185B"
+:usbid "0x04a9" "0x185b"
 :status :good
 
 :model "TS8280 series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x185A"
+:usbid "0x04a9" "0x185a"
 :status :good
 
 :model "TS6200 series"
@@ -137,17 +137,17 @@
 
 :model "TS9500 series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x185C"
+:usbid "0x04a9" "0x185c"
 :status :good
 
 :model "TR9530 series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x185E"
+:usbid "0x04a9" "0x185e"
 :status :good
 
 :model "TS9580 series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x185D"
+:usbid "0x04a9" "0x185d"
 :status :good
 
 :model "TR4500 series"
@@ -174,12 +174,12 @@
 ; ---- V360 --------------------------
 :model "G3010 series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x183B"
+:usbid "0x04a9" "0x183b"
 :status :good
 
 :model "G4010 series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x183D"
+:usbid "0x04a9" "0x183d"
 :status :good
 
 
@@ -226,12 +226,12 @@
 
 :model "TS9180 series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x183E"
+:usbid "0x04a9" "0x183e"
 :status :good
 
 :model "TS8180 series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x183F"
+:usbid "0x04a9" "0x183f"
 :status :good
 
 :model "TS6180 series"
@@ -278,7 +278,7 @@
 ; ---- V340 --------------------------
 :model "TS9000 series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x179F"
+:usbid "0x04a9" "0x179f"
 :status :good
 
 :model "TS8000 series"
@@ -298,17 +298,17 @@
 
 :model "MG3000 series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x180B"
+:usbid "0x04a9" "0x180b"
 :status :good
 
 :model "E470 series"
 :interface "USB"
-:usbid "0x04a9" "0x180C"
+:usbid "0x04a9" "0x180c"
 :status :good
 
 :model "G4000 series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x181D"
+:usbid "0x04a9" "0x181d"
 :status :good
 
 ; Network attached versions of the above
@@ -329,7 +329,7 @@
 
 :model "MB5400 series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x178F"
+:usbid "0x04a9" "0x178f"
 :status :good
 
 ; ---- V330 --------------------------
@@ -342,27 +342,27 @@
 ; ---- V320 --------------------------
 :model "MG7700 series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x178B"
+:usbid "0x04a9" "0x178b"
 :status :good
 
 :model "MG6900 series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x178C"
+:usbid "0x04a9" "0x178c"
 :status :good
 
 :model "MG6800 series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x178D"
+:usbid "0x04a9" "0x178d"
 :status :good
 
 :model "MG5700 series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x178E"
+:usbid "0x04a9" "0x178e"
 :status :good
 
 :model "MG3600 series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x178A"
+:usbid "0x04a9" "0x178a"
 :status :good
 
 
@@ -381,17 +381,17 @@
 ; ---- V300 --------------------------
 :model "MG7500 series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x177C"
+:usbid "0x04a9" "0x177c"
 :status :good
 
 :model "MG6600 series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x177E"
+:usbid "0x04a9" "0x177e"
 :status :good
 
 :model "MG5600 series"
 :interface "USB WiFi"
-:usbid "0x04a9" "0x177F"
+:usbid "0x04a9" "0x177f"
 :status :good
 
 :model "MG2900 series"

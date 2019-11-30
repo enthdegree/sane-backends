@@ -873,6 +873,12 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
         r->value |= REG_0x02_ACDCDIS;
     }
 
+    if (has_flag(flags, MotorFlag::REVERSE)) {
+        r->value |= REG_0x02_MTRREV;
+    } else {
+        r->value &= ~REG_0x02_MTRREV;
+    }
+
   /* scan and backtracking slope table */
     auto scan_table = sanei_genesys_slope_table(scan_yres, exposure, dev->motor.base_ydpi,
                                                 factor, motor_profile);
@@ -1219,6 +1225,9 @@ static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     }
     if (has_flag(session.params.flags, ScanFlag::USE_XPA)) {
         mflags |= MotorFlag::USE_XPA;
+    }
+    if (has_flag(session.params.flags, ScanFlag::REVERSE)) {
+        mflags |= MotorFlag::REVERSE;
     }
 
     unsigned scan_lines = dev->model->is_cis ? session.output_line_count * session.params.channels
@@ -1859,7 +1868,8 @@ void CommandSetGl843::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     session.params.flags =  ScanFlag::DISABLE_SHADING |
                             ScanFlag::DISABLE_GAMMA |
                             ScanFlag::DISABLE_BUFFER_FULL_MOVE |
-                            ScanFlag::IGNORE_LINE_DISTANCE;
+                            ScanFlag::IGNORE_LINE_DISTANCE |
+                            ScanFlag::REVERSE;
     compute_session(dev, session, sensor);
 
     gl843_init_scan_regs(dev, sensor, &local_reg, session);
@@ -1867,9 +1877,7 @@ void CommandSetGl843::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     // clear scan and feed count
     dev->interface->write_register(REG_0x0D, REG_0x0D_CLRLNCNT | REG_0x0D_CLRMCNT);
 
-  /* set up for reverse and no scan */
-    r = sanei_genesys_get_address(&local_reg, REG_0x02);
-    r->value |= REG_0x02_MTRREV;
+    // set up for no scan
     r = sanei_genesys_get_address(&local_reg, REG_0x01);
     r->value &= ~REG_0x01_SCAN;
 
@@ -3136,7 +3144,6 @@ void CommandSetGl843::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
   Genesys_Register_Set local_reg;
     int dpi;
   unsigned int pass, count, found, x, y;
-  GenesysRegister *r;
 
     dev->cmd_set->set_fe(dev, sensor, AFE_SET);
     gl843_stop_action(dev);
@@ -3171,17 +3178,12 @@ void CommandSetGl843::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
     session.params.scan_mode = ScanColorMode::GRAY;
     session.params.color_filter = ColorFilter::RED;
     session.params.flags = ScanFlag::DISABLE_SHADING | ScanFlag::DISABLE_SHADING;
+    if (!forward) {
+        session.params.flags = ScanFlag::REVERSE;
+    }
     compute_session(dev, session, calib_sensor);
 
     gl843_init_scan_regs(dev, calib_sensor, &local_reg, session);
-
-  /* set up for reverse or forward */
-    r = sanei_genesys_get_address(&local_reg, REG_0x02);
-    if (forward) {
-        r->value &= ~REG_0x02_MTRREV;
-    } else {
-        r->value |= REG_0x02_MTRREV;
-    }
 
     dev->interface->write_registers(local_reg);
 

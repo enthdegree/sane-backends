@@ -303,7 +303,12 @@ static void gl646_setup_registers(Genesys_Device* dev,
 
   /* setup motor power and direction */
   sanei_genesys_set_motor_power(*regs, true);
-    regs->find_reg(0x02).value &= ~REG_0x02_MTRREV;
+
+    if (has_flag(session.params.flags, ScanFlag::REVERSE)) {
+        regs->find_reg(0x02).value |= REG_0x02_MTRREV;
+    } else {
+        regs->find_reg(0x02).value &= ~REG_0x02_MTRREV;
+    }
 
   /* fastfed enabled (2 motor slope tables) */
     if (motor->fastfed) {
@@ -1585,10 +1590,9 @@ void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     const auto& sensor = sanei_genesys_find_sensor(dev, settings.xres, 3,
                                                    dev->model->default_method);
 
-    setup_for_scan(dev, sensor, &dev->reg, settings, true, true, true);
+    setup_for_scan(dev, sensor, &dev->reg, settings, true, true, true, true);
 
   /* backward , no actual data scanned TODO more setup flags to avoid this register manipulations ? */
-    dev->reg.find_reg(0x02).value |= REG_0x02_MTRREV;
     dev->reg.find_reg(0x01).value &= ~REG_0x01_SCAN;
     dev->reg.set24(REG_FEEDL, 65535);
 
@@ -1779,7 +1783,7 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 
     // we don't want top offset, but we need right margin to be the same than the one for the final
     // scan
-    setup_for_scan(dev, calib_sensor, &dev->reg, settings, true, false, false);
+    setup_for_scan(dev, calib_sensor, &dev->reg, settings, true, false, false, false);
 
   /* used when sending shading calibration data */
   dev->calib_pixels = settings.pixels;
@@ -1861,7 +1865,8 @@ static void setup_for_scan(Genesys_Device* dev,
                            Genesys_Settings settings,
                            bool split,
                            bool xcorrection,
-                           bool ycorrection)
+                           bool ycorrection,
+                           bool reverse)
 {
     DBG_HELPER(dbg);
 
@@ -1917,6 +1922,9 @@ static void setup_for_scan(Genesys_Device* dev,
     }
     if (xcorrection) {
         session.params.flags |= ScanFlag::USE_XCORRECTION;
+    }
+    if (reverse) {
+        session.params.flags |= ScanFlag::REVERSE;
     }
     compute_session(dev, session, sensor);
 
@@ -2702,7 +2710,7 @@ void CommandSetGl646::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
   settings.threshold = 0;
 
     // setup for scan
-    setup_for_scan(dev, local_sensor, &dev->reg, settings, true, false, false);
+    setup_for_scan(dev, local_sensor, &dev->reg, settings, true, false, false, false);
 
   /* we are not going to move, so clear these bits */
     dev->reg.find_reg(0x02).value &= ~(REG_0x02_FASTFED | REG_0x02_AGOHOME);
@@ -2756,7 +2764,7 @@ static void gl646_repark_head(Genesys_Device* dev)
     const auto& sensor = sanei_genesys_find_sensor(dev, settings.xres, 3,
                                                    dev->model->default_method);
 
-    setup_for_scan(dev, sensor, &dev->reg, settings, false, false, false);
+    setup_for_scan(dev, sensor, &dev->reg, settings, false, false, false, false);
 
   /* TODO seems wrong ... no effective scan */
     dev->reg.find_reg(0x01).value &= ~REG_0x01_SCAN;
@@ -2967,7 +2975,7 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
 
   /* setup for move then scan */
     split = !(move && settings.tl_y > 0);
-    setup_for_scan(dev, sensor, &dev->reg, settings, split, false, false);
+    setup_for_scan(dev, sensor, &dev->reg, settings, split, false, false, !forward);
 
   /* allocate memory fo scan : LINCNT may have been adjusted for CCD reordering */
     if (dev->model->is_cis) {
@@ -3010,11 +3018,6 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
 
       /* no automatic go home if no movement */
         dev->reg.find_reg(0x02).value &= ~REG_0x02_AGOHOME;
-    }
-    if (!forward) {
-        dev->reg.find_reg(0x02).value |= REG_0x02_MTRREV;
-    } else {
-        dev->reg.find_reg(0x02).value &= ~REG_0x02_MTRREV;
     }
 
   /* no automatic go home when using XPA */

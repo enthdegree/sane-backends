@@ -957,6 +957,10 @@ HOME_FREE: 3
 
     r->value &= ~0x40;
 
+    if (has_flag(flags, MotorFlag::REVERSE)) {
+        r->value |= REG_0x02_MTRREV;
+    }
+
     gl841_send_slope_table(dev, 3, fast_slope_table, 256);
 
     r = sanei_genesys_get_address(reg, 0x67);
@@ -2308,11 +2312,9 @@ void CommandSetGl841::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
 
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
 
-    gl841_init_motor_regs(dev, sensor, &local_reg, 65536, MOTOR_ACTION_GO_HOME, MotorFlag::NONE);
+    gl841_init_motor_regs(dev, sensor, &local_reg, 65536, MOTOR_ACTION_GO_HOME, MotorFlag::REVERSE);
 
-  /* set up for reverse and no scan */
-    r = sanei_genesys_get_address(&local_reg, REG_0x02);
-    r->value |= REG_0x02_MTRREV;
+    // set up for no scan
     r = sanei_genesys_get_address(&local_reg, REG_0x01);
     r->value &= ~REG_0x01_SCAN;
 

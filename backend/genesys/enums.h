@@ -425,6 +425,7 @@ enum class ScanFlag : unsigned
     USE_XPA = 1 << 8,
     ENABLE_LEDADD = 1 << 9,
     USE_XCORRECTION = 1 << 10,
+    REVERSE = 1 << 11,
 };
 
 inline ScanFlag operator|(ScanFlag left, ScanFlag right)
@@ -472,6 +473,7 @@ enum class MotorFlag : unsigned
     DISABLE_BUFFER_FULL_MOVE = 1 << 2,
     FEED = 1 << 3,
     USE_XPA = 1 << 4,
+    REVERSE = 1 << 5,
 };
 
 inline MotorFlag operator|(MotorFlag left, MotorFlag right)

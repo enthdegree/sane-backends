@@ -73,7 +73,8 @@ static void setup_for_scan(Genesys_Device* device,
                            Genesys_Settings settings,
                            bool split,
                            bool xcorrection,
-                           bool ycorrection);
+                           bool ycorrection,
+                           bool reverse);
 
 /**
  * Does a simple move of the given distance by doing a scan at lowest resolution

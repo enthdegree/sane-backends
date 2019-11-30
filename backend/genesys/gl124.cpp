@@ -576,6 +576,9 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
     {
         r02 |= REG_0x02_ACDCDIS;
     }
+    if (has_flag(flags, MotorFlag::REVERSE)) {
+        r02 |= REG_0x02_MTRREV;
+    }
 
     reg->set8(REG_0x02, r02);
     sanei_genesys_set_motor_power(*reg, true);
@@ -933,6 +936,9 @@ static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sens
     if (has_flag(session.params.flags, ScanFlag::FEEDING)) {
         mflags |= MotorFlag::FEED;
     }
+    if (has_flag(session.params.flags, ScanFlag::REVERSE)) {
+        mflags |= MotorFlag::REVERSE;
+    }
     gl124_init_motor_regs_scan(dev, sensor, reg, motor_profile, exposure_time, slope_dpi,
                                dev->model->is_cis ? session.output_line_count * session.params.channels :
                                                     session.output_line_count,
@@ -1204,7 +1210,6 @@ void CommandSetGl124::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
 {
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
   Genesys_Register_Set local_reg;
-  GenesysRegister *r;
   uint8_t val;
   int loop = 0;
 
@@ -1260,7 +1265,8 @@ void CommandSetGl124::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     session.params.color_filter = ColorFilter::RED;
     session.params.flags = ScanFlag::DISABLE_SHADING |
                            ScanFlag::DISABLE_GAMMA |
-                           ScanFlag::IGNORE_LINE_DISTANCE;
+                           ScanFlag::IGNORE_LINE_DISTANCE |
+                           ScanFlag::REVERSE;
     compute_session(dev, session, sensor);
 
     gl124_init_scan_regs(dev, sensor, &local_reg, session);
@@ -1268,9 +1274,6 @@ void CommandSetGl124::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     // clear scan and feed count
     dev->interface->write_register(REG_0x0D, REG_0x0D_CLRLNCNT | REG_0x0D_CLRMCNT);
 
-  /* set up for reverse and no scan */
-    r = sanei_genesys_get_address(&local_reg, REG_0x02);
-    r->value |= REG_0x02_MTRREV;
 
     dev->interface->write_registers(local_reg);
 
@@ -1356,6 +1359,9 @@ static void gl124_feed(Genesys_Device* dev, unsigned int steps, int reverse)
                            ScanFlag::FEEDING |
                            ScanFlag::DISABLE_BUFFER_FULL_MOVE |
                            ScanFlag::IGNORE_LINE_DISTANCE;
+    if (reverse) {
+        session.params.flags |= ScanFlag::REVERSE;
+    }
     compute_session(dev, session, sensor);
 
     gl124_init_scan_regs(dev, sensor, &local_reg, session);
@@ -1371,13 +1377,6 @@ static void gl124_feed(Genesys_Device* dev, unsigned int steps, int reverse)
   /* set up for no scan */
     r = sanei_genesys_get_address (&local_reg, REG_0x01);
     r->value &= ~REG_0x01_SCAN;
-
-  /* set up for reverse if needed */
-  if(reverse)
-    {
-        r = sanei_genesys_get_address (&local_reg, REG_0x02);
-        r->value |= REG_0x02_MTRREV;
-    }
 
     // send registers
     dev->interface->write_registers(local_reg);

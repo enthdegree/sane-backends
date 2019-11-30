@@ -53,12 +53,6 @@
 namespace genesys {
 namespace gl847 {
 
-bool CommandSetGl847::get_gain4_bit(Genesys_Register_Set* regs) const
-{
-    GenesysRegister *r = sanei_genesys_get_address(regs, 0x06);
-    return (r && (r->value & REG_0x06_GAIN4));
-}
-
 bool CommandSetGl847::test_buffer_empty_bit(SANE_Byte val) const
 {
     return (val & REG_0x41_BUFEMPTY);

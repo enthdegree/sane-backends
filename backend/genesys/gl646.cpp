@@ -90,12 +90,6 @@ static void gl646_gpio_output_enable(IUsbDevice& usb_dev, uint8_t value)
     usb_dev.control_msg(REQUEST_TYPE_OUT, REQUEST_REGISTER, GPIO_OUTPUT_ENABLE, INDEX, 1, &value);
 }
 
-bool CommandSetGl646::get_gain4_bit(Genesys_Register_Set* regs) const
-{
-    GenesysRegister *r = sanei_genesys_get_address(regs, 0x06);
-    return (r && (r->value & REG_0x06_GAIN4));
-}
-
 bool CommandSetGl646::test_buffer_empty_bit(SANE_Byte val) const
 {
     return (val & REG_0x41_BUFEMPTY);

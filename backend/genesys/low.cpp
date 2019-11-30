@@ -48,6 +48,13 @@
 #include "assert.h"
 #include "test_settings.h"
 
+#include "gl124_registers.h"
+#include "gl841_registers.h"
+#include "gl843_registers.h"
+#include "gl846_registers.h"
+#include "gl847_registers.h"
+#include "gl646_registers.h"
+
 #include <cstdio>
 #include <cmath>
 #include <vector>
@@ -1598,6 +1605,27 @@ void sanei_genesys_set_dpihw(Genesys_Register_Set& regs, const Genesys_Sensor& s
             throw SaneException("Unknown dpihw value: %d", dpihw);
     }
     regs.set8_mask(0x05, dpihw_setting, REG_0x05_DPIHW_MASK);
+}
+
+bool get_registers_gain4_bit(AsicType asic_type, const Genesys_Register_Set& regs)
+{
+    switch (asic_type) {
+        case AsicType::GL646:
+            return static_cast<bool>(regs.get8(gl646::REG_0x06) & gl646::REG_0x06_GAIN4);
+        case AsicType::GL841:
+            return static_cast<bool>(regs.get8(gl841::REG_0x06) & gl841::REG_0x06_GAIN4);
+        case AsicType::GL843:
+            return static_cast<bool>(regs.get8(gl843::REG_0x06) & gl843::REG_0x06_GAIN4);
+        case AsicType::GL845:
+        case AsicType::GL846:
+            return static_cast<bool>(regs.get8(gl846::REG_0x06) & gl846::REG_0x06_GAIN4);
+        case AsicType::GL847:
+            return static_cast<bool>(regs.get8(gl847::REG_0x06) & gl847::REG_0x06_GAIN4);
+        case AsicType::GL124:
+            return static_cast<bool>(regs.get8(gl124::REG_0x06) & gl124::REG_0x06_GAIN4);
+        default:
+            throw SaneException("Unsupported chipset");
+    }
 }
 
 /**

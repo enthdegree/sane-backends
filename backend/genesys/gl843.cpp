@@ -63,12 +63,6 @@ static void gl843_set_buffer_address(Genesys_Device* dev, uint32_t addr)
     dev->interface->write_register(0x5c, (addr & 0xff));
 }
 
-bool CommandSetGl843::get_gain4_bit(Genesys_Register_Set* regs) const
-{
-    GenesysRegister *r = sanei_genesys_get_address(regs, REG_0x06);
-    return (r && (r->value & REG_0x06_GAIN4));
-}
-
 /**
  * compute the step multiplier used
  */

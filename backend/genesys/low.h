@@ -402,6 +402,8 @@ inline SensorExposure sanei_genesys_fixup_exposure(SensorExposure exposure)
     return exposure;
 }
 
+bool get_registers_gain4_bit(AsicType asic_type, const Genesys_Register_Set& regs);
+
 extern void sanei_genesys_wait_for_home(Genesys_Device* dev);
 
 extern void sanei_genesys_asic_init(Genesys_Device* dev, bool cold);

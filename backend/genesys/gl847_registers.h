@@ -98,6 +98,7 @@ static constexpr RegMask REG_0x05_MTLLAMP = 0x30;
 static constexpr RegMask REG_0x05_GMMENB = 0x08;
 static constexpr RegMask REG_0x05_MTLBASE = 0x03;
 
+static constexpr RegAddr REG_0x06 = 0x06;
 static constexpr RegMask REG_0x06_SCANMOD = 0xe0;
 static constexpr RegMask REG_0x06S_SCANMOD = 5;
 static constexpr RegMask REG_0x06_PWRBIT = 0x10;

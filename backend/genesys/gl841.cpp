@@ -68,12 +68,6 @@ static int gl841_exposure_time(Genesys_Device *dev, const Genesys_Sensor& sensor
                                int start,
                                int used_pixels);
 
-bool CommandSetGl841::get_gain4_bit(Genesys_Register_Set* regs) const
-{
-    GenesysRegister *r = sanei_genesys_get_address(regs, 0x06);
-    return (r && (r->value & REG_0x06_GAIN4));
-}
-
 bool CommandSetGl841::test_buffer_empty_bit(SANE_Byte val) const
 {
     return (val & REG_0x41_BUFEMPTY);

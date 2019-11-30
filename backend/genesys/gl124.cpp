@@ -53,11 +53,6 @@
 namespace genesys {
 namespace gl124 {
 
-bool CommandSetGl124::get_gain4_bit(Genesys_Register_Set* regs) const
-{
-    return static_cast<bool>(regs->get8(REG_0x06) & REG_0x06_GAIN4);
-}
-
 bool CommandSetGl124::test_buffer_empty_bit(SANE_Byte val) const
 {
     return (val & BUFEMPTY);

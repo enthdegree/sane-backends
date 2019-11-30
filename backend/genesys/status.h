@@ -41,30 +41,28 @@
    If you do not wish that, delete this exception notice.
 */
 
-#define DEBUG_DECLARE_ONLY
+#ifndef BACKEND_GENESYS_STATUS_H
+#define BACKEND_GENESYS_STATUS_H
 
-#include "static_init.h"
-#include <vector>
+#include <iosfwd>
 
 namespace genesys {
 
-static std::unique_ptr<std::vector<std::function<void()>>> s_functions_run_at_backend_exit;
-
-void add_function_to_run_at_backend_exit(const std::function<void()>& function)
+/// Represents the scanner status register
+struct Status
 {
-    if (!s_functions_run_at_backend_exit)
-        s_functions_run_at_backend_exit.reset(new std::vector<std::function<void()>>());
-    s_functions_run_at_backend_exit->push_back(std::move(function));
-}
+    bool is_replugged = false;
+    bool is_buffer_empty = false;
+    bool is_feeding_finished = false;
+    bool is_scanning_finished = false;
+    bool is_at_home = false;
+    bool is_lamp_on = false;
+    bool is_front_end_busy = false;
+    bool is_motor_enabled = false;
+};
 
-void run_functions_at_backend_exit()
-{
-    for (auto it = s_functions_run_at_backend_exit->rbegin();
-         it != s_functions_run_at_backend_exit->rend(); ++it)
-    {
-        (*it)();
-    }
-    s_functions_run_at_backend_exit.reset();
-}
+std::ostream& operator<<(std::ostream& out, Status status);
 
 } // namespace genesys
+
+#endif // BACKEND_GENESYS_STATUS_H

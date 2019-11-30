@@ -53,11 +53,6 @@
 namespace genesys {
 namespace gl124 {
 
-bool CommandSetGl124::test_buffer_empty_bit(SANE_Byte val) const
-{
-    return (val & BUFEMPTY);
-}
-
 static void gl124_homsnr_gpio(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
@@ -1020,16 +1015,15 @@ void CommandSetGl124::set_powersaving(Genesys_Device* dev, int delay /* in minut
 static void gl124_stop_action(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  uint8_t val40, val;
+    std::uint8_t val40;
   unsigned int loop;
 
     // post scan gpio : without that HOMSNR is unreliable
     gl124_homsnr_gpio(dev);
 
-    val = sanei_genesys_get_status(dev);
-  if (DBG_LEVEL >= DBG_io)
-    {
-      sanei_genesys_print_status (val);
+    auto status = scanner_read_status(*dev);
+    if (DBG_LEVEL >= DBG_io) {
+        debug_print_status(dbg, status);
     }
 
     val40 = dev->interface->read_register(REG_0x100);
@@ -1041,7 +1035,7 @@ static void gl124_stop_action(Genesys_Device* dev)
     }
 
   /* ends scan */
-    val = dev->reg.get8(REG_0x01);
+    std::uint8_t val = dev->reg.get8(REG_0x01);
     val &= ~REG_0x01_SCAN;
     dev->reg.set8(REG_0x01, val);
     dev->interface->write_register(REG_0x01, val);
@@ -1055,17 +1049,18 @@ static void gl124_stop_action(Genesys_Device* dev)
   loop = 10;
   while (loop > 0)
     {
-        val = sanei_genesys_get_status(dev);
-      if (DBG_LEVEL >= DBG_io)
-	{
-	  sanei_genesys_print_status (val);
-	}
+        auto status = scanner_read_status(*dev);
+        if (DBG_LEVEL >= DBG_io) {
+            debug_print_status(dbg, status);
+        }
         val40 = dev->interface->read_register(REG_0x100);
 
       /* if scanner is in command mode, we are done */
-        if (!(val40 & REG_0x100_DATAENB) && !(val40 & REG_0x100_MOTMFLG) && !(val & MOTORENB)) {
-      return;
-	}
+        if (!(val40 & REG_0x100_DATAENB) && !(val40 & REG_0x100_MOTMFLG) &&
+            !status.is_motor_enabled)
+        {
+            return;
+        }
 
         dev->interface->sleep_ms(100);
       loop--;
@@ -1205,32 +1200,25 @@ void CommandSetGl124::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
 {
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
   Genesys_Register_Set local_reg;
-  uint8_t val;
   int loop = 0;
 
     // post scan gpio : without that HOMSNR is unreliable
     gl124_homsnr_gpio(dev);
 
     // first read gives HOME_SENSOR true
-    val = sanei_genesys_get_status(dev);
-
-  if (DBG_LEVEL >= DBG_io)
-    {
-      sanei_genesys_print_status (val);
+    auto status = scanner_read_status(*dev);
+    if (DBG_LEVEL >= DBG_io) {
+        debug_print_status(dbg, status);
     }
     dev->interface->sleep_ms(100);
 
     // second is reliable
-    val = sanei_genesys_get_status(dev);
-
-  if (DBG_LEVEL >= DBG_io)
-    {
-      sanei_genesys_print_status (val);
+    status = scanner_read_status(*dev);
+    if (DBG_LEVEL >= DBG_io) {
+        debug_print_status(dbg, status);
     }
 
-  /* is sensor at home? */
-  if (val & HOMESNR)
-    {
+    if (status.is_at_home) {
       DBG (DBG_info, "%s: already at home, completed\n", __func__);
       dev->scanhead_position_in_steps = 0;
         return;
@@ -1297,13 +1285,11 @@ void CommandSetGl124::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
   if (wait_until_home)
     {
 
-      while (loop < 300)        /* do not wait longer then 30 seconds */
-	{
-        val = sanei_genesys_get_status(dev);
+        while (loop < 300) {
+            status = scanner_read_status(*dev);
 
-	  if (val & HOMESNR)        /* home sensor */
-	    {
-	      DBG(DBG_info, "%s: reached home position\n", __func__);
+            if (status.is_at_home) {
+                DBG(DBG_info, "%s: reached home position\n", __func__);
               dev->scanhead_position_in_steps = 0;
             return;
 	    }
@@ -1329,7 +1315,6 @@ static void gl124_feed(Genesys_Device* dev, unsigned int steps, int reverse)
     DBG_HELPER_ARGS(dbg, "steps=%d", steps);
   Genesys_Register_Set local_reg;
   GenesysRegister *r;
-  uint8_t val;
 
   /* prepare local registers */
   local_reg = dev->reg;
@@ -1397,9 +1382,10 @@ static void gl124_feed(Genesys_Device* dev, unsigned int steps, int reverse)
     }
 
     // wait until feed count reaches the required value, but do not exceed 30s
+    Status status;
     do {
-        val = sanei_genesys_get_status(dev);
-    } while (!(val & FEEDFSH));
+        status = scanner_read_status(*dev);
+    } while (!status.is_feeding_finished);
 
     // then stop scanning
     gl124_stop_action(dev);
@@ -1592,19 +1578,19 @@ void CommandSetGl124::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 void CommandSetGl124::wait_for_motor_stop(Genesys_Device* dev) const
 {
     DBG_HELPER(dbg);
-    uint8_t val;
 
-    val = sanei_genesys_get_status(dev);
+    auto status = scanner_read_status(*dev);
     uint8_t val40 = dev->interface->read_register(REG_0x100);
 
-    if ((val & MOTORENB) == 0 && (val40 & REG_0x100_MOTMFLG) == 0)
+    if (!status.is_motor_enabled && (val40 & REG_0x100_MOTMFLG) == 0) {
         return;
+    }
 
     do {
         dev->interface->sleep_ms(10);
-        val = sanei_genesys_get_status(dev);
+        status = scanner_read_status(*dev);
         val40 = dev->interface->read_register(REG_0x100);
-    } while ((val & MOTORENB) ||(val40 & REG_0x100_MOTMFLG));
+    } while (status.is_motor_enabled ||(val40 & REG_0x100_MOTMFLG));
     dev->interface->sleep_ms(50);
 }
 

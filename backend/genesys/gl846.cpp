@@ -58,11 +58,6 @@
 namespace genesys {
 namespace gl846 {
 
-bool CommandSetGl846::test_buffer_empty_bit(SANE_Byte val) const
-{
-    return (val & REG_0x41_BUFEMPTY);
-}
-
 /**
  * compute the step multiplier used
  */
@@ -306,10 +301,10 @@ static void gl846_set_adi_fe(Genesys_Device* dev, uint8_t set)
   int i;
 
     // wait for FE to be ready
-    std::uint8_t val8 = sanei_genesys_get_status(dev);
-    while (val8 & REG_0x41_FEBUSY) {
+    auto status = scanner_read_status(*dev);
+    while (status.is_front_end_busy) {
         dev->interface->sleep_ms(10);
-        val8 = sanei_genesys_get_status(dev);
+        status = scanner_read_status(*dev);
     };
 
   if (set == AFE_INIT)
@@ -858,15 +853,13 @@ void CommandSetGl846::set_powersaving(Genesys_Device* dev, int delay /* in minut
 static void gl846_stop_action(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-    uint8_t val;
   unsigned int loop;
 
     // post scan gpio : without that HOMSNR is unreliable
     gl846_homsnr_gpio(dev);
-    val = sanei_genesys_get_status(dev);
-  if (DBG_LEVEL >= DBG_io)
-    {
-      sanei_genesys_print_status (val);
+    auto status = scanner_read_status(*dev);
+    if (DBG_LEVEL >= DBG_io) {
+        debug_print_status(dbg, status);
     }
 
     uint8_t val40 = dev->interface->read_register(REG_0x40);
@@ -878,7 +871,7 @@ static void gl846_stop_action(Genesys_Device* dev)
     }
 
   /* ends scan */
-    val = dev->reg.get8(REG_0x01);
+    std::uint8_t val = dev->reg.get8(REG_0x01);
     val &= ~REG_0x01_SCAN;
     dev->reg.set8(REG_0x01, val);
     dev->interface->write_register(REG_0x01, val);
@@ -889,20 +882,18 @@ static void gl846_stop_action(Genesys_Device* dev)
     }
 
   loop = 10;
-  while (loop > 0)
-    {
-        val = sanei_genesys_get_status(dev);
-      if (DBG_LEVEL >= DBG_io)
-        {
-          sanei_genesys_print_status (val);
+    while (loop > 0) {
+        auto status = scanner_read_status(*dev);
+        if (DBG_LEVEL >= DBG_io) {
+            debug_print_status(dbg, status);
         }
         val40 = dev->interface->read_register(REG_0x40);
 
       /* if scanner is in command mode, we are done */
         if (!(val40 & REG_0x40_DATAENB) && !(val40 & REG_0x40_MOTMFLG) &&
-            !(val & REG_0x41_MOTORENB))
+            !status.is_motor_enabled)
         {
-          return;
+            return;
         }
 
         dev->interface->sleep_ms(100);
@@ -959,7 +950,6 @@ void CommandSetGl846::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
 {
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
   Genesys_Register_Set local_reg;
-  uint8_t val;
   int loop = 0;
   ScanColorMode scan_mode;
 
@@ -967,25 +957,20 @@ void CommandSetGl846::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     gl846_homsnr_gpio(dev);
 
     // first read gives HOME_SENSOR true
-    val = sanei_genesys_get_status(dev);
-
-  if (DBG_LEVEL >= DBG_io)
-    {
-      sanei_genesys_print_status (val);
+    auto status = scanner_read_status(*dev);
+    if (DBG_LEVEL >= DBG_io) {
+        debug_print_status(dbg, status);
     }
     dev->interface->sleep_ms(100);
 
     // second is reliable
-    val = sanei_genesys_get_status(dev);
-
-  if (DBG_LEVEL >= DBG_io)
-    {
-      sanei_genesys_print_status (val);
+    status = scanner_read_status(*dev);
+    if (DBG_LEVEL >= DBG_io) {
+        debug_print_status(dbg, status);
     }
 
   /* is sensor at home? */
-  if (val & HOMESNR)
-    {
+    if (status.is_at_home) {
       DBG(DBG_info, "%s: already at home, completed\n", __func__);
       dev->scanhead_position_in_steps = 0;
       return;
@@ -1054,10 +1039,8 @@ void CommandSetGl846::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     {
       while (loop < 300)	/* do not wait longer then 30 seconds */
         {
-            val = sanei_genesys_get_status(dev);
-
-          if (val & HOMESNR)	/* home sensor */
-            {
+            auto status = scanner_read_status(*dev);
+            if (status.is_at_home) {
               DBG(DBG_info, "%s: reached home position\n", __func__);
               gl846_stop_action (dev);
               dev->scanhead_position_in_steps = 0;
@@ -1199,7 +1182,6 @@ static void gl846_feed(Genesys_Device* dev, unsigned int steps)
     DBG_HELPER_ARGS(dbg, "steps=%d\n", steps);
   Genesys_Register_Set local_reg;
   GenesysRegister *r;
-  uint8_t val;
 
   /* prepare local registers */
   local_reg = dev->reg;
@@ -1263,9 +1245,10 @@ static void gl846_feed(Genesys_Device* dev, unsigned int steps)
     }
 
     // wait until feed count reaches the required value, but do not exceed 30s
+    Status status;
     do {
-        val = sanei_genesys_get_status(dev);
-    } while (!(val & FEEDFSH));
+        status = scanner_read_status(*dev);
+    } while (!status.is_feeding_finished);
 
     // then stop scanning
     gl846_stop_action(dev);

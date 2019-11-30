@@ -68,11 +68,6 @@ static int gl841_exposure_time(Genesys_Device *dev, const Genesys_Sensor& sensor
                                int start,
                                int used_pixels);
 
-bool CommandSetGl841::test_buffer_empty_bit(SANE_Byte val) const
-{
-    return (val & REG_0x41_BUFEMPTY);
-}
-
 /** copy sensor specific settings */
 /* *dev  : device infos
    *regs : registers to be set
@@ -1871,13 +1866,11 @@ static void gl841_stop_action(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
   Genesys_Register_Set local_reg;
-    uint8_t val;
   unsigned int loop;
 
-    val = sanei_genesys_get_status(dev);
-  if (DBG_LEVEL >= DBG_io)
-    {
-      sanei_genesys_print_status (val);
+    auto status = scanner_read_status(*dev);
+    if (DBG_LEVEL >= DBG_io) {
+        debug_print_status(dbg, status);
     }
 
     uint8_t val40 = dev->interface->read_register(0x40);
@@ -1906,9 +1899,6 @@ static void gl841_stop_action(Genesys_Device* dev)
   loop = 10;
     while (loop > 0) {
         val40 = dev->interface->read_register(0x40);
-        if (DBG_LEVEL >= DBG_io) {
-            sanei_genesys_print_status(val);
-        }
 
       /* if scanner is in command mode, we are done */
         if (!(val40 & REG_0x40_DATAENB) && !(val40 & REG_0x40_MOTMFLG)) {
@@ -1948,7 +1938,8 @@ void CommandSetGl841::eject_document(Genesys_Device* dev) const
 
   local_reg.clear();
 
-    sanei_genesys_get_status(dev);
+    // FIXME: unused result
+    scanner_read_status(*dev);
 
     gl841_stop_action(dev);
 
@@ -2184,7 +2175,6 @@ static void gl841_feed(Genesys_Device* dev, int steps)
 {
     DBG_HELPER_ARGS(dbg, "steps = %d", steps);
   Genesys_Register_Set local_reg;
-  uint8_t val;
   int loop;
 
     gl841_stop_action(dev);
@@ -2221,10 +2211,10 @@ static void gl841_feed(Genesys_Device* dev, int steps)
   loop = 0;
   while (loop < 300)		/* do not wait longer then 30 seconds */
   {
-        val = sanei_genesys_get_status(dev);
+        auto status = scanner_read_status(*dev);
 
-        if (!(val & REG_0x41_MOTORENB)) {	/* motor enabled */
-          DBG(DBG_proc, "%s: finished\n", __func__);
+        if (!status.is_motor_enabled) {
+            DBG(DBG_proc, "%s: finished\n", __func__);
 	  dev->scanhead_position_in_steps += steps;
             return;
       }
@@ -2267,26 +2257,21 @@ void CommandSetGl841::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     dev->cmd_set->save_power(dev, false);
 
     // first read gives HOME_SENSOR true
-    val = sanei_genesys_get_status(dev);
-
-  if (DBG_LEVEL >= DBG_io)
-    {
-      sanei_genesys_print_status (val);
+    auto status = scanner_read_status(*dev);
+    if (DBG_LEVEL >= DBG_io) {
+        debug_print_status(dbg, status);
     }
     dev->interface->sleep_ms(100);
 
     // second is reliable
-    val = sanei_genesys_get_status(dev);
-
-  if (DBG_LEVEL >= DBG_io)
-    {
-      sanei_genesys_print_status (val);
+    status = scanner_read_status(*dev);
+    if (DBG_LEVEL >= DBG_io) {
+        debug_print_status(dbg, status);
     }
 
   dev->scanhead_position_in_steps = 0;
 
-    if (val & REG_0x41_HOMESNR)	/* is sensor at home? */
-    {
+    if (status.is_at_home) {
       DBG(DBG_info, "%s: already at home, completed\n", __func__);
       dev->scanhead_position_in_steps = 0;
       return;
@@ -2298,7 +2283,7 @@ void CommandSetGl841::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     dev->interface->write_register(REG_0x01, r->value);
 
   /* if motor is on, stop current action */
-    if (val & REG_0x41_MOTORENB) {
+    if (status.is_motor_enabled) {
         gl841_stop_action(dev);
     }
 
@@ -2335,10 +2320,8 @@ void CommandSetGl841::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     {
       while (loop < 300)		/* do not wait longer then 30 seconds */
 	{
-        val = sanei_genesys_get_status(dev);
-
-        if (val & REG_0x41_HOMESNR)	/* home sensor */
-	    {
+            auto status = scanner_read_status(*dev);
+            if (status.is_at_home) {
 	      DBG(DBG_info, "%s: reached home position\n", __func__);
 	      DBG(DBG_proc, "%s: finished\n", __func__);
           return;
@@ -3600,7 +3583,6 @@ static void sanei_gl841_repark_head(Genesys_Device* dev)
  */
 void CommandSetGl841::init(Genesys_Device* dev) const
 {
-  uint8_t val;
   size_t size;
 
   DBG_INIT ();
@@ -3611,11 +3593,11 @@ void CommandSetGl841::init(Genesys_Device* dev) const
   /* Check if the device has already been initialized and powered up */
   if (dev->already_initialized)
     {
-        val = sanei_genesys_get_status(dev);
-        if (val & REG_0x41_PWRBIT) {
-	  DBG(DBG_info, "%s: already initialized\n", __func__);
-      return;
-	}
+        auto status = scanner_read_status(*dev);
+        if (!status.is_replugged) {
+            DBG(DBG_info, "%s: already initialized\n", __func__);
+            return;
+        }
     }
 
   dev->dark_average_data.clear();

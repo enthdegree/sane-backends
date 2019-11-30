@@ -89,6 +89,7 @@
 #include "serialize.h"
 #include "settings.h"
 #include "static_init.h"
+#include "status.h"
 #include "register.h"
 
 #include <algorithm>
@@ -196,15 +197,6 @@
 #define MOTOR_SPEED_MAX		350
 #define DARK_VALUE		0
 
-#define PWRBIT	        0x80
-#define BUFEMPTY	0x40
-#define FEEDFSH	        0x20
-#define SCANFSH	        0x10
-#define HOMESNR	        0x08
-#define LAMPSTS	        0x04
-#define FEBUSY	        0x02
-#define MOTORENB	0x01
-
 #define MAX_RESOLUTIONS 13
 #define MAX_DPI 4
 
@@ -258,9 +250,9 @@ inline GenesysRegister* sanei_genesys_get_address(Genesys_Register_Set* regs, ui
 
 extern void sanei_genesys_init_cmd_set(Genesys_Device* dev);
 
-std::uint8_t sanei_genesys_get_status(Genesys_Device* dev);
+Status scanner_read_status(Genesys_Device& dev);
 
-extern void sanei_genesys_print_status (uint8_t val);
+extern void debug_print_status(DebugMessageHelper& dbg, Status status);
 
 extern void sanei_genesys_write_ahb(Genesys_Device* dev, uint32_t addr, uint32_t size,
                                     uint8_t* data);

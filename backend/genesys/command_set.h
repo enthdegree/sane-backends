@@ -76,8 +76,6 @@ public:
                                        Genesys_Register_Set& regs) const = 0;
     virtual void init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const = 0;
 
-    virtual bool test_buffer_empty_bit(std::uint8_t val) const = 0;
-
     virtual void set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, std::uint8_t set) const = 0;
     virtual void set_powersaving(Genesys_Device* dev, int delay) const = 0;
     virtual void save_power(Genesys_Device* dev, bool enable) const = 0;

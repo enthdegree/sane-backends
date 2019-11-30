@@ -140,6 +140,10 @@ public:
 
     void init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const override;
 
+    void init_regs_for_scan_session(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                    Genesys_Register_Set* reg,
+                                    const ScanSession& session) const override;
+
     void set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set) const override;
     void set_powersaving(Genesys_Device* dev, int delay) const override;
     void save_power(Genesys_Device* dev, bool enable) const override;

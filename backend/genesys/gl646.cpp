@@ -166,22 +166,9 @@ static int get_cksel(SensorId sensor_id, int required, unsigned channels)
   return 1;
 }
 
-/**
- * Setup register and motor tables for a scan at the
- * given resolution and color mode. TODO try to not use any filed from
- * the device.
- * @param dev          pointer to a struct describing the device
- * @param regs         register set to fill
- * @param slope_table1 first motor table to fill
- * @param slope_table2 second motor table to fill
- * @note No harcoded SENSOR or MOTOR 'names' should be present and
- * registers are set from settings tables and flags related
- * to the hardware capabilities.
- * */
-static void gl646_setup_registers(Genesys_Device* dev,
-                                  const Genesys_Sensor& sensor,
-                                  Genesys_Register_Set* regs,
-                                  const ScanSession& session)
+void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                                 Genesys_Register_Set* regs,
+                                                 const ScanSession& session) const
 {
     DBG_HELPER(dbg);
     session.assert_computed();
@@ -1535,8 +1522,7 @@ void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     }
     compute_session(dev, session, sensor);
 
-    // set up correct values for scan (gamma and shading enabled)
-    gl646_setup_registers(dev, sensor, &dev->reg, session);
+    init_regs_for_scan_session(dev, sensor, &dev->reg, session);
 
   /* backward , no actual data scanned TODO more setup flags to avoid this register manipulations ? */
     dev->reg.find_reg(0x01).value &= ~REG_0x01_SCAN;
@@ -1776,8 +1762,7 @@ void CommandSetGl646::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
 
     ScanSession session = calculate_scan_session(dev, sensor, dev->settings);
 
-    // set up correct values for scan (gamma and shading enabled)
-    gl646_setup_registers(dev, sensor, &dev->reg, session);
+    init_regs_for_scan_session(dev, sensor, &dev->reg, session);
 
   /* gamma is only enabled at final scan time */
     if (dev->settings.depth < 16) {
@@ -1865,8 +1850,7 @@ static void setup_for_scan(Genesys_Device* dev,
     }
     compute_session(dev, session, sensor);
 
-    // set up correct values for scan (gamma and shading enabled)
-    gl646_setup_registers(dev, sensor, regs, session);
+    dev->cmd_set->init_regs_for_scan_session(dev, sensor, regs, session);
 }
 
 /**

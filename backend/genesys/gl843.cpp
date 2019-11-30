@@ -1160,10 +1160,9 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   r->value = sensor.dummy_pixel;
 }
 
-// set up registers for an actual scan this function sets up the scanner to scan in normal or single
-// line mode
-static void gl843_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                 Genesys_Register_Set* reg, const ScanSession& session)
+void CommandSetGl843::init_regs_for_scan_session(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                                 Genesys_Register_Set* reg,
+                                                 const ScanSession& session) const
 {
     DBG_HELPER(dbg);
     session.assert_computed();
@@ -1831,7 +1830,7 @@ void CommandSetGl843::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
                             ScanFlag::REVERSE;
     compute_session(dev, session, sensor);
 
-    gl843_init_scan_regs(dev, sensor, &local_reg, session);
+    init_regs_for_scan_session(dev, sensor, &local_reg, session);
 
     // clear scan and feed count
     dev->interface->write_register(REG_0x0D, REG_0x0D_CLRLNCNT | REG_0x0D_CLRMCNT);
@@ -1921,7 +1920,7 @@ void CommandSetGl843::search_start_position(Genesys_Device* dev) const
                             ScanFlag::DISABLE_BUFFER_FULL_MOVE;
     compute_session(dev, session, sensor);
 
-    gl843_init_scan_regs(dev, sensor, &local_reg, session);
+    init_regs_for_scan_session(dev, sensor, &local_reg, session);
 
     // send to scanner
     dev->interface->write_registers(local_reg);
@@ -1992,7 +1991,7 @@ void CommandSetGl843::init_regs_for_coarse_calibration(Genesys_Device* dev,
     session.params.flags = flags;
     compute_session(dev, session, sensor);
 
-    gl843_init_scan_regs(dev, sensor, &regs, session);
+    init_regs_for_scan_session(dev, sensor, &regs, session);
 
   sanei_genesys_set_motor_power(regs, false);
 
@@ -2038,7 +2037,7 @@ static void gl843_feed(Genesys_Device* dev, unsigned int steps)
                             ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, sensor);
 
-    gl843_init_scan_regs(dev, sensor, &local_reg, session);
+    dev->cmd_set->init_regs_for_scan_session(dev, sensor, &local_reg, session);
 
     // clear scan and feed count
     dev->interface->write_register(REG_0x0D, REG_0x0D_CLRLNCNT);
@@ -2163,7 +2162,7 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     session.params.flags = flags;
     compute_session(dev, session, calib_sensor);
 
-    gl843_init_scan_regs(dev, calib_sensor, &regs, session);
+    init_regs_for_scan_session(dev, calib_sensor, &regs, session);
 
      // the pixel number may be updated to conform to scanner constraints
     dev->calib_pixels = session.output_pixels;
@@ -2249,7 +2248,7 @@ void CommandSetGl843::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     session.params.flags = flags;
     compute_session(dev, session, sensor);
 
-    gl843_init_scan_regs(dev, sensor, &dev->reg, session);
+    init_regs_for_scan_session(dev, sensor, &dev->reg, session);
 }
 
 /**
@@ -2328,7 +2327,7 @@ SensorExposure CommandSetGl843::led_calibration(Genesys_Device* dev, const Genes
                             ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, calib_sensor);
 
-    gl843_init_scan_regs(dev, calib_sensor, &regs, session);
+    init_regs_for_scan_session(dev, calib_sensor, &regs, session);
 
     dev->interface->write_registers(regs);
 
@@ -2554,7 +2553,7 @@ void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     DBG(DBG_io, "%s: resolution  =%d\n", __func__, resolution);
     DBG(DBG_io, "%s: pixels      =%d\n", __func__, pixels);
     DBG(DBG_io, "%s: black_pixels=%d\n", __func__, black_pixels);
-    gl843_init_scan_regs(dev, calib_sensor, &regs, session);
+    init_regs_for_scan_session(dev, calib_sensor, &regs, session);
 
   sanei_genesys_set_motor_power(regs, false);
 
@@ -2773,7 +2772,7 @@ void CommandSetGl843::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     std::size_t pixels = session.output_pixels;
 
     try {
-        gl843_init_scan_regs(dev, calib_sensor, &regs, session);
+        init_regs_for_scan_session(dev, calib_sensor, &regs, session);
     } catch (...) {
         catch_all_exceptions(__func__, [&](){ sanei_genesys_set_motor_power(regs, false); });
         throw;
@@ -2890,7 +2889,7 @@ void CommandSetGl843::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
                             ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, calib_sensor);
 
-    gl843_init_scan_regs(dev, calib_sensor, reg, session);
+    init_regs_for_scan_session(dev, calib_sensor, reg, session);
 
   sanei_genesys_set_motor_power(*reg, false);
     dev->interface->write_registers(*reg);
@@ -3136,7 +3135,7 @@ void CommandSetGl843::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
     }
     compute_session(dev, session, calib_sensor);
 
-    gl843_init_scan_regs(dev, calib_sensor, &local_reg, session);
+    init_regs_for_scan_session(dev, calib_sensor, &local_reg, session);
 
     dev->interface->write_registers(local_reg);
 

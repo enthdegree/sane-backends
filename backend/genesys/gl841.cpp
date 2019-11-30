@@ -1533,10 +1533,9 @@ static StepType gl841_scan_step_type(Genesys_Device *dev, int yres)
     return type;
 }
 
-// set up registers for an actual scan this function sets up the scanner to scan in normal or single
-// line mode
-static void gl841_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                 Genesys_Register_Set* reg, const ScanSession& session)
+void CommandSetGl841::init_regs_for_scan_session(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                                 Genesys_Register_Set* reg,
+                                                 const ScanSession& session) const
 {
     DBG_HELPER(dbg);
     session.assert_computed();
@@ -2364,7 +2363,7 @@ void CommandSetGl841::search_start_position(Genesys_Device* dev) const
                            ScanFlag::DISABLE_BUFFER_FULL_MOVE;
     compute_session(dev, session, sensor);
 
-    gl841_init_scan_regs(dev, sensor, &local_reg, session);
+    init_regs_for_scan_session(dev, sensor, &local_reg, session);
 
     // send to scanner
     dev->interface->write_registers(local_reg);
@@ -2431,7 +2430,7 @@ void CommandSetGl841::init_regs_for_coarse_calibration(Genesys_Device* dev,
                            ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, sensor);
 
-    gl841_init_scan_regs(dev, sensor, &regs, session);
+    init_regs_for_scan_session(dev, sensor, &regs, session);
 
   DBG(DBG_info, "%s: optical sensor res: %d dpi, actual res: %d\n", __func__,
       sensor.optical_res / sensor.ccd_pixels_per_system_pixel(), dev->settings.xres);
@@ -2503,7 +2502,7 @@ void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
                            ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, calib_sensor);
 
-    gl841_init_scan_regs(dev, calib_sensor, &regs, session);
+    init_regs_for_scan_session(dev, calib_sensor, &regs, session);
 
   dev->scanhead_position_in_steps += dev->calib_lines + starty;
 
@@ -2594,7 +2593,7 @@ void CommandSetGl841::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     session.params.flags = flags;
     compute_session(dev, session, sensor);
 
-    gl841_init_scan_regs(dev, sensor, &dev->reg, session);
+    init_regs_for_scan_session(dev, sensor, &dev->reg, session);
 }
 
 
@@ -2675,7 +2674,7 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
                            ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, calib_sensor_base);
 
-    gl841_init_scan_regs(dev, calib_sensor_base, &regs, session);
+    init_regs_for_scan_session(dev, calib_sensor_base, &regs, session);
 
     dev->interface->write_registers(regs);
 
@@ -2886,7 +2885,7 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
                            ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, calib_sensor);
 
-    gl841_init_scan_regs(dev, calib_sensor, &regs, session);
+    dev->cmd_set->init_regs_for_scan_session(dev, calib_sensor, &regs, session);
 
   total_size = num_pixels * 3 * 2 * 1;
 
@@ -3016,7 +3015,7 @@ void CommandSetGl841::offset_calibration(Genesys_Device* dev, const Genesys_Sens
                            ScanFlag::DISABLE_LAMP;
     compute_session(dev, session, calib_sensor);
 
-    gl841_init_scan_regs(dev, calib_sensor, &regs, session);
+    init_regs_for_scan_session(dev, calib_sensor, &regs, session);
 
   total_size = num_pixels * channels * 2 * 1;	/* colors * bytes_per_color * scan lines */
 
@@ -3386,7 +3385,7 @@ void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys
                            ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, calib_sensor);
 
-    gl841_init_scan_regs(dev, calib_sensor, &regs, session);
+    init_regs_for_scan_session(dev, calib_sensor, &regs, session);
 
     dev->interface->write_registers(regs);
 
@@ -3539,7 +3538,7 @@ void CommandSetGl841::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
                            ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, sensor);
 
-    gl841_init_scan_regs(dev, sensor, local_reg, session);
+    init_regs_for_scan_session(dev, sensor, local_reg, session);
 
     num_pixels = session.output_pixels;
 
@@ -3657,7 +3656,7 @@ void CommandSetGl841::init(Genesys_Device* dev) const
                            ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, calib_sensor);
 
-    gl841_init_scan_regs(dev, calib_sensor, &regs, session);
+    init_regs_for_scan_session(dev, calib_sensor, &regs, session);
 
     dev->interface->write_registers(regs);
 
@@ -3787,7 +3786,7 @@ void CommandSetGl841::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
     size = pixels * channels * lines * (session.params.depth / 8);
     std::vector<uint8_t> data(size);
 
-    gl841_init_scan_regs(dev, sensor, &local_reg, session);
+    init_regs_for_scan_session(dev, sensor, &local_reg, session);
 
   /* set up for reverse or forward */
   r = sanei_genesys_get_address(&local_reg, 0x02);

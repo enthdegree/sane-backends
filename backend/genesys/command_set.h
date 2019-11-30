@@ -76,6 +76,13 @@ public:
                                        Genesys_Register_Set& regs) const = 0;
     virtual void init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const = 0;
 
+    /** Set up registers for a scan. Similar to init_regs_for_scan except that the session is
+        already computed from the session
+    */
+    virtual void init_regs_for_scan_session(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                            Genesys_Register_Set* reg,
+                                            const ScanSession& session) const= 0;
+
     virtual void set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, std::uint8_t set) const = 0;
     virtual void set_powersaving(Genesys_Device* dev, int delay) const = 0;
     virtual void save_power(Genesys_Device* dev, bool enable) const = 0;
@@ -84,6 +91,7 @@ public:
                             Genesys_Register_Set* regs, bool start_motor) const = 0;
     virtual void end_scan(Genesys_Device* dev, Genesys_Register_Set* regs,
                           bool check_stop) const = 0;
+
 
     /**
      * Send gamma tables to ASIC

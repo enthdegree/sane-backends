@@ -863,12 +863,9 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     reg->set16(REG_DUMMY, sensor.dummy_pixel);
 }
 
-/** set up registers for an actual scan
- *
- * this function sets up the scanner to scan in normal or single line mode
- */
-static void gl124_init_scan_regs(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                 Genesys_Register_Set* reg, const ScanSession& session)
+void CommandSetGl124::init_regs_for_scan_session(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                                 Genesys_Register_Set* reg,
+                                                 const ScanSession& session) const
 {
     DBG_HELPER(dbg);
     session.assert_computed();
@@ -1223,7 +1220,7 @@ void CommandSetGl124::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
                            ScanFlag::REVERSE;
     compute_session(dev, session, sensor);
 
-    gl124_init_scan_regs(dev, sensor, &local_reg, session);
+    init_regs_for_scan_session(dev, sensor, &local_reg, session);
 
     // clear scan and feed count
     dev->interface->write_register(REG_0x0D, REG_0x0D_CLRLNCNT | REG_0x0D_CLRMCNT);
@@ -1313,7 +1310,7 @@ static void gl124_feed(Genesys_Device* dev, unsigned int steps, int reverse)
     }
     compute_session(dev, session, sensor);
 
-    gl124_init_scan_regs(dev, sensor, &local_reg, session);
+    dev->cmd_set->init_regs_for_scan_session(dev, sensor, &local_reg, session);
 
     local_reg.set24(REG_EXPR, 0);
     local_reg.set24(REG_EXPG, 0);
@@ -1397,7 +1394,7 @@ void CommandSetGl124::search_start_position(Genesys_Device* dev) const
                            ScanFlag::DISABLE_BUFFER_FULL_MOVE;
     compute_session(dev, session, sensor);
 
-    gl124_init_scan_regs(dev, sensor, &local_reg, session);
+    init_regs_for_scan_session(dev, sensor, &local_reg, session);
 
     // send to scanner
     dev->interface->write_registers(local_reg);
@@ -1465,7 +1462,7 @@ void CommandSetGl124::init_regs_for_coarse_calibration(Genesys_Device* dev,
                            ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, sensor);
 
-    gl124_init_scan_regs(dev, sensor, &regs, session);
+    init_regs_for_scan_session(dev, sensor, &regs, session);
 
   sanei_genesys_set_motor_power(regs, false);
 
@@ -1532,7 +1529,7 @@ void CommandSetGl124::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     compute_session(dev, session, sensor);
 
     try {
-        gl124_init_scan_regs(dev, sensor, &regs, session);
+        init_regs_for_scan_session(dev, sensor, &regs, session);
     } catch (...) {
         catch_all_exceptions(__func__, [&](){ sanei_genesys_set_motor_power(regs, false); });
         throw;
@@ -1609,7 +1606,7 @@ void CommandSetGl124::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     session.params.flags = ScanFlag::NONE;
     compute_session(dev, session, sensor);
 
-    gl124_init_scan_regs(dev, sensor, &dev->reg, session);
+    init_regs_for_scan_session(dev, sensor, &dev->reg, session);
 }
 
 /**
@@ -1753,7 +1750,7 @@ static void move_to_calibration_area(Genesys_Device* dev, const Genesys_Sensor& 
                            ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, sensor);
 
-    gl124_init_scan_regs(dev, sensor, &regs, session);
+    dev->cmd_set->init_regs_for_scan_session(dev, sensor, &regs, session);
 
   size = pixels * 3;
   std::vector<uint8_t> line(size);
@@ -1836,7 +1833,7 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
                            ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, sensor);
 
-    gl124_init_scan_regs(dev, sensor, &regs, session);
+    init_regs_for_scan_session(dev, sensor, &regs, session);
 
     total_size = num_pixels * channels * (session.params.depth / 8) * 1;
   std::vector<uint8_t> line(total_size);
@@ -2011,7 +2008,7 @@ void CommandSetGl124::offset_calibration(Genesys_Device* dev, const Genesys_Sens
                            ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, sensor);
 
-    gl124_init_scan_regs(dev, sensor, &regs, session);
+    init_regs_for_scan_session(dev, sensor, &regs, session);
 
   sanei_genesys_set_motor_power(regs, false);
 
@@ -2172,7 +2169,7 @@ void CommandSetGl124::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     compute_session(dev, session, sensor);
 
     try {
-        gl124_init_scan_regs(dev, sensor, &regs, session);
+        init_regs_for_scan_session(dev, sensor, &regs, session);
     } catch (...) {
         catch_all_exceptions(__func__, [&](){ sanei_genesys_set_motor_power(regs, false); });
         throw;
@@ -2287,7 +2284,7 @@ void CommandSetGl124::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
                            ScanFlag::IGNORE_LINE_DISTANCE;
     compute_session(dev, session, sensor);
 
-    gl124_init_scan_regs(dev, sensor, reg, session);
+    init_regs_for_scan_session(dev, sensor, reg, session);
 
     num_pixels = session.output_pixels;
 

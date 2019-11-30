@@ -1210,10 +1210,7 @@ void CommandSetGl646::detect_document_end(Genesys_Device* dev) const
     unsigned int bytes_left;
 
     // test for document presence
-    auto status = scanner_read_status(*dev);
-    if (DBG_LEVEL >= DBG_io) {
-        debug_print_status(dbg, status);
-    }
+    scanner_read_print_status(*dev);
 
     gl646_gpio_read(dev->interface->get_usb_device(), &gpio);
   DBG(DBG_info, "%s: GPIO=0x%02x\n", __func__, gpio);
@@ -1280,9 +1277,6 @@ void CommandSetGl646::eject_document(Genesys_Device* dev) const
 
     // test status : paper event + HOMESNR -> no more doc ?
     auto status = scanner_read_status(*dev);
-    if (DBG_LEVEL >= DBG_io) {
-        debug_print_status(dbg, status);
-    }
 
     // home sensor is set when document is inserted
     if (status.is_at_home) {
@@ -1346,7 +1340,6 @@ void CommandSetGl646::eject_document(Genesys_Device* dev) const
   count = 0;
     do {
         status = scanner_read_status(*dev);
-        debug_print_status(dbg, status);
 
         dev->interface->sleep_ms(200);
       count++;
@@ -1391,9 +1384,6 @@ static void end_scan_impl(Genesys_Device* dev, Genesys_Register_Set* reg, bool c
   /* we need to compute scanfsh before cancelling scan */
     if (dev->model->is_sheetfed) {
         auto status = scanner_read_status(*dev);
-        if (DBG_LEVEL >= DBG_io) {
-            debug_print_status(dbg, status);
-        }
         if (status.is_scanning_finished) {
             scanfsh = 1;
         }
@@ -1414,9 +1404,6 @@ static void end_scan_impl(Genesys_Device* dev, Genesys_Register_Set* reg, bool c
 	  for (i = 0; i < 30; i++)	/* do not wait longer than wait 3 seconds */
 	    {
                 auto status = scanner_read_status(*dev);
-                if (DBG_LEVEL >= DBG_io) {
-                    debug_print_status(dbg, status);
-                }
                 if (status.is_scanning_finished) {
                     scanfsh = 1;
                 }
@@ -1437,9 +1424,6 @@ static void end_scan_impl(Genesys_Device* dev, Genesys_Register_Set* reg, bool c
         {
 
                 auto status = scanner_read_status(*dev);
-                if (DBG_LEVEL >= DBG_io) {
-                    debug_print_status(dbg, status);
-                }
 
                 if (status.is_scanning_finished) {
                     scanfsh = 1;
@@ -1483,10 +1467,6 @@ void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
   int loop = 0;
 
     auto status = scanner_read_status(*dev);
-    if (DBG_LEVEL >= DBG_io) {
-        debug_print_status(dbg, status);
-    }
-
   dev->scanhead_position_in_steps = 0;
 
     if (status.is_at_home) {
@@ -2754,8 +2734,6 @@ void CommandSetGl646::init(Genesys_Device* dev) const
     // to detect real power up condition, we write to REG_0x41 with pwrbit set, then read it back.
     // When scanner is cold (just replugged) PWRBIT will be set in the returned value
     auto status = scanner_read_status(*dev);
-    debug_print_status(dbg, status);
-
     if (status.is_replugged) {
       DBG(DBG_info, "%s: device is cold\n", __func__);
     } else {

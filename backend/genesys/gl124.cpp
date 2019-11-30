@@ -1021,10 +1021,7 @@ static void gl124_stop_action(Genesys_Device* dev)
     // post scan gpio : without that HOMSNR is unreliable
     gl124_homsnr_gpio(dev);
 
-    auto status = scanner_read_status(*dev);
-    if (DBG_LEVEL >= DBG_io) {
-        debug_print_status(dbg, status);
-    }
+    scanner_read_print_status(*dev);
 
     val40 = dev->interface->read_register(REG_0x100);
 
@@ -1050,9 +1047,6 @@ static void gl124_stop_action(Genesys_Device* dev)
   while (loop > 0)
     {
         auto status = scanner_read_status(*dev);
-        if (DBG_LEVEL >= DBG_io) {
-            debug_print_status(dbg, status);
-        }
         val40 = dev->interface->read_register(REG_0x100);
 
       /* if scanner is in command mode, we are done */

@@ -1868,10 +1868,7 @@ static void gl841_stop_action(Genesys_Device* dev)
   Genesys_Register_Set local_reg;
   unsigned int loop;
 
-    auto status = scanner_read_status(*dev);
-    if (DBG_LEVEL >= DBG_io) {
-        debug_print_status(dbg, status);
-    }
+    scanner_read_print_status(*dev);
 
     uint8_t val40 = dev->interface->read_register(0x40);
 

@@ -257,7 +257,10 @@ Status scanner_read_status(Genesys_Device& dev);
 // read sometimes returns the home sensor as engaged when this is not true.
 Status scanner_read_reliable_status(Genesys_Device& dev);
 
-extern void debug_print_status(DebugMessageHelper& dbg, Status status);
+// reads and prints the scanner status
+void scanner_read_print_status(Genesys_Device& dev);
+
+void debug_print_status(DebugMessageHelper& dbg, Status status);
 
 extern void sanei_genesys_write_ahb(Genesys_Device* dev, uint32_t addr, uint32_t size,
                                     uint8_t* data);

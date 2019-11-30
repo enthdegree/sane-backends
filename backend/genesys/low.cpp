@@ -302,6 +302,11 @@ Status scanner_read_status(Genesys_Device& dev)
     status.is_lamp_on = value & LAMPSTS;
     status.is_front_end_busy = value & FEBUSY;
     status.is_motor_enabled = value & MOTORENB;
+
+    if (DBG_LEVEL >= DBG_io) {
+        debug_print_status(dbg, status);
+    }
+
     return status;
 }
 
@@ -309,20 +314,14 @@ Status scanner_read_reliable_status(Genesys_Device& dev)
 {
     DBG_HELPER(dbg);
 
-    auto status = scanner_read_status(dev);
-    if (DBG_LEVEL >= DBG_io) {
-        debug_print_status(dbg, status);
-    }
-
+    scanner_read_status(dev);
     dev.interface->sleep_ms(100);
+    return scanner_read_status(dev);
+}
 
-    // second is reliable
-    status = scanner_read_status(dev);
-    if (DBG_LEVEL >= DBG_io) {
-        debug_print_status(dbg, status);
-    }
-
-    return status;
+void scanner_read_print_status(Genesys_Device& dev)
+{
+    scanner_read_status(dev);
 }
 
 /**
@@ -1700,10 +1699,6 @@ void sanei_genesys_wait_for_home(Genesys_Device* dev)
         elapsed_ms += 100;
 
         status = scanner_read_status(*dev);
-        if (DBG_LEVEL >= DBG_io) {
-            debug_print_status(dbg, status);
-        }
-
     } while (elapsed_ms < timeout_ms && !status.is_at_home);
 
   /* if after the timeout, head is still not parked, error out */

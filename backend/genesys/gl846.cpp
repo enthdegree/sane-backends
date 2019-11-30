@@ -857,10 +857,7 @@ static void gl846_stop_action(Genesys_Device* dev)
 
     // post scan gpio : without that HOMSNR is unreliable
     gl846_homsnr_gpio(dev);
-    auto status = scanner_read_status(*dev);
-    if (DBG_LEVEL >= DBG_io) {
-        debug_print_status(dbg, status);
-    }
+    scanner_read_print_status(*dev);
 
     uint8_t val40 = dev->interface->read_register(REG_0x40);
 
@@ -884,9 +881,6 @@ static void gl846_stop_action(Genesys_Device* dev)
   loop = 10;
     while (loop > 0) {
         auto status = scanner_read_status(*dev);
-        if (DBG_LEVEL >= DBG_io) {
-            debug_print_status(dbg, status);
-        }
         val40 = dev->interface->read_register(REG_0x40);
 
       /* if scanner is in command mode, we are done */

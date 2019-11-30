@@ -1331,10 +1331,7 @@ static void gl843_stop_action(Genesys_Device* dev)
     DBG_HELPER(dbg);
   unsigned int loop;
 
-    auto status = scanner_read_status(*dev);
-    if (DBG_LEVEL >= DBG_io) {
-        debug_print_status(dbg, status);
-    }
+    scanner_read_print_status(*dev);
 
     uint8_t val40 = dev->interface->read_register(REG_0x40);
 
@@ -1360,9 +1357,6 @@ static void gl843_stop_action(Genesys_Device* dev)
   loop = 10;
     while (loop > 0) {
         auto status = scanner_read_status(*dev);
-        if (DBG_LEVEL >= DBG_io) {
-            debug_print_status(dbg, status);
-        }
         val40 = dev->interface->read_register(0x40);
 
       /* if scanner is in command mode, we are done */
@@ -1774,10 +1768,6 @@ static void gl843_park_xpa_lamp(Genesys_Device* dev)
       while (loop < 600)	/* do not wait longer then 60 seconds */
 	{
         auto status = scanner_read_status(*dev);
-        if (DBG_LEVEL >= DBG_io) {
-            debug_print_status(dbg, status);
-        }
-
         if (status.is_at_home) {
 	      DBG(DBG_info, "%s: reached home position\n", __func__);
 	      DBG(DBG_proc, "%s: finished\n", __func__);
@@ -1875,9 +1865,6 @@ void CommandSetGl843::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
       while (loop < 300)	/* do not wait longer then 30 seconds */
 	{
             auto status = scanner_read_status(*dev);
-            if (DBG_LEVEL >= DBG_io) {
-                debug_print_status(dbg, status);
-            }
 
             if (status.is_at_home) {
 	      DBG(DBG_info, "%s: reached home position\n", __func__);

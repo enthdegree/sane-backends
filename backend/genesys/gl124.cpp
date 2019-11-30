@@ -748,7 +748,6 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     } else {
         r->value |= REG_0x01_DVDSET;
     }
-    r->value &= ~REG_0x01_SCAN;
 
     r = sanei_genesys_get_address(reg, REG_0x03);
     if ((dev->model->sensor_id != SensorId::CIS_CANON_LIDE_120) && (session.params.xres>=600)) {

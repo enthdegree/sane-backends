@@ -1186,93 +1186,6 @@ void CommandSetGl124::slow_back_home_ta(Genesys_Device& dev) const
     throw SaneException("not implemented");
 }
 
-/** @brief moves the slider to steps at motor base dpi
- * @param dev device to work on
- * @param steps number of steps to move
- * @param reverse true is moving backward
- * */
-void gl124_feed(Genesys_Device* dev, unsigned int steps, int reverse)
-{
-    DBG_HELPER_ARGS(dbg, "steps=%d", steps);
-  Genesys_Register_Set local_reg;
-  GenesysRegister *r;
-
-  /* prepare local registers */
-  local_reg = dev->reg;
-
-    unsigned resolution = sanei_genesys_get_lowest_ydpi(dev);
-    const auto& sensor = sanei_genesys_find_sensor(dev, resolution, 3, dev->model->default_method);
-
-    ScanSession session;
-    session.params.xres = resolution;
-    session.params.yres = resolution;
-    session.params.startx = 0;
-    session.params.starty = steps;
-    session.params.pixels = 100;
-    session.params.lines = 3;
-    session.params.depth = 8;
-    session.params.channels = 3;
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-    session.params.color_filter = dev->settings.color_filter;
-    session.params.flags = ScanFlag::DISABLE_SHADING |
-                           ScanFlag::DISABLE_GAMMA |
-                           ScanFlag::FEEDING |
-                           ScanFlag::DISABLE_BUFFER_FULL_MOVE |
-                           ScanFlag::IGNORE_LINE_DISTANCE;
-    if (reverse) {
-        session.params.flags |= ScanFlag::REVERSE;
-    }
-    compute_session(dev, session, sensor);
-
-    dev->cmd_set->init_regs_for_scan_session(dev, sensor, &local_reg, session);
-
-    local_reg.set24(REG_EXPR, 0);
-    local_reg.set24(REG_EXPG, 0);
-    local_reg.set24(REG_EXPB, 0);
-
-    // clear scan and feed count
-    dev->interface->write_register(REG_0x0D, REG_0x0D_CLRLNCNT);
-    dev->interface->write_register(REG_0x0D, REG_0x0D_CLRMCNT);
-
-  /* set up for no scan */
-    r = sanei_genesys_get_address (&local_reg, REG_0x01);
-    r->value &= ~REG_0x01_SCAN;
-
-    // send registers
-    dev->interface->write_registers(local_reg);
-
-    try {
-        scanner_start_action(*dev, true);
-    } catch (...) {
-        catch_all_exceptions(__func__, [&]() { gl124_stop_action (dev); });
-
-        // restore original registers
-        catch_all_exceptions(__func__, [&]()
-        {
-            dev->interface->write_registers(dev->reg);
-        });
-        throw;
-    }
-
-
-    if (is_testing_mode()) {
-        dev->interface->test_checkpoint("feed");
-        gl124_stop_action(dev);
-        return;
-    }
-
-    // wait until feed count reaches the required value, but do not exceed 30s
-    Status status;
-    do {
-        status = scanner_read_status(*dev);
-    } while (!status.is_feeding_finished);
-
-    // then stop scanning
-    gl124_stop_action(dev);
-}
-
-
 // Automatically set top-left edge of the scan area by scanning a 200x200 pixels area at 600 dpi
 // from very top of scanner
 void CommandSetGl124::search_start_position(Genesys_Device* dev) const
@@ -1494,7 +1407,7 @@ void CommandSetGl124::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
   DBG (DBG_info, "%s: move=%f steps\n", __func__, move);
 
     if (dev->settings.get_channels() * dev->settings.yres >= 600 && move > 700) {
-        gl124_feed(dev, static_cast<unsigned>(move - 500), false);
+        scanner_move(*dev, static_cast<unsigned>(move - 500), Direction::FORWARD);
       move=500;
     }
   DBG(DBG_info, "%s: move=%f steps\n", __func__, move);

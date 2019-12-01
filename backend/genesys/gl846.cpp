@@ -1054,88 +1054,6 @@ void CommandSetGl846::init_regs_for_coarse_calibration(Genesys_Device* dev,
     dev->interface->write_registers(regs);
 }
 
-/** @brief moves the slider to steps at motor base dpi
- * @param dev device to work on
- * @param steps number of steps to move in base_dpi line count
- * */
-static void gl846_feed(Genesys_Device* dev, unsigned int steps)
-{
-    DBG_HELPER_ARGS(dbg, "steps=%d\n", steps);
-  Genesys_Register_Set local_reg;
-  GenesysRegister *r;
-
-  /* prepare local registers */
-  local_reg = dev->reg;
-
-    unsigned resolution = sanei_genesys_get_lowest_ydpi(dev);
-    const auto& sensor = sanei_genesys_find_sensor(dev, resolution, 3, dev->model->default_method);
-
-    ScanSession session;
-    session.params.xres = resolution;
-    session.params.yres = resolution;
-    session.params.startx = 0;
-    session.params.starty = steps;
-    session.params.pixels = 100;
-    session.params.lines = 3;
-    session.params.depth = 8;
-    session.params.channels = 3;
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-    session.params.color_filter = dev->settings.color_filter;
-    session.params.flags = ScanFlag::DISABLE_SHADING |
-                           ScanFlag::DISABLE_GAMMA |
-                           ScanFlag::FEEDING |
-                           ScanFlag::IGNORE_LINE_DISTANCE;
-    compute_session(dev, session, sensor);
-
-    dev->cmd_set->init_regs_for_scan_session(dev, sensor, &local_reg, session);
-
-    local_reg.set24(REG_EXPR, 0);
-    local_reg.set24(REG_EXPG, 0);
-    local_reg.set24(REG_EXPB, 0);
-
-    // clear scan and feed count
-    dev->interface->write_register(REG_0x0D, REG_0x0D_CLRLNCNT);
-    dev->interface->write_register(REG_0x0D, REG_0x0D_CLRMCNT);
-
-  /* set up for no scan */
-    r = sanei_genesys_get_address(&local_reg, REG_0x01);
-    r->value &= ~REG_0x01_SCAN;
-
-    // send registers
-    dev->interface->write_registers(local_reg);
-
-    try {
-        scanner_start_action(*dev, true);
-    } catch (...) {
-        try {
-            gl846_stop_action(dev);
-        } catch (...) {}
-        // restore original registers
-        catch_all_exceptions(__func__, [&]()
-        {
-            dev->interface->write_registers(dev->reg);
-        });
-        throw;
-    }
-
-    if (is_testing_mode()) {
-        dev->interface->test_checkpoint("feed");
-        gl846_stop_action(dev);
-        return;
-    }
-
-    // wait until feed count reaches the required value, but do not exceed 30s
-    Status status;
-    do {
-        status = scanner_read_status(*dev);
-    } while (!status.is_feeding_finished);
-
-    // then stop scanning
-    gl846_stop_action(dev);
-}
-
-
 // init registers for shading calibration
 void CommandSetGl846::init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                             Genesys_Register_Set& regs) const
@@ -1234,9 +1152,8 @@ void CommandSetGl846::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
    * computing acceleration/deceleration distance for scan
    * resolution. So leave a remainder for it so scan makes the final
    * move tuning */
-    if (dev->settings.get_channels() * dev->settings.yres >= 600 && move > 700)
-    {
-        gl846_feed(dev, static_cast<unsigned>(move - 500));
+    if (dev->settings.get_channels() * dev->settings.yres >= 600 && move > 700) {
+        scanner_move(*dev, static_cast<unsigned>(move - 500), Direction::FORWARD);
       move=500;
     }
 
@@ -1370,7 +1287,7 @@ SensorExposure CommandSetGl846::led_calibration(Genesys_Device* dev, const Genes
      move = static_cast<float>((move * (dev->motor.base_ydpi / 4)) / MM_PER_INCH);
   if(move>20)
     {
-        gl846_feed(dev, static_cast<unsigned>(move));
+        scanner_move(*dev, static_cast<unsigned>(move), Direction::FORWARD);
     }
   DBG(DBG_io, "%s: move=%f steps\n", __func__, move);
 

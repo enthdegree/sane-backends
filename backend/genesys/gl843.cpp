@@ -1915,83 +1915,6 @@ void CommandSetGl843::init_regs_for_coarse_calibration(Genesys_Device* dev,
     dev->interface->write_registers(regs);
 }
 
-/** @brief moves the slider to steps at motor base dpi
- * @param dev device to work on
- * @param steps number of steps to move
- * */
-static void gl843_feed(Genesys_Device* dev, unsigned int steps)
-{
-    DBG_HELPER(dbg);
-  Genesys_Register_Set local_reg;
-  GenesysRegister *r;
-
-  /* prepare local registers */
-  local_reg = dev->reg;
-
-    const auto& resolution_settings = dev->model->get_resolution_settings(dev->model->default_method);
-    unsigned resolution = resolution_settings.get_min_resolution_y();
-
-    const auto& sensor = sanei_genesys_find_sensor(dev, resolution, 3, dev->model->default_method);
-
-    ScanSession session;
-    session.params.xres = resolution;
-    session.params.yres = resolution;
-    session.params.startx = 0;
-    session.params.starty = steps;
-    session.params.pixels = 100;
-    session.params.lines = 3;
-    session.params.depth = 8;
-    session.params.channels = 3;
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-    session.params.color_filter = ColorFilter::RED;
-    session.params.flags =  ScanFlag::DISABLE_SHADING |
-                            ScanFlag::DISABLE_GAMMA |
-                            ScanFlag::FEEDING |
-                            ScanFlag::IGNORE_LINE_DISTANCE;
-    compute_session(dev, session, sensor);
-
-    dev->cmd_set->init_regs_for_scan_session(dev, sensor, &local_reg, session);
-
-    // clear scan and feed count
-    dev->interface->write_register(REG_0x0D, REG_0x0D_CLRLNCNT);
-    dev->interface->write_register(REG_0x0D, REG_0x0D_CLRMCNT);
-
-  /* set up for no scan */
-  r = sanei_genesys_get_address(&local_reg, REG_0x01);
-    r->value &= ~REG_0x01_SCAN;
-
-    // send registers
-    dev->interface->write_registers(local_reg);
-
-    try {
-        scanner_start_action(*dev, true);
-    } catch (...) {
-        catch_all_exceptions(__func__, [&]() { gl843_stop_action(dev); });
-        // restore original registers
-        catch_all_exceptions(__func__, [&]()
-        {
-            dev->interface->write_registers(dev->reg);
-        });
-        throw;
-    }
-
-    if (is_testing_mode()) {
-        dev->interface->test_checkpoint("feed");
-        // FIXME: other chips call *_stop_action()
-        return;
-    }
-
-    // wait until feed count reaches the required value, but do not exceed 30s
-    Status status;
-    do {
-        status = scanner_read_status(*dev);
-    } while (!status.is_feeding_finished);
-
-  // looks like the scanner locks up if we scan immediately after feeding
-    dev->interface->sleep_ms(100);
-}
-
 // init registers for shading calibration shading calibration is done at dpihw
 void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                             Genesys_Register_Set& regs) const
@@ -2930,7 +2853,7 @@ void CommandSetGl843::asic_boot(Genesys_Device* dev, bool cold) const
     // setup gpio
     gl843_init_gpio(dev);
 
-  gl843_feed (dev, 300);
+    scanner_move(*dev, 300, Direction::FORWARD);
     dev->interface->sleep_ms(100);
 }
 
@@ -2990,7 +2913,7 @@ void CommandSetGl843::move_to_ta(Genesys_Device* dev) const
     }
     unsigned feed = static_cast<unsigned>(multiplier * (dev->model->y_offset_sensor_to_ta * resolution) /
                                           MM_PER_INCH);
-    gl843_feed(dev, feed);
+    scanner_move(*dev, feed, Direction::FORWARD);
 }
 
 

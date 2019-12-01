@@ -498,6 +498,13 @@ inline bool has_flag(MotorFlag flags, MotorFlag which)
 }
 
 
+enum class Direction : unsigned
+{
+    FORWARD = 0,
+    BACKWARD = 1
+};
+
+
 } // namespace genesys
 
 #endif // BACKEND_GENESYS_ENUMS_H

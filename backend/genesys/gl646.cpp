@@ -580,7 +580,7 @@ gl646_setup_sensor (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_
         regs->set8(reg_setting.address, reg_setting.value);
     }
     // FIXME: all other drivers don't set exposure here
-    sanei_genesys_set_exposure(*regs, sensor.exposure);
+    regs_set_exposure(AsicType::GL646, *regs, sensor.exposure);
 
     DBG(DBG_proc, "%s: end\n", __func__);
 }

@@ -592,12 +592,13 @@ void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sen
         regs.find_reg(0x03).value |= REG_0x03_LAMPPWR;
 
         if (dev->model->asic_type == AsicType::GL841) {
-            sanei_genesys_set_exposure(regs, sanei_genesys_fixup_exposure(sensor.exposure));
+            regs_set_exposure(dev->model->asic_type, regs,
+                              sanei_genesys_fixup_exposure(sensor.exposure));
             regs.set8(0x19, 0x50);
         }
 
         if (dev->model->asic_type == AsicType::GL843) {
-            sanei_genesys_set_exposure(regs, sensor.exposure);
+            regs_set_exposure(dev->model->asic_type, regs, sensor.exposure);
 
             // we don't actually turn on lamp on infrared scan
             if ((dev->model->model_id == ModelId::CANON_8400F ||
@@ -613,7 +614,7 @@ void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sen
         regs.find_reg(0x03).value &= ~REG_0x03_LAMPPWR;
 
         if (dev->model->asic_type == AsicType::GL841) {
-            sanei_genesys_set_exposure(regs, {0x0101, 0x0101, 0x0101});
+            regs_set_exposure(dev->model->asic_type, regs, {0x0101, 0x0101, 0x0101});
             regs.set8(0x19, 0xff);
         }
 
@@ -624,7 +625,7 @@ void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sen
                 dev->model->model_id == ModelId::HP_SCANJET_G4050)
             {
                 // BUG: datasheet says we shouldn't set exposure to zero
-                sanei_genesys_set_exposure(regs, {0, 0, 0});
+                regs_set_exposure(dev->model->asic_type, regs, {0, 0, 0});
             }
         }
     }
@@ -1642,6 +1643,52 @@ void sanei_genesys_set_dpihw(Genesys_Register_Set& regs, const Genesys_Sensor& s
             throw SaneException("Unknown dpihw value: %d", dpihw);
     }
     regs.set8_mask(0x05, dpihw_setting, REG_0x05_DPIHW_MASK);
+}
+
+void regs_set_exposure(AsicType asic_type, Genesys_Register_Set& regs,
+                       const SensorExposure& exposure)
+{
+    switch (asic_type) {
+        case AsicType::GL124: {
+            regs.set24(gl124::REG_EXPR, exposure.red);
+            regs.set24(gl124::REG_EXPG, exposure.green);
+            regs.set24(gl124::REG_EXPB, exposure.blue);
+            break;
+        }
+        case AsicType::GL646: {
+            regs.set16(gl646::REG_EXPR, exposure.red);
+            regs.set16(gl646::REG_EXPG, exposure.green);
+            regs.set16(gl646::REG_EXPB, exposure.blue);
+            break;
+        }
+        case AsicType::GL841: {
+            regs.set16(gl841::REG_EXPR, exposure.red);
+            regs.set16(gl841::REG_EXPG, exposure.green);
+            regs.set16(gl841::REG_EXPB, exposure.blue);
+            break;
+        }
+        case AsicType::GL843: {
+            regs.set16(gl843::REG_EXPR, exposure.red);
+            regs.set16(gl843::REG_EXPG, exposure.green);
+            regs.set16(gl843::REG_EXPB, exposure.blue);
+            break;
+        }
+        case AsicType::GL845:
+        case AsicType::GL846: {
+            regs.set16(gl846::REG_EXPR, exposure.red);
+            regs.set16(gl846::REG_EXPG, exposure.green);
+            regs.set16(gl846::REG_EXPB, exposure.blue);
+            break;
+        }
+        case AsicType::GL847: {
+            regs.set16(gl847::REG_EXPR, exposure.red);
+            regs.set16(gl847::REG_EXPG, exposure.green);
+            regs.set16(gl847::REG_EXPB, exposure.blue);
+            break;
+        }
+        default:
+            throw SaneException("Unsupported asic");
+    }
 }
 
 bool get_registers_gain4_bit(AsicType asic_type, const Genesys_Register_Set& regs)

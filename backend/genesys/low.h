@@ -373,15 +373,8 @@ extern void sanei_genesys_read_data_from_scanner(Genesys_Device* dev, uint8_t* d
 Image read_unshuffled_image_from_scanner(Genesys_Device* dev, const ScanSession& session,
                                          std::size_t total_bytes);
 
-inline void sanei_genesys_set_exposure(Genesys_Register_Set& regs, const SensorExposure& exposure)
-{
-    regs.set8(0x10, (exposure.red >> 8) & 0xff);
-    regs.set8(0x11, exposure.red & 0xff);
-    regs.set8(0x12, (exposure.green >> 8) & 0xff);
-    regs.set8(0x13, exposure.green & 0xff);
-    regs.set8(0x14, (exposure.blue >> 8) & 0xff);
-    regs.set8(0x15, exposure.blue & 0xff);
-}
+void regs_set_exposure(AsicType asic_type, Genesys_Register_Set& regs,
+                       const SensorExposure& exposure);
 
 void sanei_genesys_set_dpihw(Genesys_Register_Set& regs, const Genesys_Sensor& sensor,
                              unsigned dpihw);

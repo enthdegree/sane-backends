@@ -2715,7 +2715,7 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
         calib_sensor.exposure.green = exp[1];
         calib_sensor.exposure.blue = exp[2];
 
-        sanei_genesys_set_exposure(regs, calib_sensor.exposure);
+        regs_set_exposure(dev->model->asic_type, regs, calib_sensor.exposure);
         dev->interface->write_register(0x10, (calib_sensor.exposure.red >> 8) & 0xff);
         dev->interface->write_register(0x11, calib_sensor.exposure.red & 0xff);
         dev->interface->write_register(0x12, (calib_sensor.exposure.green >> 8) & 0xff);

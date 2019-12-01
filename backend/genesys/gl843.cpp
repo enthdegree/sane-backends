@@ -1386,8 +1386,9 @@ void CommandSetGl843::detect_document_end(Genesys_Device* dev) const
 }
 
 // enables or disables XPA slider motor
-static void gl843_set_xpa_motor_power(Genesys_Device* dev, bool set)
+void gl843_set_xpa_motor_power(Genesys_Device* dev, Genesys_Register_Set& regs, bool set)
 {
+    (void) regs;
     DBG_HELPER(dbg);
     uint8_t val;
 
@@ -1606,7 +1607,7 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
 
             if (reg->state.is_xpa_on) {
                 dev->needs_home_ta = true;
-                gl843_set_xpa_motor_power(dev, true);
+                gl843_set_xpa_motor_power(dev, *reg, true);
             }
 
             // blinking led
@@ -1619,7 +1620,7 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
             }
             if (reg->state.is_xpa_on) {
                 dev->needs_home_ta = true;
-                gl843_set_xpa_motor_power(dev, true);
+                gl843_set_xpa_motor_power(dev, *reg, true);
             }
             break;
         case GpioId::PLUSTEK_OPTICFILM_7200I:
@@ -1665,72 +1666,6 @@ void CommandSetGl843::end_scan(Genesys_Device* dev, Genesys_Register_Set* reg,
     if (!dev->model->is_sheetfed) {
         scanner_stop_action(*dev);
     }
-}
-
-/** @brief park XPA lamp
- * park the XPA lamp if needed
- */
-void CommandSetGl843::slow_back_home_ta(Genesys_Device& dev) const
-{
-    DBG_HELPER(dbg);
-    Genesys_Register_Set local_reg = dev.reg;
-
-    auto scan_method = ScanMethod::TRANSPARENCY;
-    unsigned resolution = dev.model->get_resolution_settings(scan_method).get_min_resolution_y();
-
-    const auto& sensor = sanei_genesys_find_sensor(&dev, resolution, 1, scan_method);
-
-    ScanSession session;
-    session.params.xres = resolution;
-    session.params.yres = resolution;
-    session.params.startx = 100;
-    session.params.starty = 30000;
-    session.params.pixels = 100;
-    session.params.lines = 100;
-    session.params.depth = 8;
-    session.params.channels = 1;
-    session.params.scan_method = scan_method;
-    session.params.scan_mode = ScanColorMode::GRAY;
-    session.params.color_filter = ColorFilter::RED;
-    session.params.flags =  ScanFlag::DISABLE_SHADING |
-                            ScanFlag::DISABLE_GAMMA |
-                            ScanFlag::IGNORE_LINE_DISTANCE |
-                            ScanFlag::REVERSE;
-
-    compute_session(&dev, session, sensor);
-
-    dev.cmd_set->init_regs_for_scan_session(&dev, sensor, &local_reg, session);
-
-    scanner_clear_scan_and_feed_counts(dev);
-
-    dev.interface->write_registers(local_reg);
-    gl843_set_xpa_motor_power(&dev, true);
-    try {
-        scanner_start_action(dev, true);
-    } catch (...) {
-        catch_all_exceptions(__func__, [&]() { scanner_stop_action(dev); });
-        // restore original registers
-        catch_all_exceptions(__func__, [&]() { dev.interface->write_registers(dev.reg); });
-        throw;
-    }
-
-    for (unsigned i = 0; i < 300; ++i) {
-
-        auto status = scanner_read_status(dev);
-
-        if (status.is_at_home) {
-            dbg.log(DBG_info, "TA reached home position");
-            scanner_stop_action(dev);
-            gl843_set_xpa_motor_power(&dev, false);
-            dev.needs_home_ta = false;
-            return;
-        }
-
-        dev.interface->sleep_ms(100);
-	}
-
-    // we are not parked here.... should we fail ?
-    dbg.log(DBG_info, "XPA lamp is not parked");
 }
 
 /** @brief Moves the slider to the home (top) position slowly

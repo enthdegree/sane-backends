@@ -1577,12 +1577,6 @@ void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
   DBG(DBG_info, "%s: scanhead is still moving\n", __func__);
 }
 
-void CommandSetGl646::slow_back_home_ta(Genesys_Device& dev) const
-{
-    (void) dev;
-    throw SaneException("not implemented");
-}
-
 /**
  * Automatically set top-left edge of the scan area by scanning an
  * area at 300 dpi from very top of scanner

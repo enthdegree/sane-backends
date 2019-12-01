@@ -888,12 +888,6 @@ void CommandSetGl846::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     scanner_slow_back_home(*dev, wait_until_home);
 }
 
-void CommandSetGl846::slow_back_home_ta(Genesys_Device& dev) const
-{
-    (void) dev;
-    throw SaneException("not implemented");
-}
-
 // Automatically set top-left edge of the scan area by scanning a 200x200 pixels area at 600 dpi
 // from very top of scanner
 void CommandSetGl846::search_start_position(Genesys_Device* dev) const

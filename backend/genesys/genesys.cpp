@@ -874,6 +874,7 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
 
 namespace gl843 {
     void gl843_park_xpa_lamp(Genesys_Device* dev);
+    void gl843_set_xpa_motor_power(Genesys_Device* dev, Genesys_Register_Set& regs, bool set);
 } // namespace gl843
 
 namespace gl124 {
@@ -1148,7 +1149,7 @@ void scanner_slow_back_home(Genesys_Device& dev, bool wait_until_home)
     }
 
     if (dev.needs_home_ta) {
-        dev.cmd_set->slow_back_home_ta(dev);
+        scanner_slow_back_home_ta(dev);
     }
 
     if (dev.cmd_set->needs_update_home_sensor_gpio()) {
@@ -1263,6 +1264,83 @@ void scanner_slow_back_home(Genesys_Device& dev, bool wait_until_home)
         throw SaneException(SANE_STATUS_IO_ERROR, "timeout while waiting for scanhead to go home");
     }
     dbg.log(DBG_info, "scanhead is still moving");
+}
+
+void scanner_slow_back_home_ta(Genesys_Device& dev)
+{
+    DBG_HELPER(dbg);
+
+    switch (dev.model->asic_type) {
+        case AsicType::GL843:
+            break;
+        default:
+            throw SaneException("Unsupported asic type");
+    }
+
+    Genesys_Register_Set local_reg = dev.reg;
+
+    auto scan_method = ScanMethod::TRANSPARENCY;
+    unsigned resolution = dev.model->get_resolution_settings(scan_method).get_min_resolution_y();
+
+    const auto& sensor = sanei_genesys_find_sensor(&dev, resolution, 1, scan_method);
+
+    ScanSession session;
+    session.params.xres = resolution;
+    session.params.yres = resolution;
+    session.params.startx = 100;
+    session.params.starty = 30000;
+    session.params.pixels = 100;
+    session.params.lines = 100;
+    session.params.depth = 8;
+    session.params.channels = 1;
+    session.params.scan_method = scan_method;
+    session.params.scan_mode = ScanColorMode::GRAY;
+    session.params.color_filter = ColorFilter::RED;
+    session.params.flags =  ScanFlag::DISABLE_SHADING |
+                            ScanFlag::DISABLE_GAMMA |
+                            ScanFlag::IGNORE_LINE_DISTANCE |
+                            ScanFlag::REVERSE;
+
+    compute_session(&dev, session, sensor);
+
+    dev.cmd_set->init_regs_for_scan_session(&dev, sensor, &local_reg, session);
+
+    scanner_clear_scan_and_feed_counts(dev);
+
+    dev.interface->write_registers(local_reg);
+    gl843::gl843_set_xpa_motor_power(&dev, local_reg, true);
+
+    try {
+        scanner_start_action(dev, true);
+    } catch (...) {
+        catch_all_exceptions(__func__, [&]() { scanner_stop_action(dev); });
+        // restore original registers
+        catch_all_exceptions(__func__, [&]() { dev.interface->write_registers(dev.reg); });
+        throw;
+    }
+
+    if (is_testing_mode()) {
+        scanner_stop_action(dev);
+        return;
+    }
+
+    for (unsigned i = 0; i < 300; ++i) {
+
+        auto status = scanner_read_status(dev);
+
+        if (status.is_at_home) {
+            dbg.log(DBG_info, "TA reached home position");
+            scanner_stop_action(dev);
+            gl843::gl843_set_xpa_motor_power(&dev, local_reg, false);
+            dev.needs_home_ta = false;
+            return;
+        }
+
+        dev.interface->sleep_ms(100);
+    }
+
+    // we are not parked here.... should we fail ?
+    dbg.log(DBG_info, "XPA lamp is not parked");
 }
 
 void sanei_genesys_calculate_zmod(bool two_table,

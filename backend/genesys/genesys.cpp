@@ -1047,13 +1047,12 @@ void scanner_stop_action_no_move(Genesys_Device& dev, genesys::Genesys_Register_
     dev.interface->sleep_ms(100);
 }
 
-void scanner_move(Genesys_Device& dev, unsigned steps, Direction direction)
+void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, Direction direction)
 {
     DBG_HELPER_ARGS(dbg, "steps=%d direction=%d", steps, static_cast<unsigned>(direction));
 
     auto local_reg = dev.reg;
 
-    auto scan_method = dev.model->default_method;
     unsigned resolution = dev.model->get_resolution_settings(scan_method).get_min_resolution_y();
 
     const auto& sensor = sanei_genesys_find_sensor(&dev, resolution, 3, scan_method);
@@ -1109,7 +1108,6 @@ void scanner_move(Genesys_Device& dev, unsigned steps, Direction direction)
 
     if (is_testing_mode()) {
         dev.interface->test_checkpoint("feed");
-
         // FIXME: why don't we stop the scanner like on other ASICs
         if (dev.model->asic_type != AsicType::GL843) {
             scanner_stop_action(dev);
@@ -1170,7 +1168,7 @@ void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
 
     if (dev.model->model_id == ModelId::CANON_LIDE_210) {
         // move the head back a little first
-        scanner_move(dev, 20, Direction::BACKWARD);
+        scanner_move(dev, dev.model->default_method, 20, Direction::BACKWARD);
     }
 
     Genesys_Register_Set local_reg = dev.reg;

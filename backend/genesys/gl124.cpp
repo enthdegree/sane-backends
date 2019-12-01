@@ -1351,7 +1351,8 @@ void CommandSetGl124::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
   DBG (DBG_info, "%s: move=%f steps\n", __func__, move);
 
     if (dev->settings.get_channels() * dev->settings.yres >= 600 && move > 700) {
-        scanner_move(*dev, static_cast<unsigned>(move - 500), Direction::FORWARD);
+        scanner_move(*dev, dev->model->default_method, static_cast<unsigned>(move - 500),
+                     Direction::FORWARD);
       move=500;
     }
   DBG(DBG_info, "%s: move=%f steps\n", __func__, move);

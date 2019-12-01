@@ -2730,7 +2730,7 @@ void CommandSetGl843::asic_boot(Genesys_Device* dev, bool cold) const
     // setup gpio
     gl843_init_gpio(dev);
 
-    scanner_move(*dev, 300, Direction::FORWARD);
+    scanner_move(*dev, dev->model->default_method, 300, Direction::FORWARD);
     dev->interface->sleep_ms(100);
 }
 
@@ -2790,7 +2790,7 @@ void CommandSetGl843::move_to_ta(Genesys_Device* dev) const
     }
     unsigned feed = static_cast<unsigned>(multiplier * (dev->model->y_offset_sensor_to_ta * resolution) /
                                           MM_PER_INCH);
-    scanner_move(*dev, feed, Direction::FORWARD);
+    scanner_move(*dev, dev->model->default_method, feed, Direction::FORWARD);
 }
 
 

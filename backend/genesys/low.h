@@ -353,7 +353,7 @@ extern void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Se
                                                  int width, int height);
 
 // moves the scan head by the specified steps at the motor base dpi
-void scanner_move(Genesys_Device& dev, unsigned steps, Direction direction);
+void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, Direction direction);
 
 void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home);
 void scanner_move_back_home_ta(Genesys_Device& dev);

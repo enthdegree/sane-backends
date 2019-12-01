@@ -1101,7 +1101,8 @@ void CommandSetGl846::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
    * resolution. So leave a remainder for it so scan makes the final
    * move tuning */
     if (dev->settings.get_channels() * dev->settings.yres >= 600 && move > 700) {
-        scanner_move(*dev, static_cast<unsigned>(move - 500), Direction::FORWARD);
+        scanner_move(*dev, dev->model->default_method, static_cast<unsigned>(move - 500),
+                     Direction::FORWARD);
       move=500;
     }
 
@@ -1235,7 +1236,8 @@ SensorExposure CommandSetGl846::led_calibration(Genesys_Device* dev, const Genes
      move = static_cast<float>((move * (dev->motor.base_ydpi / 4)) / MM_PER_INCH);
   if(move>20)
     {
-        scanner_move(*dev, static_cast<unsigned>(move), Direction::FORWARD);
+        scanner_move(*dev, dev->model->default_method, static_cast<unsigned>(move),
+                     Direction::FORWARD);
     }
   DBG(DBG_io, "%s: move=%f steps\n", __func__, move);
 

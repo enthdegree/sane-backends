@@ -619,8 +619,8 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     dev->cmd_set->set_fe(dev, sensor, AFE_SET);
 
   /* enable shading */
+    regs_set_optical_off(dev->model->asic_type, *reg);
     r = sanei_genesys_get_address(reg, REG_0x01);
-    r->value &= ~REG_0x01_SCAN;
     r->value |= REG_0x01_SHDAREA;
 
     if (has_flag(session.params.flags, ScanFlag::DISABLE_SHADING) ||
@@ -847,7 +847,6 @@ void CommandSetGl847::set_powersaving(Genesys_Device* dev, int delay /* in minut
 void gl847_stop_action(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-    uint8_t val;
   unsigned int loop;
 
     dev->cmd_set->update_home_sensor_gpio(*dev);
@@ -862,10 +861,8 @@ void gl847_stop_action(Genesys_Device* dev)
     }
 
   /* ends scan */
-    val = dev->reg.get8(REG_0x01);
-    val &= ~REG_0x01_SCAN;
-    dev->reg.set8(REG_0x01, val);
-    dev->interface->write_register(REG_0x01, val);
+    regs_set_optical_off(dev->model->asic_type, dev->reg);
+    dev->interface->write_register(REG_0x01, dev->reg.get8(REG_0x01));
 
     dev->interface->sleep_ms(100);
 

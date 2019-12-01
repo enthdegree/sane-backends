@@ -379,6 +379,8 @@ Image read_unshuffled_image_from_scanner(Genesys_Device* dev, const ScanSession&
 void regs_set_exposure(AsicType asic_type, Genesys_Register_Set& regs,
                        const SensorExposure& exposure);
 
+void regs_set_optical_off(AsicType asic_type, Genesys_Register_Set& regs);
+
 void sanei_genesys_set_dpihw(Genesys_Register_Set& regs, const Genesys_Sensor& sensor,
                              unsigned dpihw);
 

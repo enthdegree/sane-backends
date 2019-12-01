@@ -739,8 +739,8 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     dev->cmd_set->set_fe(dev, sensor, AFE_SET);
 
   /* enable shading */
+    regs_set_optical_off(dev->model->asic_type, *reg);
     r = sanei_genesys_get_address (reg, REG_0x01);
-    r->value &= ~REG_0x01_SCAN;
     if (has_flag(session.params.flags, ScanFlag::DISABLE_SHADING) ||
         (dev->model->flags & GENESYS_FLAG_NO_CALIBRATION))
     {
@@ -1017,10 +1017,8 @@ void gl124_stop_action(Genesys_Device* dev)
     }
 
   /* ends scan */
-    std::uint8_t val = dev->reg.get8(REG_0x01);
-    val &= ~REG_0x01_SCAN;
-    dev->reg.set8(REG_0x01, val);
-    dev->interface->write_register(REG_0x01, val);
+    regs_set_optical_off(dev->model->asic_type, dev->reg);
+    dev->interface->write_register(REG_0x01, dev->reg.get8(REG_0x01));
 
     dev->interface->sleep_ms(100);
 

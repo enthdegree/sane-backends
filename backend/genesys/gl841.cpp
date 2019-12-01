@@ -1300,15 +1300,6 @@ gl841_get_dpihw(Genesys_Device * dev)
   return 0;
 }
 
-static void gl841_init_optical_regs_off(Genesys_Register_Set* reg)
-{
-    DBG_HELPER(dbg);
-    GenesysRegister* r;
-
-    r = sanei_genesys_get_address(reg, 0x01);
-    r->value &= ~REG_0x01_SCAN;
-}
-
 static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                          Genesys_Register_Set* reg, unsigned int exposure_time,
                                          const ScanSession& session)
@@ -1879,7 +1870,7 @@ static void gl841_stop_action(Genesys_Device* dev)
 
   local_reg = dev->reg;
 
-  gl841_init_optical_regs_off(&local_reg);
+    regs_set_optical_off(dev->model->asic_type, local_reg);
 
     gl841_init_motor_regs_off(&local_reg,0);
     dev->interface->write_registers(local_reg);
@@ -1941,7 +1932,7 @@ void CommandSetGl841::eject_document(Genesys_Device* dev) const
 
   local_reg = dev->reg;
 
-  gl841_init_optical_regs_off(&local_reg);
+    regs_set_optical_off(dev->model->asic_type, local_reg);
 
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
     gl841_init_motor_regs(dev, sensor, &local_reg, 65536, MOTOR_ACTION_FEED, MotorFlag::NONE);
@@ -2180,7 +2171,7 @@ static void gl841_feed(Genesys_Device* dev, int steps)
 
   local_reg = dev->reg;
 
-  gl841_init_optical_regs_off(&local_reg);
+    regs_set_optical_off(dev->model->asic_type, local_reg);
 
     gl841_init_motor_regs(dev, sensor, &local_reg, steps, MOTOR_ACTION_FEED, MotorFlag::NONE);
 
@@ -2229,7 +2220,6 @@ void CommandSetGl841::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
 {
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
   Genesys_Register_Set local_reg;
-  GenesysRegister *r;
   int loop = 0;
 
     if (dev->model->is_sheetfed) {
@@ -2264,9 +2254,8 @@ void CommandSetGl841::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     }
 
   /* end previous scan if any */
-    r = sanei_genesys_get_address(&dev->reg, REG_0x01);
-    r->value &= ~REG_0x01_SCAN;
-    dev->interface->write_register(REG_0x01, r->value);
+    regs_set_optical_off(dev->model->asic_type, dev->reg);
+    dev->interface->write_register(REG_0x01, dev->reg.get8(REG_0x01));
 
   /* if motor is on, stop current action */
     if (status.is_motor_enabled) {
@@ -2280,8 +2269,7 @@ void CommandSetGl841::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     gl841_init_motor_regs(dev, sensor, &local_reg, 65536, MOTOR_ACTION_GO_HOME, MotorFlag::REVERSE);
 
     // set up for no scan
-    r = sanei_genesys_get_address(&local_reg, REG_0x01);
-    r->value &= ~REG_0x01_SCAN;
+    regs_set_optical_off(dev->model->asic_type, local_reg);
 
     dev->interface->write_registers(local_reg);
 

@@ -49,6 +49,7 @@
 #include "test_settings.h"
 
 #include "gl124_registers.h"
+#include "gl646_registers.h"
 #include "gl841_registers.h"
 #include "gl843_registers.h"
 #include "gl846_registers.h"
@@ -1684,6 +1685,40 @@ void regs_set_exposure(AsicType asic_type, Genesys_Register_Set& regs,
             regs.set16(gl847::REG_EXPR, exposure.red);
             regs.set16(gl847::REG_EXPG, exposure.green);
             regs.set16(gl847::REG_EXPB, exposure.blue);
+            break;
+        }
+        default:
+            throw SaneException("Unsupported asic");
+    }
+}
+
+void regs_set_optical_off(AsicType asic_type, Genesys_Register_Set& regs)
+{
+    DBG_HELPER(dbg);
+    switch (asic_type) {
+        case AsicType::GL646: {
+            regs.find_reg(gl646::REG_0x01).value &= ~gl646::REG_0x01_SCAN;
+            break;
+        }
+        case AsicType::GL841: {
+            regs.find_reg(gl841::REG_0x01).value &= ~gl841::REG_0x01_SCAN;
+            break;
+        }
+        case AsicType::GL843: {
+            regs.find_reg(gl843::REG_0x01).value &= ~gl843::REG_0x01_SCAN;
+            break;
+        }
+        case AsicType::GL845:
+        case AsicType::GL846: {
+            regs.find_reg(gl846::REG_0x01).value &= ~gl846::REG_0x01_SCAN;
+            break;
+        }
+        case AsicType::GL847: {
+            regs.find_reg(gl847::REG_0x01).value &= ~gl847::REG_0x01_SCAN;
+            break;
+        }
+        case AsicType::GL124: {
+            regs.find_reg(gl124::REG_0x01).value &= ~gl124::REG_0x01_SCAN;
             break;
         }
         default:

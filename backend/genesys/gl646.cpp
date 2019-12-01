@@ -1384,10 +1384,8 @@ static void end_scan_impl(Genesys_Device* dev, Genesys_Register_Set* reg, bool c
     }
 
   /* ends scan */
-    std::uint8_t val = reg->get8(0x01);
-    val &= ~REG_0x01_SCAN;
-    reg->set8(0x01, val);
-    dev->interface->write_register(0x01, val);
+    regs_set_optical_off(dev->model->asic_type, *reg);
+    dev->interface->write_register(0x01, reg->get8(0x01));
 
   /* for sheetfed scanners, we may have to eject document */
     if (dev->model->is_sheetfed) {
@@ -1525,7 +1523,7 @@ void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     init_regs_for_scan_session(dev, sensor, &dev->reg, session);
 
   /* backward , no actual data scanned TODO more setup flags to avoid this register manipulations ? */
-    dev->reg.find_reg(0x01).value &= ~REG_0x01_SCAN;
+    regs_set_optical_off(dev->model->asic_type, dev->reg);
 
     // sets frontend
     gl646_set_fe(dev, sensor, AFE_SET, resolution);
@@ -2687,7 +2685,7 @@ static void gl646_repark_head(Genesys_Device* dev)
     setup_for_scan(dev, sensor, &dev->reg, settings, false, false, false, false);
 
   /* TODO seems wrong ... no effective scan */
-    dev->reg.find_reg(0x01).value &= ~REG_0x01_SCAN;
+    regs_set_optical_off(dev->model->asic_type, dev->reg);
 
     dev->interface->write_registers(dev->reg);
 

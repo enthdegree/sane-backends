@@ -1670,9 +1670,9 @@ void CommandSetGl843::end_scan(Genesys_Device* dev, Genesys_Register_Set* reg,
 
 /** @brief Moves the slider to the home (top) position slowly
  * */
-void CommandSetGl843::slow_back_home(Genesys_Device* dev, bool wait_until_home) const
+void CommandSetGl843::move_back_home(Genesys_Device* dev, bool wait_until_home) const
 {
-    scanner_slow_back_home(*dev, wait_until_home);
+    scanner_move_back_home(*dev, wait_until_home);
 }
 
 // Automatically set top-left edge of the scan area by scanning a 200x200 pixels area at 600 dpi
@@ -2077,7 +2077,7 @@ SensorExposure CommandSetGl843::led_calibration(Genesys_Device* dev, const Genes
 
         if (is_testing_mode()) {
             dev->interface->test_checkpoint("led_calibration");
-            slow_back_home(dev, true);
+            move_back_home(dev, true);
             return { 0, 0, 0 };
         }
 
@@ -2150,7 +2150,7 @@ SensorExposure CommandSetGl843::led_calibration(Genesys_Device* dev, const Genes
 
   DBG(DBG_info, "%s: acceptable exposure: %d,%d,%d\n", __func__, expr, expg, expb);
 
-    slow_back_home(dev, true);
+    move_back_home(dev, true);
 
     return calib_sensor.exposure;
 }
@@ -2502,7 +2502,7 @@ void CommandSetGl843::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     if (is_testing_mode()) {
         dev->interface->test_checkpoint("coarse_gain_calibration");
         scanner_stop_action(*dev);
-        slow_back_home(dev, true);
+        move_back_home(dev, true);
         return;
     }
 
@@ -2556,7 +2556,7 @@ void CommandSetGl843::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 
     scanner_stop_action(*dev);
 
-    slow_back_home(dev, true);
+    move_back_home(dev, true);
 }
 
 // wait for lamp warmup by scanning the same line until difference

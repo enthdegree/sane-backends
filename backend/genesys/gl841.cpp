@@ -2210,7 +2210,7 @@ static void gl841_feed(Genesys_Device* dev, int steps)
 }
 
 // Moves the slider to the home (top) position slowly
-void CommandSetGl841::slow_back_home(Genesys_Device* dev, bool wait_until_home) const
+void CommandSetGl841::move_back_home(Genesys_Device* dev, bool wait_until_home) const
 {
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
   Genesys_Register_Set local_reg;
@@ -2278,7 +2278,7 @@ void CommandSetGl841::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     }
 
     if (is_testing_mode()) {
-        dev->interface->test_checkpoint("slow_back_home");
+        dev->interface->test_checkpoint("move_back_home");
         return;
     }
 
@@ -2704,7 +2704,7 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
 
         if (is_testing_mode()) {
             dev->interface->test_checkpoint("led_calibration");
-            slow_back_home(dev, true);
+            move_back_home(dev, true);
             return { 0, 0, 0 };
         }
 
@@ -2809,7 +2809,7 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
 
   DBG(DBG_info,"%s: acceptable exposure: %d,%d,%d\n", __func__, exp[0], exp[1], exp[2]);
 
-    dev->cmd_set->slow_back_home(dev, true);
+    dev->cmd_set->move_back_home(dev, true);
 
     return calib_sensor.exposure;
 }
@@ -3378,7 +3378,7 @@ void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     if (is_testing_mode()) {
         dev->interface->test_checkpoint("coarse_gain_calibration");
         gl841_stop_action(dev);
-        slow_back_home(dev, true);
+        move_back_home(dev, true);
         return;
     }
 
@@ -3475,7 +3475,7 @@ void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 
     gl841_stop_action(dev);
 
-    dev->cmd_set->slow_back_home(dev, true);
+    dev->cmd_set->move_back_home(dev, true);
 }
 
 // wait for lamp warmup by scanning the same line until difference
@@ -3540,7 +3540,7 @@ static void sanei_gl841_repark_head(Genesys_Device* dev)
     gl841_feed(dev,232);
 
     // toggle motor flag, put an huge step number and redo move backward
-    dev->cmd_set->slow_back_home(dev, true);
+    dev->cmd_set->move_back_home(dev, true);
 }
 
 /*
@@ -3586,11 +3586,11 @@ void CommandSetGl841::init(Genesys_Device* dev) const
     // Set analog frontend
     dev->cmd_set->set_fe(dev, sensor, AFE_INIT);
 
-    // FIXME: slow_back_home modifies dev->calib_reg and requires it to be filled
+    // FIXME: move_back_home modifies dev->calib_reg and requires it to be filled
     dev->calib_reg = dev->reg;
 
     // Move home
-    dev->cmd_set->slow_back_home(dev, true);
+    dev->cmd_set->move_back_home(dev, true);
 
     // Init shading data
     sanei_genesys_init_shading_data(dev, sensor, sensor.sensor_pixels);

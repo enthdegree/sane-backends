@@ -926,9 +926,9 @@ static void gl847_rewind(Genesys_Device* dev)
  * @param wait_until_home true to make the function waiting for head
  * to be home before returning, if fals returne immediately
 */
-void CommandSetGl847::slow_back_home(Genesys_Device* dev, bool wait_until_home) const
+void CommandSetGl847::move_back_home(Genesys_Device* dev, bool wait_until_home) const
 {
-    scanner_slow_back_home(*dev, wait_until_home);
+    scanner_move_back_home(*dev, wait_until_home);
 }
 
 // Automatically set top-left edge of the scan area by scanning a 200x200 pixels area at 600 dpi
@@ -1339,7 +1339,7 @@ SensorExposure CommandSetGl847::led_calibration(Genesys_Device* dev, const Genes
         if (is_testing_mode()) {
             dev->interface->test_checkpoint("led_calibration");
             scanner_stop_action(*dev);
-            slow_back_home(dev, true);
+            move_back_home(dev, true);
             return { 0, 0, 0 };
         }
 
@@ -1402,7 +1402,7 @@ SensorExposure CommandSetGl847::led_calibration(Genesys_Device* dev, const Genes
 
     // go back home
     if (move>20) {
-        slow_back_home(dev, true);
+        move_back_home(dev, true);
     }
 
     return { exp[0], exp[1], exp[2] };
@@ -2075,7 +2075,7 @@ void CommandSetGl847::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     if (is_testing_mode()) {
         dev->interface->test_checkpoint("coarse_gain_calibration");
         scanner_stop_action(*dev);
-        slow_back_home(dev, true);
+        move_back_home(dev, true);
         return;
     }
 
@@ -2136,7 +2136,7 @@ void CommandSetGl847::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 
     scanner_stop_action(*dev);
 
-    slow_back_home(dev, true);
+    move_back_home(dev, true);
 }
 
 bool CommandSetGl847::needs_home_before_init_regs_for_scan(Genesys_Device* dev) const

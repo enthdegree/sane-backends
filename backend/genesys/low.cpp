@@ -1582,7 +1582,7 @@ void sanei_genesys_asic_init(Genesys_Device* dev, bool /*max_regs*/)
     dev->already_initialized = true;
 
     // Move to home if needed
-    dev->cmd_set->slow_back_home(dev, true);
+    dev->cmd_set->move_back_home(dev, true);
   dev->scanhead_position_in_steps = 0;
 
     // Set powersaving (default = 15 minutes)

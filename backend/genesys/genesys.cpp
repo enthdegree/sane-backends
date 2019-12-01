@@ -1133,7 +1133,7 @@ void scanner_move(Genesys_Device& dev, unsigned steps, Direction direction)
     dev.interface->sleep_ms(100);
 }
 
-void scanner_slow_back_home(Genesys_Device& dev, bool wait_until_home)
+void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
 {
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
 
@@ -1149,7 +1149,7 @@ void scanner_slow_back_home(Genesys_Device& dev, bool wait_until_home)
     }
 
     if (dev.needs_home_ta) {
-        scanner_slow_back_home_ta(dev);
+        scanner_move_back_home_ta(dev);
     }
 
     if (dev.cmd_set->needs_update_home_sensor_gpio()) {
@@ -1236,7 +1236,7 @@ void scanner_slow_back_home(Genesys_Device& dev, bool wait_until_home)
     }
 
     if (is_testing_mode()) {
-        dev.interface->test_checkpoint("slow_back_home");
+        dev.interface->test_checkpoint("move_back_home");
         return;
     }
 
@@ -1266,7 +1266,7 @@ void scanner_slow_back_home(Genesys_Device& dev, bool wait_until_home)
     dbg.log(DBG_info, "scanhead is still moving");
 }
 
-void scanner_slow_back_home_ta(Genesys_Device& dev)
+void scanner_move_back_home_ta(Genesys_Device& dev)
 {
     DBG_HELPER(dbg);
 
@@ -1872,7 +1872,7 @@ static void genesys_repark_sensor_before_shading(Genesys_Device* dev)
         if (dev->cmd_set->has_rewind()) {
             dev->cmd_set->rewind(dev);
         } else {
-            dev->cmd_set->slow_back_home(dev, true);
+            dev->cmd_set->move_back_home(dev, true);
         }
 
         if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
@@ -1887,7 +1887,7 @@ static void genesys_repark_sensor_after_white_shading(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
     if (dev->model->flags & GENESYS_FLAG_SHADING_REPARK) {
-        dev->cmd_set->slow_back_home(dev, true);
+        dev->cmd_set->move_back_home(dev, true);
     }
 }
 
@@ -3312,7 +3312,7 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
         dev->cmd_set->search_start_position (dev);
 
             dev->parking = false;
-            dev->cmd_set->slow_back_home (dev, true);
+            dev->cmd_set->move_back_home(dev, true);
 	  dev->scanhead_position_in_steps = 0;
 	}
       else
@@ -3321,7 +3321,7 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
 	  /* TODO: check we can drop this since we cannot have the
 	     scanner's head wandering here */
             dev->parking = false;
-            dev->cmd_set->slow_back_home (dev, true);
+            dev->cmd_set->move_back_home(dev, true);
 
 	  dev->scanhead_position_in_steps = 0;
 	}
@@ -3371,7 +3371,7 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
     dev->cmd_set->wait_for_motor_stop(dev);
 
     if (dev->cmd_set->needs_home_before_init_regs_for_scan(dev)) {
-        dev->cmd_set->slow_back_home(dev, true);
+        dev->cmd_set->move_back_home(dev, true);
     }
 
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
@@ -3490,7 +3490,7 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
         if (!dev->model->is_sheetfed && !(dev->model->flags & GENESYS_FLAG_MUST_WAIT) &&
             !dev->parking)
         {
-            dev->cmd_set->slow_back_home(dev, false);
+            dev->cmd_set->move_back_home(dev, false);
             dev->parking = true;
         }
         throw SaneException(SANE_STATUS_EOF, "nothing more to scan: EOF");
@@ -4829,7 +4829,7 @@ static void genesys_buffer_image(Genesys_Scanner *s)
    * computing so we can save time
    */
     if (!dev->model->is_sheetfed && !dev->parking) {
-        dev->cmd_set->slow_back_home(dev, dev->model->flags & GENESYS_FLAG_MUST_WAIT);
+        dev->cmd_set->move_back_home(dev, dev->model->flags & GENESYS_FLAG_MUST_WAIT);
       dev->parking = !(s->dev->model->flags & GENESYS_FLAG_MUST_WAIT);
     }
 
@@ -6037,7 +6037,7 @@ void sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_
         if (!dev->model->is_sheetfed && !(dev->model->flags & GENESYS_FLAG_MUST_WAIT) &&
             !dev->parking)
         {
-            dev->cmd_set->slow_back_home(dev, false);
+            dev->cmd_set->move_back_home(dev, false);
             dev->parking = true;
         }
         throw SaneException(SANE_STATUS_EOF);
@@ -6134,7 +6134,7 @@ void sane_cancel_impl(SANE_Handle handle)
   /* park head if flatbed scanner */
     if (!s->dev->model->is_sheetfed) {
         if (!s->dev->parking) {
-            s->dev->cmd_set->slow_back_home (s->dev, s->dev->model->flags &
+            s->dev->cmd_set->move_back_home (s->dev, s->dev->model->flags &
                                                     GENESYS_FLAG_MUST_WAIT);
 
           s->dev->parking = !(s->dev->model->flags & GENESYS_FLAG_MUST_WAIT);

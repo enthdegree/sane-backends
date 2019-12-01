@@ -874,20 +874,10 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
 
 namespace gl843 {
     void gl843_park_xpa_lamp(Genesys_Device* dev);
-    void gl843_stop_action(Genesys_Device* dev);
 } // namespace gl843
-
-namespace gl846 {
-    void gl846_stop_action(Genesys_Device* dev);
-} // namespace gl846
-
-namespace gl847 {
-    void gl847_stop_action(Genesys_Device* dev);
-} // namespace gl847
 
 namespace gl124 {
     void gl124_setup_scan_gpio(Genesys_Device* dev, int resolution);
-    void gl124_stop_action(Genesys_Device* dev);
 } // namespace gl124
 
 void scanner_clear_scan_and_feed_counts(Genesys_Device& dev)
@@ -993,27 +983,43 @@ bool scanner_is_motor_stopped(Genesys_Device& dev)
 
 void scanner_stop_action(Genesys_Device& dev)
 {
+    DBG_HELPER(dbg);
+
     switch (dev.model->asic_type) {
-        case AsicType::GL843: {
-            gl843::gl843_stop_action(&dev);
-            break;
-        }
+        case AsicType::GL843:
         case AsicType::GL845:
-        case AsicType::GL846: {
-            gl846::gl846_stop_action(&dev);
+        case AsicType::GL846:
+        case AsicType::GL847:
+        case AsicType::GL124:
             break;
-        }
-        case AsicType::GL847:{
-            gl847::gl847_stop_action(&dev);
-            break;
-        }
-        case AsicType::GL124:{
-            gl124::gl124_stop_action(&dev);
-            break;
-        }
         default:
             throw SaneException("Unsupported asic type");
     }
+
+    if (dev.cmd_set->needs_update_home_sensor_gpio()) {
+        dev.cmd_set->update_home_sensor_gpio(dev);
+    }
+
+    if (scanner_is_motor_stopped(dev)) {
+        DBG(DBG_info, "%s: already stopped\n", __func__);
+        return;
+    }
+
+    scanner_stop_action_no_move(dev, dev.reg);
+
+    if (is_testing_mode()) {
+        return;
+    }
+
+    for (unsigned i = 0; i < 10; ++i) {
+        if (scanner_is_motor_stopped(dev)) {
+            return;
+        }
+
+        dev.interface->sleep_ms(100);
+    }
+
+    throw SaneException(SANE_STATUS_IO_ERROR, "could not stop motor");
 }
 
 void scanner_stop_action_no_move(Genesys_Device& dev, genesys::Genesys_Register_Set& regs)

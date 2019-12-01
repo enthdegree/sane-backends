@@ -50,10 +50,6 @@
 namespace genesys {
 namespace gl846 {
 
-void gl846_stop_action(Genesys_Device* dev);
-
-
-
 typedef struct
 {
     GpioId gpio_id;

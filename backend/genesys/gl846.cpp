@@ -840,35 +840,6 @@ void CommandSetGl846::set_powersaving(Genesys_Device* dev, int delay /* in minut
     DBG_HELPER_ARGS(dbg, "delay = %d", delay);
 }
 
-void gl846_stop_action(Genesys_Device* dev)
-{
-    DBG_HELPER(dbg);
-  unsigned int loop;
-
-    dev->cmd_set->update_home_sensor_gpio(*dev);
-    if (scanner_is_motor_stopped(*dev)) {
-        DBG(DBG_info, "%s: already stopped\n", __func__);
-        return;
-    }
-    scanner_stop_action_no_move(*dev, dev->reg);
-
-    if (is_testing_mode()) {
-        return;
-    }
-
-  loop = 10;
-    while (loop > 0) {
-        if (scanner_is_motor_stopped(*dev)) {
-            return;
-        }
-
-        dev->interface->sleep_ms(100);
-      loop--;
-    }
-
-  throw SaneException(SANE_STATUS_IO_ERROR, "could not stop motor");
-}
-
 // Send the low-level scan command
 void CommandSetGl846::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                  Genesys_Register_Set* reg, bool start_motor) const
@@ -907,7 +878,7 @@ void CommandSetGl846::end_scan(Genesys_Device* dev, Genesys_Register_Set* reg,
     DBG_HELPER_ARGS(dbg, "check_stop = %d", check_stop);
 
     if (!dev->model->is_sheetfed) {
-        gl846_stop_action(dev);
+        scanner_stop_action(*dev);
     }
 }
 
@@ -1339,7 +1310,7 @@ SensorExposure CommandSetGl846::led_calibration(Genesys_Device* dev, const Genes
 
         if (is_testing_mode()) {
             dev->interface->test_checkpoint("led_calibration");
-            gl846_stop_action(dev);
+            scanner_stop_action(*dev);
             slow_back_home(dev, true);
             return { 0, 0, 0 };
         }
@@ -1347,7 +1318,7 @@ SensorExposure CommandSetGl846::led_calibration(Genesys_Device* dev, const Genes
         sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
 
         // stop scanning
-        gl846_stop_action(dev);
+        scanner_stop_action(*dev);
 
       if (DBG_LEVEL >= DBG_data)
         {
@@ -1610,7 +1581,7 @@ void CommandSetGl846::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
 
     set_fe(dev, sensor, AFE_SET);
 
-    gl846_stop_action(dev);
+    scanner_stop_action(*dev);
 
     // set up for a gray scan at lowest dpi
     const auto& resolution_settings = dev->model->get_resolution_settings(dev->settings.scan_method);
@@ -1655,7 +1626,7 @@ void CommandSetGl846::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
 
     if (is_testing_mode()) {
         dev->interface->test_checkpoint("search_strip");
-        gl846_stop_action(dev);
+        scanner_stop_action(*dev);
         return;
     }
 
@@ -1664,7 +1635,7 @@ void CommandSetGl846::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
     // now we're on target, we can read data
     sanei_genesys_read_data_from_scanner(dev, data.data(), size);
 
-    gl846_stop_action(dev);
+    scanner_stop_action(*dev);
 
   pass = 0;
   if (DBG_LEVEL >= DBG_data)
@@ -1689,7 +1660,7 @@ void CommandSetGl846::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
         // now we're on target, we can read data
         sanei_genesys_read_data_from_scanner(dev, data.data(), size);
 
-        gl846_stop_action(dev);
+        scanner_stop_action(*dev);
 
       if (DBG_LEVEL >= DBG_data)
         {
@@ -2039,7 +2010,7 @@ void CommandSetGl846::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 
     if (is_testing_mode()) {
         dev->interface->test_checkpoint("coarse_gain_calibration");
-        gl846_stop_action(dev);
+        scanner_stop_action(*dev);
         slow_back_home(dev, true);
         return;
     }
@@ -2093,7 +2064,7 @@ void CommandSetGl846::coarse_gain_calibration(Genesys_Device* dev, const Genesys
         dev->frontend.set_gain(2, gain0);
     }
 
-    gl846_stop_action(dev);
+    scanner_stop_action(*dev);
 
     slow_back_home(dev, true);
 }

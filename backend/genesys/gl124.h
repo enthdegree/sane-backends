@@ -109,8 +109,6 @@ static Memory_layout layouts[]={
 	}
 };
 
-void gl124_stop_action(Genesys_Device* dev);
-
 static void gl124_send_slope_table(Genesys_Device* dev, int table_nr,
                                    const std::vector<uint16_t>& slope_table, int steps);
 

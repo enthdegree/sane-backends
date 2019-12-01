@@ -999,38 +999,6 @@ void CommandSetGl124::set_powersaving(Genesys_Device* dev, int delay /* in minut
     }
 }
 
-void gl124_stop_action(Genesys_Device* dev)
-{
-    DBG_HELPER(dbg);
-  unsigned int loop;
-
-    dev->cmd_set->update_home_sensor_gpio(*dev);
-    if (scanner_is_motor_stopped(*dev)) {
-        DBG(DBG_info, "%s: already stopped\n", __func__);
-        return;
-    }
-
-    scanner_stop_action_no_move(*dev, dev->reg);
-
-    if (is_testing_mode()) {
-        return;
-    }
-
-  loop = 10;
-  while (loop > 0)
-    {
-        if (scanner_is_motor_stopped(*dev)) {
-            return;
-        }
-
-        dev->interface->sleep_ms(100);
-      loop--;
-    }
-
-    throw SaneException(SANE_STATUS_IO_ERROR, "could not stop motor");
-}
-
-
 /** @brief setup GPIOs for scan
  * Setup GPIO values to drive motor (or light) needed for the
  * target resolution
@@ -1115,7 +1083,7 @@ void CommandSetGl124::end_scan(Genesys_Device* dev, Genesys_Register_Set* reg,
     DBG_HELPER_ARGS(dbg, "check_stop = %d", check_stop);
 
     if (!dev->model->is_sheetfed) {
-        gl124_stop_action(dev);
+        scanner_stop_action(*dev);
     }
 }
 
@@ -1573,14 +1541,14 @@ static void move_to_calibration_area(Genesys_Device* dev, const Genesys_Sensor& 
 
     if (is_testing_mode()) {
         dev->interface->test_checkpoint("move_to_calibration_area");
-        gl124_stop_action(dev);
+        scanner_stop_action(*dev);
         return;
     }
 
     sanei_genesys_read_data_from_scanner(dev, line.data(), size);
 
     // stop scanning
-    gl124_stop_action(dev);
+    scanner_stop_action(*dev);
 
   if (DBG_LEVEL >= DBG_data)
     {
@@ -1674,14 +1642,14 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
 
         if (is_testing_mode()) {
             dev->interface->test_checkpoint("led_calibration");
-            gl124_stop_action(dev);
+            scanner_stop_action(*dev);
             return { 0, 0, 0 };
         }
 
         sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
 
         // stop scanning
-        gl124_stop_action(dev);
+        scanner_stop_action(*dev);
 
       if (DBG_LEVEL >= DBG_data)
 	{
@@ -1998,7 +1966,7 @@ void CommandSetGl124::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 
     if (is_testing_mode()) {
         dev->interface->test_checkpoint("coarse_gain_calibration");
-        gl124_stop_action(dev);
+        scanner_stop_action(*dev);
         slow_back_home(dev, true);
         return;
     }
@@ -2058,7 +2026,7 @@ void CommandSetGl124::coarse_gain_calibration(Genesys_Device* dev, const Genesys
         dev->frontend.set_gain(2, dev->frontend.get_gain(1));
     }
 
-    gl124_stop_action(dev);
+    scanner_stop_action(*dev);
 
     slow_back_home(dev, true);
 }

@@ -1057,6 +1057,9 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
 
     const auto& sensor = sanei_genesys_find_sensor(&dev, resolution, 3, scan_method);
 
+    bool uses_secondary_head = (scan_method == ScanMethod::TRANSPARENCY ||
+                                scan_method == ScanMethod::TRANSPARENCY_INFRARED);
+
     ScanSession session;
     session.params.xres = resolution;
     session.params.yres = resolution;
@@ -1096,10 +1099,16 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
     scanner_clear_scan_and_feed_counts2(dev);
 
     dev.interface->write_registers(local_reg);
+    if (uses_secondary_head) {
+        gl843::gl843_set_xpa_motor_power(&dev, local_reg, true);
+    }
 
     try {
         scanner_start_action(dev, true);
     } catch (...) {
+        catch_all_exceptions(__func__, [&]() {
+            gl843::gl843_set_xpa_motor_power(&dev, local_reg, false);
+        });
         catch_all_exceptions(__func__, [&]() { scanner_stop_action(dev); });
         // restore original registers
         catch_all_exceptions(__func__, [&]() { dev.interface->write_registers(dev.reg); });
@@ -1111,6 +1120,9 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
         // FIXME: why don't we stop the scanner like on other ASICs
         if (dev.model->asic_type != AsicType::GL843) {
             scanner_stop_action(dev);
+        }
+        if (uses_secondary_head) {
+            gl843::gl843_set_xpa_motor_power(&dev, local_reg, false);
         }
         return;
     }
@@ -1125,6 +1137,9 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
     // FIXME: why don't we stop the scanner like on other ASICs
     if (dev.model->asic_type != AsicType::GL843) {
         scanner_stop_action(dev);
+    }
+    if (uses_secondary_head) {
+        gl843::gl843_set_xpa_motor_power(&dev, local_reg, false);
     }
 
     // looks like certain scanners lock up if we scan immediately after feeding

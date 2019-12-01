@@ -850,14 +850,9 @@ void gl847_stop_action(Genesys_Device* dev)
   unsigned int loop;
 
     dev->cmd_set->update_home_sensor_gpio(*dev);
-    auto status = scanner_read_status(*dev);
-
-    uint8_t val40 = dev->interface->read_register(REG_0x40);
-
-  /* only stop action if needed */
-    if (!(val40 & REG_0x40_DATAENB) && !(val40 & REG_0x40_MOTMFLG) && !status.is_motor_enabled) {
-      DBG(DBG_info, "%s: already stopped\n", __func__);
-      return;
+    if (scanner_is_motor_stopped(*dev)) {
+        DBG(DBG_info, "%s: already stopped\n", __func__);
+        return;
     }
 
     scanner_stop_action_no_move(*dev, dev->reg);
@@ -869,14 +864,8 @@ void gl847_stop_action(Genesys_Device* dev)
   loop = 10;
   while (loop > 0)
     {
-        auto status = scanner_read_status(*dev);
-        val40 = dev->interface->read_register(REG_0x40);
-
-      /* if scanner is in command mode, we are done */
-        if (!(val40 & REG_0x40_DATAENB) && !(val40 & REG_0x40_MOTMFLG) &&
-            !status.is_motor_enabled)
-        {
-      return;
+        if (scanner_is_motor_stopped(*dev)) {
+            return;
         }
 
         dev->interface->sleep_ms(100);

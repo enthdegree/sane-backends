@@ -1002,18 +1002,12 @@ void CommandSetGl124::set_powersaving(Genesys_Device* dev, int delay /* in minut
 void gl124_stop_action(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-    std::uint8_t val40;
   unsigned int loop;
 
     dev->cmd_set->update_home_sensor_gpio(*dev);
-    auto status = scanner_read_status(*dev);
-
-    val40 = dev->interface->read_register(REG_0x100);
-
-  /* only stop action if needed */
-    if (!(val40 & REG_0x100_DATAENB) && !(val40 & REG_0x100_MOTMFLG) && !status.is_motor_enabled) {
-      DBG (DBG_info, "%s: already stopped\n", __func__);
-      return;
+    if (scanner_is_motor_stopped(*dev)) {
+        DBG(DBG_info, "%s: already stopped\n", __func__);
+        return;
     }
 
     scanner_stop_action_no_move(*dev, dev->reg);
@@ -1025,13 +1019,7 @@ void gl124_stop_action(Genesys_Device* dev)
   loop = 10;
   while (loop > 0)
     {
-        auto status = scanner_read_status(*dev);
-        val40 = dev->interface->read_register(REG_0x100);
-
-      /* if scanner is in command mode, we are done */
-        if (!(val40 & REG_0x100_DATAENB) && !(val40 & REG_0x100_MOTMFLG) &&
-            !status.is_motor_enabled)
-        {
+        if (scanner_is_motor_stopped(*dev)) {
             return;
         }
 

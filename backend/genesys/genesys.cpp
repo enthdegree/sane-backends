@@ -63,6 +63,7 @@
 #include "genesys.h"
 #include "conv.h"
 #include "gl124_registers.h"
+#include "gl841_registers.h"
 #include "gl843_registers.h"
 #include "gl846_registers.h"
 #include "gl847_registers.h"
@@ -942,6 +943,48 @@ void scanner_clear_scan_and_feed_counts2(Genesys_Device& dev)
             dev.interface->write_register(gl124::REG_0x0D, gl124::REG_0x0D_CLRLNCNT);
             dev.interface->write_register(gl124::REG_0x0D, gl124::REG_0x0D_CLRMCNT);
             break;
+        }
+        default:
+            throw SaneException("Unsupported asic type");
+    }
+}
+
+bool scanner_is_motor_stopped(Genesys_Device& dev)
+{
+    switch (dev.model->asic_type) {
+        case AsicType::GL841: {
+            auto reg = dev.interface->read_register(gl841::REG_0x40);
+
+            return (!(reg & gl841::REG_0x40_DATAENB) && !(reg & gl841::REG_0x40_MOTMFLG));
+        }
+        case AsicType::GL843: {
+            auto status = scanner_read_status(dev);
+            auto reg = dev.interface->read_register(gl843::REG_0x40);
+
+            return (!(reg & gl843::REG_0x40_DATAENB) && !(reg & gl843::REG_0x40_MOTMFLG) &&
+                    !status.is_motor_enabled);
+        }
+        case AsicType::GL845:
+        case AsicType::GL846: {
+            auto status = scanner_read_status(dev);
+            auto reg = dev.interface->read_register(gl846::REG_0x40);
+
+            return (!(reg & gl846::REG_0x40_DATAENB) && !(reg & gl846::REG_0x40_MOTMFLG) &&
+                    !status.is_motor_enabled);
+        }
+        case AsicType::GL847: {
+            auto status = scanner_read_status(dev);
+            auto reg = dev.interface->read_register(gl847::REG_0x40);
+
+            return (!(reg & gl847::REG_0x40_DATAENB) && !(reg & gl847::REG_0x40_MOTMFLG) &&
+                    !status.is_motor_enabled);
+        }
+        case AsicType::GL124: {
+            auto status = scanner_read_status(dev);
+            auto reg = dev.interface->read_register(gl124::REG_0x100);
+
+            return (!(reg & gl124::REG_0x100_DATAENB) && !(reg & gl124::REG_0x100_MOTMFLG) &&
+                    !status.is_motor_enabled);
         }
         default:
             throw SaneException("Unsupported asic type");

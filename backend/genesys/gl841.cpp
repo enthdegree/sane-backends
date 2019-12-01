@@ -1860,12 +1860,9 @@ static void gl841_stop_action(Genesys_Device* dev)
 
     scanner_read_print_status(*dev);
 
-    uint8_t val40 = dev->interface->read_register(0x40);
-
-  /* only stop action if needed */
-    if (!(val40 & REG_0x40_DATAENB) && !(val40 & REG_0x40_MOTMFLG)) {
-      DBG(DBG_info, "%s: already stopped\n", __func__);
-      return;
+    if (scanner_is_motor_stopped(*dev)) {
+        DBG(DBG_info, "%s: already stopped\n", __func__);
+        return;
     }
 
   local_reg = dev->reg;
@@ -1885,12 +1882,9 @@ static void gl841_stop_action(Genesys_Device* dev)
 
   loop = 10;
     while (loop > 0) {
-        val40 = dev->interface->read_register(0x40);
-
-      /* if scanner is in command mode, we are done */
-        if (!(val40 & REG_0x40_DATAENB) && !(val40 & REG_0x40_MOTMFLG)) {
-      return;
-	}
+        if (scanner_is_motor_stopped(*dev)) {
+            return;
+        }
 
         dev->interface->sleep_ms(100);
         loop--;

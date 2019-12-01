@@ -1320,12 +1320,12 @@ void gl843_stop_action(Genesys_Device* dev)
     DBG_HELPER(dbg);
   unsigned int loop;
 
-    scanner_read_print_status(*dev);
+    auto status = scanner_read_status(*dev);
 
     uint8_t val40 = dev->interface->read_register(REG_0x40);
 
   /* only stop action if needed */
-    if (!(val40 & REG_0x40_DATAENB) && !(val40 & REG_0x40_MOTMFLG))
+    if (!(val40 & REG_0x40_DATAENB) && !(val40 & REG_0x40_MOTMFLG) && !status.is_motor_enabled)
     {
       DBG(DBG_info, "%s: already stopped\n", __func__);
       return;

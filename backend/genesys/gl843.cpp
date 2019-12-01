@@ -1315,14 +1315,6 @@ void CommandSetGl843::set_powersaving(Genesys_Device* dev, int delay /* in minut
     DBG_HELPER_ARGS(dbg, "delay = %d", delay);
 }
 
-static void gl843_stop_action_no_move(Genesys_Device* dev, Genesys_Register_Set* reg)
-{
-    DBG_HELPER(dbg);
-    regs_set_optical_off(dev->model->asic_type, *reg);
-    dev->interface->write_register(REG_0x01, reg->get8(REG_0x01));
-    dev->interface->sleep_ms(100);
-}
-
 void gl843_stop_action(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
@@ -1339,11 +1331,7 @@ void gl843_stop_action(Genesys_Device* dev)
       return;
     }
 
-    // ends scan
-    regs_set_optical_off(dev->model->asic_type, dev->reg);
-    dev->interface->write_register(REG_0x01, dev->reg.get8(REG_0x01));
-
-    dev->interface->sleep_ms(100);
+    scanner_stop_action_no_move(*dev, dev->reg);
 
     if (is_testing_mode()) {
         return;
@@ -1849,7 +1837,7 @@ void CommandSetGl843::search_start_position(Genesys_Device* dev) const
     // now we're on target, we can read data
     Image image = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes_raw);
 
-    gl843_stop_action_no_move(dev, &local_reg);
+    scanner_stop_action_no_move(*dev, local_reg);
 
     if (DBG_LEVEL >= DBG_data) {
         sanei_genesys_write_pnm_file("gl843_search_position.pnm", image);
@@ -2201,7 +2189,7 @@ SensorExposure CommandSetGl843::led_calibration(Genesys_Device* dev, const Genes
 
         auto image = read_unshuffled_image_from_scanner(dev, session,
                                                         session.output_total_bytes_raw);
-        gl843_stop_action_no_move(dev, &regs);
+        scanner_stop_action_no_move(*dev, regs);
 
       if (DBG_LEVEL >= DBG_data)
 	{
@@ -2407,13 +2395,13 @@ void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
     if (is_testing_mode()) {
         dev->interface->test_checkpoint("offset_calibration");
-        gl843_stop_action_no_move(dev, &regs);
+        scanner_stop_action_no_move(*dev, regs);
         return;
     }
 
     auto first_line = read_unshuffled_image_from_scanner(dev, session,
                                                          session.output_total_bytes_raw);
-    gl843_stop_action_no_move(dev, &regs);
+    scanner_stop_action_no_move(*dev, regs);
 
   if (DBG_LEVEL >= DBG_data)
     {
@@ -2442,7 +2430,7 @@ void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     dev->cmd_set->begin_scan(dev, calib_sensor, &regs, true);
     auto second_line = read_unshuffled_image_from_scanner(dev, session,
                                                           session.output_total_bytes_raw);
-    gl843_stop_action_no_move(dev, &regs);
+    scanner_stop_action_no_move(*dev, regs);
 
     for (unsigned ch = 0; ch < 3; ch++){
         topavg[ch] = dark_average_channel(second_line, black_pixels, ch);
@@ -2476,7 +2464,7 @@ void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sens
         dev->cmd_set->begin_scan(dev, calib_sensor, &regs, true);
         second_line = read_unshuffled_image_from_scanner(dev, session,
                                                          session.output_total_bytes_raw);
-        gl843_stop_action_no_move(dev, &regs);
+        scanner_stop_action_no_move(*dev, regs);
 
       if (DBG_LEVEL >= DBG_data)
 	{
@@ -2626,7 +2614,7 @@ void CommandSetGl843::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     }
 
     auto line = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes_raw);
-    gl843_stop_action_no_move(dev, &regs);
+    scanner_stop_action_no_move(*dev, regs);
 
     if (DBG_LEVEL >= DBG_data) {
         sanei_genesys_write_pnm_file("gl843_gain.pnm", line);

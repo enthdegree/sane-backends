@@ -973,6 +973,30 @@ void scanner_stop_action(Genesys_Device& dev)
     }
 }
 
+void scanner_stop_action_no_move(Genesys_Device& dev, genesys::Genesys_Register_Set& regs)
+{
+    switch (dev.model->asic_type) {
+        case AsicType::GL646:
+        case AsicType::GL841:
+        case AsicType::GL843:
+        case AsicType::GL845:
+        case AsicType::GL846:
+        case AsicType::GL847:
+        case AsicType::GL124:
+            break;
+        default:
+            throw SaneException("Unsupported asic type");
+    }
+
+    regs_set_optical_off(dev.model->asic_type, regs);
+    // same across all supported ASICs
+    dev.interface->write_register(0x01, regs.get8(0x01));
+
+    // looks like certain scanners lock up if we try to scan immediately after stopping previous
+    // action.
+    dev.interface->sleep_ms(100);
+}
+
 void scanner_move(Genesys_Device& dev, unsigned steps, Direction direction)
 {
     DBG_HELPER_ARGS(dbg, "steps=%d direction=%d", steps, static_cast<unsigned>(direction));

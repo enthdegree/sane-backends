@@ -2253,9 +2253,7 @@ void CommandSetGl841::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
       return;
     }
 
-  /* end previous scan if any */
-    regs_set_optical_off(dev->model->asic_type, dev->reg);
-    dev->interface->write_register(REG_0x01, dev->reg.get8(REG_0x01));
+    scanner_stop_action_no_move(*dev, dev->reg);
 
   /* if motor is on, stop current action */
     if (status.is_motor_enabled) {

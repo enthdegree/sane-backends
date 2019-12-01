@@ -1016,11 +1016,7 @@ void gl124_stop_action(Genesys_Device* dev)
       return;
     }
 
-  /* ends scan */
-    regs_set_optical_off(dev->model->asic_type, dev->reg);
-    dev->interface->write_register(REG_0x01, dev->reg.get8(REG_0x01));
-
-    dev->interface->sleep_ms(100);
+    scanner_stop_action_no_move(*dev, dev->reg);
 
     if (is_testing_mode()) {
         return;

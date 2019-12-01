@@ -748,7 +748,6 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     } else {
         r->value |= REG_0x01_DVDSET;
     }
-    r->value &= ~REG_0x01_SCAN;
 
     r = sanei_genesys_get_address(reg, REG_0x03);
     if ((dev->model->sensor_id != SensorId::CIS_CANON_LIDE_120) && (session.params.xres>=600)) {
@@ -1179,6 +1178,12 @@ void CommandSetGl124::rewind(Genesys_Device* dev) const
 void CommandSetGl124::slow_back_home(Genesys_Device* dev, bool wait_until_home) const
 {
     scanner_slow_back_home(*dev, wait_until_home);
+}
+
+void CommandSetGl124::slow_back_home_ta(Genesys_Device& dev) const
+{
+    (void) dev;
+    throw SaneException("not implemented");
 }
 
 /** @brief moves the slider to steps at motor base dpi

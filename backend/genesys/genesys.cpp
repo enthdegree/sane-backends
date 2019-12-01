@@ -960,7 +960,7 @@ void scanner_slow_back_home(Genesys_Device& dev, bool wait_until_home)
     }
 
     if (dev.needs_home_ta) {
-        gl843::gl843_park_xpa_lamp(&dev);
+        dev.cmd_set->slow_back_home_ta(dev);
     }
 
     if (dev.cmd_set->needs_update_home_sensor_gpio()) {
@@ -1023,11 +1023,6 @@ void scanner_slow_back_home(Genesys_Device& dev, bool wait_until_home)
     dev.cmd_set->init_regs_for_scan_session(&dev, sensor, &local_reg, session);
 
     scanner_clear_scan_and_feed_counts(dev);
-
-    // FIXME: why we do differently than other asics here?
-    if (dev.model->asic_type == AsicType::GL843) {
-        local_reg.find_reg(gl843::REG_0x01).value &= ~gl843::REG_0x01_SCAN;
-    }
 
     dev.interface->write_registers(local_reg);
 

@@ -6,11 +6,11 @@
 
 fetch () {
     if type curl 2>/dev/null >/dev/null ; then
-        curl --silent --location --remote-name $1
+        curl --location --remote-name $1
         return
     fi
     if type wget 2>/dev/null >/dev/null ; then
-        wget --quiet --output-document $(echo $1 | sed 's,.*/,,') $1
+        wget --output-document $(echo $1 | sed 's,.*/,,') $1
     fi
 }
 

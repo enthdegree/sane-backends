@@ -46,10 +46,10 @@
 static struct option basic_options[] = {
 	{"device-name", required_argument, NULL, 'd'},
 	{"level", required_argument, NULL, 'l'},
-	{"scan", NULL, NULL, 's'},
+	{"scan", no_argument, NULL, 's'},
 	{"recursion", required_argument, NULL, 'r'},
 	{"get-devices", required_argument, NULL, 'g'},
-	{"help", 0, NULL, 'h'}
+	{"help", no_argument, NULL, 'h'}
 };
 
 static void

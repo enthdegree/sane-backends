@@ -1484,8 +1484,8 @@
 :model "MAXIFY MB5400 Series"
 :interface "USB Ethernet WiFi"
 :usbid "0x04a9" "0x178f"
-:status :untested
-:comment "Testers needed!"
+:status :complete
+:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI)."
 
 :model "CanoScan 8800F"
 :interface "USB"

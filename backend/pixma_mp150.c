@@ -886,7 +886,8 @@ handle_interrupt (pixma_t * s, int timeout)
       || s->cfg->pid == MX720_PID
       || s->cfg->pid == MX920_PID
       || s->cfg->pid == MB2300_PID
-      || s->cfg->pid == MB5000_PID)
+      || s->cfg->pid == MB5000_PID
+      || s->cfg->pid == MB5400_PID)
   /* button no. in buf[7]
    * size in buf[10] 01=A4; 02=Letter; 08=10x15; 09=13x18; 0b=auto
    * format in buf[11] 01=JPEG; 02=TIFF; 03=PDF; 04=Kompakt-PDF
@@ -1748,7 +1749,7 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA E3100 Series", "E3100", E3100_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   /* Latest devices (2018) Generation 5 CIS */
-  DEVICE ("Canon MAXIFY MB5400 Series", "MB5400", MB5400_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
+  DEVICE ("Canon MAXIFY MB5400 Series", "MB5400", MB5400_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP | PIXMA_CAP_ADF_JPEG),
   DEVICE ("Canon MAXIFY MB5100 Series", "MB5100", MB5100_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
   DEVICE ("Canon PIXMA TS9100 Series", "TS9100", TS9100_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA TR8500 Series", "TR8500", TR8500_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),

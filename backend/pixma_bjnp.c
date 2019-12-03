@@ -1550,8 +1550,10 @@ bjnp_init_device_structure(int dn, bjnp_sockaddr_t *sa, bjnp_protocol_defs_t *pr
     {
       PDBG (bjnp_dbg
             (LOG_CRIT, "bjnp_init_device_structure: Cannot read mac address, skipping this scanner\n"  ) );
+            device[dn].open = 0;
       return -1;
     }
+  device[dn].open = 1;
   return 0;
 }
 
@@ -1748,7 +1750,8 @@ bjnp_allocate_device (SANE_String_Const devname,
                                       protocol_defs, ip_timeout) != 0)
         {
           /* giving up on this address, try next one if any */
-          break;
+          cur = cur->ai_next;
+          continue;
         }
       for (i = 0; i < bjnp_no_devices; i++)
         {
@@ -1780,6 +1783,12 @@ bjnp_allocate_device (SANE_String_Const devname,
       cur = cur->ai_next;
     }
   freeaddrinfo(res);
+
+  if (device[bjnp_no_devices].open == 0)
+    {
+      PDBG (bjnp_dbg(LOG_NOTICE, "bjnp_allocate_device: Cannot access scanner, skipping!"));
+      return BJNP_STATUS_INVAL;
+    }
 
   PDBG (bjnp_dbg (LOG_INFO, "bjnp_allocate_device: Scanner not yet in our list, added it: %s:%s\n", host, port));
 
@@ -1855,6 +1864,7 @@ int add_timeout_to_uri(char *uri, int timeout, int max_len)
   char port_str[BJNP_PORT_MAX];
   char args[BJNP_HOST_MAX];
   int port;
+  bjnp_protocol_defs_t *proto_struct;
 
   if (split_uri(uri, method, host, port_str, args ) != 0)
     {
@@ -1862,9 +1872,18 @@ int add_timeout_to_uri(char *uri, int timeout, int max_len)
     }
 
   port = atoi(port_str);
+
   if (port == 0)
     {
-      port = 8612;
+      proto_struct = get_protocol_by_method(method);
+      if (proto_struct == NULL)
+        {
+          PDBG (bjnp_dbg (LOG_NOTICE, "uri: %s: Method %s cannot be recognized\n", uri,  method));
+        }
+      else
+        {
+          port = proto_struct-> default_port;
+        }
     }
 
   /* add timeout value only if missing in URI */

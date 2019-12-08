@@ -1053,11 +1053,19 @@ void CommandSetGl847::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   regs = dev->reg;
 
     dev->calib_resolution = sensor.get_register_hwdpi(dev->settings.xres);
+
+    const auto& calib_sensor = sanei_genesys_find_sensor(dev, dev->calib_resolution,
+                                                         dev->calib_channels,
+                                                         dev->settings.scan_method);
+
   dev->calib_total_bytes_to_read = 0;
   dev->calib_lines = dev->model->shading_lines;
-  if(dev->calib_resolution==4800)
-    dev->calib_lines *= 2;
-  dev->calib_pixels = (sensor.sensor_pixels*dev->calib_resolution)/sensor.optical_res;
+    if (dev->calib_resolution == 4800) {
+        dev->calib_lines *= 2;
+    }
+    dev->calib_pixels = (calib_sensor.sensor_pixels * dev->calib_resolution) /
+                        calib_sensor.optical_res;
+
     DBG(DBG_io, "%s: calib_lines  = %zu\n", __func__, dev->calib_lines);
     DBG(DBG_io, "%s: calib_pixels = %zu\n", __func__, dev->calib_pixels);
 
@@ -1077,9 +1085,9 @@ void CommandSetGl847::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::DISABLE_BUFFER_FULL_MOVE |
                            ScanFlag::IGNORE_LINE_DISTANCE;
-    compute_session(dev, session, sensor);
+    compute_session(dev, session, calib_sensor);
 
-    init_regs_for_scan_session(dev, sensor, &regs, session);
+    init_regs_for_scan_session(dev, calib_sensor, &regs, session);
 
     dev->interface->write_registers(regs);
 

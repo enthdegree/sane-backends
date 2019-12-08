@@ -78,12 +78,8 @@ static void gl847_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& senso
     DBG_HELPER(dbg);
   uint16_t exp;
 
-    for (uint16_t addr = 0x16; addr < 0x1e; addr++) {
-        regs->set8(addr, sensor.custom_regs.get_value(addr));
-    }
-
-    for (uint16_t addr = 0x52; addr < 0x52 + 9; addr++) {
-        regs->set8(addr, sensor.custom_regs.get_value(addr));
+    for (const auto& reg : sensor.custom_regs) {
+        regs->set8(reg.address, reg.value);
     }
 
     for (const auto& reg : sensor_profile.custom_regs) {
@@ -154,17 +150,17 @@ gl847_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x14, 0x00);
     dev->reg.init_reg(0x15, 0x00);
 
-    dev->reg.init_reg(0x16, 0x10);
-    dev->reg.init_reg(0x17, 0x08);
-    dev->reg.init_reg(0x18, 0x00);
+    dev->reg.init_reg(0x16, 0x10); // SENSOR_DEF
+    dev->reg.init_reg(0x17, 0x08); // SENSOR_DEF
+    dev->reg.init_reg(0x18, 0x00); // SENSOR_DEF
 
     // EXPDMY
-    dev->reg.init_reg(0x19, 0x50);
+    dev->reg.init_reg(0x19, 0x50); // SENSOR_DEF
 
-    dev->reg.init_reg(0x1a, 0x34);
-    dev->reg.init_reg(0x1b, 0x00);
-    dev->reg.init_reg(0x1c, 0x02);
-    dev->reg.init_reg(0x1d, 0x04);
+    dev->reg.init_reg(0x1a, 0x34); // SENSOR_DEF
+    dev->reg.init_reg(0x1b, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x1c, 0x02); // SENSOR_DEF
+    dev->reg.init_reg(0x1d, 0x04); // SENSOR_DEF
     dev->reg.init_reg(0x1e, 0x10);
     dev->reg.init_reg(0x1f, 0x04);
     dev->reg.init_reg(0x20, 0x02);
@@ -192,15 +188,15 @@ gl847_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x3d, 0x00);
     dev->reg.init_reg(0x3e, 0x00);
     dev->reg.init_reg(0x3f, 0x00);
-    dev->reg.init_reg(0x52, 0x03);
-    dev->reg.init_reg(0x53, 0x07);
-    dev->reg.init_reg(0x54, 0x00);
-    dev->reg.init_reg(0x55, 0x00);
-    dev->reg.init_reg(0x56, 0x00);
-    dev->reg.init_reg(0x57, 0x00);
-    dev->reg.init_reg(0x58, 0x2a);
-    dev->reg.init_reg(0x59, 0xe1);
-    dev->reg.init_reg(0x5a, 0x55);
+    dev->reg.init_reg(0x52, 0x03); // SENSOR_DEF
+    dev->reg.init_reg(0x53, 0x07); // SENSOR_DEF
+    dev->reg.init_reg(0x54, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x55, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x56, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x57, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x58, 0x2a); // SENSOR_DEF
+    dev->reg.init_reg(0x59, 0xe1); // SENSOR_DEF
+    dev->reg.init_reg(0x5a, 0x55); // SENSOR_DEF
     dev->reg.init_reg(0x5e, 0x41);
     dev->reg.init_reg(0x5f, 0x40);
     dev->reg.init_reg(0x60, 0x00);
@@ -215,19 +211,19 @@ gl847_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x6a, 0x20);
 
     // CK1MAP
-    dev->reg.init_reg(0x74, 0x00);
-    dev->reg.init_reg(0x75, 0x00);
-    dev->reg.init_reg(0x76, 0x3c);
+    dev->reg.init_reg(0x74, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x75, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x76, 0x3c); // SENSOR_DEF
 
     // CK3MAP
-    dev->reg.init_reg(0x77, 0x00);
-    dev->reg.init_reg(0x78, 0x00);
-    dev->reg.init_reg(0x79, 0x9f);
+    dev->reg.init_reg(0x77, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x78, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x79, 0x9f); // SENSOR_DEF
 
     // CK4MAP
-    dev->reg.init_reg(0x7a, 0x00);
-    dev->reg.init_reg(0x7b, 0x00);
-    dev->reg.init_reg(0x7c, 0x55);
+    dev->reg.init_reg(0x7a, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x7b, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x7c, 0x55); // SENSOR_DEF
 
     dev->reg.init_reg(0x7d, 0x00);
 

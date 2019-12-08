@@ -3656,10 +3656,6 @@ void genesys_init_sensor_tables()
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
     sensor.custom_regs = {
-        { 0x08, 0x60 },
-        { 0x09, 0x00 },
-        { 0x0a, 0x00 },
-        { 0x0b, 0x8b },
         { 0x16, 0xbb },
         { 0x17, 0x13 },
         { 0x18, 0x10 },
@@ -3677,10 +3673,6 @@ void genesys_init_sensor_tables()
         { 0x58, 0x59 },
         { 0x59, 0x31 },
         { 0x5a, 0x40 },
-        { 0x5b, 0x00 },
-        { 0x5c, 0x00 },
-        { 0x5d, 0x00 },
-        { 0x5e, 0x1f },
     };
     sensor.gamma = { 1.7f, 1.7f, 1.7f };
     sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
@@ -3718,10 +3710,6 @@ void genesys_init_sensor_tables()
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
     sensor.custom_regs = {
-        { 0x08, 0x60 },
-        { 0x09, 0x00 },
-        { 0x0a, 0x00 },
-        { 0x0b, 0x8b },
         { 0x16, 0xbb },
         { 0x17, 0x13 },
         { 0x18, 0x10 },
@@ -3739,10 +3727,6 @@ void genesys_init_sensor_tables()
         { 0x58, 0x59 },
         { 0x59, 0x31 },
         { 0x5a, 0x40 },
-        { 0x5b, 0x00 },
-        { 0x5c, 0x00 },
-        { 0x5d, 0x00 },
-        { 0x5e, 0x1f },
     };
     sensor.gamma = { 1.7f, 1.7f, 1.7f };
     sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;

@@ -82,12 +82,8 @@ static void gl846_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& senso
     DBG_HELPER(dbg);
   uint16_t exp;
 
-    for (uint16_t addr = 0x16; addr < 0x1e; addr++) {
-        regs->set8(addr, sensor.custom_regs.get_value(addr));
-    }
-
-    for (uint16_t addr = 0x52; addr < 0x52 + 9; addr++) {
-        regs->set8(addr, sensor.custom_regs.get_value(addr));
+    for (const auto& reg : sensor.custom_regs) {
+        regs->set8(reg.address, reg.value);
     }
 
     for (const auto& reg : sensor_profile.custom_regs) {
@@ -149,14 +145,14 @@ gl846_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x13, 0x00);
     dev->reg.init_reg(0x14, 0x00);
     dev->reg.init_reg(0x15, 0x00);
-    dev->reg.init_reg(0x16, 0xbb);
-    dev->reg.init_reg(0x17, 0x13);
-    dev->reg.init_reg(0x18, 0x10);
-    dev->reg.init_reg(0x19, 0x2a);
-    dev->reg.init_reg(0x1a, 0x34);
-    dev->reg.init_reg(0x1b, 0x00);
-    dev->reg.init_reg(0x1c, 0x20);
-    dev->reg.init_reg(0x1d, 0x06);
+    dev->reg.init_reg(0x16, 0xbb); // SENSOR_DEF
+    dev->reg.init_reg(0x17, 0x13); // SENSOR_DEF
+    dev->reg.init_reg(0x18, 0x10); // SENSOR_DEF
+    dev->reg.init_reg(0x19, 0x2a); // SENSOR_DEF
+    dev->reg.init_reg(0x1a, 0x34); // SENSOR_DEF
+    dev->reg.init_reg(0x1b, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x1c, 0x20); // SENSOR_DEF
+    dev->reg.init_reg(0x1d, 0x06); // SENSOR_DEF
     dev->reg.init_reg(0x1e, 0xf0);
     dev->reg.init_reg(0x1f, 0x01);
     dev->reg.init_reg(0x20, 0x03);
@@ -184,15 +180,15 @@ gl846_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x3d, 0x00);
     dev->reg.init_reg(0x3e, 0x00);
     dev->reg.init_reg(0x3f, 0x01);
-    dev->reg.init_reg(0x52, 0x02);
-    dev->reg.init_reg(0x53, 0x04);
-    dev->reg.init_reg(0x54, 0x06);
-    dev->reg.init_reg(0x55, 0x08);
-    dev->reg.init_reg(0x56, 0x0a);
-    dev->reg.init_reg(0x57, 0x00);
-    dev->reg.init_reg(0x58, 0x59);
-    dev->reg.init_reg(0x59, 0x31);
-    dev->reg.init_reg(0x5a, 0x40);
+    dev->reg.init_reg(0x52, 0x02); // SENSOR_DEF
+    dev->reg.init_reg(0x53, 0x04); // SENSOR_DEF
+    dev->reg.init_reg(0x54, 0x06); // SENSOR_DEF
+    dev->reg.init_reg(0x55, 0x08); // SENSOR_DEF
+    dev->reg.init_reg(0x56, 0x0a); // SENSOR_DEF
+    dev->reg.init_reg(0x57, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x58, 0x59); // SENSOR_DEF
+    dev->reg.init_reg(0x59, 0x31); // SENSOR_DEF
+    dev->reg.init_reg(0x5a, 0x40); // SENSOR_DEF
     dev->reg.init_reg(0x5e, 0x1f);
     dev->reg.init_reg(0x5f, 0x01);
     dev->reg.init_reg(0x60, 0x00);
@@ -209,15 +205,15 @@ gl846_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x71, 0x00);
     dev->reg.init_reg(0x72, 0x02);
     dev->reg.init_reg(0x73, 0x01);
-    dev->reg.init_reg(0x74, 0x00);
-    dev->reg.init_reg(0x75, 0x00);
-    dev->reg.init_reg(0x76, 0x00);
-    dev->reg.init_reg(0x77, 0x00);
-    dev->reg.init_reg(0x78, 0x00);
-    dev->reg.init_reg(0x79, 0x3f);
-    dev->reg.init_reg(0x7a, 0x00);
-    dev->reg.init_reg(0x7b, 0x09);
-    dev->reg.init_reg(0x7c, 0x99);
+    dev->reg.init_reg(0x74, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x75, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x76, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x77, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x78, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x79, 0x3f); // SENSOR_DEF
+    dev->reg.init_reg(0x7a, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x7b, 0x09); // SENSOR_DEF
+    dev->reg.init_reg(0x7c, 0x99); // SENSOR_DEF
     dev->reg.init_reg(0x7d, 0x20);
     dev->reg.init_reg(0x7f, 0x05);
     dev->reg.init_reg(0x80, 0x4f);

@@ -90,17 +90,17 @@ gl124_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x13, 0x0f);
     dev->reg.init_reg(0x14, 0x00);
     dev->reg.init_reg(0x15, 0x80);
-    dev->reg.init_reg(0x16, 0x10);
-    dev->reg.init_reg(0x17, 0x04);
-    dev->reg.init_reg(0x18, 0x00);
-    dev->reg.init_reg(0x19, 0x01);
-    dev->reg.init_reg(0x1a, 0x30);
-    dev->reg.init_reg(0x1b, 0x00);
-    dev->reg.init_reg(0x1c, 0x00);
-    dev->reg.init_reg(0x1d, 0x01);
+    dev->reg.init_reg(0x16, 0x10); // SENSOR_DEF
+    dev->reg.init_reg(0x17, 0x04); // SENSOR_DEF
+    dev->reg.init_reg(0x18, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x19, 0x01); // SENSOR_DEF
+    dev->reg.init_reg(0x1a, 0x30); // SENSOR_DEF
+    dev->reg.init_reg(0x1b, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x1c, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x1d, 0x01); // SENSOR_DEF
     dev->reg.init_reg(0x1e, 0x10);
     dev->reg.init_reg(0x1f, 0x00);
-    dev->reg.init_reg(0x20, 0x15);
+    dev->reg.init_reg(0x20, 0x15); // SENSOR_DEF
     dev->reg.init_reg(0x21, 0x00);
     if(dev->model->sensor_id != SensorId::CIS_CANON_LIDE_120) {
         dev->reg.init_reg(0x22, 0x02);
@@ -134,20 +134,20 @@ gl124_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x48, 0x00);
     dev->reg.init_reg(0x49, 0x00);
     dev->reg.init_reg(0x4f, 0x00);
-    dev->reg.init_reg(0x52, 0x00);
-    dev->reg.init_reg(0x53, 0x02);
-    dev->reg.init_reg(0x54, 0x04);
-    dev->reg.init_reg(0x55, 0x06);
-    dev->reg.init_reg(0x56, 0x04);
-    dev->reg.init_reg(0x57, 0x04);
-    dev->reg.init_reg(0x58, 0x04);
-    dev->reg.init_reg(0x59, 0x04);
-    dev->reg.init_reg(0x5a, 0x1a);
-    dev->reg.init_reg(0x5b, 0x00);
-    dev->reg.init_reg(0x5c, 0xc0);
+    dev->reg.init_reg(0x52, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x53, 0x02); // SENSOR_DEF
+    dev->reg.init_reg(0x54, 0x04); // SENSOR_DEF
+    dev->reg.init_reg(0x55, 0x06); // SENSOR_DEF
+    dev->reg.init_reg(0x56, 0x04); // SENSOR_DEF
+    dev->reg.init_reg(0x57, 0x04); // SENSOR_DEF
+    dev->reg.init_reg(0x58, 0x04); // SENSOR_DEF
+    dev->reg.init_reg(0x59, 0x04); // SENSOR_DEF
+    dev->reg.init_reg(0x5a, 0x1a); // SENSOR_DEF
+    dev->reg.init_reg(0x5b, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x5c, 0xc0); // SENSOR_DEF
     dev->reg.init_reg(0x5f, 0x00);
     dev->reg.init_reg(0x60, 0x02);
-    dev->reg.init_reg(0x61, 0x00);
+    dev->reg.init_reg(0x61, 0x00); // SENSOR_DEF
     dev->reg.init_reg(0x62, 0x00);
     dev->reg.init_reg(0x63, 0x00);
     dev->reg.init_reg(0x64, 0x00);
@@ -174,15 +174,15 @@ gl124_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x73, 0x0a);
 
     // CKxMAP
-    dev->reg.init_reg(0x74, 0x00);
-    dev->reg.init_reg(0x75, 0x00);
-    dev->reg.init_reg(0x76, 0x3c);
-    dev->reg.init_reg(0x77, 0x00);
-    dev->reg.init_reg(0x78, 0x00);
-    dev->reg.init_reg(0x79, 0x9f);
-    dev->reg.init_reg(0x7a, 0x00);
-    dev->reg.init_reg(0x7b, 0x00);
-    dev->reg.init_reg(0x7c, 0x55);
+    dev->reg.init_reg(0x74, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x75, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x76, 0x3c); // SENSOR_DEF
+    dev->reg.init_reg(0x77, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x78, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x79, 0x9f); // SENSOR_DEF
+    dev->reg.init_reg(0x7a, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x7b, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x7c, 0x55); // SENSOR_DEF
 
     dev->reg.init_reg(0x7d, 0x00);
     dev->reg.init_reg(0x7e, 0x08);
@@ -206,8 +206,8 @@ gl124_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x86, 0x00);
     dev->reg.init_reg(0x87, 0x00);
 
-    dev->reg.init_reg(0x88, 0x00);
-    dev->reg.init_reg(0x89, 0x65);
+    dev->reg.init_reg(0x88, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x89, 0x65); // SENSOR_DEF
     dev->reg.init_reg(0x8a, 0x00);
     dev->reg.init_reg(0x8b, 0x00);
     dev->reg.init_reg(0x8c, 0x00);
@@ -217,12 +217,12 @@ gl124_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x90, 0x00);
     dev->reg.init_reg(0x91, 0x00);
     dev->reg.init_reg(0x92, 0x00);
-    dev->reg.init_reg(0x93, 0x00);
-    dev->reg.init_reg(0x94, 0x14);
-    dev->reg.init_reg(0x95, 0x30);
-    dev->reg.init_reg(0x96, 0x00);
-    dev->reg.init_reg(0x97, 0x90);
-    dev->reg.init_reg(0x98, 0x01);
+    dev->reg.init_reg(0x93, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x94, 0x14); // SENSOR_DEF
+    dev->reg.init_reg(0x95, 0x30); // SENSOR_DEF
+    dev->reg.init_reg(0x96, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x97, 0x90); // SENSOR_DEF
+    dev->reg.init_reg(0x98, 0x01); // SENSOR_DEF
     dev->reg.init_reg(0x99, 0x1f);
     dev->reg.init_reg(0x9a, 0x00);
     dev->reg.init_reg(0x9b, 0x80);
@@ -660,15 +660,8 @@ static void gl124_setup_sensor(Genesys_Device * dev,
     DBG_HELPER(dbg);
   uint32_t exp;
 
-    // we start at 6, 0-5 is a 16 bits cache for exposure
-    for (uint16_t addr = 0x16; addr < 0x1e; addr++) {
-        regs->set8(addr, sensor.custom_regs.get_value(addr));
-    }
-
-    // skip writing 5d,5e which is AFE address because
-    // they are not defined in register set */
-    for (uint16_t addr = 0x52; addr < 0x52 + 11; addr++) {
-        regs->set8(addr, sensor.custom_regs.get_value(addr));
+    for (const auto& reg : sensor.custom_regs) {
+        regs->set8(reg.address, reg.value);
     }
 
     for (auto reg : sensor_profile.custom_regs) {

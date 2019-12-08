@@ -77,39 +77,19 @@ gl846_get_step_multiplier (Genesys_Register_Set * regs)
 /** @brief sensor specific settings
 */
 static void gl846_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                               const SensorProfile& sensor_profile, Genesys_Register_Set* regs)
+                               Genesys_Register_Set* regs)
 {
     DBG_HELPER(dbg);
-  uint16_t exp;
 
     for (const auto& reg : sensor.custom_regs) {
         regs->set8(reg.address, reg.value);
     }
 
-    for (const auto& reg : sensor_profile.custom_regs) {
-        regs->set8(reg.address, reg.value);
-    }
+    regs->set16(REG_EXPR, sensor.exposure.red);
+    regs->set16(REG_EXPG, sensor.exposure.green);
+    regs->set16(REG_EXPB, sensor.exposure.blue);
 
-  /* if no calibration has been done, set default values for exposures */
-  exp = sensor.exposure.red;
-    if (exp == 0) {
-        exp = sensor_profile.exposure.red;
-    }
-    regs->set16(REG_EXPR, exp);
-
-  exp = sensor.exposure.green;
-    if (exp == 0) {
-        exp = sensor_profile.exposure.green;
-    }
-    regs->set16(REG_EXPG, exp);
-
-  exp = sensor.exposure.blue;
-    if (exp == 0) {
-        exp = sensor_profile.exposure.blue;
-    }
-    regs->set16(REG_EXPB, exp);
-
-    dev->segment_order = sensor_profile.segment_order;
+    dev->segment_order = sensor.segment_order;
 }
 
 
@@ -601,10 +581,7 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     dpihw = sensor.get_register_hwdpi(session.params.xres * ccd_pixels_per_system_pixel);
     DBG(DBG_io2, "%s: dpihw=%d\n", __func__, dpihw);
 
-    // sensor parameters
-    const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor,
-                                                    session.params.xres);
-    gl846_setup_sensor(dev, sensor, sensor_profile, reg);
+    gl846_setup_sensor(dev, sensor, reg);
 
     dev->cmd_set->set_fe(dev, sensor, AFE_SET);
 
@@ -738,8 +715,7 @@ void CommandSetGl846::init_regs_for_scan_session(Genesys_Device* dev, const Gene
 
   slope_dpi = slope_dpi * (1 + dummy);
 
-    exposure_time = get_sensor_profile(dev->model->asic_type, sensor,
-                                       session.params.xres).exposure_lperiod;
+    exposure_time = sensor.exposure_lperiod;
     const auto& motor_profile = sanei_genesys_get_motor_profile(*gl846_motor_profiles,
                                                                 dev->model->motor_id,
                                                                 exposure_time);
@@ -1248,9 +1224,9 @@ SensorExposure CommandSetGl846::led_calibration(Genesys_Device* dev, const Genes
   /* offset calibration is always done in color mode */
   channels = 3;
     used_res = sensor.get_register_hwdpi(dev->settings.xres);
-    const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor,
-                                                    used_res);
-  num_pixels = (sensor.sensor_pixels*used_res)/sensor.optical_res;
+    const auto& calib_sensor = sanei_genesys_find_sensor(dev, used_res, channels,
+                                                         dev->settings.scan_method);
+    num_pixels = (calib_sensor.sensor_pixels * used_res) / calib_sensor.optical_res;
 
   /* initial calibration reg values */
   regs = dev->reg;
@@ -1271,17 +1247,17 @@ SensorExposure CommandSetGl846::led_calibration(Genesys_Device* dev, const Genes
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::SINGLE_LINE |
                            ScanFlag::IGNORE_LINE_DISTANCE;
-    compute_session(dev, session, sensor);
+    compute_session(dev, session, calib_sensor);
 
-    init_regs_for_scan_session(dev, sensor, &regs, session);
+    init_regs_for_scan_session(dev, calib_sensor, &regs, session);
 
     total_size = num_pixels * channels * (session.params.depth / 8) * 1;
   std::vector<uint8_t> line(total_size);
 
   /* initial loop values and boundaries */
-    exp[0] = sensor_profile.exposure.red;
-    exp[1] = sensor_profile.exposure.green;
-    exp[2] = sensor_profile.exposure.blue;
+    exp[0] = calib_sensor.exposure.red;
+    exp[1] = calib_sensor.exposure.green;
+    exp[2] = calib_sensor.exposure.blue;
 
   bottom[0]=29000;
   bottom[1]=29000;
@@ -1307,13 +1283,13 @@ SensorExposure CommandSetGl846::led_calibration(Genesys_Device* dev, const Genes
         dev->interface->write_registers(regs);
 
       DBG(DBG_info, "%s: starting line reading\n", __func__);
-        begin_scan(dev, sensor, &regs, true);
+        begin_scan(dev, calib_sensor, &regs, true);
 
         if (is_testing_mode()) {
             dev->interface->test_checkpoint("led_calibration");
             scanner_stop_action(*dev);
             move_back_home(dev, true);
-            return sensor.exposure;
+            return calib_sensor.exposure;
         }
 
         sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);

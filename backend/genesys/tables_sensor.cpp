@@ -121,7 +121,6 @@ static void build_sensors_from_profiles(std::vector<Genesys_Sensor>& sensors,
         sensor.segment_size = profile.segment_size;
         sensor.segment_order = profile.segment_order;
         sensor.custom_regs.merge(profile.custom_regs);
-        sensor.sensor_profiles = profiles;
         sensors.push_back(std::move(sensor));
     }
 }

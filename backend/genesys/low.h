@@ -465,9 +465,6 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session);
 std::uint8_t compute_frontend_gain(float value, float target_value,
                                    FrontendType frontend_type);
 
-const SensorProfile& get_sensor_profile(AsicType asic_type, const Genesys_Sensor& sensor,
-                                        unsigned resolution);
-
 template<class T>
 inline T abs_diff(T a, T b)
 {

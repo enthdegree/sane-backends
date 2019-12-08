@@ -888,8 +888,7 @@ void compute_session_pipeline(const Genesys_Device* dev, ScanSession& s)
 }
 
 void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
-                                   const Genesys_Sensor& sensor,
-                                   const SensorProfile* sensor_profile)
+                                   const Genesys_Sensor& sensor)
 {
     unsigned ccd_pixels_per_system_pixel = sensor.ccd_pixels_per_system_pixel();
 
@@ -980,11 +979,9 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
         s.pixel_startx /= s.hwdpi_divisor * s.segment_count;
         s.pixel_endx /= s.hwdpi_divisor * s.segment_count;
 
-        const uint16_t REG_SEGCNT = 0x93;
-
-        std::uint32_t segcnt = (sensor_profile->custom_regs.get_value(REG_SEGCNT) << 16) +
-                               (sensor_profile->custom_regs.get_value(REG_SEGCNT + 1) << 8) +
-                               sensor_profile->custom_regs.get_value(REG_SEGCNT + 2);
+        std::uint32_t segcnt = (sensor.custom_regs.get_value(gl124::REG_SEGCNT) << 16) +
+                               (sensor.custom_regs.get_value(gl124::REG_SEGCNT + 1) << 8) +
+                                sensor.custom_regs.get_value(gl124::REG_SEGCNT + 2);
         if (s.pixel_endx == segcnt) {
             s.pixel_endx = 0;
         }
@@ -1124,21 +1121,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     s.output_channel_bytes = multiply_by_depth_ceil(s.output_pixels, s.params.depth);
     s.output_line_bytes = s.output_channel_bytes * s.params.channels;
 
-    const SensorProfile* sensor_profile = nullptr;
-    if (dev->model->asic_type == AsicType::GL124 ||
-        dev->model->asic_type == AsicType::GL845 ||
-        dev->model->asic_type == AsicType::GL846 ||
-        dev->model->asic_type == AsicType::GL847)
-    {
-        sensor_profile = &get_sensor_profile(dev->model->asic_type, sensor, s.params.xres);
-    }
-
-    s.segment_count = 1;
-    if (dev->model->flags & GENESYS_FLAG_SIS_SENSOR || dev->model->asic_type == AsicType::GL124) {
-        s.segment_count = sensor_profile->get_segment_count();
-    } else {
-        s.segment_count = sensor.get_segment_count();
-    }
+    s.segment_count = sensor.get_segment_count();
 
     s.optical_pixels_raw = s.optical_pixels;
     s.output_line_bytes_raw = s.output_line_bytes;
@@ -1149,7 +1132,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
         dev->model->asic_type == AsicType::GL847)
     {
         if (s.segment_count > 1) {
-            s.conseq_pixel_dist = sensor_profile->segment_size;
+            s.conseq_pixel_dist = sensor.segment_size;
 
             // in case of multi-segments sensor, we have to add the width of the sensor crossed by
             // the scan area
@@ -1207,7 +1190,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
 
     compute_session_buffer_sizes(dev->model->asic_type, s);
     compute_session_pipeline(dev, s);
-    compute_session_pixel_offsets(dev, s, sensor, sensor_profile);
+    compute_session_pixel_offsets(dev, s, sensor);
 
     if (dev->model->asic_type == AsicType::GL124 ||
         dev->model->asic_type == AsicType::GL845 ||
@@ -1463,19 +1446,6 @@ std::uint8_t compute_frontend_gain(float value, float target_value,
     }
     throw SaneException("Unknown frontend to compute gain for");
 }
-
-const SensorProfile& get_sensor_profile(AsicType asic_type, const Genesys_Sensor& sensor,
-                                        unsigned resolution)
-{
-    for (unsigned i = 0; i < sensor.sensor_profiles.size(); ++i) {
-        if (sensor.sensor_profiles[i].resolutions.matches(resolution)) {
-            return sensor.sensor_profiles[i];
-        }
-    }
-    throw SaneException("Unsupported profile for asic %d, resolution %d",
-                        static_cast<unsigned>(asic_type), resolution);
-}
-
 
 /** @brief initialize device
  * Initialize backend and ASIC : registers, motor tables, and gamma tables

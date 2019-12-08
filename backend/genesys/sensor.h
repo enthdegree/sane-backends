@@ -363,8 +363,6 @@ struct Genesys_Sensor {
     // red, green and blue gamma coefficient for default gamma tables
     AssignableArray<float, 3> gamma;
 
-    std::vector<SensorProfile> sensor_profiles;
-
     std::function<unsigned(const Genesys_Sensor&, unsigned)> get_logical_hwdpi_fun;
     std::function<unsigned(const Genesys_Sensor&, unsigned)> get_register_hwdpi_fun;
     std::function<unsigned(const Genesys_Sensor&, unsigned)> get_ccd_size_divisor_fun;
@@ -421,8 +419,7 @@ struct Genesys_Sensor {
             custom_base_regs == other.custom_base_regs &&
             custom_regs == other.custom_regs &&
             custom_fe_regs == other.custom_fe_regs &&
-            gamma == other.gamma &&
-            sensor_profiles == other.sensor_profiles;
+            gamma == other.gamma;
     }
 };
 
@@ -458,7 +455,6 @@ void serialize(Stream& str, Genesys_Sensor& x)
     serialize_newline(str);
     serialize(str, x.gamma);
     serialize_newline(str);
-    serialize(str, x.sensor_profiles);
 }
 
 std::ostream& operator<<(std::ostream& out, const Genesys_Sensor& sensor);

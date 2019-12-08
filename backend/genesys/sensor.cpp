@@ -154,9 +154,6 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Sensor& sensor)
         << "    custom_base_regs: " << format_indent_braced_list(4, sensor.custom_base_regs) << '\n'
         << "    custom_regs: " << format_indent_braced_list(4, sensor.custom_regs) << '\n'
         << "    custom_fe_regs: " << format_indent_braced_list(4, sensor.custom_fe_regs) << '\n'
-        << "    sensor.sensor_profiles: "
-        << format_indent_braced_list(4, format_vector_indent_braced(4, "SensorProfile",
-                                                                    sensor.sensor_profiles))
         << "    gamma.red: " << sensor.gamma[0] << '\n'
         << "    gamma.green: " << sensor.gamma[1] << '\n'
         << "    gamma.blue: " << sensor.gamma[2] << '\n'

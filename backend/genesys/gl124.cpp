@@ -652,42 +652,20 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
  * @param dpi resolution of the sensor during scan
  * @param ccd_size_divisor flag for half ccd mode
  * */
-static void gl124_setup_sensor(Genesys_Device * dev,
-                               const Genesys_Sensor& sensor,
-                               const SensorProfile& sensor_profile,
-                               Genesys_Register_Set * regs)
+static void gl124_setup_sensor(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                               Genesys_Register_Set* regs)
 {
     DBG_HELPER(dbg);
-  uint32_t exp;
 
     for (const auto& reg : sensor.custom_regs) {
         regs->set8(reg.address, reg.value);
     }
 
-    for (auto reg : sensor_profile.custom_regs) {
-        regs->set8(reg.address, reg.value);
-    }
+    regs->set24(REG_EXPR, sensor.exposure.red);
+    regs->set24(REG_EXPG, sensor.exposure.green);
+    regs->set24(REG_EXPB, sensor.exposure.blue);
 
-  /* if no calibration has been done, set default values for exposures */
-  exp = sensor.exposure.red;
-    if (exp == 0) {
-        exp = sensor_profile.exposure.red;
-    }
-    regs->set24(REG_EXPR, exp);
-
-  exp =sensor.exposure.green;
-    if(exp == 0) {
-        exp = sensor_profile.exposure.green;
-    }
-    regs->set24(REG_EXPG, exp);
-
-  exp = sensor.exposure.blue;
-    if (exp == 0) {
-        exp = sensor_profile.exposure.blue;
-    }
-    regs->set24(REG_EXPB, exp);
-
-    dev->segment_order = sensor_profile.segment_order;
+    dev->segment_order = sensor.segment_order;
 }
 
 /** @brief setup optical related registers
@@ -724,10 +702,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     dpihw = sensor.get_register_hwdpi(session.output_resolution * ccd_pixels_per_system_pixel);
     DBG(DBG_io2, "%s: dpihw=%d\n", __func__, dpihw);
 
-    // sensor parameters
-    const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor,
-                                                    session.params.xres);
-    gl124_setup_sensor(dev, sensor, sensor_profile, reg);
+    gl124_setup_sensor(dev, sensor, reg);
 
     dev->cmd_set->set_fe(dev, sensor, AFE_SET);
 
@@ -878,8 +853,7 @@ void CommandSetGl124::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     if (has_flag(session.params.flags, ScanFlag::FEEDING)) {
         exposure_time = 2304;
     } else {
-        exposure_time = get_sensor_profile(dev->model->asic_type, sensor,
-                                           session.params.xres).exposure_lperiod;
+        exposure_time = sensor.exposure_lperiod;
     }
     const auto& motor_profile = sanei_genesys_get_motor_profile(*gl124_motor_profiles,
                                                                 dev->model->motor_id,
@@ -1640,7 +1614,7 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
         if (is_testing_mode()) {
             dev->interface->test_checkpoint("led_calibration");
             scanner_stop_action(*dev);
-            return sensor.exposure;
+            return calib_sensor.exposure;
         }
 
         sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);

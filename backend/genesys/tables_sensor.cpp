@@ -109,6 +109,23 @@ inline unsigned default_get_hwdpi_divisor_for_dpi(const Genesys_Sensor& sensor, 
     return sensor.optical_res / default_get_logical_hwdpi(sensor, xres);
 }
 
+static void build_sensors_from_profiles(std::vector<Genesys_Sensor>& sensors,
+                                       const Genesys_Sensor& base_sensor,
+                                       const std::vector<SensorProfile>& profiles)
+{
+    for (const auto& profile : profiles) {
+        Genesys_Sensor sensor = base_sensor;
+        sensor.resolutions = profile.resolutions;
+        sensor.exposure_lperiod = profile.exposure_lperiod;
+        sensor.exposure = profile.exposure;
+        sensor.segment_size = profile.segment_size;
+        sensor.segment_order = profile.segment_order;
+        sensor.custom_regs.merge(profile.custom_regs);
+        sensor.sensor_profiles = profiles;
+        sensors.push_back(std::move(sensor));
+    }
+}
+
 StaticInit<std::vector<Genesys_Sensor>> s_sensors;
 
 void genesys_init_sensor_tables()
@@ -117,6 +134,7 @@ void genesys_init_sensor_tables()
 
     Genesys_Sensor sensor;
     SensorProfile profile;
+    std::vector<SensorProfile> sensor_profiles;
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_UMAX;
@@ -1619,6 +1637,7 @@ void genesys_init_sensor_tables()
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
+    sensor_profiles.clear();
     profile = SensorProfile();
     profile.resolutions = { 75, 100, 150, 200 };
     profile.exposure_lperiod = 2848;
@@ -1632,7 +1651,7 @@ void genesys_init_sensor_tables()
         { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
     profile.resolutions = { 300, 400 };
@@ -1647,7 +1666,7 @@ void genesys_init_sensor_tables()
         { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
     profile.resolutions = { 600 };
@@ -1662,7 +1681,7 @@ void genesys_init_sensor_tables()
         { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
     profile.resolutions = { 1200 };
@@ -1677,7 +1696,7 @@ void genesys_init_sensor_tables()
         { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
     profile.resolutions = { 2400 };
@@ -1692,7 +1711,7 @@ void genesys_init_sensor_tables()
         { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
     profile.resolutions = { 4800 };
@@ -1707,9 +1726,9 @@ void genesys_init_sensor_tables()
         { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
-    s_sensors->push_back(sensor);
+    build_sensors_from_profiles(*s_sensors, sensor, sensor_profiles);
 
 
     sensor = Genesys_Sensor();
@@ -1749,6 +1768,7 @@ void genesys_init_sensor_tables()
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
+    sensor_profiles.clear();
     profile = SensorProfile();
     profile.resolutions = { 75, 100, 150, 200 };
     profile.exposure_lperiod = 2848;
@@ -1762,7 +1782,7 @@ void genesys_init_sensor_tables()
         { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0xf9 },
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
     profile.resolutions = { 300 };
@@ -1777,7 +1797,7 @@ void genesys_init_sensor_tables()
         { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0xf9 },
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
     profile.resolutions = { 600 };
@@ -1792,7 +1812,7 @@ void genesys_init_sensor_tables()
         { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0xf9 },
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
     profile.resolutions = { 1200 };
@@ -1807,7 +1827,7 @@ void genesys_init_sensor_tables()
         { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0xf9 },
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
     profile.resolutions = { 2400 };
@@ -1822,7 +1842,7 @@ void genesys_init_sensor_tables()
         { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0xf9 },
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
     profile.resolutions = { 4800 };
@@ -1837,9 +1857,9 @@ void genesys_init_sensor_tables()
         { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0xf9 },
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
-    s_sensors->push_back(sensor);
+    build_sensors_from_profiles(*s_sensors, sensor, sensor_profiles);
 
 
     sensor = Genesys_Sensor();
@@ -1877,6 +1897,7 @@ void genesys_init_sensor_tables()
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
+    sensor_profiles.clear();
     profile = SensorProfile();
     profile.resolutions = { 75, 100, 150, 200 };
     profile.exposure_lperiod = 2848;
@@ -1890,7 +1911,7 @@ void genesys_init_sensor_tables()
         { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
     profile.resolutions = { 300 };
@@ -1905,7 +1926,7 @@ void genesys_init_sensor_tables()
         { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
     profile.resolutions = { 600 };
@@ -1920,7 +1941,7 @@ void genesys_init_sensor_tables()
         { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
     profile.resolutions = { 1200 };
@@ -1935,7 +1956,7 @@ void genesys_init_sensor_tables()
         { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
     profile.resolutions = { 2400 };
@@ -1950,9 +1971,9 @@ void genesys_init_sensor_tables()
         { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
-    s_sensors->push_back(sensor);
+    build_sensors_from_profiles(*s_sensors, sensor, sensor_profiles);
 
 
     sensor = Genesys_Sensor();
@@ -2868,6 +2889,7 @@ void genesys_init_sensor_tables()
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_gl124;
 
+    sensor_profiles.clear();
     profile = SensorProfile();
     profile.resolutions = { 75, 100, 150, 300 };
     profile.exposure_lperiod = 2768;
@@ -2887,7 +2909,7 @@ void genesys_init_sensor_tables()
         { 0x96, 0x00 }, { 0x97, 0x9a },
         { 0x98, 0x21 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
     profile.resolutions = { 600 };
@@ -2908,7 +2930,7 @@ void genesys_init_sensor_tables()
         { 0x96, 0x00 }, { 0x97, 0xa3 },
         { 0x98, 0x21 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
     profile.resolutions = { 1200 };
@@ -2929,7 +2951,7 @@ void genesys_init_sensor_tables()
         { 0x96, 0x00 }, { 0x97, 0xa3 },
         { 0x98, 0x22 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
     profile.resolutions = { 2400 };
@@ -2950,9 +2972,9 @@ void genesys_init_sensor_tables()
         { 0x96, 0x00 }, { 0x97, 0xa3 },
         { 0x98, 0x24 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
-    s_sensors->push_back(sensor);
+    build_sensors_from_profiles(*s_sensors, sensor, sensor_profiles);
 
 
     sensor = Genesys_Sensor();
@@ -2994,6 +3016,7 @@ void genesys_init_sensor_tables()
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_gl124;
 
+    sensor_profiles.clear();
     profile = SensorProfile();
     profile.resolutions = { 75, 100, 150, 300 };
     profile.exposure_lperiod = 4608;
@@ -3013,7 +3036,7 @@ void genesys_init_sensor_tables()
         { 0x96, 0x00 }, { 0x97, 0x70 },
         { 0x98, 0x21 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
     profile.resolutions = { 600 };
@@ -3034,7 +3057,7 @@ void genesys_init_sensor_tables()
         { 0x96, 0x00 }, { 0x97, 0x8b },
         { 0x98, 0x21 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
     profile.resolutions = { 1200 };
@@ -3055,7 +3078,7 @@ void genesys_init_sensor_tables()
         { 0x96, 0x00 }, { 0x97, 0xc0 },
         { 0x98, 0x21 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
     profile.resolutions = { 2400 };
@@ -3076,9 +3099,9 @@ void genesys_init_sensor_tables()
         { 0x96, 0x01 }, { 0x97, 0x2a },
         { 0x98, 0x21 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
-    s_sensors->push_back(sensor);
+    build_sensors_from_profiles(*s_sensors, sensor, sensor_profiles);
 
 
     sensor = Genesys_Sensor();
@@ -3119,6 +3142,7 @@ void genesys_init_sensor_tables()
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_gl124;
 
+    sensor_profiles.clear();
     profile = SensorProfile();
     profile.resolutions = { 75, 100, 150, 300 };
     profile.exposure_lperiod = 2768;
@@ -3138,7 +3162,7 @@ void genesys_init_sensor_tables()
         { 0x96, 0x00 }, { 0x97, 0x9a },
         { 0x98, 0x21 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
     profile.resolutions = { 600 };
@@ -3159,7 +3183,7 @@ void genesys_init_sensor_tables()
         { 0x96, 0x00 }, { 0x97, 0xa3 },
         { 0x98, 0x21 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
     profile.resolutions = { 1200 };
@@ -3180,7 +3204,7 @@ void genesys_init_sensor_tables()
         { 0x96, 0x00 }, { 0x97, 0xa3 },
         { 0x98, 0x22 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
     profile.resolutions = { 2400 };
@@ -3201,9 +3225,9 @@ void genesys_init_sensor_tables()
         { 0x96, 0x00 }, { 0x97, 0xa3 },
         { 0x98, 0x24 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
-    s_sensors->push_back(sensor);
+    build_sensors_from_profiles(*s_sensors, sensor, sensor_profiles);
 
 
     sensor = Genesys_Sensor();
@@ -3244,6 +3268,7 @@ void genesys_init_sensor_tables()
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_gl124;
 
+    sensor_profiles.clear();
     profile = SensorProfile();
     profile.resolutions = { 75, 100, 150, 300 };
     profile.exposure_lperiod = 2768;
@@ -3263,7 +3288,7 @@ void genesys_init_sensor_tables()
         { 0x96, 0x00 }, { 0x97, 0x9a },
         { 0x98, 0x21 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
     profile.resolutions = { 600 };
@@ -3284,7 +3309,7 @@ void genesys_init_sensor_tables()
         { 0x96, 0x00 }, { 0x97, 0xa3 },
         { 0x98, 0x21 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
     profile.resolutions = { 1200 };
@@ -3305,7 +3330,7 @@ void genesys_init_sensor_tables()
         { 0x96, 0x00 }, { 0x97, 0xa3 },
         { 0x98, 0x22 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
     profile.resolutions = { 2400 };
@@ -3326,9 +3351,9 @@ void genesys_init_sensor_tables()
         { 0x96, 0x00 }, { 0x97, 0xa3 },
         { 0x98, 0x24 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
-    s_sensors->push_back(sensor);
+    build_sensors_from_profiles(*s_sensors, sensor, sensor_profiles);
 
 
     sensor = Genesys_Sensor();
@@ -3656,6 +3681,7 @@ void genesys_init_sensor_tables()
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
+    sensor_profiles.clear();
     profile = SensorProfile();
     profile.resolutions = { 75, 100, 150, 300, 600, 1200 };
     profile.exposure_lperiod = 11000;
@@ -3669,9 +3695,9 @@ void genesys_init_sensor_tables()
         { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
-    s_sensors->push_back(sensor);
+    build_sensors_from_profiles(*s_sensors, sensor, sensor_profiles);
 
 
     sensor = Genesys_Sensor();
@@ -3709,12 +3735,11 @@ void genesys_init_sensor_tables()
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
+    sensor_profiles.clear();
     profile = SensorProfile();
     profile.resolutions = { 75, 100, 150, 300, 600, 1200 };
     profile.exposure_lperiod = 11000;
     profile.exposure = { 0, 0, 0 };
-    profile.segment_size = 5136;
-    profile.segment_order = {0, 1};
     profile.custom_regs = {
         { 0x17, 0x13 },
         { 0x19, 0xff },
@@ -3722,9 +3747,9 @@ void genesys_init_sensor_tables()
         { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
     };
-    sensor.sensor_profiles.push_back(profile);
+    sensor_profiles.push_back(profile);
 
-    s_sensors->push_back(sensor);
+    build_sensors_from_profiles(*s_sensors, sensor, sensor_profiles);
 
 
     sensor = Genesys_Sensor();

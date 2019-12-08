@@ -1242,6 +1242,7 @@ static std::size_t get_usb_buffer_read_size(AsicType asic, const ScanSession& se
             // BUG: we shouldn't multiply by channels here nor divide by ccd_size_divisor
             return session.output_line_bytes_raw / session.ccd_size_divisor * session.params.channels;
 
+        case AsicType::GL845:
         case AsicType::GL846:
         case AsicType::GL847:
             // BUG: we shouldn't multiply by channels here

@@ -2944,7 +2944,24 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
     {
       /* the afe now sends valid data for doing led calibration */
         dev->interface->record_progress_message("led_calibration");
-        sensor.exposure = dev->cmd_set->led_calibration(dev, sensor, dev->calib_reg);
+        switch (dev->model->asic_type) {
+            case AsicType::GL124:
+            case AsicType::GL845:
+            case AsicType::GL846:
+            case AsicType::GL847: {
+                auto calib_exposure = dev->cmd_set->led_calibration(dev, sensor, dev->calib_reg);
+                for (auto& sensor_update :
+                        sanei_genesys_find_sensors_all_for_write(dev, sensor.method)) {
+                    sensor_update.get().exposure = calib_exposure;
+                }
+                sensor.exposure = calib_exposure;
+                break;
+            }
+            default: {
+                sensor.exposure = dev->cmd_set->led_calibration(dev, sensor, dev->calib_reg);
+            }
+        }
+
 
       /* calibrate afe again to match new exposure */
       if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION) {

@@ -1262,10 +1262,13 @@ void CommandSetGl124::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     resolution /= ccd_size_divisor;
     dev->calib_lines /= ccd_size_divisor; // reducing just because we reduced the resolution
 
+    const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution,
+                                                         dev->calib_channels,
+                                                         dev->settings.scan_method);
   dev->calib_resolution = resolution;
   dev->calib_total_bytes_to_read = 0;
-  factor=sensor.optical_res/resolution;
-  dev->calib_pixels = sensor.sensor_pixels/factor;
+    factor = calib_sensor.optical_res / resolution;
+    dev->calib_pixels = calib_sensor.sensor_pixels / factor;
 
   /* distance to move to reach white target at high resolution */
   move=0;
@@ -1291,10 +1294,10 @@ void CommandSetGl124::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::DISABLE_BUFFER_FULL_MOVE |
                            ScanFlag::IGNORE_LINE_DISTANCE;
-    compute_session(dev, session, sensor);
+    compute_session(dev, session, calib_sensor);
 
     try {
-        init_regs_for_scan_session(dev, sensor, &regs, session);
+        init_regs_for_scan_session(dev, calib_sensor, &regs, session);
     } catch (...) {
         catch_all_exceptions(__func__, [&](){ sanei_genesys_set_motor_power(regs, false); });
         throw;

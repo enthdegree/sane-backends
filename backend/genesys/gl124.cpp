@@ -1492,24 +1492,30 @@ void CommandSetGl124::send_shading_data(Genesys_Device* dev, const Genesys_Senso
 static void move_to_calibration_area(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                      Genesys_Register_Set& regs)
 {
+    (void) sensor;
+
     DBG_HELPER(dbg);
   int pixels;
   int size;
 
-  pixels = (sensor.sensor_pixels*600)/sensor.optical_res;
+    unsigned resolution = 600;
+    unsigned channels = 3;
+    const auto& move_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
+                                                         dev->settings.scan_method);
+    pixels = (move_sensor.sensor_pixels * 600) / move_sensor.optical_res;
 
   /* initial calibration reg values */
   regs = dev->reg;
 
     ScanSession session;
-    session.params.xres = 600;
-    session.params.yres = 600;
+    session.params.xres = resolution;
+    session.params.yres = resolution;
     session.params.startx = 0;
     session.params.starty = 0;
     session.params.pixels = pixels;
     session.params.lines = 1;
     session.params.depth = 8;
-    session.params.channels = 3;
+    session.params.channels = channels;
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = dev->settings.color_filter;
@@ -1517,9 +1523,9 @@ static void move_to_calibration_area(Genesys_Device* dev, const Genesys_Sensor& 
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::SINGLE_LINE |
                            ScanFlag::IGNORE_LINE_DISTANCE;
-    compute_session(dev, session, sensor);
+    compute_session(dev, session, move_sensor);
 
-    dev->cmd_set->init_regs_for_scan_session(dev, sensor, &regs, session);
+    dev->cmd_set->init_regs_for_scan_session(dev, move_sensor, &regs, session);
 
   size = pixels * 3;
   std::vector<uint8_t> line(size);
@@ -1528,7 +1534,7 @@ static void move_to_calibration_area(Genesys_Device* dev, const Genesys_Sensor& 
     dev->interface->write_registers(regs);
 
   DBG (DBG_info, "%s: starting line reading\n", __func__);
-    dev->cmd_set->begin_scan(dev, sensor, &regs, true);
+    dev->cmd_set->begin_scan(dev, move_sensor, &regs, true);
 
     if (is_testing_mode()) {
         dev->interface->test_checkpoint("move_to_calibration_area");
@@ -1577,8 +1583,9 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
     unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
     resolution /= ccd_size_divisor;
 
-    const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor, resolution);
-  num_pixels = (sensor.sensor_pixels*resolution)/sensor.optical_res;
+    const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
+                                                         dev->settings.scan_method);
+    num_pixels = (calib_sensor.sensor_pixels * resolution) / calib_sensor.optical_res;
 
   /* initial calibration reg values */
   regs = dev->reg;
@@ -1599,17 +1606,17 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::SINGLE_LINE |
                            ScanFlag::IGNORE_LINE_DISTANCE;
-    compute_session(dev, session, sensor);
+    compute_session(dev, session, calib_sensor);
 
-    init_regs_for_scan_session(dev, sensor, &regs, session);
+    init_regs_for_scan_session(dev, calib_sensor, &regs, session);
 
     total_size = num_pixels * channels * (session.params.depth / 8) * 1;
   std::vector<uint8_t> line(total_size);
 
     // initial loop values and boundaries
-    exp[0] = sensor_profile.exposure.red;
-    exp[1] = sensor_profile.exposure.green;
-    exp[2] = sensor_profile.exposure.blue;
+    exp[0] = calib_sensor.exposure.red;
+    exp[1] = calib_sensor.exposure.green;
+    exp[2] = calib_sensor.exposure.blue;
   target=sensor.gain_white_ref*256;
 
   turn = 0;
@@ -1628,7 +1635,7 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
         dev->interface->write_registers(regs);
 
       DBG(DBG_info, "%s: starting line reading\n", __func__);
-        begin_scan(dev, sensor, &regs, true);
+        begin_scan(dev, calib_sensor, &regs, true);
 
         if (is_testing_mode()) {
             dev->interface->test_checkpoint("led_calibration");

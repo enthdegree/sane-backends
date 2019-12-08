@@ -1627,7 +1627,7 @@ void genesys_init_sensor_tables()
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
     profile = SensorProfile();
-    profile.dpi = 200;
+    profile.resolutions = { 75, 100, 150, 200 };
     profile.exposure_lperiod = 2848;
     profile.exposure = { 410, 275, 203 };
     profile.segment_size = 5136;
@@ -1642,7 +1642,7 @@ void genesys_init_sensor_tables()
     sensor.sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
-    profile.dpi = 300;
+    profile.resolutions = { 300, 400 };
     profile.exposure_lperiod = 1424;
     profile.exposure = { 410, 275, 203 };
     profile.segment_size = 5136;
@@ -1657,7 +1657,7 @@ void genesys_init_sensor_tables()
     sensor.sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
-    profile.dpi = 600;
+    profile.resolutions = { 600 };
     profile.exposure_lperiod = 1432;
     profile.exposure = { 410, 275, 203 };
     profile.segment_size = 5136;
@@ -1672,7 +1672,7 @@ void genesys_init_sensor_tables()
     sensor.sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
-    profile.dpi = 1200;
+    profile.resolutions = { 1200 };
     profile.exposure_lperiod = 2712;
     profile.exposure = { 746, 478, 353 };
     profile.segment_size = 5136;
@@ -1687,7 +1687,7 @@ void genesys_init_sensor_tables()
     sensor.sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
-    profile.dpi = 2400;
+    profile.resolutions = { 2400 };
     profile.exposure_lperiod = 5280;
     profile.exposure = { 1417, 909, 643 };
     profile.segment_size = 5136;
@@ -1702,7 +1702,7 @@ void genesys_init_sensor_tables()
     sensor.sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
-    profile.dpi = 4800;
+    profile.resolutions = { 4800 };
     profile.exposure_lperiod = 10416;
     profile.exposure = { 2692, 1728, 1221 };
     profile.segment_size = 5136;
@@ -1757,10 +1757,10 @@ void genesys_init_sensor_tables()
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
     profile = SensorProfile();
-    profile.dpi = 150;
+    profile.resolutions = { 75, 100, 150, 200 };
     profile.exposure_lperiod = 2848;
     profile.exposure = { 465, 310, 239 };
-    profile.segment_size = 5187;
+    profile.segment_size = 5187 ;
     profile.segment_order = {};
     profile.custom_regs = {
         { 0x17, 0x0c },
@@ -1772,7 +1772,7 @@ void genesys_init_sensor_tables()
     sensor.sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
-    profile.dpi = 300;
+    profile.resolutions = { 300 };
     profile.exposure_lperiod = 1424;
     profile.exposure = { 465, 310, 239 };
     profile.segment_size = 5187;
@@ -1787,7 +1787,7 @@ void genesys_init_sensor_tables()
     sensor.sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
-    profile.dpi = 600;
+    profile.resolutions = { 600 };
     profile.exposure_lperiod = 1504;
     profile.exposure = { 465, 310, 239 };
     profile.segment_size = 5187;
@@ -1802,7 +1802,7 @@ void genesys_init_sensor_tables()
     sensor.sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
-    profile.dpi = 1200;
+    profile.resolutions = { 1200 };
     profile.exposure_lperiod = 2696;
     profile.exposure = { 1464, 844, 555 };
     profile.segment_size = 5187;
@@ -1817,7 +1817,7 @@ void genesys_init_sensor_tables()
     sensor.sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
-    profile.dpi = 2400;
+    profile.resolutions = { 2400 };
     profile.exposure_lperiod = 10576;
     profile.exposure = { 2798, 1558, 972 };
     profile.segment_size = 5187;
@@ -1832,7 +1832,7 @@ void genesys_init_sensor_tables()
     sensor.sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
-    profile.dpi = 4800;
+    profile.resolutions = { 4800 };
     profile.exposure_lperiod = 10576;
     profile.exposure = { 2798, 1558, 972 };
     profile.segment_size = 5187;
@@ -1885,7 +1885,7 @@ void genesys_init_sensor_tables()
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
     profile = SensorProfile();
-    profile.dpi = 200;
+    profile.resolutions = { 75, 100, 150, 200 };
     profile.exposure_lperiod = 2848;
     profile.exposure = { 410, 275, 203 };
     profile.segment_size = 5136;
@@ -1901,7 +1901,7 @@ void genesys_init_sensor_tables()
     *s_fallback_sensor_profile_gl847 = profile;
 
     profile = SensorProfile();
-    profile.dpi = 300;
+    profile.resolutions = { 300 };
     profile.exposure_lperiod = 1424;
     profile.exposure = { 410, 275, 203 };
     profile.segment_size = 5136;
@@ -1916,7 +1916,7 @@ void genesys_init_sensor_tables()
     sensor.sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
-    profile.dpi = 600;
+    profile.resolutions = { 600 };
     profile.exposure_lperiod = 1432;
     profile.exposure = { 410, 275, 203 };
     profile.segment_size = 5136;
@@ -1931,7 +1931,7 @@ void genesys_init_sensor_tables()
     sensor.sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
-    profile.dpi = 1200;
+    profile.resolutions = { 1200 };
     profile.exposure_lperiod = 2712;
     profile.exposure = { 746, 478, 353 };
     profile.segment_size = 5136;
@@ -1946,7 +1946,7 @@ void genesys_init_sensor_tables()
     sensor.sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
-    profile.dpi = 2400;
+    profile.resolutions = { 2400 };
     profile.exposure_lperiod = 5280;
     profile.exposure = { 1417, 909, 643 };
     profile.segment_size = 5136;
@@ -2877,8 +2877,7 @@ void genesys_init_sensor_tables()
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_gl124;
 
     profile = SensorProfile();
-    profile.dpi = 600;
-    profile.ccd_size_divisor = 2;
+    profile.resolutions = { 75, 100, 150, 300 };
     profile.exposure_lperiod = 2768;
     profile.exposure = { 388, 574, 393 };
     profile.segment_order = {};
@@ -2899,8 +2898,7 @@ void genesys_init_sensor_tables()
     sensor.sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
-    profile.dpi = 600;
-    profile.ccd_size_divisor = 1;
+    profile.resolutions = { 600 };
     profile.exposure_lperiod = 5360;
     profile.exposure = { 388, 574, 393 };
     profile.segment_order = {};
@@ -2921,8 +2919,7 @@ void genesys_init_sensor_tables()
     sensor.sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
-    profile.dpi = 1200;
-    profile.ccd_size_divisor = 1;
+    profile.resolutions = { 1200 };
     profile.exposure_lperiod = 10528;
     profile.exposure = { 388, 574, 393 };
     profile.segment_order = {0, 1};
@@ -2943,8 +2940,7 @@ void genesys_init_sensor_tables()
     sensor.sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
-    profile.dpi = 2400;
-    profile.ccd_size_divisor = 1;
+    profile.resolutions = { 2400 };
     profile.exposure_lperiod = 20864;
     profile.exposure = { 6839, 8401, 6859 };
     profile.segment_order = {0, 2, 1, 3};
@@ -3007,8 +3003,7 @@ void genesys_init_sensor_tables()
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_gl124;
 
     profile = SensorProfile();
-    profile.dpi = 600;
-    profile.ccd_size_divisor = 2;
+    profile.resolutions = { 75, 100, 150, 300 };
     profile.exposure_lperiod = 4608;
     profile.exposure = { 894, 1044, 994 };
     profile.segment_order = {};
@@ -3029,8 +3024,7 @@ void genesys_init_sensor_tables()
     sensor.sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
-    profile.dpi = 600;
-    profile.ccd_size_divisor = 1;
+    profile.resolutions = { 600 };
     profile.exposure_lperiod = 5360;
     profile.exposure = { 1644, 1994, 1844 };
     profile.segment_order = {};
@@ -3051,8 +3045,7 @@ void genesys_init_sensor_tables()
     sensor.sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
-    profile.dpi = 1200;
-    profile.ccd_size_divisor = 1;
+    profile.resolutions = { 1200 };
     profile.exposure_lperiod = 10528;
     profile.exposure = { 3194, 3794, 3594 };
     profile.segment_order = {};
@@ -3073,8 +3066,7 @@ void genesys_init_sensor_tables()
     sensor.sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
-    profile.dpi = 2400;
-    profile.ccd_size_divisor = 1;
+    profile.resolutions = { 2400 };
     profile.exposure_lperiod = 20864;
     profile.exposure = { 6244, 7544, 7094 };
     profile.segment_order = {};
@@ -3136,8 +3128,7 @@ void genesys_init_sensor_tables()
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_gl124;
 
     profile = SensorProfile();
-    profile.dpi = 600;
-    profile.ccd_size_divisor = 2;
+    profile.resolutions = { 75, 100, 150, 300 };
     profile.exposure_lperiod = 2768;
     profile.exposure = { 388, 574, 393 };
     profile.segment_order = {};
@@ -3158,8 +3149,7 @@ void genesys_init_sensor_tables()
     sensor.sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
-    profile.dpi = 600;
-    profile.ccd_size_divisor = 1;
+    profile.resolutions = { 600 };
     profile.exposure_lperiod = 5360;
     profile.exposure = { 388, 574, 393 };
     profile.segment_order = {};
@@ -3180,8 +3170,7 @@ void genesys_init_sensor_tables()
     sensor.sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
-    profile.dpi = 1200;
-    profile.ccd_size_divisor = 1;
+    profile.resolutions = { 1200 };
     profile.exposure_lperiod = 10528;
     profile.exposure = { 388, 574, 393 };
     profile.segment_order = {0, 1};
@@ -3202,8 +3191,7 @@ void genesys_init_sensor_tables()
     sensor.sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
-    profile.dpi = 2400;
-    profile.ccd_size_divisor = 1;
+    profile.resolutions = { 2400 };
     profile.exposure_lperiod = 20864;
     profile.exposure = { 6839, 8401, 6859 };
     profile.segment_order = {0, 2, 1, 3};
@@ -3265,8 +3253,7 @@ void genesys_init_sensor_tables()
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_gl124;
 
     profile = SensorProfile();
-    profile.dpi = 600;
-    profile.ccd_size_divisor = 2;
+    profile.resolutions = { 75, 100, 150, 300 };
     profile.exposure_lperiod = 2768;
     profile.exposure = { 388, 574, 393 };
     profile.segment_order = {};
@@ -3287,8 +3274,7 @@ void genesys_init_sensor_tables()
     sensor.sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
-    profile.dpi = 600;
-    profile.ccd_size_divisor = 1;
+    profile.resolutions = { 600 };
     profile.exposure_lperiod = 5360;
     profile.exposure = { 388, 574, 393 };
     profile.segment_order = {};
@@ -3309,8 +3295,7 @@ void genesys_init_sensor_tables()
     sensor.sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
-    profile.dpi = 1200;
-    profile.ccd_size_divisor = 1;
+    profile.resolutions = { 1200 };
     profile.exposure_lperiod = 10528;
     profile.exposure = { 388, 574, 393 };
     profile.segment_order = {0, 1};
@@ -3331,8 +3316,7 @@ void genesys_init_sensor_tables()
     sensor.sensor_profiles.push_back(profile);
 
     profile = SensorProfile();
-    profile.dpi = 2400;
-    profile.ccd_size_divisor = 1;
+    profile.resolutions = { 2400 };
     profile.exposure_lperiod = 20864;
     profile.exposure = { 6839, 8401, 6859 };
     profile.segment_order = {0, 2, 1, 3};
@@ -3681,7 +3665,7 @@ void genesys_init_sensor_tables()
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
     profile = SensorProfile();
-    profile.dpi = 1200;
+    profile.resolutions = { 75, 100, 150, 300, 600, 1200 };
     profile.exposure_lperiod = 11000;
     profile.exposure = { 0, 0, 0 };
     profile.segment_size = 5136;
@@ -3735,7 +3719,7 @@ void genesys_init_sensor_tables()
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
     profile = SensorProfile();
-    profile.dpi = 1200;
+    profile.resolutions = { 75, 100, 150, 300, 600, 1200 };
     profile.exposure_lperiod = 11000;
     profile.exposure = { 0, 0, 0 };
     profile.segment_size = 5136;

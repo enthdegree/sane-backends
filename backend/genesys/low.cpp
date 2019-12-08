@@ -1130,14 +1130,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
         dev->model->asic_type == AsicType::GL846 ||
         dev->model->asic_type == AsicType::GL847)
     {
-        unsigned ccd_size_divisor_for_profile = 1;
-        if (dev->model->asic_type == AsicType::GL124) {
-            ccd_size_divisor_for_profile = s.ccd_size_divisor;
-        }
-        unsigned dpihw = sensor.get_register_hwdpi(s.output_resolution * ccd_pixels_per_system_pixel);
-
-        sensor_profile = &get_sensor_profile(dev->model->asic_type, sensor, dpihw,
-                                             ccd_size_divisor_for_profile);
+        sensor_profile = &get_sensor_profile(dev->model->asic_type, sensor, s.params.xres);
     }
 
     s.segment_count = 1;
@@ -1471,44 +1464,23 @@ std::uint8_t compute_frontend_gain(float value, float target_value,
 }
 
 const SensorProfile& get_sensor_profile(AsicType asic_type, const Genesys_Sensor& sensor,
-                                        unsigned dpi, unsigned ccd_size_divisor)
+                                        unsigned resolution)
 {
-    int best_i = -1;
     for (unsigned i = 0; i < sensor.sensor_profiles.size(); ++i) {
-        // exact match
-        if (sensor.sensor_profiles[i].dpi == dpi &&
-            sensor.sensor_profiles[i].ccd_size_divisor == ccd_size_divisor)
-        {
+        if (sensor.sensor_profiles[i].resolutions.matches(resolution)) {
             return sensor.sensor_profiles[i];
         }
-        // closest match
-        if (sensor.sensor_profiles[i].ccd_size_divisor == ccd_size_divisor) {
-            if (best_i < 0) {
-                best_i = i;
-            } else {
-                if (sensor.sensor_profiles[i].dpi >= dpi &&
-                    sensor.sensor_profiles[i].dpi < sensor.sensor_profiles[best_i].dpi)
-                {
-                    best_i = i;
-                }
-            }
-        }
     }
 
-    // default fallback
-    if (best_i < 0) {
-        DBG(DBG_warn, "%s: using default sensor profile\n", __func__);
-        if (asic_type == AsicType::GL124)
-            return *s_fallback_sensor_profile_gl124;
-        if (asic_type == AsicType::GL845 || asic_type == AsicType::GL846)
-            return *s_fallback_sensor_profile_gl846;
-        if (asic_type == AsicType::GL847)
-            return *s_fallback_sensor_profile_gl847;
-        throw SaneException("Unknown asic type for default profile %d",
-                            static_cast<unsigned>(asic_type));
-    }
-
-    return sensor.sensor_profiles[best_i];
+    DBG(DBG_warn, "%s: using default sensor profile\n", __func__);
+    if (asic_type == AsicType::GL124)
+        return *s_fallback_sensor_profile_gl124;
+    if (asic_type == AsicType::GL845 || asic_type == AsicType::GL846)
+        return *s_fallback_sensor_profile_gl846;
+    if (asic_type == AsicType::GL847)
+        return *s_fallback_sensor_profile_gl847;
+    throw SaneException("Unknown asic type for default profile %d",
+                        static_cast<unsigned>(asic_type));
 }
 
 

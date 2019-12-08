@@ -234,6 +234,8 @@ private:
     friend void serialize(Stream& str, ResolutionFilter& x);
 };
 
+std::ostream& operator<<(std::ostream& out, const ResolutionFilter& resolutions);
+
 template<class Stream>
 void serialize(Stream& str, ResolutionFilter& x)
 {
@@ -245,8 +247,9 @@ void serialize(Stream& str, ResolutionFilter& x)
 
 struct SensorProfile
 {
-    unsigned dpi = 0;
-    unsigned ccd_size_divisor = 1;
+    // the resolution list that the profile is usable at.
+    ResolutionFilter resolutions = ResolutionFilter::ANY;
+
     unsigned exposure_lperiod = 0;
     SensorExposure exposure;
     unsigned segment_size = 0; // only on GL846, GL847
@@ -266,8 +269,7 @@ struct SensorProfile
 
     bool operator==(const SensorProfile& other) const
     {
-        return  dpi == other.dpi &&
-                ccd_size_divisor == other.ccd_size_divisor &&
+        return  resolutions == other.resolutions &&
                 exposure_lperiod == other.exposure_lperiod &&
                 exposure == other.exposure &&
                 segment_order == other.segment_order &&
@@ -280,8 +282,7 @@ std::ostream& operator<<(std::ostream& out, const SensorProfile& profile);
 template<class Stream>
 void serialize(Stream& str, SensorProfile& x)
 {
-    serialize(str, x.dpi);
-    serialize(str, x.ccd_size_divisor);
+    serialize(str, x.resolutions);
     serialize(str, x.exposure_lperiod);
     serialize(str, x.exposure.red);
     serialize(str, x.exposure.green);

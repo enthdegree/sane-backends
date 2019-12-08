@@ -725,8 +725,8 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     DBG(DBG_io2, "%s: dpihw=%d\n", __func__, dpihw);
 
     // sensor parameters
-    const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor, dpihw,
-                                                    session.ccd_size_divisor);
+    const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor,
+                                                    session.params.xres);
     gl124_setup_sensor(dev, sensor, sensor_profile, reg);
 
     dev->cmd_set->set_fe(dev, sensor, AFE_SET);
@@ -878,8 +878,8 @@ void CommandSetGl124::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     if (has_flag(session.params.flags, ScanFlag::FEEDING)) {
         exposure_time = 2304;
     } else {
-        exposure_time = get_sensor_profile(dev->model->asic_type, sensor, session.params.xres,
-                                           session.ccd_size_divisor).exposure_lperiod;
+        exposure_time = get_sensor_profile(dev->model->asic_type, sensor,
+                                           session.params.xres).exposure_lperiod;
     }
     const auto& motor_profile = sanei_genesys_get_motor_profile(*gl124_motor_profiles,
                                                                 dev->model->motor_id,
@@ -1577,8 +1577,7 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
     unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
     resolution /= ccd_size_divisor;
 
-    const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor, dpihw,
-                                                    ccd_size_divisor);
+    const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor, resolution);
   num_pixels = (sensor.sensor_pixels*resolution)/sensor.optical_res;
 
   /* initial calibration reg values */

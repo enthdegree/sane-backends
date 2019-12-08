@@ -602,7 +602,8 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     DBG(DBG_io2, "%s: dpihw=%d\n", __func__, dpihw);
 
     // sensor parameters
-    const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor, dpihw, 1);
+    const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor,
+                                                    session.params.xres);
     gl846_setup_sensor(dev, sensor, sensor_profile, reg);
 
     dev->cmd_set->set_fe(dev, sensor, AFE_SET);
@@ -738,7 +739,7 @@ void CommandSetGl846::init_regs_for_scan_session(Genesys_Device* dev, const Gene
   slope_dpi = slope_dpi * (1 + dummy);
 
     exposure_time = get_sensor_profile(dev->model->asic_type, sensor,
-                                       session.params.xres, 1).exposure_lperiod;
+                                       session.params.xres).exposure_lperiod;
     const auto& motor_profile = sanei_genesys_get_motor_profile(*gl846_motor_profiles,
                                                                 dev->model->motor_id,
                                                                 exposure_time);
@@ -1247,7 +1248,8 @@ SensorExposure CommandSetGl846::led_calibration(Genesys_Device* dev, const Genes
   /* offset calibration is always done in color mode */
   channels = 3;
     used_res = sensor.get_register_hwdpi(dev->settings.xres);
-    const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor, used_res, 1);
+    const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor,
+                                                    used_res);
   num_pixels = (sensor.sensor_pixels*used_res)/sensor.optical_res;
 
   /* initial calibration reg values */

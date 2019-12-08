@@ -103,11 +103,20 @@ std::ostream& operator<<(std::ostream& out, const SensorExposure& exposure)
     return out;
 }
 
+std::ostream& operator<<(std::ostream& out, const ResolutionFilter& resolutions)
+{
+    if (resolutions.matches_any()) {
+        out << "ANY";
+        return out;
+    }
+    out << format_vector_unsigned(4, resolutions.resolutions());
+    return out;
+}
+
 std::ostream& operator<<(std::ostream& out, const SensorProfile& profile)
 {
     out << "SensorProfile{\n"
-        << "    dpi: " << profile.dpi << '\n'
-        << "    ccd_size_divisor: " << profile.ccd_size_divisor << '\n'
+        << "    resolutions: " << format_indent_braced_list(4, profile.resolutions) << '\n'
         << "    exposure_lperiod: " << profile.exposure_lperiod << '\n'
         << "    exposure: " << format_indent_braced_list(4, profile.exposure) << '\n'
         << "    segment_size: " << profile.segment_size << '\n'
@@ -122,17 +131,9 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Sensor& sensor)
 {
     out << "Genesys_Sensor{\n"
         << "    sensor_id: " << static_cast<unsigned>(sensor.sensor_id) << '\n'
-        << "    optical_res: " << sensor.optical_res << '\n';
-    if (sensor.resolutions.matches_any()) {
-        out << "    resolutions: ANY\n";
-    } else {
-        out << "    resolutions: {\n";
-        for (unsigned resolution : sensor.resolutions.resolutions()) {
-            out << "        " << resolution << ",\n";
-        }
-        out << "    }\n";
-    }
-    out << "    channels: " << format_vector_unsigned(4, sensor.channels) << '\n'
+        << "    optical_res: " << sensor.optical_res << '\n'
+        << "    resolutions: " << format_indent_braced_list(4, sensor.resolutions) << '\n'
+        << "    channels: " << format_vector_unsigned(4, sensor.channels) << '\n'
         << "    method: " << sensor.method << '\n'
         << "    register_dpihw_override: " << sensor.register_dpihw_override << '\n'
         << "    logical_dpihw_override: " << sensor.logical_dpihw_override << '\n'

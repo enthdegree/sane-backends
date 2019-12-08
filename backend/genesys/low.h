@@ -512,9 +512,6 @@ inline T clamp(const T& value, const T& lo, const T& hi)
 /*---------------------------------------------------------------------------*/
 
 extern StaticInit<std::vector<Genesys_Sensor>> s_sensors;
-extern StaticInit<SensorProfile> s_fallback_sensor_profile_gl124;
-extern StaticInit<SensorProfile> s_fallback_sensor_profile_gl846;
-extern StaticInit<SensorProfile> s_fallback_sensor_profile_gl847;
 extern StaticInit<std::vector<Genesys_Frontend>> s_frontends;
 extern StaticInit<std::vector<Genesys_Gpo>> s_gpo;
 extern StaticInit<std::vector<Genesys_Motor>> s_motors;

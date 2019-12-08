@@ -1471,16 +1471,8 @@ const SensorProfile& get_sensor_profile(AsicType asic_type, const Genesys_Sensor
             return sensor.sensor_profiles[i];
         }
     }
-
-    DBG(DBG_warn, "%s: using default sensor profile\n", __func__);
-    if (asic_type == AsicType::GL124)
-        return *s_fallback_sensor_profile_gl124;
-    if (asic_type == AsicType::GL845 || asic_type == AsicType::GL846)
-        return *s_fallback_sensor_profile_gl846;
-    if (asic_type == AsicType::GL847)
-        return *s_fallback_sensor_profile_gl847;
-    throw SaneException("Unknown asic type for default profile %d",
-                        static_cast<unsigned>(asic_type));
+    throw SaneException("Unsupported profile for asic %d, resolution %d",
+                        static_cast<unsigned>(asic_type), resolution);
 }
 
 

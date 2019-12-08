@@ -110,17 +110,10 @@ inline unsigned default_get_hwdpi_divisor_for_dpi(const Genesys_Sensor& sensor, 
 }
 
 StaticInit<std::vector<Genesys_Sensor>> s_sensors;
-StaticInit<SensorProfile> s_fallback_sensor_profile_gl124;
-StaticInit<SensorProfile> s_fallback_sensor_profile_gl846;
-StaticInit<SensorProfile> s_fallback_sensor_profile_gl847;
-
 
 void genesys_init_sensor_tables()
 {
     s_sensors.init();
-    s_fallback_sensor_profile_gl124.init();
-    s_fallback_sensor_profile_gl846.init();
-    s_fallback_sensor_profile_gl847.init();
 
     Genesys_Sensor sensor;
     SensorProfile profile;
@@ -1898,7 +1891,6 @@ void genesys_init_sensor_tables()
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
     };
     sensor.sensor_profiles.push_back(profile);
-    *s_fallback_sensor_profile_gl847 = profile;
 
     profile = SensorProfile();
     profile.resolutions = { 300 };
@@ -3680,7 +3672,6 @@ void genesys_init_sensor_tables()
     sensor.sensor_profiles.push_back(profile);
 
     s_sensors->push_back(sensor);
-    *s_fallback_sensor_profile_gl846 = profile;
 
 
     sensor = Genesys_Sensor();

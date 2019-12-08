@@ -113,20 +113,6 @@ std::ostream& operator<<(std::ostream& out, const ResolutionFilter& resolutions)
     return out;
 }
 
-std::ostream& operator<<(std::ostream& out, const SensorProfile& profile)
-{
-    out << "SensorProfile{\n"
-        << "    resolutions: " << format_indent_braced_list(4, profile.resolutions) << '\n'
-        << "    exposure_lperiod: " << profile.exposure_lperiod << '\n'
-        << "    exposure: " << format_indent_braced_list(4, profile.exposure) << '\n'
-        << "    segment_size: " << profile.segment_size << '\n'
-        << "    segment_order: "
-        << format_indent_braced_list(4, format_vector_unsigned(4, profile.segment_order)) << '\n'
-        << "    custom_regs: " << format_indent_braced_list(4, profile.custom_regs) << '\n'
-        << '}';
-    return out;
-}
-
 std::ostream& operator<<(std::ostream& out, const Genesys_Sensor& sensor)
 {
     out << "Genesys_Sensor{\n"

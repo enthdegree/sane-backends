@@ -196,6 +196,53 @@ struct SensorExposure {
 
 std::ostream& operator<<(std::ostream& out, const SensorExposure& exposure);
 
+
+class ResolutionFilter
+{
+public:
+    struct Any {};
+    static constexpr Any ANY{};
+
+    ResolutionFilter() : matches_any_{false} {}
+    ResolutionFilter(Any) : matches_any_{true} {}
+    ResolutionFilter(std::initializer_list<unsigned> resolutions) :
+        matches_any_{false},
+        resolutions_{resolutions}
+    {}
+
+    bool matches(unsigned resolution) const
+    {
+        if (matches_any_)
+            return true;
+        auto it = std::find(resolutions_.begin(), resolutions_.end(), resolution);
+        return it != resolutions_.end();
+    }
+
+    bool operator==(const ResolutionFilter& other) const
+    {
+        return  matches_any_ == other.matches_any_ && resolutions_ == other.resolutions_;
+    }
+
+    bool matches_any() const { return matches_any_; }
+    const std::vector<unsigned>& resolutions() const { return resolutions_; }
+
+private:
+    bool matches_any_ = false;
+    std::vector<unsigned> resolutions_;
+
+    template<class Stream>
+    friend void serialize(Stream& str, ResolutionFilter& x);
+};
+
+template<class Stream>
+void serialize(Stream& str, ResolutionFilter& x)
+{
+    serialize(str, x.matches_any_);
+    serialize_newline(str);
+    serialize(str, x.resolutions_);
+}
+
+
 struct SensorProfile
 {
     unsigned dpi = 0;
@@ -241,51 +288,6 @@ void serialize(Stream& str, SensorProfile& x)
     serialize(str, x.exposure.blue);
     serialize(str, x.segment_order);
     serialize(str, x.custom_regs);
-}
-
-class ResolutionFilter
-{
-public:
-    struct Any {};
-    static constexpr Any ANY{};
-
-    ResolutionFilter() : matches_any_{false} {}
-    ResolutionFilter(Any) : matches_any_{true} {}
-    ResolutionFilter(std::initializer_list<unsigned> resolutions) :
-        matches_any_{false},
-        resolutions_{resolutions}
-    {}
-
-    bool matches(unsigned resolution) const
-    {
-        if (matches_any_)
-            return true;
-        auto it = std::find(resolutions_.begin(), resolutions_.end(), resolution);
-        return it != resolutions_.end();
-    }
-
-    bool operator==(const ResolutionFilter& other) const
-    {
-        return  matches_any_ == other.matches_any_ && resolutions_ == other.resolutions_;
-    }
-
-    bool matches_any() const { return matches_any_; }
-    const std::vector<unsigned>& resolutions() const { return resolutions_; }
-
-private:
-    bool matches_any_ = false;
-    std::vector<unsigned> resolutions_;
-
-    template<class Stream>
-    friend void serialize(Stream& str, ResolutionFilter& x);
-};
-
-template<class Stream>
-void serialize(Stream& str, ResolutionFilter& x)
-{
-    serialize(str, x.matches_any_);
-    serialize_newline(str);
-    serialize(str, x.resolutions_);
 }
 
 struct Genesys_Sensor {

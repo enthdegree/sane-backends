@@ -1975,7 +1975,7 @@ SensorExposure CommandSetGl646::led_calibration(Genesys_Device* dev, const Genes
         simple_scan(dev, calib_sensor, settings, false, true, false, line, "led_calibration");
 
         if (is_testing_mode()) {
-            return { 0, 0, 0 };
+            return calib_sensor.exposure;
         }
 
       if (DBG_LEVEL >= DBG_data)

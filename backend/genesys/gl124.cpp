@@ -1640,7 +1640,7 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
         if (is_testing_mode()) {
             dev->interface->test_checkpoint("led_calibration");
             scanner_stop_action(*dev);
-            return { 0, 0, 0 };
+            return sensor.exposure;
         }
 
         sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);

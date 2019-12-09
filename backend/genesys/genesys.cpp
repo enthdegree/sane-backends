@@ -63,6 +63,7 @@
 #include "genesys.h"
 #include "conv.h"
 #include "gl124_registers.h"
+#include "gl841_registers.h"
 #include "gl843_registers.h"
 #include "gl846_registers.h"
 #include "gl847_registers.h"
@@ -873,21 +874,10 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
 
 namespace gl843 {
     void gl843_park_xpa_lamp(Genesys_Device* dev);
-    void gl843_stop_action(Genesys_Device* dev);
 } // namespace gl843
 
-namespace gl846 {
-    void gl846_stop_action(Genesys_Device* dev);
-} // namespace gl846
-
-namespace gl847 {
-    void gl847_stop_action(Genesys_Device* dev);
-} // namespace gl847
-
 namespace gl124 {
-    void gl124_feed(Genesys_Device* dev, unsigned int steps, int reverse);
     void gl124_setup_scan_gpio(Genesys_Device* dev, int resolution);
-    void gl124_stop_action(Genesys_Device* dev);
 } // namespace gl124
 
 void scanner_clear_scan_and_feed_counts(Genesys_Device& dev)
@@ -919,29 +909,227 @@ void scanner_clear_scan_and_feed_counts(Genesys_Device& dev)
     }
 }
 
-void scanner_stop_action(Genesys_Device& dev)
+void scanner_clear_scan_and_feed_counts2(Genesys_Device& dev)
 {
+    // FIXME: switch to scanner_clear_scan_and_feed_counts when updating tests
     switch (dev.model->asic_type) {
         case AsicType::GL843: {
-            gl843::gl843_stop_action(&dev);
+            dev.interface->write_register(gl843::REG_0x0D, gl843::REG_0x0D_CLRLNCNT);
+            dev.interface->write_register(gl843::REG_0x0D, gl843::REG_0x0D_CLRMCNT);
             break;
         }
         case AsicType::GL845:
         case AsicType::GL846: {
-            gl846::gl846_stop_action(&dev);
+            dev.interface->write_register(gl846::REG_0x0D, gl846::REG_0x0D_CLRLNCNT);
+            dev.interface->write_register(gl846::REG_0x0D, gl846::REG_0x0D_CLRMCNT);
             break;
         }
-        case AsicType::GL847:{
-            gl847::gl847_stop_action(&dev);
+        case AsicType::GL847: {
+            dev.interface->write_register(gl847::REG_0x0D, gl847::REG_0x0D_CLRLNCNT);
+            dev.interface->write_register(gl847::REG_0x0D, gl847::REG_0x0D_CLRMCNT);
             break;
         }
-        case AsicType::GL124:{
-            gl124::gl124_stop_action(&dev);
+        case AsicType::GL124: {
+            dev.interface->write_register(gl124::REG_0x0D, gl124::REG_0x0D_CLRLNCNT);
+            dev.interface->write_register(gl124::REG_0x0D, gl124::REG_0x0D_CLRMCNT);
             break;
         }
         default:
             throw SaneException("Unsupported asic type");
     }
+}
+
+bool scanner_is_motor_stopped(Genesys_Device& dev)
+{
+    switch (dev.model->asic_type) {
+        case AsicType::GL841: {
+            auto reg = dev.interface->read_register(gl841::REG_0x40);
+
+            return (!(reg & gl841::REG_0x40_DATAENB) && !(reg & gl841::REG_0x40_MOTMFLG));
+        }
+        case AsicType::GL843: {
+            auto status = scanner_read_status(dev);
+            auto reg = dev.interface->read_register(gl843::REG_0x40);
+
+            return (!(reg & gl843::REG_0x40_DATAENB) && !(reg & gl843::REG_0x40_MOTMFLG) &&
+                    !status.is_motor_enabled);
+        }
+        case AsicType::GL845:
+        case AsicType::GL846: {
+            auto status = scanner_read_status(dev);
+            auto reg = dev.interface->read_register(gl846::REG_0x40);
+
+            return (!(reg & gl846::REG_0x40_DATAENB) && !(reg & gl846::REG_0x40_MOTMFLG) &&
+                    !status.is_motor_enabled);
+        }
+        case AsicType::GL847: {
+            auto status = scanner_read_status(dev);
+            auto reg = dev.interface->read_register(gl847::REG_0x40);
+
+            return (!(reg & gl847::REG_0x40_DATAENB) && !(reg & gl847::REG_0x40_MOTMFLG) &&
+                    !status.is_motor_enabled);
+        }
+        case AsicType::GL124: {
+            auto status = scanner_read_status(dev);
+            auto reg = dev.interface->read_register(gl124::REG_0x100);
+
+            return (!(reg & gl124::REG_0x100_DATAENB) && !(reg & gl124::REG_0x100_MOTMFLG) &&
+                    !status.is_motor_enabled);
+        }
+        default:
+            throw SaneException("Unsupported asic type");
+    }
+}
+
+void scanner_stop_action(Genesys_Device& dev)
+{
+    DBG_HELPER(dbg);
+
+    switch (dev.model->asic_type) {
+        case AsicType::GL843:
+        case AsicType::GL845:
+        case AsicType::GL846:
+        case AsicType::GL847:
+        case AsicType::GL124:
+            break;
+        default:
+            throw SaneException("Unsupported asic type");
+    }
+
+    if (dev.cmd_set->needs_update_home_sensor_gpio()) {
+        dev.cmd_set->update_home_sensor_gpio(dev);
+    }
+
+    if (scanner_is_motor_stopped(dev)) {
+        DBG(DBG_info, "%s: already stopped\n", __func__);
+        return;
+    }
+
+    scanner_stop_action_no_move(dev, dev.reg);
+
+    if (is_testing_mode()) {
+        return;
+    }
+
+    for (unsigned i = 0; i < 10; ++i) {
+        if (scanner_is_motor_stopped(dev)) {
+            return;
+        }
+
+        dev.interface->sleep_ms(100);
+    }
+
+    throw SaneException(SANE_STATUS_IO_ERROR, "could not stop motor");
+}
+
+void scanner_stop_action_no_move(Genesys_Device& dev, genesys::Genesys_Register_Set& regs)
+{
+    switch (dev.model->asic_type) {
+        case AsicType::GL646:
+        case AsicType::GL841:
+        case AsicType::GL843:
+        case AsicType::GL845:
+        case AsicType::GL846:
+        case AsicType::GL847:
+        case AsicType::GL124:
+            break;
+        default:
+            throw SaneException("Unsupported asic type");
+    }
+
+    regs_set_optical_off(dev.model->asic_type, regs);
+    // same across all supported ASICs
+    dev.interface->write_register(0x01, regs.get8(0x01));
+
+    // looks like certain scanners lock up if we try to scan immediately after stopping previous
+    // action.
+    dev.interface->sleep_ms(100);
+}
+
+void scanner_move(Genesys_Device& dev, unsigned steps, Direction direction)
+{
+    DBG_HELPER_ARGS(dbg, "steps=%d direction=%d", steps, static_cast<unsigned>(direction));
+
+    auto local_reg = dev.reg;
+
+    auto scan_method = dev.model->default_method;
+    unsigned resolution = dev.model->get_resolution_settings(scan_method).get_min_resolution_y();
+
+    const auto& sensor = sanei_genesys_find_sensor(&dev, resolution, 3, scan_method);
+
+    ScanSession session;
+    session.params.xres = resolution;
+    session.params.yres = resolution;
+    session.params.startx = 0;
+    session.params.starty = steps;
+    session.params.pixels = 100;
+    session.params.lines = 3;
+    session.params.depth = 8;
+    session.params.channels = 3;
+    session.params.scan_method = scan_method;
+    session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    if (dev.model->asic_type == AsicType::GL843) {
+        session.params.color_filter = ColorFilter::RED;
+    } else {
+        session.params.color_filter = dev.settings.color_filter;
+    }
+    session.params.flags = ScanFlag::DISABLE_SHADING |
+                           ScanFlag::DISABLE_GAMMA |
+                           ScanFlag::FEEDING |
+                           ScanFlag::IGNORE_LINE_DISTANCE;
+
+    if (dev.model->asic_type == AsicType::GL124) {
+        session.params.flags |= ScanFlag::DISABLE_BUFFER_FULL_MOVE;
+    }
+
+    if (direction == Direction::BACKWARD) {
+        session.params.flags |= ScanFlag::REVERSE;
+    }
+
+    compute_session(&dev, session, sensor);
+
+    dev.cmd_set->init_regs_for_scan_session(&dev, sensor, &local_reg, session);
+
+    if (dev.model->asic_type != AsicType::GL843) {
+        regs_set_exposure(dev.model->asic_type, local_reg, {0, 0, 0});
+    }
+    scanner_clear_scan_and_feed_counts2(dev);
+
+    dev.interface->write_registers(local_reg);
+
+    try {
+        scanner_start_action(dev, true);
+    } catch (...) {
+        catch_all_exceptions(__func__, [&]() { scanner_stop_action(dev); });
+        // restore original registers
+        catch_all_exceptions(__func__, [&]() { dev.interface->write_registers(dev.reg); });
+        throw;
+    }
+
+    if (is_testing_mode()) {
+        dev.interface->test_checkpoint("feed");
+
+        // FIXME: why don't we stop the scanner like on other ASICs
+        if (dev.model->asic_type != AsicType::GL843) {
+            scanner_stop_action(dev);
+        }
+        return;
+    }
+
+    // wait until feed count reaches the required value
+    // FIXME: should porbably wait for some timeout
+    Status status;
+    do {
+        status = scanner_read_status(dev);
+    } while (!status.is_feeding_finished);
+
+    // FIXME: why don't we stop the scanner like on other ASICs
+    if (dev.model->asic_type != AsicType::GL843) {
+        scanner_stop_action(dev);
+    }
+
+    // looks like certain scanners lock up if we scan immediately after feeding
+    dev.interface->sleep_ms(100);
 }
 
 void scanner_slow_back_home(Genesys_Device& dev, bool wait_until_home)
@@ -980,8 +1168,8 @@ void scanner_slow_back_home(Genesys_Device& dev, bool wait_until_home)
     }
 
     if (dev.model->model_id == ModelId::CANON_LIDE_210) {
-        // feed a little first
-        gl124::gl124_feed(&dev, 20, true);
+        // move the head back a little first
+        scanner_move(dev, 20, Direction::BACKWARD);
     }
 
     Genesys_Register_Set local_reg = dev.reg;

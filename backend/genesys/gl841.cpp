@@ -1300,15 +1300,6 @@ gl841_get_dpihw(Genesys_Device * dev)
   return 0;
 }
 
-static void gl841_init_optical_regs_off(Genesys_Register_Set* reg)
-{
-    DBG_HELPER(dbg);
-    GenesysRegister* r;
-
-    r = sanei_genesys_get_address(reg, 0x01);
-    r->value &= ~REG_0x01_SCAN;
-}
-
 static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                          Genesys_Register_Set* reg, unsigned int exposure_time,
                                          const ScanSession& session)
@@ -1869,17 +1860,14 @@ static void gl841_stop_action(Genesys_Device* dev)
 
     scanner_read_print_status(*dev);
 
-    uint8_t val40 = dev->interface->read_register(0x40);
-
-  /* only stop action if needed */
-    if (!(val40 & REG_0x40_DATAENB) && !(val40 & REG_0x40_MOTMFLG)) {
-      DBG(DBG_info, "%s: already stopped\n", __func__);
-      return;
+    if (scanner_is_motor_stopped(*dev)) {
+        DBG(DBG_info, "%s: already stopped\n", __func__);
+        return;
     }
 
   local_reg = dev->reg;
 
-  gl841_init_optical_regs_off(&local_reg);
+    regs_set_optical_off(dev->model->asic_type, local_reg);
 
     gl841_init_motor_regs_off(&local_reg,0);
     dev->interface->write_registers(local_reg);
@@ -1894,12 +1882,9 @@ static void gl841_stop_action(Genesys_Device* dev)
 
   loop = 10;
     while (loop > 0) {
-        val40 = dev->interface->read_register(0x40);
-
-      /* if scanner is in command mode, we are done */
-        if (!(val40 & REG_0x40_DATAENB) && !(val40 & REG_0x40_MOTMFLG)) {
-      return;
-	}
+        if (scanner_is_motor_stopped(*dev)) {
+            return;
+        }
 
         dev->interface->sleep_ms(100);
         loop--;
@@ -1941,7 +1926,7 @@ void CommandSetGl841::eject_document(Genesys_Device* dev) const
 
   local_reg = dev->reg;
 
-  gl841_init_optical_regs_off(&local_reg);
+    regs_set_optical_off(dev->model->asic_type, local_reg);
 
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
     gl841_init_motor_regs(dev, sensor, &local_reg, 65536, MOTOR_ACTION_FEED, MotorFlag::NONE);
@@ -2180,7 +2165,7 @@ static void gl841_feed(Genesys_Device* dev, int steps)
 
   local_reg = dev->reg;
 
-  gl841_init_optical_regs_off(&local_reg);
+    regs_set_optical_off(dev->model->asic_type, local_reg);
 
     gl841_init_motor_regs(dev, sensor, &local_reg, steps, MOTOR_ACTION_FEED, MotorFlag::NONE);
 
@@ -2229,7 +2214,6 @@ void CommandSetGl841::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
 {
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
   Genesys_Register_Set local_reg;
-  GenesysRegister *r;
   int loop = 0;
 
     if (dev->model->is_sheetfed) {
@@ -2263,10 +2247,7 @@ void CommandSetGl841::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
       return;
     }
 
-  /* end previous scan if any */
-    r = sanei_genesys_get_address(&dev->reg, REG_0x01);
-    r->value &= ~REG_0x01_SCAN;
-    dev->interface->write_register(REG_0x01, r->value);
+    scanner_stop_action_no_move(*dev, dev->reg);
 
   /* if motor is on, stop current action */
     if (status.is_motor_enabled) {
@@ -2280,8 +2261,7 @@ void CommandSetGl841::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     gl841_init_motor_regs(dev, sensor, &local_reg, 65536, MOTOR_ACTION_GO_HOME, MotorFlag::REVERSE);
 
     // set up for no scan
-    r = sanei_genesys_get_address(&local_reg, REG_0x01);
-    r->value &= ~REG_0x01_SCAN;
+    regs_set_optical_off(dev->model->asic_type, local_reg);
 
     dev->interface->write_registers(local_reg);
 
@@ -2715,7 +2695,7 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
         calib_sensor.exposure.green = exp[1];
         calib_sensor.exposure.blue = exp[2];
 
-        sanei_genesys_set_exposure(regs, calib_sensor.exposure);
+        regs_set_exposure(dev->model->asic_type, regs, calib_sensor.exposure);
         dev->interface->write_register(0x10, (calib_sensor.exposure.red >> 8) & 0xff);
         dev->interface->write_register(0x11, calib_sensor.exposure.red & 0xff);
         dev->interface->write_register(0x12, (calib_sensor.exposure.green >> 8) & 0xff);

@@ -352,6 +352,9 @@ extern void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Se
                                                  const uint8_t* src_data, int start_pixel, int dpi,
                                                  int width, int height);
 
+// moves the scan head by the specified steps at the motor base dpi
+void scanner_move(Genesys_Device& dev, unsigned steps, Direction direction);
+
 void scanner_slow_back_home(Genesys_Device& dev, bool wait_until_home);
 void scanner_clear_scan_and_feed_counts(Genesys_Device& dev);
 
@@ -373,15 +376,10 @@ extern void sanei_genesys_read_data_from_scanner(Genesys_Device* dev, uint8_t* d
 Image read_unshuffled_image_from_scanner(Genesys_Device* dev, const ScanSession& session,
                                          std::size_t total_bytes);
 
-inline void sanei_genesys_set_exposure(Genesys_Register_Set& regs, const SensorExposure& exposure)
-{
-    regs.set8(0x10, (exposure.red >> 8) & 0xff);
-    regs.set8(0x11, exposure.red & 0xff);
-    regs.set8(0x12, (exposure.green >> 8) & 0xff);
-    regs.set8(0x13, exposure.green & 0xff);
-    regs.set8(0x14, (exposure.blue >> 8) & 0xff);
-    regs.set8(0x15, exposure.blue & 0xff);
-}
+void regs_set_exposure(AsicType asic_type, Genesys_Register_Set& regs,
+                       const SensorExposure& exposure);
+
+void regs_set_optical_off(AsicType asic_type, Genesys_Register_Set& regs);
 
 void sanei_genesys_set_dpihw(Genesys_Register_Set& regs, const Genesys_Sensor& sensor,
                              unsigned dpihw);
@@ -413,6 +411,9 @@ extern void sanei_genesys_asic_init(Genesys_Device* dev, bool cold);
 
 void scanner_start_action(Genesys_Device& dev, bool start_motor);
 void scanner_stop_action(Genesys_Device& dev);
+void scanner_stop_action_no_move(Genesys_Device& dev, Genesys_Register_Set& regs);
+
+bool scanner_is_motor_stopped(Genesys_Device& dev);
 
 const Motor_Profile& sanei_genesys_get_motor_profile(const std::vector<Motor_Profile>& motors,
                                                      MotorId motor_id, int exposure);

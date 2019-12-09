@@ -188,6 +188,7 @@ static constexpr RegAddr REG_ENDPIXEL = 0x32;
 static constexpr RegAddr REG_MAXWD = 0x35;
 static constexpr RegAddr REG_LPERIOD = 0x38;
 
+static constexpr RegAddr REG_0x40 = 0x40;
 static constexpr RegMask REG_0x40_HISPDFLG = 0x04;
 static constexpr RegMask REG_0x40_MOTMFLG = 0x02;
 static constexpr RegMask REG_0x40_DATAENB = 0x01;

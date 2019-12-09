@@ -53,6 +53,7 @@ using RegAddr = std::uint16_t;
 using RegMask = std::uint8_t;
 using RegShift = unsigned;
 
+static constexpr RegAddr REG_0x01 = 0x01;
 static constexpr RegMask REG_0x01_CISSET = 0x80;
 static constexpr RegMask REG_0x01_DOGENB = 0x40;
 static constexpr RegMask REG_0x01_DVDSET = 0x20;

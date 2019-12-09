@@ -50,12 +50,6 @@
 namespace genesys {
 namespace gl847 {
 
-/** @brief moves the slider to steps at motor base dpi
- * @param dev device to work on
- * @param steps number of steps to move
- * */
-static void gl847_feed(Genesys_Device* dev, unsigned int steps);
-
 typedef struct
 {
     GpioId gpio_id;

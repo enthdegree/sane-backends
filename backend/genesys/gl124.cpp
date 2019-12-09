@@ -1125,15 +1125,9 @@ void CommandSetGl124::rewind(Genesys_Device* dev) const
  * @param wait_until_home true to make the function waiting for head
  * to be home before returning, if fals returne immediately
  */
-void CommandSetGl124::slow_back_home(Genesys_Device* dev, bool wait_until_home) const
+void CommandSetGl124::move_back_home(Genesys_Device* dev, bool wait_until_home) const
 {
-    scanner_slow_back_home(*dev, wait_until_home);
-}
-
-void CommandSetGl124::slow_back_home_ta(Genesys_Device& dev) const
-{
-    (void) dev;
-    throw SaneException("not implemented");
+    scanner_move_back_home(*dev, wait_until_home);
 }
 
 // Automatically set top-left edge of the scan area by scanning a 200x200 pixels area at 600 dpi
@@ -1357,7 +1351,8 @@ void CommandSetGl124::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
   DBG (DBG_info, "%s: move=%f steps\n", __func__, move);
 
     if (dev->settings.get_channels() * dev->settings.yres >= 600 && move > 700) {
-        scanner_move(*dev, static_cast<unsigned>(move - 500), Direction::FORWARD);
+        scanner_move(*dev, dev->model->default_method, static_cast<unsigned>(move - 500),
+                     Direction::FORWARD);
       move=500;
     }
   DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
@@ -1967,7 +1962,7 @@ void CommandSetGl124::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     if (is_testing_mode()) {
         dev->interface->test_checkpoint("coarse_gain_calibration");
         scanner_stop_action(*dev);
-        slow_back_home(dev, true);
+        move_back_home(dev, true);
         return;
     }
 
@@ -2028,7 +2023,7 @@ void CommandSetGl124::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 
     scanner_stop_action(*dev);
 
-    slow_back_home(dev, true);
+    move_back_home(dev, true);
 }
 
 // wait for lamp warmup by scanning the same line until difference

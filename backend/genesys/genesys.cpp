@@ -874,6 +874,7 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
 
 namespace gl843 {
     void gl843_park_xpa_lamp(Genesys_Device* dev);
+    void gl843_set_xpa_motor_power(Genesys_Device* dev, Genesys_Register_Set& regs, bool set);
 } // namespace gl843
 
 namespace gl124 {
@@ -1046,16 +1047,18 @@ void scanner_stop_action_no_move(Genesys_Device& dev, genesys::Genesys_Register_
     dev.interface->sleep_ms(100);
 }
 
-void scanner_move(Genesys_Device& dev, unsigned steps, Direction direction)
+void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, Direction direction)
 {
     DBG_HELPER_ARGS(dbg, "steps=%d direction=%d", steps, static_cast<unsigned>(direction));
 
     auto local_reg = dev.reg;
 
-    auto scan_method = dev.model->default_method;
     unsigned resolution = dev.model->get_resolution_settings(scan_method).get_min_resolution_y();
 
     const auto& sensor = sanei_genesys_find_sensor(&dev, resolution, 3, scan_method);
+
+    bool uses_secondary_head = (scan_method == ScanMethod::TRANSPARENCY ||
+                                scan_method == ScanMethod::TRANSPARENCY_INFRARED);
 
     ScanSession session;
     session.params.xres = resolution;
@@ -1096,10 +1099,16 @@ void scanner_move(Genesys_Device& dev, unsigned steps, Direction direction)
     scanner_clear_scan_and_feed_counts2(dev);
 
     dev.interface->write_registers(local_reg);
+    if (uses_secondary_head) {
+        gl843::gl843_set_xpa_motor_power(&dev, local_reg, true);
+    }
 
     try {
         scanner_start_action(dev, true);
     } catch (...) {
+        catch_all_exceptions(__func__, [&]() {
+            gl843::gl843_set_xpa_motor_power(&dev, local_reg, false);
+        });
         catch_all_exceptions(__func__, [&]() { scanner_stop_action(dev); });
         // restore original registers
         catch_all_exceptions(__func__, [&]() { dev.interface->write_registers(dev.reg); });
@@ -1108,10 +1117,12 @@ void scanner_move(Genesys_Device& dev, unsigned steps, Direction direction)
 
     if (is_testing_mode()) {
         dev.interface->test_checkpoint("feed");
-
         // FIXME: why don't we stop the scanner like on other ASICs
         if (dev.model->asic_type != AsicType::GL843) {
             scanner_stop_action(dev);
+        }
+        if (uses_secondary_head) {
+            gl843::gl843_set_xpa_motor_power(&dev, local_reg, false);
         }
         return;
     }
@@ -1127,12 +1138,15 @@ void scanner_move(Genesys_Device& dev, unsigned steps, Direction direction)
     if (dev.model->asic_type != AsicType::GL843) {
         scanner_stop_action(dev);
     }
+    if (uses_secondary_head) {
+        gl843::gl843_set_xpa_motor_power(&dev, local_reg, false);
+    }
 
     // looks like certain scanners lock up if we scan immediately after feeding
     dev.interface->sleep_ms(100);
 }
 
-void scanner_slow_back_home(Genesys_Device& dev, bool wait_until_home)
+void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
 {
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
 
@@ -1148,7 +1162,7 @@ void scanner_slow_back_home(Genesys_Device& dev, bool wait_until_home)
     }
 
     if (dev.needs_home_ta) {
-        dev.cmd_set->slow_back_home_ta(dev);
+        scanner_move_back_home_ta(dev);
     }
 
     if (dev.cmd_set->needs_update_home_sensor_gpio()) {
@@ -1169,7 +1183,7 @@ void scanner_slow_back_home(Genesys_Device& dev, bool wait_until_home)
 
     if (dev.model->model_id == ModelId::CANON_LIDE_210) {
         // move the head back a little first
-        scanner_move(dev, 20, Direction::BACKWARD);
+        scanner_move(dev, dev.model->default_method, 20, Direction::BACKWARD);
     }
 
     Genesys_Register_Set local_reg = dev.reg;
@@ -1235,7 +1249,7 @@ void scanner_slow_back_home(Genesys_Device& dev, bool wait_until_home)
     }
 
     if (is_testing_mode()) {
-        dev.interface->test_checkpoint("slow_back_home");
+        dev.interface->test_checkpoint("move_back_home");
         return;
     }
 
@@ -1263,6 +1277,83 @@ void scanner_slow_back_home(Genesys_Device& dev, bool wait_until_home)
         throw SaneException(SANE_STATUS_IO_ERROR, "timeout while waiting for scanhead to go home");
     }
     dbg.log(DBG_info, "scanhead is still moving");
+}
+
+void scanner_move_back_home_ta(Genesys_Device& dev)
+{
+    DBG_HELPER(dbg);
+
+    switch (dev.model->asic_type) {
+        case AsicType::GL843:
+            break;
+        default:
+            throw SaneException("Unsupported asic type");
+    }
+
+    Genesys_Register_Set local_reg = dev.reg;
+
+    auto scan_method = ScanMethod::TRANSPARENCY;
+    unsigned resolution = dev.model->get_resolution_settings(scan_method).get_min_resolution_y();
+
+    const auto& sensor = sanei_genesys_find_sensor(&dev, resolution, 1, scan_method);
+
+    ScanSession session;
+    session.params.xres = resolution;
+    session.params.yres = resolution;
+    session.params.startx = 100;
+    session.params.starty = 30000;
+    session.params.pixels = 100;
+    session.params.lines = 100;
+    session.params.depth = 8;
+    session.params.channels = 1;
+    session.params.scan_method = scan_method;
+    session.params.scan_mode = ScanColorMode::GRAY;
+    session.params.color_filter = ColorFilter::RED;
+    session.params.flags =  ScanFlag::DISABLE_SHADING |
+                            ScanFlag::DISABLE_GAMMA |
+                            ScanFlag::IGNORE_LINE_DISTANCE |
+                            ScanFlag::REVERSE;
+
+    compute_session(&dev, session, sensor);
+
+    dev.cmd_set->init_regs_for_scan_session(&dev, sensor, &local_reg, session);
+
+    scanner_clear_scan_and_feed_counts(dev);
+
+    dev.interface->write_registers(local_reg);
+    gl843::gl843_set_xpa_motor_power(&dev, local_reg, true);
+
+    try {
+        scanner_start_action(dev, true);
+    } catch (...) {
+        catch_all_exceptions(__func__, [&]() { scanner_stop_action(dev); });
+        // restore original registers
+        catch_all_exceptions(__func__, [&]() { dev.interface->write_registers(dev.reg); });
+        throw;
+    }
+
+    if (is_testing_mode()) {
+        scanner_stop_action(dev);
+        return;
+    }
+
+    for (unsigned i = 0; i < 300; ++i) {
+
+        auto status = scanner_read_status(dev);
+
+        if (status.is_at_home) {
+            dbg.log(DBG_info, "TA reached home position");
+            scanner_stop_action(dev);
+            gl843::gl843_set_xpa_motor_power(&dev, local_reg, false);
+            dev.needs_home_ta = false;
+            return;
+        }
+
+        dev.interface->sleep_ms(100);
+    }
+
+    // we are not parked here.... should we fail ?
+    dbg.log(DBG_info, "XPA lamp is not parked");
 }
 
 void sanei_genesys_calculate_zmod(bool two_table,
@@ -1794,7 +1885,7 @@ static void genesys_repark_sensor_before_shading(Genesys_Device* dev)
         if (dev->cmd_set->has_rewind()) {
             dev->cmd_set->rewind(dev);
         } else {
-            dev->cmd_set->slow_back_home(dev, true);
+            dev->cmd_set->move_back_home(dev, true);
         }
 
         if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
@@ -1809,7 +1900,7 @@ static void genesys_repark_sensor_after_white_shading(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
     if (dev->model->flags & GENESYS_FLAG_SHADING_REPARK) {
-        dev->cmd_set->slow_back_home(dev, true);
+        dev->cmd_set->move_back_home(dev, true);
     }
 }
 
@@ -3234,7 +3325,7 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
         dev->cmd_set->search_start_position (dev);
 
             dev->parking = false;
-            dev->cmd_set->slow_back_home (dev, true);
+            dev->cmd_set->move_back_home(dev, true);
 	  dev->scanhead_position_in_steps = 0;
 	}
       else
@@ -3243,7 +3334,7 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
 	  /* TODO: check we can drop this since we cannot have the
 	     scanner's head wandering here */
             dev->parking = false;
-            dev->cmd_set->slow_back_home (dev, true);
+            dev->cmd_set->move_back_home(dev, true);
 
 	  dev->scanhead_position_in_steps = 0;
 	}
@@ -3293,7 +3384,7 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
     dev->cmd_set->wait_for_motor_stop(dev);
 
     if (dev->cmd_set->needs_home_before_init_regs_for_scan(dev)) {
-        dev->cmd_set->slow_back_home(dev, true);
+        dev->cmd_set->move_back_home(dev, true);
     }
 
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
@@ -3412,7 +3503,7 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
         if (!dev->model->is_sheetfed && !(dev->model->flags & GENESYS_FLAG_MUST_WAIT) &&
             !dev->parking)
         {
-            dev->cmd_set->slow_back_home(dev, false);
+            dev->cmd_set->move_back_home(dev, false);
             dev->parking = true;
         }
         throw SaneException(SANE_STATUS_EOF, "nothing more to scan: EOF");
@@ -4751,7 +4842,7 @@ static void genesys_buffer_image(Genesys_Scanner *s)
    * computing so we can save time
    */
     if (!dev->model->is_sheetfed && !dev->parking) {
-        dev->cmd_set->slow_back_home(dev, dev->model->flags & GENESYS_FLAG_MUST_WAIT);
+        dev->cmd_set->move_back_home(dev, dev->model->flags & GENESYS_FLAG_MUST_WAIT);
       dev->parking = !(s->dev->model->flags & GENESYS_FLAG_MUST_WAIT);
     }
 
@@ -5959,7 +6050,7 @@ void sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_
         if (!dev->model->is_sheetfed && !(dev->model->flags & GENESYS_FLAG_MUST_WAIT) &&
             !dev->parking)
         {
-            dev->cmd_set->slow_back_home(dev, false);
+            dev->cmd_set->move_back_home(dev, false);
             dev->parking = true;
         }
         throw SaneException(SANE_STATUS_EOF);
@@ -6056,7 +6147,7 @@ void sane_cancel_impl(SANE_Handle handle)
   /* park head if flatbed scanner */
     if (!s->dev->model->is_sheetfed) {
         if (!s->dev->parking) {
-            s->dev->cmd_set->slow_back_home (s->dev, s->dev->model->flags &
+            s->dev->cmd_set->move_back_home (s->dev, s->dev->model->flags &
                                                     GENESYS_FLAG_MUST_WAIT);
 
           s->dev->parking = !(s->dev->model->flags & GENESYS_FLAG_MUST_WAIT);

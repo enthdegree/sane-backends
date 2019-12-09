@@ -1451,7 +1451,7 @@ void CommandSetGl646::end_scan(Genesys_Device* dev, Genesys_Register_Set* reg,
  * @param dev scanner's device
  * @param wait_until_home true if the function waits until head parked
  */
-void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) const
+void CommandSetGl646::move_back_home(Genesys_Device* dev, bool wait_until_home) const
 {
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d\n", wait_until_home);
   int i;
@@ -1545,7 +1545,7 @@ void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
     dev->cmd_set->begin_scan(dev, sensor, &dev->reg, true);
 
     if (is_testing_mode()) {
-        dev->interface->test_checkpoint("slow_back_home");
+        dev->interface->test_checkpoint("move_back_home");
         return;
     }
 
@@ -1575,12 +1575,6 @@ void CommandSetGl646::slow_back_home(Genesys_Device* dev, bool wait_until_home) 
 
 
   DBG(DBG_info, "%s: scanhead is still moving\n", __func__);
-}
-
-void CommandSetGl646::slow_back_home_ta(Genesys_Device& dev) const
-{
-    (void) dev;
-    throw SaneException("not implemented");
 }
 
 /**
@@ -2701,7 +2695,7 @@ static void gl646_repark_head(Genesys_Device* dev)
   while (steps < expected);
 
     // toggle motor flag, put an huge step number and redo move backward
-    dev->cmd_set->slow_back_home(dev, 1);
+    dev->cmd_set->move_back_home(dev, 1);
 }
 
 /* *
@@ -2846,7 +2840,7 @@ void CommandSetGl646::init(Genesys_Device* dev) const
 	}
       else
     {
-            slow_back_home(dev, true);
+            move_back_home(dev, true);
 	}
     }
 

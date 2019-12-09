@@ -883,15 +883,9 @@ void CommandSetGl846::end_scan(Genesys_Device* dev, Genesys_Register_Set* reg,
 }
 
 // Moves the slider to the home (top) postion slowly
-void CommandSetGl846::slow_back_home(Genesys_Device* dev, bool wait_until_home) const
+void CommandSetGl846::move_back_home(Genesys_Device* dev, bool wait_until_home) const
 {
-    scanner_slow_back_home(*dev, wait_until_home);
-}
-
-void CommandSetGl846::slow_back_home_ta(Genesys_Device& dev) const
-{
-    (void) dev;
-    throw SaneException("not implemented");
+    scanner_move_back_home(*dev, wait_until_home);
 }
 
 // Automatically set top-left edge of the scan area by scanning a 200x200 pixels area at 600 dpi
@@ -1107,7 +1101,8 @@ void CommandSetGl846::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
    * resolution. So leave a remainder for it so scan makes the final
    * move tuning */
     if (dev->settings.get_channels() * dev->settings.yres >= 600 && move > 700) {
-        scanner_move(*dev, static_cast<unsigned>(move - 500), Direction::FORWARD);
+        scanner_move(*dev, dev->model->default_method, static_cast<unsigned>(move - 500),
+                     Direction::FORWARD);
       move=500;
     }
 
@@ -1241,7 +1236,8 @@ SensorExposure CommandSetGl846::led_calibration(Genesys_Device* dev, const Genes
      move = static_cast<float>((move * (dev->motor.base_ydpi / 4)) / MM_PER_INCH);
   if(move>20)
     {
-        scanner_move(*dev, static_cast<unsigned>(move), Direction::FORWARD);
+        scanner_move(*dev, dev->model->default_method, static_cast<unsigned>(move),
+                     Direction::FORWARD);
     }
   DBG(DBG_io, "%s: move=%f steps\n", __func__, move);
 
@@ -1311,7 +1307,7 @@ SensorExposure CommandSetGl846::led_calibration(Genesys_Device* dev, const Genes
         if (is_testing_mode()) {
             dev->interface->test_checkpoint("led_calibration");
             scanner_stop_action(*dev);
-            slow_back_home(dev, true);
+            move_back_home(dev, true);
             return { 0, 0, 0 };
         }
 
@@ -1380,7 +1376,7 @@ SensorExposure CommandSetGl846::led_calibration(Genesys_Device* dev, const Genes
   /* go back home */
   if(move>20)
     {
-        slow_back_home(dev, true);
+        move_back_home(dev, true);
     }
 
     return { exp[0], exp[1], exp[2] };
@@ -2011,7 +2007,7 @@ void CommandSetGl846::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     if (is_testing_mode()) {
         dev->interface->test_checkpoint("coarse_gain_calibration");
         scanner_stop_action(*dev);
-        slow_back_home(dev, true);
+        move_back_home(dev, true);
         return;
     }
 
@@ -2066,7 +2062,7 @@ void CommandSetGl846::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 
     scanner_stop_action(*dev);
 
-    slow_back_home(dev, true);
+    move_back_home(dev, true);
 }
 
 bool CommandSetGl846::needs_home_before_init_regs_for_scan(Genesys_Device* dev) const

@@ -1386,8 +1386,9 @@ void CommandSetGl843::detect_document_end(Genesys_Device* dev) const
 }
 
 // enables or disables XPA slider motor
-static void gl843_set_xpa_motor_power(Genesys_Device* dev, bool set)
+void gl843_set_xpa_motor_power(Genesys_Device* dev, Genesys_Register_Set& regs, bool set)
 {
+    (void) regs;
     DBG_HELPER(dbg);
     uint8_t val;
 
@@ -1606,7 +1607,7 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
 
             if (reg->state.is_xpa_on) {
                 dev->needs_home_ta = true;
-                gl843_set_xpa_motor_power(dev, true);
+                gl843_set_xpa_motor_power(dev, *reg, true);
             }
 
             // blinking led
@@ -1619,7 +1620,7 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
             }
             if (reg->state.is_xpa_on) {
                 dev->needs_home_ta = true;
-                gl843_set_xpa_motor_power(dev, true);
+                gl843_set_xpa_motor_power(dev, *reg, true);
             }
             break;
         case GpioId::PLUSTEK_OPTICFILM_7200I:
@@ -1667,77 +1668,11 @@ void CommandSetGl843::end_scan(Genesys_Device* dev, Genesys_Register_Set* reg,
     }
 }
 
-/** @brief park XPA lamp
- * park the XPA lamp if needed
- */
-void CommandSetGl843::slow_back_home_ta(Genesys_Device& dev) const
-{
-    DBG_HELPER(dbg);
-    Genesys_Register_Set local_reg = dev.reg;
-
-    auto scan_method = ScanMethod::TRANSPARENCY;
-    unsigned resolution = dev.model->get_resolution_settings(scan_method).get_min_resolution_y();
-
-    const auto& sensor = sanei_genesys_find_sensor(&dev, resolution, 1, scan_method);
-
-    ScanSession session;
-    session.params.xres = resolution;
-    session.params.yres = resolution;
-    session.params.startx = 100;
-    session.params.starty = 30000;
-    session.params.pixels = 100;
-    session.params.lines = 100;
-    session.params.depth = 8;
-    session.params.channels = 1;
-    session.params.scan_method = scan_method;
-    session.params.scan_mode = ScanColorMode::GRAY;
-    session.params.color_filter = ColorFilter::RED;
-    session.params.flags =  ScanFlag::DISABLE_SHADING |
-                            ScanFlag::DISABLE_GAMMA |
-                            ScanFlag::IGNORE_LINE_DISTANCE |
-                            ScanFlag::REVERSE;
-
-    compute_session(&dev, session, sensor);
-
-    dev.cmd_set->init_regs_for_scan_session(&dev, sensor, &local_reg, session);
-
-    scanner_clear_scan_and_feed_counts(dev);
-
-    dev.interface->write_registers(local_reg);
-    gl843_set_xpa_motor_power(&dev, true);
-    try {
-        scanner_start_action(dev, true);
-    } catch (...) {
-        catch_all_exceptions(__func__, [&]() { scanner_stop_action(dev); });
-        // restore original registers
-        catch_all_exceptions(__func__, [&]() { dev.interface->write_registers(dev.reg); });
-        throw;
-    }
-
-    for (unsigned i = 0; i < 300; ++i) {
-
-        auto status = scanner_read_status(dev);
-
-        if (status.is_at_home) {
-            dbg.log(DBG_info, "TA reached home position");
-            scanner_stop_action(dev);
-            gl843_set_xpa_motor_power(&dev, false);
-            dev.needs_home_ta = false;
-            return;
-        }
-
-        dev.interface->sleep_ms(100);
-	}
-
-    // we are not parked here.... should we fail ?
-    dbg.log(DBG_info, "XPA lamp is not parked");
-}
-
 /** @brief Moves the slider to the home (top) position slowly
  * */
-void CommandSetGl843::slow_back_home(Genesys_Device* dev, bool wait_until_home) const
+void CommandSetGl843::move_back_home(Genesys_Device* dev, bool wait_until_home) const
 {
-    scanner_slow_back_home(*dev, wait_until_home);
+    scanner_move_back_home(*dev, wait_until_home);
 }
 
 // Automatically set top-left edge of the scan area by scanning a 200x200 pixels area at 600 dpi
@@ -2142,7 +2077,7 @@ SensorExposure CommandSetGl843::led_calibration(Genesys_Device* dev, const Genes
 
         if (is_testing_mode()) {
             dev->interface->test_checkpoint("led_calibration");
-            slow_back_home(dev, true);
+            move_back_home(dev, true);
             return { 0, 0, 0 };
         }
 
@@ -2215,7 +2150,7 @@ SensorExposure CommandSetGl843::led_calibration(Genesys_Device* dev, const Genes
 
   DBG(DBG_info, "%s: acceptable exposure: %d,%d,%d\n", __func__, expr, expg, expb);
 
-    slow_back_home(dev, true);
+    move_back_home(dev, true);
 
     return calib_sensor.exposure;
 }
@@ -2567,7 +2502,7 @@ void CommandSetGl843::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     if (is_testing_mode()) {
         dev->interface->test_checkpoint("coarse_gain_calibration");
         scanner_stop_action(*dev);
-        slow_back_home(dev, true);
+        move_back_home(dev, true);
         return;
     }
 
@@ -2621,7 +2556,7 @@ void CommandSetGl843::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 
     scanner_stop_action(*dev);
 
-    slow_back_home(dev, true);
+    move_back_home(dev, true);
 }
 
 // wait for lamp warmup by scanning the same line until difference
@@ -2795,7 +2730,7 @@ void CommandSetGl843::asic_boot(Genesys_Device* dev, bool cold) const
     // setup gpio
     gl843_init_gpio(dev);
 
-    scanner_move(*dev, 300, Direction::FORWARD);
+    scanner_move(*dev, dev->model->default_method, 300, Direction::FORWARD);
     dev->interface->sleep_ms(100);
 }
 
@@ -2855,7 +2790,7 @@ void CommandSetGl843::move_to_ta(Genesys_Device* dev) const
     }
     unsigned feed = static_cast<unsigned>(multiplier * (dev->model->y_offset_sensor_to_ta * resolution) /
                                           MM_PER_INCH);
-    scanner_move(*dev, feed, Direction::FORWARD);
+    scanner_move(*dev, dev->model->default_method, feed, Direction::FORWARD);
 }
 
 

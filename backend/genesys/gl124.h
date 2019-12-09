@@ -160,8 +160,7 @@ public:
                                    Genesys_Register_Set& regs) const override;
 
     void wait_for_motor_stop(Genesys_Device* dev) const override;
-    void slow_back_home(Genesys_Device* dev, bool wait_until_home) const override;
-    void slow_back_home_ta(Genesys_Device& dev) const override;
+    void move_back_home(Genesys_Device* dev, bool wait_until_home) const override;
     void rewind(Genesys_Device* dev) const override;
 
     void update_hardware_sensors(struct Genesys_Scanner* s) const override;

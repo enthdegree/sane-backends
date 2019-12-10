@@ -116,7 +116,6 @@ class ResolutionFilter;
 struct GenesysFrontendLayout;
 struct Genesys_Frontend;
 struct SensorExposure;
-struct SensorProfile;
 struct Genesys_Sensor;
 
 // settings.h

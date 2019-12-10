@@ -2078,7 +2078,7 @@ SensorExposure CommandSetGl843::led_calibration(Genesys_Device* dev, const Genes
         if (is_testing_mode()) {
             dev->interface->test_checkpoint("led_calibration");
             move_back_home(dev, true);
-            return { 0, 0, 0 };
+            return calib_sensor.exposure;
         }
 
         auto image = read_unshuffled_image_from_scanner(dev, session,

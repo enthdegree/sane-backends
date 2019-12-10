@@ -196,52 +196,6 @@ struct SensorExposure {
 
 std::ostream& operator<<(std::ostream& out, const SensorExposure& exposure);
 
-struct SensorProfile
-{
-    unsigned dpi = 0;
-    unsigned ccd_size_divisor = 1;
-    unsigned exposure_lperiod = 0;
-    SensorExposure exposure;
-    unsigned segment_size = 0; // only on GL846, GL847
-
-    // the order of the segments, if any, for the profile. If the sensor is not segmented or uses
-    // only single segment, this array can be empty
-    std::vector<unsigned> segment_order;
-
-    GenesysRegisterSettingSet custom_regs;
-
-    unsigned get_segment_count() const
-    {
-        if (segment_order.size() < 2)
-            return 1;
-        return segment_order.size();
-    }
-
-    bool operator==(const SensorProfile& other) const
-    {
-        return  dpi == other.dpi &&
-                ccd_size_divisor == other.ccd_size_divisor &&
-                exposure_lperiod == other.exposure_lperiod &&
-                exposure == other.exposure &&
-                segment_order == other.segment_order &&
-                custom_regs == other.custom_regs;
-    }
-};
-
-std::ostream& operator<<(std::ostream& out, const SensorProfile& profile);
-
-template<class Stream>
-void serialize(Stream& str, SensorProfile& x)
-{
-    serialize(str, x.dpi);
-    serialize(str, x.ccd_size_divisor);
-    serialize(str, x.exposure_lperiod);
-    serialize(str, x.exposure.red);
-    serialize(str, x.exposure.green);
-    serialize(str, x.exposure.blue);
-    serialize(str, x.segment_order);
-    serialize(str, x.custom_regs);
-}
 
 class ResolutionFilter
 {
@@ -280,6 +234,8 @@ private:
     friend void serialize(Stream& str, ResolutionFilter& x);
 };
 
+std::ostream& operator<<(std::ostream& out, const ResolutionFilter& resolutions);
+
 template<class Stream>
 void serialize(Stream& str, ResolutionFilter& x)
 {
@@ -287,6 +243,7 @@ void serialize(Stream& str, ResolutionFilter& x)
     serialize_newline(str);
     serialize(str, x.resolutions_);
 }
+
 
 struct Genesys_Sensor {
 
@@ -360,8 +317,6 @@ struct Genesys_Sensor {
     // red, green and blue gamma coefficient for default gamma tables
     AssignableArray<float, 3> gamma;
 
-    std::vector<SensorProfile> sensor_profiles;
-
     std::function<unsigned(const Genesys_Sensor&, unsigned)> get_logical_hwdpi_fun;
     std::function<unsigned(const Genesys_Sensor&, unsigned)> get_register_hwdpi_fun;
     std::function<unsigned(const Genesys_Sensor&, unsigned)> get_ccd_size_divisor_fun;
@@ -418,8 +373,7 @@ struct Genesys_Sensor {
             custom_base_regs == other.custom_base_regs &&
             custom_regs == other.custom_regs &&
             custom_fe_regs == other.custom_fe_regs &&
-            gamma == other.gamma &&
-            sensor_profiles == other.sensor_profiles;
+            gamma == other.gamma;
     }
 };
 
@@ -455,7 +409,6 @@ void serialize(Stream& str, Genesys_Sensor& x)
     serialize_newline(str);
     serialize(str, x.gamma);
     serialize_newline(str);
-    serialize(str, x.sensor_profiles);
 }
 
 std::ostream& operator<<(std::ostream& out, const Genesys_Sensor& sensor);

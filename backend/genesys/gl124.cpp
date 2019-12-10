@@ -90,17 +90,17 @@ gl124_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x13, 0x0f);
     dev->reg.init_reg(0x14, 0x00);
     dev->reg.init_reg(0x15, 0x80);
-    dev->reg.init_reg(0x16, 0x10);
-    dev->reg.init_reg(0x17, 0x04);
-    dev->reg.init_reg(0x18, 0x00);
-    dev->reg.init_reg(0x19, 0x01);
-    dev->reg.init_reg(0x1a, 0x30);
-    dev->reg.init_reg(0x1b, 0x00);
-    dev->reg.init_reg(0x1c, 0x00);
-    dev->reg.init_reg(0x1d, 0x01);
+    dev->reg.init_reg(0x16, 0x10); // SENSOR_DEF
+    dev->reg.init_reg(0x17, 0x04); // SENSOR_DEF
+    dev->reg.init_reg(0x18, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x19, 0x01); // SENSOR_DEF
+    dev->reg.init_reg(0x1a, 0x30); // SENSOR_DEF
+    dev->reg.init_reg(0x1b, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x1c, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x1d, 0x01); // SENSOR_DEF
     dev->reg.init_reg(0x1e, 0x10);
     dev->reg.init_reg(0x1f, 0x00);
-    dev->reg.init_reg(0x20, 0x15);
+    dev->reg.init_reg(0x20, 0x15); // SENSOR_DEF
     dev->reg.init_reg(0x21, 0x00);
     if(dev->model->sensor_id != SensorId::CIS_CANON_LIDE_120) {
         dev->reg.init_reg(0x22, 0x02);
@@ -134,20 +134,20 @@ gl124_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x48, 0x00);
     dev->reg.init_reg(0x49, 0x00);
     dev->reg.init_reg(0x4f, 0x00);
-    dev->reg.init_reg(0x52, 0x00);
-    dev->reg.init_reg(0x53, 0x02);
-    dev->reg.init_reg(0x54, 0x04);
-    dev->reg.init_reg(0x55, 0x06);
-    dev->reg.init_reg(0x56, 0x04);
-    dev->reg.init_reg(0x57, 0x04);
-    dev->reg.init_reg(0x58, 0x04);
-    dev->reg.init_reg(0x59, 0x04);
-    dev->reg.init_reg(0x5a, 0x1a);
-    dev->reg.init_reg(0x5b, 0x00);
-    dev->reg.init_reg(0x5c, 0xc0);
+    dev->reg.init_reg(0x52, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x53, 0x02); // SENSOR_DEF
+    dev->reg.init_reg(0x54, 0x04); // SENSOR_DEF
+    dev->reg.init_reg(0x55, 0x06); // SENSOR_DEF
+    dev->reg.init_reg(0x56, 0x04); // SENSOR_DEF
+    dev->reg.init_reg(0x57, 0x04); // SENSOR_DEF
+    dev->reg.init_reg(0x58, 0x04); // SENSOR_DEF
+    dev->reg.init_reg(0x59, 0x04); // SENSOR_DEF
+    dev->reg.init_reg(0x5a, 0x1a); // SENSOR_DEF
+    dev->reg.init_reg(0x5b, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x5c, 0xc0); // SENSOR_DEF
     dev->reg.init_reg(0x5f, 0x00);
     dev->reg.init_reg(0x60, 0x02);
-    dev->reg.init_reg(0x61, 0x00);
+    dev->reg.init_reg(0x61, 0x00); // SENSOR_DEF
     dev->reg.init_reg(0x62, 0x00);
     dev->reg.init_reg(0x63, 0x00);
     dev->reg.init_reg(0x64, 0x00);
@@ -174,15 +174,15 @@ gl124_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x73, 0x0a);
 
     // CKxMAP
-    dev->reg.init_reg(0x74, 0x00);
-    dev->reg.init_reg(0x75, 0x00);
-    dev->reg.init_reg(0x76, 0x3c);
-    dev->reg.init_reg(0x77, 0x00);
-    dev->reg.init_reg(0x78, 0x00);
-    dev->reg.init_reg(0x79, 0x9f);
-    dev->reg.init_reg(0x7a, 0x00);
-    dev->reg.init_reg(0x7b, 0x00);
-    dev->reg.init_reg(0x7c, 0x55);
+    dev->reg.init_reg(0x74, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x75, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x76, 0x3c); // SENSOR_DEF
+    dev->reg.init_reg(0x77, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x78, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x79, 0x9f); // SENSOR_DEF
+    dev->reg.init_reg(0x7a, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x7b, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x7c, 0x55); // SENSOR_DEF
 
     dev->reg.init_reg(0x7d, 0x00);
     dev->reg.init_reg(0x7e, 0x08);
@@ -206,8 +206,8 @@ gl124_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x86, 0x00);
     dev->reg.init_reg(0x87, 0x00);
 
-    dev->reg.init_reg(0x88, 0x00);
-    dev->reg.init_reg(0x89, 0x65);
+    dev->reg.init_reg(0x88, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x89, 0x65); // SENSOR_DEF
     dev->reg.init_reg(0x8a, 0x00);
     dev->reg.init_reg(0x8b, 0x00);
     dev->reg.init_reg(0x8c, 0x00);
@@ -217,12 +217,12 @@ gl124_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x90, 0x00);
     dev->reg.init_reg(0x91, 0x00);
     dev->reg.init_reg(0x92, 0x00);
-    dev->reg.init_reg(0x93, 0x00);
-    dev->reg.init_reg(0x94, 0x14);
-    dev->reg.init_reg(0x95, 0x30);
-    dev->reg.init_reg(0x96, 0x00);
-    dev->reg.init_reg(0x97, 0x90);
-    dev->reg.init_reg(0x98, 0x01);
+    dev->reg.init_reg(0x93, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x94, 0x14); // SENSOR_DEF
+    dev->reg.init_reg(0x95, 0x30); // SENSOR_DEF
+    dev->reg.init_reg(0x96, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x97, 0x90); // SENSOR_DEF
+    dev->reg.init_reg(0x98, 0x01); // SENSOR_DEF
     dev->reg.init_reg(0x99, 0x1f);
     dev->reg.init_reg(0x9a, 0x00);
     dev->reg.init_reg(0x9b, 0x80);
@@ -652,49 +652,20 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
  * @param dpi resolution of the sensor during scan
  * @param ccd_size_divisor flag for half ccd mode
  * */
-static void gl124_setup_sensor(Genesys_Device * dev,
-                               const Genesys_Sensor& sensor,
-                               const SensorProfile& sensor_profile,
-                               Genesys_Register_Set * regs)
+static void gl124_setup_sensor(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                               Genesys_Register_Set* regs)
 {
     DBG_HELPER(dbg);
-  uint32_t exp;
 
-    // we start at 6, 0-5 is a 16 bits cache for exposure
-    for (uint16_t addr = 0x16; addr < 0x1e; addr++) {
-        regs->set8(addr, sensor.custom_regs.get_value(addr));
-    }
-
-    // skip writing 5d,5e which is AFE address because
-    // they are not defined in register set */
-    for (uint16_t addr = 0x52; addr < 0x52 + 11; addr++) {
-        regs->set8(addr, sensor.custom_regs.get_value(addr));
-    }
-
-    for (auto reg : sensor_profile.custom_regs) {
+    for (const auto& reg : sensor.custom_regs) {
         regs->set8(reg.address, reg.value);
     }
 
-  /* if no calibration has been done, set default values for exposures */
-  exp = sensor.exposure.red;
-    if (exp == 0) {
-        exp = sensor_profile.exposure.red;
-    }
-    regs->set24(REG_EXPR, exp);
+    regs->set24(REG_EXPR, sensor.exposure.red);
+    regs->set24(REG_EXPG, sensor.exposure.green);
+    regs->set24(REG_EXPB, sensor.exposure.blue);
 
-  exp =sensor.exposure.green;
-    if(exp == 0) {
-        exp = sensor_profile.exposure.green;
-    }
-    regs->set24(REG_EXPG, exp);
-
-  exp = sensor.exposure.blue;
-    if (exp == 0) {
-        exp = sensor_profile.exposure.blue;
-    }
-    regs->set24(REG_EXPB, exp);
-
-    dev->segment_order = sensor_profile.segment_order;
+    dev->segment_order = sensor.segment_order;
 }
 
 /** @brief setup optical related registers
@@ -731,10 +702,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     dpihw = sensor.get_register_hwdpi(session.output_resolution * ccd_pixels_per_system_pixel);
     DBG(DBG_io2, "%s: dpihw=%d\n", __func__, dpihw);
 
-    // sensor parameters
-    const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor, dpihw,
-                                                    session.ccd_size_divisor);
-    gl124_setup_sensor(dev, sensor, sensor_profile, reg);
+    gl124_setup_sensor(dev, sensor, reg);
 
     dev->cmd_set->set_fe(dev, sensor, AFE_SET);
 
@@ -885,8 +853,7 @@ void CommandSetGl124::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     if (has_flag(session.params.flags, ScanFlag::FEEDING)) {
         exposure_time = 2304;
     } else {
-        exposure_time = get_sensor_profile(dev->model->asic_type, sensor, session.params.xres,
-                                           session.ccd_size_divisor).exposure_lperiod;
+        exposure_time = sensor.exposure_lperiod;
     }
     const auto& motor_profile = sanei_genesys_get_motor_profile(*gl124_motor_profiles,
                                                                 dev->model->motor_id,
@@ -1269,10 +1236,13 @@ void CommandSetGl124::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     resolution /= ccd_size_divisor;
     dev->calib_lines /= ccd_size_divisor; // reducing just because we reduced the resolution
 
+    const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution,
+                                                         dev->calib_channels,
+                                                         dev->settings.scan_method);
   dev->calib_resolution = resolution;
   dev->calib_total_bytes_to_read = 0;
-  factor=sensor.optical_res/resolution;
-  dev->calib_pixels = sensor.sensor_pixels/factor;
+    factor = calib_sensor.optical_res / resolution;
+    dev->calib_pixels = calib_sensor.sensor_pixels / factor;
 
   /* distance to move to reach white target at high resolution */
   move=0;
@@ -1298,10 +1268,10 @@ void CommandSetGl124::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::DISABLE_BUFFER_FULL_MOVE |
                            ScanFlag::IGNORE_LINE_DISTANCE;
-    compute_session(dev, session, sensor);
+    compute_session(dev, session, calib_sensor);
 
     try {
-        init_regs_for_scan_session(dev, sensor, &regs, session);
+        init_regs_for_scan_session(dev, calib_sensor, &regs, session);
     } catch (...) {
         catch_all_exceptions(__func__, [&](){ sanei_genesys_set_motor_power(regs, false); });
         throw;
@@ -1496,24 +1466,30 @@ void CommandSetGl124::send_shading_data(Genesys_Device* dev, const Genesys_Senso
 static void move_to_calibration_area(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                      Genesys_Register_Set& regs)
 {
+    (void) sensor;
+
     DBG_HELPER(dbg);
   int pixels;
   int size;
 
-  pixels = (sensor.sensor_pixels*600)/sensor.optical_res;
+    unsigned resolution = 600;
+    unsigned channels = 3;
+    const auto& move_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
+                                                         dev->settings.scan_method);
+    pixels = (move_sensor.sensor_pixels * 600) / move_sensor.optical_res;
 
   /* initial calibration reg values */
   regs = dev->reg;
 
     ScanSession session;
-    session.params.xres = 600;
-    session.params.yres = 600;
+    session.params.xres = resolution;
+    session.params.yres = resolution;
     session.params.startx = 0;
     session.params.starty = 0;
     session.params.pixels = pixels;
     session.params.lines = 1;
     session.params.depth = 8;
-    session.params.channels = 3;
+    session.params.channels = channels;
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = dev->settings.color_filter;
@@ -1521,9 +1497,9 @@ static void move_to_calibration_area(Genesys_Device* dev, const Genesys_Sensor& 
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::SINGLE_LINE |
                            ScanFlag::IGNORE_LINE_DISTANCE;
-    compute_session(dev, session, sensor);
+    compute_session(dev, session, move_sensor);
 
-    dev->cmd_set->init_regs_for_scan_session(dev, sensor, &regs, session);
+    dev->cmd_set->init_regs_for_scan_session(dev, move_sensor, &regs, session);
 
   size = pixels * 3;
   std::vector<uint8_t> line(size);
@@ -1532,7 +1508,7 @@ static void move_to_calibration_area(Genesys_Device* dev, const Genesys_Sensor& 
     dev->interface->write_registers(regs);
 
   DBG (DBG_info, "%s: starting line reading\n", __func__);
-    dev->cmd_set->begin_scan(dev, sensor, &regs, true);
+    dev->cmd_set->begin_scan(dev, move_sensor, &regs, true);
 
     if (is_testing_mode()) {
         dev->interface->test_checkpoint("move_to_calibration_area");
@@ -1581,9 +1557,9 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
     unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
     resolution /= ccd_size_divisor;
 
-    const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor, dpihw,
-                                                    ccd_size_divisor);
-  num_pixels = (sensor.sensor_pixels*resolution)/sensor.optical_res;
+    const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
+                                                         dev->settings.scan_method);
+    num_pixels = (calib_sensor.sensor_pixels * resolution) / calib_sensor.optical_res;
 
   /* initial calibration reg values */
   regs = dev->reg;
@@ -1604,17 +1580,17 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::SINGLE_LINE |
                            ScanFlag::IGNORE_LINE_DISTANCE;
-    compute_session(dev, session, sensor);
+    compute_session(dev, session, calib_sensor);
 
-    init_regs_for_scan_session(dev, sensor, &regs, session);
+    init_regs_for_scan_session(dev, calib_sensor, &regs, session);
 
     total_size = num_pixels * channels * (session.params.depth / 8) * 1;
   std::vector<uint8_t> line(total_size);
 
     // initial loop values and boundaries
-    exp[0] = sensor_profile.exposure.red;
-    exp[1] = sensor_profile.exposure.green;
-    exp[2] = sensor_profile.exposure.blue;
+    exp[0] = calib_sensor.exposure.red;
+    exp[1] = calib_sensor.exposure.green;
+    exp[2] = calib_sensor.exposure.blue;
   target=sensor.gain_white_ref*256;
 
   turn = 0;
@@ -1633,12 +1609,12 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
         dev->interface->write_registers(regs);
 
       DBG(DBG_info, "%s: starting line reading\n", __func__);
-        begin_scan(dev, sensor, &regs, true);
+        begin_scan(dev, calib_sensor, &regs, true);
 
         if (is_testing_mode()) {
             dev->interface->test_checkpoint("led_calibration");
             scanner_stop_action(*dev);
-            return { 0, 0, 0 };
+            return calib_sensor.exposure;
         }
 
         sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);

@@ -73,43 +73,19 @@ gl847_get_step_multiplier (Genesys_Register_Set * regs)
 /** @brief sensor specific settings
 */
 static void gl847_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                               const SensorProfile& sensor_profile, Genesys_Register_Set* regs)
+                               Genesys_Register_Set* regs)
 {
     DBG_HELPER(dbg);
-  uint16_t exp;
 
-    for (uint16_t addr = 0x16; addr < 0x1e; addr++) {
-        regs->set8(addr, sensor.custom_regs.get_value(addr));
-    }
-
-    for (uint16_t addr = 0x52; addr < 0x52 + 9; addr++) {
-        regs->set8(addr, sensor.custom_regs.get_value(addr));
-    }
-
-    for (const auto& reg : sensor_profile.custom_regs) {
+    for (const auto& reg : sensor.custom_regs) {
         regs->set8(reg.address, reg.value);
     }
 
-  /* if no calibration has been done, set default values for exposures */
-  exp = sensor.exposure.red;
-    if (exp == 0) {
-        exp = sensor_profile.exposure.red;
-    }
-    regs->set16(REG_EXPR, exp);
+    regs->set16(REG_EXPR, sensor.exposure.red);
+    regs->set16(REG_EXPG, sensor.exposure.green);
+    regs->set16(REG_EXPB, sensor.exposure.blue);
 
-  exp = sensor.exposure.green;
-    if (exp == 0) {
-        exp = sensor_profile.exposure.green;
-    }
-    regs->set16(REG_EXPG, exp);
-
-  exp = sensor.exposure.blue;
-    if (exp == 0) {
-        exp = sensor_profile.exposure.blue;
-    }
-    regs->set16(REG_EXPB, exp);
-
-    dev->segment_order = sensor_profile.segment_order;
+    dev->segment_order = sensor.segment_order;
 }
 
 
@@ -154,17 +130,17 @@ gl847_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x14, 0x00);
     dev->reg.init_reg(0x15, 0x00);
 
-    dev->reg.init_reg(0x16, 0x10);
-    dev->reg.init_reg(0x17, 0x08);
-    dev->reg.init_reg(0x18, 0x00);
+    dev->reg.init_reg(0x16, 0x10); // SENSOR_DEF
+    dev->reg.init_reg(0x17, 0x08); // SENSOR_DEF
+    dev->reg.init_reg(0x18, 0x00); // SENSOR_DEF
 
     // EXPDMY
-    dev->reg.init_reg(0x19, 0x50);
+    dev->reg.init_reg(0x19, 0x50); // SENSOR_DEF
 
-    dev->reg.init_reg(0x1a, 0x34);
-    dev->reg.init_reg(0x1b, 0x00);
-    dev->reg.init_reg(0x1c, 0x02);
-    dev->reg.init_reg(0x1d, 0x04);
+    dev->reg.init_reg(0x1a, 0x34); // SENSOR_DEF
+    dev->reg.init_reg(0x1b, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x1c, 0x02); // SENSOR_DEF
+    dev->reg.init_reg(0x1d, 0x04); // SENSOR_DEF
     dev->reg.init_reg(0x1e, 0x10);
     dev->reg.init_reg(0x1f, 0x04);
     dev->reg.init_reg(0x20, 0x02);
@@ -192,15 +168,15 @@ gl847_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x3d, 0x00);
     dev->reg.init_reg(0x3e, 0x00);
     dev->reg.init_reg(0x3f, 0x00);
-    dev->reg.init_reg(0x52, 0x03);
-    dev->reg.init_reg(0x53, 0x07);
-    dev->reg.init_reg(0x54, 0x00);
-    dev->reg.init_reg(0x55, 0x00);
-    dev->reg.init_reg(0x56, 0x00);
-    dev->reg.init_reg(0x57, 0x00);
-    dev->reg.init_reg(0x58, 0x2a);
-    dev->reg.init_reg(0x59, 0xe1);
-    dev->reg.init_reg(0x5a, 0x55);
+    dev->reg.init_reg(0x52, 0x03); // SENSOR_DEF
+    dev->reg.init_reg(0x53, 0x07); // SENSOR_DEF
+    dev->reg.init_reg(0x54, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x55, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x56, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x57, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x58, 0x2a); // SENSOR_DEF
+    dev->reg.init_reg(0x59, 0xe1); // SENSOR_DEF
+    dev->reg.init_reg(0x5a, 0x55); // SENSOR_DEF
     dev->reg.init_reg(0x5e, 0x41);
     dev->reg.init_reg(0x5f, 0x40);
     dev->reg.init_reg(0x60, 0x00);
@@ -215,19 +191,19 @@ gl847_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x6a, 0x20);
 
     // CK1MAP
-    dev->reg.init_reg(0x74, 0x00);
-    dev->reg.init_reg(0x75, 0x00);
-    dev->reg.init_reg(0x76, 0x3c);
+    dev->reg.init_reg(0x74, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x75, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x76, 0x3c); // SENSOR_DEF
 
     // CK3MAP
-    dev->reg.init_reg(0x77, 0x00);
-    dev->reg.init_reg(0x78, 0x00);
-    dev->reg.init_reg(0x79, 0x9f);
+    dev->reg.init_reg(0x77, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x78, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x79, 0x9f); // SENSOR_DEF
 
     // CK4MAP
-    dev->reg.init_reg(0x7a, 0x00);
-    dev->reg.init_reg(0x7b, 0x00);
-    dev->reg.init_reg(0x7c, 0x55);
+    dev->reg.init_reg(0x7a, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x7b, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x7c, 0x55); // SENSOR_DEF
 
     dev->reg.init_reg(0x7d, 0x00);
 
@@ -612,9 +588,7 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     dpihw = sensor.get_register_hwdpi(session.params.xres * ccd_pixels_per_system_pixel);
   DBG(DBG_io2, "%s: dpihw=%d\n", __func__, dpihw);
 
-    // sensor parameters
-    const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor, dpihw, 1);
-    gl847_setup_sensor(dev, sensor, sensor_profile, reg);
+    gl847_setup_sensor(dev, sensor, reg);
 
     dev->cmd_set->set_fe(dev, sensor, AFE_SET);
 
@@ -750,8 +724,7 @@ void CommandSetGl847::init_regs_for_scan_session(Genesys_Device* dev, const Gene
 
   slope_dpi = slope_dpi * (1 + dummy);
 
-    exposure_time = get_sensor_profile(dev->model->asic_type, sensor,
-                                       session.params.xres, 1).exposure_lperiod;
+    exposure_time = sensor.exposure_lperiod;
     const auto& motor_profile = sanei_genesys_get_motor_profile(*gl847_motor_profiles,
                                                                 dev->model->motor_id,
                                                                 exposure_time);
@@ -1057,11 +1030,19 @@ void CommandSetGl847::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   regs = dev->reg;
 
     dev->calib_resolution = sensor.get_register_hwdpi(dev->settings.xres);
+
+    const auto& calib_sensor = sanei_genesys_find_sensor(dev, dev->calib_resolution,
+                                                         dev->calib_channels,
+                                                         dev->settings.scan_method);
+
   dev->calib_total_bytes_to_read = 0;
   dev->calib_lines = dev->model->shading_lines;
-  if(dev->calib_resolution==4800)
-    dev->calib_lines *= 2;
-  dev->calib_pixels = (sensor.sensor_pixels*dev->calib_resolution)/sensor.optical_res;
+    if (dev->calib_resolution == 4800) {
+        dev->calib_lines *= 2;
+    }
+    dev->calib_pixels = (calib_sensor.sensor_pixels * dev->calib_resolution) /
+                        calib_sensor.optical_res;
+
     DBG(DBG_io, "%s: calib_lines  = %zu\n", __func__, dev->calib_lines);
     DBG(DBG_io, "%s: calib_pixels = %zu\n", __func__, dev->calib_pixels);
 
@@ -1081,9 +1062,9 @@ void CommandSetGl847::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::DISABLE_BUFFER_FULL_MOVE |
                            ScanFlag::IGNORE_LINE_DISTANCE;
-    compute_session(dev, session, sensor);
+    compute_session(dev, session, calib_sensor);
 
-    init_regs_for_scan_session(dev, sensor, &regs, session);
+    init_regs_for_scan_session(dev, calib_sensor, &regs, session);
 
     dev->interface->write_registers(regs);
 
@@ -1278,8 +1259,9 @@ SensorExposure CommandSetGl847::led_calibration(Genesys_Device* dev, const Genes
   /* offset calibration is always done in color mode */
   channels = 3;
     used_res = sensor.get_register_hwdpi(dev->settings.xres);
-    const auto& sensor_profile = get_sensor_profile(dev->model->asic_type, sensor, used_res, 1);
-  num_pixels = (sensor.sensor_pixels*used_res)/sensor.optical_res;
+    const auto& calib_sensor = sanei_genesys_find_sensor(dev, used_res, channels,
+                                                         dev->settings.scan_method);
+    num_pixels = (calib_sensor.sensor_pixels * used_res) / calib_sensor.optical_res;
 
   /* initial calibration reg values */
   regs = dev->reg;
@@ -1300,17 +1282,17 @@ SensorExposure CommandSetGl847::led_calibration(Genesys_Device* dev, const Genes
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::SINGLE_LINE |
                            ScanFlag::IGNORE_LINE_DISTANCE;
-    compute_session(dev, session, sensor);
+    compute_session(dev, session, calib_sensor);
 
-    init_regs_for_scan_session(dev, sensor, &regs, session);
+    init_regs_for_scan_session(dev, calib_sensor, &regs, session);
 
     total_size = num_pixels * channels * (session.params.depth/8) * 1;
   std::vector<uint8_t> line(total_size);
 
     // initial loop values and boundaries
-    exp[0] = sensor_profile.exposure.red;
-    exp[1] = sensor_profile.exposure.green;
-    exp[2] = sensor_profile.exposure.blue;
+    exp[0] = calib_sensor.exposure.red;
+    exp[1] = calib_sensor.exposure.green;
+    exp[2] = calib_sensor.exposure.blue;
 
     bottom[0] = 28000;
     bottom[1] = 28000;
@@ -1336,13 +1318,13 @@ SensorExposure CommandSetGl847::led_calibration(Genesys_Device* dev, const Genes
         dev->interface->write_registers(regs);
 
       DBG(DBG_info, "%s: starting line reading\n", __func__);
-        begin_scan(dev, sensor, &regs, true);
+        begin_scan(dev, calib_sensor, &regs, true);
 
         if (is_testing_mode()) {
             dev->interface->test_checkpoint("led_calibration");
             scanner_stop_action(*dev);
             move_back_home(dev, true);
-            return { 0, 0, 0 };
+            return calib_sensor.exposure;
         }
 
         sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);

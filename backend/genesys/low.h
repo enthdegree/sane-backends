@@ -465,9 +465,6 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session);
 std::uint8_t compute_frontend_gain(float value, float target_value,
                                    FrontendType frontend_type);
 
-const SensorProfile& get_sensor_profile(AsicType asic_type, const Genesys_Sensor& sensor,
-                                        unsigned dpi, unsigned ccd_size_divisor);
-
 template<class T>
 inline T abs_diff(T a, T b)
 {
@@ -512,9 +509,6 @@ inline T clamp(const T& value, const T& lo, const T& hi)
 /*---------------------------------------------------------------------------*/
 
 extern StaticInit<std::vector<Genesys_Sensor>> s_sensors;
-extern StaticInit<SensorProfile> s_fallback_sensor_profile_gl124;
-extern StaticInit<SensorProfile> s_fallback_sensor_profile_gl846;
-extern StaticInit<SensorProfile> s_fallback_sensor_profile_gl847;
 extern StaticInit<std::vector<Genesys_Frontend>> s_frontends;
 extern StaticInit<std::vector<Genesys_Gpo>> s_gpo;
 extern StaticInit<std::vector<Genesys_Motor>> s_motors;

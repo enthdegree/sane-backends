@@ -654,6 +654,6 @@
 
 :model "ScanSnap iX1500"
 :interface "USB WiFi"
-:status :untested
+:status :good
 :usbid "0x04c5" "0x159f"
 :comment "small, current, WiFi not supported."

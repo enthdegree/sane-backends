@@ -75,6 +75,8 @@ struct GenesysRegisterSetState
 {
     bool is_lamp_on = false;
     bool is_xpa_on = false;
+    bool is_motor_on = false;
+    bool is_xpa_motor_on = false;
 };
 
 template<class Value>

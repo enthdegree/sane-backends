@@ -118,6 +118,25 @@ inline void serialize(std::ostream& str, ScanColorMode& x)
 const char* scan_color_mode_to_option_string(ScanColorMode mode);
 ScanColorMode option_string_to_scan_color_mode(const std::string& str);
 
+
+enum class ScanHeadId : unsigned {
+    NONE = 0,
+    PRIMARY = 1 << 0,
+    SECONDARY = 1 << 1,
+    ALL = PRIMARY | SECONDARY,
+};
+
+inline ScanHeadId operator|(ScanHeadId left, ScanHeadId right)
+{
+    return static_cast<ScanHeadId>(static_cast<unsigned>(left) | static_cast<unsigned>(right));
+}
+
+inline ScanHeadId operator&(ScanHeadId left, ScanHeadId right)
+{
+    return static_cast<ScanHeadId>(static_cast<unsigned>(left) & static_cast<unsigned>(right));
+}
+
+
 enum class ColorFilter : unsigned {
     RED = 0,
     GREEN,

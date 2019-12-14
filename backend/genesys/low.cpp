@@ -642,6 +642,7 @@ void sanei_genesys_set_motor_power(Genesys_Register_Set& regs, bool set)
     } else {
         regs.find_reg(0x02).value &= ~REG_0x02_MTRPWR;
     }
+    regs.state.is_motor_on = set;
 }
 
 bool should_enable_gamma(const ScanSession& session, const Genesys_Sensor& sensor)
@@ -1497,7 +1498,7 @@ void sanei_genesys_asic_init(Genesys_Device* dev, bool /*max_regs*/)
 
     // Move to home if needed
     dev->cmd_set->move_back_home(dev, true);
-  dev->scanhead_position_in_steps = 0;
+    dev->set_head_pos_zero(ScanHeadId::PRIMARY);
 
     // Set powersaving (default = 15 minutes)
     dev->cmd_set->set_powersaving(dev, 15);

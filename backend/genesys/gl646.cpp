@@ -389,14 +389,10 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
   /*
      feedl = feed_steps - fast_slope_steps*2 -
      (slow_slope_steps >> scan_step_type); */
-  /* but head has moved due to shading calibration => dev->scanhead_position_in_steps */
+  /* but head has moved due to shading calibration => dev->scanhead_position_primary */
   if (feedl > 0)
     {
-      /* take into account the distance moved during calibration */
-      /* feedl -= dev->scanhead_position_in_steps; */
       DBG(DBG_info, "%s: initial move=%d\n", __func__, feedl);
-      DBG(DBG_info, "%s: scanhead_position_in_steps=%d\n", __func__,
-          dev->scanhead_position_in_steps);
 
       /* TODO clean up this when I'll fully understand.
        * for now, special casing each motor */
@@ -1351,6 +1347,8 @@ void CommandSetGl646::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
     }
 
     dev->interface->write_registers(local_reg);
+
+    dev->advance_head_pos_by_session(ScanHeadId::PRIMARY);
 }
 
 
@@ -1445,10 +1443,10 @@ void CommandSetGl646::move_back_home(Genesys_Device* dev, bool wait_until_home) 
   int loop = 0;
 
     auto status = scanner_read_status(*dev);
-  dev->scanhead_position_in_steps = 0;
 
     if (status.is_at_home) {
       DBG(DBG_info, "%s: end since already at home\n", __func__);
+        dev->set_head_pos_zero(ScanHeadId::PRIMARY);
         return;
     }
 
@@ -1467,6 +1465,7 @@ void CommandSetGl646::move_back_home(Genesys_Device* dev, bool wait_until_home) 
 
         if (!status.is_motor_enabled && status.is_at_home) {
             DBG(DBG_info, "%s: already at home and not moving\n", __func__);
+            dev->set_head_pos_zero(ScanHeadId::PRIMARY);
             return;
         }
         if (!status.is_motor_enabled) {
@@ -1478,6 +1477,7 @@ void CommandSetGl646::move_back_home(Genesys_Device* dev, bool wait_until_home) 
 
   if (!i)			/* the loop counted down to 0, scanner still is busy */
     {
+        dev->set_head_pos_unknown();
         throw SaneException(SANE_STATUS_DEVICE_BUSY, "motor is still on: device busy");
     }
 
@@ -1533,6 +1533,7 @@ void CommandSetGl646::move_back_home(Genesys_Device* dev, bool wait_until_home) 
 
     if (is_testing_mode()) {
         dev->interface->test_checkpoint("move_back_home");
+        dev->set_head_pos_zero(ScanHeadId::PRIMARY);
         return;
     }
 
@@ -1547,6 +1548,7 @@ void CommandSetGl646::move_back_home(Genesys_Device* dev, bool wait_until_home) 
 	      DBG(DBG_info, "%s: reached home position\n", __func__);
 	      DBG(DBG_proc, "%s: end\n", __func__);
                 dev->interface->sleep_ms(500);
+                dev->set_head_pos_zero(ScanHeadId::PRIMARY);
                 return;
             }
             dev->interface->sleep_ms(100);
@@ -1557,6 +1559,7 @@ void CommandSetGl646::move_back_home(Genesys_Device* dev, bool wait_until_home) 
         // stop the motor
         catch_all_exceptions(__func__, [&](){ gl646_stop_motor (dev); });
         catch_all_exceptions(__func__, [&](){ end_scan_impl(dev, &dev->reg, true, false); });
+        dev->set_head_pos_unknown();
         throw SaneException(SANE_STATUS_IO_ERROR, "timeout while waiting for scanhead to go home");
     }
 
@@ -1693,9 +1696,6 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   settings.disable_interpolation = dev->settings.disable_interpolation;
   settings.threshold = dev->settings.threshold;
 
-  /* keep account of the movement for final scan move */
-  dev->scanhead_position_in_steps += settings.lines;
-
     // we don't want top offset, but we need right margin to be the same than the one for the final
     // scan
     setup_for_scan(dev, calib_sensor, &dev->reg, settings, true, false, false, false);
@@ -1731,8 +1731,9 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 
 bool CommandSetGl646::needs_home_before_init_regs_for_scan(Genesys_Device* dev) const
 {
-    return (dev->scanhead_position_in_steps > 0 &&
-            dev->settings.scan_method == ScanMethod::FLATBED);
+    return dev->is_head_pos_known(ScanHeadId::PRIMARY) &&
+            dev->head_pos(ScanHeadId::PRIMARY) &&
+            dev->settings.scan_method == ScanMethod::FLATBED;
 }
 
 /**

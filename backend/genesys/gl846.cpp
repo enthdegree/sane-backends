@@ -829,6 +829,8 @@ void CommandSetGl846::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
   r->value = val;
 
     scanner_start_action(*dev, start_motor);
+
+    dev->advance_head_pos_by_session(ScanHeadId::PRIMARY);
 }
 
 
@@ -1023,7 +1025,7 @@ void CommandSetGl846::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     dev->interface->write_registers(regs);
 
   /* we use GENESYS_FLAG_SHADING_REPARK */
-  dev->scanhead_position_in_steps = 0;
+    dev->set_head_pos_zero(ScanHeadId::PRIMARY);
 }
 
 /** @brief set up registers for the actual scan
@@ -1061,7 +1063,7 @@ void CommandSetGl846::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     move = static_cast<float>(dev->model->y_offset);
     move = static_cast<float>(move + dev->settings.tl_y);
     move = static_cast<float>((move * move_dpi) / MM_PER_INCH);
-  move -= dev->scanhead_position_in_steps;
+    move -= dev->head_pos(ScanHeadId::PRIMARY);
   DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
 
   /* fast move to scan area */
@@ -1559,7 +1561,7 @@ void CommandSetGl846::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
   lines = (dev->model->shading_lines * dpi) / dev->motor.base_ydpi;
   pixels = (sensor.sensor_pixels * dpi) / sensor.optical_res;
 
-  dev->scanhead_position_in_steps = 0;
+    dev->set_head_pos_zero(ScanHeadId::PRIMARY);
 
   local_reg = dev->reg;
 

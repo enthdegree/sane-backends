@@ -1039,6 +1039,8 @@ void CommandSetGl124::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
     dev->interface->write_register(REG_0x01, val);
 
     scanner_start_action(*dev, start_motor);
+
+    dev->advance_head_pos_by_session(ScanHeadId::PRIMARY);
 }
 
 
@@ -1246,8 +1248,6 @@ void CommandSetGl124::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
         throw;
     }
     sanei_genesys_set_motor_power(regs, false);
-
-  dev->scanhead_position_in_steps += dev->calib_lines + move;
 
     dev->interface->write_registers(regs);
 }

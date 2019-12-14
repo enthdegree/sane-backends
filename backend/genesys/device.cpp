@@ -104,6 +104,91 @@ ImagePipelineNodeBytesSource& Genesys_Device::get_pipeline_source()
     return static_cast<ImagePipelineNodeBytesSource&>(pipeline.front());
 }
 
+bool Genesys_Device::is_head_pos_known(ScanHeadId scan_head) const
+{
+    switch (scan_head) {
+        case ScanHeadId::PRIMARY: return is_head_pos_primary_known_;
+        case ScanHeadId::SECONDARY: return is_head_pos_secondary_known_;
+        case ScanHeadId::ALL: return is_head_pos_primary_known_ && is_head_pos_secondary_known_;
+        default:
+            throw SaneException("Unknown scan head ID");
+    }
+}
+unsigned Genesys_Device::head_pos(ScanHeadId scan_head) const
+{
+    switch (scan_head) {
+        case ScanHeadId::PRIMARY: return head_pos_primary_;
+        case ScanHeadId::SECONDARY: return head_pos_secondary_;
+        default:
+            throw SaneException("Unknown scan head ID");
+    }
+}
+
+void Genesys_Device::set_head_pos_unknown()
+{
+    is_head_pos_primary_known_ = false;
+    is_head_pos_secondary_known_ = false;
+}
+
+void Genesys_Device::set_head_pos_zero(ScanHeadId scan_head)
+{
+    if ((scan_head & ScanHeadId::PRIMARY) != ScanHeadId::NONE) {
+        head_pos_primary_ = 0;
+        is_head_pos_primary_known_ = true;
+    }
+    if ((scan_head & ScanHeadId::SECONDARY) != ScanHeadId::NONE) {
+        head_pos_secondary_ = 0;
+        is_head_pos_secondary_known_ = true;
+    }
+}
+
+void Genesys_Device::advance_head_pos_by_session(ScanHeadId scan_head)
+{
+    int motor_steps = session.params.starty +
+                      (session.params.lines * motor.base_ydpi) / session.params.yres;
+    auto direction = has_flag(session.params.flags, ScanFlag::REVERSE) ? Direction::BACKWARD
+                                                                       : Direction::FORWARD;
+    advance_head_pos_by_steps(scan_head, direction, motor_steps);
+}
+
+static void advance_pos(unsigned& pos, Direction direction, unsigned offset)
+{
+    if (direction == Direction::FORWARD) {
+        pos += offset;
+    } else {
+        if (pos < offset) {
+            throw SaneException("Trying to advance head behind the home sensor");
+        }
+        pos -= offset;
+    }
+}
+
+void Genesys_Device::advance_head_pos_by_steps(ScanHeadId scan_head, Direction direction,
+                                               unsigned steps)
+{
+    if ((scan_head & ScanHeadId::PRIMARY) != ScanHeadId::NONE) {
+        if (!is_head_pos_primary_known_) {
+            throw SaneException("Trying to advance head while scanhead position is not known");
+        }
+        advance_pos(head_pos_primary_, direction, steps);
+    }
+    if ((scan_head & ScanHeadId::SECONDARY) != ScanHeadId::NONE) {
+        if (!is_head_pos_secondary_known_) {
+            throw SaneException("Trying to advance head while scanhead position is not known");
+        }
+        advance_pos(head_pos_secondary_, direction, steps);
+    }
+}
+
+void print_scan_position(std::ostream& out, const Genesys_Device& dev, ScanHeadId scan_head)
+{
+    if (dev.is_head_pos_known(scan_head)) {
+        out << dev.head_pos(scan_head);
+    } else {
+        out <<"(unknown)";
+    }
+}
+
 std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev)
 {
     StreamStateSaver state_saver{out};
@@ -148,11 +233,15 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev)
         << "    white_average_data.size(): " << dev.white_average_data.size() << '\n'
         << "    dark_average_data.size(): " << dev.dark_average_data.size() << '\n'
         << "    already_initialized: " << dev.already_initialized << '\n'
-        << "    scanhead_position_in_steps: " << dev.scanhead_position_in_steps << '\n'
+        << "    scanhead_position[PRIMARY]: ";
+    print_scan_position(out, dev, ScanHeadId::PRIMARY);
+    out << '\n'
+        << "    scanhead_position[SECONDARY]: ";
+    print_scan_position(out, dev, ScanHeadId::SECONDARY);
+    out << '\n'
         << "    read_active: " << dev.read_active << '\n'
         << "    parking: " << dev.parking << '\n'
         << "    document: " << dev.document << '\n'
-        << "    needs_home_ta: " << dev.needs_home_ta << '\n'
         << "    read_buffer.size(): " << dev.read_buffer.size() << '\n'
         << "    binarize_buffer.size(): " << dev.binarize_buffer.size() << '\n'
         << "    local_buffer.size(): " << dev.local_buffer.size() << '\n'

@@ -122,7 +122,6 @@
 #define GENESYS_FLAG_REPARK       (1 << 7)	/**< repark head (and check for lock) by
 						   moving without scanning */
 #define GENESYS_FLAG_DARK_CALIBRATION (1 << 8)	/**< do dark calibration */
-#define GENESYS_FLAG_STAGGERED_LINE   (1 << 9)	/**< pixel columns are shifted vertically for hi-res modes */
 
 #define GENESYS_FLAG_MUST_WAIT        (1 << 10)	/**< tells wether the scanner must wait for the head when parking */
 

@@ -901,7 +901,7 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
         }
         s.pixel_startx += s.params.startx;
 
-        if (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE) {
+        if (sensor.stagger_config.stagger_at_resolution(s.params.xres, s.params.yres) > 0) {
             s.pixel_startx |= 1;
         }
 
@@ -1062,37 +1062,10 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
 
     // Note: staggering is not applied for calibration. Staggering starts at 2400 dpi
     s.num_staggered_lines = 0;
-
-    if (dev->model->asic_type == AsicType::GL124 ||
-        dev->model->asic_type == AsicType::GL841 ||
-        dev->model->asic_type == AsicType::GL845 ||
-        dev->model->asic_type == AsicType::GL846 ||
-        dev->model->asic_type == AsicType::GL847)
+    if (!has_flag(s.params.flags, ScanFlag::IGNORE_LINE_DISTANCE))
     {
-        if (s.ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
-            s.num_staggered_lines = (4 * s.params.yres) / dev->motor.base_ydpi;
-        }
-    }
-
-    if (dev->model->asic_type == AsicType::GL646) {
-        if (s.ccd_size_divisor == 1 && (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE)) {
-            // for HP3670, stagger happens only at >=1200 dpi
-            if ((dev->model->motor_id != MotorId::HP3670 &&
-                 dev->model->motor_id != MotorId::HP2400) ||
-                s.params.yres >= static_cast<unsigned>(sensor.optical_res))
-            {
-                s.num_staggered_lines = (4 * s.params.yres) / dev->motor.base_ydpi;
-            }
-        }
-    }
-
-    if (dev->model->asic_type == AsicType::GL843) {
-        if ((s.params.yres > 1200) && // FIXME: maybe ccd_size_divisor is the one that controls this?
-            !has_flag(s.params.flags, ScanFlag::IGNORE_LINE_DISTANCE) &&
-            (dev->model->flags & GENESYS_FLAG_STAGGERED_LINE))
-        {
-            s.num_staggered_lines = (4 * s.params.yres) / dev->motor.base_ydpi;
-        }
+        s.num_staggered_lines = sensor.stagger_config.stagger_at_resolution(s.params.xres,
+                                                                            s.params.yres);
     }
 
     s.color_shift_lines_r = dev->model->ld_shift_r;

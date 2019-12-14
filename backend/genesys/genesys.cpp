@@ -1339,7 +1339,7 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
         return;
     }
 
-    for (unsigned i = 0; i < 300; ++i) {
+    for (unsigned i = 0; i < 1200; ++i) {
 
         auto status = scanner_read_status(dev);
 
@@ -1354,8 +1354,7 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
         dev.interface->sleep_ms(100);
     }
 
-    // we are not parked here.... should we fail ?
-    dbg.log(DBG_info, "XPA lamp is not parked");
+    throw SaneException("Timeout waiting for XPA lamp to park");
 }
 
 void sanei_genesys_calculate_zmod(bool two_table,

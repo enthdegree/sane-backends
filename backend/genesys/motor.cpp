@@ -150,7 +150,7 @@ MotorSlopeTable create_slope_table(const MotorSlope& slope, unsigned target_spee
 
 std::ostream& operator<<(std::ostream& out, const MotorSlope& slope)
 {
-    out << "Genesys_Motor_Slope{\n"
+    out << "MotorSlope{\n"
         << "    initial_speed_w: " << slope.initial_speed_w << '\n'
         << "    max_speed_w: " << slope.max_speed_w << '\n'
         << "    a: " << slope.acceleration << '\n'

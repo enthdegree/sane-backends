@@ -170,27 +170,6 @@ std::ostream& operator<<(std::ostream& out, const MotorSlope& slope)
     return out;
 }
 
-std::ostream& operator<<(std::ostream& out, const MotorSlopeLegacy& slope)
-{
-    out << "MotorSlopeLegacy{\n"
-        << "    maximum_start_speed: " << slope.maximum_start_speed << '\n'
-        << "    maximum_speed: " << slope.maximum_speed << '\n'
-        << "    minimum_steps: " << slope.minimum_steps << '\n'
-        << "    g: " << slope.g << '\n'
-        << '}';
-    return out;
-}
-
-std::ostream& operator<<(std::ostream& out, const Genesys_Motor_Slope& slope)
-{
-    if (slope.type() == Genesys_Motor_Slope::LEGACY) {
-        out << slope.legacy();
-    } else {
-        out << slope.physical();
-    }
-    return out;
-}
-
 std::ostream& operator<<(std::ostream& out, const Genesys_Motor& motor)
 {
     out << "Genesys_Motor{\n"
@@ -198,7 +177,7 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Motor& motor)
         << "    base_ydpi: " << motor.base_ydpi << '\n'
         << "    optical_ydpi: " << motor.optical_ydpi << '\n'
         << "    slopes: "
-        << format_indent_braced_list(4, format_vector_indent_braced(4, "Genesys_Motor_Slope",
+        << format_indent_braced_list(4, format_vector_indent_braced(4, "MotorSlope",
                                                                     motor.slopes))
         << '}';
     return out;

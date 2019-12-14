@@ -860,7 +860,7 @@ static void gl841_init_motor_regs(Genesys_Device* dev, const Genesys_Sensor& sen
 
     if (action == MOTOR_ACTION_HOME_FREE) {
 /* HOME_FREE must be able to stop in one step, so do not try to get faster */
-        fast_exposure = dev->motor.get_slope(StepType::FULL).legacy().maximum_start_speed;
+        fast_exposure = dev->motor.get_slope(StepType::FULL).max_speed_w;
     }
 
     auto fast_table = sanei_genesys_create_slope_table3(dev->model->asic_type, dev->motor,

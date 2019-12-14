@@ -421,9 +421,7 @@ MotorSlopeTable sanei_genesys_create_slope_table3(AsicType asic_type, const Gene
 {
     unsigned target_speed_w = (exposure_time * yres) / motor.base_ydpi;
 
-    const auto& slope = motor.get_slope(step_type);
-
-    auto table = create_slope_table(slope.physical(), target_speed_w, step_type, 1, 1,
+    auto table = create_slope_table(motor.get_slope(step_type), target_speed_w, step_type, 1, 1,
                                     get_slope_table_max_size(asic_type));
 
     table.final_exposure = (table.final_exposure * motor.base_ydpi) / yres;
@@ -502,7 +500,7 @@ SANE_Int sanei_genesys_exposure_time2(Genesys_Device * dev, float ydpi,
                                       StepType step_type, int endpixel, int exposure_by_led)
 {
   int exposure_by_ccd = endpixel + 32;
-    unsigned max_speed_motor_w = dev->motor.get_slope(step_type).physical().max_speed_w;
+    unsigned max_speed_motor_w = dev->motor.get_slope(step_type).max_speed_w;
     int exposure_by_motor = static_cast<int>((max_speed_motor_w * dev->motor.base_ydpi) / ydpi);
 
   int exposure = exposure_by_ccd;

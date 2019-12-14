@@ -52,20 +52,6 @@ namespace genesys {
 
 /*  Describes a motor acceleration curve.
 
-    The curves are described in two ways: legacy and physical modes.
-
-        LEGACY mode
-
-    The legacy mode is to be removed and described the motor slope as a purely mathematical
-    power law formula:
-
-    v(step) = sl.maximum_start_speed * (1 - pow(q, sl.g)) + sl.maximum_speed * pow(q, sl.g)     (1)
-
-    where `q = step_number / s.minimum_steps`, `sl` is the slope config.
-
-
-        PHYSICAL mode
-
     Definitions:
         v - speed in steps per pixeltime
         w - speed in pixel times per step. w = 1 / v
@@ -114,19 +100,6 @@ namespace genesys {
     Here `v(t0)` and `v(t1)` are the start and target speeds and `s` is the number of step required
     to reach the target speeds.
 */
-struct MotorSlopeLegacy
-{
-    // maximum speed allowed when accelerating from standstill. Unit: pixeltime/step
-    int maximum_start_speed = 0;
-    // maximum speed allowed. Unit: pixeltime/step
-    int maximum_speed = 0;
-    // number of steps used for default curve
-    int minimum_steps = 0;
-
-    // power for non-linear acceleration curves.
-    float g = 0;
-};
-
 struct MotorSlope
 {
     // initial speed in pixeltime per step
@@ -165,42 +138,7 @@ MotorSlopeTable create_slope_table(const MotorSlope& slope, unsigned target_spee
                                    StepType step_type, unsigned steps_alignment,
                                    unsigned min_size, unsigned max_size);
 
-class Genesys_Motor_Slope
-{
-public:
-    enum SlopeType : unsigned {
-        LEGACY,
-        PHYSICAL
-    };
-
-    Genesys_Motor_Slope(const MotorSlopeLegacy& slope) : legacy_slope_{slope}, type_{LEGACY} {}
-    Genesys_Motor_Slope(const MotorSlope& slope) : slope_{slope}, type_{PHYSICAL} {}
-    Genesys_Motor_Slope(const Genesys_Motor_Slope&) = default;
-    Genesys_Motor_Slope& operator=(const Genesys_Motor_Slope&) = default;
-
-    SlopeType type() const { return type_; }
-
-    const MotorSlopeLegacy& legacy() const
-    {
-        if (type_ != LEGACY)
-            throw SaneException("Unexpected slope type");
-        return legacy_slope_;
-    }
-
-    const MotorSlope& physical() const
-    {
-        if (type_ != PHYSICAL)
-            throw SaneException("Unexpected slope type");
-        return slope_;
-    }
-
-private:
-    MotorSlopeLegacy legacy_slope_;
-    MotorSlope slope_;
-    SlopeType type_;
-};
-
-std::ostream& operator<<(std::ostream& out, const Genesys_Motor_Slope& slope);
+std::ostream& operator<<(std::ostream& out, const MotorSlope& slope);
 
 
 struct Genesys_Motor
@@ -214,14 +152,14 @@ struct Genesys_Motor
     // maximum resolution in y-direction. Unit: 1/inch
     int optical_ydpi = 0;
     // slopes to derive individual slopes from
-    std::vector<Genesys_Motor_Slope> slopes;
+    std::vector<MotorSlope> slopes;
 
-    Genesys_Motor_Slope& get_slope(StepType step_type)
+    MotorSlope& get_slope(StepType step_type)
     {
         return slopes[static_cast<unsigned>(step_type)];
     }
 
-    const Genesys_Motor_Slope& get_slope(StepType step_type) const
+    const MotorSlope& get_slope(StepType step_type) const
     {
         return slopes[static_cast<unsigned>(step_type)];
     }

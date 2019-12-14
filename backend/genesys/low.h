@@ -329,13 +329,12 @@ SANE_Int sanei_genesys_generate_slope_table(std::vector<uint16_t>& slope_table, 
 			      unsigned int steps, double g,
 			      unsigned int *used_steps, unsigned int *vfinal);
 
-SANE_Int sanei_genesys_create_slope_table3(const Genesys_Motor& motor,
-                                           std::vector<uint16_t>& slope_table, int max_step,
-				   unsigned int use_steps,
-                                           StepType step_type, int exposure_time,
-                                           unsigned yres,
-				   unsigned int *used_steps,
-                                   unsigned int *final_exposure);
+MotorSlopeTable sanei_genesys_create_slope_table3(const Genesys_Motor& motor,
+                                                  unsigned max_steps,
+                                                  unsigned use_steps,
+                                                  StepType step_type,
+                                                  int exposure_time,
+                                                  unsigned yres);
 
 void sanei_genesys_create_default_gamma_table(Genesys_Device* dev,
                                               std::vector<uint16_t>& gamma_table, float gamma);

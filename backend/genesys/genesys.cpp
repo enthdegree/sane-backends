@@ -439,17 +439,15 @@ SANE_Int sanei_genesys_generate_slope_table(std::vector<uint16_t>& slope_table,
  * @return               Time for acceleration
  * @note  all times in pixel time
  */
-SANE_Int sanei_genesys_create_slope_table3(const Genesys_Motor& motor,
-                                           std::vector<uint16_t>& slope_table,
-                                   int max_step,
-				   unsigned int use_steps,
-                                           StepType step_type,
-                                   int exposure_time,
-                                           unsigned yres,
-                                           unsigned int *used_steps,
-                                           unsigned int *final_exposure)
+MotorSlopeTable sanei_genesys_create_slope_table3(const Genesys_Motor& motor,
+                                                  unsigned max_steps,
+                                                  unsigned use_steps,
+                                                  StepType step_type,
+                                                  int exposure_time,
+                                                  unsigned yres)
 {
-  unsigned int sum_time = 0;
+    MotorSlopeTable table;
+
   unsigned int vtarget;
   unsigned int vend;
   unsigned int vstart;
@@ -471,24 +469,22 @@ SANE_Int sanei_genesys_create_slope_table3(const Genesys_Motor& motor,
     vstart = std::min(vstart >> u_step_type, 65535u);
     vend = std::min(vend >> u_step_type, 65535u);
 
-  sum_time = sanei_genesys_generate_slope_table (slope_table,
-                                                 max_step,
-						 use_steps,
-						 vtarget,
-						 vstart,
-						 vend,
-                                                 slope.minimum_steps << u_step_type,
-                                                 slope.g,
-                                                 used_steps,
-						 &vfinal);
+    unsigned used_steps = 0;
+    table.pixeltime_sum = sanei_genesys_generate_slope_table(table.table,
+                                                             max_steps,
+                                                             use_steps,
+                                                             vtarget,
+                                                             vstart,
+                                                             vend,
+                                                             slope.minimum_steps << u_step_type,
+                                                             slope.g,
+                                                             &used_steps,
+                                                             &vfinal);
 
-    if (final_exposure) {
-        *final_exposure = (vfinal * motor.base_ydpi) / yres;
-    }
+    table.steps_count = used_steps;
+    table.final_exposure = (vfinal * motor.base_ydpi) / yres;
 
-  DBG(DBG_proc, "%s: returns sum_time=%d, completed\n", __func__, sum_time);
-
-  return sum_time;
+    return table;
 }
 
 /** @brief computes gamma table

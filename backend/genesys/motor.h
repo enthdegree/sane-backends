@@ -151,6 +151,9 @@ struct MotorSlopeTable
     std::vector<std::uint16_t> table;
     unsigned steps_count = 0;
     unsigned pixeltime_sum = 0;
+
+    // table.back() adjusted to the scan dpi
+    unsigned final_exposure = 0;
 };
 
 MotorSlopeTable create_slope_table(const MotorSlope& slope, unsigned target_speed_w,

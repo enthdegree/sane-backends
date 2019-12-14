@@ -1759,84 +1759,14 @@ const Motor_Profile& sanei_genesys_get_motor_profile(const std::vector<Motor_Pro
     return motors[idx];
 }
 
-/** @brief generate slope table
- * Generate the slope table to use for the scan using a reference slope
- * table.
- * @param slope pointer to the slope table to fill
- * @param steps pointer to return used step number
- * @param dpi   desired motor resolution
- * @param exposure exposure used
- * @param base_dpi base resolution of the motor
- * @param factor shrink factor for the slope
- * @param motor_profile motor profile
- */
 MotorSlopeTable sanei_genesys_slope_table(int dpi, int exposure, int base_dpi,
                                           int factor, const Motor_Profile& motor_profile)
 {
-    MotorSlopeTable table;
-int sum, i;
-uint16_t target,current;
+    unsigned target_speed_w = ((exposure * dpi) / base_dpi);
 
-    unsigned step_shift = static_cast<unsigned>(motor_profile.step_type);
-    table.table.clear();
-
-	/* required speed */
-    target = ((exposure * dpi) / base_dpi) >> step_shift;
-        DBG (DBG_io2, "%s: exposure=%d, dpi=%d, target=%d\n", __func__, exposure, dpi, target);
-
-	/* fill result with target speed */
-    table.table.resize(SLOPE_TABLE_SIZE, target);
-
-	/* use profile to build table */
-        i=0;
-	sum=0;
-
-    current = motor_profile.table[0] >> step_shift;
-
-    // loop on profile copying and apply step type
-    while (motor_profile.table[i] != 0 && current >= target) {
-        table.table[i]=current;
-        sum += table.table[i];
-        i++;
-        current = motor_profile.table[i] >> step_shift;
-    }
-
-        /* ensure last step is required speed in case profile doesn't contain it */
-        if(current!=0 && current<target)
-          {
-        table.table[i] = target;
-        sum += table.table[i];
-            i++;
-          }
-
-        /* range checking */
-    if (motor_profile.table[i] == 0 && DBG_LEVEL >= DBG_warn && current > target) {
-            DBG (DBG_warn,"%s: short slope table, failed to reach %d. target too low ?\n",__func__,target);
-    }
-        if(i<3 && DBG_LEVEL >= DBG_warn)
-          {
-            DBG (DBG_warn,"%s: short slope table, failed to reach %d. target too high ?\n",__func__,target);
-          }
-
-        /* align on factor */
-        while(i%factor!=0)
-          {
-        table.table[i+1] = table.table[i];
-        sum += table.table[i];
-            i++;
-          }
-
-        /* ensure minimal slope size */
-        while(i<2*factor)
-          {
-        table.table[i+1] = table.table[i];
-        sum += table.table[i];
-            i++;
-          }
-
-    // return used steps and taken time
-    table.scan_steps = i / factor;
-    table.pixeltime_sum = sum;
+    auto table = create_slope_table(motor_profile.slope, target_speed_w, motor_profile.step_type,
+                                    factor, 2 * factor);
+    table.scan_steps /= factor;
     return table;
 }
 

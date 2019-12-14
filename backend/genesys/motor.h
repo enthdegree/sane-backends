@@ -139,6 +139,9 @@ struct MotorSlope
     float acceleration = 0;
 
     unsigned get_table_step_shifted(unsigned step, StepType step_type) const;
+
+    static MotorSlope create_from_steps(unsigned initial_w, unsigned max_w,
+                                        unsigned steps);
 };
 
 struct MotorSlopeTable

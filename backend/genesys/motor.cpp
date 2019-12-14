@@ -62,6 +62,24 @@ unsigned MotorSlope::get_table_step_shifted(unsigned step, StepType step_type) c
     return static_cast<unsigned>(1.0f / speed_v) >> static_cast<unsigned>(step_type);
 }
 
+float compute_acceleration_for_steps(unsigned initial_w, unsigned max_w, unsigned steps)
+{
+    float initial_speed_v = 1.0f / static_cast<float>(initial_w);
+    float max_speed_v = 1.0f / static_cast<float>(max_w);
+    return (max_speed_v * max_speed_v - initial_speed_v * initial_speed_v) / (2 * steps);
+}
+
+
+MotorSlope MotorSlope::create_from_steps(unsigned initial_w, unsigned max_w,
+                                         unsigned steps)
+{
+    MotorSlope slope;
+    slope.initial_speed_w = initial_w;
+    slope.max_speed_w = max_w;
+    slope.acceleration = compute_acceleration_for_steps(initial_w, max_w, steps);
+    return slope;
+}
+
 MotorSlopeTable create_slope_table(const MotorSlope& slope, unsigned target_speed_w,
                                    StepType step_type, unsigned steps_alignment,
                                    unsigned min_size)

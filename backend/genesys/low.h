@@ -223,7 +223,7 @@ struct Motor_Profile
     MotorId motor_id;
 	int exposure;    /**< exposure for the slope table */
     StepType step_type;   // default step type for given exposure
-        uint32_t *table;  // 0-terminated slope table at full step (i.e. step_type == 0)
+    MotorSlope slope;
 };
 
 extern StaticInit<std::vector<Motor_Profile>> gl843_motor_profiles;

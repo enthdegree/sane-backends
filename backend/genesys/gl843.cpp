@@ -1025,7 +1025,9 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     }
 
     bool use_shdarea = dpihw > 600;
-    if (dev->model->model_id == ModelId::CANON_8400F) {
+    if (dev->model->model_id == ModelId::CANON_4400F) {
+        use_shdarea = session.params.xres <= 600;
+    } else if (dev->model->model_id == ModelId::CANON_8400F) {
         use_shdarea = session.params.xres <= 400;
     }
     if (use_shdarea) {

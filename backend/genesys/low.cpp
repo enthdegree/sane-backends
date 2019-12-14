@@ -1791,8 +1791,7 @@ uint16_t target,current;
         i=0;
 	sum=0;
 
-    // first step is always used unmodified
-    current = motor_profile.table[0];
+    current = motor_profile.table[0] >> step_shift;
 
     // loop on profile copying and apply step type
     while (motor_profile.table[i] != 0 && current >= target) {

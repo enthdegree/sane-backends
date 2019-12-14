@@ -406,9 +406,6 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
     auto fast_table = sanei_genesys_slope_table(fast_dpi, scan_exposure_time, dev->motor.base_ydpi,
                                                 factor, fast_motor_profile);
 
-    // manual override of high start value
-    fast_table.table[0] = fast_table.table[1];
-
     gl846_send_slope_table(dev, STOP_TABLE, fast_table.table, fast_table.scan_steps * factor);
     gl846_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.scan_steps * factor);
     gl846_send_slope_table(dev, HOME_TABLE, fast_table.table, fast_table.scan_steps * factor);

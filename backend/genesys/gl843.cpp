@@ -850,8 +850,8 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     }
 
   /* disable backtracking */
-  if (has_flag(flags, MotorFlag::DISABLE_BUFFER_FULL_MOVE)
-      ||(scan_yres>=2400)
+    if (has_flag(flags, MotorFlag::DISABLE_BUFFER_FULL_MOVE)
+      ||(scan_yres>=2400 && dev->model->model_id != ModelId::CANON_4400F)
       ||(scan_yres>=sensor.optical_res))
     {
         r->value |= REG_0x02_ACDCDIS;
@@ -1153,7 +1153,9 @@ void CommandSetGl843::init_regs_for_scan_session(Genesys_Device* dev, const Gene
    */
 
   dummy = 0;
-  /* dummy = 1;  XXX STEF XXX */
+    if (dev->model->model_id == ModelId::CANON_4400F && session.params.yres == 1200) {
+        dummy = 1;
+    }
 
   /* slope_dpi */
   /* cis color scan is effectively a gray scan with 3 gray lines per color line and a FILTER of 0 */

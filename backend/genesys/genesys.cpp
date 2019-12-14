@@ -1009,9 +1009,15 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
     // wait until feed count reaches the required value
     // FIXME: should porbably wait for some timeout
     Status status;
-    do {
+    for (unsigned i = 0;; ++i) {
         status = scanner_read_status(dev);
-    } while (!status.is_feeding_finished);
+        if (status.is_feeding_finished || (
+            direction == Direction::BACKWARD && status.is_at_home))
+        {
+            break;
+        }
+        dev.interface->sleep_ms(10);
+    }
 
     // FIXME: why don't we stop the scanner like on other ASICs
     if (dev.model->asic_type != AsicType::GL843) {

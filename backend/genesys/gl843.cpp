@@ -66,8 +66,7 @@ static void gl843_set_buffer_address(Genesys_Device* dev, uint32_t addr)
 /**
  * compute the step multiplier used
  */
-static int
-gl843_get_step_multiplier (Genesys_Register_Set * regs)
+static int gl843_get_step_multiplier(Genesys_Register_Set* regs)
 {
     GenesysRegister *r = sanei_genesys_get_address(regs, REG_0x9D);
     int value = 1;
@@ -821,12 +820,12 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
 
   int use_fast_fed, coeff;
   unsigned int lincnt;
-  unsigned int feedl,factor,dist;
+    unsigned feedl, dist;
   GenesysRegister *r;
   uint32_t z1, z2;
 
   /* get step multiplier */
-  factor = gl843_get_step_multiplier (reg);
+    unsigned step_multiplier = gl843_get_step_multiplier (reg);
 
   use_fast_fed = 0;
 
@@ -870,10 +869,13 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
 
   /* scan and backtracking slope table */
     auto scan_table = sanei_genesys_slope_table(dev->model->asic_type, scan_yres, exposure,
-                                                dev->motor.base_ydpi, factor, motor_profile);
+                                                dev->motor.base_ydpi, step_multiplier,
+                                                motor_profile);
 
-    gl843_send_slope_table(dev, SCAN_TABLE, scan_table.table, scan_table.steps_count * factor);
-    gl843_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table, scan_table.steps_count * factor);
+    gl843_send_slope_table(dev, SCAN_TABLE, scan_table.table,
+                           scan_table.steps_count * step_multiplier);
+    gl843_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table,
+                           scan_table.steps_count * step_multiplier);
 
   /* STEPNO */
     r = sanei_genesys_get_address(reg, REG_STEPNO);
@@ -898,10 +900,14 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
         fast_yres = scan_yres;
     }
     auto fast_table = sanei_genesys_slope_table(dev->model->asic_type, fast_yres, exposure,
-                                                dev->motor.base_ydpi, factor, fast_motor_profile);
-    gl843_send_slope_table(dev, STOP_TABLE, fast_table.table, fast_table.steps_count * factor);
-    gl843_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.steps_count * factor);
-    gl843_send_slope_table(dev, HOME_TABLE, fast_table.table, fast_table.steps_count * factor);
+                                                dev->motor.base_ydpi, step_multiplier,
+                                                fast_motor_profile);
+    gl843_send_slope_table(dev, STOP_TABLE, fast_table.table,
+                           fast_table.steps_count * step_multiplier);
+    gl843_send_slope_table(dev, FAST_TABLE, fast_table.table,
+                           fast_table.steps_count * step_multiplier);
+    gl843_send_slope_table(dev, HOME_TABLE, fast_table.table,
+                           fast_table.steps_count * step_multiplier);
 
   /* FASTNO */
     r = sanei_genesys_get_address(reg, REG_FASTNO);

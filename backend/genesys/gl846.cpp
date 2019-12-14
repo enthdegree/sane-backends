@@ -341,7 +341,6 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
                     scan_lines, scan_dummy, feed_steps, static_cast<unsigned>(flags));
   int use_fast_fed;
   unsigned int fast_dpi;
-    int factor;
   unsigned int feedl, dist;
   GenesysRegister *r;
   uint32_t z1, z2;
@@ -349,8 +348,7 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
   uint8_t val;
   unsigned int ccdlmt,tgtime;
 
-  /* get step multiplier */
-  factor = gl846_get_step_multiplier (reg);
+    unsigned step_multiplier = gl846_get_step_multiplier(reg);
 
   use_fast_fed=0;
   /* no fast fed since feed works well */
@@ -388,9 +386,11 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
   /* scan and backtracking slope table */
     auto scan_table = sanei_genesys_slope_table(dev->model->asic_type, scan_yres,
                                                 scan_exposure_time, dev->motor.base_ydpi,
-                                                factor, motor_profile);
-    gl846_send_slope_table(dev, SCAN_TABLE, scan_table.table, scan_table.steps_count * factor);
-    gl846_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table, scan_table.steps_count * factor);
+                                                step_multiplier, motor_profile);
+    gl846_send_slope_table(dev, SCAN_TABLE, scan_table.table,
+                           scan_table.steps_count * step_multiplier);
+    gl846_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table,
+                           scan_table.steps_count * step_multiplier);
 
   /* fast table */
   fast_dpi=sanei_genesys_get_lowest_ydpi(dev);
@@ -406,18 +406,21 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
 
     auto fast_table = sanei_genesys_slope_table(dev->model->asic_type, fast_dpi,
                                                 scan_exposure_time, dev->motor.base_ydpi,
-                                                factor, fast_motor_profile);
+                                                step_multiplier, fast_motor_profile);
 
-    gl846_send_slope_table(dev, STOP_TABLE, fast_table.table, fast_table.steps_count * factor);
-    gl846_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.steps_count * factor);
-    gl846_send_slope_table(dev, HOME_TABLE, fast_table.table, fast_table.steps_count * factor);
+    gl846_send_slope_table(dev, STOP_TABLE, fast_table.table,
+                           fast_table.steps_count * step_multiplier);
+    gl846_send_slope_table(dev, FAST_TABLE, fast_table.table,
+                           fast_table.steps_count * step_multiplier);
+    gl846_send_slope_table(dev, HOME_TABLE, fast_table.table,
+                           fast_table.steps_count * step_multiplier);
 
   /* correct move distance by acceleration and deceleration amounts */
   feedl=feed_steps;
   if (use_fast_fed)
     {
         feedl <<= static_cast<unsigned>(fast_step_type);
-        dist = (scan_table.steps_count + 2 * fast_table.steps_count) * factor;
+        dist = (scan_table.steps_count + 2 * fast_table.steps_count) * step_multiplier;
         /* TODO read and decode REG_0xAB */
         r = sanei_genesys_get_address (reg, 0x5e);
         dist += (r->value & 31);
@@ -428,7 +431,7 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
   else
     {
         feedl <<= static_cast<unsigned>(motor_profile.step_type);
-      dist = scan_table.steps_count * factor;
+        dist = scan_table.steps_count * step_multiplier;
         if (has_flag(flags, MotorFlag::FEED)) {
             dist *= 2;
         }
@@ -507,9 +510,9 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
     sanei_genesys_calculate_zmod(use_fast_fed,
                                  scan_exposure_time*ccdlmt*tgtime,
                                  scan_table.table,
-                                 scan_table.steps_count*factor,
+                                 scan_table.steps_count * step_multiplier,
                                  feedl,
-                                 min_restep*factor,
+                                 min_restep * step_multiplier,
                                  &z1,
                                  &z2);
 

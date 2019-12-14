@@ -1760,14 +1760,15 @@ const Motor_Profile& sanei_genesys_get_motor_profile(const std::vector<Motor_Pro
 }
 
 MotorSlopeTable sanei_genesys_slope_table(AsicType asic_type, int dpi, int exposure, int base_dpi,
-                                          int factor, const Motor_Profile& motor_profile)
+                                          unsigned step_multiplier,
+                                          const Motor_Profile& motor_profile)
 {
     unsigned target_speed_w = ((exposure * dpi) / base_dpi);
 
     auto table = create_slope_table(motor_profile.slope, target_speed_w, motor_profile.step_type,
-                                    factor, 2 * factor,
+                                    step_multiplier, 2 * step_multiplier,
                                     get_slope_table_max_size(asic_type));
-    table.steps_count /= factor;
+    table.steps_count /= step_multiplier;
     table.final_exposure = (table.final_exposure * base_dpi) / dpi;
     return table;
 }

@@ -413,7 +413,8 @@ const Motor_Profile& sanei_genesys_get_motor_profile(const std::vector<Motor_Pro
                                                      MotorId motor_id, int exposure);
 
 MotorSlopeTable sanei_genesys_slope_table(AsicType asic_type, int dpi, int exposure, int base_dpi,
-                                          int factor, const Motor_Profile& motor_profile);
+                                          unsigned step_multiplier,
+                                          const Motor_Profile& motor_profile);
 
 /** @brief find lowest motor resolution for the device.
  * Parses the resolution list for motor and

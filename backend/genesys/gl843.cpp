@@ -278,12 +278,8 @@ gl843_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x20, 0x10);
     dev->reg.init_reg(0x21, 0x04);
 
-    dev->reg.init_reg(0x22, 0x01);
-    dev->reg.init_reg(0x23, 0x01);
-    if (dev->model->model_id == ModelId::CANON_4400F) {
-        dev->reg.init_reg(0x22, 0x64);
-        dev->reg.init_reg(0x23, 0x64);
-    }
+    dev->reg.init_reg(0x22, 0x10);
+    dev->reg.init_reg(0x23, 0x10);
     if (dev->model->model_id == ModelId::CANON_8600F) {
         dev->reg.init_reg(0x22, 0xc8);
         dev->reg.init_reg(0x23, 0xc8);

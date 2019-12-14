@@ -135,6 +135,9 @@ struct MotorSlope
     // max speed in pixeltime per step
     unsigned max_speed_w = 0;
 
+    // maximum number of steps in the table
+    unsigned max_step_count;
+
     // acceleration in steps per pixeltime squared.
     float acceleration = 0;
 
@@ -146,8 +149,6 @@ struct MotorSlope
 
 struct MotorSlopeTable
 {
-    constexpr static unsigned SLOPE_TABLE_SIZE = 1024;
-
     std::vector<std::uint16_t> table;
     unsigned steps_count = 0;
     unsigned pixeltime_sum = 0;
@@ -156,9 +157,11 @@ struct MotorSlopeTable
     unsigned final_exposure = 0;
 };
 
+unsigned get_slope_table_max_size(AsicType asic_type);
+
 MotorSlopeTable create_slope_table(const MotorSlope& slope, unsigned target_speed_w,
                                    StepType step_type, unsigned steps_alignment,
-                                   unsigned min_size);
+                                   unsigned min_size, unsigned max_size);
 
 class Genesys_Motor_Slope
 {

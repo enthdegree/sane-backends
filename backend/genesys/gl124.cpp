@@ -567,7 +567,7 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
     reg->set16(REG_SCANFED, 4);
 
   /* scan and backtracking slope table */
-    auto scan_table = sanei_genesys_slope_table(yres, scan_exposure_time,
+    auto scan_table = sanei_genesys_slope_table(dev->model->asic_type, yres, scan_exposure_time,
                                                 dev->motor.base_ydpi, factor, motor_profile);
     gl124_send_slope_table(dev, SCAN_TABLE, scan_table.table, scan_table.steps_count);
     gl124_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table, scan_table.steps_count);
@@ -583,7 +583,7 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
       fast_dpi*=3;
     }
     */
-    auto fast_table = sanei_genesys_slope_table(fast_dpi, scan_exposure_time, dev->motor.base_ydpi,
+    auto fast_table = sanei_genesys_slope_table(dev->model->asic_type, fast_dpi, scan_exposure_time, dev->motor.base_ydpi,
                                                 factor, motor_profile);
     gl124_send_slope_table(dev, STOP_TABLE, fast_table.table, fast_table.steps_count);
     gl124_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.steps_count);

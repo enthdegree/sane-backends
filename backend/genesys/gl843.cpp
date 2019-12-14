@@ -869,8 +869,8 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     }
 
   /* scan and backtracking slope table */
-    auto scan_table = sanei_genesys_slope_table(scan_yres, exposure, dev->motor.base_ydpi,
-                                                factor, motor_profile);
+    auto scan_table = sanei_genesys_slope_table(dev->model->asic_type, scan_yres, exposure,
+                                                dev->motor.base_ydpi, factor, motor_profile);
 
     gl843_send_slope_table(dev, SCAN_TABLE, scan_table.table, scan_table.steps_count * factor);
     gl843_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table, scan_table.steps_count * factor);
@@ -897,8 +897,8 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     if (dev->model->model_id == ModelId::CANON_4400F) {
         fast_yres = scan_yres;
     }
-    auto fast_table = sanei_genesys_slope_table(fast_yres, exposure, dev->motor.base_ydpi,
-                                                factor, fast_motor_profile);
+    auto fast_table = sanei_genesys_slope_table(dev->model->asic_type, fast_yres, exposure,
+                                                dev->motor.base_ydpi, factor, fast_motor_profile);
     gl843_send_slope_table(dev, STOP_TABLE, fast_table.table, fast_table.steps_count * factor);
     gl843_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.steps_count * factor);
     gl843_send_slope_table(dev, HOME_TABLE, fast_table.table, fast_table.steps_count * factor);

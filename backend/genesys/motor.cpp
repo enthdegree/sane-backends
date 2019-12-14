@@ -80,9 +80,24 @@ MotorSlope MotorSlope::create_from_steps(unsigned initial_w, unsigned max_w,
     return slope;
 }
 
+unsigned get_slope_table_max_size(AsicType asic_type)
+{
+    switch (asic_type) {
+        case AsicType::GL646:
+        case AsicType::GL841: return 255;
+        case AsicType::GL843:
+        case AsicType::GL845:
+        case AsicType::GL846:
+        case AsicType::GL847:
+        case AsicType::GL124: return 1024;
+        default:
+            throw SaneException("Unknown asic type");
+    }
+}
+
 MotorSlopeTable create_slope_table(const MotorSlope& slope, unsigned target_speed_w,
                                    StepType step_type, unsigned steps_alignment,
-                                   unsigned min_size)
+                                   unsigned min_size, unsigned max_size)
 {
     DBG_HELPER_ARGS(dbg, "target_speed_w: %d, step_type: %d, steps_alignment: %d, min_size: %d",
                     target_speed_w, static_cast<unsigned>(step_type), steps_alignment, min_size);
@@ -99,9 +114,9 @@ MotorSlopeTable create_slope_table(const MotorSlope& slope, unsigned target_spee
 
     unsigned final_speed = std::max(target_speed_shifted_w, max_speed_shifted_w);
 
-    table.table.reserve(MotorSlopeTable::SLOPE_TABLE_SIZE);
+    table.table.reserve(max_size);
 
-    while (true) {
+    while (table.table.size() < max_size - 1) {
         unsigned current = slope.get_table_step_shifted(table.table.size(), step_type);
         if (current <= final_speed) {
             break;
@@ -116,7 +131,9 @@ MotorSlopeTable create_slope_table(const MotorSlope& slope, unsigned target_spee
     table.pixeltime_sum += table.table.back();
 
     // fill the table up to the specified size
-    while (table.table.size() % steps_alignment != 0 || table.table.size() < min_size) {
+    while (table.table.size() < max_size - 1 &&
+           (table.table.size() % steps_alignment != 0 || table.table.size() < min_size))
+    {
         table.table.push_back(table.table.back());
         table.pixeltime_sum += table.table.back();
     }
@@ -124,7 +141,7 @@ MotorSlopeTable create_slope_table(const MotorSlope& slope, unsigned target_spee
     table.steps_count = table.table.size();
 
     // fill the rest of the table with the final speed
-    table.table.resize(MotorSlopeTable::SLOPE_TABLE_SIZE, final_speed);
+    table.table.resize(max_size, final_speed);
 
     table.final_exposure = final_speed;
 

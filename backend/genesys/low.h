@@ -231,8 +231,6 @@ extern StaticInit<std::vector<Motor_Profile>> gl846_motor_profiles;
 extern StaticInit<std::vector<Motor_Profile>> gl847_motor_profiles;
 extern StaticInit<std::vector<Motor_Profile>> gl124_motor_profiles;
 
-constexpr unsigned SLOPE_TABLE_SIZE = 1024;
-
 /*--------------------------------------------------------------------------*/
 /*       common functions needed by low level specific functions            */
 /*--------------------------------------------------------------------------*/
@@ -417,7 +415,7 @@ bool scanner_is_motor_stopped(Genesys_Device& dev);
 const Motor_Profile& sanei_genesys_get_motor_profile(const std::vector<Motor_Profile>& motors,
                                                      MotorId motor_id, int exposure);
 
-MotorSlopeTable sanei_genesys_slope_table(int dpi, int exposure, int base_dpi,
+MotorSlopeTable sanei_genesys_slope_table(AsicType asic_type, int dpi, int exposure, int base_dpi,
                                           int factor, const Motor_Profile& motor_profile);
 
 /** @brief find lowest motor resolution for the device.

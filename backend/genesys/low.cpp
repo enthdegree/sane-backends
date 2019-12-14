@@ -944,9 +944,15 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
         s.pixel_endx /= s.hwdpi_divisor;
 
         // in case of stagger we have to start at an odd coordinate
-        if (s.num_staggered_lines > 0 && (s.pixel_startx & 1) == 0) {
-            s.pixel_startx++;
-            s.pixel_endx++;
+        bool stagger_starts_even = dev->model->model_id == ModelId::CANON_8400F;
+        if (s.num_staggered_lines > 0) {
+            if (!stagger_starts_even && (s.pixel_startx & 1) == 0) {
+                s.pixel_startx++;
+                s.pixel_endx++;
+            } else if (stagger_starts_even && (s.pixel_startx & 1) != 0) {
+                s.pixel_startx++;
+                s.pixel_endx++;
+            }
         }
 
     } else if (dev->model->asic_type == AsicType::GL845 ||

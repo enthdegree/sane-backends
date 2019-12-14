@@ -324,7 +324,6 @@ void sanei_genesys_init_structs (Genesys_Device * dev)
  * of the table. The summed time of the acceleration steps is returned, and the
  * number of accerelation steps is put into used_steps.
  *
- * @param slope_table    Table to write to
  * @param max_steps      Size of slope_table in steps
  * @param use_steps      Maximum number of steps to use for acceleration
  * @param stop_at        Minimum step time to use
@@ -332,34 +331,20 @@ void sanei_genesys_init_structs (Genesys_Device * dev)
  * @param vend           End step time of default slope
  * @param steps          Step count of default slope
  * @param g              Power for default slope
- * @param used_steps     Final number of steps is stored here
- * @param vfinal         Final step time is stored here
- * @return               Time for acceleration
+ * @return               Motor slope table
  * @note  All times in pixel time. Correction for other motor timings is not
  *        done.
  */
-SANE_Int sanei_genesys_generate_slope_table(std::vector<uint16_t>& slope_table,
-				    unsigned int max_steps,
-				    unsigned int use_steps,
-                                    uint16_t stop_at,
-				    uint16_t vstart,
-                                    uint16_t vend,
-				    unsigned int steps,
-                                    double g,
-				    unsigned int *used_steps,
-				    unsigned int *vfinal)
+MotorSlopeTable sanei_genesys_generate_slope_table(unsigned max_steps, unsigned use_steps,
+                                                   std::uint16_t stop_at, std::uint16_t vstart,
+                                                   std::uint16_t vend, unsigned steps, double g)
 {
+    MotorSlopeTable table;
+
   double t;
-  SANE_Int sum = 0;
   unsigned int i;
   unsigned int c = 0;
   uint16_t t2;
-  unsigned int dummy;
-  unsigned int _vfinal;
-  if (!used_steps)
-    used_steps = &dummy;
-  if (!vfinal)
-    vfinal = &_vfinal;
 
   DBG(DBG_proc, "%s: table size: %d\n", __func__, max_steps);
 
@@ -368,12 +353,10 @@ SANE_Int sanei_genesys_generate_slope_table(std::vector<uint16_t>& slope_table,
   DBG(DBG_proc, "%s: target slope: vstart: %d, vend: %d, steps: %d, g: %g\n", __func__, vstart,
       vend, steps, g);
 
-  sum = 0;
   c = 0;
-  *used_steps = 0;
 
-    slope_table.clear();
-    slope_table.reserve(max_steps);
+    table.table.clear();
+    table.table.reserve(max_steps);
 
   if (use_steps < 1)
     use_steps = 1;
@@ -388,34 +371,29 @@ SANE_Int sanei_genesys_generate_slope_table(std::vector<uint16_t>& slope_table,
             if (t2 < stop_at) {
                 break;
             }
-            slope_table.push_back(t2);
-	  /* DBG (DBG_io, "slope_table[%3d] = %5d\n", c, t2); */
-	  sum += t2;
+            table.table.push_back(t2);
+            table.pixeltime_sum += t2;
 	}
       if (t2 > stop_at)
 	{
 	  DBG(DBG_warn, "Can not reach target speed(%d) in %d steps.\n", stop_at, use_steps);
 	  DBG(DBG_warn, "Expect image to be distorted. Ignore this if only feeding.\n");
 	}
-      *vfinal = t2;
-      *used_steps += i;
+        table.final_exposure = t2;
+        table.steps_count += i;
       max_steps -= i;
-    }
-  else
-    *vfinal = stop_at;
-
-  for (i = 0; i < max_steps; i++, c++)
-    {
-        slope_table.push_back(*vfinal);
-      /* DBG (DBG_io, "slope_table[%3d] = %5d\n", c, *vfinal); */
+    } else {
+        table.final_exposure = stop_at;
     }
 
-  (*used_steps)++;
-  sum += *vfinal;
+    for (unsigned i = 0; i < max_steps; i++, c++) {
+        table.table.push_back(table.final_exposure);
+    }
 
-  DBG(DBG_proc, "%s: returns sum=%d, used %d steps, completed\n", __func__, sum, *used_steps);
+    table.steps_count++;
+    table.pixeltime_sum += table.final_exposure;
 
-  return sum;
+    return table;
 }
 
 /* Generate slope table for motor movement */
@@ -446,12 +424,9 @@ MotorSlopeTable sanei_genesys_create_slope_table3(const Genesys_Motor& motor,
                                                   int exposure_time,
                                                   unsigned yres)
 {
-    MotorSlopeTable table;
-
   unsigned int vtarget;
   unsigned int vend;
   unsigned int vstart;
-  unsigned int vfinal;
 
     DBG(DBG_proc, "%s: step_type = %d, exposure_time = %d, yres = %d\n", __func__,
         static_cast<unsigned>(step_type), exposure_time, yres);
@@ -469,20 +444,10 @@ MotorSlopeTable sanei_genesys_create_slope_table3(const Genesys_Motor& motor,
     vstart = std::min(vstart >> u_step_type, 65535u);
     vend = std::min(vend >> u_step_type, 65535u);
 
-    unsigned used_steps = 0;
-    table.pixeltime_sum = sanei_genesys_generate_slope_table(table.table,
-                                                             max_steps,
-                                                             use_steps,
-                                                             vtarget,
-                                                             vstart,
-                                                             vend,
-                                                             slope.minimum_steps << u_step_type,
-                                                             slope.g,
-                                                             &used_steps,
-                                                             &vfinal);
+    auto table = sanei_genesys_generate_slope_table(max_steps, use_steps, vtarget, vstart, vend,
+                                                    slope.minimum_steps << u_step_type, slope.g);
 
-    table.steps_count = used_steps;
-    table.final_exposure = (vfinal * motor.base_ydpi) / yres;
+    table.final_exposure = (table.final_exposure * motor.base_ydpi) / yres;
 
     return table;
 }

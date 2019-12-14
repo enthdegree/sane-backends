@@ -179,7 +179,6 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
 
   int i, nb;
   Motor_Master *motor = nullptr;
-  unsigned int used1, used2, vfinal;
   uint32_t z1, z2;
   int feedl;
 
@@ -218,17 +217,12 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     }
 
   /* now generate slope tables : we are not using generate_slope_table3 yet */
-    std::vector<std::uint16_t> slope_table1, slope_table2;
-  sanei_genesys_generate_slope_table (slope_table1, motor->steps1,
-				      motor->steps1 + 1, motor->vend1,
-				      motor->vstart1, motor->vend1,
-				      motor->steps1, motor->g1, &used1,
-				      &vfinal);
-  sanei_genesys_generate_slope_table (slope_table2, motor->steps2,
-				      motor->steps2 + 1, motor->vend2,
-				      motor->vstart2, motor->vend2,
-				      motor->steps2, motor->g2, &used2,
-				      &vfinal);
+    auto slope_table1 = sanei_genesys_generate_slope_table(motor->steps1, motor->steps1 + 1,
+                                                           motor->vend1, motor->vstart1,
+                                                           motor->vend1, motor->steps1, motor->g1);
+    auto slope_table2 = sanei_genesys_generate_slope_table(motor->steps2, motor->steps2 + 1,
+                                                           motor->vend2, motor->vstart2,
+                                                           motor->vend2, motor->steps2, motor->g2);
 
   /* R01 */
   /* now setup other registers for final scan (ie with shading enabled) */
@@ -506,7 +500,7 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
 
     sanei_genesys_calculate_zmod(regs->find_reg(0x02).value & REG_0x02_FASTFED,
                                  sensor.exposure_lperiod,
-				  slope_table1,
+                                 slope_table1.table,
 				  motor->steps1,
                                   move, motor->fwdbwd, &z1, &z2);
 
@@ -557,8 +551,8 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
         }
     }
 
-    gl646_send_slope_table(dev, 0, slope_table1, regs->get8(0x21));
-    gl646_send_slope_table(dev, 1, slope_table2, regs->get8(0x6b));
+    gl646_send_slope_table(dev, 0, slope_table1.table, regs->get8(0x21));
+    gl646_send_slope_table(dev, 1, slope_table2.table, regs->get8(0x6b));
 }
 
 
@@ -1094,8 +1088,7 @@ void CommandSetGl646::load_document(Genesys_Device* dev) const
 
   // FIXME: sequential not really needed in this case
   Genesys_Register_Set regs(Genesys_Register_Set::SEQUENTIAL);
-  unsigned int used, vfinal, count;
-    std::vector<uint16_t> slope_table;
+    unsigned count;
 
   /* no need to load document is flatbed scanner */
     if (!dev->model->is_sheetfed) {
@@ -1154,16 +1147,12 @@ void CommandSetGl646::load_document(Genesys_Device* dev) const
   regs.init_reg(0x24, 4);
 
   /* generate slope table 2 */
-  sanei_genesys_generate_slope_table (slope_table,
-				      50,
-				      51,
-				      2400,
-				      6000, 2400, 50, 0.25, &used, &vfinal);
+    auto slope_table = sanei_genesys_generate_slope_table(50, 51, 2400, 6000, 2400, 50, 0.25);
     // document loading:
     // send regs
     // start motor
     // wait e1 status to become e0
-    gl646_send_slope_table(dev, 1, slope_table, 50);
+    gl646_send_slope_table(dev, 1, slope_table.table, 50);
 
     dev->interface->write_registers(regs);
 
@@ -1257,8 +1246,7 @@ void CommandSetGl646::eject_document(Genesys_Device* dev) const
 
   // FIXME: SEQUENTIAL not really needed in this case
   Genesys_Register_Set regs((Genesys_Register_Set::SEQUENTIAL));
-  unsigned int used, vfinal, count;
-    std::vector<uint16_t> slope_table;
+    unsigned count;
     std::uint8_t gpio;
 
   /* at the end there will be noe more document */
@@ -1314,16 +1302,12 @@ void CommandSetGl646::eject_document(Genesys_Device* dev) const
   regs.init_reg(0x24, 4);
 
   /* generate slope table 2 */
-  sanei_genesys_generate_slope_table (slope_table,
-				      60,
-				      61,
-				      1600,
-				      10000, 1600, 60, 0.25, &used, &vfinal);
+    auto slope_table = sanei_genesys_generate_slope_table(60, 61, 1600, 10000, 1600, 60, 0.25);
     // document eject:
     // send regs
     // start motor
     // wait c1 status to become c8 : HOMESNR and ~MOTFLAG
-    gl646_send_slope_table(dev, 1, slope_table, 60);
+    gl646_send_slope_table(dev, 1, slope_table.table, 60);
 
     dev->interface->write_registers(regs);
 

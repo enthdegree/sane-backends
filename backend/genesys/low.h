@@ -321,11 +321,6 @@ unsigned sanei_genesys_get_bulk_max_size(AsicType asic_type);
 SANE_Int sanei_genesys_exposure_time2(Genesys_Device * dev, float ydpi, StepType step_type,
                                       int endpixel, int led_exposure);
 
-MotorSlopeTable sanei_genesys_generate_slope_table(unsigned max_steps,
-                                                   unsigned use_steps, std::uint16_t stop_at,
-                                                   std::uint16_t vstart, std::uint16_t vend,
-                                                   unsigned steps, double g);
-
 MotorSlopeTable sanei_genesys_create_slope_table3(AsicType asic_type, const Genesys_Motor& motor,
                                                   StepType step_type, int exposure_time,
                                                   unsigned yres);

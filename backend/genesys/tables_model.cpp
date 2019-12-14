@@ -290,7 +290,7 @@ void genesys_init_usb_device_tables()
 
     model.is_cis = false;
     model.is_sheetfed = false;
-    model.sensor_id = SensorId::CCD_G4050;
+    model.sensor_id = SensorId::CCD_HP_4850C;
     model.adc_id = AdcId::G4050;
     model.gpio_id = GpioId::G4050;
     model.motor_id = MotorId::G4050;

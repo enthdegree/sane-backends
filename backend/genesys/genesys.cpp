@@ -1335,7 +1335,10 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
     }
 
     if (is_testing_mode()) {
+        dev.interface->test_checkpoint("move_back_home_ta");
         scanner_stop_action(dev);
+        gl843::gl843_set_xpa_motor_power(&dev, local_reg, false);
+        dev.needs_home_ta = false;
         return;
     }
 

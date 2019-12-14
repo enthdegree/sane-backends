@@ -878,23 +878,11 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     reg->set8(REG_STEPNO, scan_table.steps_count / step_multiplier);
     reg->set8(REG_FSHDEC, scan_table.steps_count / step_multiplier);
 
-  /* fast table */
-    // BUG: looks like for fast moves we use inconsistent step type
-    StepType fast_step_type = StepType::FULL;
-    if (static_cast<unsigned>(motor_profile.step_type) <= static_cast<unsigned>(fast_step_type)) {
-        fast_step_type = motor_profile.step_type;
-    }
-
-    Motor_Profile fast_motor_profile = motor_profile;
-    fast_motor_profile.step_type = fast_step_type;
-
+    // fast table
     unsigned fast_yres = sanei_genesys_get_lowest_ydpi(dev);
-    if (dev->model->model_id == ModelId::CANON_4400F) {
-        fast_yres = scan_yres;
-    }
     auto fast_table = sanei_genesys_slope_table(dev->model->asic_type, fast_yres, exposure,
                                                 dev->motor.base_ydpi, step_multiplier,
-                                                fast_motor_profile);
+                                                motor_profile);
     gl843_send_slope_table(dev, STOP_TABLE, fast_table.table, fast_table.steps_count);
     gl843_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.steps_count);
     gl843_send_slope_table(dev, HOME_TABLE, fast_table.table, fast_table.steps_count);

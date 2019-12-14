@@ -221,7 +221,7 @@ struct Genesys_USB_Device_Entry {
 struct Motor_Profile
 {
     MotorId motor_id;
-	int exposure;    /**< exposure for the slope table */
+    int exposure;           // used only to select the wanted motor
     StepType step_type;   // default step type for given exposure
     MotorSlope slope;
 };

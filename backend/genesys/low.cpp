@@ -1730,7 +1730,7 @@ const Motor_Profile& sanei_genesys_get_motor_profile(const std::vector<Motor_Pro
         if (motors[i].motor_id == motor_id) {
           /* if profile exposure is higher than the required one,
            * the entry is a candidate for the closest match */
-          if(motors[i].exposure>=exposure)
+            if (motors[i].exposure == 0 || motors[i].exposure >= exposure)
             {
               if(idx<0)
                 {

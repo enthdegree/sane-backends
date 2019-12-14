@@ -110,33 +110,11 @@ void genesys_init_motor_profile_tables_gl843()
     profile.slope = MotorSlope::create_from_steps(54612, 1500, 219);
     gl843_motor_profiles->push_back(profile);
 
-    /* TODO:
-        1800 dpi: 31250, 3105, 3025, 3025
-
-        3600 dpi: 31250, 6050, 6050
-
-        7200 dpi: 31250, 12100, 12100
-
-        isrd:
-
-        1800 dpi: 31250, 3105, 2750, 2750
-
-        3600 dpi: 31250, 5500, 5500,
-
-        7200 dpi: 31250, 11000, 11000,
-    */
     profile = Motor_Profile();
     profile.motor_id = MotorId::PLUSTEK_OPTICFILM_7200I;
-    profile.exposure = 0x19c8;
+    profile.exposure = 0;
     profile.step_type = StepType::HALF;
-    profile.slope = MotorSlope::create_from_steps(11000, 11000, 2);
-    gl843_motor_profiles->push_back(profile);
-
-    profile = Motor_Profile();
-    profile.motor_id = MotorId::PLUSTEK_OPTICFILM_7200I;
-    profile.exposure = 0x2538;
-    profile.step_type = StepType::HALF;
-    profile.slope = MotorSlope::create_from_steps(15880, 15880, 2);
+    profile.slope = MotorSlope::create_from_steps(39682, 1191, 15);
     gl843_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
@@ -148,14 +126,7 @@ void genesys_init_motor_profile_tables_gl843()
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::PLUSTEK_OPTICFILM_7500I;
-    profile.exposure = 0x2f44;
-    profile.step_type = StepType::QUARTER;
-    profile.slope = MotorSlope::create_from_steps(31250, 1512, 6);
-    gl843_motor_profiles->push_back(profile);
-
-    profile = Motor_Profile();
-    profile.motor_id = MotorId::PLUSTEK_OPTICFILM_7500I;
-    profile.exposure = 0x2af8;
+    profile.exposure = 0;
     profile.step_type = StepType::QUARTER;
     profile.slope = MotorSlope::create_from_steps(31250, 1375, 7);
     gl843_motor_profiles->push_back(profile);

@@ -872,18 +872,11 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
                                                 dev->motor.base_ydpi, step_multiplier,
                                                 motor_profile);
 
-    gl843_send_slope_table(dev, SCAN_TABLE, scan_table.table,
-                           scan_table.steps_count * step_multiplier);
-    gl843_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table,
-                           scan_table.steps_count * step_multiplier);
+    gl843_send_slope_table(dev, SCAN_TABLE, scan_table.table, scan_table.steps_count);
+    gl843_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table, scan_table.steps_count);
 
-  /* STEPNO */
-    r = sanei_genesys_get_address(reg, REG_STEPNO);
-    r->value = scan_table.steps_count;
-
-  /* FSHDEC */
-    r = sanei_genesys_get_address(reg, REG_FSHDEC);
-    r->value = scan_table.steps_count;
+    reg->set8(REG_STEPNO, scan_table.steps_count / step_multiplier);
+    reg->set8(REG_FSHDEC, scan_table.steps_count / step_multiplier);
 
   /* fast table */
     // BUG: looks like for fast moves we use inconsistent step type
@@ -902,29 +895,21 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     auto fast_table = sanei_genesys_slope_table(dev->model->asic_type, fast_yres, exposure,
                                                 dev->motor.base_ydpi, step_multiplier,
                                                 fast_motor_profile);
-    gl843_send_slope_table(dev, STOP_TABLE, fast_table.table,
-                           fast_table.steps_count * step_multiplier);
-    gl843_send_slope_table(dev, FAST_TABLE, fast_table.table,
-                           fast_table.steps_count * step_multiplier);
-    gl843_send_slope_table(dev, HOME_TABLE, fast_table.table,
-                           fast_table.steps_count * step_multiplier);
+    gl843_send_slope_table(dev, STOP_TABLE, fast_table.table, fast_table.steps_count);
+    gl843_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.steps_count);
+    gl843_send_slope_table(dev, HOME_TABLE, fast_table.table, fast_table.steps_count);
 
-  /* FASTNO */
-    r = sanei_genesys_get_address(reg, REG_FASTNO);
-    r->value = fast_table.steps_count;
-
-  /* FMOVNO */
-    r = sanei_genesys_get_address(reg, REG_FMOVNO);
-    r->value = fast_table.steps_count;
+    reg->set8(REG_FASTNO, fast_table.steps_count / step_multiplier);
+    reg->set8(REG_FMOVNO, fast_table.steps_count / step_multiplier);
 
   /* substract acceleration distance from feedl */
   feedl=feed_steps;
     feedl <<= static_cast<unsigned>(motor_profile.step_type);
 
-    dist = scan_table.steps_count;
+    dist = scan_table.steps_count / step_multiplier;
   if (use_fast_fed)
     {
-        dist += fast_table.steps_count*2;
+        dist += (fast_table.steps_count / step_multiplier) * 2;
     }
   DBG(DBG_io2, "%s: acceleration distance=%d\n", __func__, dist);
 
@@ -943,9 +928,9 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     sanei_genesys_calculate_zmod(use_fast_fed,
 				  exposure,
                                  scan_table.table,
-                                 scan_table.steps_count,
+                                 scan_table.steps_count / step_multiplier,
 				  feedl,
-                                 scan_table.steps_count,
+                                 scan_table.steps_count / step_multiplier,
                                   &z1,
                                   &z2);
   if(scan_yres>600)
@@ -967,9 +952,8 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     reg->set8_mask(REG_0x67, static_cast<unsigned>(motor_profile.step_type) << REG_0x67S_STEPSEL, 0xc0);
     reg->set8_mask(REG_0x68, static_cast<unsigned>(motor_profile.step_type) << REG_0x68S_FSTPSEL, 0xc0);
 
-  /* steps for STOP table */
-    r = sanei_genesys_get_address(reg, REG_FMOVDEC);
-    r->value = fast_table.steps_count;
+    // steps for STOP table
+    reg->set8(REG_FMOVDEC, fast_table.steps_count / step_multiplier);
 
   /* Vref XXX STEF XXX : optical divider or step type ? */
   r = sanei_genesys_get_address (reg, 0x80);

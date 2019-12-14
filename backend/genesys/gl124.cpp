@@ -491,7 +491,6 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
 
   /* we never use fast fed since we do manual feed for the scans */
   use_fast_fed=0;
-    unsigned step_multiplier = 1;
 
   /* enforce motor minimal scan speed
    * @TODO extend motor struct for this value */
@@ -567,7 +566,7 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
 
   /* scan and backtracking slope table */
     auto scan_table = sanei_genesys_slope_table(dev->model->asic_type, yres, scan_exposure_time,
-                                                dev->motor.base_ydpi, step_multiplier,
+                                                dev->motor.base_ydpi, 1,
                                                 motor_profile);
     gl124_send_slope_table(dev, SCAN_TABLE, scan_table.table, scan_table.steps_count);
     gl124_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table, scan_table.steps_count);
@@ -585,7 +584,7 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
     */
     auto fast_table = sanei_genesys_slope_table(dev->model->asic_type, fast_dpi,
                                                 scan_exposure_time, dev->motor.base_ydpi,
-                                                step_multiplier, motor_profile);
+                                                1, motor_profile);
     gl124_send_slope_table(dev, STOP_TABLE, fast_table.table, fast_table.steps_count);
     gl124_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.steps_count);
 

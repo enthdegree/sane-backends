@@ -67,6 +67,51 @@ struct AssignableArray : public std::array<T, Size> {
     }
 };
 
+
+class StaggerConfig
+{
+public:
+    StaggerConfig() = default;
+    StaggerConfig(unsigned min_resolution, unsigned lines_at_min) :
+        min_resolution_{min_resolution},
+        lines_at_min_{lines_at_min}
+    {
+    }
+
+    unsigned stagger_at_resolution(unsigned xresolution, unsigned yresolution) const
+    {
+        if (min_resolution_ == 0 || xresolution < min_resolution_)
+            return 0;
+        return yresolution / min_resolution_ * lines_at_min_;
+    }
+
+    unsigned min_resolution() const { return min_resolution_; }
+    unsigned lines_at_min() const { return lines_at_min_; }
+
+    bool operator==(const StaggerConfig& other) const
+    {
+        return min_resolution_ == other.min_resolution_ &&
+                lines_at_min_ == other.lines_at_min_;
+    }
+
+private:
+    unsigned min_resolution_ = 0;
+    unsigned lines_at_min_ = 0;
+
+    template<class Stream>
+    friend void serialize(Stream& str, StaggerConfig& x);
+};
+
+template<class Stream>
+void serialize(Stream& str, StaggerConfig& x)
+{
+    serialize(str, x.min_resolution_);
+    serialize(str, x.lines_at_min_);
+}
+
+std::ostream& operator<<(std::ostream& out, const StaggerConfig& config);
+
+
 enum class FrontendType : unsigned
 {
     UNKNOWN,
@@ -310,6 +355,10 @@ struct Genesys_Sensor {
     // only on gl843
     std::vector<unsigned> segment_order;
 
+    // some CCDs use two arrays of pixels for double resolution. On such CCDs when scanning at
+    // high-enough resolution, every other pixel column is shifted
+    StaggerConfig stagger_config;
+
     GenesysRegisterSettingSet custom_base_regs; // gl646-specific
     GenesysRegisterSettingSet custom_regs;
     GenesysRegisterSettingSet custom_fe_regs;
@@ -370,6 +419,7 @@ struct Genesys_Sensor {
             exposure_lperiod == other.exposure_lperiod &&
             segment_size == other.segment_size &&
             segment_order == other.segment_order &&
+            stagger_config == other.stagger_config &&
             custom_base_regs == other.custom_base_regs &&
             custom_regs == other.custom_regs &&
             custom_fe_regs == other.custom_fe_regs &&
@@ -400,6 +450,8 @@ void serialize(Stream& str, Genesys_Sensor& x)
     serialize(str, x.segment_size);
     serialize_newline(str);
     serialize(str, x.segment_order);
+    serialize_newline(str);
+    serialize(str, x.stagger_config);
     serialize_newline(str);
     serialize(str, x.custom_base_regs);
     serialize_newline(str);

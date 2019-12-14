@@ -32,6 +32,7 @@ Backends:
  epson:         Karl Heinz Kremer
  epson2:        Alessandro Zummo
  epsonds:       Alessandro Zummo
+ escl:          Touboul Nathane, Thierry HUCHARD (*)
  fujitsu:       Randolph Bentson, Frederik Ramm, Oliver Schirrmeister,
                 m. allan noah (*)
  genesys:       Henning Geinitz, Gerhard Jaeger (*), Stéphane Voltz,
@@ -248,9 +249,11 @@ Sergey Vlasov <vsu@altlinux.ru>
 Simon Krix <kinsei@users.sourceforge.net>
 Simon Munton <simon@munton.demon.co.uk>
 Stéphane Voltz <stef.dev@free.fr>
+Thierry HUCHARD <thierry@ordissimo.com>
 Thomas Soumarmon <soumarmt@nerim.net>
 Tom Martone <tom@martoneconsulting.com>
 Tom Wang <tom.wang@mustek.com.tw>
+Touboul Nathane <nathane.touboul@gmail.com>
 Tristan Tarrant <ttarrant@etnoteam.it>
 Troy Rollo <sane@troy.rollo.name>
 Ullrich Sigwanz <usigwanz@freesurf.ch>

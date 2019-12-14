@@ -6,7 +6,7 @@
 variables:
   REGISTRY_HUB: "registry.gitlab.com/sane-project/ci-envs"
   CONFIGURE_MINI: "--enable-silent-rules"
-  CONFIGURE_FULL: "--with-usb --enable-avahi --enable-pnm-backend"
+  CONFIGURE_FULL: "--with-usb --enable-avahi --enable-pnm-backend --with-libcurl"
 
 stages:
   - tarball

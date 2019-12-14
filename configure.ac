@@ -140,6 +140,7 @@ if test "$enable_avahi" = "yes"; then
   PKG_CHECK_MODULES(AVAHI, [ avahi-client >= 0.6.24 ],
                     [AC_DEFINE(WITH_AVAHI, 1, [define if Avahi support is enabled for saned and the net backend])], enable_avahi=no)
 fi
+AM_CONDITIONAL([have_libavahi], [test x != "x$AVAHI_LIBS"])
 
 dnl check sane to make sure we don't have two installations
 AC_CHECK_LIB(sane, sane_init, LIBSANE_EXISTS="yes")
@@ -431,6 +432,28 @@ AS_IF([test xyes = "x$with_usb" && test xyes != "x$have_usb"],
 AM_CONDITIONAL([have_usblib], [test x != "x$USB_LIBS"])
 
 dnl ******************************************************************
+dnl Check for libcurl availability
+dnl ******************************************************************
+AC_ARG_WITH(libcurl,
+  AS_HELP_STRING([--with-libcurl],
+    [enable functionality that needs libcurl @<:@default=check@:>@]),
+  [],
+  [with_libcurl=check])
+AC_DEFINE(HAVE_LIBCURL,
+  [0], [Define to 1 if libcurl is available])
+AS_IF([test xno != "x$with_libcurl"],
+  [PKG_CHECK_MODULES(libcurl, [libcurl],
+     [AC_DEFINE([HAVE_LIBCURL], [1])
+      with_libcurl=yes
+     ],
+     [AS_IF([test xcheck != "x$with_libcurl"],
+        [AC_MSG_ERROR([libcurl requested but not found])])
+      with_libcurl=no
+     ])
+  ])
+AM_CONDITIONAL([have_libcurl], [test x != "x$libcurl_LIBS"])
+
+dnl ******************************************************************
 dnl Check for USB record/replay support
 dnl ******************************************************************
 AC_ARG_WITH(usb_record_replay,
@@ -440,6 +463,7 @@ AC_ARG_WITH(usb_record_replay,
 if test "x$with_usb_record_replay" != "xno"; then
   PKG_CHECK_MODULES([XML], [libxml-2.0], have_libxml=yes, have_libxml=no)
   if test "x$have_libxml" = xyes; then
+    AC_DEFINE(HAVE_LIBXML2, 1, [Define to 1 if libxml2 is available])
     AC_DEFINE(WITH_USB_RECORD_REPLAY, 1, [define if USB record replay is enabled])
   else
     if test "x$with_usb_record_replay" = xyes; then
@@ -447,6 +471,7 @@ if test "x$with_usb_record_replay" != "xno"; then
     fi
   fi
 fi
+AM_CONDITIONAL([have_libxml2], [test x != "x$XML_LIBS"])
 
 dnl ************
 dnl SCSI Support
@@ -611,8 +636,8 @@ AC_ARG_ENABLE(local-backends,
 ALL_BACKENDS="abaton agfafocus apple artec artec_eplus48u as6e \
         avision bh canon canon630u canon_dr canon_pp cardscan \
         coolscan coolscan2 coolscan3 dc25 dc210 dc240 \
-        dell1600n_net dmc epjitsu epson epson2 epsonds fujitsu genesys \
-        gphoto2 gt68xx hp hp3500 hp3900 hp4200 hp5400 \
+        dell1600n_net dmc epjitsu epson epson2 epsonds escl fujitsu \
+        genesys gphoto2 gt68xx hp hp3500 hp3900 hp4200 hp5400 \
         hp5590 hpsj5s hpljm1005 hs2p ibm kodak kodakaio kvs1025 kvs20xx \
         kvs40xx leo lexmark ma1509 magicolor \
         matsushita microtek microtek2 mustek mustek_pp \
@@ -841,6 +866,7 @@ else
 fi
 echo "IPv6 support:  `eval eval echo ${ipv6}`"
 echo "Avahi support: `eval eval echo ${enable_avahi}`"
+echo "cURL support:  `eval eval echo ${with_libcurl}`"
 echo "SNMP support:  `eval eval echo ${with_snmp}`"
 echo "-> The following backends will be built:"
 for backend in ${BACKENDS} ; do

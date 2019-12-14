@@ -611,6 +611,26 @@ for be in ${BACKENDS}; do
     fi
     ;;
 
+    escl)
+    if test "x${enable_avahi}" != "xyes"; then
+      echo "*** $be backend requires AVAHI library - $DISABLE_MSG"
+      backend_supported="no"
+    fi
+    if test "x${with_libcurl}" != "xyes"; then
+      echo "*** $be backend requires cURL library - $DISABLE_MSG"
+      backend_supported="no"
+    fi
+    if test "x${have_libxml}" != "xyes"; then
+      echo "*** $be backend requires XML library - $DISABLE_MSG"
+      backend_supported="no"
+    fi
+    # FIXME: Remove when PNG and/or PDF support have been added.
+    if test "x${sane_cv_use_libjpeg}" != "xyes"; then
+      echo "*** $be backend currently requires JPEG library - $DISABLE_MSG"
+      backend_supported="no"
+    fi
+    ;;
+
     gphoto2)
     if test "${HAVE_GPHOTO2}" != "true" \
       || test "${sane_cv_use_libjpeg}" != "yes"; then

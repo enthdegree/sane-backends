@@ -1,0 +1,41 @@
+.TH sane\-escl 5 "14 Dec 2019" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-escl
+.SH NAME
+sane\-escl \- SANE backend for eSCL scanners
+.SH DESCRIPTION
+The
+.B sane\-escl
+library implements a SANE (Scanner Access Now Easy) backend that
+provides access to eSCL protocol scanners.
+
+.PP
+The "escl" backend for SANE supports AirScan/eSCL devices that announce
+themselves on mDNS as _uscan._utcp or _uscans._utcp.
+If the device is available, the "escl" backend recovers these capacities.
+The user configures and starts scanning.
+A list of devices that use the eSCL protocol can be found at
+.IR https://support.apple.com/en-us/HT201311 .
+While these devices are expected to work, your mileage may vary.
+
+.SH FILES
+.TP
+.I @CONFIGDIR@/escl.conf
+The backend configuration file.
+.TP
+.I @LIBDIR@/libsane\-escl.a
+The static library implementing this backend.
+.TP
+.I @LIBDIR@/libsane\-escl.so
+The shared library implementing this backend (present on systems that
+support dynamic loading).
+.SH ENVIRONMENT
+.TP
+.B SANE_DEBUG_ESCL
+If the library was compiled with debug support enabled, this
+environment variable controls the debug level for this backend.  E.g.,
+a value of 128 requests all debug output to be printed.  Smaller
+levels reduce verbosity.
+.SH "SEE ALSO"
+sane(7), scanimage(1), xscanimage(1), xsane(1)
+.SH AUTHORS
+Touboul Nathane, Thierry HUCHARD

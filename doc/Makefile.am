@@ -19,7 +19,7 @@ EXTRA_DIST = scanimage.man sane-config.man sane-find-scanner.man \
 
 BACKEND_5MANS = sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 \
 	sane-dll.5 sane-dc25.5 sane-dmc.5 sane-epson.5 sane-epson2.5 sane-epsonds.5 \
-	sane-hp.5 sane-gphoto2.5 sane-leo.5 sane-lexmark.5 \
+	sane-escl.5 sane-hp.5 sane-gphoto2.5 sane-leo.5 sane-lexmark.5 \
 	sane-matsushita.5 sane-microtek.5 sane-microtek2.5 sane-mustek.5 \
 	sane-nec.5 sane-net.5 sane-pie.5 sane-pieusb.5 sane-pint.5 sane-pnm.5 \
 	sane-umax.5 sane-qcam.5 sane-scsi.5 sane-artec.5 sane-kodak.5 sane-kodakaio.5 \
@@ -41,8 +41,8 @@ BACKEND_5MANS = sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 \
 
 EXTRA_DIST += sane-abaton.man sane-agfafocus.man sane-apple.man sane-as6e.man \
 	sane-dll.man sane-dc25.man sane-dmc.man sane-epson.man \
-	sane-epson2.man sane-epsonds.man sane-hp.man sane-gphoto2.man sane-leo.man \
-	sane-lexmark.man sane-matsushita.man sane-microtek.man \
+	sane-epson2.man sane-epsonds.man sane-escl.man sane-hp.man sane-gphoto2.man \
+	sane-leo.man sane-lexmark.man sane-matsushita.man sane-microtek.man \
 	sane-microtek2.man sane-mustek.man sane-nec.man sane-net.man \
 	sane-pie.man sane-pieusb.man sane-pint.man sane-pnm.man sane-umax.man \
 	sane-qcam.man sane-scsi.man sane-artec.man sane-fujitsu.man \
@@ -157,7 +157,7 @@ DESC_FILES = descriptions/abaton.desc descriptions/agfafocus.desc \
   descriptions/dc210.desc descriptions/dc240.desc descriptions/dc25.desc \
   descriptions/dell1600n_net.desc descriptions/dll.desc descriptions/dmc.desc \
   descriptions/epjitsu.desc descriptions/epson2.desc descriptions/epson.desc \
-  descriptions/epsonds.desc \
+  descriptions/epsonds.desc descriptions/escl.desc \
   descriptions/fujitsu.desc descriptions/genesys.desc \
   descriptions/gphoto2.desc descriptions/gt68xx.desc descriptions/hp3500.desc \
   descriptions/hp3900.desc descriptions/hp4200.desc descriptions/hp5400.desc \

@@ -3352,12 +3352,6 @@ void CommandSetGl646::wait_for_motor_stop(Genesys_Device* dev) const
     (void) dev;
 }
 
-void CommandSetGl646::rewind(Genesys_Device* dev) const
-{
-    (void) dev;
-    throw SaneException("not implemented");
-}
-
 void CommandSetGl646::send_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                         std::uint8_t* data, int size) const
 {

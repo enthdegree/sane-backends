@@ -3048,12 +3048,6 @@ void CommandSetGl843::wait_for_motor_stop(Genesys_Device* dev) const
     (void) dev;
 }
 
-void CommandSetGl843::rewind(Genesys_Device* dev) const
-{
-    (void) dev;
-    throw SaneException("not implemented");
-}
-
 std::unique_ptr<CommandSet> create_gl843_cmd_set()
 {
     return std::unique_ptr<CommandSet>(new CommandSetGl843{});

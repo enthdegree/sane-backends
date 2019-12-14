@@ -1737,13 +1737,7 @@ static void genesys_repark_sensor_before_shading(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
     if (dev->model->flags & GENESYS_FLAG_SHADING_REPARK) {
-        // rewind keeps registers and slopes table intact from previous scan but is not
-        // available on all supported chipsets (or may cause scan artifacts, see #7)
-        if (dev->cmd_set->has_rewind()) {
-            dev->cmd_set->rewind(dev);
-        } else {
-            dev->cmd_set->move_back_home(dev, true);
-        }
+        dev->cmd_set->move_back_home(dev, true);
 
         if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
             dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)

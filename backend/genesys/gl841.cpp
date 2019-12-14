@@ -3983,12 +3983,6 @@ void CommandSetGl841::wait_for_motor_stop(Genesys_Device* dev) const
     (void) dev;
 }
 
-void CommandSetGl841::rewind(Genesys_Device* dev) const
-{
-    (void) dev;
-    throw SaneException("not implemented");
-}
-
 void CommandSetGl841::move_to_ta(Genesys_Device* dev) const
 {
     (void) dev;

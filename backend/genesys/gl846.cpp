@@ -2063,12 +2063,6 @@ void CommandSetGl846::wait_for_motor_stop(Genesys_Device* dev) const
     (void) dev;
 }
 
-void CommandSetGl846::rewind(Genesys_Device* dev) const
-{
-    (void) dev;
-    throw SaneException("not implemented");
-}
-
 void CommandSetGl846::load_document(Genesys_Device* dev) const
 {
     (void) dev;

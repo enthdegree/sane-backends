@@ -847,39 +847,6 @@ void CommandSetGl847::end_scan(Genesys_Device* dev, Genesys_Register_Set* reg,
     }
 }
 
-/** rewind scan
- * Move back by the same amount of distance than previous scan.
- * @param dev device to rewind
- */
-#if 0                           /* disabled to fix #7 */
-static void gl847_rewind(Genesys_Device* dev)
-{
-    DBG_HELPER(dbg);
-  uint8_t byte;
-
-
-    // set motor reverse
-    uint8_t byte = dev->interface->read_register(0x02);
-    byte |= 0x04;
-    dev->interface->write_register(0x02, byte);
-
-    // and start scan, then wait completion
-    gl847_begin_scan(dev, dev->reg, true);
-  do
-    {
-        dev->interface->sleep_ms(100);
-        byte = dev->interface->read_register(REG_0x40);
-    } while (byte & REG_0x40_MOTMFLG);
-
-    gl847_end_scan(dev, dev->reg, true);
-
-    // restore direction
-    byte = dev->interface->read_register(0x02);
-    byte &= 0xfb;
-    dev->interface->write_register(0x02, byte);
-}
-#endif
-
 /** Park head
  * Moves the slider to the home (top) position slowly
  * @param dev device to park
@@ -2136,12 +2103,6 @@ void CommandSetGl847::send_gamma_table(Genesys_Device* dev, const Genesys_Sensor
 void CommandSetGl847::wait_for_motor_stop(Genesys_Device* dev) const
 {
     (void) dev;
-}
-
-void CommandSetGl847::rewind(Genesys_Device* dev) const
-{
-    (void) dev;
-    throw SaneException("not implemented");
 }
 
 void CommandSetGl847::load_document(Genesys_Device* dev) const

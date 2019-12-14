@@ -1054,6 +1054,14 @@ void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
         scanner_move_back_home_ta(dev);
     }
 
+    if (dev.is_head_pos_known(ScanHeadId::PRIMARY) &&
+        dev.head_pos(ScanHeadId::PRIMARY) > 1000)
+    {
+        // leave 500 steps for regular slow back home
+        scanner_move(dev, dev.model->default_method, dev.head_pos(ScanHeadId::PRIMARY) - 500,
+                     Direction::BACKWARD);
+    }
+
     if (dev.cmd_set->needs_update_home_sensor_gpio()) {
         dev.cmd_set->update_home_sensor_gpio(dev);
     }
@@ -1183,6 +1191,14 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
     unsigned resolution = dev.model->get_resolution_settings(scan_method).get_min_resolution_y();
 
     const auto& sensor = sanei_genesys_find_sensor(&dev, resolution, 1, scan_method);
+
+    if (dev.is_head_pos_known(ScanHeadId::SECONDARY) &&
+        dev.head_pos(ScanHeadId::SECONDARY) > 1000)
+    {
+        // leave 500 steps for regular slow back home
+        scanner_move(dev, scan_method, dev.head_pos(ScanHeadId::SECONDARY) - 500,
+                     Direction::BACKWARD);
+    }
 
     ScanSession session;
     session.params.xres = resolution;

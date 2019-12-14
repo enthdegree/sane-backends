@@ -2533,7 +2533,7 @@ void genesys_init_sensor_tables()
     sensor.fau_gain_white_ref = 160;
     sensor.gain_white_ref = 160;
     sensor.exposure = { 0x9c40, 0x9c40, 0x9c40 };
-    sensor.stagger_config = StaggerConfig{ 2400, 4 }; // FIXME: may be incorrect
+    sensor.stagger_config = StaggerConfig{4800, 8};
     sensor.custom_regs = {};
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
     sensor.get_logical_hwdpi_fun = get_sensor_optical_with_ccd_divisor;

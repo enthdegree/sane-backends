@@ -872,16 +872,16 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     auto scan_table = sanei_genesys_slope_table(scan_yres, exposure, dev->motor.base_ydpi,
                                                 factor, motor_profile);
 
-    gl843_send_slope_table(dev, SCAN_TABLE, scan_table.table, scan_table.scan_steps * factor);
-    gl843_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table, scan_table.scan_steps * factor);
+    gl843_send_slope_table(dev, SCAN_TABLE, scan_table.table, scan_table.steps_count * factor);
+    gl843_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table, scan_table.steps_count * factor);
 
   /* STEPNO */
     r = sanei_genesys_get_address(reg, REG_STEPNO);
-    r->value = scan_table.scan_steps;
+    r->value = scan_table.steps_count;
 
   /* FSHDEC */
     r = sanei_genesys_get_address(reg, REG_FSHDEC);
-    r->value = scan_table.scan_steps;
+    r->value = scan_table.steps_count;
 
   /* fast table */
     // BUG: looks like for fast moves we use inconsistent step type
@@ -899,26 +899,26 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     }
     auto fast_table = sanei_genesys_slope_table(fast_yres, exposure, dev->motor.base_ydpi,
                                                 factor, fast_motor_profile);
-    gl843_send_slope_table(dev, STOP_TABLE, fast_table.table, fast_table.scan_steps * factor);
-    gl843_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.scan_steps * factor);
-    gl843_send_slope_table(dev, HOME_TABLE, fast_table.table, fast_table.scan_steps * factor);
+    gl843_send_slope_table(dev, STOP_TABLE, fast_table.table, fast_table.steps_count * factor);
+    gl843_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.steps_count * factor);
+    gl843_send_slope_table(dev, HOME_TABLE, fast_table.table, fast_table.steps_count * factor);
 
   /* FASTNO */
     r = sanei_genesys_get_address(reg, REG_FASTNO);
-    r->value = fast_table.scan_steps;
+    r->value = fast_table.steps_count;
 
   /* FMOVNO */
     r = sanei_genesys_get_address(reg, REG_FMOVNO);
-    r->value = fast_table.scan_steps;
+    r->value = fast_table.steps_count;
 
   /* substract acceleration distance from feedl */
   feedl=feed_steps;
     feedl <<= static_cast<unsigned>(motor_profile.step_type);
 
-    dist = scan_table.scan_steps;
+    dist = scan_table.steps_count;
   if (use_fast_fed)
     {
-        dist += fast_table.scan_steps*2;
+        dist += fast_table.steps_count*2;
     }
   DBG(DBG_io2, "%s: acceleration distance=%d\n", __func__, dist);
 
@@ -937,9 +937,9 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     sanei_genesys_calculate_zmod(use_fast_fed,
 				  exposure,
                                  scan_table.table,
-                                 scan_table.scan_steps,
+                                 scan_table.steps_count,
 				  feedl,
-                                 scan_table.scan_steps,
+                                 scan_table.steps_count,
                                   &z1,
                                   &z2);
   if(scan_yres>600)
@@ -963,7 +963,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
 
   /* steps for STOP table */
     r = sanei_genesys_get_address(reg, REG_FMOVDEC);
-    r->value = fast_table.scan_steps;
+    r->value = fast_table.steps_count;
 
   /* Vref XXX STEF XXX : optical divider or step type ? */
   r = sanei_genesys_get_address (reg, 0x80);

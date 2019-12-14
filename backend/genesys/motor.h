@@ -149,7 +149,7 @@ struct MotorSlopeTable
     constexpr static unsigned SLOPE_TABLE_SIZE = 1024;
 
     std::vector<std::uint16_t> table;
-    unsigned scan_steps = 0;
+    unsigned steps_count = 0;
     unsigned pixeltime_sum = 0;
 };
 

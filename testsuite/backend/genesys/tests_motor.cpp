@@ -172,7 +172,7 @@ void test_create_slope_table_small_full_step()
     };
     expected_table.resize(table.SLOPE_TABLE_SIZE, 5000);
     ASSERT_EQ(table.table, expected_table);
-    ASSERT_EQ(table.scan_steps, 8u);
+    ASSERT_EQ(table.steps_count, 8u);
     ASSERT_EQ(table.pixeltime_sum, 156348u);
 
 
@@ -183,7 +183,7 @@ void test_create_slope_table_small_full_step()
     };
     expected_table.resize(table.SLOPE_TABLE_SIZE, 3000);
     ASSERT_EQ(table.table, expected_table);
-    ASSERT_EQ(table.scan_steps, 8u);
+    ASSERT_EQ(table.steps_count, 8u);
     ASSERT_EQ(table.pixeltime_sum, 148843u);
 }
 
@@ -202,7 +202,7 @@ void test_create_slope_table_small_full_step_target_speed_too_high()
     };
     expected_table.resize(table.SLOPE_TABLE_SIZE, 2632);
     ASSERT_EQ(table.table, expected_table);
-    ASSERT_EQ(table.scan_steps, 8u);
+    ASSERT_EQ(table.steps_count, 8u);
     ASSERT_EQ(table.pixeltime_sum, 148358u);
 }
 
@@ -221,7 +221,7 @@ void test_create_slope_table_small_half_step()
     };
     expected_table.resize(table.SLOPE_TABLE_SIZE, 2500);
     ASSERT_EQ(table.table, expected_table);
-    ASSERT_EQ(table.scan_steps, 8u);
+    ASSERT_EQ(table.steps_count, 8u);
     ASSERT_EQ(table.pixeltime_sum, 78174u);
 
 
@@ -232,7 +232,7 @@ void test_create_slope_table_small_half_step()
     };
     expected_table.resize(table.SLOPE_TABLE_SIZE, 1500);
     ASSERT_EQ(table.table, expected_table);
-    ASSERT_EQ(table.scan_steps, 8u);
+    ASSERT_EQ(table.steps_count, 8u);
     ASSERT_EQ(table.pixeltime_sum, 74421u);
 }
 
@@ -279,7 +279,7 @@ void test_create_slope_table_large_full_step()
     };
     expected_table.resize(table.SLOPE_TABLE_SIZE, 3000);
     ASSERT_EQ(table.table, expected_table);
-    ASSERT_EQ(table.scan_steps, 60u);
+    ASSERT_EQ(table.steps_count, 60u);
     ASSERT_EQ(table.pixeltime_sum, 412616u);
 
 
@@ -312,7 +312,7 @@ void test_create_slope_table_large_full_step()
     };
     expected_table.resize(table.SLOPE_TABLE_SIZE, 1500);
     ASSERT_EQ(table.table, expected_table);
-    ASSERT_EQ(table.scan_steps, 224u);
+    ASSERT_EQ(table.steps_count, 224u);
     ASSERT_EQ(table.pixeltime_sum, 734910u);
 }
 
@@ -337,7 +337,7 @@ void test_create_slope_table_large_half_step()
     };
     expected_table.resize(table.SLOPE_TABLE_SIZE, 1500);
     ASSERT_EQ(table.table, expected_table);
-    ASSERT_EQ(table.scan_steps, 60u);
+    ASSERT_EQ(table.steps_count, 60u);
     ASSERT_EQ(table.pixeltime_sum, 206294u);
 
 
@@ -370,7 +370,7 @@ void test_create_slope_table_large_half_step()
     };
     expected_table.resize(table.SLOPE_TABLE_SIZE, 750);
     ASSERT_EQ(table.table, expected_table);
-    ASSERT_EQ(table.scan_steps, 224u);
+    ASSERT_EQ(table.steps_count, 224u);
     ASSERT_EQ(table.pixeltime_sum, 367399u);
 }
 

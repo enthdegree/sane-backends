@@ -1766,7 +1766,7 @@ MotorSlopeTable sanei_genesys_slope_table(int dpi, int exposure, int base_dpi,
 
     auto table = create_slope_table(motor_profile.slope, target_speed_w, motor_profile.step_type,
                                     factor, 2 * factor);
-    table.scan_steps /= factor;
+    table.steps_count /= factor;
     return table;
 }
 

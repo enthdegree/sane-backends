@@ -121,7 +121,7 @@ MotorSlopeTable create_slope_table(const MotorSlope& slope, unsigned target_spee
         table.pixeltime_sum += table.table.back();
     }
 
-    table.scan_steps = table.table.size();
+    table.steps_count = table.table.size();
 
     // fill the rest of the table with the final speed
     table.table.resize(MotorSlopeTable::SLOPE_TABLE_SIZE, final_speed);

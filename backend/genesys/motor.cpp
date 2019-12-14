@@ -85,11 +85,7 @@ void MotorSlopeTable::slice_steps(unsigned count)
     if (count >= table.size() || count > steps_count) {
         throw SaneException("Excepssive steps count");
     }
-    unsigned old_step = table[steps_count - 1];
-    unsigned new_step = table[count - 1];
     steps_count = count;
-
-    final_exposure = final_exposure * (static_cast<float>(new_step) / old_step);
 }
 
 unsigned get_slope_table_max_size(AsicType asic_type)
@@ -154,8 +150,6 @@ MotorSlopeTable create_slope_table(const MotorSlope& slope, unsigned target_spee
 
     // fill the rest of the table with the final speed
     table.table.resize(max_size, final_speed);
-
-    table.final_exposure = final_speed;
 
     return table;
 }

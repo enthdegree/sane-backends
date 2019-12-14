@@ -126,9 +126,6 @@ struct MotorSlopeTable
     unsigned steps_count = 0;
     unsigned pixeltime_sum = 0;
 
-    // table.back() adjusted to the scan dpi
-    unsigned final_exposure = 0;
-
     void slice_steps(unsigned count);
 };
 

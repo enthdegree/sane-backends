@@ -411,8 +411,7 @@ MotorSlopeTable sanei_genesys_slope_table(AsicType asic_type, int dpi, int expos
                                           unsigned step_multiplier,
                                           const Motor_Profile& motor_profile);
 
-MotorSlopeTable create_slope_table_fastest(AsicType asic_type, int dpi, int base_dpi,
-                                           unsigned step_multiplier,
+MotorSlopeTable create_slope_table_fastest(AsicType asic_type, unsigned step_multiplier,
                                            const Motor_Profile& motor_profile);
 
 /** @brief find lowest motor resolution for the device.

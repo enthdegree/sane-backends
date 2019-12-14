@@ -320,8 +320,7 @@ void sanei_genesys_init_structs (Genesys_Device * dev)
 /**
  * This function generates a slope table using the slope from the motor struct
  * truncated at the given exposure time or step count, whichever comes first.
- * The reached step time is then stored in final_exposure and used for the rest
- * of the table. The summed time of the acceleration steps is returned, and the
+ * The summed time of the acceleration steps is returned, and the
  * number of accerelation steps is put into used_steps.
  *
  * @param dev            Device struct
@@ -331,7 +330,6 @@ void sanei_genesys_init_structs (Genesys_Device * dev)
  * @param exposure_time  Minimum exposure time of a scan line
  * @param yres           Resolution of a scan line
  * @param used_steps     Final number of steps is stored here
- * @param final_exposure Final step time is stored here
  * @return               Motor slope table
  * @note  all times in pixel time
  */
@@ -341,11 +339,8 @@ MotorSlopeTable sanei_genesys_create_slope_table3(AsicType asic_type, const Gene
 {
     unsigned target_speed_w = (exposure_time * yres) / motor.base_ydpi;
 
-    auto table = create_slope_table(motor.get_slope(step_type), target_speed_w, step_type, 1, 1,
-                                    get_slope_table_max_size(asic_type));
-
-    table.final_exposure = (table.final_exposure * motor.base_ydpi) / yres;
-    return table;
+    return create_slope_table(motor.get_slope(step_type), target_speed_w, step_type, 1, 1,
+                              get_slope_table_max_size(asic_type));
 }
 
 /** @brief computes gamma table

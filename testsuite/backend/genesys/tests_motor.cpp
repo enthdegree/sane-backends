@@ -49,7 +49,6 @@ void test_create_slope_table3()
 
     ASSERT_EQ(table.pixeltime_sum, 10000u);
     ASSERT_EQ(table.steps_count, 1u);
-    ASSERT_EQ(table.final_exposure, 10000u);
 
     std::vector<std::uint16_t> expected_steps = {
         10000,
@@ -63,7 +62,6 @@ void test_create_slope_table3()
 
     ASSERT_EQ(table.pixeltime_sum, 33830u);
     ASSERT_EQ(table.steps_count, 7u);
-    ASSERT_EQ(table.final_exposure, 2000u);
 
     expected_steps = {
         10000, 10000, 4099, 3028, 2511, 2192, 2000
@@ -77,7 +75,6 @@ void test_create_slope_table3()
 
     ASSERT_EQ(table.pixeltime_sum, 5000u);
     ASSERT_EQ(table.steps_count, 1u);
-    ASSERT_EQ(table.final_exposure, 5000u);
 
     expected_steps = {
         5000,
@@ -92,7 +89,6 @@ void test_create_slope_table3()
 
     ASSERT_EQ(table.pixeltime_sum, 16914u);
     ASSERT_EQ(table.steps_count, 7u);
-    ASSERT_EQ(table.final_exposure, 1000u);
 
     expected_steps = {
         5000, 5000, 2049, 1514, 1255, 1096, 1000
@@ -106,7 +102,6 @@ void test_create_slope_table3()
 
     ASSERT_EQ(table.pixeltime_sum, 2500u);
     ASSERT_EQ(table.steps_count, 1u);
-    ASSERT_EQ(table.final_exposure, 2500u);
 
     expected_steps = {
         2500,
@@ -121,7 +116,6 @@ void test_create_slope_table3()
 
     ASSERT_EQ(table.pixeltime_sum, 7680u);
     ASSERT_EQ(table.steps_count, 6u);
-    ASSERT_EQ(table.final_exposure, 500u);
 
     expected_steps = {
         2500, 2500, 932, 683, 565, 500

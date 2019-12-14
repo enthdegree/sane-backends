@@ -1772,6 +1772,18 @@ MotorSlopeTable sanei_genesys_slope_table(AsicType asic_type, int dpi, int expos
     return table;
 }
 
+MotorSlopeTable create_slope_table_fastest(AsicType asic_type, int dpi, int base_dpi,
+                                           unsigned step_multiplier,
+                                           const Motor_Profile& motor_profile)
+{
+    auto table = create_slope_table(motor_profile.slope, motor_profile.slope.max_speed_w,
+                                    motor_profile.step_type,
+                                    step_multiplier, 2 * step_multiplier,
+                                    get_slope_table_max_size(asic_type));
+    table.final_exposure = (table.final_exposure * base_dpi) / dpi;
+    return table;
+}
+
 /** @brief returns the lowest possible ydpi for the device
  * Parses device entry to find lowest motor dpi.
  * @param dev device description

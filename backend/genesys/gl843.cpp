@@ -876,7 +876,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     gl843_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table, scan_table.steps_count);
 
     reg->set8(REG_STEPNO, scan_table.steps_count / step_multiplier);
-    reg->set8(REG_FSHDEC, scan_table.steps_count / step_multiplier);
+    reg->set8(REG_FASTNO, scan_table.steps_count / step_multiplier);
 
     // fast table
     unsigned fast_yres = sanei_genesys_get_lowest_ydpi(dev);
@@ -887,7 +887,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     gl843_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.steps_count);
     gl843_send_slope_table(dev, HOME_TABLE, fast_table.table, fast_table.steps_count);
 
-    reg->set8(REG_FASTNO, fast_table.steps_count / step_multiplier);
+    reg->set8(REG_FSHDEC, fast_table.steps_count / step_multiplier);
     reg->set8(REG_FMOVNO, fast_table.steps_count / step_multiplier);
 
   /* substract acceleration distance from feedl */

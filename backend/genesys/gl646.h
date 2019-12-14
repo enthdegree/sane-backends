@@ -49,6 +49,7 @@
 
 #include "genesys.h"
 #include "command_set.h"
+#include "motor.h"
 
 namespace genesys {
 namespace gl646 {
@@ -132,14 +133,8 @@ typedef struct
     bool fastmod; // fast scanning
     bool fastfed; // fast fed slope tables
   SANE_Int mtrpwm;
-  SANE_Int steps1;		/* table 1 informations */
-  SANE_Int vstart1;
-  SANE_Int vend1;
-  SANE_Int steps2;		/* table 2 informations */
-  SANE_Int vstart2;
-  SANE_Int vend2;
-  float g1;
-  float g2;
+    MotorSlope slope1;
+    MotorSlope slope2;
   SANE_Int fwdbwd;		/* forward/backward steps */
 } Motor_Master;
 
@@ -149,88 +144,296 @@ typedef struct
  */
 static Motor_Master motor_master[] = {
     /* HP3670 motor settings */
-    {MotorId::HP3670,  75, 3, StepType::FULL, false, true , 1, 200,  3429,  305, 192, 3399, 337, 0.3f, 0.4f, 192},
-    {MotorId::HP3670, 100, 3, StepType::HALF, false, true , 1, 143,  2905,  187, 192, 3399, 337, 0.3f, 0.4f, 192},
-    {MotorId::HP3670, 150, 3, StepType::HALF, false, true , 1,  73,  3429,  305, 192, 3399, 337, 0.3f, 0.4f, 192},
-    {MotorId::HP3670, 300, 3, StepType::HALF, false, true , 1,  11,  1055,  563, 192, 3399, 337, 0.3f, 0.4f, 192},
-    {MotorId::HP3670, 600, 3, StepType::FULL, false, true , 0,   3, 10687, 5126, 192, 3399, 337, 0.3f, 0.4f, 192},
-    {MotorId::HP3670,1200, 3, StepType::HALF, false, true , 0,   3, 15937, 6375, 192, 3399, 337, 0.3f, 0.4f, 192},
-    {MotorId::HP3670,2400, 3, StepType::HALF, false, true , 0,   3, 15937, 12750,192, 3399, 337, 0.3f, 0.4f, 192},
-    {MotorId::HP3670,  75, 1, StepType::FULL, false, true , 1, 200,  3429,  305, 192, 3399, 337, 0.3f, 0.4f, 192},
-    {MotorId::HP3670, 100, 1, StepType::HALF, false, true , 1, 143,  2905,  187, 192, 3399, 337, 0.3f, 0.4f, 192},
-    {MotorId::HP3670, 150, 1, StepType::HALF, false, true , 1,  73,  3429,  305, 192, 3399, 337, 0.3f, 0.4f, 192},
-    {MotorId::HP3670, 300, 1, StepType::HALF, false, true , 1,  11,  1055,  563, 192, 3399, 337, 0.3f, 0.4f, 192},
-    {MotorId::HP3670, 600, 1, StepType::FULL, false, true , 0,   3, 10687, 5126, 192, 3399, 337, 0.3f, 0.4f, 192},
-    {MotorId::HP3670,1200, 1, StepType::HALF, false, true , 0,   3, 15937, 6375, 192, 3399, 337, 0.3f, 0.4f, 192},
-    {MotorId::HP3670,2400, 3, StepType::HALF, false, true , 0,   3, 15937, 12750,192, 3399, 337, 0.3f, 0.4f, 192},
+    {MotorId::HP3670, 75, 3, StepType::FULL, false, true, 1,
+     MotorSlope::create_from_steps(3429, 305, 200),
+     MotorSlope::create_from_steps(3399, 337, 192), 192},
+
+    {MotorId::HP3670, 100, 3, StepType::HALF, false, true, 1,
+     MotorSlope::create_from_steps(2905, 187, 143),
+     MotorSlope::create_from_steps(3399, 337, 192), 192},
+
+    {MotorId::HP3670, 150, 3, StepType::HALF, false, true, 1,
+     MotorSlope::create_from_steps(3429, 305, 73),
+     MotorSlope::create_from_steps(3399, 337, 192), 192},
+
+    {MotorId::HP3670, 300, 3, StepType::HALF, false, true, 1,
+     MotorSlope::create_from_steps(1055, 563, 11),
+     MotorSlope::create_from_steps(3399, 337, 192), 192},
+
+    {MotorId::HP3670, 600, 3, StepType::FULL, false, true, 0,
+     MotorSlope::create_from_steps(10687, 5126, 3),
+     MotorSlope::create_from_steps(3399, 337, 192), 192},
+
+    {MotorId::HP3670,1200, 3, StepType::HALF, false, true, 0,
+     MotorSlope::create_from_steps(15937, 6375, 3),
+     MotorSlope::create_from_steps(3399, 337, 192), 192},
+
+    {MotorId::HP3670,2400, 3, StepType::HALF, false, true, 0,
+     MotorSlope::create_from_steps(15937, 12750, 3),
+     MotorSlope::create_from_steps(3399, 337, 192), 192},
+
+    {MotorId::HP3670, 75, 1, StepType::FULL, false, true, 1,
+     MotorSlope::create_from_steps(3429, 305, 200),
+     MotorSlope::create_from_steps(3399, 337, 192), 192},
+
+    {MotorId::HP3670, 100, 1, StepType::HALF, false, true, 1,
+     MotorSlope::create_from_steps(2905, 187, 143),
+     MotorSlope::create_from_steps(3399, 337, 192), 192},
+
+    {MotorId::HP3670, 150, 1, StepType::HALF, false, true, 1,
+     MotorSlope::create_from_steps(3429, 305, 73),
+     MotorSlope::create_from_steps(3399, 337, 192), 192},
+
+    {MotorId::HP3670, 300, 1, StepType::HALF, false, true, 1,
+     MotorSlope::create_from_steps(1055, 563, 11),
+     MotorSlope::create_from_steps(3399, 337, 192), 192},
+
+    {MotorId::HP3670, 600, 1, StepType::FULL, false, true, 0,
+     MotorSlope::create_from_steps(10687, 5126, 3),
+     MotorSlope::create_from_steps(3399, 337, 192), 192},
+
+    {MotorId::HP3670,1200, 1, StepType::HALF, false, true, 0,
+     MotorSlope::create_from_steps(15937, 6375, 3),
+     MotorSlope::create_from_steps(3399, 337, 192), 192},
+
+    {MotorId::HP3670,2400, 3, StepType::HALF, false, true, 0,
+     MotorSlope::create_from_steps(15937, 12750, 3),
+     MotorSlope::create_from_steps(3399, 337, 192), 192},
 
     /* HP2400/G2410 motor settings base motor dpi = 600 */
-    {MotorId::HP2400,  50, 3, StepType::FULL, false, true , 63, 120, 8736,   601, 192, 4905,  337, 0.3f, 0.4f, 192},
-    {MotorId::HP2400, 100, 3, StepType::HALF, false, true,  63, 120, 8736,   601, 192, 4905,  337, 0.3f, 0.4f, 192},
-    {MotorId::HP2400, 150, 3, StepType::HALF, false, true , 63, 67, 15902,   902, 192, 4905,  337, 0.3f, 0.4f, 192},
-    {MotorId::HP2400, 300, 3, StepType::HALF, false, true , 63, 32, 16703,  2188, 192, 4905,  337, 0.3f, 0.4f, 192},
-    {MotorId::HP2400, 600, 3, StepType::FULL, false, true , 63,  3, 18761, 18761, 192, 4905,  627, 0.3f, 0.4f, 192},
-    {MotorId::HP2400,1200, 3, StepType::HALF, false, true , 63,  3, 43501, 43501, 192, 4905,  627, 0.3f, 0.4f, 192},
-    {MotorId::HP2400,  50, 1, StepType::FULL, false, true , 63, 120, 8736,   601, 192, 4905,  337, 0.3f, 0.4f, 192},
-    {MotorId::HP2400, 100, 1, StepType::HALF, false, true,  63, 120, 8736,   601, 192, 4905,  337, 0.3f, 0.4f, 192},
-    {MotorId::HP2400, 150, 1, StepType::HALF, false, true , 63, 67, 15902,   902, 192, 4905,  337, 0.3f, 0.4f, 192},
-    {MotorId::HP2400, 300, 1, StepType::HALF, false, true , 63, 32, 16703,  2188, 192, 4905,  337, 0.3f, 0.4f, 192},
-    {MotorId::HP2400, 600, 1, StepType::FULL, false, true , 63,  3, 18761, 18761, 192, 4905,  337, 0.3f, 0.4f, 192},
-    {MotorId::HP2400,1200, 1, StepType::HALF, false, true , 63,  3, 43501, 43501, 192, 4905,  337, 0.3f, 0.4f, 192},
+    {MotorId::HP2400, 50, 3, StepType::FULL, false, true, 63,
+     MotorSlope::create_from_steps(8736, 601, 120),
+     MotorSlope::create_from_steps(4905, 337, 192), 192},
+
+    {MotorId::HP2400, 100, 3, StepType::HALF, false, true, 63,
+     MotorSlope::create_from_steps(8736, 601, 120),
+     MotorSlope::create_from_steps(4905, 337, 192), 192},
+
+    {MotorId::HP2400, 150, 3, StepType::HALF, false, true, 63,
+     MotorSlope::create_from_steps(15902, 902, 67),
+     MotorSlope::create_from_steps(4905, 337, 192), 192},
+
+    {MotorId::HP2400, 300, 3, StepType::HALF, false, true, 63,
+     MotorSlope::create_from_steps(16703, 2188, 32),
+     MotorSlope::create_from_steps(4905, 337, 192), 192},
+
+    {MotorId::HP2400, 600, 3, StepType::FULL, false, true, 63,
+     MotorSlope::create_from_steps(18761, 18761, 3),
+     MotorSlope::create_from_steps(4905, 627, 192), 192},
+
+    {MotorId::HP2400,1200, 3, StepType::HALF, false, true, 63,
+     MotorSlope::create_from_steps(43501, 43501, 3),
+     MotorSlope::create_from_steps(4905, 627, 192), 192},
+
+    {MotorId::HP2400, 50, 1, StepType::FULL, false, true, 63,
+     MotorSlope::create_from_steps(8736, 601, 120),
+     MotorSlope::create_from_steps(4905, 337, 192), 192},
+
+    {MotorId::HP2400, 100, 1, StepType::HALF, false, true, 63,
+     MotorSlope::create_from_steps(8736, 601, 120),
+     MotorSlope::create_from_steps(4905, 337, 192), 192},
+
+    {MotorId::HP2400, 150, 1, StepType::HALF, false, true, 63,
+     MotorSlope::create_from_steps(15902, 902, 67),
+     MotorSlope::create_from_steps(4905, 337, 192), 192},
+
+    {MotorId::HP2400, 300, 1, StepType::HALF, false, true, 63,
+     MotorSlope::create_from_steps(16703, 2188, 32),
+     MotorSlope::create_from_steps(4905, 337, 192), 192},
+
+    {MotorId::HP2400, 600, 1, StepType::FULL, false, true, 63,
+     MotorSlope::create_from_steps(18761, 18761, 3),
+     MotorSlope::create_from_steps(4905, 337, 192), 192},
+
+    {MotorId::HP2400,1200, 1, StepType::HALF, false, true, 63,
+     MotorSlope::create_from_steps(43501, 43501, 3),
+     MotorSlope::create_from_steps(4905, 337, 192), 192},
 
     /* XP 200 motor settings */
-    {MotorId::XP200,  75, 3, StepType::HALF, true , false, 0, 4,  6000,  2136, 8, 12000, 1200, 0.3f, 0.5f, 1},
-    {MotorId::XP200, 100, 3, StepType::HALF, true , false, 0, 4,  6000,  2850, 8, 12000, 1200, 0.3f, 0.5f, 1},
-    {MotorId::XP200, 200, 3, StepType::HALF, true , false, 0, 4,  6999,  5700, 8, 12000, 1200, 0.3f, 0.5f, 1},
-    {MotorId::XP200, 250, 3, StepType::HALF, true , false, 0, 4,  6999,  6999, 8, 12000, 1200, 0.3f, 0.5f, 1},
-    {MotorId::XP200, 300, 3, StepType::HALF, true , false, 0, 4, 13500, 13500, 8, 12000, 1200, 0.3f, 0.5f, 1},
-    {MotorId::XP200, 600, 3, StepType::HALF, true ,  true, 0, 4, 31998, 31998, 2, 12000, 1200, 0.3f, 0.5f, 1},
-    {MotorId::XP200,  75, 1, StepType::HALF, true , false, 0, 4,  6000,  2000, 8, 12000, 1200, 0.3f, 0.5f, 1},
-    {MotorId::XP200, 100, 1, StepType::HALF, true , false, 0, 4,  6000,  1300, 8, 12000, 1200, 0.3f, 0.5f, 1},
-    {MotorId::XP200, 200, 1, StepType::HALF, true ,  true, 0, 4,  6000,  3666, 8, 12000, 1200, 0.3f, 0.5f, 1},
-    {MotorId::XP200, 300, 1, StepType::HALF, true , false, 0, 4,  6500,  6500, 8, 12000, 1200, 0.3f, 0.5f, 1},
-    {MotorId::XP200, 600, 1, StepType::HALF, true ,  true, 0, 4, 24000, 24000, 2, 12000, 1200, 0.3f, 0.5f, 1},
+    {MotorId::XP200, 75, 3, StepType::HALF, true, false, 0,
+     MotorSlope::create_from_steps(6000, 2136, 4),
+     MotorSlope::create_from_steps(12000, 1200, 8), 1},
+
+    {MotorId::XP200, 100, 3, StepType::HALF, true, false, 0,
+     MotorSlope::create_from_steps(6000, 2850, 4),
+     MotorSlope::create_from_steps(12000, 1200, 8), 1},
+
+    {MotorId::XP200, 200, 3, StepType::HALF, true, false, 0,
+     MotorSlope::create_from_steps(6999, 5700, 4),
+     MotorSlope::create_from_steps(12000, 1200, 8), 1},
+
+    {MotorId::XP200, 250, 3, StepType::HALF, true, false, 0,
+     MotorSlope::create_from_steps(6999, 6999, 4),
+     MotorSlope::create_from_steps(12000, 1200, 8), 1},
+
+    {MotorId::XP200, 300, 3, StepType::HALF, true, false, 0,
+     MotorSlope::create_from_steps(13500, 13500, 4),
+     MotorSlope::create_from_steps(12000, 1200, 8), 1},
+
+    {MotorId::XP200, 600, 3, StepType::HALF, true, true, 0,
+     MotorSlope::create_from_steps(31998, 31998, 4),
+     MotorSlope::create_from_steps(12000, 1200, 2), 1},
+
+    {MotorId::XP200, 75, 1, StepType::HALF, true, false, 0,
+     MotorSlope::create_from_steps(6000, 2000, 4),
+     MotorSlope::create_from_steps(12000, 1200, 8), 1},
+
+    {MotorId::XP200, 100, 1, StepType::HALF, true, false, 0,
+     MotorSlope::create_from_steps(6000, 1300, 4),
+     MotorSlope::create_from_steps(12000, 1200, 8), 1},
+
+    {MotorId::XP200, 200, 1, StepType::HALF, true, true, 0,
+     MotorSlope::create_from_steps(6000, 3666, 4),
+     MotorSlope::create_from_steps(12000, 1200, 8), 1},
+
+    {MotorId::XP200, 300, 1, StepType::HALF, true, false, 0,
+     MotorSlope::create_from_steps(6500, 6500, 4),
+     MotorSlope::create_from_steps(12000, 1200, 8), 1},
+
+    {MotorId::XP200, 600, 1, StepType::HALF, true, true, 0,
+     MotorSlope::create_from_steps(24000, 24000, 4),
+     MotorSlope::create_from_steps(12000, 1200, 2), 1},
 
     /* HP scanjet 2300c */
-    {MotorId::HP2300,  75, 3, StepType::FULL, false, true , 63, 120,  8139,   560, 120, 4905,  337, 0.3f, 0.4f, 16},
-    {MotorId::HP2300, 150, 3, StepType::HALF, false, true , 63,  67,  7903,   543, 120, 4905,  337, 0.3f, 0.4f, 16},
-    {MotorId::HP2300, 300, 3, StepType::HALF, false, true , 63,   3,  2175,  1087, 120, 4905,  337, 0.3f, 0.4f, 16},
-    {MotorId::HP2300, 600, 3, StepType::HALF, false, true , 63,   3,  8700,  4350, 120, 4905,  337, 0.3f, 0.4f, 16},
-    {MotorId::HP2300,1200, 3, StepType::HALF, false, true , 63,   3, 17400,  8700, 120, 4905,  337, 0.3f, 0.4f, 16},
-    {MotorId::HP2300,  75, 1, StepType::FULL, false, true , 63, 120,  8139,   560, 120, 4905,  337, 0.3f, 0.4f, 16},
-    {MotorId::HP2300, 150, 1, StepType::HALF, false, true , 63,  67,  7903,   543, 120, 4905,  337, 0.3f, 0.4f, 16},
-    {MotorId::HP2300, 300, 1, StepType::HALF, false, true , 63,   3,  2175,  1087, 120, 4905,  337, 0.3f, 0.4f, 16},
-    {MotorId::HP2300, 600, 1, StepType::HALF, false, true , 63,   3,  8700,  4350, 120, 4905,  337, 0.3f, 0.4f, 16},
-    {MotorId::HP2300,1200, 1, StepType::HALF, false, true , 63,   3, 17400,  8700, 120, 4905,  337, 0.3f, 0.4f, 16},
+    {MotorId::HP2300, 75, 3, StepType::FULL, false, true, 63,
+     MotorSlope::create_from_steps(8139, 560, 120),
+     MotorSlope::create_from_steps(4905, 337, 120), 16},
+
+    {MotorId::HP2300, 150, 3, StepType::HALF, false, true, 63,
+     MotorSlope::create_from_steps(7903, 543, 67),
+     MotorSlope::create_from_steps(4905, 337, 120), 16},
+
+    {MotorId::HP2300, 300, 3, StepType::HALF, false, true, 63,
+     MotorSlope::create_from_steps(2175, 1087, 3),
+     MotorSlope::create_from_steps(4905, 337, 120), 16},
+
+    {MotorId::HP2300, 600, 3, StepType::HALF, false, true, 63,
+     MotorSlope::create_from_steps(8700, 4350, 3),
+     MotorSlope::create_from_steps(4905, 337, 120), 16},
+
+    {MotorId::HP2300,1200, 3, StepType::HALF, false, true, 63,
+     MotorSlope::create_from_steps(17400, 8700, 3),
+     MotorSlope::create_from_steps(4905, 337, 120), 16},
+
+    {MotorId::HP2300, 75, 1, StepType::FULL, false, true, 63,
+     MotorSlope::create_from_steps(8139, 560, 120),
+     MotorSlope::create_from_steps(4905, 337, 120), 16},
+
+    {MotorId::HP2300, 150, 1, StepType::HALF, false, true, 63,
+     MotorSlope::create_from_steps(7903, 543, 67),
+     MotorSlope::create_from_steps(4905, 337, 120), 16},
+
+    {MotorId::HP2300, 300, 1, StepType::HALF, false, true, 63,
+     MotorSlope::create_from_steps(2175, 1087, 3),
+     MotorSlope::create_from_steps(4905, 337, 120), 16},
+
+    {MotorId::HP2300, 600, 1, StepType::HALF, false, true, 63,
+     MotorSlope::create_from_steps(8700, 4350, 3),
+     MotorSlope::create_from_steps(4905, 337, 120), 16},
+
+    {MotorId::HP2300,1200, 1, StepType::HALF, false, true, 63,
+     MotorSlope::create_from_steps(17400, 8700, 3),
+     MotorSlope::create_from_steps(4905, 337, 120), 16},
+
     /* non half ccd settings for 300 dpi
-    {MotorId::HP2300, 300, 3, StepType::HALF, false, true , 63,  44,  5386,  2175, 120, 4905,  337, 0.3f, 0.4f, 16},
-    {MotorId::HP2300, 300, 1, StepType::HALF, false, true , 63,  44,  5386,  2175, 120, 4905,  337, 0.3f, 0.4f, 16},
+    {MotorId::HP2300, 300, 3, StepType::HALF, false, true, 63,
+     MotorSlope::create_from_steps(5386, 2175, 44),
+     MotorSlope::create_from_steps(4905, 337, 120), 16},
+
+    {MotorId::HP2300, 300, 1, StepType::HALF, false, true, 63,
+     MotorSlope::create_from_steps(5386, 2175, 44),
+     MotorSlope::create_from_steps(4905, 337, 120), 16},
     */
 
     /* MD5345/6471 motor settings */
     /* vfinal=(exposure/(1200/dpi))/step_type */
-    {MotorId::MD_5345,    50, 3, StepType::HALF   , false, true , 2, 255,  2500,   250, 255, 2000,  300, 0.3f, 0.4f, 64},
-    {MotorId::MD_5345,    75, 3, StepType::HALF   , false, true , 2, 255,  2500,   343, 255, 2000,  300, 0.3f, 0.4f, 64},
-    {MotorId::MD_5345,   100, 3, StepType::HALF   , false, true , 2, 255,  2500,   458, 255, 2000,  300, 0.3f, 0.4f, 64},
-    {MotorId::MD_5345,   150, 3, StepType::HALF   , false, true , 2, 255,  2500,   687, 255, 2000,  300, 0.3f, 0.4f, 64},
-    {MotorId::MD_5345,   200, 3, StepType::HALF   , false, true , 2, 255,  2500,   916, 255, 2000,  300, 0.3f, 0.4f, 64},
-    {MotorId::MD_5345,   300, 3, StepType::HALF   , false, true , 2, 255,  2500,  1375, 255, 2000,  300, 0.3f, 0.4f, 64},
-    {MotorId::MD_5345,   400, 3, StepType::HALF   , false, true , 0,  32,  2000,  1833, 255, 2000,  300, 0.3f, 0.4f, 32},
-    {MotorId::MD_5345,   500, 3, StepType::HALF   , false, true , 0,  32,  2291,  2291, 255, 2000,  300, 0.3f, 0.4f, 32},
-    {MotorId::MD_5345,   600, 3, StepType::HALF   , false, true , 0,  32,  2750,  2750, 255, 2000,  300, 0.3f, 0.4f, 32},
-    {MotorId::MD_5345,  1200, 3, StepType::QUARTER, false, true , 0,  16,  2750,  2750, 255, 2000,  300, 0.3f, 0.4f, 146},
-    {MotorId::MD_5345,  2400, 3, StepType::QUARTER, false, true , 0,  16,  5500,  5500, 255, 2000,  300, 0.3f, 0.4f, 146},
-    {MotorId::MD_5345,    50, 1, StepType::HALF   , false, true , 2, 255,  2500,   250, 255, 2000,  300, 0.3f, 0.4f, 64},
-    {MotorId::MD_5345,    75, 1, StepType::HALF   , false, true , 2, 255,  2500,   343, 255, 2000,  300, 0.3f, 0.4f, 64},
-    {MotorId::MD_5345,   100, 1, StepType::HALF   , false, true , 2, 255,  2500,   458, 255, 2000,  300, 0.3f, 0.4f, 64},
-    {MotorId::MD_5345,   150, 1, StepType::HALF   , false, true , 2, 255,  2500,   687, 255, 2000,  300, 0.3f, 0.4f, 64},
-    {MotorId::MD_5345,   200, 1, StepType::HALF   , false, true , 2, 255,  2500,   916, 255, 2000,  300, 0.3f, 0.4f, 64},
-    {MotorId::MD_5345,   300, 1, StepType::HALF   , false, true , 2, 255,  2500,  1375, 255, 2000,  300, 0.3f, 0.4f, 64},
-    {MotorId::MD_5345,   400, 1, StepType::HALF   , false, true , 0,  32,  2000,  1833, 255, 2000,  300, 0.3f, 0.4f, 32},
-    {MotorId::MD_5345,   500, 1, StepType::HALF   , false, true , 0,  32,  2291,  2291, 255, 2000,  300, 0.3f, 0.4f, 32},
-    {MotorId::MD_5345,   600, 1, StepType::HALF   , false, true , 0,  32,  2750,  2750, 255, 2000,  300, 0.3f, 0.4f, 32},
-    {MotorId::MD_5345,  1200, 1, StepType::QUARTER, false, true , 0,  16,  2750,  2750, 255, 2000,  300, 0.3f, 0.4f, 146},
-    {MotorId::MD_5345,  2400, 1, StepType::QUARTER, false, true , 0,  16,  5500,  5500, 255, 2000,  300, 0.3f, 0.4f, 146}, /* 5500 guessed */
+    {MotorId::MD_5345, 50, 3, StepType::HALF, false, true, 2,
+     MotorSlope::create_from_steps(2500, 250, 255),
+     MotorSlope::create_from_steps(2000, 300, 255), 64},
+
+    {MotorId::MD_5345, 75, 3, StepType::HALF, false, true, 2,
+     MotorSlope::create_from_steps(2500, 343, 255),
+     MotorSlope::create_from_steps(2000, 300, 255), 64},
+
+    {MotorId::MD_5345, 100, 3, StepType::HALF, false, true, 2,
+     MotorSlope::create_from_steps(2500, 458, 255),
+     MotorSlope::create_from_steps(2000, 300, 255), 64},
+
+    {MotorId::MD_5345, 150, 3, StepType::HALF, false, true, 2,
+     MotorSlope::create_from_steps(2500, 687, 255),
+     MotorSlope::create_from_steps(2000, 300, 255), 64},
+
+    {MotorId::MD_5345, 200, 3, StepType::HALF, false, true, 2,
+     MotorSlope::create_from_steps(2500, 916, 255),
+     MotorSlope::create_from_steps(2000, 300, 255), 64},
+
+    {MotorId::MD_5345, 300, 3, StepType::HALF, false, true, 2,
+     MotorSlope::create_from_steps(2500, 1375, 255),
+     MotorSlope::create_from_steps(2000, 300, 255), 64},
+
+    {MotorId::MD_5345, 400, 3, StepType::HALF, false, true, 0,
+     MotorSlope::create_from_steps(2000, 1833, 32),
+     MotorSlope::create_from_steps(2000, 300, 255), 32},
+
+    {MotorId::MD_5345, 500, 3, StepType::HALF, false, true, 0,
+     MotorSlope::create_from_steps(2291, 2291, 32),
+     MotorSlope::create_from_steps(2000, 300, 255), 32},
+
+    {MotorId::MD_5345, 600, 3, StepType::HALF, false, true, 0,
+     MotorSlope::create_from_steps(2750, 2750, 32),
+     MotorSlope::create_from_steps(2000, 300, 255), 32},
+
+    {MotorId::MD_5345, 1200, 3, StepType::QUARTER, false, true, 0,
+     MotorSlope::create_from_steps(2750, 2750, 16),
+     MotorSlope::create_from_steps(2000, 300, 255), 146},
+
+    {MotorId::MD_5345, 2400, 3, StepType::QUARTER, false, true, 0,
+     MotorSlope::create_from_steps(5500, 5500, 16),
+     MotorSlope::create_from_steps(2000, 300, 255), 146},
+
+    {MotorId::MD_5345, 50, 1, StepType::HALF, false, true, 2,
+     MotorSlope::create_from_steps(2500, 250, 255),
+     MotorSlope::create_from_steps(2000, 300, 255), 64},
+
+    {MotorId::MD_5345, 75, 1, StepType::HALF, false, true, 2,
+     MotorSlope::create_from_steps(2500, 343, 255),
+     MotorSlope::create_from_steps(2000, 300, 255), 64},
+
+    {MotorId::MD_5345, 100, 1, StepType::HALF, false, true, 2,
+     MotorSlope::create_from_steps(2500, 458, 255),
+     MotorSlope::create_from_steps(2000, 300, 255), 64},
+
+    {MotorId::MD_5345, 150, 1, StepType::HALF, false, true, 2,
+     MotorSlope::create_from_steps(2500, 687, 255),
+     MotorSlope::create_from_steps(2000, 300, 255), 64},
+
+    {MotorId::MD_5345, 200, 1, StepType::HALF, false, true, 2,
+     MotorSlope::create_from_steps(2500, 916, 255),
+     MotorSlope::create_from_steps(2000, 300, 255), 64},
+
+    {MotorId::MD_5345, 300, 1, StepType::HALF, false, true, 2,
+     MotorSlope::create_from_steps(2500, 1375, 255),
+     MotorSlope::create_from_steps(2000, 300, 255), 64},
+
+    {MotorId::MD_5345, 400, 1, StepType::HALF, false, true, 0,
+     MotorSlope::create_from_steps(2000, 1833, 32),
+     MotorSlope::create_from_steps(2000, 300, 255), 32},
+
+    {MotorId::MD_5345, 500, 1, StepType::HALF, false, true, 0,
+     MotorSlope::create_from_steps(2291, 2291, 32),
+     MotorSlope::create_from_steps(2000, 300, 255), 32},
+
+    {MotorId::MD_5345, 600, 1, StepType::HALF, false, true, 0,
+     MotorSlope::create_from_steps(2750, 2750, 32),
+     MotorSlope::create_from_steps(2000, 300, 255), 32},
+
+    {MotorId::MD_5345, 1200, 1, StepType::QUARTER, false, true, 0,
+     MotorSlope::create_from_steps(2750, 2750, 16),
+     MotorSlope::create_from_steps(2000, 300, 255), 146},
+
+    {MotorId::MD_5345, 2400, 1, StepType::QUARTER, false, true, 0,
+     MotorSlope::create_from_steps(5500, 5500, 16),
+     MotorSlope::create_from_steps(2000, 300, 255), 146}, /* 5500 guessed */
 };
 
 class CommandSetGl646 : public CommandSet

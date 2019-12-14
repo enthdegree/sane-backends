@@ -406,49 +406,27 @@ MotorSlopeTable sanei_genesys_generate_slope_table(unsigned max_steps, unsigned 
  *
  * @param dev            Device struct
  * @param slope_table    Table to write to
- * @param max_step       Size of slope_table in steps
- * @param use_steps      Maximum number of steps to use for acceleration
  * @param step_type      Generate table for this step_type. 0=>full, 1=>half,
  *                       2=>quarter
  * @param exposure_time  Minimum exposure time of a scan line
  * @param yres           Resolution of a scan line
  * @param used_steps     Final number of steps is stored here
  * @param final_exposure Final step time is stored here
- * @return               Time for acceleration
+ * @return               Motor slope table
  * @note  all times in pixel time
  */
-MotorSlopeTable sanei_genesys_create_slope_table3(const Genesys_Motor& motor,
-                                                  unsigned max_steps,
-                                                  unsigned use_steps,
-                                                  StepType step_type,
-                                                  int exposure_time,
+MotorSlopeTable sanei_genesys_create_slope_table3(AsicType asic_type, const Genesys_Motor& motor,
+                                                  StepType step_type, int exposure_time,
                                                   unsigned yres)
 {
-  unsigned int vtarget;
-  unsigned int vend;
-  unsigned int vstart;
+    unsigned target_speed_w = (exposure_time * yres) / motor.base_ydpi;
 
-    DBG(DBG_proc, "%s: step_type = %d, exposure_time = %d, yres = %d\n", __func__,
-        static_cast<unsigned>(step_type), exposure_time, yres);
+    const auto& slope = motor.get_slope(step_type);
 
-  /* final speed */
-    vtarget = (exposure_time * yres) / motor.base_ydpi;
-
-    const auto& slope = motor.get_slope(step_type).legacy();
-
-    unsigned u_step_type = static_cast<unsigned>(step_type);
-    vstart = slope.maximum_start_speed;
-    vend = slope.maximum_speed;
-
-    vtarget = std::min(vtarget >> u_step_type, 65535u);
-    vstart = std::min(vstart >> u_step_type, 65535u);
-    vend = std::min(vend >> u_step_type, 65535u);
-
-    auto table = sanei_genesys_generate_slope_table(max_steps, use_steps, vtarget, vstart, vend,
-                                                    slope.minimum_steps << u_step_type, slope.g);
+    auto table = create_slope_table(slope.physical(), target_speed_w, step_type, 1, 1,
+                                    get_slope_table_max_size(asic_type));
 
     table.final_exposure = (table.final_exposure * motor.base_ydpi) / yres;
-
     return table;
 }
 
@@ -524,8 +502,8 @@ SANE_Int sanei_genesys_exposure_time2(Genesys_Device * dev, float ydpi,
                                       StepType step_type, int endpixel, int exposure_by_led)
 {
   int exposure_by_ccd = endpixel + 32;
-    int exposure_by_motor = static_cast<int>((dev->motor.get_slope(step_type).legacy().maximum_speed *
-                                              dev->motor.base_ydpi) / ydpi);
+    unsigned max_speed_motor_w = dev->motor.get_slope(step_type).physical().max_speed_w;
+    int exposure_by_motor = static_cast<int>((max_speed_motor_w * dev->motor.base_ydpi) / ydpi);
 
   int exposure = exposure_by_ccd;
 

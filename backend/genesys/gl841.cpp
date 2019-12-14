@@ -863,8 +863,9 @@ static void gl841_init_motor_regs(Genesys_Device* dev, const Genesys_Sensor& sen
         fast_exposure = dev->motor.get_slope(StepType::FULL).legacy().maximum_start_speed;
     }
 
-    auto fast_table = sanei_genesys_create_slope_table3(dev->motor, 256, 256, StepType::FULL,
-                                                        fast_exposure, dev->motor.base_ydpi / 4);
+    auto fast_table = sanei_genesys_create_slope_table3(dev->model->asic_type, dev->motor,
+                                                        StepType::FULL, fast_exposure,
+                                                        dev->motor.base_ydpi / 4);
 
     feedl = feed_steps - fast_table.steps_count * 2;
     use_fast_fed = 1;
@@ -1021,35 +1022,31 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
   allowed to use.
  */
 
-    auto slow_table = sanei_genesys_create_slope_table3(dev->motor, 256, 256, scan_step_type,
-                                                        scan_exposure_time, scan_yres);
+    auto slow_table = sanei_genesys_create_slope_table3(dev->model->asic_type, dev->motor,
+                                                        scan_step_type, scan_exposure_time,
+                                                        scan_yres);
 
-    auto back_table = sanei_genesys_create_slope_table3(dev->motor, 256, 256, scan_step_type,
-                                                        0, scan_yres);
+    auto back_table = sanei_genesys_create_slope_table3(dev->model->asic_type, dev->motor,
+                                                        scan_step_type, 0, scan_yres);
 
     if (feed_steps < (slow_table.steps_count >> static_cast<unsigned>(scan_step_type))) {
 	/*TODO: what should we do here?? go back to exposure calculation?*/
         feed_steps = slow_table.steps_count >> static_cast<unsigned>(scan_step_type);
     }
 
-    unsigned max_fast_slope_steps = 0;  // BUG: this should be 256 for the following conditional
-                                        // to make sense
-    if (feed_steps > max_fast_slope_steps * 2 -
-        (slow_table.steps_count >> static_cast<unsigned>(scan_step_type)))
-    {
-        max_fast_slope_steps = 256;
-    } else {
-        // we need to shorten fast_slope_steps here.
-        max_fast_slope_steps = (feed_steps -
-                            (slow_table.steps_count >> static_cast<unsigned>(scan_step_type))) / 2;
-    }
-
-    DBG(DBG_info, "%s: Maximum allowed slope steps for fast slope: %d\n", __func__,
-        max_fast_slope_steps);
-
-    auto fast_table = sanei_genesys_create_slope_table3(dev->motor, 256, max_fast_slope_steps,
+    auto fast_table = sanei_genesys_create_slope_table3(dev->model->asic_type, dev->motor,
                                                         StepType::FULL, fast_exposure,
                                                         dev->motor.base_ydpi / 4);
+
+    unsigned max_fast_slope_steps_count = 1;
+    if (feed_steps > (slow_table.steps_count >> static_cast<unsigned>(scan_step_type)) + 2) {
+        max_fast_slope_steps_count = (feed_steps -
+            (slow_table.steps_count >> static_cast<unsigned>(scan_step_type))) / 2;
+    }
+
+    if (fast_table.steps_count > max_fast_slope_steps_count) {
+        fast_table.slice_steps(max_fast_slope_steps_count);
+    }
 
     /* fast fed special cases handling */
     if (dev->model->gpio_id == GpioId::XP300

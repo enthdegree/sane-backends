@@ -33,35 +33,18 @@ namespace genesys {
 
 void test_create_slope_table3()
 {
-    MotorSlopeLegacy slope;
+    auto asic_type = AsicType::GL841;
+    auto max_table_size = get_slope_table_max_size(asic_type);
 
     Genesys_Motor motor;
     motor.id = MotorId::CANON_LIDE_200;
     motor.base_ydpi = 1200;
     motor.optical_ydpi = 6400;
+    motor.slopes.push_back(MotorSlope::create_from_steps(10000, 1000, 20));
+    motor.slopes.push_back(MotorSlope::create_from_steps(10000, 1000, 20));
+    motor.slopes.push_back(MotorSlope::create_from_steps(10000, 1000, 16));
 
-    slope = MotorSlopeLegacy(); // full step
-    slope.maximum_start_speed = 10000;
-    slope.maximum_speed = 1000;
-    slope.minimum_steps = 20;
-    slope.g = 0.80;
-    motor.slopes.push_back(slope);
-
-    slope = MotorSlopeLegacy(); // half step
-    slope.maximum_start_speed = 10000;
-    slope.maximum_speed = 1000;
-    slope.minimum_steps = 20;
-    slope.g = 0.80;
-    motor.slopes.push_back(slope);
-
-    slope = MotorSlopeLegacy(); // quarter step 0.75*2712
-    slope.maximum_start_speed = 10000;
-    slope.maximum_speed = 1000;
-    slope.minimum_steps = 16;
-    slope.g = 0.80f;
-    motor.slopes.push_back(slope);
-
-    auto table = sanei_genesys_create_slope_table3(motor, 20, 20, StepType::FULL, 10000,
+    auto table = sanei_genesys_create_slope_table3(asic_type, motor, StepType::FULL, 10000,
                                                    motor.base_ydpi);
 
     ASSERT_EQ(table.pixeltime_sum, 10000u);
@@ -69,26 +52,27 @@ void test_create_slope_table3()
     ASSERT_EQ(table.final_exposure, 10000u);
 
     std::vector<std::uint16_t> expected_steps = {
-        10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000,
-        10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000,
+        10000,
     };
+    expected_steps.resize(max_table_size, 10000);
 
     ASSERT_EQ(table.table, expected_steps);
 
-    table = sanei_genesys_create_slope_table3(motor, 20, 20, StepType::FULL, 2000, motor.base_ydpi);
+    table = sanei_genesys_create_slope_table3(asic_type, motor, StepType::FULL, 2000,
+                                              motor.base_ydpi);
 
-    ASSERT_EQ(table.pixeltime_sum, 98183u);
-    ASSERT_EQ(table.steps_count, 18u);
-    ASSERT_EQ(table.final_exposure, 1766u);
+    ASSERT_EQ(table.pixeltime_sum, 33830u);
+    ASSERT_EQ(table.steps_count, 7u);
+    ASSERT_EQ(table.final_exposure, 2000u);
 
     expected_steps = {
-        10000, 9146, 8513, 7944, 7412, 6906, 6421, 5951, 5494, 5049,
-        4614, 4187, 3768, 3356, 2950, 2550, 2156, 1766, 1766, 1766,
+        10000, 10000, 4099, 3028, 2511, 2192, 2000
     };
+    expected_steps.resize(max_table_size, 2000);
 
     ASSERT_EQ(table.table, expected_steps);
 
-    table = sanei_genesys_create_slope_table3(motor, 20, 20, StepType::HALF, 10000,
+    table = sanei_genesys_create_slope_table3(asic_type, motor, StepType::HALF, 10000,
                                               motor.base_ydpi);
 
     ASSERT_EQ(table.pixeltime_sum, 5000u);
@@ -96,27 +80,28 @@ void test_create_slope_table3()
     ASSERT_EQ(table.final_exposure, 5000u);
 
     expected_steps = {
-        5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000,
-        5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000,
+        5000,
     };
+    expected_steps.resize(max_table_size, 5000);
+
 
     ASSERT_EQ(table.table, expected_steps);
 
-    table = sanei_genesys_create_slope_table3(motor, 20, 20, StepType::HALF, 2000,
+    table = sanei_genesys_create_slope_table3(asic_type, motor, StepType::HALF, 2000,
                                               motor.base_ydpi);
 
-    ASSERT_EQ(table.pixeltime_sum, 72131u);
-    ASSERT_EQ(table.steps_count, 20u);
-    ASSERT_EQ(table.final_exposure, 2575u);
+    ASSERT_EQ(table.pixeltime_sum, 16914u);
+    ASSERT_EQ(table.steps_count, 7u);
+    ASSERT_EQ(table.final_exposure, 1000u);
 
     expected_steps = {
-        5000, 4759, 4581, 4421, 4272, 4129, 3993, 3861, 3732, 3607,
-        3485, 3365, 3247, 3131, 3017, 2904, 2793, 2684, 2575, 2575,
+        5000, 5000, 2049, 1514, 1255, 1096, 1000
     };
+    expected_steps.resize(max_table_size, 1000);
 
     ASSERT_EQ(table.table, expected_steps);
 
-    table = sanei_genesys_create_slope_table3(motor, 20, 20, StepType::QUARTER, 10000,
+    table = sanei_genesys_create_slope_table3(asic_type, motor, StepType::QUARTER, 10000,
                                               motor.base_ydpi);
 
     ASSERT_EQ(table.pixeltime_sum, 2500u);
@@ -124,23 +109,24 @@ void test_create_slope_table3()
     ASSERT_EQ(table.final_exposure, 2500u);
 
     expected_steps = {
-        2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500,
-        2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500,
+        2500,
     };
+    expected_steps.resize(max_table_size, 2500);
+
 
     ASSERT_EQ(table.table, expected_steps);
 
-    table = sanei_genesys_create_slope_table3(motor, 20, 20, StepType::QUARTER, 2000,
+    table = sanei_genesys_create_slope_table3(asic_type, motor, StepType::QUARTER, 2000,
                                               motor.base_ydpi);
 
-    ASSERT_EQ(table.pixeltime_sum, 40503u);
-    ASSERT_EQ(table.steps_count, 20u);
-    ASSERT_EQ(table.final_exposure, 1674u);
+    ASSERT_EQ(table.pixeltime_sum, 7680u);
+    ASSERT_EQ(table.steps_count, 6u);
+    ASSERT_EQ(table.final_exposure, 500u);
 
     expected_steps = {
-        2500, 2418, 2357, 2303, 2252, 2203, 2157, 2112, 2068, 2025,
-        1983, 1943, 1902, 1863, 1824, 1786, 1748, 1711, 1674, 1674,
+        2500, 2500, 932, 683, 565, 500
     };
+    expected_steps.resize(max_table_size, 500);
 
     ASSERT_EQ(table.table, expected_steps);
 }

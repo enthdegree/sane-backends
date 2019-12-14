@@ -155,6 +155,8 @@ struct MotorSlopeTable
 
     // table.back() adjusted to the scan dpi
     unsigned final_exposure = 0;
+
+    void slice_steps(unsigned count);
 };
 
 unsigned get_slope_table_max_size(AsicType asic_type);

@@ -326,11 +326,8 @@ MotorSlopeTable sanei_genesys_generate_slope_table(unsigned max_steps,
                                                    std::uint16_t vstart, std::uint16_t vend,
                                                    unsigned steps, double g);
 
-MotorSlopeTable sanei_genesys_create_slope_table3(const Genesys_Motor& motor,
-                                                  unsigned max_steps,
-                                                  unsigned use_steps,
-                                                  StepType step_type,
-                                                  int exposure_time,
+MotorSlopeTable sanei_genesys_create_slope_table3(AsicType asic_type, const Genesys_Motor& motor,
+                                                  StepType step_type, int exposure_time,
                                                   unsigned yres);
 
 void sanei_genesys_create_default_gamma_table(Genesys_Device* dev,

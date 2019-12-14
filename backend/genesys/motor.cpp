@@ -80,6 +80,18 @@ MotorSlope MotorSlope::create_from_steps(unsigned initial_w, unsigned max_w,
     return slope;
 }
 
+void MotorSlopeTable::slice_steps(unsigned count)
+{
+    if (count >= table.size() || count > steps_count) {
+        throw SaneException("Excepssive steps count");
+    }
+    unsigned old_step = table[steps_count - 1];
+    unsigned new_step = table[count - 1];
+    steps_count = count;
+
+    final_exposure = final_exposure * (static_cast<float>(new_step) / old_step);
+}
+
 unsigned get_slope_table_max_size(AsicType asic_type)
 {
     switch (asic_type) {

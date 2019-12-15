@@ -1058,8 +1058,8 @@
 :model "imageCLASS D570"
 :interface "USB"
 :usbid "0x04a9" "0x27e8"
-:status :untested
-:comment "Testers needed!"
+:status :complete
+:comment "All resolutions supported (up to 600DPI)"
 
 :model "i-SENSYS MF110 Series"
 :interface "USB Ethernet WiFi"

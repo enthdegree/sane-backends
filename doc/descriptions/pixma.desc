@@ -1265,6 +1265,12 @@
 :status :untested
 :comment "Testers needed!"
 
+:model "i-SENSYS MF741/743"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x27fc"
+:status :complete
+:comment "Flatbed and ADF scan. All resolutions supported (up to 600DPI)."
+
 :model "i-SENSYS MF810/820"
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x27a6"

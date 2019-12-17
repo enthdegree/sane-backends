@@ -657,8 +657,9 @@ sane_start(SANE_Handle h)
     DBG (10, "escl sane_start\n");
     SANE_Status status = SANE_STATUS_GOOD;
     escl_sane_t *handler = h;
-    int w = 0;
-    int he = 0;
+    unsigned int w = 0;
+    unsigned int he = 0;
+    int bps = 0;
 
     if (handler->name == NULL)
         return (SANE_STATUS_INVAL);
@@ -699,12 +700,12 @@ sane_start(SANE_Handle h)
     if (status != SANE_STATUS_GOOD)
         return (status);
     status = escl_scan(handler->scanner, handler->name, handler->result);
-    get_JPEG_dimension(handler->scanner->tmp, &w, &he);
+    bps = get_JPEG_dimension(handler->scanner->tmp, &w, &he);
     fseek(handler->scanner->tmp, SEEK_SET, 0);
     handler->ps.depth = 8;
-    handler->ps.pixels_per_line = w;
-    handler->ps.lines = he;
-    handler->ps.bytes_per_line = w * 3;
+    handler->ps.pixels_per_line = (int)w;
+    handler->ps.lines = (int)he;
+    handler->ps.bytes_per_line = (int)w * bps;
     handler->ps.last_frame = SANE_TRUE;
     handler->ps.format = SANE_FRAME_RGB;
     return (status);

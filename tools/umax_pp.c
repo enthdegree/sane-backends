@@ -32,7 +32,7 @@ main (int argc, char **argv)
   char dbgstr[80];
   int probe = 0;
   int port = 0;
-  char *name = NULL;
+  const char *name = NULL;
   int scan = 0;
   int lamp = -1;
   int i;

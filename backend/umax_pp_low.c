@@ -924,7 +924,7 @@ sanei_parport_find_device (void)
 
 
 int
-sanei_umax_pp_initPort (int port, char *name)
+sanei_umax_pp_initPort (int port, const char *name)
 {
 #ifndef IO_SUPPORT_MISSING
 # ifdef HAVE_LINUX_PPDEV_H
@@ -1027,26 +1027,20 @@ sanei_umax_pp_initPort (int port, char *name)
 		}
 	      else
 		{
-		  sprintf (strmodes, "\n");
-		  if (modes & PARPORT_MODE_PCSPP)
-		    sprintf (strmodes, "%s\t\tPARPORT_MODE_PCSPP\n",
-			     strmodes);
-		  if (modes & PARPORT_MODE_TRISTATE)
-		    sprintf (strmodes, "%s\t\tPARPORT_MODE_TRISTATE\n",
-			     strmodes);
-		  if (modes & PARPORT_MODE_EPP)
-		    sprintf (strmodes, "%s\t\tPARPORT_MODE_EPP\n", strmodes);
+		  snprintf(strmodes, sizeof(strmodes),
+			   "\n%s%s%s%s%s%s",
+			   (modes & PARPORT_MODE_PCSPP)? "\t\tPARPORT_MODE_PCSPP\n": "",
+			   (modes & PARPORT_MODE_TRISTATE)? "\t\tPARPORT_MODE_TRISTATE\n": "",
+			   (modes & PARPORT_MODE_EPP)? "\t\tPARPORT_MODE_EPP\n": "",
+			   (modes & PARPORT_MODE_ECP)? "\t\tPARPORT_MODE_ECP\n": "",
+			   (modes & PARPORT_MODE_COMPAT)? "\t\tPARPORT_MODE_COMPAT\n": "",
+			   (modes & PARPORT_MODE_DMA)? "\t\tPARPORT_MODE_DMA\n": "");
+
 		  if (modes & PARPORT_MODE_ECP)
 		    {
-		      sprintf (strmodes, "%s\t\tPARPORT_MODE_ECP\n",
-			       strmodes);
 		      gECP = 1;
 		    }
-		  if (modes & PARPORT_MODE_COMPAT)
-		    sprintf (strmodes, "%s\t\tPARPORT_MODE_COMPAT\n",
-			     strmodes);
-		  if (modes & PARPORT_MODE_DMA)
-		    sprintf (strmodes, "%s\t\tPARPORT_MODE_DMA\n", strmodes);
+
 		  DBG (32, "parport modes: %X\n", modes);
 		  DBG (32, "parport modes: %s\n", strmodes);
 		  if (!(modes & PARPORT_MODE_EPP)

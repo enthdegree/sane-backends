@@ -37,7 +37,7 @@
 :interface "USB"
 :usbid "0x05ca" "0x042c"
 
-:model "SP-111SU"
+:model "SP-111SU/SP-112SU"
 :status :basic
 :interface "USB"
 :usbid "0x05ca" "0x0448"

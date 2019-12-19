@@ -1,6 +1,6 @@
 /* sane - Scanner Access Now Easy.
 
-   Copyright (C) 2018 Stanislav Yuzvinsky
+   Copyright (C) 2018, 2019 Stanislav Yuzvinsky
    Based on the work done by viruxx
 
    This file is part of the SANE package.
@@ -113,10 +113,10 @@ typedef struct Ricoh2_device_info {
 Ricoh2_device_info;
 
 static Ricoh2_device_info supported_devices[] = {
-  { 0x042c, "Aficio SP100SU"   },
-  { 0x0438, "Aficio SG3100SNw" },
-  { 0x0439, "Aficio SG3110SFNw" },
-  { 0x0448, "Aficio SP111SU"   }
+  { 0x042c, "Aficio SP-100SU"   },
+  { 0x0438, "Aficio SG-3100SNw" },
+  { 0x0439, "Aficio SG-3110SFNw" },
+  { 0x0448, "Aficio SP-111SU/SP-112SU" }
 };
 
 static SANE_String_Const mode_list[] = {

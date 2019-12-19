@@ -199,7 +199,7 @@ sanei_umax_pp_model (int port, int *model)
 }
 
 int
-sanei_umax_pp_attach (int port, char *name)
+sanei_umax_pp_attach (int port, const char *name)
 {
   int recover = 0;
 

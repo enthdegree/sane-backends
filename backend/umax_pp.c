@@ -202,33 +202,27 @@ umax_pp_attach (SANEI_Config * config, const char *devname)
   SANE_Status status = SANE_STATUS_GOOD;
   int ret, prt = 0, mdl;
   char model[32];
-  char name[64];
-  char *val;
+  const char *name = NULL;
+  const char *val;
 
-  memset (name, 0, 64);
-
-  if ((strlen (devname) < 3))
+  if (!devname || (strlen (devname) < 3))
     return SANE_STATUS_INVAL;
 
   sanei_umax_pp_setastra (atoi((SANE_Char *) config->values[CFG_ASTRA]));
 
   /* if the name begins with a slash, it's a device, else it's an addr */
-  if (devname != NULL)
+  if ((devname[0] == '/'))
     {
-      if ((devname[0] == '/'))
-        {
-          strncpy (name, devname, 64);
-        }
-      else
-        {
-          if ((devname[0] == '0')
-              && ((devname[1] == 'x') || (devname[1] == 'X')))
-            prt = strtol (devname + 2, NULL, 16);
-          else
-            prt = atoi (devname);
-        }
+      name = devname;
     }
-
+  else
+    {
+      if ((devname[0] == '0')
+          && ((devname[1] == 'x') || (devname[1] == 'X')))
+        prt = strtol (devname + 2, NULL, 16);
+      else
+        prt = atoi (devname);
+    }
 
   for (i = 0; i < num_devices; i++)
     {
@@ -291,7 +285,7 @@ umax_pp_attach (SANEI_Config * config, const char *devname)
            devname);
       return SANE_STATUS_IO_ERROR;
     }
-  sprintf (model, "Astra %dP", mdl);
+  snprintf (model, sizeof(model), "Astra %dP", mdl);
 
 
   dev = malloc (sizeof (Umax_PP_Descriptor) * (num_devices + 1));
@@ -315,12 +309,12 @@ umax_pp_attach (SANEI_Config * config, const char *devname)
   num_devices++;
 
   /* if there are user provided values, use them */
-  val=(SANE_Char *) config->values[CFG_NAME];
+  val=(const SANE_Char *) config->values[CFG_NAME];
   if(strlen(val)==0)
         dev->sane.name = strdup (devname);
   else
         dev->sane.name = strdup (val);
-  val=(SANE_Char *) config->values[CFG_VENDOR];
+  val=(const SANE_Char *) config->values[CFG_VENDOR];
   if(strlen(val)==0)
         dev->sane.vendor = strdup ("UMAX");
   else
@@ -347,11 +341,11 @@ umax_pp_attach (SANEI_Config * config, const char *devname)
       dev->max_h_size = 2550;
       dev->max_v_size = 3500;
     }
-  val=(SANE_Char *) config->values[CFG_MODEL];
+  val=(const SANE_Char *) config->values[CFG_MODEL];
   if(strlen(val)==0)
-  dev->sane.model = strdup (model);
+    dev->sane.model = strdup (model);
   else
-  dev->sane.model = strdup (val);
+    dev->sane.model = strdup (val);
 
 
   DBG (3, "umax_pp_attach: device %s attached\n", devname);

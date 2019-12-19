@@ -74,7 +74,7 @@
 
 */
 
-extern int sanei_umax_pp_attach (int port, char *name);
+extern int sanei_umax_pp_attach (int port, const char *name);
 
 /*
  recognizes 1220P from 2000P

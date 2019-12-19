@@ -253,7 +253,7 @@ find_true_variables(xmlNode *node, capabilities_t *scanner)
         || strcmp(name, "MaxScanRegions") == 0 || strcmp(name, "ColorMode") == 0 || strcmp(name, "ContentType") == 0
         || strcmp(name, "DocumentFormat") == 0 || strcmp(name, "XResolution") == 0 || strcmp(name, "Intent") == 0
         || strcmp(name, "MaxOpticalXResolution") == 0 || strcmp(name, "RiskyLeftMargin") == 0 || strcmp(name, "RiskyRightMargin") == 0
-        || strcmp(name, "RiskyTopMargin") == 0 || strcmp(name, "RiskyBottomMargin") == 0)
+        || strcmp(name, "RiskyTopMargin") == 0 || strcmp(name, "RiskyBottomMargin") == 0 || strcmp(name, "DocumentFormatExt") == 0)
         find_valor_of_int_variables(node, scanner);
     return (0);
 }

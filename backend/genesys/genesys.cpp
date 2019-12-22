@@ -913,6 +913,25 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
 
     bool uses_secondary_head = (scan_method == ScanMethod::TRANSPARENCY ||
                                 scan_method == ScanMethod::TRANSPARENCY_INFRARED);
+    bool uses_secondary_pos = uses_secondary_head &&
+                              dev.model->default_method == ScanMethod::FLATBED;
+
+    if (!dev.is_head_pos_known(ScanHeadId::PRIMARY)) {
+        throw SaneException("Unknown head position");
+    }
+    if (uses_secondary_pos && !dev.is_head_pos_known(ScanHeadId::SECONDARY)) {
+        throw SaneException("Unknown head position");
+    }
+    if (direction == Direction::BACKWARD && steps > dev.head_pos(ScanHeadId::PRIMARY)) {
+        throw SaneException("Trying to feed behind the home position %d %d",
+                            steps, dev.head_pos(ScanHeadId::PRIMARY));
+    }
+    if (uses_secondary_pos && direction == Direction::BACKWARD &&
+        steps > dev.head_pos(ScanHeadId::SECONDARY))
+    {
+        throw SaneException("Trying to feed behind the home position %d %d",
+                            steps, dev.head_pos(ScanHeadId::SECONDARY));
+    }
 
     ScanSession session;
     session.params.xres = resolution;
@@ -971,6 +990,12 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
 
     if (is_testing_mode()) {
         dev.interface->test_checkpoint("feed");
+
+        dev.advance_head_pos_by_steps(ScanHeadId::PRIMARY, direction, steps);
+        if (uses_secondary_pos) {
+            dev.advance_head_pos_by_steps(ScanHeadId::SECONDARY, direction, steps);
+        }
+
         // FIXME: why don't we stop the scanner like on other ASICs
         if (dev.model->asic_type != AsicType::GL843) {
             scanner_stop_action(dev);
@@ -984,9 +1009,15 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
     // wait until feed count reaches the required value
     // FIXME: should porbably wait for some timeout
     Status status;
-    do {
+    for (unsigned i = 0;; ++i) {
         status = scanner_read_status(dev);
-    } while (!status.is_feeding_finished);
+        if (status.is_feeding_finished || (
+            direction == Direction::BACKWARD && status.is_at_home))
+        {
+            break;
+        }
+        dev.interface->sleep_ms(10);
+    }
 
     // FIXME: why don't we stop the scanner like on other ASICs
     if (dev.model->asic_type != AsicType::GL843) {
@@ -994,6 +1025,11 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
     }
     if (uses_secondary_head) {
         gl843::gl843_set_xpa_motor_power(&dev, local_reg, false);
+    }
+
+    dev.advance_head_pos_by_steps(ScanHeadId::PRIMARY, direction, steps);
+    if (uses_secondary_pos) {
+        dev.advance_head_pos_by_steps(ScanHeadId::SECONDARY, direction, steps);
     }
 
     // looks like certain scanners lock up if we scan immediately after feeding
@@ -1015,8 +1051,21 @@ void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
             throw SaneException("Unsupported asic type");
     }
 
-    if (dev.needs_home_ta) {
+    // FIXME: also check whether the scanner actually has a secondary head
+    if (!dev.is_head_pos_known(ScanHeadId::SECONDARY) ||
+        dev.head_pos(ScanHeadId::SECONDARY) > 0 ||
+        dev.settings.scan_method == ScanMethod::TRANSPARENCY ||
+        dev.settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+    {
         scanner_move_back_home_ta(dev);
+    }
+
+    if (dev.is_head_pos_known(ScanHeadId::PRIMARY) &&
+        dev.head_pos(ScanHeadId::PRIMARY) > 1000)
+    {
+        // leave 500 steps for regular slow back home
+        scanner_move(dev, dev.model->default_method, dev.head_pos(ScanHeadId::PRIMARY) - 500,
+                     Direction::BACKWARD);
     }
 
     if (dev.cmd_set->needs_update_home_sensor_gpio()) {
@@ -1025,13 +1074,9 @@ void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
 
     auto status = scanner_read_reliable_status(dev);
 
-    if (dev.model->asic_type == AsicType::GL843) {
-        dev.scanhead_position_in_steps = 0;
-    }
-
     if (status.is_at_home) {
         dbg.log(DBG_info, "already at home");
-        dev.scanhead_position_in_steps = 0;
+        dev.set_head_pos_zero(ScanHeadId::PRIMARY);
         return;
     }
 
@@ -1104,6 +1149,7 @@ void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
 
     if (is_testing_mode()) {
         dev.interface->test_checkpoint("move_back_home");
+        dev.set_head_pos_zero(ScanHeadId::PRIMARY);
         return;
     }
 
@@ -1118,7 +1164,7 @@ void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
                 {
                     scanner_stop_action(dev);
                 }
-                dev.scanhead_position_in_steps = 0;
+                dev.set_head_pos_zero(ScanHeadId::PRIMARY);
                 return;
             }
 
@@ -1128,6 +1174,7 @@ void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
         // when we come here then the scanner needed too much time for this, so we better stop
         // the motor
         catch_all_exceptions(__func__, [&](){ scanner_stop_action(dev); });
+        dev.set_head_pos_unknown();
         throw SaneException(SANE_STATUS_IO_ERROR, "timeout while waiting for scanhead to go home");
     }
     dbg.log(DBG_info, "scanhead is still moving");
@@ -1150,6 +1197,14 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
     unsigned resolution = dev.model->get_resolution_settings(scan_method).get_min_resolution_y();
 
     const auto& sensor = sanei_genesys_find_sensor(&dev, resolution, 1, scan_method);
+
+    if (dev.is_head_pos_known(ScanHeadId::SECONDARY) &&
+        dev.head_pos(ScanHeadId::SECONDARY) > 1000)
+    {
+        // leave 500 steps for regular slow back home
+        scanner_move(dev, scan_method, dev.head_pos(ScanHeadId::SECONDARY) - 500,
+                     Direction::BACKWARD);
+    }
 
     ScanSession session;
     session.params.xres = resolution;
@@ -1188,9 +1243,19 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
 
     if (is_testing_mode()) {
         dev.interface->test_checkpoint("move_back_home_ta");
+
+        if (dev.is_head_pos_known(ScanHeadId::PRIMARY)) {
+            if (dev.head_pos(ScanHeadId::PRIMARY) > dev.head_pos(ScanHeadId::SECONDARY)) {
+                dev.advance_head_pos_by_steps(ScanHeadId::PRIMARY, Direction::BACKWARD,
+                                              dev.head_pos(ScanHeadId::SECONDARY));
+            } else {
+                dev.set_head_pos_zero(ScanHeadId::PRIMARY);
+            }
+            dev.set_head_pos_zero(ScanHeadId::SECONDARY);
+        }
+
         scanner_stop_action(dev);
         gl843::gl843_set_xpa_motor_power(&dev, local_reg, false);
-        dev.needs_home_ta = false;
         return;
     }
 
@@ -1200,9 +1265,19 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
 
         if (status.is_at_home) {
             dbg.log(DBG_info, "TA reached home position");
+
+            if (dev.is_head_pos_known(ScanHeadId::PRIMARY)) {
+                if (dev.head_pos(ScanHeadId::PRIMARY) > dev.head_pos(ScanHeadId::SECONDARY)) {
+                    dev.advance_head_pos_by_steps(ScanHeadId::PRIMARY, Direction::BACKWARD,
+                                                  dev.head_pos(ScanHeadId::SECONDARY));
+                } else {
+                    dev.set_head_pos_zero(ScanHeadId::PRIMARY);
+                }
+                dev.set_head_pos_zero(ScanHeadId::SECONDARY);
+            }
+
             scanner_stop_action(dev);
             gl843::gl843_set_xpa_motor_power(&dev, local_reg, false);
-            dev.needs_home_ta = false;
             return;
         }
 
@@ -1737,13 +1812,7 @@ static void genesys_repark_sensor_before_shading(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
     if (dev->model->flags & GENESYS_FLAG_SHADING_REPARK) {
-        // rewind keeps registers and slopes table intact from previous scan but is not
-        // available on all supported chipsets (or may cause scan artifacts, see #7)
-        if (dev->cmd_set->has_rewind()) {
-            dev->cmd_set->rewind(dev);
-        } else {
-            dev->cmd_set->move_back_home(dev, true);
-        }
+        dev->cmd_set->move_back_home(dev, true);
 
         if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
             dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
@@ -3201,7 +3270,6 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
 
             dev->parking = false;
             dev->cmd_set->move_back_home(dev, true);
-	  dev->scanhead_position_in_steps = 0;
 	}
       else
 	{
@@ -3210,8 +3278,6 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
 	     scanner's head wandering here */
             dev->parking = false;
             dev->cmd_set->move_back_home(dev, true);
-
-	  dev->scanhead_position_in_steps = 0;
 	}
     }
 

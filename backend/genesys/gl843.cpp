@@ -1366,7 +1366,6 @@ void CommandSetGl843::detect_document_end(Genesys_Device* dev) const
 // enables or disables XPA slider motor
 void gl843_set_xpa_motor_power(Genesys_Device* dev, Genesys_Register_Set& regs, bool set)
 {
-    (void) regs;
     DBG_HELPER(dbg);
     uint8_t val;
 
@@ -1456,6 +1455,7 @@ void gl843_set_xpa_motor_power(Genesys_Device* dev, Genesys_Register_Set& regs, 
             dev->interface->write_register(REG_0xA9, val);
         }
     }
+    regs.state.is_xpa_motor_on = set;
 }
 
 
@@ -1584,7 +1584,6 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
             }
 
             if (reg->state.is_xpa_on) {
-                dev->needs_home_ta = true;
                 gl843_set_xpa_motor_power(dev, *reg, true);
             }
 
@@ -1597,7 +1596,6 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
                 gl843_set_xpa_lamp_power(dev, true);
             }
             if (reg->state.is_xpa_on) {
-                dev->needs_home_ta = true;
                 gl843_set_xpa_motor_power(dev, *reg, true);
             }
             break;
@@ -1623,6 +1621,13 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
     dev->interface->write_register(REG_0x01, val);
 
     scanner_start_action(*dev, start_motor);
+
+    if (reg->state.is_motor_on) {
+        dev->advance_head_pos_by_session(ScanHeadId::PRIMARY);
+    }
+    if (reg->state.is_xpa_motor_on) {
+        dev->advance_head_pos_by_session(ScanHeadId::SECONDARY);
+    }
 }
 
 
@@ -1862,8 +1867,6 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 
     dev->calib_session = session;
     dev->calib_total_bytes_to_read = session.output_total_bytes_raw;
-
-  dev->scanhead_position_in_steps += dev->calib_lines + move;
 
     dev->interface->write_registers(regs);
 }
@@ -2805,7 +2808,7 @@ void CommandSetGl843::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
   lines = (dev->model->shading_lines * dpi) / dev->motor.base_ydpi;
   pixels = (calib_sensor.sensor_pixels * dpi) / calib_sensor.optical_res;
 
-  dev->scanhead_position_in_steps = 0;
+    dev->set_head_pos_zero(ScanHeadId::PRIMARY);
 
   local_reg = dev->reg;
 
@@ -3046,12 +3049,6 @@ bool CommandSetGl843::needs_home_before_init_regs_for_scan(Genesys_Device* dev) 
 void CommandSetGl843::wait_for_motor_stop(Genesys_Device* dev) const
 {
     (void) dev;
-}
-
-void CommandSetGl843::rewind(Genesys_Device* dev) const
-{
-    (void) dev;
-    throw SaneException("not implemented");
 }
 
 std::unique_ptr<CommandSet> create_gl843_cmd_set()

@@ -832,6 +832,8 @@ void CommandSetGl847::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
   r->value = val;
 
     scanner_start_action(*dev, start_motor);
+
+    dev->advance_head_pos_by_session(ScanHeadId::PRIMARY);
 }
 
 
@@ -846,39 +848,6 @@ void CommandSetGl847::end_scan(Genesys_Device* dev, Genesys_Register_Set* reg,
         scanner_stop_action(*dev);
     }
 }
-
-/** rewind scan
- * Move back by the same amount of distance than previous scan.
- * @param dev device to rewind
- */
-#if 0                           /* disabled to fix #7 */
-static void gl847_rewind(Genesys_Device* dev)
-{
-    DBG_HELPER(dbg);
-  uint8_t byte;
-
-
-    // set motor reverse
-    uint8_t byte = dev->interface->read_register(0x02);
-    byte |= 0x04;
-    dev->interface->write_register(0x02, byte);
-
-    // and start scan, then wait completion
-    gl847_begin_scan(dev, dev->reg, true);
-  do
-    {
-        dev->interface->sleep_ms(100);
-        byte = dev->interface->read_register(REG_0x40);
-    } while (byte & REG_0x40_MOTMFLG);
-
-    gl847_end_scan(dev, dev->reg, true);
-
-    // restore direction
-    byte = dev->interface->read_register(0x02);
-    byte &= 0xfb;
-    dev->interface->write_register(0x02, byte);
-}
-#endif
 
 /** Park head
  * Moves the slider to the home (top) position slowly
@@ -1056,7 +1025,7 @@ void CommandSetGl847::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     dev->interface->write_registers(regs);
 
   /* we use GENESYS_FLAG_SHADING_REPARK */
-  dev->scanhead_position_in_steps = 0;
+    dev->set_head_pos_zero(ScanHeadId::PRIMARY);
 }
 
 /** @brief set up registers for the actual scan
@@ -1094,7 +1063,7 @@ void CommandSetGl847::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     move = static_cast<float>(dev->model->y_offset);
     move = static_cast<float>(move + dev->settings.tl_y);
     move = static_cast<float>((move * move_dpi) / MM_PER_INCH);
-  move -= dev->scanhead_position_in_steps;
+    move -= dev->head_pos(ScanHeadId::PRIMARY);
   DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
 
   /* fast move to scan area */
@@ -1627,7 +1596,7 @@ void CommandSetGl847::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
   /* shading calibation is done with dev->motor.base_ydpi */
   lines = (dev->model->shading_lines * dpi) / dev->motor.base_ydpi;
   pixels = (sensor.sensor_pixels * dpi) / sensor.optical_res;
-  dev->scanhead_position_in_steps = 0;
+    dev->set_head_pos_zero(ScanHeadId::PRIMARY);
 
   local_reg = dev->reg;
 
@@ -2136,12 +2105,6 @@ void CommandSetGl847::send_gamma_table(Genesys_Device* dev, const Genesys_Sensor
 void CommandSetGl847::wait_for_motor_stop(Genesys_Device* dev) const
 {
     (void) dev;
-}
-
-void CommandSetGl847::rewind(Genesys_Device* dev) const
-{
-    (void) dev;
-    throw SaneException("not implemented");
 }
 
 void CommandSetGl847::load_document(Genesys_Device* dev) const

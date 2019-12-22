@@ -1039,6 +1039,8 @@ void CommandSetGl124::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
     dev->interface->write_register(REG_0x01, val);
 
     scanner_start_action(*dev, start_motor);
+
+    dev->advance_head_pos_by_session(ScanHeadId::PRIMARY);
 }
 
 
@@ -1052,37 +1054,6 @@ void CommandSetGl124::end_scan(Genesys_Device* dev, Genesys_Register_Set* reg,
     if (!dev->model->is_sheetfed) {
         scanner_stop_action(*dev);
     }
-}
-
-
-/** rewind scan
- * Move back by the same amount of distance than previous scan.
- * @param dev device to rewind
- */
-void CommandSetGl124::rewind(Genesys_Device* dev) const
-{
-    DBG_HELPER(dbg);
-
-    // set motor reverse
-    uint8_t byte = dev->interface->read_register(0x02);
-    byte |= 0x04;
-    dev->interface->write_register(0x02, byte);
-
-  const auto& sensor = sanei_genesys_find_sensor_any(dev);
-
-    // and start scan, then wait completion
-    begin_scan(dev, sensor, &dev->reg, true);
-  do
-    {
-        dev->interface->sleep_ms(100);
-        byte = dev->interface->read_register(REG_0x100);
-    } while (byte & REG_0x100_MOTMFLG);
-    end_scan(dev, &dev->reg, true);
-
-    // restore direction
-    byte = dev->interface->read_register(0x02);
-    byte &= 0xfb;
-    dev->interface->write_register(0x02, byte);
 }
 
 
@@ -1277,8 +1248,6 @@ void CommandSetGl124::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
         throw;
     }
     sanei_genesys_set_motor_power(regs, false);
-
-  dev->scanhead_position_in_steps += dev->calib_lines + move;
 
     dev->interface->write_registers(regs);
 }

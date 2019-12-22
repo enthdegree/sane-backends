@@ -305,7 +305,6 @@ struct Genesys_Device
     std::vector<std::uint16_t> dark_average_data;
 
     bool already_initialized = false;
-    SANE_Int scanhead_position_in_steps = 0;
 
     bool read_active = false;
     // signal wether the park command has been issued
@@ -313,8 +312,6 @@ struct Genesys_Device
 
     // for sheetfed scanner's, is TRUE when there is a document in the scanner
     bool document = false;
-
-    bool needs_home_ta = false;
 
     Genesys_Buffer read_buffer;
 
@@ -361,7 +358,23 @@ struct Genesys_Device
 
     std::unique_ptr<ScannerInterface> interface;
 
+    bool is_head_pos_known(ScanHeadId scan_head) const;
+    unsigned head_pos(ScanHeadId scan_head) const;
+    void set_head_pos_unknown();
+    void set_head_pos_zero(ScanHeadId scan_head);
+    void advance_head_pos_by_session(ScanHeadId scan_head);
+    void advance_head_pos_by_steps(ScanHeadId scan_head, Direction direction, unsigned steps);
+
 private:
+    // the position of the primary scan head in motor->base_dpi units
+    unsigned head_pos_primary_ = 0;
+    bool is_head_pos_primary_known_ = true;
+
+    // the position of the secondary scan head in motor->base_dpi units. Only certain scanners
+    // have a secondary scan head.
+    unsigned head_pos_secondary_ = 0;
+    bool is_head_pos_secondary_known_ = true;
+
     friend class ScannerInterfaceUsb;
 };
 

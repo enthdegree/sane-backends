@@ -1591,7 +1591,7 @@ dummy \ scanned lines
   DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
 
   /* subtract current head position */
-  move -= dev->scanhead_position_in_steps;
+    move -= (dev->head_pos(ScanHeadId::PRIMARY) * session.params.yres) / dev->motor.base_ydpi;
   DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
 
   if (move < 0)
@@ -1929,7 +1929,7 @@ void CommandSetGl841::eject_document(Genesys_Device* dev) const
       DBG(DBG_info, "%s: paper still loaded\n", __func__);
       /* force document TRUE, because it is definitely present */
         dev->document = true;
-      dev->scanhead_position_in_steps = 0;
+        dev->set_head_pos_zero(ScanHeadId::PRIMARY);
 
       loop = 300;
       while (loop > 0)		/* do not wait longer then 30 seconds */
@@ -2111,6 +2111,8 @@ void CommandSetGl841::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
     }
 
     dev->interface->write_registers(local_reg);
+
+    dev->advance_head_pos_by_session(ScanHeadId::PRIMARY);
 }
 
 
@@ -2159,6 +2161,7 @@ static void gl841_feed(Genesys_Device* dev, int steps)
 
     if (is_testing_mode()) {
         dev->interface->test_checkpoint("feed");
+        dev->advance_head_pos_by_steps(ScanHeadId::PRIMARY, Direction::FORWARD, steps);
         gl841_stop_action(dev);
         return;
     }
@@ -2170,7 +2173,7 @@ static void gl841_feed(Genesys_Device* dev, int steps)
 
         if (!status.is_motor_enabled) {
             DBG(DBG_proc, "%s: finished\n", __func__);
-	  dev->scanhead_position_in_steps += steps;
+            dev->advance_head_pos_by_steps(ScanHeadId::PRIMARY, Direction::FORWARD, steps);
             return;
       }
         dev->interface->sleep_ms(100);
@@ -2179,6 +2182,8 @@ static void gl841_feed(Genesys_Device* dev, int steps)
 
   /* when we come here then the scanner needed too much time for this, so we better stop the motor */
   gl841_stop_action (dev);
+
+    dev->set_head_pos_unknown();
 
     throw SaneException(SANE_STATUS_IO_ERROR, "timeout while waiting for scanhead to go home");
 }
@@ -2213,11 +2218,10 @@ void CommandSetGl841::move_back_home(Genesys_Device* dev, bool wait_until_home) 
     // first read gives HOME_SENSOR true
     auto status = scanner_read_reliable_status(*dev);
 
-  dev->scanhead_position_in_steps = 0;
 
     if (status.is_at_home) {
       DBG(DBG_info, "%s: already at home, completed\n", __func__);
-      dev->scanhead_position_in_steps = 0;
+        dev->set_head_pos_zero(ScanHeadId::PRIMARY);
       return;
     }
 
@@ -2253,6 +2257,7 @@ void CommandSetGl841::move_back_home(Genesys_Device* dev, bool wait_until_home) 
 
     if (is_testing_mode()) {
         dev->interface->test_checkpoint("move_back_home");
+        dev->set_head_pos_zero(ScanHeadId::PRIMARY);
         return;
     }
 
@@ -2264,7 +2269,8 @@ void CommandSetGl841::move_back_home(Genesys_Device* dev, bool wait_until_home) 
             if (status.is_at_home) {
 	      DBG(DBG_info, "%s: reached home position\n", __func__);
 	      DBG(DBG_proc, "%s: finished\n", __func__);
-          return;
+                dev->set_head_pos_zero(ScanHeadId::PRIMARY);
+                return;
 	    }
             dev->interface->sleep_ms(100);
 	  ++loop;
@@ -2273,6 +2279,7 @@ void CommandSetGl841::move_back_home(Genesys_Device* dev, bool wait_until_home) 
         // when we come here then the scanner needed too much time for this, so we better stop
         // the motor
         catch_all_exceptions(__func__, [&](){ gl841_stop_action(dev); });
+        dev->set_head_pos_unknown();
         throw SaneException(SANE_STATUS_IO_ERROR, "timeout while waiting for scanhead to go home");
     }
 
@@ -2457,8 +2464,6 @@ void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     compute_session(dev, session, calib_sensor);
 
     init_regs_for_scan_session(dev, calib_sensor, &regs, session);
-
-  dev->scanhead_position_in_steps += dev->calib_lines + starty;
 
     dev->interface->write_registers(regs);
 }
@@ -3528,7 +3533,7 @@ void CommandSetGl841::init(Genesys_Device* dev) const
   DBG_INIT ();
     DBG_HELPER(dbg);
 
-  dev->scanhead_position_in_steps = 0;
+    dev->set_head_pos_zero(ScanHeadId::PRIMARY);
 
   /* Check if the device has already been initialized and powered up */
   if (dev->already_initialized)
@@ -3718,7 +3723,7 @@ void CommandSetGl841::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
   /* 20 cm max length for calibration sheet */
     length = static_cast<unsigned>(((200 * dpi) / MM_PER_INCH) / lines);
 
-  dev->scanhead_position_in_steps = 0;
+    dev->set_head_pos_zero(ScanHeadId::PRIMARY);
 
   local_reg = dev->reg;
 
@@ -3981,12 +3986,6 @@ bool CommandSetGl841::needs_home_before_init_regs_for_scan(Genesys_Device* dev) 
 void CommandSetGl841::wait_for_motor_stop(Genesys_Device* dev) const
 {
     (void) dev;
-}
-
-void CommandSetGl841::rewind(Genesys_Device* dev) const
-{
-    (void) dev;
-    throw SaneException("not implemented");
 }
 
 void CommandSetGl841::move_to_ta(Genesys_Device* dev) const

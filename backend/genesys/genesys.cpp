@@ -616,6 +616,7 @@ static void genesys_send_offset_and_shading(Genesys_Device* dev, const Genesys_S
         && dev->model->sensor_id != SensorId::CCD_PLUSTEK_OPTICBOOK_3800
         && dev->model->sensor_id != SensorId::CCD_KVSS080
         && dev->model->sensor_id != SensorId::CCD_G4050
+        && dev->model->sensor_id != SensorId::CCD_HP_4850C
         && dev->model->sensor_id != SensorId::CCD_CANON_4400F
         && dev->model->sensor_id != SensorId::CCD_CANON_8400F
         && dev->model->sensor_id != SensorId::CCD_CANON_8600F
@@ -664,6 +665,7 @@ void sanei_genesys_init_shading_data(Genesys_Device* dev, const Genesys_Sensor& 
      function */
     if (dev->model->sensor_id==SensorId::CCD_KVSS080 ||
         dev->model->sensor_id==SensorId::CCD_G4050 ||
+        dev->model->sensor_id==SensorId::CCD_HP_4850C ||
         dev->model->sensor_id==SensorId::CCD_CANON_4400F ||
         dev->model->sensor_id==SensorId::CCD_CANON_8400F ||
         dev->cmd_set->has_send_shading_data())
@@ -1835,7 +1837,8 @@ static void genesys_dummy_dark_shading(Genesys_Device* dev, const Genesys_Sensor
       skip = 4;
       xend = 68;
     }
-    if (dev->model->sensor_id==SensorId::CCD_G4050
+    if (dev->model->sensor_id==SensorId::CCD_G4050 ||
+        dev->model->sensor_id==SensorId::CCD_HP_4850C
      || dev->model->sensor_id==SensorId::CCD_CANON_4400F
      || dev->model->sensor_id==SensorId::CCD_CANON_8400F
      || dev->model->sensor_id==SensorId::CCD_KVSS080)
@@ -2703,6 +2706,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
     case SensorId::CCD_KVSS080:
     case SensorId::CCD_PLUSTEK_OPTICBOOK_3800:
     case SensorId::CCD_G4050:
+        case SensorId::CCD_HP_4850C:
     case SensorId::CCD_CANON_4400F:
     case SensorId::CCD_CANON_8400F:
     case SensorId::CCD_CANON_8600F:

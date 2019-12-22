@@ -218,6 +218,7 @@ enum class SensorId : unsigned
     CCD_HP2400,
     CCD_HP3670,
     CCD_HP_N6310,
+    CCD_HP_4850C,
     CCD_IMG101,
     CCD_KVSS080,
     CCD_PLUSTEK_OPTICBOOK_3800,

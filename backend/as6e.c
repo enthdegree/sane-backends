@@ -819,8 +819,8 @@ check_for_driver (const char *devname)
 	if (valid == 1)
           {
             char fullname[NAMESIZE];
-            size_t len = snprintf(fullname, sizeof(fullname), "%s/%s", dir, devname);
-            if ((len > 0) && (len <= sizeof(fullname)))
+            int len = snprintf(fullname, sizeof(fullname), "%s/%s", dir, devname);
+            if ((len > 0) && (len <= (int)sizeof(fullname)))
               {
                 if (!stat (fullname, &statbuf))
                   {

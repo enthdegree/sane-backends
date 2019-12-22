@@ -82,8 +82,8 @@ fedora-31-clang:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
   <<: *compile_definition
 
-alpine-3.10-musl:
-  image: $REGISTRY_HUB:alpine-3.10-musl
+alpine-3.11-musl:
+  image: $REGISTRY_HUB:alpine-3.11-musl
   variables:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
   <<: *compile_definition

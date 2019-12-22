@@ -799,7 +799,8 @@ read_dlld (void)
   DIR *dlld;
   struct dirent *dllconf;
   struct stat st;
-  char conffile[PATH_MAX], dlldir[PATH_MAX];
+  char dlldir[PATH_MAX];
+  char conffile[PATH_MAX + strlen("/") + NAME_MAX];
   size_t len, plen;
   const char *dir_list;
   char *copy, *next, *dir;
@@ -851,7 +852,7 @@ read_dlld (void)
           || (dllconf->d_name[len-1] == '#'))
         continue;
 
-      snprintf (conffile, PATH_MAX, "%s/%s", dlldir, dllconf->d_name);
+      snprintf (conffile, sizeof(conffile), "%s/%s", dlldir, dllconf->d_name);
 
       DBG (5, "sane_init/read_dlld: considering %s\n", conffile);
 

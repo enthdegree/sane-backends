@@ -1508,7 +1508,19 @@ void CommandSetGl646::move_back_home(Genesys_Device* dev, bool wait_until_home) 
     }
 
     // starts scan
-    dev->cmd_set->begin_scan(dev, sensor, &dev->reg, true);
+    {
+        // this is effectively the same as dev->cmd_set->begin_scan(dev, sensor, &dev->reg, true);
+        // except that we don't modify the head position calculations
+
+        // FIXME: SEQUENTIAL not really needed in this case
+        Genesys_Register_Set scan_local_reg(Genesys_Register_Set::SEQUENTIAL);
+
+        scan_local_reg.init_reg(0x03, dev->reg.get8(0x03));
+        scan_local_reg.init_reg(0x01, dev->reg.get8(0x01) | REG_0x01_SCAN);
+        scan_local_reg.init_reg(0x0f, 0x01);
+
+        dev->interface->write_registers(scan_local_reg);
+    }
 
     if (is_testing_mode()) {
         dev->interface->test_checkpoint("move_back_home");

@@ -62,9 +62,50 @@ unsigned MotorSlope::get_table_step_shifted(unsigned step, StepType step_type) c
     return static_cast<unsigned>(1.0f / speed_v) >> static_cast<unsigned>(step_type);
 }
 
+float compute_acceleration_for_steps(unsigned initial_w, unsigned max_w, unsigned steps)
+{
+    float initial_speed_v = 1.0f / static_cast<float>(initial_w);
+    float max_speed_v = 1.0f / static_cast<float>(max_w);
+    return (max_speed_v * max_speed_v - initial_speed_v * initial_speed_v) / (2 * steps);
+}
+
+
+MotorSlope MotorSlope::create_from_steps(unsigned initial_w, unsigned max_w,
+                                         unsigned steps)
+{
+    MotorSlope slope;
+    slope.initial_speed_w = initial_w;
+    slope.max_speed_w = max_w;
+    slope.acceleration = compute_acceleration_for_steps(initial_w, max_w, steps);
+    return slope;
+}
+
+void MotorSlopeTable::slice_steps(unsigned count)
+{
+    if (count >= table.size() || count > steps_count) {
+        throw SaneException("Excepssive steps count");
+    }
+    steps_count = count;
+}
+
+unsigned get_slope_table_max_size(AsicType asic_type)
+{
+    switch (asic_type) {
+        case AsicType::GL646:
+        case AsicType::GL841: return 255;
+        case AsicType::GL843:
+        case AsicType::GL845:
+        case AsicType::GL846:
+        case AsicType::GL847:
+        case AsicType::GL124: return 1024;
+        default:
+            throw SaneException("Unknown asic type");
+    }
+}
+
 MotorSlopeTable create_slope_table(const MotorSlope& slope, unsigned target_speed_w,
                                    StepType step_type, unsigned steps_alignment,
-                                   unsigned min_size)
+                                   unsigned min_size, unsigned max_size)
 {
     DBG_HELPER_ARGS(dbg, "target_speed_w: %d, step_type: %d, steps_alignment: %d, min_size: %d",
                     target_speed_w, static_cast<unsigned>(step_type), steps_alignment, min_size);
@@ -81,9 +122,9 @@ MotorSlopeTable create_slope_table(const MotorSlope& slope, unsigned target_spee
 
     unsigned final_speed = std::max(target_speed_shifted_w, max_speed_shifted_w);
 
-    table.table.reserve(MotorSlopeTable::SLOPE_TABLE_SIZE);
+    table.table.reserve(max_size);
 
-    while (true) {
+    while (table.table.size() < max_size - 1) {
         unsigned current = slope.get_table_step_shifted(table.table.size(), step_type);
         if (current <= final_speed) {
             break;
@@ -98,47 +139,28 @@ MotorSlopeTable create_slope_table(const MotorSlope& slope, unsigned target_spee
     table.pixeltime_sum += table.table.back();
 
     // fill the table up to the specified size
-    while (table.table.size() % steps_alignment != 0 || table.table.size() < min_size) {
+    while (table.table.size() < max_size - 1 &&
+           (table.table.size() % steps_alignment != 0 || table.table.size() < min_size))
+    {
         table.table.push_back(table.table.back());
         table.pixeltime_sum += table.table.back();
     }
 
-    table.scan_steps = table.table.size();
+    table.steps_count = table.table.size();
 
     // fill the rest of the table with the final speed
-    table.table.resize(MotorSlopeTable::SLOPE_TABLE_SIZE, final_speed);
+    table.table.resize(max_size, final_speed);
 
     return table;
 }
 
 std::ostream& operator<<(std::ostream& out, const MotorSlope& slope)
 {
-    out << "Genesys_Motor_Slope{\n"
+    out << "MotorSlope{\n"
         << "    initial_speed_w: " << slope.initial_speed_w << '\n'
         << "    max_speed_w: " << slope.max_speed_w << '\n'
         << "    a: " << slope.acceleration << '\n'
         << '}';
-    return out;
-}
-
-std::ostream& operator<<(std::ostream& out, const MotorSlopeLegacy& slope)
-{
-    out << "MotorSlopeLegacy{\n"
-        << "    maximum_start_speed: " << slope.maximum_start_speed << '\n'
-        << "    maximum_speed: " << slope.maximum_speed << '\n'
-        << "    minimum_steps: " << slope.minimum_steps << '\n'
-        << "    g: " << slope.g << '\n'
-        << '}';
-    return out;
-}
-
-std::ostream& operator<<(std::ostream& out, const Genesys_Motor_Slope& slope)
-{
-    if (slope.type() == Genesys_Motor_Slope::LEGACY) {
-        out << slope.legacy();
-    } else {
-        out << slope.physical();
-    }
     return out;
 }
 
@@ -149,7 +171,7 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Motor& motor)
         << "    base_ydpi: " << motor.base_ydpi << '\n'
         << "    optical_ydpi: " << motor.optical_ydpi << '\n'
         << "    slopes: "
-        << format_indent_braced_list(4, format_vector_indent_braced(4, "Genesys_Motor_Slope",
+        << format_indent_braced_list(4, format_vector_indent_braced(4, "MotorSlope",
                                                                     motor.slopes))
         << '}';
     return out;

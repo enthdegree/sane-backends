@@ -66,8 +66,7 @@ static void gl843_set_buffer_address(Genesys_Device* dev, uint32_t addr)
 /**
  * compute the step multiplier used
  */
-static int
-gl843_get_step_multiplier (Genesys_Register_Set * regs)
+static int gl843_get_step_multiplier(Genesys_Register_Set* regs)
 {
     GenesysRegister *r = sanei_genesys_get_address(regs, REG_0x9D);
     int value = 1;
@@ -279,12 +278,8 @@ gl843_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x20, 0x10);
     dev->reg.init_reg(0x21, 0x04);
 
-    dev->reg.init_reg(0x22, 0x01);
-    dev->reg.init_reg(0x23, 0x01);
-    if (dev->model->model_id == ModelId::CANON_4400F) {
-        dev->reg.init_reg(0x22, 0x64);
-        dev->reg.init_reg(0x23, 0x64);
-    }
+    dev->reg.init_reg(0x22, 0x10);
+    dev->reg.init_reg(0x23, 0x10);
     if (dev->model->model_id == ModelId::CANON_8600F) {
         dev->reg.init_reg(0x22, 0xc8);
         dev->reg.init_reg(0x23, 0xc8);
@@ -821,12 +816,12 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
 
   int use_fast_fed, coeff;
   unsigned int lincnt;
-  unsigned int feedl,factor,dist;
+    unsigned feedl, dist;
   GenesysRegister *r;
   uint32_t z1, z2;
 
   /* get step multiplier */
-  factor = gl843_get_step_multiplier (reg);
+    unsigned step_multiplier = gl843_get_step_multiplier (reg);
 
   use_fast_fed = 0;
 
@@ -855,8 +850,8 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     }
 
   /* disable backtracking */
-  if (has_flag(flags, MotorFlag::DISABLE_BUFFER_FULL_MOVE)
-      ||(scan_yres>=2400)
+    if (has_flag(flags, MotorFlag::DISABLE_BUFFER_FULL_MOVE)
+      ||(scan_yres>=2400 && dev->model->model_id != ModelId::CANON_4400F)
       ||(scan_yres>=sensor.optical_res))
     {
         r->value |= REG_0x02_ACDCDIS;
@@ -869,56 +864,36 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     }
 
   /* scan and backtracking slope table */
-    auto scan_table = sanei_genesys_slope_table(scan_yres, exposure, dev->motor.base_ydpi,
-                                                factor, motor_profile);
+    auto scan_table = sanei_genesys_slope_table(dev->model->asic_type, scan_yres, exposure,
+                                                dev->motor.base_ydpi, step_multiplier,
+                                                motor_profile);
 
-    gl843_send_slope_table(dev, SCAN_TABLE, scan_table.table, scan_table.scan_steps * factor);
-    gl843_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table, scan_table.scan_steps * factor);
+    gl843_send_slope_table(dev, SCAN_TABLE, scan_table.table, scan_table.steps_count);
+    gl843_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table, scan_table.steps_count);
 
-  /* STEPNO */
-    r = sanei_genesys_get_address(reg, REG_STEPNO);
-    r->value = scan_table.scan_steps;
+    reg->set8(REG_STEPNO, scan_table.steps_count / step_multiplier);
+    reg->set8(REG_FASTNO, scan_table.steps_count / step_multiplier);
 
-  /* FSHDEC */
-    r = sanei_genesys_get_address(reg, REG_FSHDEC);
-    r->value = scan_table.scan_steps;
-
-  /* fast table */
-    // BUG: looks like for fast moves we use inconsistent step type
-    StepType fast_step_type = StepType::FULL;
-    if (static_cast<unsigned>(motor_profile.step_type) <= static_cast<unsigned>(fast_step_type)) {
-        fast_step_type = motor_profile.step_type;
-    }
-
-    Motor_Profile fast_motor_profile = motor_profile;
-    fast_motor_profile.step_type = fast_step_type;
-
+    // fast table
     unsigned fast_yres = sanei_genesys_get_lowest_ydpi(dev);
-    if (dev->model->model_id == ModelId::CANON_4400F) {
-        fast_yres = scan_yres;
-    }
-    auto fast_table = sanei_genesys_slope_table(fast_yres, exposure, dev->motor.base_ydpi,
-                                                factor, fast_motor_profile);
-    gl843_send_slope_table(dev, STOP_TABLE, fast_table.table, fast_table.scan_steps * factor);
-    gl843_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.scan_steps * factor);
-    gl843_send_slope_table(dev, HOME_TABLE, fast_table.table, fast_table.scan_steps * factor);
+    auto fast_table = sanei_genesys_slope_table(dev->model->asic_type, fast_yres, exposure,
+                                                dev->motor.base_ydpi, step_multiplier,
+                                                motor_profile);
+    gl843_send_slope_table(dev, STOP_TABLE, fast_table.table, fast_table.steps_count);
+    gl843_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.steps_count);
+    gl843_send_slope_table(dev, HOME_TABLE, fast_table.table, fast_table.steps_count);
 
-  /* FASTNO */
-    r = sanei_genesys_get_address(reg, REG_FASTNO);
-    r->value = fast_table.scan_steps;
-
-  /* FMOVNO */
-    r = sanei_genesys_get_address(reg, REG_FMOVNO);
-    r->value = fast_table.scan_steps;
+    reg->set8(REG_FSHDEC, fast_table.steps_count / step_multiplier);
+    reg->set8(REG_FMOVNO, fast_table.steps_count / step_multiplier);
 
   /* substract acceleration distance from feedl */
   feedl=feed_steps;
     feedl <<= static_cast<unsigned>(motor_profile.step_type);
 
-    dist = scan_table.scan_steps;
+    dist = scan_table.steps_count / step_multiplier;
   if (use_fast_fed)
     {
-        dist += fast_table.scan_steps*2;
+        dist += (fast_table.steps_count / step_multiplier) * 2;
     }
   DBG(DBG_io2, "%s: acceleration distance=%d\n", __func__, dist);
 
@@ -937,9 +912,9 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     sanei_genesys_calculate_zmod(use_fast_fed,
 				  exposure,
                                  scan_table.table,
-                                 scan_table.scan_steps,
+                                 scan_table.steps_count / step_multiplier,
 				  feedl,
-                                 scan_table.scan_steps,
+                                 scan_table.steps_count / step_multiplier,
                                   &z1,
                                   &z2);
   if(scan_yres>600)
@@ -961,9 +936,8 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     reg->set8_mask(REG_0x67, static_cast<unsigned>(motor_profile.step_type) << REG_0x67S_STEPSEL, 0xc0);
     reg->set8_mask(REG_0x68, static_cast<unsigned>(motor_profile.step_type) << REG_0x68S_FSTPSEL, 0xc0);
 
-  /* steps for STOP table */
-    r = sanei_genesys_get_address(reg, REG_FMOVDEC);
-    r->value = fast_table.scan_steps;
+    // steps for STOP table
+    reg->set8(REG_FMOVDEC, fast_table.steps_count / step_multiplier);
 
   /* Vref XXX STEF XXX : optical divider or step type ? */
   r = sanei_genesys_get_address (reg, 0x80);
@@ -1051,7 +1025,9 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     }
 
     bool use_shdarea = dpihw > 600;
-    if (dev->model->model_id == ModelId::CANON_8400F) {
+    if (dev->model->model_id == ModelId::CANON_4400F) {
+        use_shdarea = session.params.xres <= 600;
+    } else if (dev->model->model_id == ModelId::CANON_8400F) {
         use_shdarea = session.params.xres <= 400;
     }
     if (use_shdarea) {
@@ -1177,7 +1153,9 @@ void CommandSetGl843::init_regs_for_scan_session(Genesys_Device* dev, const Gene
    */
 
   dummy = 0;
-  /* dummy = 1;  XXX STEF XXX */
+    if (dev->model->model_id == ModelId::CANON_4400F && session.params.yres == 1200) {
+        dummy = 1;
+    }
 
   /* slope_dpi */
   /* cis color scan is effectively a gray scan with 3 gray lines per color line and a FILTER of 0 */

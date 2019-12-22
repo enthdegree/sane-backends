@@ -221,17 +221,15 @@ struct Genesys_USB_Device_Entry {
 struct Motor_Profile
 {
     MotorId motor_id;
-	int exposure;    /**< exposure for the slope table */
+    int exposure;           // used only to select the wanted motor
     StepType step_type;   // default step type for given exposure
-        uint32_t *table;  // 0-terminated slope table at full step (i.e. step_type == 0)
+    MotorSlope slope;
 };
 
 extern StaticInit<std::vector<Motor_Profile>> gl843_motor_profiles;
 extern StaticInit<std::vector<Motor_Profile>> gl846_motor_profiles;
 extern StaticInit<std::vector<Motor_Profile>> gl847_motor_profiles;
 extern StaticInit<std::vector<Motor_Profile>> gl124_motor_profiles;
-
-constexpr unsigned SLOPE_TABLE_SIZE = 1024;
 
 /*--------------------------------------------------------------------------*/
 /*       common functions needed by low level specific functions            */
@@ -323,19 +321,9 @@ unsigned sanei_genesys_get_bulk_max_size(AsicType asic_type);
 SANE_Int sanei_genesys_exposure_time2(Genesys_Device * dev, float ydpi, StepType step_type,
                                       int endpixel, int led_exposure);
 
-SANE_Int sanei_genesys_generate_slope_table(std::vector<uint16_t>& slope_table, unsigned int max_steps,
-			      unsigned int use_steps, uint16_t stop_at,
-			      uint16_t vstart, uint16_t vend,
-			      unsigned int steps, double g,
-			      unsigned int *used_steps, unsigned int *vfinal);
-
-SANE_Int sanei_genesys_create_slope_table3(const Genesys_Motor& motor,
-                                           std::vector<uint16_t>& slope_table, int max_step,
-				   unsigned int use_steps,
-                                           StepType step_type, int exposure_time,
-                                           unsigned yres,
-				   unsigned int *used_steps,
-                                   unsigned int *final_exposure);
+MotorSlopeTable sanei_genesys_create_slope_table3(AsicType asic_type, const Genesys_Motor& motor,
+                                                  StepType step_type, int exposure_time,
+                                                  unsigned yres);
 
 void sanei_genesys_create_default_gamma_table(Genesys_Device* dev,
                                               std::vector<uint16_t>& gamma_table, float gamma);
@@ -419,8 +407,12 @@ bool scanner_is_motor_stopped(Genesys_Device& dev);
 const Motor_Profile& sanei_genesys_get_motor_profile(const std::vector<Motor_Profile>& motors,
                                                      MotorId motor_id, int exposure);
 
-MotorSlopeTable sanei_genesys_slope_table(int dpi, int exposure, int base_dpi,
-                                          int factor, const Motor_Profile& motor_profile);
+MotorSlopeTable sanei_genesys_slope_table(AsicType asic_type, int dpi, int exposure, int base_dpi,
+                                          unsigned step_multiplier,
+                                          const Motor_Profile& motor_profile);
+
+MotorSlopeTable create_slope_table_fastest(AsicType asic_type, unsigned step_multiplier,
+                                           const Motor_Profile& motor_profile);
 
 /** @brief find lowest motor resolution for the device.
  * Parses the resolution list for motor and

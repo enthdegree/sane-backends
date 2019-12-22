@@ -93,7 +93,8 @@ struct Motor_Profile;
 
 // motor.h
 struct Genesys_Motor;
-struct Genesys_Motor_Slope;
+struct MotorSlope;
+struct MotorSlopeTable;
 
 // register.h
 class Genesys_Register_Set;

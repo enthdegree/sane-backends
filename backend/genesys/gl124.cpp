@@ -477,7 +477,6 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
     DBG_HELPER(dbg);
   int use_fast_fed;
   unsigned int lincnt, fast_dpi;
-    int factor;
   unsigned int feedl,dist;
   uint32_t z1, z2;
     unsigned yres;
@@ -492,7 +491,6 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
 
   /* we never use fast fed since we do manual feed for the scans */
   use_fast_fed=0;
-  factor=1;
 
   /* enforce motor minimal scan speed
    * @TODO extend motor struct for this value */
@@ -567,12 +565,13 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
     reg->set16(REG_SCANFED, 4);
 
   /* scan and backtracking slope table */
-    auto scan_table = sanei_genesys_slope_table(yres, scan_exposure_time,
-                                                dev->motor.base_ydpi, factor, motor_profile);
-    gl124_send_slope_table(dev, SCAN_TABLE, scan_table.table, scan_table.scan_steps);
-    gl124_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table, scan_table.scan_steps);
+    auto scan_table = sanei_genesys_slope_table(dev->model->asic_type, yres, scan_exposure_time,
+                                                dev->motor.base_ydpi, 1,
+                                                motor_profile);
+    gl124_send_slope_table(dev, SCAN_TABLE, scan_table.table, scan_table.steps_count);
+    gl124_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table, scan_table.steps_count);
 
-    reg->set16(REG_STEPNO, scan_table.scan_steps);
+    reg->set16(REG_STEPNO, scan_table.steps_count);
 
   /* fast table */
   fast_dpi=yres;
@@ -583,25 +582,26 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
       fast_dpi*=3;
     }
     */
-    auto fast_table = sanei_genesys_slope_table(fast_dpi, scan_exposure_time, dev->motor.base_ydpi,
-                                                factor, motor_profile);
-    gl124_send_slope_table(dev, STOP_TABLE, fast_table.table, fast_table.scan_steps);
-    gl124_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.scan_steps);
+    auto fast_table = sanei_genesys_slope_table(dev->model->asic_type, fast_dpi,
+                                                scan_exposure_time, dev->motor.base_ydpi,
+                                                1, motor_profile);
+    gl124_send_slope_table(dev, STOP_TABLE, fast_table.table, fast_table.steps_count);
+    gl124_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.steps_count);
 
-    reg->set16(REG_FASTNO, fast_table.scan_steps);
-    reg->set16(REG_FSHDEC, fast_table.scan_steps);
-    reg->set16(REG_FMOVNO, fast_table.scan_steps);
+    reg->set16(REG_FASTNO, fast_table.steps_count);
+    reg->set16(REG_FSHDEC, fast_table.steps_count);
+    reg->set16(REG_FMOVNO, fast_table.steps_count);
 
   /* substract acceleration distance from feedl */
   feedl=feed_steps;
     feedl <<= static_cast<unsigned>(motor_profile.step_type);
 
-    dist = scan_table.scan_steps;
+    dist = scan_table.steps_count;
     if (has_flag(flags, MotorFlag::FEED)) {
         dist *= 2;
     }
     if (use_fast_fed) {
-        dist += fast_table.scan_steps * 2;
+        dist += fast_table.steps_count * 2;
     }
   DBG (DBG_io2, "%s: acceleration distance=%d\n", __func__, dist);
 
@@ -619,9 +619,9 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
     sanei_genesys_calculate_zmod(use_fast_fed,
 				  scan_exposure_time,
                                  scan_table.table,
-                                 scan_table.scan_steps,
+                                 scan_table.steps_count,
 				  feedl,
-                                 scan_table.scan_steps,
+                                 scan_table.steps_count,
                                   &z1,
                                   &z2);
 
@@ -636,7 +636,7 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
     reg->set8(REG_0xA0, (static_cast<unsigned>(motor_profile.step_type) << REG_0xA0S_STEPSEL) |
                         (static_cast<unsigned>(motor_profile.step_type) << REG_0xA0S_FSTPSEL));
 
-    reg->set16(REG_FMOVDEC, fast_table.scan_steps);
+    reg->set16(REG_FMOVDEC, fast_table.steps_count);
 }
 
 

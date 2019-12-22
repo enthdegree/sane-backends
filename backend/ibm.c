@@ -248,12 +248,14 @@ attach (const char *devnam, Ibm_Device ** devp)
 
   dev->sane.name = strdup (devnam);
   dev->sane.vendor = "IBM";
-  str = malloc (sizeof(ibuf.product) + sizeof(ibuf.revision) + 1);
+
+  size_t prod_rev_size = sizeof(ibuf.product) + sizeof(ibuf.revision) + 1;
+  str = malloc (prod_rev_size);
   if (str)
     {
-      str[0] = '\0';
-      strncat (str, (char *)ibuf.product, sizeof(ibuf.product));
-      strncat (str, (char *)ibuf.revision, sizeof(ibuf.revision));
+      snprintf (str, prod_rev_size, "%.*s%.*s",
+                (int) sizeof(ibuf.product), (const char *) ibuf.product,
+                (int) sizeof(ibuf.revision), (const char *) ibuf.revision);
     }
   dev->sane.model = str;
   dev->sane.type = "flatbed scanner";

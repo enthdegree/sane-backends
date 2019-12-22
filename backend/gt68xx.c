@@ -994,11 +994,16 @@ download_firmware_file (GT68xx_Device * dev)
             {
               direntry = readdir (dir);
               if (direntry
-                  && (strncasecmp (direntry->d_name, basename, PATH_MAX) ==
-                      0))
+                  && (strncasecmp (direntry->d_name, basename, PATH_MAX) == 0))
                 {
-                  snprintf (filename, PATH_MAX, "%s%s%s",
-                            dirname, PATH_SEP, direntry->d_name);
+                  int len = snprintf (filename, sizeof(filename), "%s%s%s",
+                                      dirname, PATH_SEP, direntry->d_name);
+                  if ((len < 0) || (len >= (int) sizeof(filename)))
+                    {
+                      DBG (5, "download_firmware: filepath `%s%s%s' too long\n",
+                           dirname, PATH_SEP, direntry->d_name);
+                      status = SANE_STATUS_INVAL;
+                    }
                   break;
                 }
             }

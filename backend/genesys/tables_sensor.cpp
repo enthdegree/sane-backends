@@ -2263,7 +2263,7 @@ void genesys_init_sensor_tables()
     sensor.fau_gain_white_ref = 160;
     sensor.gain_white_ref = 160;
     sensor.exposure = { 0x9c40, 0x9c40, 0x9c40 };
-    sensor.stagger_config = StaggerConfig{ 1600, 4 }; // FIXME: may be incorrect
+    sensor.stagger_config = StaggerConfig{ 3200, 6 };
     sensor.custom_regs = {};
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
     sensor.get_logical_hwdpi_fun = get_sensor_optical_with_ccd_divisor;
@@ -2533,7 +2533,7 @@ void genesys_init_sensor_tables()
     sensor.fau_gain_white_ref = 160;
     sensor.gain_white_ref = 160;
     sensor.exposure = { 0x9c40, 0x9c40, 0x9c40 };
-    sensor.stagger_config = StaggerConfig{ 2400, 4 }; // FIXME: may be incorrect
+    sensor.stagger_config = StaggerConfig{4800, 8};
     sensor.custom_regs = {};
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
     sensor.get_logical_hwdpi_fun = get_sensor_optical_with_ccd_divisor;
@@ -3255,6 +3255,7 @@ void genesys_init_sensor_tables()
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 230;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
+    sensor.stagger_config = StaggerConfig{7200, 4};
     sensor.custom_regs = {
         { 0x08, 0x00 },
         { 0x09, 0x00 },
@@ -3345,6 +3346,7 @@ void genesys_init_sensor_tables()
     sensor.gain_white_ref = 230;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
     sensor.exposure_lperiod = 0x2f44;
+    sensor.stagger_config = StaggerConfig{7200, 4};
     sensor.custom_regs = {
         { 0x08, 0x00 },
         { 0x09, 0x00 },
@@ -3418,6 +3420,7 @@ void genesys_init_sensor_tables()
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 230;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
+    sensor.stagger_config = StaggerConfig{7200, 4};
     sensor.custom_regs = {
         { 0x08, 0x00 },
         { 0x09, 0x00 },

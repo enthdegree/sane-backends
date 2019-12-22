@@ -3421,7 +3421,7 @@ static void genesys_fill_read_buffer(Genesys_Device* dev)
 static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destination, size_t* len)
 {
     DBG_HELPER(dbg);
-  size_t bytes;
+    size_t bytes = 0;
   uint8_t *work_buffer_src;
   Genesys_Buffer *src_buffer;
 

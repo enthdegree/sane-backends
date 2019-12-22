@@ -797,6 +797,10 @@ void scanner_clear_scan_and_feed_counts2(Genesys_Device& dev)
 bool scanner_is_motor_stopped(Genesys_Device& dev)
 {
     switch (dev.model->asic_type) {
+        case AsicType::GL646: {
+            auto status = scanner_read_status(dev);
+            return !status.is_motor_enabled && status.is_feeding_finished;
+        }
         case AsicType::GL841: {
             auto reg = dev.interface->read_register(gl841::REG_0x40);
 

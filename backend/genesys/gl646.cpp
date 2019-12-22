@@ -1379,71 +1379,28 @@ static void end_scan_impl(Genesys_Device* dev, Genesys_Register_Set* reg, bool c
                           bool eject)
 {
     DBG_HELPER_ARGS(dbg, "check_stop = %d, eject = %d", check_stop, eject);
-  int i = 0;
-    uint8_t scanfsh = 0;
 
-  /* we need to compute scanfsh before cancelling scan */
-    if (dev->model->is_sheetfed) {
-        auto status = scanner_read_status(*dev);
-        if (status.is_scanning_finished) {
-            scanfsh = 1;
-        }
-    }
+    scanner_stop_action_no_move(*dev, *reg);
 
-  /* ends scan */
-    regs_set_optical_off(dev->model->asic_type, *reg);
-    dev->interface->write_register(0x01, reg->get8(0x01));
+    unsigned wait_limit_seconds = 30;
 
   /* for sheetfed scanners, we may have to eject document */
     if (dev->model->is_sheetfed) {
         if (eject && dev->document) {
             dev->cmd_set->eject_document(dev);
-	}
-        if (check_stop) {
-	  for (i = 0; i < 30; i++)	/* do not wait longer than wait 3 seconds */
-	    {
-                auto status = scanner_read_status(*dev);
-                if (status.is_scanning_finished) {
-                    scanfsh = 1;
-                }
-
-                if (!status.is_motor_enabled && status.is_feeding_finished && scanfsh) {
-                    DBG(DBG_proc, "%s: scanfeed finished\n", __func__);
-                    break;	/* leave for loop */
-                }
-
-                dev->interface->sleep_ms(100);
-            }
         }
+        wait_limit_seconds = 3;
     }
-  else				/* flat bed scanners */
-    {
-        if (check_stop) {
-      for (i = 0; i < 300; i++)	/* do not wait longer than wait 30 seconds */
-        {
-
-                auto status = scanner_read_status(*dev);
-
-                if (status.is_scanning_finished) {
-                    scanfsh = 1;
-                }
-
-                if (!status.is_motor_enabled && status.is_feeding_finished && scanfsh) {
-		  DBG(DBG_proc, "%s: scanfeed finished\n", __func__);
-                    break;
-                }
-
-                if (!status.is_motor_enabled && status.is_at_home) {
-		  DBG(DBG_proc, "%s: head at home\n", __func__);
-                    break;
-                }
-
-                dev->interface->sleep_ms(100);
+    if (check_stop) {
+        for (unsigned i = 0; i < wait_limit_seconds * 10; i++) {
+            if (scanner_is_motor_stopped(*dev)) {
+                return;
             }
-        }
-    }
 
-  DBG(DBG_proc, "%s: end (i=%u)\n", __func__, i);
+            dev->interface->sleep_ms(100);
+        }
+        throw SaneException(SANE_STATUS_IO_ERROR, "could not stop motor");
+    }
 }
 
 // Send the stop scan command

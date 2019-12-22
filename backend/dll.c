@@ -89,6 +89,19 @@ posix_dlsym (void *handle, const char *func)
 }
 # pragma GCC diagnostic pop
 
+  /* Similar to the above, GCC also warns about conversion between
+     pointers to functions.  The ISO C standard says that invoking a
+     converted pointer to a function whose type is not compatible with
+     the pointed-to type, the behavior is undefined.  Although GCC is
+     correct to warn about this, the dll backend has been using these
+     conversions without issues for a very long time already.
+
+     Rather than push/pop around every use, which would get very ugly
+     real fast, ignore this particular warning for the remainder of
+     the file.
+   */
+# pragma GCC diagnostic ignored "-Wcast-function-type"
+
   /* Older versions of dlopen() don't define RTLD_NOW and RTLD_LAZY.
      They all seem to use a mode of 1 to indicate RTLD_NOW and some do
      not support RTLD_LAZY at all.  Hence, unless defined, we define

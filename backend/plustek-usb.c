@@ -193,6 +193,7 @@ usb_initDev( Plustek_Device *dev, int idx, int handle, int vendor )
 	int       i;
 	ScanParam sParam;
 	u_short   tmp = 0;
+	int       ret = 0;
 
 	DBG( _DBG_INFO, "usb_initDev(%d,0x%04x,%i)\n",
 	                idx, vendor, dev->initialized );
@@ -305,11 +306,16 @@ usb_initDev( Plustek_Device *dev, int idx, int handle, int vendor )
 	}
 
 	ptr = getenv ("HOME");
-	if( NULL == ptr ) {
-		sprintf( tmp_str2, "/tmp/%s", tmp_str1 );
-	} else {
-		sprintf( tmp_str2, "%s/.sane/%s", ptr, tmp_str1 );
+	ret = ( NULL == ptr )?
+		snprintf( tmp_str2, sizeof(tmp_str2), "/tmp/%s", tmp_str1 ):
+		snprintf( tmp_str2, sizeof(tmp_str2), "%s/.sane/%s", ptr, tmp_str1 );
+
+	if ((ret < 0) || (ret > (int)sizeof(tmp_str2))) {
+		DBG( _DBG_WARNING,
+		     "Failed to generate calibration file path. Default substituted.\n" );
+		snprintf(tmp_str2, sizeof(tmp_str2), "/tmp/plustek-default");
 	}
+
 	dev->calFile = strdup( tmp_str2 );
 	DBG( _DBG_INFO, "Calibration file-names set to:\n" );
 	DBG( _DBG_INFO, ">%s-coarse.cal<\n", dev->calFile );

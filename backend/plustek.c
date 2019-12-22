@@ -1085,14 +1085,14 @@ init_options( Plustek_Scanner *s )
 	/* scanner buttons */
 	for( i = OPT_BUTTON_0; i <= OPT_BUTTON_LAST; i++ ) {
 
-		char name [12];
-		char title [128];
+		char buf [128];
 
-		sprintf (name, "button %d", i - OPT_BUTTON_0);
-		sprintf (title, "Scanner button %d", i - OPT_BUTTON_0);
+		snprintf (buf, sizeof(buf), "button %d", i - OPT_BUTTON_0);
+		s->opt[i].name  = strdup(buf);
 
-		s->opt[i].name  = strdup(name);
-		s->opt[i].title = strdup(title);
+		snprintf (buf, sizeof(buf), "Scanner button %d", i - OPT_BUTTON_0);
+		s->opt[i].title = strdup(buf);
+
 		s->opt[i].desc  = SANE_I18N("This option reflects the status "
 		                            "of the scanner buttons.");
 		s->opt[i].type = SANE_TYPE_BOOL;

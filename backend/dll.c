@@ -100,6 +100,7 @@ posix_dlsym (void *handle, const char *func)
      real fast, ignore this particular warning for the remainder of
      the file.
    */
+# pragma GCC diagnostic ignored "-Wpragmas" /* backward compatibility */
 # pragma GCC diagnostic ignored "-Wcast-function-type"
 
   /* Older versions of dlopen() don't define RTLD_NOW and RTLD_LAZY.

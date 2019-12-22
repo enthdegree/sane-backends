@@ -351,9 +351,31 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
 
   /* motor steps used */
     regs->find_reg(0x21).value = slope_table1.steps_count;
-  regs->find_reg(0x22).value = motor->fwdbwd;
-  regs->find_reg(0x23).value = motor->fwdbwd;
     regs->find_reg(0x24).value = slope_table2.steps_count;
+
+    unsigned forward_steps = motor->fwdbwd;
+    unsigned backward_steps = motor->fwdbwd;
+    if (slope_table1.steps_count >= slope_table2.steps_count) {
+        backward_steps += (slope_table1.steps_count - slope_table2.steps_count) * 2;
+    } else {
+        forward_steps += (slope_table2.steps_count - slope_table1.steps_count) * 2;
+    }
+
+    if (forward_steps > 255) {
+        if (backward_steps < (forward_steps - 255)) {
+            throw SaneException("Can't set backtracking parameters without skipping image");
+        }
+        backward_steps -= forward_steps - 255;
+    }
+    if (backward_steps > 255) {
+        if (forward_steps < (backward_steps - 255)) {
+            throw SaneException("Can't set backtracking parameters without skipping image");
+        }
+        forward_steps -= backward_steps - 255;
+    }
+
+    regs->find_reg(0x22).value = forward_steps;
+    regs->find_reg(0x23).value = backward_steps;
 
   /* CIS scanners read one line per color channel
    * since gray mode use 'add' we also read 3 channels even not in
@@ -1357,71 +1379,28 @@ static void end_scan_impl(Genesys_Device* dev, Genesys_Register_Set* reg, bool c
                           bool eject)
 {
     DBG_HELPER_ARGS(dbg, "check_stop = %d, eject = %d", check_stop, eject);
-  int i = 0;
-    uint8_t scanfsh = 0;
 
-  /* we need to compute scanfsh before cancelling scan */
-    if (dev->model->is_sheetfed) {
-        auto status = scanner_read_status(*dev);
-        if (status.is_scanning_finished) {
-            scanfsh = 1;
-        }
-    }
+    scanner_stop_action_no_move(*dev, *reg);
 
-  /* ends scan */
-    regs_set_optical_off(dev->model->asic_type, *reg);
-    dev->interface->write_register(0x01, reg->get8(0x01));
+    unsigned wait_limit_seconds = 30;
 
   /* for sheetfed scanners, we may have to eject document */
     if (dev->model->is_sheetfed) {
         if (eject && dev->document) {
             dev->cmd_set->eject_document(dev);
-	}
-        if (check_stop) {
-	  for (i = 0; i < 30; i++)	/* do not wait longer than wait 3 seconds */
-	    {
-                auto status = scanner_read_status(*dev);
-                if (status.is_scanning_finished) {
-                    scanfsh = 1;
-                }
-
-                if (!status.is_motor_enabled && status.is_feeding_finished && scanfsh) {
-                    DBG(DBG_proc, "%s: scanfeed finished\n", __func__);
-                    break;	/* leave for loop */
-                }
-
-                dev->interface->sleep_ms(100);
-            }
         }
+        wait_limit_seconds = 3;
     }
-  else				/* flat bed scanners */
-    {
-        if (check_stop) {
-      for (i = 0; i < 300; i++)	/* do not wait longer than wait 30 seconds */
-        {
-
-                auto status = scanner_read_status(*dev);
-
-                if (status.is_scanning_finished) {
-                    scanfsh = 1;
-                }
-
-                if (!status.is_motor_enabled && status.is_feeding_finished && scanfsh) {
-		  DBG(DBG_proc, "%s: scanfeed finished\n", __func__);
-                    break;
-                }
-
-                if (!status.is_motor_enabled && status.is_at_home) {
-		  DBG(DBG_proc, "%s: head at home\n", __func__);
-                    break;
-                }
-
-                dev->interface->sleep_ms(100);
+    if (check_stop) {
+        for (unsigned i = 0; i < wait_limit_seconds * 10; i++) {
+            if (scanner_is_motor_stopped(*dev)) {
+                return;
             }
-        }
-    }
 
-  DBG(DBG_proc, "%s: end (i=%u)\n", __func__, i);
+            dev->interface->sleep_ms(100);
+        }
+        throw SaneException(SANE_STATUS_IO_ERROR, "could not stop motor");
+    }
 }
 
 // Send the stop scan command
@@ -1529,7 +1508,19 @@ void CommandSetGl646::move_back_home(Genesys_Device* dev, bool wait_until_home) 
     }
 
     // starts scan
-    dev->cmd_set->begin_scan(dev, sensor, &dev->reg, true);
+    {
+        // this is effectively the same as dev->cmd_set->begin_scan(dev, sensor, &dev->reg, true);
+        // except that we don't modify the head position calculations
+
+        // FIXME: SEQUENTIAL not really needed in this case
+        Genesys_Register_Set scan_local_reg(Genesys_Register_Set::SEQUENTIAL);
+
+        scan_local_reg.init_reg(0x03, dev->reg.get8(0x03));
+        scan_local_reg.init_reg(0x01, dev->reg.get8(0x01) | REG_0x01_SCAN);
+        scan_local_reg.init_reg(0x0f, 0x01);
+
+        dev->interface->write_registers(scan_local_reg);
+    }
 
     if (is_testing_mode()) {
         dev->interface->test_checkpoint("move_back_home");

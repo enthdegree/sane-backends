@@ -295,7 +295,6 @@ void genesys_init_usb_device_tables()
     model.gpio_id = GpioId::G4050;
     model.motor_id = MotorId::G4050;
     model.flags = GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_STAGGERED_LINE |
                   GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_DARK_CALIBRATION |
                   GENESYS_FLAG_CUSTOM_GAMMA;
@@ -355,7 +354,6 @@ void genesys_init_usb_device_tables()
     model.gpio_id = GpioId::G4050;
     model.motor_id = MotorId::G4050;
     model.flags = GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_STAGGERED_LINE |
                   GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_DARK_CALIBRATION |
                   GENESYS_FLAG_CUSTOM_GAMMA;
@@ -417,7 +415,6 @@ void genesys_init_usb_device_tables()
     model.gpio_id = GpioId::G4050;
     model.motor_id = MotorId::G4050;
     model.flags = GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_STAGGERED_LINE |
                   GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_DARK_CALIBRATION |
                   GENESYS_FLAG_CUSTOM_GAMMA;
@@ -479,7 +476,6 @@ void genesys_init_usb_device_tables()
     model.gpio_id = GpioId::CANON_4400F;
     model.motor_id = MotorId::CANON_4400F;
     model.flags = GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_STAGGERED_LINE |
                   GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_DARK_CALIBRATION |
                   GENESYS_FLAG_FULL_HWDPI_MODE |
@@ -553,7 +549,6 @@ void genesys_init_usb_device_tables()
     model.flags = GENESYS_FLAG_HAS_UTA |
                   GENESYS_FLAG_HAS_UTA_INFRARED |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_STAGGERED_LINE |
                   GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_DARK_CALIBRATION |
                   GENESYS_FLAG_FULL_HWDPI_MODE |
@@ -627,7 +622,6 @@ void genesys_init_usb_device_tables()
     model.flags = GENESYS_FLAG_HAS_UTA |
                   GENESYS_FLAG_HAS_UTA_INFRARED |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_STAGGERED_LINE |
                   GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_DARK_CALIBRATION |
                   GENESYS_FLAG_FULL_HWDPI_MODE |
@@ -1405,7 +1399,6 @@ void genesys_init_usb_device_tables()
                   GENESYS_FLAG_DARK_CALIBRATION |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_STAGGERED_LINE |
                   GENESYS_FLAG_CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_SCAN_SW;
     model.shading_lines = 20;
@@ -1530,7 +1523,6 @@ void genesys_init_usb_device_tables()
                   GENESYS_FLAG_XPA |
                   GENESYS_FLAG_DARK_CALIBRATION |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_STAGGERED_LINE |
                   GENESYS_FLAG_CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_SCAN_SW;
     model.shading_lines = 20;
@@ -1708,7 +1700,6 @@ void genesys_init_usb_device_tables()
     model.motor_id = MotorId::MD_5345;
     model.flags = GENESYS_FLAG_14BIT_GAMMA |
                   GENESYS_FLAG_SEARCH_START |
-                  GENESYS_FLAG_STAGGERED_LINE |
                   GENESYS_FLAG_DARK_CALIBRATION |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_SHADING_NO_MOVE |
@@ -2381,7 +2372,6 @@ void genesys_init_usb_device_tables()
     model.motor_id = MotorId::MD_5345;
     model.flags = GENESYS_FLAG_14BIT_GAMMA |
                   GENESYS_FLAG_SEARCH_START |
-                  GENESYS_FLAG_STAGGERED_LINE |
                   GENESYS_FLAG_DARK_CALIBRATION |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_CUSTOM_GAMMA;
@@ -2447,7 +2437,6 @@ void genesys_init_usb_device_tables()
     model.motor_id = MotorId::MD_5345;
     model.flags = GENESYS_FLAG_14BIT_GAMMA |
                   GENESYS_FLAG_SEARCH_START |
-                  GENESYS_FLAG_STAGGERED_LINE |
                   GENESYS_FLAG_DARK_CALIBRATION |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_CUSTOM_GAMMA;

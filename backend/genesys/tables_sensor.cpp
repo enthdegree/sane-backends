@@ -263,6 +263,7 @@ void genesys_init_sensor_tables()
     sensor.fau_gain_white_ref = 190;
     sensor.gain_white_ref = 190;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
+    sensor.stagger_config = StaggerConfig{ 1200, 4 }; // FIXME: may be incorrect
     sensor.custom_base_regs = {
         { 0x08, 0x0d },
         { 0x09, 0x0f },
@@ -580,6 +581,7 @@ void genesys_init_sensor_tables()
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
+    sensor.stagger_config = StaggerConfig{1200, 4}; // FIXME: may be incorrect
     sensor.custom_base_regs = {
         { 0x08, 0x14 },
         { 0x09, 0x15 },
@@ -1137,6 +1139,7 @@ void genesys_init_sensor_tables()
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0, 0, 0 };
+    sensor.stagger_config = StaggerConfig{1200, 4}; // FIXME: may be incorrect
     sensor.custom_base_regs = {
         { 0x08, 0x00 },
         { 0x09, 0x0a },
@@ -1933,6 +1936,7 @@ void genesys_init_sensor_tables()
     sensor.fau_gain_white_ref = 160;
     sensor.gain_white_ref = 160;
     sensor.exposure = { 0x2c09, 0x22b8, 0x10f0 };
+    sensor.stagger_config = StaggerConfig{ 2400, 4 }; // FIXME: may be incorrect
     sensor.custom_regs = {};
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
     sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
@@ -2259,6 +2263,7 @@ void genesys_init_sensor_tables()
     sensor.fau_gain_white_ref = 160;
     sensor.gain_white_ref = 160;
     sensor.exposure = { 0x9c40, 0x9c40, 0x9c40 };
+    sensor.stagger_config = StaggerConfig{ 1600, 4 }; // FIXME: may be incorrect
     sensor.custom_regs = {};
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
     sensor.get_logical_hwdpi_fun = get_sensor_optical_with_ccd_divisor;
@@ -2528,6 +2533,7 @@ void genesys_init_sensor_tables()
     sensor.fau_gain_white_ref = 160;
     sensor.gain_white_ref = 160;
     sensor.exposure = { 0x9c40, 0x9c40, 0x9c40 };
+    sensor.stagger_config = StaggerConfig{ 2400, 4 }; // FIXME: may be incorrect
     sensor.custom_regs = {};
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
     sensor.get_logical_hwdpi_fun = get_sensor_optical_with_ccd_divisor;

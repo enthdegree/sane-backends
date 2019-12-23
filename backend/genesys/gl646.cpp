@@ -350,11 +350,19 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     }
 
   /* motor steps used */
-    regs->find_reg(0x21).value = slope_table1.steps_count;
-    regs->find_reg(0x24).value = slope_table2.steps_count;
-
     unsigned forward_steps = motor->fwdbwd;
     unsigned backward_steps = motor->fwdbwd;
+
+    // the steps count must be different by at most 128, otherwise it's impossible to construct
+    // a proper backtracking curve. We're using slightly lower limit to allow at least a minimum
+    // distance between accelerations (forward_steps, backward_steps)
+    if (slope_table1.steps_count > slope_table2.steps_count + 100) {
+        slope_table2.steps_count += slope_table1.steps_count - 100;
+    }
+    if (slope_table2.steps_count > slope_table1.steps_count + 100) {
+        slope_table1.steps_count += slope_table2.steps_count - 100;
+    }
+
     if (slope_table1.steps_count >= slope_table2.steps_count) {
         backward_steps += (slope_table1.steps_count - slope_table2.steps_count) * 2;
     } else {
@@ -374,6 +382,8 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
         forward_steps -= backward_steps - 255;
     }
 
+    regs->find_reg(0x21).value = slope_table1.steps_count;
+    regs->find_reg(0x24).value = slope_table2.steps_count;
     regs->find_reg(0x22).value = forward_steps;
     regs->find_reg(0x23).value = backward_steps;
 

@@ -4116,7 +4116,7 @@ Lamp_Status_Get (struct st_device *dev, SANE_Byte * flb_lamp,
 		case RTS8822BL_03A:
 		  *flb_lamp = ((data2 & 0x40) != 0) ? 1 : 0;
 		  *tma_lamp = (((data2 & 0x20) != 0)
-			       && ((data1 & 0x10) == 1)) ? 1 : 0;
+			       && ((data1 & 0x10) != 0)) ? 1 : 0;
 		  break;
 		default:
 		  if ((_B1 (data1) & 0x10) == 0)

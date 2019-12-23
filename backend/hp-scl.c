@@ -523,8 +523,8 @@ sanei_hp_nonscsi_new (HpScsi * newp, const char * devname, HpConnect connect)
   }
 
   /* For SCSI-devices we would have the inquire command here */
-  strncpy ((char *)new->inq_data, "\003zzzzzzzHP      ------          R000",
-           sizeof (new->inq_data));
+  memcpy (new->inq_data, "\003zzzzzzzHP      ------          R000",
+          sizeof (new->inq_data));
 
   new->bufp = new->buf + HP_SCSI_CMD_LEN;
   new->devname = sanei_hp_alloc ( strlen ( devname ) + 1 );

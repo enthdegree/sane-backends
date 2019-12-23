@@ -192,7 +192,7 @@ find_valor_of_array_variables(xmlNode *node, capabilities_t *scanner)
 }
 
 /**
- * \fn static int find_valor_of_int_variables(xmlNode *node, capabilities_t *scanner)
+ * \fn static int find_value_of_int_variables(xmlNode *node, capabilities_t *scanner)
  * \brief Function that searchs in the xml file if a integer scanner capabilitie is found.
  *        The integer scanner capabilities that are interesting are :
  *        MinWidth, MaxWidth, MaxHeight, MinHeight, MaxScanRegions, MaxOpticalXResolution,
@@ -201,7 +201,7 @@ find_valor_of_array_variables(xmlNode *node, capabilities_t *scanner)
  * \return 0
  */
 static int
-find_valor_of_int_variables(xmlNode *node, capabilities_t *scanner)
+find_value_of_int_variables(xmlNode *node, capabilities_t *scanner)
 {
     int MaxWidth = 0;
     int MaxHeight = 0;
@@ -249,12 +249,23 @@ static int
 find_true_variables(xmlNode *node, capabilities_t *scanner)
 {
     const char *name = (const char *)node->name;
-    if (strcmp(name, "MinWidth") == 0 || strcmp(name, "MaxWidth") == 0 || strcmp(name, "MinHeight") == 0 || strcmp(name, "MaxHeight") == 0
-        || strcmp(name, "MaxScanRegions") == 0 || strcmp(name, "ColorMode") == 0 || strcmp(name, "ContentType") == 0
-        || strcmp(name, "DocumentFormat") == 0 || strcmp(name, "XResolution") == 0 || strcmp(name, "Intent") == 0
-        || strcmp(name, "MaxOpticalXResolution") == 0 || strcmp(name, "RiskyLeftMargin") == 0 || strcmp(name, "RiskyRightMargin") == 0
-        || strcmp(name, "RiskyTopMargin") == 0 || strcmp(name, "RiskyBottomMargin") == 0)
-        find_valor_of_int_variables(node, scanner);
+    if (strcmp(name, "MinWidth") == 0 ||
+        strcmp(name, "MaxWidth") == 0 ||
+        strcmp(name, "MinHeight") == 0 ||
+        strcmp(name, "MaxHeight") == 0 ||
+        strcmp(name, "MaxScanRegions") == 0 ||
+        strcmp(name, "ColorMode") == 0 ||
+        strcmp(name, "ContentType") == 0 ||
+        strcmp(name, "DocumentFormat") == 0 ||
+        strcmp(name, "XResolution") == 0 ||
+        strcmp(name, "Intent") == 0 ||
+        strcmp(name, "MaxOpticalXResolution") == 0 ||
+        strcmp(name, "RiskyLeftMargin") == 0 ||
+        strcmp(name, "RiskyRightMargin") == 0 ||
+        strcmp(name, "RiskyTopMargin") == 0 ||
+        strcmp(name, "RiskyBottomMargin") == 0 ||
+        strcmp(name, "DocumentFormatExt") == 0)
+            find_value_of_int_variables(node, scanner);
     return (0);
 }
 

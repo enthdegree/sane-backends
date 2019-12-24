@@ -152,11 +152,11 @@ char *escl_newjob(capabilities_t *scanner, SANE_String_Const name, SANE_Status *
 SANE_Status escl_scan(capabilities_t *scanner, SANE_String_Const name, char *result);
 void escl_scanner(SANE_String_Const name, char *result);
 
-# JPEG
+// JPEG
 void get_JPEG_dimension(FILE *fp, int *w, int *h, int *bps);
 SANE_Status get_JPEG_data(capabilities_t *scanner);
 
-# PNG
+// PNG
 void get_PNG_dimension(FILE *fp, int *w, int *h, int *bps);
 SANE_Status get_PNG_data(capabilities_t *scanner);
 

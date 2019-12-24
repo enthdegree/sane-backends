@@ -1999,8 +1999,8 @@ attach (const char *devname, ARTEC_Device ** devp)
       DBG (6, "Found BlackWidow BW4800SP scanner, setting up like AT3\n");
 
       /* setup the vendor and product to mimic the Artec/Ultima AT3 */
-      strncpy (result + 8, "ULTIMA", 6);
-      strncpy (result + 16, "AT3             ", 16);
+      memcpy (result + 8, "ULTIMA", 6);
+      memcpy (result + 16, "AT3             ", 16);
     }
 
   /*
@@ -2013,8 +2013,8 @@ attach (const char *devname, ARTEC_Device ** devp)
       DBG (6, "Found Plustek 19200S scanner, setting up like AM12S\n");
 
       /* setup the vendor and product to mimic the Artec/Ultima AM12S */
-      strncpy (result + 8, "ULTIMA", 6);
-      strncpy (result + 16, "AM12S           ", 16);
+      memcpy (result + 8, "ULTIMA", 6);
+      memcpy (result + 16, "AM12S           ", 16);
     }
 
   /*

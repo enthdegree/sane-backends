@@ -40,6 +40,12 @@
 #error "The escl backend currently requires libjpeg"
 #endif
 
+#ifndef HAVE_LIBPNG
+/* FIXME: Make PNG support optional.
+ */
+#warning "The escl backend recommends libpng"
+#endif
+
 #include "../include/sane/sane.h"
 
 #include <stdio.h>
@@ -78,7 +84,7 @@ typedef struct capabilities
     int pos_x;
     int pos_y;
     SANE_String default_color;
-    SANE_String_Const default_format;
+    SANE_String default_format;
     SANE_Int default_resolution;
     int MinWidth;
     int MaxWidth;
@@ -102,6 +108,9 @@ typedef struct capabilities
     int RiskyTopMargin;
     int RiskyBottomMargin;
     FILE *tmp;
+    unsigned char *img_data;
+    long img_size;
+    long img_read;
     int format_ext;
 } capabilities_t;
 
@@ -142,5 +151,13 @@ capabilities_t *escl_capabilities(SANE_String_Const name, SANE_Status *status);
 char *escl_newjob(capabilities_t *scanner, SANE_String_Const name, SANE_Status *status);
 SANE_Status escl_scan(capabilities_t *scanner, SANE_String_Const name, char *result);
 void escl_scanner(SANE_String_Const name, char *result);
+
+# JPEG
+void get_JPEG_dimension(FILE *fp, int *w, int *h, int *bps);
+SANE_Status get_JPEG_data(capabilities_t *scanner);
+
+# PNG
+void get_PNG_dimension(FILE *fp, int *w, int *h, int *bps);
+SANE_Status get_PNG_data(capabilities_t *scanner);
 
 #endif

@@ -181,7 +181,30 @@ find_valor_of_array_variables(xmlNode *node, capabilities_t *scanner)
     else if (strcmp(name, "ContentType") == 0)
         scanner->ContentTypes = char_to_array(scanner->ContentTypes, &scanner->ContentTypesSize, (SANE_String_Const)xmlNodeGetContent(node), 0);
     else if (strcmp(name, "DocumentFormat") == 0)
+     {
+        int i = 0;
         scanner->DocumentFormats = char_to_array(scanner->DocumentFormats, &scanner->DocumentFormatsSize, (SANE_String_Const)xmlNodeGetContent(node), 0);
+        for(; i < scanner->DocumentFormatsSize; i++)
+         {
+            if (scanner->default_format == NULL && !strncmp(scanner->DocumentFormats[i], "image/jpeg", 10))
+            {
+               scanner->default_format = strdup("image/jpeg");
+#if(defined HAVE_LIBPNG)
+            }
+            else if(!strncmp(scanner->DocumentFormats[i], "image/png", 9))
+            {
+               if (scanner->default_format)
+                  free(scanner->default_format);
+               scanner->default_format = strdup("image/png");
+               break;
+            }
+#else
+               break;
+            }
+#endif
+         }
+         fprintf(stderr, "Capability : [%s]\n", scanner->default_format);
+     }
     else if (strcmp(name, "DocumentFormatExt") == 0)
         scanner->format_ext = 1;
     else if (strcmp(name, "Intent") == 0)

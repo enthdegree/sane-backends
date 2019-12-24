@@ -27,7 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <jpeglib.h>
+#include <png.h>
 #include <setjmp.h>
 
 #include "../include/sane/saneopts.h"
@@ -54,28 +54,12 @@ typedef struct Handled {
     capabilities_t *scanner;
     SANE_Range x_range;
     SANE_Range y_range;
-    unsigned char *img_data;
-    long img_size;
-    long img_read;
     SANE_Bool cancel;
     SANE_Bool write_scan_data;
     SANE_Bool decompress_scan_data;
     SANE_Bool end_read;
     SANE_Parameters ps;
 } escl_sane_t;
-
-struct my_error_mgr
-{
-    struct jpeg_error_mgr errmgr;
-    jmp_buf escape;
-};
-
-typedef struct
-{
-    struct jpeg_source_mgr pub;
-    FILE *ctx;
-    unsigned char buffer[INPUT_BUFFER_SIZE];
-} my_source_mgr;
 
 /**
  * \fn static SANE_Status escl_add_in_list(ESCL_Device *current)
@@ -607,43 +591,6 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v, SANE_Int 
     return (SANE_STATUS_GOOD);
 }
 
-#if(defined HAVE_LIBJPEG)
-static void
-error_exit(j_common_ptr cinfo)
-{
-    longjmp(cinfo->client_data, 1);
-}
-
-/**
- * \fn static void get_JPEG_dimension(FILE *fp, int *w, int *h)
- * \brief Function that aims to get the dimensions of the jpeg image wich will be scanned.
- *        This function is called in the "sane_start" function.
- */
-static void
-get_JPEG_dimension(FILE *fp, int *w, int *h)
-{
-    struct jpeg_decompress_struct cinfo;
-    struct jpeg_error_mgr jerr;
-    jmp_buf env;
-
-    cinfo.err = jpeg_std_error(&jerr);
-    jerr.error_exit = error_exit;
-    cinfo.client_data = env;
-    if (setjmp(env))
-        return;
-    jpeg_create_decompress(&cinfo);
-    jpeg_stdio_src(&cinfo, fp);
-    jpeg_read_header(&cinfo, TRUE);
-    cinfo.out_color_space = JCS_RGB;
-    jpeg_start_decompress(&cinfo);
-    *w = cinfo.output_width;
-    *h = cinfo.output_height;
-    jpeg_finish_decompress(&cinfo);
-    jpeg_destroy_decompress(&cinfo);
-    fseek(fp, SEEK_SET, 0);
-}
-#endif
-
 /**
  * \fn SANE_Status sane_start(SANE_Handle h)
  * \brief Function that initiates aquisition of an image from the device represented by handle 'h'.
@@ -659,6 +606,7 @@ sane_start(SANE_Handle h)
     escl_sane_t *handler = h;
     int w = 0;
     int he = 0;
+    int bps = 0;
 
     if (handler->name == NULL)
         return (SANE_STATUS_INVAL);
@@ -699,12 +647,26 @@ sane_start(SANE_Handle h)
     if (status != SANE_STATUS_GOOD)
         return (status);
     status = escl_scan(handler->scanner, handler->name, handler->result);
-    get_JPEG_dimension(handler->scanner->tmp, &w, &he);
+    fprintf(stderr, "DIM : [%s]\n", handler->scanner->default_format);
+    if (!strncmp(handler->scanner->default_format, "image/jpeg", 10))
+    {
+       get_JPEG_dimension(handler->scanner->tmp, &w, &he, &bps);
+    fprintf(stderr, "JPEG DIM : [%s]\n", handler->scanner->default_format);
+    }
+    else
+    {
+      get_PNG_dimension(handler->scanner->tmp, &w, &he, &bps);
+    fprintf(stderr, "PNG DIM : [%s]\n", handler->scanner->default_format);
+    }
+    fprintf(stderr, "SIZE [%dx%dx%d]\n", w, he, bps);
+    if (bps == 0)
+	    return SANE_STATUS_INVAL;
+    fprintf(stderr, "2-SIZE [%dx%dx%d]\n", w, he, bps);
     fseek(handler->scanner->tmp, SEEK_SET, 0);
     handler->ps.depth = 8;
     handler->ps.pixels_per_line = w;
     handler->ps.lines = he;
-    handler->ps.bytes_per_line = w * 3;
+    handler->ps.bytes_per_line = w * bps;
     handler->ps.last_frame = SANE_TRUE;
     handler->ps.format = SANE_FRAME_RGB;
     return (status);
@@ -733,162 +695,14 @@ sane_get_parameters(SANE_Handle h, SANE_Parameters *p)
         p->format = SANE_FRAME_RGB;
         p->pixels_per_line = handler->ps.pixels_per_line;
         p->lines = handler->ps.lines;
-        p->bytes_per_line = handler->ps.pixels_per_line * 3;
+        p->bytes_per_line = handler->ps.bytes_per_line;
+        fprintf(stderr, "GET SIZE [%dx%dx%d]\n", p->pixels_per_line,
+			                     p->lines,
+					     (p->bytes_per_line / p->pixels_per_line));
     }
     return (status);
 }
 
-#if(defined HAVE_LIBJPEG)
-/**
- * \fn static boolean fill_input_buffer(j_decompress_ptr cinfo)
- * \brief Called in the "skip_input_data" function.
- *
- * \return TRUE (everything is OK)
- */
-static boolean
-fill_input_buffer(j_decompress_ptr cinfo)
-{
-    my_source_mgr *src = (my_source_mgr *) cinfo->src;
-    int nbytes = 0;
-
-    nbytes = fread(src->buffer, 1, INPUT_BUFFER_SIZE, src->ctx);
-    if (nbytes <= 0) {
-        src->buffer[0] = (unsigned char) 0xFF;
-        src->buffer[1] = (unsigned char) JPEG_EOI;
-        nbytes = 2;
-    }
-    src->pub.next_input_byte = src->buffer;
-    src->pub.bytes_in_buffer = nbytes;
-    return (TRUE);
-}
-
-/**
- * \fn static void skip_input_data(j_decompress_ptr cinfo, long num_bytes)
- * \brief Called in the "jpeg_RW_src" function.
- */
-static void
-skip_input_data(j_decompress_ptr cinfo, long num_bytes)
-{
-    my_source_mgr *src = (my_source_mgr *) cinfo->src;
-
-    if (num_bytes > 0) {
-        while (num_bytes > (long) src->pub.bytes_in_buffer) {
-            num_bytes -= (long) src->pub.bytes_in_buffer;
-            (void) src->pub.fill_input_buffer(cinfo);
-        }
-        src->pub.next_input_byte += (size_t) num_bytes;
-        src->pub.bytes_in_buffer -= (size_t) num_bytes;
-    }
-}
-
-static void
-term_source(j_decompress_ptr __sane_unused__ cinfo)
-{
-    return;
-}
-
-static void
-init_source(j_decompress_ptr __sane_unused__ cinfo)
-{
-    return;
-}
-
-/**
- * \fn static void jpeg_RW_src(j_decompress_ptr cinfo, FILE *ctx)
- * \brief Called in the "escl_sane_decompressor" function.
- */
-static void
-jpeg_RW_src(j_decompress_ptr cinfo, FILE *ctx)
-{
-    my_source_mgr *src;
-
-    if (cinfo->src == NULL) {
-        cinfo->src = (struct jpeg_source_mgr *)(*cinfo->mem->alloc_small)
-            ((j_common_ptr) cinfo, JPOOL_PERMANENT, sizeof(my_source_mgr));
-        src = (my_source_mgr *) cinfo->src;
-    }
-    src = (my_source_mgr *) cinfo->src;
-    src->pub.init_source = init_source;
-    src->pub.fill_input_buffer = fill_input_buffer;
-    src->pub.skip_input_data = skip_input_data;
-    src->pub.resync_to_restart = jpeg_resync_to_restart;
-    src->pub.term_source = term_source;
-    src->ctx = ctx;
-    src->pub.bytes_in_buffer = 0;
-    src->pub.next_input_byte = NULL;
-}
-
-static void
-my_error_exit(j_common_ptr cinfo)
-{
-    struct my_error_mgr *err = (struct my_error_mgr *)cinfo->err;
-
-    longjmp(err->escape, 1);
-}
-
-static void
-output_no_message(j_common_ptr __sane_unused__ cinfo)
-{
-}
-
-/**
- * \fn SANE_Status escl_sane_decompressor(escl_sane_t *handler)
- * \brief Function that aims to decompress the jpeg image to SANE be able to read the image.
- *        This function is called in the "sane_read" function.
- *
- * \return SANE_STATUS_GOOD (if everything is OK, otherwise, SANE_STATUS_NO_MEM/SANE_STATUS_INVAL)
- */
-SANE_Status
-escl_sane_decompressor(escl_sane_t *handler)
-{
-    int start = 0;
-    struct jpeg_decompress_struct cinfo;
-    JSAMPROW rowptr[1];
-    unsigned char *surface = NULL;
-    struct my_error_mgr jerr;
-    int lineSize = 0;
-
-    if (handler->scanner->tmp == NULL)
-        return (SANE_STATUS_INVAL);
-    fseek(handler->scanner->tmp, SEEK_SET, 0);
-    start = ftell(handler->scanner->tmp);
-    cinfo.err = jpeg_std_error(&jerr.errmgr);
-    jerr.errmgr.error_exit = my_error_exit;
-    jerr.errmgr.output_message = output_no_message;
-    if (setjmp(jerr.escape)) {
-        jpeg_destroy_decompress(&cinfo);
-        if (surface != NULL)
-            free(surface);
-        return (SANE_STATUS_INVAL);
-    }
-    jpeg_create_decompress(&cinfo);
-    jpeg_RW_src(&cinfo, handler->scanner->tmp);
-    jpeg_read_header(&cinfo, TRUE);
-    cinfo.out_color_space = JCS_RGB;
-    cinfo.quantize_colors = FALSE;
-    jpeg_calc_output_dimensions(&cinfo);
-    surface = malloc(cinfo.output_width * cinfo.output_height * cinfo.output_components);
-    if (surface == NULL) {
-        jpeg_destroy_decompress(&cinfo);
-        fseek(handler->scanner->tmp, start, SEEK_SET);
-        return (SANE_STATUS_NO_MEM);
-    }
-    lineSize = cinfo.output_width * cinfo.output_components;
-    jpeg_start_decompress(&cinfo);
-    while (cinfo.output_scanline < cinfo.output_height) {
-        rowptr[0] = (JSAMPROW)surface + (lineSize * cinfo.output_scanline);
-        jpeg_read_scanlines(&cinfo, rowptr, (JDIMENSION) 1);
-    }
-    handler->img_data = surface;
-    handler->img_size = lineSize * cinfo.output_height;
-    handler->img_read = 0;
-    jpeg_finish_decompress(&cinfo);
-    jpeg_destroy_decompress(&cinfo);
-    fclose(handler->scanner->tmp);
-    handler->scanner->tmp = NULL;
-    return (SANE_STATUS_GOOD);
-}
-#endif
 
 /**
  * \fn SANE_Status sane_read(SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *len)
@@ -916,32 +730,40 @@ sane_read(SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *len)
     if (!handler->decompress_scan_data) {
         if (handler->scanner->tmp == NULL)
             return (SANE_STATUS_INVAL);
-        status = escl_sane_decompressor(handler);
+	fprintf(stderr, "READ : [%s]\n", handler->scanner->default_format);
+        if (!strncmp(handler->scanner->default_format, "image/jpeg", 10)){
+	fprintf(stderr, "JPEG READ : [%s]\n", handler->scanner->default_format);
+	    status = get_JPEG_data(handler->scanner);
+	}
+        else{
+	fprintf(stderr, "PNG READ : [%s]\n", handler->scanner->default_format);
+            status = get_PNG_data(handler->scanner);
+	}
         if (status != SANE_STATUS_GOOD)
             return (status);
         handler->decompress_scan_data = SANE_TRUE;
     }
-    if (handler->img_data == NULL)
+    if (handler->scanner->img_data == NULL)
         return (SANE_STATUS_INVAL);
     if (!handler->end_read) {
-        readbyte = min((handler->img_size - handler->img_read), maxlen);
-        memcpy(buf, handler->img_data + handler->img_read, readbyte);
-        handler->img_read = handler->img_read + readbyte;
+        readbyte = min((handler->scanner->img_size - handler->scanner->img_read), maxlen);
+        memcpy(buf, handler->scanner->img_data + handler->scanner->img_read, readbyte);
+        handler->scanner->img_read = handler->scanner->img_read + readbyte;
         *len = readbyte;
-        if (handler->img_read == handler->img_size)
+        if (handler->scanner->img_read == handler->scanner->img_size)
             handler->end_read = SANE_TRUE;
-        else if (handler->img_read > handler->img_size) {
+        else if (handler->scanner->img_read > handler->scanner->img_size) {
             *len = 0;
             handler->end_read = SANE_TRUE;
-            free(handler->img_data);
-            handler->img_data = NULL;
+            free(handler->scanner->img_data);
+            handler->scanner->img_data = NULL;
             return (SANE_STATUS_INVAL);
         }
     }
     else {
         *len = 0;
-        free(handler->img_data);
-        handler->img_data = NULL;
+        free(handler->scanner->img_data);
+        handler->scanner->img_data = NULL;
         return (SANE_STATUS_EOF);
     }
     return (SANE_STATUS_GOOD);

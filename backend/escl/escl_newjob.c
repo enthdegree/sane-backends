@@ -54,7 +54,7 @@ static const char settings[] =
     "          <pwg:YOffset>%d</pwg:YOffset>" \
     "      </pwg:ScanRegion>" \
     "   </pwg:ScanRegions>" \
-    "   <pwg:DocumentFormat>image/jpeg</pwg:DocumentFormat>" \
+    "   <pwg:DocumentFormat>%s</pwg:DocumentFormat>" \
     "%s" \
     "   <scan:ColorMode>%s</scan:ColorMode>" \
     "   <scan:XResolution>%d</scan:XResolution>" \
@@ -62,8 +62,11 @@ static const char settings[] =
     "   <pwg:InputSource>Platen</pwg:InputSource>" \
     "</scan:ScanSettings>";
 
-static const char formatExt[] =
+static char formatExtJPEG[] =
     "   <scan:DocumentFormatExt>image/jpeg</scan:DocumentFormatExt>";
+
+static char formatExtPNG[] =
+    "   <scan:DocumentFormatExt>image/png</scan:DocumentFormatExt>";
 
 /**
  * \fn static size_t download_callback(void *str, size_t size, size_t nmemb, void *userp)
@@ -127,6 +130,8 @@ escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *statu
     char *location = NULL;
     char *result = NULL;
     char *temporary = NULL;
+    char *f_ext = "";
+    char *format_ext = NULL;
 
     *status = SANE_STATUS_GOOD;
     if (name == NULL || scanner == NULL) {
@@ -146,11 +151,20 @@ escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *statu
     }
     curl_global_init(CURL_GLOBAL_ALL);
     curl_handle = curl_easy_init();
+    if (scanner->format_ext == 1)
+    {
+       if (!strncmp(scanner->default_format, "image/jpeg", 10))
+          format_ext = formatExtJPEG;
+       else
+          format_ext = formatExtPNG;
+    }
+    else
+      format_ext = f_ext;
     if (curl_handle != NULL) {
-        snprintf(cap_data, sizeof(cap_data), settings, scanner->height, scanner->width, 0, 0,
-                 (scanner->format_ext == 1 ? formatExt : ""),
+        snprintf(cap_data, sizeof(cap_data), settings, scanner->height, scanner->width, 0, 0, scanner->default_format,
+                 format_ext,
                  scanner->default_color, scanner->default_resolution, scanner->default_resolution);
-        //fprintf(stderr, "CAP_DATA = %s\n", cap_data);
+        fprintf(stderr, "CAP_DATA = %s\n", cap_data);
         upload->read_data = strdup(cap_data);
         upload->size = strlen(cap_data);
         download->memory = malloc(1);

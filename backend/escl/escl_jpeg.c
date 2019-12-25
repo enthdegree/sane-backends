@@ -36,37 +36,6 @@ error_exit(j_common_ptr cinfo)
 }
 
 /**
- * \fn static void get_JPEG_dimension(FILE *fp, int *w, int *h)
- * \brief Function that aims to get the dimensions of the jpeg image wich will be scanned.
- *        This function is called in the "sane_start" function.
- */
-void
-get_JPEG_dimension(FILE *fp, int *w, int *h, int *bps)
-{
-    struct jpeg_decompress_struct cinfo;
-    struct jpeg_error_mgr jerr;
-    jmp_buf env;
-
-    cinfo.err = jpeg_std_error(&jerr);
-    jerr.error_exit = error_exit;
-    cinfo.client_data = env;
-    if (setjmp(env))
-        return;
-    jpeg_create_decompress(&cinfo);
-    jpeg_stdio_src(&cinfo, fp);
-    jpeg_read_header(&cinfo, TRUE);
-    cinfo.out_color_space = JCS_RGB;
-    jpeg_start_decompress(&cinfo);
-    *w = cinfo.output_width;
-    *h = cinfo.output_height;
-    *bps = 3;
-    jpeg_finish_decompress(&cinfo);
-    jpeg_destroy_decompress(&cinfo);
-    fseek(fp, SEEK_SET, 0);
-}
-
-
-/**
  * \fn static boolean fill_input_buffer(j_decompress_ptr cinfo)
  * \brief Called in the "skip_input_data" function.
  *
@@ -166,7 +135,7 @@ output_no_message(j_common_ptr __sane_unused__ cinfo)
  * \return SANE_STATUS_GOOD (if everything is OK, otherwise, SANE_STATUS_NO_MEM/SANE_STATUS_INVAL)
  */
 SANE_Status
-get_JPEG_data(capabilities_t *scanner)
+get_JPEG_data(capabilities_t *scanner, int *w, int *h, int *bps)
 {
     int start = 0;
     struct jpeg_decompress_struct cinfo;
@@ -209,6 +178,9 @@ get_JPEG_data(capabilities_t *scanner)
     scanner->img_data = surface;
     scanner->img_size = lineSize * cinfo.output_height;
     scanner->img_read = 0;
+    *w = cinfo.output_width;
+    *h = cinfo.output_height;
+    *bps = cinfo.output_components;
     jpeg_finish_decompress(&cinfo);
     jpeg_destroy_decompress(&cinfo);
     fclose(scanner->tmp);
@@ -217,14 +189,11 @@ get_JPEG_data(capabilities_t *scanner)
 }
 #else
 
-void
-get_JPEG_dimension(FILE  __sane_unused__ *fp, int  __sane_unused__ *w,
-                   int  __sane_unused__ *h, int  __sane_unused__ *bps)
-{
-}
-
 SANE_Status
-get_JPEG_data(capabilities_t  __sane_unused__ *scanner)
+get_JPEG_data(capabilities_t __sane_unused__ *scanner,
+              int __sane_unused__ *w,
+              int __sane_unused__ *h,
+              int __sane_unused__ *bps)
 {
 }
 

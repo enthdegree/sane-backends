@@ -647,22 +647,23 @@ sane_start(SANE_Handle h)
     if (status != SANE_STATUS_GOOD)
         return (status);
     status = escl_scan(handler->scanner, handler->name, handler->result);
+    if (status != SANE_STATUS_GOOD)
+        return (status);
     fprintf(stderr, "DIM : [%s]\n", handler->scanner->default_format);
     if (!strncmp(handler->scanner->default_format, "image/jpeg", 10))
     {
-       get_JPEG_dimension(handler->scanner->tmp, &w, &he, &bps);
-    fprintf(stderr, "JPEG DIM : [%s]\n", handler->scanner->default_format);
+       status = get_JPEG_data(handler->scanner, &w, &he, &bps);
+       fprintf(stderr, "JPEG DIM : [%s]\n", handler->scanner->default_format);
     }
     else
     {
-      get_PNG_dimension(handler->scanner->tmp, &w, &he, &bps);
-    fprintf(stderr, "PNG DIM : [%s]\n", handler->scanner->default_format);
+       status = get_PNG_data(handler->scanner->tmp, &w, &he, &bps);
+       fprintf(stderr, "PNG DIM : [%s]\n", handler->scanner->default_format);
     }
+    if (status != SANE_STATUS_GOOD)
+        return (status);
     fprintf(stderr, "SIZE [%dx%dx%d]\n", w, he, bps);
-    if (bps == 0)
-	    return SANE_STATUS_INVAL;
     fprintf(stderr, "2-SIZE [%dx%dx%d]\n", w, he, bps);
-    fseek(handler->scanner->tmp, SEEK_SET, 0);
     handler->ps.depth = 8;
     handler->ps.pixels_per_line = w;
     handler->ps.lines = he;
@@ -728,17 +729,7 @@ sane_read(SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *len)
     if (!handler->write_scan_data)
         handler->write_scan_data = SANE_TRUE;
     if (!handler->decompress_scan_data) {
-        if (handler->scanner->tmp == NULL)
-            return (SANE_STATUS_INVAL);
 	fprintf(stderr, "READ : [%s]\n", handler->scanner->default_format);
-        if (!strncmp(handler->scanner->default_format, "image/jpeg", 10)){
-	fprintf(stderr, "JPEG READ : [%s]\n", handler->scanner->default_format);
-	    status = get_JPEG_data(handler->scanner);
-	}
-        else{
-	fprintf(stderr, "PNG READ : [%s]\n", handler->scanner->default_format);
-            status = get_PNG_data(handler->scanner);
-	}
         if (status != SANE_STATUS_GOOD)
             return (status);
         handler->decompress_scan_data = SANE_TRUE;

@@ -16,91 +16,6 @@
 #if(defined HAVE_LIBPNG)
 
 /**
- * \fn static void get_PNG_dimension(FILE *fp, int *w, int *h)
- * \brief Function that aims to get the dimensions of the png image wich will be scanned.
- *        This function is called in the "sane_start" function.
- */
-void
-get_PNG_dimension(FILE *fp, int *w, int *h, int *bps)
-{
-        unsigned int width, height;
-	png_byte magic[8];
-	fread (magic, 1, sizeof (magic), fp);
-	/* check for valid magic number */
-	if (!png_check_sig (magic, sizeof (magic)))
-	{
-		fprintf (stderr, "error: is not a valid PNG image!\n");
-		return;
-	}
-	/* create a png read struct */
-	png_structp png_ptr = png_create_read_struct
-		(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-	if (!png_ptr)
-	{
-		return;
-	}
-	/* create a png info struct */
-	png_infop info_ptr = png_create_info_struct (png_ptr);
-	if (!info_ptr)
-	{
-		png_destroy_read_struct (&png_ptr, NULL, NULL);
-		return;
-	}
-	/* initialize the setjmp for returning properly after a libpng
-	   error occured */
-	if (setjmp (png_jmpbuf (png_ptr)))
-	{
-		png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
-		return;
-	}
-	/* setup libpng for using standard C fread() function
-	   with our FILE pointer */
-	png_init_io (png_ptr, fp);
-	/* tell libpng that we have already read the magic number */
-	png_set_sig_bytes (png_ptr, sizeof (magic));
-
-	/* read png info */
-	png_read_info (png_ptr, info_ptr);
-
-	int bit_depth, color_type;
-	/* get some usefull information from header */
-	bit_depth = png_get_bit_depth (png_ptr, info_ptr);
-	color_type = png_get_color_type (png_ptr, info_ptr);
-	/* convert index color images to RGB images */
-	if (color_type == PNG_COLOR_TYPE_PALETTE)
-		png_set_palette_to_rgb (png_ptr);
-	else if (color_type != PNG_COLOR_TYPE_RGB && color_type != PNG_COLOR_TYPE_RGB_ALPHA)
-	{
-		fprintf(stderr, "Format non pris en charge.\n");
-		return;
-	}
-        if (color_type ==  PNG_COLOR_TYPE_RGB_ALPHA)
-            *bps = 4;
-        else
-	    *bps = 3;
-	if (png_get_valid (png_ptr, info_ptr, PNG_INFO_tRNS))
-		png_set_tRNS_to_alpha (png_ptr);
-	if (bit_depth == 16)
-		png_set_strip_16 (png_ptr);
-	else if (bit_depth < 8)
-		png_set_packing (png_ptr);
-	/* update info structure to apply transformations */
-	png_read_update_info (png_ptr, info_ptr);
-	/* retrieve updated information */
-	png_get_IHDR (png_ptr, info_ptr,
-			(png_uint_32*)(&width),
-			(png_uint_32*)(&height),
-			&bit_depth, &color_type,
-			NULL, NULL, NULL);
-        *w = (int)width;
-        *h = (int)height;
-	/* finish decompression and release memory */
-	png_read_end (png_ptr, NULL);
-	png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
-        fseek(fp, SEEK_SET, 0);
-}
-
-/**
  * \fn SANE_Status escl_sane_decompressor(escl_sane_t *handler)
  * \brief Function that aims to decompress the png image to SANE be able to read the image.
  *        This function is called in the "sane_read" function.
@@ -108,7 +23,7 @@ get_PNG_dimension(FILE *fp, int *w, int *h, int *bps)
  * \return SANE_STATUS_GOOD (if everything is OK, otherwise, SANE_STATUS_NO_MEM/SANE_STATUS_INVAL)
  */
 SANE_Status
-get_PNG_data(capabilities_t *scanner)
+get_PNG_data(capabilities_t *scanner, int *w, int *h, int *components)
 {
 	unsigned int  width = 0;           /* largeur */
 	unsigned int  height = 0;          /* hauteur */
@@ -170,9 +85,9 @@ get_PNG_data(capabilities_t *scanner)
         fprintf(stderr,"PNG format not supported.\n");
 		return (SANE_STATUS_INVAL);
 	}
-        if (color_type ==  PNG_COLOR_TYPE_RGB_ALPHA)
-            bps = 4;
-        else
+    if (color_type ==  PNG_COLOR_TYPE_RGB_ALPHA)
+        bps = 4;
+    else
 	    bps = 3;
 	if (png_get_valid (png_ptr, info_ptr, PNG_INFO_tRNS))
 		png_set_tRNS_to_alpha (png_ptr);
@@ -188,6 +103,10 @@ get_PNG_data(capabilities_t *scanner)
 			(png_uint_32*)(&height),
 			&bit_depth, &color_type,
 			NULL, NULL, NULL);
+
+    *w = (int)width;
+    *h = (int)height;
+    *components = bps;
 	// we can now allocate memory for storing pixel data
 	texels = (unsigned char *)malloc (sizeof (unsigned char) * width
 			* height * bps);
@@ -203,23 +122,20 @@ get_PNG_data(capabilities_t *scanner)
 	png_read_image (png_ptr, row_pointers);
 	// we don't need row pointers anymore
 	scanner->img_data = texels;
-        scanner->img_size = (int)(width * height * bps);
-        scanner->img_read = 0;
+    scanner->img_size = (int)(width * height * bps);
+    scanner->img_read = 0;
 	free (row_pointers);
-        fclose(scanner->tmp);
-        scanner->tmp = NULL;
-        return (SANE_STATUS_GOOD);
+    fclose(scanner->tmp);
+    scanner->tmp = NULL;
+    return (SANE_STATUS_GOOD);
 }
 #else
 
-void
-get_PNG_dimension(FILE __sane_unused__ *fp, int __sane_unused__ *w,
-                  int __sane_unused__ *h, int __sane_unused__ *bps)
-{
-}
-
 SANE_Status
-get_PNG_data(capabilities_t __sane_unused__ *scanner)
+get_PNG_data(capabilities_t __sane_unused__ *scanner,
+              int __sane_unused__ *w,
+              int __sane_unused__ *h,
+              int __sane_unused__ *bps)
 {
 }
 

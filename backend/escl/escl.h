@@ -153,11 +153,9 @@ SANE_Status escl_scan(capabilities_t *scanner, SANE_String_Const name, char *res
 void escl_scanner(SANE_String_Const name, char *result);
 
 // JPEG
-void get_JPEG_dimension(FILE *fp, int *w, int *h, int *bps);
-SANE_Status get_JPEG_data(capabilities_t *scanner);
+SANE_Status get_JPEG_data(capabilities_t *scanner, int *w, int *h, int *bps);
 
 // PNG
-void get_PNG_dimension(FILE *fp, int *w, int *h, int *bps);
-SANE_Status get_PNG_data(capabilities_t *scanner);
+SANE_Status get_PNG_data(capabilities_t *scanner, int *w, int *h, int *bps);
 
 #endif

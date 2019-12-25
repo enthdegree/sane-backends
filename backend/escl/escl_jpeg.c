@@ -28,13 +28,6 @@ typedef struct
     unsigned char buffer[INPUT_BUFFER_SIZE];
 } my_source_mgr;
 
-
-static void
-error_exit(j_common_ptr cinfo)
-{
-    longjmp(cinfo->client_data, 1);
-}
-
 /**
  * \fn static boolean fill_input_buffer(j_decompress_ptr cinfo)
  * \brief Called in the "skip_input_data" function.

@@ -657,7 +657,7 @@ sane_start(SANE_Handle h)
     }
     else
     {
-       status = get_PNG_data(handler->scanner->tmp, &w, &he, &bps);
+       status = get_PNG_data(handler->scanner, &w, &he, &bps);
        fprintf(stderr, "PNG DIM : [%s]\n", handler->scanner->default_format);
     }
     if (status != SANE_STATUS_GOOD)

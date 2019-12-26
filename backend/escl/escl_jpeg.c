@@ -188,6 +188,7 @@ get_JPEG_data(capabilities_t __sane_unused__ *scanner,
               int __sane_unused__ *h,
               int __sane_unused__ *bps)
 {
+    return (SANE_STATUS_INVAL);
 }
 
 #endif

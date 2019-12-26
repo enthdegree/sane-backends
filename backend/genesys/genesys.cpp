@@ -3430,8 +3430,6 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
         throw SaneException("read is not active");
     }
 
-    debug_dump(DBG_info, dev->session.params);
-
     DBG(DBG_info, "%s: frontend requested %zu bytes\n", __func__, *len);
     DBG(DBG_info, "%s: bytes_to_read=%zu, total_bytes_read=%zu\n", __func__,
         dev->total_bytes_to_read, dev->total_bytes_read);

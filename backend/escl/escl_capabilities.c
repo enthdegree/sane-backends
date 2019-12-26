@@ -203,7 +203,7 @@ find_valor_of_array_variables(xmlNode *node, capabilities_t *scanner)
             {
                if (scanner->default_format)
                   free(scanner->default_format);
-               scanner->default_format = strdup("image/png");
+               scanner->default_format = strdup("image/tiff");
             }
 #endif
          }

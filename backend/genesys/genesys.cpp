@@ -513,15 +513,7 @@ void sanei_genesys_init_shading_data(Genesys_Device* dev, const Genesys_Sensor& 
   int channels;
   int i;
 
-  /* these models don't need to init shading data due to the use of specific send shading data
-     function */
-    if (dev->model->sensor_id==SensorId::CCD_KVSS080 ||
-        dev->model->sensor_id==SensorId::CCD_G4050 ||
-        dev->model->sensor_id==SensorId::CCD_HP_4850C ||
-        dev->model->sensor_id==SensorId::CCD_CANON_4400F ||
-        dev->model->sensor_id==SensorId::CCD_CANON_8400F ||
-        dev->cmd_set->has_send_shading_data())
-    {
+    if (dev->cmd_set->has_send_shading_data()) {
         return;
     }
 

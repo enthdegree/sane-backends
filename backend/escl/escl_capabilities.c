@@ -189,17 +189,21 @@ find_valor_of_array_variables(xmlNode *node, capabilities_t *scanner)
             if (scanner->default_format == NULL && !strncmp(scanner->DocumentFormats[i], "image/jpeg", 10))
             {
                scanner->default_format = strdup("image/jpeg");
-#if(defined HAVE_LIBPNG)
             }
-            else if(!strncmp(scanner->DocumentFormats[i], "image/png", 9))
+#if(defined HAVE_LIBPNG)
+            else if(!strncmp(scanner->DocumentFormats[i], "image/png", 9) && (scanner->default_format == NULL || strncmp(scanner->default_format, "image/tiff", 10)))
             {
                if (scanner->default_format)
                   free(scanner->default_format);
                scanner->default_format = strdup("image/png");
-               break;
             }
-#else
-               break;
+#endif
+#if(defined HAVE_TIFFIO_H)
+            else if(!strncmp(scanner->DocumentFormats[i], "image/tiff", 10))
+            {
+               if (scanner->default_format)
+                  free(scanner->default_format);
+               scanner->default_format = strdup("image/png");
             }
 #endif
          }

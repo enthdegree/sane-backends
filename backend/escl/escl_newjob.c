@@ -68,6 +68,9 @@ static char formatExtJPEG[] =
 static char formatExtPNG[] =
     "   <scan:DocumentFormatExt>image/png</scan:DocumentFormatExt>";
 
+static char formatExtTIFF[] =
+    "   <scan:DocumentFormatExt>image/TIFF</scan:DocumentFormatExt>";
+
 /**
  * \fn static size_t download_callback(void *str, size_t size, size_t nmemb, void *userp)
  * \brief Callback function that stocks in memory the content of the 'job'. Example below :
@@ -155,8 +158,12 @@ escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *statu
     {
        if (!strncmp(scanner->default_format, "image/jpeg", 10))
           format_ext = formatExtJPEG;
-       else
+       else if (!strncmp(scanner->default_format, "image/png", 9))
           format_ext = formatExtPNG;
+       else if (!strncmp(scanner->default_format, "image/tiff", 10))
+          format_ext = formatExtTIFF;
+       else
+          format_ext = f_ext;
     }
     else
       format_ext = f_ext;
@@ -164,7 +171,7 @@ escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *statu
         snprintf(cap_data, sizeof(cap_data), settings, scanner->height, scanner->width, 0, 0, scanner->default_format,
                  format_ext,
                  scanner->default_color, scanner->default_resolution, scanner->default_resolution);
-        fprintf(stderr, "CAP_DATA = %s\n", cap_data);
+        // fprintf(stderr, "CAP_DATA = %s\n", cap_data);
         upload->read_data = strdup(cap_data);
         upload->size = strlen(cap_data);
         download->memory = malloc(1);

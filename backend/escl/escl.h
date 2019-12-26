@@ -46,6 +46,13 @@
 #warning "The escl backend recommends libpng"
 #endif
 
+#ifndef HAVE_TIFFIO_H
+/* FIXME: Make TIFF support optional.
+ */
+#warning "The escl backend recommends libtiff"
+#endif
+
+
 #include "../include/sane/sane.h"
 
 #include <stdio.h>
@@ -157,5 +164,8 @@ SANE_Status get_JPEG_data(capabilities_t *scanner, int *w, int *h, int *bps);
 
 // PNG
 SANE_Status get_PNG_data(capabilities_t *scanner, int *w, int *h, int *bps);
+
+// TIFF
+SANE_Status get_TIFF_data(capabilities_t *scanner, int *w, int *h, int *bps);
 
 #endif

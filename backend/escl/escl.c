@@ -27,7 +27,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <png.h>
 #include <setjmp.h>
 
 #include "../include/sane/saneopts.h"
@@ -649,21 +648,23 @@ sane_start(SANE_Handle h)
     status = escl_scan(handler->scanner, handler->name, handler->result);
     if (status != SANE_STATUS_GOOD)
         return (status);
-    fprintf(stderr, "DIM : [%s]\n", handler->scanner->default_format);
     if (!strncmp(handler->scanner->default_format, "image/jpeg", 10))
     {
        status = get_JPEG_data(handler->scanner, &w, &he, &bps);
-       fprintf(stderr, "JPEG DIM : [%s]\n", handler->scanner->default_format);
     }
-    else
+    else if (!strncmp(handler->scanner->default_format, "image/png", 9))
     {
        status = get_PNG_data(handler->scanner, &w, &he, &bps);
-       fprintf(stderr, "PNG DIM : [%s]\n", handler->scanner->default_format);
     }
+    else if (!strncmp(handler->scanner->default_format, "image/tiff", 10))
+    {
+       status = get_TIFF_data(handler->scanner, &w, &he, &bps);
+    }
+    else
+      return SANE_STATUS_INVAL;
+
     if (status != SANE_STATUS_GOOD)
         return (status);
-    fprintf(stderr, "SIZE [%dx%dx%d]\n", w, he, bps);
-    fprintf(stderr, "2-SIZE [%dx%dx%d]\n", w, he, bps);
     handler->ps.depth = 8;
     handler->ps.pixels_per_line = w;
     handler->ps.lines = he;
@@ -697,9 +698,6 @@ sane_get_parameters(SANE_Handle h, SANE_Parameters *p)
         p->pixels_per_line = handler->ps.pixels_per_line;
         p->lines = handler->ps.lines;
         p->bytes_per_line = handler->ps.bytes_per_line;
-        fprintf(stderr, "GET SIZE [%dx%dx%d]\n", p->pixels_per_line,
-			                     p->lines,
-					     (p->bytes_per_line / p->pixels_per_line));
     }
     return (status);
 }
@@ -729,7 +727,6 @@ sane_read(SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *len)
     if (!handler->write_scan_data)
         handler->write_scan_data = SANE_TRUE;
     if (!handler->decompress_scan_data) {
-	fprintf(stderr, "READ : [%s]\n", handler->scanner->default_format);
         if (status != SANE_STATUS_GOOD)
             return (status);
         handler->decompress_scan_data = SANE_TRUE;

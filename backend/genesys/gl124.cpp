@@ -1629,7 +1629,8 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
           /* we accept +- 2% delta from target */
           if(abs(avg[i]-target)>target/50)
             {
-              exp[i]=(exp[i]*target)/avg[i];
+                float prev_weight = 0.5;
+                exp[i] = exp[i] * prev_weight + ((exp[i] * target) / avg[i]) * (1 - prev_weight);
                 acceptable = false;
             }
         }

@@ -69,7 +69,7 @@ static char formatExtPNG[] =
     "   <scan:DocumentFormatExt>image/png</scan:DocumentFormatExt>";
 
 static char formatExtTIFF[] =
-    "   <scan:DocumentFormatExt>image/TIFF</scan:DocumentFormatExt>";
+    "   <scan:DocumentFormatExt>image/tiff</scan:DocumentFormatExt>";
 
 /**
  * \fn static size_t download_callback(void *str, size_t size, size_t nmemb, void *userp)

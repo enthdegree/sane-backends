@@ -349,10 +349,21 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
                 continue;
 
             if ((strncmp ("firmware", lp, 8) == 0) && isspace (lp[8])) {
+                size_t firmware_len;
+
                 lp += 8;
                 lp = sanei_config_skip_whitespace (lp);
                 DBG (15, "sane_get_devices: firmware '%s'\n", lp);
-                strncpy((char *)global_firmware_filename,lp,PATH_MAX);
+
+                firmware_len = strlen(lp);
+                if (firmware_len > sizeof(global_firmware_filename) - 1)
+                  {
+                    DBG (5, "sane_get_devices: firmware file too long. ignoring '%s'\n", lp);
+                  }
+                else
+                  {
+                    strcpy((char *)global_firmware_filename, lp);
+                  }
             }
             else if ((strncmp ("usb", lp, 3) == 0) && isspace (lp[3])) {
                 DBG (15, "sane_get_devices: looking for '%s'\n", lp);

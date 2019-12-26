@@ -228,9 +228,9 @@ static constexpr RegAddr REG_0x80 = 0x80;
 static constexpr RegAddr REG_0x81 = 0x81;
 
 static constexpr RegAddr REG_0xA0 = 0xa0;
-static constexpr RegMask REG_0xA0_FSTPSEL = 0x28;
+static constexpr RegMask REG_0xA0_FSTPSEL = 0x38;
 static constexpr RegShift REG_0xA0S_FSTPSEL = 3;
-static constexpr RegMask REG_0xA0_STEPSEL = 0x03;
+static constexpr RegMask REG_0xA0_STEPSEL = 0x07;
 static constexpr RegShift REG_0xA0S_STEPSEL = 0;
 
 static constexpr RegAddr REG_0xA1 = 0xa1;

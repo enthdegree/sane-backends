@@ -45,7 +45,7 @@ get_TIFF_data(capabilities_t *scanner, int *w, int *h, int *components)
     npixels = width * height;
     raster = (unsigned char*) malloc(npixels * sizeof (uint32));
     if (raster != NULL)
-    {	    
+    {
         fprintf(stderr, "Memory allocation problem.\n");
         return (SANE_STATUS_INVAL);
     }

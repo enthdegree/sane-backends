@@ -66,7 +66,7 @@ resolve_callback(AvahiServiceResolver *r, AVAHI_GCC_UNUSED AvahiIfIndex interfac
     case AVAHI_RESOLVER_FOUND:
         avahi_address_snprint(a, sizeof(a), address);
         t = avahi_string_list_to_string(txt);
-        if (strstr(t, "\"rs=eSCL\""))
+        if (strstr(t, "\"rs=eSCL\"") || strstr(t, "\"rs=/eSCL\""))
             escl_device_add(port, name, a, (char*)type);
     }
 }

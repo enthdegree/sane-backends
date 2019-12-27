@@ -961,8 +961,7 @@ GetCalibration ()
 	{			/*WARNING!!! Deadlock possible! */
 	  bTest = CallFunctionWithRetVal (0xB5);
 	}
-      while ((((bTest & 0x80) == 1) && ((bTest & 0x3F) <= 2)) ||
-	     (((bTest & 0x80) == 0) && ((bTest & 0x3F) >= 5)));
+      while ((bTest & 0x80) ? (bTest & 0x3F) <= 2 : (bTest & 0x3F) >= 5);
 
       CallFunctionWithParameter (0xCD, 0);
       /*Skip this line for ECP: */
@@ -1150,8 +1149,7 @@ CalibrateScanElements ()
 	  usleep (1);
 	}
       while ((timeout < 1000) &&
-	     ((((bTest & 0x80) == 1) && ((bTest & 0x3F) <= 2)) ||
-	      (((bTest & 0x80) == 0) && ((bTest & 0x3F) >= 5))));
+             ((bTest & 0x80) ? (bTest & 0x3F) <= 2 : (bTest & 0x3F) >= 5));
 
       /*Let's read it... */
       if(timeout < 1000)
@@ -1218,8 +1216,7 @@ CalibrateScanElements ()
 		    usleep (1);
 		}
     		while ((timeout < 1000) &&
-	    	((((bTest & 0x80) == 1) && ((bTest & 0x3F) <= 2)) ||
-	        (((bTest & 0x80) == 0) && ((bTest & 0x3F) >= 5))));
+    	               ((bTest & 0x80) ? (bTest & 0x3F) <= 2 : (bTest & 0x3F) >= 5));
 
     		/*Let's read it... */
     		if(timeout < 1000)

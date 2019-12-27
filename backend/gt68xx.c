@@ -947,25 +947,30 @@ download_firmware_file (GT68xx_Device * dev)
   if (strncmp (dev->model->firmware_name, PATH_SEP, 1) != 0)
     {
       /* probably filename only */
-      snprintf (filename, PATH_MAX, "%s%s%s%s%s%s%s",
+      snprintf (filename, sizeof(filename), "%s%s%s%s%s%s%s",
                 STRINGIFY (PATH_SANE_DATA_DIR),
                 PATH_SEP, "sane", PATH_SEP, "gt68xx", PATH_SEP,
                 dev->model->firmware_name);
-      snprintf (dirname, PATH_MAX, "%s%s%s%s%s",
+      snprintf (dirname, sizeof(dirname), "%s%s%s%s%s",
                 STRINGIFY (PATH_SANE_DATA_DIR),
                 PATH_SEP, "sane", PATH_SEP, "gt68xx");
-      strncpy (basename, dev->model->firmware_name, PATH_MAX);
+      strncpy (basename, dev->model->firmware_name, sizeof(basename) - 1);
+      basename[sizeof(basename) - 1] = '\0';
     }
   else
     {
       /* absolute path */
       char *pos;
-      strncpy (filename, dev->model->firmware_name, PATH_MAX);
-      strncpy (dirname, dev->model->firmware_name, PATH_MAX);
+      strncpy (filename, dev->model->firmware_name, sizeof(filename) - 1);
+      filename[sizeof(filename) - 1] = '\0';
+      strncpy (dirname, dev->model->firmware_name, sizeof(dirname) - 1);
+      dirname[sizeof(dirname) - 1] = '\0';
+
       pos = strrchr (dirname, PATH_SEP[0]);
       if (pos)
         pos[0] = '\0';
-      strncpy (basename, pos + 1, PATH_MAX);
+      strncpy (basename, pos + 1, sizeof(basename) - 1);
+      basename[sizeof(basename) - 1] = '\0';
     }
 
   /* first, try to open with exact case */
@@ -994,11 +999,16 @@ download_firmware_file (GT68xx_Device * dev)
             {
               direntry = readdir (dir);
               if (direntry
-                  && (strncasecmp (direntry->d_name, basename, PATH_MAX) ==
-                      0))
+                  && (strncasecmp (direntry->d_name, basename, PATH_MAX) == 0))
                 {
-                  snprintf (filename, PATH_MAX, "%s%s%s",
-                            dirname, PATH_SEP, direntry->d_name);
+                  int len = snprintf (filename, sizeof(filename), "%s%s%s",
+                                      dirname, PATH_SEP, direntry->d_name);
+                  if ((len < 0) || (len >= (int) sizeof(filename)))
+                    {
+                      DBG (5, "download_firmware: filepath `%s%s%s' too long\n",
+                           dirname, PATH_SEP, direntry->d_name);
+                      status = SANE_STATUS_INVAL;
+                    }
                   break;
                 }
             }

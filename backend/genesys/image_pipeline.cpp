@@ -220,7 +220,7 @@ ImagePipelineNodeDesegment::ImagePipelineNodeDesegment(ImagePipelineNode& source
     segment_pixels_{segment_pixels},
     interleaved_lines_{interleaved_lines},
     pixels_per_chunk_{pixels_per_chunk},
-    buffer_{get_row_bytes()}
+    buffer_{source_.get_row_bytes()}
 {
     DBG_HELPER_ARGS(dbg, "segment_count=%zu, segment_size=%zu, interleaved_lines=%zu, "
                          "pixels_per_shunk=%zu", segment_order.size(), segment_pixels,

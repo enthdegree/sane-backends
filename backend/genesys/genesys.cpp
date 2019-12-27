@@ -513,15 +513,7 @@ void sanei_genesys_init_shading_data(Genesys_Device* dev, const Genesys_Sensor& 
   int channels;
   int i;
 
-  /* these models don't need to init shading data due to the use of specific send shading data
-     function */
-    if (dev->model->sensor_id==SensorId::CCD_KVSS080 ||
-        dev->model->sensor_id==SensorId::CCD_G4050 ||
-        dev->model->sensor_id==SensorId::CCD_HP_4850C ||
-        dev->model->sensor_id==SensorId::CCD_CANON_4400F ||
-        dev->model->sensor_id==SensorId::CCD_CANON_8400F ||
-        dev->cmd_set->has_send_shading_data())
-    {
+    if (dev->cmd_set->has_send_shading_data()) {
         return;
     }
 
@@ -1086,7 +1078,11 @@ void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
 
     if (dev.model->model_id == ModelId::CANON_LIDE_210) {
         // move the head back a little first
-        scanner_move(dev, dev.model->default_method, 20, Direction::BACKWARD);
+        if (dev.is_head_pos_known(ScanHeadId::PRIMARY) &&
+            dev.head_pos(ScanHeadId::PRIMARY) > 30)
+        {
+            scanner_move(dev, dev.model->default_method, 20, Direction::BACKWARD);
+        }
     }
 
     Genesys_Register_Set local_reg = dev.reg;
@@ -3433,8 +3429,6 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
       *len = 0;
         throw SaneException("read is not active");
     }
-
-    debug_dump(DBG_info, dev->session.params);
 
     DBG(DBG_info, "%s: frontend requested %zu bytes\n", __func__, *len);
     DBG(DBG_info, "%s: bytes_to_read=%zu, total_bytes_read=%zu\n", __func__,

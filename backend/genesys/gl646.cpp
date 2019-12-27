@@ -1406,6 +1406,8 @@ static void end_scan_impl(Genesys_Device* dev, Genesys_Register_Set* reg, bool c
         return;
     }
 
+    dev->interface->sleep_ms(100);
+
     if (check_stop) {
         for (unsigned i = 0; i < wait_limit_seconds * 10; i++) {
             if (scanner_is_motor_stopped(*dev)) {

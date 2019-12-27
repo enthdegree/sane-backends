@@ -169,9 +169,10 @@ gl124_init_registers (Genesys_Device * dev)
         dev->reg.init_reg(0x6d, 0x00);
         dev->reg.init_reg(0x71, 0x1f);
     }
-    dev->reg.init_reg(0x70, 0x00);
-    dev->reg.init_reg(0x72, 0x08);
-    dev->reg.init_reg(0x73, 0x0a);
+    dev->reg.init_reg(0x70, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x71, 0x08); // SENSOR_DEF
+    dev->reg.init_reg(0x72, 0x08); // SENSOR_DEF
+    dev->reg.init_reg(0x73, 0x0a); // SENSOR_DEF
 
     // CKxMAP
     dev->reg.init_reg(0x74, 0x00); // SENSOR_DEF
@@ -1628,7 +1629,8 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
           /* we accept +- 2% delta from target */
           if(abs(avg[i]-target)>target/50)
             {
-              exp[i]=(exp[i]*target)/avg[i];
+                float prev_weight = 0.5;
+                exp[i] = exp[i] * prev_weight + ((exp[i] * target) / avg[i]) * (1 - prev_weight);
                 acceptable = false;
             }
         }

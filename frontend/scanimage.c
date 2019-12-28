@@ -225,12 +225,8 @@ auth_callback (SANE_String_Const resource,
 
 				  if (strlen (tmp_password) < SANE_MAX_PASSWORD_LEN)
 				    {
-
-				      strncpy (username, tmp_username, strlen (tmp_username));
-				      username[strlen (tmp_username)] = 0;
-
-				      strncpy (password, tmp_password, strlen (tmp_password));
-				      password[strlen (tmp_password)] = 0;
+				      strncpy (username, tmp_username, SANE_MAX_USERNAME_LEN);
+				      strncpy (password, tmp_password, SANE_MAX_PASSWORD_LEN);
 
 				      query_user = 0;
 				      break;

@@ -259,6 +259,7 @@
 
 /* 2019 new devices (untested) */
 #define TS8100_PID 0x1821
+#define G2010_PID 0x183a
 #define G3010_PID 0x183b
 #define G4010_PID 0x183d
 #define TS9180_PID 0x183e
@@ -1760,6 +1761,7 @@ const pixma_config_t pixma_mp150_devices[] = {
 
   /* Latest devices (2019) Generation 5 CIS */
   DEVICE ("Canon PIXMA TS8100 Series", "TS8100", TS8100_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA G2010 Series", "G2010", G2010_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA G3010 Series", "G3010", G3010_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA G4010 Series", "G4010", G4010_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA TS9180 Series", "TS9180", TS9180_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),

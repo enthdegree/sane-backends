@@ -17,7 +17,7 @@ Currently, the following models work with this backend:
 .RS
 PIXMA E510
 .br
-PIXMA G2000, G2100
+PIXMA G2000, G2010, G2100
 .br
 PIXMA MG2100, MG2200, MG2400, MG2500, MG2900, MG3000, MG3100
 .br

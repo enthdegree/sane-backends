@@ -88,6 +88,12 @@
 :status :untested
 :comment "Testers needed!"
 
+:model "PIXMA E3300 Series"
+:interface "USB"
+:usbid "0x04a9" "0x18a3"
+:status :untested
+:comment "Testers needed!"
+
 :model "PIXMA E4200 Series"
 :interface "USB WiFi"
 :usbid "0x04a9" "0x1855"
@@ -133,6 +139,18 @@
 :model "PIXMA G4010 Series"
 :interface "USB WiFi"
 :usbid "0x04a9" "0x183d"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA G6000"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1865"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA G6080"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1866"
 :status :untested
 :comment "Testers needed!"
 
@@ -881,6 +899,12 @@
 :status :good
 :comment "All resolutions supported (up to 600DPI). WiFi not working."
 
+:model "PIXMA TS3300 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x18a2"
+:status :untested
+:comment "Testers needed!"
+
 :model "PIXMA TS5000 Series"
 :interface "USB WiFi"
 :usbid "0x04a9" "0x1802"
@@ -890,6 +914,18 @@
 :model "PIXMA TS5100 Series"
 :interface "USB WiFi"
 :usbid "0x04a9" "0x1825"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA TS5300 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x188b"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA TS5380 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x188c"
 :status :untested
 :comment "Testers needed!"
 
@@ -935,6 +971,30 @@
 :status :untested
 :comment "Testers needed!"
 
+:model "PIXMA TS6300 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x188b"
+:status :good
+:comment "Testers needed!"
+
+:model "PIXMA TS6330 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1894"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA TS6380 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x188e"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA TS7330 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x188f"
+:status :untested
+:comment "Testers needed!"
+
 :model "PIXMA TS8000 Series"
 :interface "USB WiFi"
 :usbid "0x04a9" "0x1800"
@@ -974,6 +1034,24 @@
 :model "PIXMA TS8280 Series"
 :interface "USB WiFi"
 :usbid "0x04a9" "0x185a"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA TS8300 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1890"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA TS8330 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1892"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA TS8380 Series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1891"
 :status :untested
 :comment "Testers needed!"
 
@@ -1022,6 +1100,12 @@
 :model "PIXUS XK50 Series"
 :interface "USB WiFi"
 :usbid "0x04a9" "0x1846"
+:status :untested
+:comment "Testers needed!"
+
+:model "CanoScan XK 60"
+:interface "USB"
+:usbid "0x04a9" "0x1893"
 :status :untested
 :comment "Testers needed!"
 

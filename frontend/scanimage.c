@@ -211,39 +211,21 @@ auth_callback (SANE_String_Const resource,
 		      if (strchr (strchr (tmp, ':') + 1, ':') != NULL)
 			{
 
-			  if ((strncmp
-			       (strchr (strchr (tmp, ':') + 1, ':') + 1,
-				resource, len) == 0)
-			      &&
-			      ((int) strlen
-			       (strchr (strchr (tmp, ':') + 1, ':') + 1) ==
-			       len))
+			  if ((strncmp (strchr (strchr (tmp, ':') + 1, ':') + 1, resource, len) == 0)
+			      && ((int) strlen (strchr (strchr (tmp, ':') + 1, ':') + 1) == len))
 			    {
 
-			      if ((strchr (tmp, ':') - tmp) <
-				  SANE_MAX_USERNAME_LEN)
+			      if ((strchr (tmp, ':') - tmp) < SANE_MAX_USERNAME_LEN)
 				{
 
-				  if ((strchr (strchr (tmp, ':') + 1, ':') -
-				       (strchr (tmp, ':') + 1)) <
-				      SANE_MAX_PASSWORD_LEN)
+				  if ((strchr (strchr (tmp, ':') + 1, ':') - (strchr (tmp, ':') + 1)) < SANE_MAX_PASSWORD_LEN)
 				    {
 
-				      strncpy (username, tmp,
-					       strchr (tmp, ':') - tmp);
-
+				      strncpy (username, tmp, strchr (tmp, ':') - tmp);
 				      username[strchr (tmp, ':') - tmp] = 0;
 
-				      strncpy (password,
-					       strchr (tmp, ':') + 1,
-					       strchr (strchr (tmp, ':') + 1,
-						       ':') -
-					       (strchr (tmp, ':') + 1));
-				      password[strchr
-					       (strchr (tmp, ':') + 1,
-						':') - (strchr (tmp,
-								':') + 1)] =
-					0;
+				      strncpy (password, strchr (tmp, ':') + 1, strchr (strchr (tmp, ':') + 1, ':') - (strchr (tmp, ':') + 1));
+				      password[strchr (strchr (tmp, ':') + 1, ':') - (strchr (tmp, ':') + 1)] = 0;
 
 				      query_user = 0;
 				      break;

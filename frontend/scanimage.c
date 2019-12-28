@@ -208,25 +208,29 @@ auth_callback (SANE_String_Const resource,
 		  char *colon1 = strchr (tmp, ':');
 		  if (colon1 != NULL)
 		    {
+		      char *tmp_username = tmp;
+		      *colon1 = '\0';
+
 		      char *colon2 = strchr (colon1 + 1, ':');
 		      if (colon2 != NULL)
 			{
+			  char *tmp_password = colon1 + 1;
+			  *colon2 = '\0';
 
 			  if ((strncmp (colon2 + 1, resource, len) == 0)
 			      && ((int) strlen (colon2 + 1) == len))
 			    {
-
-			      if ((colon1 - tmp) < SANE_MAX_USERNAME_LEN)
+			      if (strlen (tmp_username) < SANE_MAX_USERNAME_LEN)
 				{
 
-				  if ((colon2 - (colon1 + 1)) < SANE_MAX_PASSWORD_LEN)
+				  if (strlen (tmp_password) < SANE_MAX_PASSWORD_LEN)
 				    {
 
-				      strncpy (username, tmp, colon1 - tmp);
-				      username[colon1 - tmp] = 0;
+				      strncpy (username, tmp_username, strlen (tmp_username));
+				      username[strlen (tmp_username)] = 0;
 
-				      strncpy (password, colon1 + 1, colon2 - (colon1 + 1));
-				      password[colon2 - (colon1 + 1)] = 0;
+				      strncpy (password, tmp_password, strlen (tmp_password));
+				      password[strlen (tmp_password)] = 0;
 
 				      query_user = 0;
 				      break;

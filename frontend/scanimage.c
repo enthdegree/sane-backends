@@ -205,51 +205,30 @@ auth_callback (SANE_String_Const resource,
 		  if ((strlen (tmp) > 0) && (tmp[strlen (tmp) - 1] == '\r'))
 		    tmp[strlen (tmp) - 1] = 0;
 
-		  if (strchr (tmp, ':') != NULL)
+		  char *colon1 = strchr (tmp, ':');
+		  if (colon1 != NULL)
 		    {
+		      char *tmp_username = tmp;
+		      *colon1 = '\0';
 
-		      if (strchr (strchr (tmp, ':') + 1, ':') != NULL)
+		      char *colon2 = strchr (colon1 + 1, ':');
+		      if (colon2 != NULL)
 			{
+			  char *tmp_password = colon1 + 1;
+			  *colon2 = '\0';
 
-			  if ((strncmp
-			       (strchr (strchr (tmp, ':') + 1, ':') + 1,
-				resource, len) == 0)
-			      &&
-			      ((int) strlen
-			       (strchr (strchr (tmp, ':') + 1, ':') + 1) ==
-			       len))
+			  if ((strncmp (colon2 + 1, resource, len) == 0)
+			      && ((int) strlen (colon2 + 1) == len))
 			    {
+			      if ((strlen (tmp_username) < SANE_MAX_USERNAME_LEN) &&
+                                  (strlen (tmp_password) < SANE_MAX_PASSWORD_LEN))
+                                {
+                                  strncpy (username, tmp_username, SANE_MAX_USERNAME_LEN);
+                                  strncpy (password, tmp_password, SANE_MAX_PASSWORD_LEN);
 
-			      if ((strchr (tmp, ':') - tmp) <
-				  SANE_MAX_USERNAME_LEN)
-				{
-
-				  if ((strchr (strchr (tmp, ':') + 1, ':') -
-				       (strchr (tmp, ':') + 1)) <
-				      SANE_MAX_PASSWORD_LEN)
-				    {
-
-				      strncpy (username, tmp,
-					       strchr (tmp, ':') - tmp);
-
-				      username[strchr (tmp, ':') - tmp] = 0;
-
-				      strncpy (password,
-					       strchr (tmp, ':') + 1,
-					       strchr (strchr (tmp, ':') + 1,
-						       ':') -
-					       (strchr (tmp, ':') + 1));
-				      password[strchr
-					       (strchr (tmp, ':') + 1,
-						':') - (strchr (tmp,
-								':') + 1)] =
-					0;
-
-				      query_user = 0;
-				      break;
-				    }
-				}
-
+                                  query_user = 0;
+                                  break;
+                                }
 			    }
 			}
 		    }

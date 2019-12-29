@@ -220,19 +220,15 @@ auth_callback (SANE_String_Const resource,
 			  if ((strncmp (colon2 + 1, resource, len) == 0)
 			      && ((int) strlen (colon2 + 1) == len))
 			    {
-			      if (strlen (tmp_username) < SANE_MAX_USERNAME_LEN)
-				{
+			      if ((strlen (tmp_username) < SANE_MAX_USERNAME_LEN) &&
+                                  (strlen (tmp_password) < SANE_MAX_PASSWORD_LEN))
+                                {
+                                  strncpy (username, tmp_username, SANE_MAX_USERNAME_LEN);
+                                  strncpy (password, tmp_password, SANE_MAX_PASSWORD_LEN);
 
-				  if (strlen (tmp_password) < SANE_MAX_PASSWORD_LEN)
-				    {
-				      strncpy (username, tmp_username, SANE_MAX_USERNAME_LEN);
-				      strncpy (password, tmp_password, SANE_MAX_PASSWORD_LEN);
-
-				      query_user = 0;
-				      break;
-				    }
-				}
-
+                                  query_user = 0;
+                                  break;
+                                }
 			    }
 			}
 		    }

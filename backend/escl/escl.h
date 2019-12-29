@@ -40,19 +40,6 @@
 #error "The escl backend currently requires libjpeg"
 #endif
 
-#ifndef HAVE_LIBPNG
-/* FIXME: Make PNG support optional.
- */
-#warning "The escl backend recommends libpng"
-#endif
-
-#ifndef HAVE_TIFFIO_H
-/* FIXME: Make TIFF support optional.
- */
-#warning "The escl backend recommends libtiff"
-#endif
-
-
 #include "../include/sane/sane.h"
 
 #include <stdio.h>

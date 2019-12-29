@@ -186,12 +186,12 @@ find_valor_of_array_variables(xmlNode *node, capabilities_t *scanner)
         scanner->DocumentFormats = char_to_array(scanner->DocumentFormats, &scanner->DocumentFormatsSize, (SANE_String_Const)xmlNodeGetContent(node), 0);
         for(; i < scanner->DocumentFormatsSize; i++)
          {
-            if (scanner->default_format == NULL && !strncmp(scanner->DocumentFormats[i], "image/jpeg", 10))
+            if (scanner->default_format == NULL && !strcmp(scanner->DocumentFormats[i], "image/jpeg"))
             {
                scanner->default_format = strdup("image/jpeg");
             }
 #if(defined HAVE_LIBPNG)
-            else if(!strncmp(scanner->DocumentFormats[i], "image/png", 9) && (scanner->default_format == NULL || strncmp(scanner->default_format, "image/tiff", 10)))
+            else if(!strcmp(scanner->DocumentFormats[i], "image/png") && (scanner->default_format == NULL || strcmp(scanner->default_format, "image/tiff")))
             {
                if (scanner->default_format)
                   free(scanner->default_format);
@@ -199,7 +199,7 @@ find_valor_of_array_variables(xmlNode *node, capabilities_t *scanner)
             }
 #endif
 #if(defined HAVE_TIFFIO_H)
-            else if(!strncmp(scanner->DocumentFormats[i], "image/tiff", 10))
+            else if(!strcmp(scanner->DocumentFormats[i], "image/tiff"))
             {
                if (scanner->default_format)
                   free(scanner->default_format);

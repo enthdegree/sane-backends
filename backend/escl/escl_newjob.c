@@ -156,11 +156,11 @@ escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *statu
     curl_handle = curl_easy_init();
     if (scanner->format_ext == 1)
     {
-       if (!strncmp(scanner->default_format, "image/jpeg", 10))
+       if (!strcmp(scanner->default_format, "image/jpeg"))
           format_ext = formatExtJPEG;
-       else if (!strncmp(scanner->default_format, "image/png", 9))
+       else if (!strcmp(scanner->default_format, "image/png"))
           format_ext = formatExtPNG;
-       else if (!strncmp(scanner->default_format, "image/tiff", 10))
+       else if (!strcmp(scanner->default_format, "image/tiff"))
           format_ext = formatExtTIFF;
        else
           format_ext = f_ext;

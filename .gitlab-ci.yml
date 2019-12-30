@@ -52,7 +52,7 @@ debian-10-mini:
   image: $REGISTRY_HUB:debian-buster-mini
   variables:
     CONFIGURE_OPTS: "$CONFIGURE_MINI"
-    #MAKE_FLAGS: "CFLAGS=-Werror"
+    MAKE_FLAGS: "CFLAGS=-Werror"
   <<: *compile_definition
 
 # In addition to the regular compile check, the full Debian stable
@@ -63,7 +63,7 @@ debian-10-full:
   image: $REGISTRY_HUB:debian-buster-full
   variables:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
-    #MAKE_FLAGS: "CFLAGS=-Werror CXXFLAGS=-Werror"
+    MAKE_FLAGS: "CFLAGS=-Werror CXXFLAGS=-Werror"
   <<: *compile_definition
   after_script:
   - make -C build/doc html-pages

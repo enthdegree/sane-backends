@@ -252,9 +252,14 @@ AC_DEFUN([SANE_CHECK_PTHREAD],
               [Define if pthread_t is integer.])
   else
     # Until the sanei_thread implementation is fixed.
-    have_pthread=no
     use_pthread=no
   fi
+
+  if test "$have_pthread" = "yes" ; then
+    AM_CPPFLAGS="${AM_CPPFLAGS} -D_REENTRANT"
+    PLAIN_PTHREAD_LIBS=$PTHREAD_LIBS
+  fi
+  AC_SUBST(PLAIN_PTHREAD_LIBS)
 
   if test $use_pthread = yes ; then
     AC_DEFINE_UNQUOTED(USE_PTHREAD, "$use_pthread",
@@ -262,9 +267,6 @@ AC_DEFUN([SANE_CHECK_PTHREAD],
   else
     dnl Reset library in case it was found but we are not going to use it.
     PTHREAD_LIBS=""
-  fi
-  if test "$have_pthread" = "yes" ; then
-    AM_CPPFLAGS="${AM_CPPFLAGS} -D_REENTRANT"
   fi
   AC_SUBST(PTHREAD_LIBS)
   AC_MSG_CHECKING([whether to enable pthread support])

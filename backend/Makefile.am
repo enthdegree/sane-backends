@@ -716,7 +716,7 @@ libkvs40xx_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=kvs40xx
 nodist_libsane_kvs40xx_la_SOURCES = kvs40xx-s.c
 libsane_kvs40xx_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=kvs40xx
 libsane_kvs40xx_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_kvs40xx_la_LIBADD = $(COMMON_LIBS) libkvs40xx.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo $(SCSI_LIBS) $(USB_LIBS) $(PTHREAD_LIBS) $(RESMGR_LIBS)
+libsane_kvs40xx_la_LIBADD = $(COMMON_LIBS) libkvs40xx.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo $(SCSI_LIBS) $(USB_LIBS) $(PLAIN_PTHREAD_LIBS) $(RESMGR_LIBS)
 
 libleo_la_SOURCES = leo.c leo.h
 libleo_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=leo
@@ -822,7 +822,7 @@ libmustek_usb2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=mustek_usb2
 nodist_libsane_mustek_usb2_la_SOURCES = mustek_usb2-s.c
 libsane_mustek_usb2_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=mustek_usb2
 libsane_mustek_usb2_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_mustek_usb2_la_LIBADD = $(COMMON_LIBS) libmustek_usb2.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo $(MATH_LIB) $(PTHREAD_LIBS) $(USB_LIBS) $(PTHREAD_LIBS) $(RESMGR_LIBS)
+libsane_mustek_usb2_la_LIBADD = $(COMMON_LIBS) libmustek_usb2.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo $(MATH_LIB) $(PLAIN_PTHREAD_LIBS) $(USB_LIBS) $(PLAIN_PTHREAD_LIBS) $(RESMGR_LIBS)
 # TODO: Why are these distributed but not compiled?
 EXTRA_DIST += mustek_usb2_asic.c mustek_usb2_asic.h mustek_usb2_high.c mustek_usb2_high.h mustek_usb2_reflective.c mustek_usb2_transparent.c
 

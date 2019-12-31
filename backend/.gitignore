@@ -1,5 +1,6 @@
 *-s.c
-*-s.cc
+*-s.cpp
 *.conf
+.dirstamp
 dll-preload.c
 dll-preload.h

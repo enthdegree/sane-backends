@@ -181,7 +181,34 @@ find_valor_of_array_variables(xmlNode *node, capabilities_t *scanner)
     else if (strcmp(name, "ContentType") == 0)
         scanner->ContentTypes = char_to_array(scanner->ContentTypes, &scanner->ContentTypesSize, (SANE_String_Const)xmlNodeGetContent(node), 0);
     else if (strcmp(name, "DocumentFormat") == 0)
+     {
+        int i = 0;
         scanner->DocumentFormats = char_to_array(scanner->DocumentFormats, &scanner->DocumentFormatsSize, (SANE_String_Const)xmlNodeGetContent(node), 0);
+        for(; i < scanner->DocumentFormatsSize; i++)
+         {
+            if (scanner->default_format == NULL && !strcmp(scanner->DocumentFormats[i], "image/jpeg"))
+            {
+               scanner->default_format = strdup("image/jpeg");
+            }
+#if(defined HAVE_LIBPNG)
+            else if(!strcmp(scanner->DocumentFormats[i], "image/png") && (scanner->default_format == NULL || strcmp(scanner->default_format, "image/tiff")))
+            {
+               if (scanner->default_format)
+                  free(scanner->default_format);
+               scanner->default_format = strdup("image/png");
+            }
+#endif
+#if(defined HAVE_TIFFIO_H)
+            else if(!strcmp(scanner->DocumentFormats[i], "image/tiff"))
+            {
+               if (scanner->default_format)
+                  free(scanner->default_format);
+               scanner->default_format = strdup("image/tiff");
+            }
+#endif
+         }
+         fprintf(stderr, "Capability : [%s]\n", scanner->default_format);
+     }
     else if (strcmp(name, "DocumentFormatExt") == 0)
         scanner->format_ext = 1;
     else if (strcmp(name, "Intent") == 0)

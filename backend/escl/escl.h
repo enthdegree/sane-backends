@@ -78,7 +78,7 @@ typedef struct capabilities
     int pos_x;
     int pos_y;
     SANE_String default_color;
-    SANE_String_Const default_format;
+    SANE_String default_format;
     SANE_Int default_resolution;
     int MinWidth;
     int MaxWidth;
@@ -102,6 +102,9 @@ typedef struct capabilities
     int RiskyTopMargin;
     int RiskyBottomMargin;
     FILE *tmp;
+    unsigned char *img_data;
+    long img_size;
+    long img_read;
     int format_ext;
 } capabilities_t;
 
@@ -142,5 +145,14 @@ capabilities_t *escl_capabilities(SANE_String_Const name, SANE_Status *status);
 char *escl_newjob(capabilities_t *scanner, SANE_String_Const name, SANE_Status *status);
 SANE_Status escl_scan(capabilities_t *scanner, SANE_String_Const name, char *result);
 void escl_scanner(SANE_String_Const name, char *result);
+
+// JPEG
+SANE_Status get_JPEG_data(capabilities_t *scanner, int *w, int *h, int *bps);
+
+// PNG
+SANE_Status get_PNG_data(capabilities_t *scanner, int *w, int *h, int *bps);
+
+// TIFF
+SANE_Status get_TIFF_data(capabilities_t *scanner, int *w, int *h, int *bps);
 
 #endif

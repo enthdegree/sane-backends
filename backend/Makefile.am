@@ -911,7 +911,7 @@ libsane_pixma_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pixma
 libsane_pixma_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_pixma_la_LIBADD = $(COMMON_LIBS) libpixma.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo $(SANEI_SANEI_JPEG_LO) $(JPEG_LIBS) $(MATH_LIB) $(SOCKET_LIBS) $(USB_LIBS) $(PTHREAD_LIBS) $(RESMGR_LIBS)
 EXTRA_DIST += pixma.conf.in
-# TODO: Why are these distributed but not compiled?
+# included in pixma.c
 EXTRA_DIST += pixma/pixma_sane_options.c pixma/pixma_sane_options.h
 
 libplustek_la_SOURCES = plustek.c plustek.h

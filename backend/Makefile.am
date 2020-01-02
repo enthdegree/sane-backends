@@ -889,7 +889,21 @@ libsane_pint_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pint
 libsane_pint_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_pint_la_LIBADD = $(COMMON_LIBS) libpint.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo
 
-libpixma_la_SOURCES = pixma.c pixma.h pixma_io_sanei.c pixma_io.h pixma_common.c pixma_common.h pixma_mp150.c pixma_mp730.c pixma_mp750.c pixma_mp800.c pixma_imageclass.c pixma_bjnp.c pixma_bjnp.h pixma_bjnp_private.h pixma_rename.h
+libpixma_la_SOURCES = pixma/pixma.c \
+	pixma/pixma.h \
+	pixma/pixma_io_sanei.c \
+	pixma/pixma_io.h \
+	pixma/pixma_common.c \
+	pixma/pixma_common.h \
+	pixma/pixma_mp150.c \
+	pixma/pixma_mp730.c \
+	pixma/pixma_mp750.c \
+	pixma/pixma_mp800.c \
+	pixma/pixma_imageclass.c \
+	pixma/pixma_bjnp.c \
+	pixma/pixma_bjnp.h \
+	pixma/pixma_bjnp_private.h \
+	pixma/pixma_rename.h
 libpixma_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pixma
 
 nodist_libsane_pixma_la_SOURCES = pixma-s.c
@@ -898,7 +912,7 @@ libsane_pixma_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_pixma_la_LIBADD = $(COMMON_LIBS) libpixma.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo $(SANEI_SANEI_JPEG_LO) $(JPEG_LIBS) $(MATH_LIB) $(SOCKET_LIBS) $(USB_LIBS) $(PTHREAD_LIBS) $(RESMGR_LIBS)
 EXTRA_DIST += pixma.conf.in
 # TODO: Why are these distributed but not compiled?
-EXTRA_DIST += pixma_sane_options.c pixma_sane_options.h
+EXTRA_DIST += pixma/pixma_sane_options.c pixma/pixma_sane_options.h
 
 libplustek_la_SOURCES = plustek.c plustek.h
 libplustek_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=plustek

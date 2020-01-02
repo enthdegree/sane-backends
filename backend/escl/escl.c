@@ -648,15 +648,15 @@ sane_start(SANE_Handle h)
     status = escl_scan(handler->scanner, handler->name, handler->result);
     if (status != SANE_STATUS_GOOD)
         return (status);
-    if (!strncmp(handler->scanner->default_format, "image/jpeg", 10))
+    if (!strcmp(handler->scanner->default_format, "image/jpeg"))
     {
        status = get_JPEG_data(handler->scanner, &w, &he, &bps);
     }
-    else if (!strncmp(handler->scanner->default_format, "image/png", 9))
+    else if (!strcmp(handler->scanner->default_format, "image/png"))
     {
        status = get_PNG_data(handler->scanner, &w, &he, &bps);
     }
-    else if (!strncmp(handler->scanner->default_format, "image/tiff", 10))
+    else if (!strcmp(handler->scanner->default_format, "image/tiff"))
     {
        status = get_TIFF_data(handler->scanner, &w, &he, &bps);
     }

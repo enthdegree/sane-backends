@@ -1,4 +1,4 @@
-.TH sane 7 "14 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane 7 "03 Jan 2020" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane
 
 .SH NAME

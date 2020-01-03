@@ -421,10 +421,10 @@ SCSI flatbed scanners. See
 for details.
 .TP
 .B pixma
-The pixma backend supports Canon PIXMA MP series (multi-function devices). See
+The pixma backend supports Canon PIXMA MP series (multi-function devices),
+Canon imageCLASS series (laser devices), Canon MAXIFY series and some Canon
+CanoScan series. See
 .BR sane\-pixma (5)
-or
-.I http://home.arcor.de/wittawat/pixma/
 for details.
 .TP
 .B plustek

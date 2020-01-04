@@ -1158,16 +1158,15 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     if (dev->model->asic_type == AsicType::GL124 ||
         dev->model->asic_type == AsicType::GL843)
     {
-        s.output_segment_pixel_group_count = multiply_by_depth_ceil(
-            s.output_pixels / s.ccd_size_divisor / s.segment_count, s.params.depth);
+        s.output_segment_pixel_group_count = s.output_pixels /
+                (s.ccd_size_divisor * s.segment_count);
     }
     if (dev->model->asic_type == AsicType::GL845 ||
         dev->model->asic_type == AsicType::GL846 ||
         dev->model->asic_type == AsicType::GL847)
     {
-        s.output_segment_pixel_group_count = multiply_by_depth_ceil(
-            s.optical_pixels / (s.hwdpi_divisor * s.segment_count * ccd_pixels_per_system_pixel),
-            s.params.depth);
+        s.output_segment_pixel_group_count = s.optical_pixels /
+                (s.hwdpi_divisor * s.segment_count * ccd_pixels_per_system_pixel);
     }
 
     s.output_line_bytes_requested = multiply_by_depth_ceil(

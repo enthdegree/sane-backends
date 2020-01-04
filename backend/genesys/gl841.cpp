@@ -2291,7 +2291,6 @@ void CommandSetGl841::move_back_home(Genesys_Device* dev, bool wait_until_home) 
 void CommandSetGl841::search_start_position(Genesys_Device* dev) const
 {
     DBG_HELPER(dbg);
-  int size;
   Genesys_Register_Set local_reg;
 
   int pixels = 600;
@@ -2329,9 +2328,7 @@ void CommandSetGl841::search_start_position(Genesys_Device* dev) const
     // send to scanner
     dev->interface->write_registers(local_reg);
 
-  size = pixels * dev->model->search_lines;
-
-  std::vector<uint8_t> data(size);
+    std::vector<uint8_t> data(session.output_total_bytes);
 
     dev->cmd_set->begin_scan(dev, sensor, &local_reg, true);
 
@@ -2345,7 +2342,7 @@ void CommandSetGl841::search_start_position(Genesys_Device* dev) const
     wait_until_buffer_non_empty(dev);
 
     // now we're on target, we can read data
-    sanei_genesys_read_data_from_scanner(dev, data.data(), size);
+    sanei_genesys_read_data_from_scanner(dev, data.data(), session.output_total_bytes);
 
     if (DBG_LEVEL >= DBG_data) {
         sanei_genesys_write_pnm_file("gl841_search_position.pnm", data.data(), 8, 1, pixels,
@@ -2583,7 +2580,6 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
 {
     DBG_HELPER(dbg);
   int num_pixels;
-  int total_size;
   int i, j;
   int val;
   int channels;
@@ -2637,10 +2633,7 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
 
     dev->interface->write_registers(regs);
 
-
-  total_size = num_pixels * channels * 2 * 1;	/* colors * bytes_per_color * scan lines */
-
-  std::vector<uint8_t> line(total_size);
+    std::vector<uint8_t> line(session.output_line_bytes);
 
 /*
    we try to get equal bright leds here:
@@ -2687,7 +2680,7 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
             return calib_sensor.exposure;
         }
 
-        sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
+        sanei_genesys_read_data_from_scanner(dev, line.data(), session.output_line_bytes);
 
       if (DBG_LEVEL >= DBG_data) {
           char fn[30];
@@ -2805,8 +2798,6 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
 {
     DBG_HELPER(dbg);
   int num_pixels;
-  int total_size;
-  int i;
   int average;
   int turn;
   int top;
@@ -2846,9 +2837,9 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
 
     dev->cmd_set->init_regs_for_scan_session(dev, calib_sensor, &regs, session);
 
-  total_size = num_pixels * 3 * 2 * 1;
-
-  std::vector<uint8_t> line(total_size);
+    // FIXME: we're reading twice as much data for no reason
+    std::size_t total_size = session.output_line_bytes * 2;
+    std::vector<uint8_t> line(total_size);
 
   dev->frontend.set_gain(0, 0);
   dev->frontend.set_gain(1, 0);
@@ -2887,9 +2878,9 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
 
       /* search for minimal value */
       average=0;
-      for(i=0;i<total_size;i++)
+        for (std::size_t i = 0; i < total_size; i++)
         {
-          average+=line[i];
+            average += line[i];
         }
       average/=total_size;
       DBG(DBG_data, "%s: average=%d\n", __func__, average);
@@ -2929,7 +2920,6 @@ void CommandSetGl841::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 {
     DBG_HELPER(dbg);
   int num_pixels;
-  int total_size;
   int i, j;
   int val;
   int channels;
@@ -2976,10 +2966,8 @@ void CommandSetGl841::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
     init_regs_for_scan_session(dev, calib_sensor, &regs, session);
 
-  total_size = num_pixels * channels * 2 * 1;	/* colors * bytes_per_color * scan lines */
-
-  std::vector<uint8_t> first_line(total_size);
-  std::vector<uint8_t> second_line(total_size);
+    std::vector<uint8_t> first_line(session.output_total_bytes);
+    std::vector<uint8_t> second_line(session.output_total_bytes);
 
   /* scan first line of data with no offset nor gain */
 /*WM8199: gain=0.73; offset=-260mV*/
@@ -3031,7 +3019,7 @@ void CommandSetGl841::offset_calibration(Genesys_Device* dev, const Genesys_Sens
             return;
         }
 
-        sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size);
+        sanei_genesys_read_data_from_scanner(dev, first_line.data(), session.output_total_bytes);
 
       if (DBG_LEVEL >= DBG_data) {
           char fn[30];
@@ -3138,7 +3126,7 @@ void CommandSetGl841::offset_calibration(Genesys_Device* dev, const Genesys_Sens
       DBG(DBG_info, "%s: starting second line reading\n", __func__);
         dev->interface->write_registers(regs);
         dev->cmd_set->begin_scan(dev, calib_sensor, &regs, true);
-        sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size);
+        sanei_genesys_read_data_from_scanner(dev, second_line.data(), session.output_total_bytes);
 
       if (DBG_LEVEL >= DBG_data) {
           char fn[30];
@@ -3299,7 +3287,6 @@ void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 {
     DBG_HELPER_ARGS(dbg, "dpi=%d", dpi);
   int num_pixels;
-  int total_size;
   int i, j, channels;
   int max[3];
   float gain[3];
@@ -3348,9 +3335,7 @@ void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 
     dev->interface->write_registers(regs);
 
-  total_size = num_pixels * channels * 2 * lines;	/* colors * bytes_per_color * scan lines */
-
-  std::vector<uint8_t> line(total_size);
+    std::vector<uint8_t> line(session.output_total_bytes);
 
     dev->cmd_set->begin_scan(dev, calib_sensor, &regs, true);
 
@@ -3361,7 +3346,7 @@ void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys
         return;
     }
 
-    sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
+    sanei_genesys_read_data_from_scanner(dev, line.data(), session.output_total_bytes);
 
   if (DBG_LEVEL >= DBG_data)
     sanei_genesys_write_pnm_file("gl841_gain.pnm", line.data(), 16, channels, num_pixels, lines);
@@ -3528,9 +3513,7 @@ static void sanei_gl841_repark_head(Genesys_Device* dev)
  */
 void CommandSetGl841::init(Genesys_Device* dev) const
 {
-  size_t size;
-
-  DBG_INIT ();
+    DBG_INIT();
     DBG_HELPER(dbg);
 
     dev->set_head_pos_zero(ScanHeadId::PRIMARY);
@@ -3619,9 +3602,7 @@ void CommandSetGl841::init(Genesys_Device* dev) const
 
     dev->interface->write_registers(regs);
 
-    size = num_pixels * 3 * 2 * 1; // colors * bytes_per_color * scan lines
-
-  std::vector<uint8_t> line(size);
+    std::vector<uint8_t> line(session.output_line_bytes);
 
   DBG(DBG_info, "%s: starting dummy data reading\n", __func__);
     dev->cmd_set->begin_scan(dev, calib_sensor, &regs, true);
@@ -3632,8 +3613,10 @@ void CommandSetGl841::init(Genesys_Device* dev) const
         dev->interface->test_checkpoint("init");
     } else {
         // ignore errors. next read will succeed
-        catch_all_exceptions(__func__,
-                             [&](){ sanei_genesys_read_data_from_scanner(dev, line.data(), size); });
+        catch_all_exceptions(__func__, [&]()
+        {
+            sanei_genesys_read_data_from_scanner(dev, line.data(), session.output_line_bytes);
+        });
     }
 
   sanei_usb_set_timeout(30 * 1000);/* 30 seconds*/
@@ -3690,7 +3673,6 @@ void CommandSetGl841::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
     DBG_HELPER_ARGS(dbg, "%s %s", black ? "black" : "white", forward ? "forward" : "reverse");
   unsigned int pixels, lines, channels;
   Genesys_Register_Set local_reg;
-  size_t size;
   unsigned int pass, count, found, x, y, length;
   char title[80];
   GenesysRegister *r;
@@ -3742,8 +3724,7 @@ void CommandSetGl841::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
     session.params.flags = ScanFlag::DISABLE_SHADING | ScanFlag::DISABLE_GAMMA;
     compute_session(dev, session, sensor);
 
-    size = pixels * channels * lines * (session.params.depth / 8);
-    std::vector<uint8_t> data(size);
+    std::vector<uint8_t> data(session.output_total_bytes);
 
     init_regs_for_scan_session(dev, sensor, &local_reg, session);
 
@@ -3769,7 +3750,7 @@ void CommandSetGl841::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
     wait_until_buffer_non_empty(dev);
 
     // now we're on target, we can read data
-    sanei_genesys_read_data_from_scanner(dev, data.data(), size);
+    sanei_genesys_read_data_from_scanner(dev, data.data(), session.output_total_bytes);
 
     gl841_stop_action(dev);
 
@@ -3795,7 +3776,7 @@ void CommandSetGl841::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
         wait_until_buffer_non_empty(dev);
 
         // now we're on target, we can read data
-        sanei_genesys_read_data_from_scanner(dev, data.data(), size);
+        sanei_genesys_read_data_from_scanner(dev, data.data(), session.output_total_bytes);
 
         gl841_stop_action (dev);
 

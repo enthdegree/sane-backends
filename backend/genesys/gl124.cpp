@@ -1074,7 +1074,6 @@ void CommandSetGl124::move_back_home(Genesys_Device* dev, bool wait_until_home) 
 void CommandSetGl124::search_start_position(Genesys_Device* dev) const
 {
     DBG_HELPER(dbg);
-  int size;
   Genesys_Register_Set local_reg = dev->reg;
 
   int pixels = 600;
@@ -1110,9 +1109,7 @@ void CommandSetGl124::search_start_position(Genesys_Device* dev) const
     // send to scanner
     dev->interface->write_registers(local_reg);
 
-  size = pixels * dev->model->search_lines;
-
-  std::vector<uint8_t> data(size);
+    std::vector<uint8_t> data(session.output_total_bytes);
 
     begin_scan(dev, sensor, &local_reg, true);
 
@@ -1126,7 +1123,7 @@ void CommandSetGl124::search_start_position(Genesys_Device* dev) const
     wait_until_buffer_non_empty(dev);
 
     // now we're on target, we can read data
-    sanei_genesys_read_data_from_scanner(dev, data.data(), size);
+    sanei_genesys_read_data_from_scanner(dev, data.data(), session.output_total_bytes);
 
     if (DBG_LEVEL >= DBG_data) {
         sanei_genesys_write_pnm_file("gl124_search_position.pnm", data.data(), 8, 1, pixels,
@@ -1440,7 +1437,6 @@ static void move_to_calibration_area(Genesys_Device* dev, const Genesys_Sensor& 
 
     DBG_HELPER(dbg);
   int pixels;
-  int size;
 
     unsigned resolution = 600;
     unsigned channels = 3;
@@ -1471,8 +1467,7 @@ static void move_to_calibration_area(Genesys_Device* dev, const Genesys_Sensor& 
 
     dev->cmd_set->init_regs_for_scan_session(dev, move_sensor, &regs, session);
 
-  size = pixels * 3;
-  std::vector<uint8_t> line(size);
+    std::vector<uint8_t> line(session.output_line_bytes);
 
     // write registers and scan data
     dev->interface->write_registers(regs);
@@ -1486,7 +1481,7 @@ static void move_to_calibration_area(Genesys_Device* dev, const Genesys_Sensor& 
         return;
     }
 
-    sanei_genesys_read_data_from_scanner(dev, line.data(), size);
+    sanei_genesys_read_data_from_scanner(dev, line.data(), session.output_line_bytes);
 
     // stop scanning
     scanner_stop_action(*dev);
@@ -1507,7 +1502,6 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
 {
     DBG_HELPER(dbg);
   int num_pixels;
-  int total_size;
   int resolution;
   int dpihw;
   int i, j;
@@ -1554,8 +1548,7 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
 
     init_regs_for_scan_session(dev, calib_sensor, &regs, session);
 
-    total_size = num_pixels * channels * (session.params.depth / 8) * 1;
-  std::vector<uint8_t> line(total_size);
+    std::vector<uint8_t> line(session.output_line_bytes);
 
     // initial loop values and boundaries
     exp[0] = calib_sensor.exposure.red;
@@ -1587,7 +1580,7 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
             return calib_sensor.exposure;
         }
 
-        sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
+        sanei_genesys_read_data_from_scanner(dev, line.data(), session.output_line_bytes);
 
         // stop scanning
         scanner_stop_action(*dev);
@@ -1692,7 +1685,7 @@ void CommandSetGl124::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 {
     DBG_HELPER(dbg);
     unsigned channels;
-  int pass = 0, avg, total_size;
+    int pass = 0, avg;
     int topavg, bottomavg, lines;
   int top, bottom, black_pixels, pixels;
 
@@ -1732,11 +1725,8 @@ void CommandSetGl124::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
   sanei_genesys_set_motor_power(regs, false);
 
-  /* allocate memory for scans */
-    total_size = pixels * channels * lines * (session.params.depth / 8);
-
-  std::vector<uint8_t> first_line(total_size);
-  std::vector<uint8_t> second_line(total_size);
+    std::vector<uint8_t> first_line(session.output_line_bytes);
+    std::vector<uint8_t> second_line(session.output_line_bytes);
 
   /* init gain */
   dev->frontend.set_gain(0, 0);
@@ -1759,7 +1749,7 @@ void CommandSetGl124::offset_calibration(Genesys_Device* dev, const Genesys_Sens
         return;
     }
 
-    sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size);
+    sanei_genesys_read_data_from_scanner(dev, first_line.data(), session.output_line_bytes);
   if (DBG_LEVEL >= DBG_data)
    {
       char title[30];
@@ -1780,7 +1770,7 @@ void CommandSetGl124::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     dev->interface->write_registers(regs);
   DBG(DBG_info, "%s: starting second line reading\n", __func__);
     begin_scan(dev, sensor, &regs, true);
-    sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size);
+    sanei_genesys_read_data_from_scanner(dev, second_line.data(), session.output_line_bytes);
 
   topavg = dark_average(second_line.data(), pixels, lines, channels, black_pixels);
   DBG(DBG_io2, "%s: top avg=%d\n", __func__, topavg);
@@ -1800,7 +1790,7 @@ void CommandSetGl124::offset_calibration(Genesys_Device* dev, const Genesys_Sens
         dev->interface->write_registers(regs);
       DBG(DBG_info, "%s: starting second line reading\n", __func__);
         begin_scan(dev, sensor, &regs, true);
-        sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size);
+        sanei_genesys_read_data_from_scanner(dev, second_line.data(), session.output_line_bytes);
 
       if (DBG_LEVEL >= DBG_data)
 	{
@@ -1846,7 +1836,6 @@ void CommandSetGl124::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 {
     DBG_HELPER_ARGS(dbg, "dpi = %d", dpi);
   int pixels;
-  int total_size;
   int i, j, channels;
   int max[3];
   float gain[3],coeff;
@@ -1899,9 +1888,7 @@ void CommandSetGl124::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 
     dev->interface->write_registers(regs);
 
-    total_size = pixels * channels * (16 / session.params.depth) * lines;
-
-  std::vector<uint8_t> line(total_size);
+    std::vector<uint8_t> line(session.output_line_bytes);
 
     set_fe(dev, sensor, AFE_SET);
     begin_scan(dev, sensor, &regs, true);
@@ -1913,7 +1900,7 @@ void CommandSetGl124::coarse_gain_calibration(Genesys_Device* dev, const Genesys
         return;
     }
 
-    sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
+    sanei_genesys_read_data_from_scanner(dev, line.data(), session.output_line_bytes);
 
     if (DBG_LEVEL >= DBG_data) {
         sanei_genesys_write_pnm_file("gl124_gain.pnm", line.data(), session.params.depth,

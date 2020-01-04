@@ -891,8 +891,6 @@ void CommandSetGl846::search_start_position(Genesys_Device* dev) const
     // send to scanner
     dev->interface->write_registers(local_reg);
 
-    std::vector<uint8_t> data(session.output_total_bytes);
-
     begin_scan(dev, sensor, &local_reg, true);
 
     if (is_testing_mode()) {
@@ -905,11 +903,10 @@ void CommandSetGl846::search_start_position(Genesys_Device* dev) const
     wait_until_buffer_non_empty(dev);
 
     // now we're on target, we can read data
-    sanei_genesys_read_data_from_scanner(dev, data.data(), session.output_total_bytes);
+    auto image = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes);
 
     if (DBG_LEVEL >= DBG_data) {
-        sanei_genesys_write_pnm_file("gl846_search_position.pnm", data.data(), 8, 1, pixels,
-                                     dev->model->search_lines);
+        sanei_genesys_write_pnm_file("gl846_search_position.pnm", image);
     }
 
     end_scan(dev, &local_reg, true);
@@ -922,8 +919,8 @@ void CommandSetGl846::search_start_position(Genesys_Device* dev) const
     for (auto& sensor_update :
             sanei_genesys_find_sensors_all_for_write(dev, dev->model->default_method))
     {
-        sanei_genesys_search_reference_point(dev, sensor_update, data.data(), 0, dpi, pixels,
-                                             dev->model->search_lines);
+        sanei_genesys_search_reference_point(dev, sensor_update, image.get_row_ptr(0), 0, dpi,
+                                             pixels, dev->model->search_lines);
     }
 }
 
@@ -1190,9 +1187,7 @@ SensorExposure CommandSetGl846::led_calibration(Genesys_Device* dev, const Genes
     DBG_HELPER(dbg);
   int num_pixels;
   int used_res;
-  int i, j;
-  int val;
-    int channels;
+    int i;
   int avg[3], top[3], bottom[3];
   int turn;
   uint16_t exp[3];
@@ -1207,7 +1202,7 @@ SensorExposure CommandSetGl846::led_calibration(Genesys_Device* dev, const Genes
   DBG(DBG_io, "%s: move=%f steps\n", __func__, move);
 
   /* offset calibration is always done in color mode */
-  channels = 3;
+    unsigned channels = 3;
     used_res = sensor.get_register_hwdpi(dev->settings.xres);
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, used_res, channels,
                                                          dev->settings.scan_method);
@@ -1235,8 +1230,6 @@ SensorExposure CommandSetGl846::led_calibration(Genesys_Device* dev, const Genes
     compute_session(dev, session, calib_sensor);
 
     init_regs_for_scan_session(dev, calib_sensor, &regs, session);
-
-    std::vector<uint8_t> line(session.output_line_bytes);
 
   /* initial loop values and boundaries */
     exp[0] = calib_sensor.exposure.red;
@@ -1276,37 +1269,24 @@ SensorExposure CommandSetGl846::led_calibration(Genesys_Device* dev, const Genes
             return calib_sensor.exposure;
         }
 
-        sanei_genesys_read_data_from_scanner(dev, line.data(), session.output_line_bytes);
+        auto image = read_unshuffled_image_from_scanner(dev, session, session.output_line_bytes);
 
         // stop scanning
         scanner_stop_action(*dev);
 
-      if (DBG_LEVEL >= DBG_data)
-        {
-          char fn[30];
+        if (DBG_LEVEL >= DBG_data) {
+            char fn[30];
             std::snprintf(fn, 30, "gl846_led_%02d.pnm", turn);
-            sanei_genesys_write_pnm_file(fn, line.data(), session.params.depth,
-                                         channels, num_pixels, 1);
+            sanei_genesys_write_pnm_file(fn, image);
         }
 
-      /* compute average */
-      for (j = 0; j < channels; j++)
-        {
-          avg[j] = 0;
-          for (i = 0; i < num_pixels; i++)
-            {
-              if (dev->model->is_cis)
-                val =
-                  line[i * 2 + j * 2 * num_pixels + 1] * 256 +
-                  line[i * 2 + j * 2 * num_pixels];
-              else
-                val =
-                  line[i * 2 * channels + 2 * j + 1] * 256 +
-                  line[i * 2 * channels + 2 * j];
-              avg[j] += val;
+        // compute average
+        for (unsigned ch = 0; ch < channels; ch++) {
+            avg[ch] = 0;
+            for (std::size_t x = 0; x < image.get_width(); x++) {
+                avg[ch] += image.get_raw_channel(x, 0, ch);
             }
-
-          avg[j] /= num_pixels;
+            avg[ch] /= image.get_width();
         }
 
       DBG(DBG_info, "%s: average: %d,%d,%d\n", __func__, avg[0], avg[1], avg[2]);
@@ -1536,7 +1516,7 @@ void CommandSetGl846::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
     DBG_HELPER_ARGS(dbg, "%s %s", black ? "black" : "white", forward ? "forward" : "reverse");
   unsigned int pixels, lines, channels;
   Genesys_Register_Set local_reg;
-  unsigned int pass, count, found, x, y;
+    unsigned int pass, count, found;
   char title[80];
 
     set_fe(dev, sensor, AFE_SET);
@@ -1577,8 +1557,6 @@ void CommandSetGl846::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
 
     init_regs_for_scan_session(dev, sensor, &local_reg, session);
 
-    std::vector<uint8_t> data(session.output_total_bytes);
-
     dev->interface->write_registers(local_reg);
 
     begin_scan(dev, sensor, &local_reg, true);
@@ -1592,7 +1570,7 @@ void CommandSetGl846::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
     wait_until_buffer_non_empty(dev);
 
     // now we're on target, we can read data
-    sanei_genesys_read_data_from_scanner(dev, data.data(), session.output_total_bytes);
+    auto image = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes);
 
     scanner_stop_action(*dev);
 
@@ -1601,8 +1579,7 @@ void CommandSetGl846::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
     {
         std::sprintf(title, "gl846_search_strip_%s_%s%02d.pnm",
                      black ? "black" : "white", forward ? "fwd" : "bwd", pass);
-        sanei_genesys_write_pnm_file(title, data.data(), session.params.depth,
-                                     channels, pixels, lines);
+        sanei_genesys_write_pnm_file(title, image);
     }
 
   /* loop until strip is found or maximum pass number done */
@@ -1617,7 +1594,7 @@ void CommandSetGl846::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
         wait_until_buffer_non_empty(dev);
 
         // now we're on target, we can read data
-        sanei_genesys_read_data_from_scanner(dev, data.data(), session.output_total_bytes);
+        image = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes);
 
         scanner_stop_action(*dev);
 
@@ -1625,86 +1602,81 @@ void CommandSetGl846::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
         {
             std::sprintf(title, "gl846_search_strip_%s_%s%02d.pnm",
                          black ? "black" : "white", forward ? "fwd" : "bwd", pass);
-            sanei_genesys_write_pnm_file(title, data.data(), session.params.depth,
-                                         channels, pixels, lines);
+            sanei_genesys_write_pnm_file(title, image);
         }
+
+        unsigned white_level = 90;
+        unsigned black_level = 60;
 
       /* search data to find black strip */
       /* when searching forward, we only need one line of the searched color since we
        * will scan forward. But when doing backward search, we need all the area of the
        * same color */
-      if (forward)
-        {
-          for (y = 0; y < lines && !found; y++)
-            {
-              count = 0;
-              /* count of white/black pixels depending on the color searched */
-              for (x = 0; x < pixels; x++)
-                {
-                  /* when searching for black, detect white pixels */
-                  if (black && data[y * pixels + x] > 90)
-                    {
-                      count++;
+        if (forward) {
+
+            for (std::size_t y = 0; y < image.get_height() && !found; y++) {
+                count = 0;
+
+                // count of white/black pixels depending on the color searched
+                for (std::size_t x = 0; x < image.get_width(); x++) {
+
+                    // when searching for black, detect white pixels
+                    if (black && image.get_raw_channel(x, y, 0) > white_level) {
+                        count++;
                     }
-                  /* when searching for white, detect black pixels */
-                  if (!black && data[y * pixels + x] < 60)
-                    {
-                      count++;
+
+                    // when searching for white, detect black pixels
+                    if (!black && image.get_raw_channel(x, y, 0) < black_level) {
+                        count++;
                     }
                 }
 
               /* at end of line, if count >= 3%, line is not fully of the desired color
                * so we must go to next line of the buffer */
-              /* count*100/pixels < 3 */
-              if ((count * 100) / pixels < 3)
-                {
-                  found = 1;
-                  DBG(DBG_data, "%s: strip found forward during pass %d at line %d\n", __func__,
-                      pass, y);
+                auto found_percentage = (count * 100 / image.get_width());
+                if (found_percentage < 3) {
+                    found = 1;
+                    DBG(DBG_data, "%s: strip found forward during pass %d at line %zu\n", __func__,
+                        pass, y);
                 }
               else
                 {
-                  DBG(DBG_data, "%s: pixels=%d, count=%d (%d%%)\n", __func__, pixels, count,
-                      (100 * count) / pixels);
+                    DBG(DBG_data, "%s: pixels=%zu, count=%d (%zu%%)\n", __func__, image.get_width(),
+                        count, found_percentage);
                 }
             }
-        }
-      else			/* since calibration scans are done forward, we need the whole area
-                                   to be of the required color when searching backward */
-        {
-          count = 0;
-          for (y = 0; y < lines; y++)
-            {
-              /* count of white/black pixels depending on the color searched */
-              for (x = 0; x < pixels; x++)
-                {
-                  /* when searching for black, detect white pixels */
-                  if (black && data[y * pixels + x] > 90)
-                    {
-                      count++;
+        } else {
+            /* since calibration scans are done forward, we need the whole area
+               to be of the required color when searching backward
+            */
+
+            count = 0;
+            for (std::size_t y = 0; y < image.get_height(); y++) {
+                // count of white/black pixels depending on the color searched
+                for (std::size_t x = 0; x < image.get_width(); x++) {
+                    // when searching for black, detect white pixels
+                    if (black && image.get_raw_channel(x, y, 0) > white_level) {
+                        count++;
                     }
-                  /* when searching for white, detect black pixels */
-                  if (!black && data[y * pixels + x] < 60)
-                    {
-                      count++;
+                    // when searching for white, detect black pixels
+                    if (!black && image.get_raw_channel(x, y, 0) < black_level) {
+                        count++;
                     }
                 }
             }
 
           /* at end of area, if count >= 3%, area is not fully of the desired color
            * so we must go to next buffer */
-          if ((count * 100) / (pixels * lines) < 3)
-            {
-              found = 1;
-              DBG(DBG_data, "%s: strip found backward during pass %d \n", __func__, pass);
-            }
-          else
-            {
-              DBG(DBG_data, "%s: pixels=%d, count=%d (%d%%)\n", __func__, pixels, count,
-                  (100 * count) / pixels);
+            auto found_percentage = count * 100 / (image.get_width() * image.get_height());
+            if (found_percentage < 3) {
+                found = 1;
+                 DBG(DBG_data, "%s: strip found backward during pass %d \n", __func__, pass);
+            } else {
+                DBG(DBG_data, "%s: pixels=%zu, count=%d (%zu%%)\n", __func__, image.get_width(),
+                    count, found_percentage);
             }
         }
-      pass++;
+        pass++;
     }
 
   if (found)
@@ -1799,9 +1771,6 @@ void CommandSetGl846::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
   sanei_genesys_set_motor_power(regs, false);
 
-    std::vector<uint8_t> first_line(session.output_total_bytes);
-    std::vector<uint8_t> second_line(session.output_total_bytes);
-
   /* init gain */
   dev->frontend.set_gain(0, 0);
   dev->frontend.set_gain(1, 0);
@@ -1823,16 +1792,15 @@ void CommandSetGl846::offset_calibration(Genesys_Device* dev, const Genesys_Sens
         return;
     }
 
-    sanei_genesys_read_data_from_scanner(dev, first_line.data(), session.output_total_bytes);
+    auto first_line = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes);
   if (DBG_LEVEL >= DBG_data)
    {
       char fn[30];
         std::snprintf(fn, 30, "gl846_offset%03d.pnm", bottom);
-        sanei_genesys_write_pnm_file(fn, first_line.data(), session.params.depth,
-                                     channels, pixels, lines);
+        sanei_genesys_write_pnm_file(fn, first_line);
    }
 
-  bottomavg = dark_average(first_line.data(), pixels, lines, channels, black_pixels);
+    bottomavg = dark_average(first_line.get_row_ptr(0), pixels, lines, channels, black_pixels);
   DBG(DBG_io2, "%s: bottom avg=%d\n", __func__, bottomavg);
 
   /* now top value */
@@ -1844,9 +1812,9 @@ void CommandSetGl846::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     dev->interface->write_registers(regs);
   DBG(DBG_info, "%s: starting second line reading\n", __func__);
     begin_scan(dev, sensor, &regs, true);
-    sanei_genesys_read_data_from_scanner(dev, second_line.data(), session.output_total_bytes);
+    auto second_line = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes);
 
-  topavg = dark_average(second_line.data(), pixels, lines, channels, black_pixels);
+    topavg = dark_average(second_line.get_row_ptr(0), pixels, lines, channels, black_pixels);
   DBG(DBG_io2, "%s: top avg=%d\n", __func__, topavg);
 
   /* loop until acceptable level */
@@ -1864,17 +1832,15 @@ void CommandSetGl846::offset_calibration(Genesys_Device* dev, const Genesys_Sens
         dev->interface->write_registers(regs);
       DBG(DBG_info, "%s: starting second line reading\n", __func__);
         begin_scan(dev, sensor, &regs, true);
-        sanei_genesys_read_data_from_scanner(dev, second_line.data(), session.output_total_bytes);
+        second_line = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes);
 
-      if (DBG_LEVEL >= DBG_data)
-        {
-          char fn[30];
+        if (DBG_LEVEL >= DBG_data) {
+            char fn[30];
             std::snprintf(fn, 30, "gl846_offset%03d.pnm", dev->frontend.get_offset(1));
-            sanei_genesys_write_pnm_file(fn, second_line.data(), session.params.depth,
-                                         channels, pixels, lines);
+            sanei_genesys_write_pnm_file(fn, second_line);
         }
 
-      avg = dark_average(second_line.data(), pixels, lines, channels, black_pixels);
+        avg = dark_average(second_line.get_row_ptr(0), pixels, lines, channels, black_pixels);
       DBG(DBG_info, "%s: avg=%d offset=%d\n", __func__, avg, dev->frontend.get_offset(1));
 
       /* compute new boundaries */
@@ -1900,10 +1866,8 @@ void CommandSetGl846::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 {
     DBG_HELPER(dbg);
   int pixels;
-  int i, j, channels;
-  int max[3];
   float gain[3],coeff;
-  int val, code, lines;
+    int code, lines;
 
   DBG(DBG_proc, "%s: dpi = %d\n", __func__, dpi);
 
@@ -1914,7 +1878,7 @@ void CommandSetGl846::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     }
 
   /* coarse gain calibration is always done in color mode */
-  channels = 3;
+    unsigned channels = 3;
 
   /* follow CKSEL */
   if(dev->settings.xres<sensor.optical_res)
@@ -1957,8 +1921,6 @@ void CommandSetGl846::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 
     dev->interface->write_registers(regs);
 
-    std::vector<uint8_t> line(session.output_total_bytes);
-
     set_fe(dev, sensor, AFE_SET);
     begin_scan(dev, sensor, &regs, true);
 
@@ -1969,40 +1931,33 @@ void CommandSetGl846::coarse_gain_calibration(Genesys_Device* dev, const Genesys
         return;
     }
 
-    sanei_genesys_read_data_from_scanner(dev, line.data(), session.output_total_bytes);
+    auto image = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes);
 
     if (DBG_LEVEL >= DBG_data) {
-        sanei_genesys_write_pnm_file("gl846_gain.pnm", line.data(), session.params.depth,
-                                     channels, pixels, lines);
+        sanei_genesys_write_pnm_file("gl846_gain.pnm", image);
     }
 
   /* average value on each channel */
-  for (j = 0; j < channels; j++)
-    {
-      max[j] = 0;
-      for (i = pixels/4; i < (pixels*3/4); i++)
-        {
-          if (dev->model->is_cis)
-            val = line[i + j * pixels];
-          else
-            val = line[i * channels + j];
+    for (unsigned ch = 0; ch < channels; ch++) {
 
-          max[j] += val;
+        auto width = image.get_width();
+
+        std::uint64_t total = 0;
+        for (std::size_t x = width / 4; x < (width * 3 / 4); x++) {
+            total += image.get_raw_channel(x, 0, ch);
         }
-      max[j] = max[j] / (pixels/2);
 
-        gain[j] = (static_cast<float>(sensor.gain_white_ref) * coeff) / max[j];
+        total /= width / 2;
+
+        gain[ch] = (static_cast<float>(sensor.gain_white_ref) * coeff) / total;
 
       /* turn logical gain value into gain code, checking for overflow */
-        code = static_cast<int>(283 - 208 / gain[j]);
-      if (code > 255)
-        code = 255;
-      else if (code < 0)
-        code = 0;
-      dev->frontend.set_gain(j, code);
+        code = static_cast<int>(283 - 208 / gain[ch]);
+        code = clamp(code, 0, 255);
+        dev->frontend.set_gain(ch, code);
 
-      DBG(DBG_proc, "%s: channel %d, max=%d, gain = %f, setting:%d\n", __func__, j, max[j], gain[j],
-          dev->frontend.get_gain(j));
+        DBG(DBG_proc, "%s: channel %d, total=%d, gain = %f, setting:%d\n", __func__, ch,
+            static_cast<unsigned>(total), gain[ch], dev->frontend.get_gain(ch));
     }
 
     if (dev->model->is_cis) {

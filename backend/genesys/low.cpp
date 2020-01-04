@@ -534,6 +534,13 @@ Image read_unshuffled_image_from_scanner(Genesys_Device* dev, const ScanSession&
     ImagePipelineStack pipeline;
     pipeline.push_first_node<ImagePipelineNodeImageSource>(image);
 
+    if (session.segment_count > 1) {
+        auto output_width = session.output_segment_pixel_group_count * session.segment_count;
+        dev->pipeline.push_node<ImagePipelineNodeDesegment>(output_width, dev->segment_order,
+                                                            session.conseq_pixel_dist,
+                                                            1, 1);
+    }
+
     if ((dev->model->flags & GENESYS_FLAG_16BIT_DATA_INVERTED) && session.params.depth == 16) {
         dev->pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
     }

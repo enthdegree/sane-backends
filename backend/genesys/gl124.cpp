@@ -1108,8 +1108,6 @@ void CommandSetGl124::search_start_position(Genesys_Device* dev) const
     // send to scanner
     dev->interface->write_registers(local_reg);
 
-    std::vector<uint8_t> data(session.output_total_bytes);
-
     begin_scan(dev, sensor, &local_reg, true);
 
     if (is_testing_mode()) {
@@ -1122,11 +1120,10 @@ void CommandSetGl124::search_start_position(Genesys_Device* dev) const
     wait_until_buffer_non_empty(dev);
 
     // now we're on target, we can read data
-    sanei_genesys_read_data_from_scanner(dev, data.data(), session.output_total_bytes);
+    auto image = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes);
 
     if (DBG_LEVEL >= DBG_data) {
-        sanei_genesys_write_pnm_file("gl124_search_position.pnm", data.data(), 8, 1, pixels,
-                                     dev->model->search_lines);
+        sanei_genesys_write_pnm_file("gl124_search_position.pnm", image);
     }
 
     end_scan(dev, &local_reg, true);
@@ -1137,7 +1134,7 @@ void CommandSetGl124::search_start_position(Genesys_Device* dev) const
     for (auto& sensor_update :
              sanei_genesys_find_sensors_all_for_write(dev, dev->model->default_method))
     {
-        sanei_genesys_search_reference_point(dev, sensor_update, data.data(), 0, dpi, pixels,
+        sanei_genesys_search_reference_point(dev, sensor_update, image.get_row_ptr(0), 0, dpi, pixels,
                                              dev->model->search_lines);
     }
 }
@@ -1466,8 +1463,6 @@ static void move_to_calibration_area(Genesys_Device* dev, const Genesys_Sensor& 
 
     dev->cmd_set->init_regs_for_scan_session(dev, move_sensor, &regs, session);
 
-    std::vector<uint8_t> line(session.output_line_bytes);
-
     // write registers and scan data
     dev->interface->write_registers(regs);
 
@@ -1480,14 +1475,13 @@ static void move_to_calibration_area(Genesys_Device* dev, const Genesys_Sensor& 
         return;
     }
 
-    sanei_genesys_read_data_from_scanner(dev, line.data(), session.output_line_bytes);
+    auto image = read_unshuffled_image_from_scanner(dev, session, session.output_line_bytes);
 
     // stop scanning
     scanner_stop_action(*dev);
 
-  if (DBG_LEVEL >= DBG_data)
-    {
-      sanei_genesys_write_pnm_file("gl124_movetocalarea.pnm", line.data(), 8, 3, pixels, 1);
+    if (DBG_LEVEL >= DBG_data) {
+        sanei_genesys_write_pnm_file("gl124_movetocalarea.pnm", image);
     }
 }
 
@@ -1503,9 +1497,7 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
   int num_pixels;
   int resolution;
   int dpihw;
-  int i, j;
-  int val;
-  int channels;
+    int i;
   int avg[3];
   int turn;
   uint16_t exp[3],target;
@@ -1514,7 +1506,7 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
   move_to_calibration_area(dev, sensor, regs);
 
   /* offset calibration is always done in 16 bit depth color mode */
-  channels = 3;
+    unsigned channels = 3;
     dpihw = sensor.get_register_hwdpi(dev->settings.xres);
     resolution = dpihw;
     unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
@@ -1547,8 +1539,6 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
 
     init_regs_for_scan_session(dev, calib_sensor, &regs, session);
 
-    std::vector<uint8_t> line(session.output_line_bytes);
-
     // initial loop values and boundaries
     exp[0] = calib_sensor.exposure.red;
     exp[1] = calib_sensor.exposure.green;
@@ -1579,7 +1569,7 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
             return calib_sensor.exposure;
         }
 
-        sanei_genesys_read_data_from_scanner(dev, line.data(), session.output_line_bytes);
+        auto image = read_unshuffled_image_from_scanner(dev, session, session.output_line_bytes);
 
         // stop scanning
         scanner_stop_action(*dev);
@@ -1588,29 +1578,16 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
 	{
           char fn[30];
           std::snprintf(fn, 30, "gl124_led_%02d.pnm", turn);
-          sanei_genesys_write_pnm_file(fn, line.data(), session.params.depth, channels, num_pixels,
-                                       1);
-	}
+            sanei_genesys_write_pnm_file(fn, image);
+        }
 
-      /* compute average */
-      for (j = 0; j < channels; j++)
-	{
-	  avg[j] = 0;
-	  for (i = 0; i < num_pixels; i++)
-	    {
-	      if (dev->model->is_cis)
-		val =
-		  line[i * 2 + j * 2 * num_pixels + 1] * 256 +
-		  line[i * 2 + j * 2 * num_pixels];
-	      else
-		val =
-		  line[i * 2 * channels + 2 * j + 1] * 256 +
-		  line[i * 2 * channels + 2 * j];
-	      avg[j] += val;
-	    }
-
-	  avg[j] /= num_pixels;
-	}
+        for (unsigned ch = 0; ch < channels; ch++) {
+            avg[ch] = 0;
+            for (std::size_t x = 0; x < image.get_width(); x++) {
+                avg[ch] += image.get_raw_channel(x, 0, ch);
+            }
+            avg[ch] /= image.get_width();
+        }
 
       DBG(DBG_info, "%s: average: %d,%d,%d\n", __func__, avg[0], avg[1], avg[2]);
 
@@ -1724,9 +1701,6 @@ void CommandSetGl124::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
   sanei_genesys_set_motor_power(regs, false);
 
-    std::vector<uint8_t> first_line(session.output_line_bytes);
-    std::vector<uint8_t> second_line(session.output_line_bytes);
-
   /* init gain */
   dev->frontend.set_gain(0, 0);
   dev->frontend.set_gain(1, 0);
@@ -1748,16 +1722,16 @@ void CommandSetGl124::offset_calibration(Genesys_Device* dev, const Genesys_Sens
         return;
     }
 
-    sanei_genesys_read_data_from_scanner(dev, first_line.data(), session.output_line_bytes);
+    auto first_line = read_unshuffled_image_from_scanner(dev, session, session.output_line_bytes);
+
   if (DBG_LEVEL >= DBG_data)
    {
       char title[30];
         std::snprintf(title, 30, "gl124_offset%03d.pnm", bottom);
-        sanei_genesys_write_pnm_file(title, first_line.data(), session.params.depth,
-                                     channels, pixels, lines);
+        sanei_genesys_write_pnm_file(title, first_line);
    }
 
-  bottomavg = dark_average(first_line.data(), pixels, lines, channels, black_pixels);
+    bottomavg = dark_average(first_line.get_row_ptr(0), pixels, lines, channels, black_pixels);
   DBG(DBG_io2, "%s: bottom avg=%d\n", __func__, bottomavg);
 
   /* now top value */
@@ -1769,9 +1743,10 @@ void CommandSetGl124::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     dev->interface->write_registers(regs);
   DBG(DBG_info, "%s: starting second line reading\n", __func__);
     begin_scan(dev, sensor, &regs, true);
-    sanei_genesys_read_data_from_scanner(dev, second_line.data(), session.output_line_bytes);
 
-  topavg = dark_average(second_line.data(), pixels, lines, channels, black_pixels);
+    auto second_line = read_unshuffled_image_from_scanner(dev, session, session.output_line_bytes);
+
+    topavg = dark_average(second_line.get_row_ptr(0), pixels, lines, channels, black_pixels);
   DBG(DBG_io2, "%s: top avg=%d\n", __func__, topavg);
 
   /* loop until acceptable level */
@@ -1789,17 +1764,15 @@ void CommandSetGl124::offset_calibration(Genesys_Device* dev, const Genesys_Sens
         dev->interface->write_registers(regs);
       DBG(DBG_info, "%s: starting second line reading\n", __func__);
         begin_scan(dev, sensor, &regs, true);
-        sanei_genesys_read_data_from_scanner(dev, second_line.data(), session.output_line_bytes);
+        second_line = read_unshuffled_image_from_scanner(dev, session, session.output_line_bytes);
 
-      if (DBG_LEVEL >= DBG_data)
-	{
+        if (DBG_LEVEL >= DBG_data) {
           char title[30];
           std::snprintf(title, 30, "gl124_offset%03d.pnm", dev->frontend.get_offset(1));
-          sanei_genesys_write_pnm_file(title, second_line.data(), session.params.depth,
-                                       channels, pixels, lines);
-	}
+            sanei_genesys_write_pnm_file(title, second_line);
+        }
 
-      avg = dark_average(second_line.data(), pixels, lines, channels, black_pixels);
+        avg = dark_average(second_line.get_row_ptr(0), pixels, lines, channels, black_pixels);
       DBG(DBG_info, "%s: avg=%d offset=%d\n", __func__, avg, dev->frontend.get_offset(1));
 
       /* compute new boundaries */
@@ -1835,10 +1808,8 @@ void CommandSetGl124::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 {
     DBG_HELPER_ARGS(dbg, "dpi = %d", dpi);
   int pixels;
-  int i, j, channels;
-  int max[3];
   float gain[3],coeff;
-  int val, code, lines;
+    int code, lines;
 
     // no gain nor offset for TI AFE
     uint8_t reg0a = dev->interface->read_register(REG_0x0A);
@@ -1847,7 +1818,7 @@ void CommandSetGl124::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     }
 
   /* coarse gain calibration is always done in color mode */
-  channels = 3;
+    unsigned channels = 3;
 
   if(dev->settings.xres<sensor.optical_res)
     {
@@ -1899,41 +1870,35 @@ void CommandSetGl124::coarse_gain_calibration(Genesys_Device* dev, const Genesys
         return;
     }
 
-    sanei_genesys_read_data_from_scanner(dev, line.data(), session.output_line_bytes);
+    // BUG: we probably want to read whole image, not just first line
+    auto image = read_unshuffled_image_from_scanner(dev, session, session.output_line_bytes);
 
     if (DBG_LEVEL >= DBG_data) {
-        sanei_genesys_write_pnm_file("gl124_gain.pnm", line.data(), session.params.depth,
-                                     channels, pixels, lines);
+        sanei_genesys_write_pnm_file("gl124_gain.pnm", image);
     }
 
   /* average value on each channel */
-  for (j = 0; j < channels; j++)
-    {
-      max[j] = 0;
-      for (i = pixels/4; i < (pixels*3/4); i++)
-	{
-            if (dev->model->is_cis) {
-                val = line[i + j * pixels];
-            } else {
-                val = line[i * channels + j];
-            }
+    for (unsigned ch = 0; ch < channels; ch++) {
 
-	    max[j] += val;
-	}
-      max[j] = max[j] / (pixels/2);
+        auto width = image.get_width();
 
-      gain[j] = (static_cast<float>(sensor.gain_white_ref) * coeff) / max[j];
+        std::uint64_t total = 0;
+        for (std::size_t x = width / 4; x < (width * 3 / 4); x++) {
+            total += image.get_raw_channel(x, 0, ch);
+        }
+
+        total /= width / 2;
+
+        gain[ch] = (static_cast<float>(sensor.gain_white_ref) * coeff) / total;
 
       /* turn logical gain value into gain code, checking for overflow */
-        code = static_cast<int>(283 - 208 / gain[j]);
-      if (code > 255)
-	code = 255;
-      else if (code < 0)
-	code = 0;
-      dev->frontend.set_gain(j, code);
+        code = static_cast<int>(283 - 208 / gain[ch]);
+        code = clamp(code, 0, 255);
+        dev->frontend.set_gain(ch, code);
 
-      DBG(DBG_proc, "%s: channel %d, max=%d, gain = %f, setting:%d\n", __func__, j, max[j],
-          gain[j], dev->frontend.get_gain(j));
+        DBG(DBG_proc, "%s: channel %d, total=%d, gain = %f, setting:%d\n", __func__, ch,
+            static_cast<unsigned>(total),
+            gain[ch], dev->frontend.get_gain(ch));
     }
 
     if (dev->model->is_cis) {

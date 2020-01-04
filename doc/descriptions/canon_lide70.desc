@@ -9,30 +9,21 @@
 ; All other information is optional (but what good is the file without it?).
 ;
 
-:backend "canon_lide"             ; name of backend
-:manpage "sane-canon_lide"
-:version "0.1"                    ; version of backend
-;:status :beta
-:url "http://www.juergen-ernst.de/info_sane.html" ; backend home page
+:backend "canon_lide70"          ; name of backend
+:url "http://www.juergen-ernst.de/info_sane.html"
+:version "0"                     ; version of backend
+:manpage "sane-canon_lide70"     ; name of manpage (if it exists)
+:devicetype :scanner             ; start of a list of devices....
+                                 ; other types:  :stillcam, :vidcam,
+                                 ;               :meta, :api
 
-:devicetype :scanner              ; start of a list of devices....
-                                  ; other types:  :stillcam, :vidcam,
-                                  ;               :meta, :api
-
-:mfg "Canon"                      ; name a manufacturer
+:mfg "Canon"               ; name a manufacturer
 :url "http://www.canon.com/"
 
-:model "CanoScan LiDE 600F"       ; name models for above-specified mfg.
-:interface "USB"
-:usbid "0x04a9" "0x2224"
-:comment "Testing"
-:status :basic
-
-:model "CanoScan LiDE 70"         ; name models for above-specified mfg.
+;==================================================
+:model "CanoScan LiDE 70"
 :interface "USB"
 :usbid "0x04a9" "0x2225"
-:comment "Testing"
 :status :basic
+:comment "Please test!"
 
-; :comment and :url specifiers are optional after :mfg, :model, :desc,
-;  and at the top-level.

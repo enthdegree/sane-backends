@@ -740,9 +740,7 @@ void CommandSetGl847::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     }
 
     gl847_init_motor_regs_scan(dev, sensor, reg, motor_profile, exposure_time, slope_dpi,
-                               dev->model->is_cis ? session.output_line_count * session.params.channels
-                                                  : session.output_line_count,
-                               dummy, move, mflags);
+                               session.optical_line_count, dummy, move, mflags);
 
     dev->read_buffer.clear();
     dev->read_buffer.alloc(session.buffer_size_read);

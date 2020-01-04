@@ -736,9 +736,7 @@ void CommandSetGl846::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     }
 
     gl846_init_motor_regs_scan(dev, sensor, reg, motor_profile, exposure_time, slope_dpi,
-                               dev->model->is_cis ? session.output_line_count * session.params.channels
-                                                  : session.output_line_count,
-                               dummy, move, mflags);
+                               session.optical_line_count, dummy, move, mflags);
 
   /*** prepares data reordering ***/
 

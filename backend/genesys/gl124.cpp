@@ -885,8 +885,7 @@ void CommandSetGl124::init_regs_for_scan_session(Genesys_Device* dev, const Gene
         mflags |= MotorFlag::REVERSE;
     }
     gl124_init_motor_regs_scan(dev, sensor, reg, motor_profile, exposure_time, slope_dpi,
-                               dev->model->is_cis ? session.output_line_count * session.params.channels :
-                                                    session.output_line_count,
+                               session.optical_line_count,
                                dummy, move, session.params.scan_mode, mflags);
 
   /*** prepares data reordering ***/

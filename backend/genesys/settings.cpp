@@ -96,6 +96,7 @@ std::ostream& operator<<(std::ostream& out, const ScanSession& session)
         << "    optical_resolution: " << session.optical_resolution << '\n'
         << "    optical_pixels: " << session.optical_pixels << '\n'
         << "    optical_pixels_raw: " << session.optical_pixels_raw << '\n'
+        << "    optical_line_count: " << session.optical_line_count << '\n'
         << "    output_resolution: " << session.output_resolution << '\n'
         << "    output_pixels: " << session.output_pixels << '\n'
         << "    output_line_bytes: " << session.output_line_bytes << '\n'

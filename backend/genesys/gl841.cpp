@@ -1603,16 +1603,13 @@ dummy \ scanned lines
     DBG(DBG_info, "%s: move=%d steps\n", __func__, move);*/
 
     if (has_flag(session.params.flags, ScanFlag::SINGLE_LINE)) {
-        gl841_init_motor_regs_off(reg, dev->model->is_cis ? session.output_line_count * session.params.channels
-                                                          : session.output_line_count);
+        gl841_init_motor_regs_off(reg, session.optical_line_count);
     } else {
         auto motor_flag = has_flag(session.params.flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE) ?
                               MotorFlag::DISABLE_BUFFER_FULL_MOVE : MotorFlag::NONE;
 
         gl841_init_motor_regs_scan(dev, sensor, reg, exposure_time, slope_dpi, scan_step_type,
-                                   dev->model->is_cis ? session.output_line_count * session.params.channels
-                                                      : session.output_line_count,
-                                   dummy, move, motor_flag);
+                                   session.optical_line_count, dummy, move, motor_flag);
   }
 
     dev->read_buffer.clear();

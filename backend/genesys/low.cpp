@@ -516,7 +516,7 @@ Image read_unshuffled_image_from_scanner(Genesys_Device* dev, const ScanSession&
                                       dev->model->line_mode_color_order);
 
     auto width = get_pixels_from_row_bytes(format, session.output_line_bytes_raw);
-    auto height = session.output_line_count * (dev->model->is_cis ? session.params.channels : 1);
+    auto height = session.optical_line_count;
 
     Image image(width, height, format);
 
@@ -1103,6 +1103,8 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     }
 
     s.output_line_count = s.params.lines + s.max_color_shift_lines + s.num_staggered_lines;
+    s.optical_line_count = dev->model->is_cis ? s.output_line_count * s.params.channels
+                                              : s.output_line_count;
 
     s.output_channel_bytes = multiply_by_depth_ceil(s.output_pixels, s.params.depth);
     s.output_line_bytes = s.output_channel_bytes * s.params.channels;
@@ -1261,7 +1263,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
         return true;
     };
 
-    auto lines = session.output_line_count * (dev->model->is_cis ? session.params.channels : 1);
+    auto lines = session.optical_line_count;
 
     dev->pipeline.clear();
 

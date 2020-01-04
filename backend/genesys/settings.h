@@ -228,6 +228,9 @@ struct ScanSession {
     // only on gl846, g847
     unsigned optical_pixels_raw = 0;
 
+    // the number of optical scan lines. Equal to output_line_count on CCD scanners.
+    unsigned optical_line_count = 0;
+
     // the resolution of the output data.
     // gl843-only
     unsigned output_resolution = 0;

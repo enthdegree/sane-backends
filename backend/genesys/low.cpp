@@ -1074,7 +1074,6 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     // to retrieve from the chip
     s.output_pixels = (s.optical_pixels * s.output_resolution) / s.optical_resolution;
 
-    // Note: staggering is not applied for calibration. Staggering starts at 2400 dpi
     s.num_staggered_lines = 0;
     if (!has_flag(s.params.flags, ScanFlag::IGNORE_LINE_DISTANCE))
     {

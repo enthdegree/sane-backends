@@ -536,31 +536,31 @@ Image read_unshuffled_image_from_scanner(Genesys_Device* dev, const ScanSession&
 
     if (session.segment_count > 1) {
         auto output_width = session.output_segment_pixel_group_count * session.segment_count;
-        dev->pipeline.push_node<ImagePipelineNodeDesegment>(output_width, dev->segment_order,
-                                                            session.conseq_pixel_dist,
-                                                            1, 1);
+        pipeline.push_node<ImagePipelineNodeDesegment>(output_width, dev->segment_order,
+                                                       session.conseq_pixel_dist,
+                                                       1, 1);
     }
 
     if ((dev->model->flags & GENESYS_FLAG_16BIT_DATA_INVERTED) && session.params.depth == 16) {
-        dev->pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
+        pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
     }
 
 #ifdef WORDS_BIGENDIAN
     if (depth == 16) {
-        dev->pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
+        pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
     }
 #endif
 
     if (dev->model->is_cis && session.params.channels == 3) {
-        dev->pipeline.push_node<ImagePipelineNodeMergeMonoLines>(dev->model->line_mode_color_order);
+        pipeline.push_node<ImagePipelineNodeMergeMonoLines>(dev->model->line_mode_color_order);
     }
 
-    if (dev->pipeline.get_output_format() == PixelFormat::BGR888) {
-        dev->pipeline.push_node<ImagePipelineNodeFormatConvert>(PixelFormat::RGB888);
+    if (pipeline.get_output_format() == PixelFormat::BGR888) {
+        pipeline.push_node<ImagePipelineNodeFormatConvert>(PixelFormat::RGB888);
     }
 
-    if (dev->pipeline.get_output_format() == PixelFormat::BGR161616) {
-        dev->pipeline.push_node<ImagePipelineNodeFormatConvert>(PixelFormat::RGB161616);
+    if (pipeline.get_output_format() == PixelFormat::BGR161616) {
+        pipeline.push_node<ImagePipelineNodeFormatConvert>(PixelFormat::RGB161616);
     }
 
     return pipeline.get_image();

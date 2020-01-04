@@ -238,8 +238,6 @@ for details.
 This is a SANE backend for Nikon Coolscan film-scanners.
 See
 .BR sane\-coolscan2 (5)
-or
-.I http://coolscan2.sourceforge.net
 for details.
 .TP
 .B epjitsu

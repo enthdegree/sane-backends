@@ -73,8 +73,8 @@ backend/mustek_usb2.c
 
 backend/niash.c
 
-backend/pixma.c
-backend/pixma_sane_options.c
+backend/pixma/pixma.c
+backend/pixma/pixma_sane_options.c
 
 backend/plustek.c
 backend/plustek_pp.c

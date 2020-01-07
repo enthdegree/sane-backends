@@ -39,6 +39,7 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.
 */
+
 #undef BACKEND_NAME
 #define BACKEND_NAME bjnp
 
@@ -116,6 +117,40 @@ static int bjnp_no_devices = 0;
 /*
  * Private functions
  */
+
+static const struct pixma_config_t *lookup_scanner(const char *makemodel,
+                                                   const struct pixma_config_t *const pixma_devices[])
+{
+  int i;
+  const struct pixma_config_t *cfg;
+  char *match;
+
+  for (i = 0; pixma_devices[i]; i++)
+    {
+      /* loop through the device classes (mp150, mp730 etc) */
+      for (cfg = pixma_devices[i]; cfg->name; cfg++)
+        {
+          /* loop through devices in class */
+          PDBG( bjnp_dbg( LOG_DEBUG3, "lookup_scanner: Checking for %s in %s\n", makemodel, cfg->model));
+          if ((match = strcasestr (makemodel, cfg->model)) != NULL)
+            {
+              /* possible match found, make sure it is not a partial match */
+              /* MP600 and MP600R are different models! */
+              /* some models contain ranges, so check for a '-' too */
+
+              if ((match[strlen(cfg->model)] == ' ') ||
+                  (match[strlen(cfg->model)] == '\0') ||
+                  (match[strlen(cfg->model)] == '-'))
+                {
+                  PDBG( bjnp_dbg (LOG_DEBUG, "lookup_scanner: Scanner model found: Name %s(%s) matches %s\n", cfg->model, cfg->name, makemodel));
+                  return cfg;
+                }
+            }
+       }
+    }
+  PDBG( bjnp_dbg (LOG_DEBUG, "lookup_scanner: Scanner model %s not found, giving up!\n", makemodel));
+  return NULL;
+}
 
 static void
 u8tohex (char *string, const uint8_t *value, int len )
@@ -1811,16 +1846,15 @@ static void add_scanner(SANE_Int *dev_no,
                         const char *uri,
 			SANE_Status (*attach_bjnp)
 			              (SANE_String_Const devname,
-			               SANE_String_Const makemodel,
 			               SANE_String_Const serial,
-			               const struct pixma_config_t *
-			               const pixma_devices[]),
-			 const struct pixma_config_t *const pixma_devices[])
+			               const struct pixma_config_t *cfg),
+                       const struct pixma_config_t *const pixma_devices[])
 
 {
   char scanner_host[BJNP_HOST_MAX];
   char serial[BJNP_SERIAL_MAX];
   char makemodel[BJNP_MODEL_MAX];
+  const struct pixma_config_t *cfg = NULL;
 
   /* Allocate device structure for scanner */
   switch (bjnp_allocate_device (uri, dev_no, scanner_host))
@@ -1833,17 +1867,32 @@ static void add_scanner(SANE_Int *dev_no,
           }
         else
           {
-          /*
-           * inform caller of found scanner
-           */
+            /*
+             * fetch scanner configuration
+             */
+            if ((cfg = lookup_scanner(makemodel, pixma_devices)) == (struct pixma_config_t *)NULL)
+              {
+                 PDBG (bjnp_dbg (LOG_CRIT, "add_scanner: Scanner %s is not supported, model is unknown! Please report upstream\n", makemodel));
+                 break;
+              }
 
-           determine_scanner_serial (scanner_host, device[*dev_no].mac_address, serial);
+            /*
+             * inform caller of found scanner
+             */
 
-           attach_bjnp (uri, makemodel,
-                        serial, pixma_devices);
-           PDBG (bjnp_dbg (LOG_NOTICE, "add_scanner: New scanner added: %s, serial %s, mac address: %s.\n",
-	                 uri, serial, device[*dev_no].mac_address));
+             determine_scanner_serial (scanner_host, device[*dev_no].mac_address, serial);
+
+             switch (attach_bjnp (uri, serial, cfg))
+             {
+               case SANE_STATUS_GOOD:
+                 PDBG (bjnp_dbg (LOG_NOTICE, "add_scanner: New scanner added: %s, serial %s, mac address: %s.\n",
+	                         uri, serial, device[*dev_no].mac_address));
+                 break;
+               default:
+                 PDBG (bjnp_dbg (LOG_CRIT, "add_scanner: unexpected error (out of memory?), adding %s\n", makemodel));
+            }
           }
+
         break;
       case BJNP_STATUS_ALREADY_ALLOCATED:
         PDBG (bjnp_dbg (LOG_NOTICE, "add_scanner: Scanner at %s was added before, good!\n",
@@ -1898,10 +1947,7 @@ int add_timeout_to_uri(char *uri, int timeout, int max_len)
   return 0;
 }
 
-
-/*
- * Public functions
- */
+/** Public functions **/
 
 /** Initialize sanei_bjnp.
  *
@@ -1926,11 +1972,9 @@ sanei_bjnp_init (void)
 extern SANE_Status
 sanei_bjnp_find_devices (const char **conf_devices,
 			 SANE_Status (*attach_bjnp)
-			 (SANE_String_Const devname,
-			  SANE_String_Const makemodel,
-			  SANE_String_Const serial,
-			  const struct pixma_config_t *
-			  const pixma_devices[]),
+			     (SANE_String_Const devname,
+			      SANE_String_Const serial,
+			      const struct pixma_config_t *cfg),
 			 const struct pixma_config_t *const pixma_devices[])
 {
   int numbytes = 0;

@@ -221,7 +221,6 @@ find_valor_of_array_variables(xmlNode *node, capabilities_t *scanner, int type)
             }
 #endif
          }
-         LOG_MSG_DEBUG ("Capability : [%s]", scanner->caps[type].default_format);
      }
     else if (strcmp(name, "DocumentFormatExt") == 0)
         scanner->caps[type].format_ext = 1;

@@ -38,6 +38,10 @@ get_PNG_data(capabilities_t *scanner, int *w, int *h, int *components)
 	if (!png_check_sig (magic, sizeof (magic)))
 	{
 		fprintf(stderr,"PNG error: is not a valid PNG image!\n");
+                if (scanner->tmp) {
+                   fclose(scanner->tmp);
+                   scanner->tmp = NULL;
+                }
 		return (SANE_STATUS_INVAL);
 	}
 	// create a png read struct
@@ -45,6 +49,10 @@ get_PNG_data(capabilities_t *scanner, int *w, int *h, int *components)
 		(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 	if (!png_ptr)
 	{
+                if (scanner->tmp) {
+                   fclose(scanner->tmp);
+                   scanner->tmp = NULL;
+                }
 		return (SANE_STATUS_INVAL);
 	}
 	// create a png info struct
@@ -52,6 +60,10 @@ get_PNG_data(capabilities_t *scanner, int *w, int *h, int *components)
 	if (!info_ptr)
 	{
 		png_destroy_read_struct (&png_ptr, NULL, NULL);
+                if (scanner->tmp) {
+                   fclose(scanner->tmp);
+                   scanner->tmp = NULL;
+                }
 		return (SANE_STATUS_INVAL);
 	}
 	// initialize the setjmp for returning properly after a libpng
@@ -62,6 +74,10 @@ get_PNG_data(capabilities_t *scanner, int *w, int *h, int *components)
 		if (texels)
 		  free (texels);
         fprintf(stderr,"PNG read error.\n");
+                if (scanner->tmp) {
+                   fclose(scanner->tmp);
+                   scanner->tmp = NULL;
+                }
 		return (SANE_STATUS_INVAL);
 	}
 	// setup libpng for using standard C fread() function
@@ -83,6 +99,10 @@ get_PNG_data(capabilities_t *scanner, int *w, int *h, int *components)
 	else if (color_type != PNG_COLOR_TYPE_RGB && color_type != PNG_COLOR_TYPE_RGB_ALPHA)
 	{
         fprintf(stderr,"PNG format not supported.\n");
+                if (scanner->tmp) {
+                   fclose(scanner->tmp);
+                   scanner->tmp = NULL;
+                }
 		return (SANE_STATUS_INVAL);
 	}
     if (color_type ==  PNG_COLOR_TYPE_RGB_ALPHA)

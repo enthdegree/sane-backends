@@ -59,7 +59,7 @@ static const char settings[] =
     "   <scan:ColorMode>%s</scan:ColorMode>" \
     "   <scan:XResolution>%d</scan:XResolution>" \
     "   <scan:YResolution>%d</scan:YResolution>" \
-    "   <pwg:InputSource>Platen</pwg:InputSource>" \
+    "   <pwg:InputSource>%s</pwg:InputSource>" \
     "</scan:ScanSettings>";
 
 static char formatExtJPEG[] =
@@ -154,13 +154,13 @@ escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *statu
     }
     curl_global_init(CURL_GLOBAL_ALL);
     curl_handle = curl_easy_init();
-    if (scanner->format_ext == 1)
+    if (scanner->caps[scanner->source].format_ext == 1)
     {
-       if (!strcmp(scanner->default_format, "image/jpeg"))
+       if (!strcmp(scanner->caps[scanner->source].default_format, "image/jpeg"))
           format_ext = formatExtJPEG;
-       else if (!strcmp(scanner->default_format, "image/png"))
+       else if (!strcmp(scanner->caps[scanner->source].default_format, "image/png"))
           format_ext = formatExtPNG;
-       else if (!strcmp(scanner->default_format, "image/tiff"))
+       else if (!strcmp(scanner->caps[scanner->source].default_format, "image/tiff"))
           format_ext = formatExtTIFF;
        else
           format_ext = f_ext;
@@ -168,10 +168,17 @@ escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *statu
     else
       format_ext = f_ext;
     if (curl_handle != NULL) {
-        snprintf(cap_data, sizeof(cap_data), settings, scanner->height, scanner->width, 0, 0, scanner->default_format,
-                 format_ext,
-                 scanner->default_color, scanner->default_resolution, scanner->default_resolution);
-        // fprintf(stderr, "CAP_DATA = %s\n", cap_data);
+        snprintf(cap_data, sizeof(cap_data), settings,
+			scanner->caps[scanner->source].height,
+			scanner->caps[scanner->source].width,
+			0,
+			0,
+			scanner->caps[scanner->source].default_format,
+			format_ext,
+			scanner->caps[scanner->source].default_color,
+			scanner->caps[scanner->source].default_resolution,
+			scanner->caps[scanner->source].default_resolution,
+			scanner->Sources[scanner->source]);
         upload->read_data = strdup(cap_data);
         upload->size = strlen(cap_data);
         download->memory = malloc(1);

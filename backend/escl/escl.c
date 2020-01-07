@@ -311,9 +311,14 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     DBG (10, "escl init_options\n");
     SANE_Status status = SANE_STATUS_GOOD;
     int i = 0;
-
-    if (name == NULL)
-        return (SANE_STATUS_INVAL);
+    if (!s->scanner) return SANE_STATUS_INVAL;
+    if (name) {
+        for (i = 0; i < s->scanner->SourcesSize; i++)
+	{
+	    if (!strcmp(s->scanner->Sources[i], name))
+	        s->scanner->source = i;
+	}
+    }
     memset (s->opt, 0, sizeof (s->opt));
     memset (s->val, 0, sizeof (s->val));
     for (i = 0; i < NUM_OPTIONS; ++i) {
@@ -321,11 +326,11 @@ init_options(SANE_String_Const name, escl_sane_t *s)
         s->opt[i].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     }
     s->x_range.min = 0;
-    s->x_range.max = s->scanner->MaxWidth - s->scanner->MinWidth;
-    s->x_range.quant = 1;
+    s->x_range.max = s->scanner->caps[s->scanner->source].MaxWidth;
+    s->x_range.quant = 0;
     s->y_range.min = 0;
-    s->y_range.max = s->scanner->MaxHeight - s->scanner->MinHeight;
-    s->y_range.quant = 1;
+    s->y_range.max = s->scanner->caps[s->scanner->source].MaxHeight;
+    s->y_range.quant = 0;
     s->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
     s->opt[OPT_NUM_OPTS].desc = SANE_DESC_NUM_OPTIONS;
     s->opt[OPT_NUM_OPTS].type = SANE_TYPE_INT;
@@ -344,10 +349,12 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_MODE].type = SANE_TYPE_STRING;
     s->opt[OPT_MODE].unit = SANE_UNIT_NONE;
     s->opt[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
-    s->opt[OPT_MODE].constraint.string_list = s->scanner->ColorModes;
-    s->val[OPT_MODE].s = (char *)strdup(s->scanner->ColorModes[0]);
-    s->opt[OPT_MODE].size = max_string_size(s->scanner->ColorModes);
-    s->scanner->default_color = (char *)strdup(s->scanner->ColorModes[0]);
+    s->opt[OPT_MODE].constraint.string_list = s->scanner->caps[s->scanner->source].ColorModes;
+    s->val[OPT_MODE].s = (char *)strdup(s->scanner->caps[s->scanner->source].ColorModes[0]);
+    s->opt[OPT_MODE].size = max_string_size(s->scanner->caps[s->scanner->source].ColorModes);
+    if (s->scanner->caps[s->scanner->source].default_color)
+       free (s->scanner->caps[s->scanner->source].default_color);
+    s->scanner->caps[s->scanner->source].default_color = (char *)strdup(s->scanner->caps[s->scanner->source].ColorModes[0]);
 
     s->opt[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
     s->opt[OPT_RESOLUTION].title = SANE_TITLE_SCAN_RESOLUTION;
@@ -355,9 +362,9 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_RESOLUTION].type = SANE_TYPE_INT;
     s->opt[OPT_RESOLUTION].unit = SANE_UNIT_DPI;
     s->opt[OPT_RESOLUTION].constraint_type = SANE_CONSTRAINT_WORD_LIST;
-    s->opt[OPT_RESOLUTION].constraint.word_list = s->scanner->SupportedResolutions;
-    s->val[OPT_RESOLUTION].w = s->scanner->SupportedResolutions[1];
-    s->scanner->default_resolution = s->scanner->SupportedResolutions[1];
+    s->opt[OPT_RESOLUTION].constraint.word_list = s->scanner->caps[s->scanner->source].SupportedResolutions;
+    s->val[OPT_RESOLUTION].w = s->scanner->caps[s->scanner->source].SupportedResolutions[1];
+    s->scanner->caps[s->scanner->source].default_resolution = s->scanner->caps[s->scanner->source].SupportedResolutions[1];
 
     s->opt[OPT_PREVIEW].name = SANE_NAME_PREVIEW;
     s->opt[OPT_PREVIEW].title = SANE_TITLE_PREVIEW;
@@ -385,7 +392,7 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_TL_X].unit = SANE_UNIT_PIXEL;
     s->opt[OPT_TL_X].constraint_type = SANE_CONSTRAINT_RANGE;
     s->opt[OPT_TL_X].constraint.range = &s->x_range;
-    s->val[OPT_TL_X].w = s->scanner->RiskyLeftMargin;
+    s->val[OPT_TL_X].w = s->scanner->caps[s->scanner->source].RiskyLeftMargin;
 
     s->opt[OPT_TL_Y].name = SANE_NAME_SCAN_TL_Y;
     s->opt[OPT_TL_Y].title = SANE_TITLE_SCAN_TL_Y;
@@ -394,7 +401,7 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_TL_Y].unit = SANE_UNIT_PIXEL;
     s->opt[OPT_TL_Y].constraint_type = SANE_CONSTRAINT_RANGE;
     s->opt[OPT_TL_Y].constraint.range = &s->y_range;
-    s->val[OPT_TL_Y].w = s->scanner->RiskyTopMargin;
+    s->val[OPT_TL_Y].w = s->scanner->caps[s->scanner->source].RiskyTopMargin;
 
     s->opt[OPT_BR_X].name = SANE_NAME_SCAN_BR_X;
     s->opt[OPT_BR_X].title = SANE_TITLE_SCAN_BR_X;
@@ -403,7 +410,7 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_BR_X].unit = SANE_UNIT_PIXEL;
     s->opt[OPT_BR_X].constraint_type = SANE_CONSTRAINT_RANGE;
     s->opt[OPT_BR_X].constraint.range = &s->x_range;
-    s->val[OPT_BR_X].w = s->scanner->MaxWidth;
+    s->val[OPT_BR_X].w = s->scanner->caps[s->scanner->source].MaxWidth;
 
     s->opt[OPT_BR_Y].name = SANE_NAME_SCAN_BR_Y;
     s->opt[OPT_BR_Y].title = SANE_TITLE_SCAN_BR_Y;
@@ -412,7 +419,23 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_BR_Y].unit = SANE_UNIT_PIXEL;
     s->opt[OPT_BR_Y].constraint_type = SANE_CONSTRAINT_RANGE;
     s->opt[OPT_BR_Y].constraint.range = &s->y_range;
-    s->val[OPT_BR_Y].w = s->scanner->MaxHeight;
+    s->val[OPT_BR_Y].w = s->scanner->caps[s->scanner->source].MaxHeight;
+
+        /* OPT_SCAN_SOURCE */
+    s->opt[OPT_SCAN_SOURCE].name = SANE_NAME_SCAN_SOURCE;
+    s->opt[OPT_SCAN_SOURCE].title = SANE_TITLE_SCAN_SOURCE;
+    s->opt[OPT_SCAN_SOURCE].desc = SANE_DESC_SCAN_SOURCE;
+    s->opt[OPT_SCAN_SOURCE].type = SANE_TYPE_STRING;
+    s->opt[OPT_SCAN_SOURCE].size = s->scanner->SourcesSize;
+    s->opt[OPT_SCAN_SOURCE].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    s->opt[OPT_SCAN_SOURCE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
+    s->opt[OPT_SCAN_SOURCE].constraint.string_list = s->scanner->Sources;
+    if (s->val[OPT_SCAN_SOURCE].s)
+       free (s->val[OPT_SCAN_SOURCE].s);
+    if (name)
+       s->val[OPT_SCAN_SOURCE].s = strdup (name);
+    else
+       s->val[OPT_SCAN_SOURCE].s = strdup (s->scanner->Sources[0]);
     return (status);
 }
 
@@ -444,7 +467,7 @@ sane_open(SANE_String_Const name, SANE_Handle *h)
     handler->scanner = escl_capabilities(name, &status);
     if (status != SANE_STATUS_GOOD)
         return (status);
-    status = init_options(name, handler);
+    status = init_options(NULL, handler);
     if (status != SANE_STATUS_GOOD)
         return (status);
     handler->ps.depth = 8;
@@ -549,6 +572,7 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v, SANE_Int 
         case OPT_GRAY_PREVIEW:
             *(SANE_Word *) v = handler->val[n].w;
             break;
+        case OPT_SCAN_SOURCE:
         case OPT_MODE:
             strcpy (v, handler->val[n].s);
             break;
@@ -573,6 +597,11 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v, SANE_Int 
             break;
         case OPT_RESOLUTION:
             handler->val[n].w = *(SANE_Word *) v;
+            if (i)
+                *i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS | SANE_INFO_INEXACT;
+            break;
+        case OPT_SCAN_SOURCE:
+            init_options((SANE_String_Const)v, handler);
             if (i)
                 *i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS | SANE_INFO_INEXACT;
             break;
@@ -613,34 +642,34 @@ sane_start(SANE_Handle h)
     handler->write_scan_data = SANE_FALSE;
     handler->decompress_scan_data = SANE_FALSE;
     handler->end_read = SANE_FALSE;
-    handler->scanner->height = handler->val[OPT_BR_Y].w;
-    handler->scanner->width = handler->val[OPT_BR_X].w;
-    handler->scanner->pos_x = handler->val[OPT_TL_X].w;
-    handler->scanner->pos_y = handler->val[OPT_TL_Y].w;
-    if(handler->scanner->default_color)
-       free(handler->scanner->default_color);
+    handler->scanner->caps[handler->scanner->source].height = handler->val[OPT_BR_Y].w;
+    handler->scanner->caps[handler->scanner->source].width = handler->val[OPT_BR_X].w;
+    handler->scanner->caps[handler->scanner->source].pos_x = handler->val[OPT_TL_X].w;
+    handler->scanner->caps[handler->scanner->source].pos_y = handler->val[OPT_TL_Y].w;
+    if(handler->scanner->caps[handler->scanner->source].default_color)
+       free(handler->scanner->caps[handler->scanner->source].default_color);
     if (handler->val[OPT_PREVIEW].w == SANE_TRUE)
     {
        int i = 0, val = 9999;;
        if (handler->val[OPT_GRAY_PREVIEW].w == SANE_TRUE ||
            !strncasecmp(handler->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY, 3))
-          handler->scanner->default_color = strdup("Grayscale8");
+          handler->scanner->caps[handler->scanner->source].default_color = strdup("Grayscale8");
        else
-          handler->scanner->default_color = strdup("RGB24");
-       for (i = 1; i < handler->scanner->SupportedResolutionsSize; i++)
+          handler->scanner->caps[handler->scanner->source].default_color = strdup("RGB24");
+       for (i = 1; i < handler->scanner->caps[handler->scanner->source].SupportedResolutionsSize; i++)
        {
-          if (val > handler->scanner->SupportedResolutions[i])
-              val = handler->scanner->SupportedResolutions[i];
+          if (val > handler->scanner->caps[handler->scanner->source].SupportedResolutions[i])
+              val = handler->scanner->caps[handler->scanner->source].SupportedResolutions[i];
        }
-       handler->scanner->default_resolution = val;
+       handler->scanner->caps[handler->scanner->source].default_resolution = val;
     }
     else
     {
-    handler->scanner->default_resolution = handler->val[OPT_RESOLUTION].w;
+    handler->scanner->caps[handler->scanner->source].default_resolution = handler->val[OPT_RESOLUTION].w;
     if (!strncasecmp(handler->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY, 3))
-       handler->scanner->default_color = strdup("Grayscale8");
+       handler->scanner->caps[handler->scanner->source].default_color = strdup("Grayscale8");
     else
-       handler->scanner->default_color = strdup("RGB24");
+       handler->scanner->caps[handler->scanner->source].default_color = strdup("RGB24");
     }
     handler->result = escl_newjob(handler->scanner, handler->name, &status);
     if (status != SANE_STATUS_GOOD)
@@ -648,15 +677,15 @@ sane_start(SANE_Handle h)
     status = escl_scan(handler->scanner, handler->name, handler->result);
     if (status != SANE_STATUS_GOOD)
         return (status);
-    if (!strcmp(handler->scanner->default_format, "image/jpeg"))
+    if (!strcmp(handler->scanner->caps[handler->scanner->source].default_format, "image/jpeg"))
     {
        status = get_JPEG_data(handler->scanner, &w, &he, &bps);
     }
-    else if (!strcmp(handler->scanner->default_format, "image/png"))
+    else if (!strcmp(handler->scanner->caps[handler->scanner->source].default_format, "image/png"))
     {
        status = get_PNG_data(handler->scanner, &w, &he, &bps);
     }
-    else if (!strcmp(handler->scanner->default_format, "image/tiff"))
+    else if (!strcmp(handler->scanner->caps[handler->scanner->source].default_format, "image/tiff"))
     {
        status = get_TIFF_data(handler->scanner, &w, &he, &bps);
     }

@@ -343,7 +343,6 @@ escl_capabilities(SANE_String_Const name, SANE_Status *status)
         *status = SANE_STATUS_NO_MEM;
     var->memory = malloc(1);
     var->size = 0;
-    curl_global_init(CURL_GLOBAL_ALL);
     curl_handle = curl_easy_init();
     strcpy(tmp, name);
     strcat(tmp, scanner_capabilities);
@@ -370,6 +369,5 @@ escl_capabilities(SANE_String_Const name, SANE_Status *status)
     xmlMemoryDump();
     curl_easy_cleanup(curl_handle);
     free(var->memory);
-    curl_global_cleanup();
     return (scanner);
 }

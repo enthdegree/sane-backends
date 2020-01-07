@@ -29,6 +29,8 @@
 
 #include <setjmp.h>
 
+#include <curl/curl.h>
+
 #include "../include/sane/saneopts.h"
 #include "../include/sane/sanei.h"
 #include "../include/sane/sanei_backend.h"

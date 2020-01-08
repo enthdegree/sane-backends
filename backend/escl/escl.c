@@ -475,7 +475,11 @@ sane_cancel(SANE_Handle h)
 {
     DBG (10, "escl sane_cancel\n");
     escl_sane_t *handler = h;
-
+    if (handler->scanner->tmp)
+    {
+      fclose(handler->scanner->tmp);
+      handler->scanner->tmp = NULL;
+    }
     handler->cancel = SANE_TRUE;
     escl_scanner(handler->name, handler->result);
 }

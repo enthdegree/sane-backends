@@ -29,6 +29,12 @@
 
 #include <curl/curl.h>
 
+#ifdef PATH_MAX
+# undef PATH_MAX
+#endif
+
+#define PATH_MAX 4096
+
 struct uploading
 {
     const char *read_data;

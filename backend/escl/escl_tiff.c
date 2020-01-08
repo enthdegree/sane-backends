@@ -37,6 +37,10 @@ get_TIFF_data(capabilities_t *scanner, int *w, int *h, int *components)
     tif = TIFFFdOpen(fileno(scanner->tmp), "temp", "r");
     if (!tif) {
         fprintf(stderr, "Can not open, or not a TIFF file.\n");
+        if (scanner->tmp) {
+           fclose(scanner->tmp);
+           scanner->tmp = NULL;
+        }
         return (SANE_STATUS_INVAL);
     }
 
@@ -47,12 +51,20 @@ get_TIFF_data(capabilities_t *scanner, int *w, int *h, int *components)
     if (raster != NULL)
     {
         fprintf(stderr, "Memory allocation problem.\n");
+        if (scanner->tmp) {
+           fclose(scanner->tmp);
+           scanner->tmp = NULL;
+        }
         return (SANE_STATUS_INVAL);
     }
 
     if (!TIFFReadRGBAImage(tif, width, height, (uint32 *)raster, 0))
     {
         fprintf(stderr, "Problem reading image data.\n");
+        if (scanner->tmp) {
+           fclose(scanner->tmp);
+           scanner->tmp = NULL;
+        }
         return (SANE_STATUS_INVAL);
     }
     *w = (int)width;

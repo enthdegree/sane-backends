@@ -65,7 +65,6 @@ escl_scan(capabilities_t __sane_unused__ *scanner, SANE_String_Const name, char 
 
     if (name == NULL)
         return (SANE_STATUS_NO_MEM);
-    curl_global_init(CURL_GLOBAL_ALL);
     curl_handle = curl_easy_init();
     if (curl_handle != NULL) {
         strcpy(scan_cmd, name);
@@ -90,7 +89,6 @@ escl_scan(capabilities_t __sane_unused__ *scanner, SANE_String_Const name, char 
         }
         else
             status = SANE_STATUS_NO_MEM;
-        curl_global_cleanup();
     }
     return (status);
 }

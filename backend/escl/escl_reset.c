@@ -45,7 +45,6 @@ escl_scanner(SANE_String_Const name, char *result)
 
     if (name == NULL || result == NULL)
         return;
-    curl_global_init(CURL_GLOBAL_ALL);
 CURL_CALL:
     curl_handle = curl_easy_init();
     if (curl_handle != NULL) {
@@ -68,5 +67,4 @@ CURL_CALL:
         }
         curl_easy_cleanup(curl_handle);
     }
-    curl_global_cleanup();
 }

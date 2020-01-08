@@ -29,6 +29,8 @@
 
 #include <setjmp.h>
 
+#include <curl/curl.h>
+
 #include "../include/sane/saneopts.h"
 #include "../include/sane/sanei.h"
 #include "../include/sane/sanei_backend.h"
@@ -170,7 +172,7 @@ sane_init(SANE_Int *version_code, SANE_Auth_Callback __sane_unused__ authorize)
     DBG_INIT();
     DBG (10, "escl sane_init\n");
     SANE_Status status = SANE_STATUS_GOOD;
-
+    curl_global_init(CURL_GLOBAL_ALL);
     if (version_code != NULL)
         *version_code = SANE_VERSION_CODE(1, 0, 0);
     if (status != SANE_STATUS_GOOD)
@@ -200,6 +202,7 @@ sane_exit(void)
         free (devlist);
     list_devices_primary = NULL;
     devlist = NULL;
+    curl_global_cleanup();
 }
 
 /**
@@ -498,7 +501,11 @@ sane_cancel(SANE_Handle h)
 {
     DBG (10, "escl sane_cancel\n");
     escl_sane_t *handler = h;
-
+    if (handler->scanner->tmp)
+    {
+      fclose(handler->scanner->tmp);
+      handler->scanner->tmp = NULL;
+    }
     handler->cancel = SANE_TRUE;
     escl_scanner(handler->name, handler->result);
 }

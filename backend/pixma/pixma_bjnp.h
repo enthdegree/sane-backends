@@ -81,12 +81,10 @@ extern void sanei_bjnp_init (void);
 extern SANE_Status
 sanei_bjnp_find_devices (const char **conf_devices,
                          SANE_Status (*attach_bjnp)
-			 (SANE_String_Const devname,
-			  SANE_String_Const makemodel,
-			  SANE_String_Const serial,
-			  const struct pixma_config_t *
-			  const pixma_devices[]),
-			 const struct pixma_config_t *const pixma_devices[]);
+			     (SANE_String_Const devname,
+                               SANE_String_Const serial,
+			       const struct pixma_config_t *cfg),
+                         const struct pixma_config_t *const pixma_devices[]);
 
 /** Open a BJNP device.
  *

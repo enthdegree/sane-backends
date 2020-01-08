@@ -148,6 +148,10 @@ get_JPEG_data(capabilities_t *scanner, int *w, int *h, int *bps)
         jpeg_destroy_decompress(&cinfo);
         if (surface != NULL)
             free(surface);
+        if (scanner->tmp) {
+           fclose(scanner->tmp);
+           scanner->tmp = NULL;
+        }
         return (SANE_STATUS_INVAL);
     }
     jpeg_create_decompress(&cinfo);
@@ -160,6 +164,10 @@ get_JPEG_data(capabilities_t *scanner, int *w, int *h, int *bps)
     if (surface == NULL) {
         jpeg_destroy_decompress(&cinfo);
         fseek(scanner->tmp, start, SEEK_SET);
+        if (scanner->tmp) {
+           fclose(scanner->tmp);
+           scanner->tmp = NULL;
+        }
         return (SANE_STATUS_NO_MEM);
     }
     lineSize = cinfo.output_width * cinfo.output_components;

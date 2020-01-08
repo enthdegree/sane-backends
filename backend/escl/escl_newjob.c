@@ -158,7 +158,6 @@ escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *statu
         *status = SANE_STATUS_NO_MEM;
         return (NULL);
     }
-    curl_global_init(CURL_GLOBAL_ALL);
     curl_handle = curl_easy_init();
     if (scanner->format_ext == 1)
     {
@@ -225,7 +224,6 @@ escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *statu
         }
         curl_easy_cleanup(curl_handle);
     }
-    curl_global_cleanup();
     if (upload != NULL)
         free(upload);
     if (download != NULL)

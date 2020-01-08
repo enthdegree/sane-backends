@@ -1467,10 +1467,10 @@ void genesys_init_usb_device_tables()
 
 
     model = Genesys_Model();
-    model.name = "hewlett-packard-scanjet-3670c";
+    model.name = "hewlett-packard-scanjet-3670";
     model.vendor = "Hewlett Packard";
-    model.model = "ScanJet 3670c";
-    model.model_id = ModelId::HP_SCANJET_3670C;
+    model.model = "ScanJet 3670";
+    model.model_id = ModelId::HP_SCANJET_3670;
     model.asic_type = AsicType::GL646;
 
     model.resolutions = {

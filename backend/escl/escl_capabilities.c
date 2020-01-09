@@ -311,12 +311,12 @@ print_xml_c(xmlNode *node, capabilities_t *scanner, int type)
         }
 	if (!strcmp((const char *)node->name, "PlatenInputCaps")) {
            scanner->Sources = char_to_array(scanner->Sources, &scanner->SourcesSize, (SANE_String_Const)"Platen", 0);
-	   scanner->source = 0;
+	   scanner->source = PLATEN;
            print_xml_c(node->children, scanner, PLATEN);
 	}
 	else if (!strcmp((const char *)node->name, "AdfSimplexInputCaps")) {
            scanner->Sources = char_to_array(scanner->Sources, &scanner->SourcesSize, (SANE_String_Const)"Feeder", 0);
-	   scanner->source = 0;
+	   if (scanner->source == -1) scanner->source = ADFSIMPLEX;
            print_xml_c(node->children, scanner, ADFSIMPLEX);
 	}
 	else
@@ -374,6 +374,7 @@ escl_capabilities(SANE_String_Const name, SANE_Status *status)
     node = xmlDocGetRootElement(data);
     if (node == NULL)
         *status = SANE_STATUS_NO_MEM;
+    scanner->source = 0;
     print_xml_c(node, scanner, -1);
     xmlFreeDoc(data);
     xmlCleanupParser();

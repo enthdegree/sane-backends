@@ -692,6 +692,9 @@ sane_start(SANE_Handle h)
     else
       return SANE_STATUS_INVAL;
 
+    if (handler->scanner->source > 0)
+      escl_scanner(handler->name, handler->result);
+
     if (status != SANE_STATUS_GOOD)
         return (status);
     handler->ps.depth = 8;

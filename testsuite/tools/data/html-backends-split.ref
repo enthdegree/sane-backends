@@ -5991,7 +5991,7 @@ Kyocera
 <td>clone of the HP 2400C</td>
 </tr>
 <tr>
-<td align=center>ScanJet 3670C</td>
+<td align=center>ScanJet 3670</td>
 <td align=center>USB</td>
 <td align=center>0x03f0/0x1405</td>
 <td align=center><font color="#007000">Complete</font></td>
@@ -6002,7 +6002,7 @@ Kyocera
 <td align=center>USB</td>
 <td align=center>0x03f0/0x1405</td>
 <td align=center><font color="#007000">Complete</font></td>
-<td>1200x1200 dpi max, same as HP 3670C</td>
+<td>1200x1200 dpi max, same as HP 3670</td>
 </tr>
 <tr>
 <td align=center>ScanJet 4850C</td>

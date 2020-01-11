@@ -81,7 +81,7 @@ ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="1105", ENV{libsane_matched}="yes"
 ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="1205", ENV{libsane_matched}="yes"
 # Hewlett-Packard ScanJet 4570C | Hewlett-Packard ScanJet 5500C
 ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="1305", ENV{libsane_matched}="yes"
-# Hewlett-Packard ScanJet 3670C | Hewlett-Packard ScanJet 3690C
+# Hewlett-Packard ScanJet 3670 | Hewlett-Packard ScanJet 3690C
 ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="1405", ENV{libsane_matched}="yes"
 # Hewlett-Packard ScanJet 5590
 ATTRS{idVendor}=="03f0", ATTRS{idProduct}=="1705", ENV{libsane_matched}="yes"

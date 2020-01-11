@@ -6609,7 +6609,7 @@
     <url>*none*</url>
     <comment>clone of the HP 2400C</comment>
    </model>
-   <model name="ScanJet 3670C">
+   <model name="ScanJet 3670">
     <interface>USB</interface>
     <usbvendorid>0x03f0</usbvendorid>
     <usbproductid>0x1405</usbproductid>
@@ -6623,7 +6623,7 @@
     <usbproductid>0x1405</usbproductid>
     <status>complete</status>
     <url>*none*</url>
-    <comment>1200x1200 dpi max, same as HP 3670C</comment>
+    <comment>1200x1200 dpi max, same as HP 3670</comment>
    </model>
    <model name="ScanJet 4850C">
     <interface>USB</interface>

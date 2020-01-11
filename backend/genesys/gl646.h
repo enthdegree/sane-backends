@@ -144,6 +144,10 @@ typedef struct
  */
 static Motor_Master motor_master[] = {
     /* HP3670 motor settings */
+    {MotorId::HP3670, 50, 3, StepType::HALF, false, true, 1,
+     MotorSlope::create_from_steps(2329, 120, 229),
+     MotorSlope::create_from_steps(3399, 337, 192), 192},
+
     {MotorId::HP3670, 75, 3, StepType::FULL, false, true, 1,
      MotorSlope::create_from_steps(3429, 305, 200),
      MotorSlope::create_from_steps(3399, 337, 192), 192},
@@ -168,8 +172,8 @@ static Motor_Master motor_master[] = {
      MotorSlope::create_from_steps(15937, 6375, 3),
      MotorSlope::create_from_steps(3399, 337, 192), 192},
 
-    {MotorId::HP3670,2400, 3, StepType::HALF, false, true, 0,
-     MotorSlope::create_from_steps(15937, 12750, 3),
+    {MotorId::HP3670, 50, 1, StepType::HALF, false, true, 1,
+     MotorSlope::create_from_steps(2329, 120, 229),
      MotorSlope::create_from_steps(3399, 337, 192), 192},
 
     {MotorId::HP3670, 75, 1, StepType::FULL, false, true, 1,
@@ -194,10 +198,6 @@ static Motor_Master motor_master[] = {
 
     {MotorId::HP3670,1200, 1, StepType::HALF, false, true, 0,
      MotorSlope::create_from_steps(15937, 6375, 3),
-     MotorSlope::create_from_steps(3399, 337, 192), 192},
-
-    {MotorId::HP3670,2400, 3, StepType::HALF, false, true, 0,
-     MotorSlope::create_from_steps(15937, 12750, 3),
      MotorSlope::create_from_steps(3399, 337, 192), 192},
 
     /* HP2400/G2410 motor settings base motor dpi = 600 */

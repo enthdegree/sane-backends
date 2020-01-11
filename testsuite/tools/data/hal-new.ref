@@ -175,7 +175,7 @@
           <append key="info.capabilities" type="strlist">scanner</append>
           <merge key="scanner.access_method" type="string">proprietary</merge>
         </match>
-        <!-- Hewlett-Packard ScanJet 3670C | Hewlett-Packard ScanJet 3690C -->
+        <!-- Hewlett-Packard ScanJet 3670 | Hewlett-Packard ScanJet 3690C -->
         <match key="usb.product_id" int="0x1405">
           <append key="info.capabilities" type="strlist">scanner</append>
           <merge key="scanner.access_method" type="string">proprietary</merge>

@@ -83,7 +83,7 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::HP3670;
     motor.base_ydpi = 1200;
-    motor.optical_ydpi = 2400;
+    motor.optical_ydpi = 1200;
     motor.slopes.push_back(MotorSlope::create_from_steps(11000, 3000, 128));
     motor.slopes.push_back(MotorSlope::create_from_steps(11000, 3000, 128));
     s_motors->push_back(std::move(motor));

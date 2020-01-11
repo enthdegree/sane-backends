@@ -97,7 +97,7 @@ usb:v03F0p1205*
 usb:v03F0p1305*
  libsane_matched=yes
 
-# Hewlett-Packard ScanJet 3670C | Hewlett-Packard ScanJet 3690C
+# Hewlett-Packard ScanJet 3670 | Hewlett-Packard ScanJet 3690C
 usb:v03F0p1405*
  libsane_matched=yes
 

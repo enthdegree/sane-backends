@@ -1,3 +1,29 @@
+/* sane - Scanner Access Now Easy.
+
+   Copyright (C) 2019 Touboul Nathane
+   Copyright (C) 2019 Thierry HUCHARD <thierry@ordissimo.com>
+
+   This file is part of the SANE package.
+
+   SANE is free software; you can redistribute it and/or modify it under
+   the terms of the GNU General Public License as published by the Free
+   Software Foundation; either version 3 of the License, or (at your
+   option) any later version.
+
+   SANE is distributed in the hope that it will be useful, but WITHOUT
+   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+   for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with sane; see the file COPYING.  If not, write to the Free
+   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+   This file implements a SANE backend for eSCL scanners.  */
+
+#define DEBUG_DECLARE_ONLY
+#include "../include/sane/config.h"
+
 #include "escl.h"
 
 #include "../include/sane/sanei.h"
@@ -37,7 +63,7 @@ get_PNG_data(capabilities_t *scanner, int *w, int *h, int *components)
 	// check for valid magic number
 	if (!png_check_sig (magic, sizeof (magic)))
 	{
-		fprintf(stderr,"PNG error: is not a valid PNG image!\n");
+		DBG( 1, "Escl Png : PNG error is not a valid PNG image!\n");
                 if (scanner->tmp) {
                    fclose(scanner->tmp);
                    scanner->tmp = NULL;
@@ -49,6 +75,8 @@ get_PNG_data(capabilities_t *scanner, int *w, int *h, int *components)
 		(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 	if (!png_ptr)
 	{
+		DBG( 1, "Escl Png : PNG error create a png read struct\n");
+                if (scanner->tmp)
                 if (scanner->tmp) {
                    fclose(scanner->tmp);
                    scanner->tmp = NULL;
@@ -59,6 +87,7 @@ get_PNG_data(capabilities_t *scanner, int *w, int *h, int *components)
 	png_infop info_ptr = png_create_info_struct (png_ptr);
 	if (!info_ptr)
 	{
+		DBG( 1, "Escl Png : PNG error create a png info struct\n");
 		png_destroy_read_struct (&png_ptr, NULL, NULL);
                 if (scanner->tmp) {
                    fclose(scanner->tmp);
@@ -78,6 +107,7 @@ get_PNG_data(capabilities_t *scanner, int *w, int *h, int *components)
                    fclose(scanner->tmp);
                    scanner->tmp = NULL;
                 }
+		DBG( 1, "Escl Png : PNG read error.\n");
 		return (SANE_STATUS_INVAL);
 	}
 	// setup libpng for using standard C fread() function

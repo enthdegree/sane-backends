@@ -48,6 +48,19 @@
 #define BACKEND_NAME escl
 #endif
 
+#define DEBUG_NOT_STATIC
+#include "../include/sane/sanei_debug.h"
+
+#ifndef DBG_LEVEL
+#define DBG_LEVEL       PASTE(sanei_debug_, BACKEND_NAME)
+#endif
+#ifndef NDEBUG
+# define DBGDUMP(level, buf, size) \
+    do { if (DBG_LEVEL >= (level)) sanei_escl_dbgdump(buf, size); } while (0)
+#else
+# define DBGDUMP(level, buf, size)
+#endif
+
 #define ESCL_CONFIG_FILE "escl.conf"
 
 typedef struct {

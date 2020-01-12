@@ -1169,7 +1169,7 @@ void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
         // when we come here then the scanner needed too much time for this, so we better stop
         // the motor
         catch_all_exceptions(__func__, [&](){ scanner_stop_action(dev); });
-        dev.set_head_pos_unknown();
+        dev.set_head_pos_unknown(ScanHeadId::PRIMARY | ScanHeadId::SECONDARY);
         throw SaneException(SANE_STATUS_IO_ERROR, "timeout while waiting for scanhead to go home");
     }
     dbg.log(DBG_info, "scanhead is still moving");

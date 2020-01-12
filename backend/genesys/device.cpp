@@ -124,10 +124,14 @@ unsigned Genesys_Device::head_pos(ScanHeadId scan_head) const
     }
 }
 
-void Genesys_Device::set_head_pos_unknown()
+void Genesys_Device::set_head_pos_unknown(ScanHeadId scan_head)
 {
-    is_head_pos_primary_known_ = false;
-    is_head_pos_secondary_known_ = false;
+    if ((scan_head & ScanHeadId::PRIMARY) != ScanHeadId::NONE) {
+        is_head_pos_primary_known_ = false;
+    }
+    if ((scan_head & ScanHeadId::SECONDARY) != ScanHeadId::NONE) {
+        is_head_pos_secondary_known_ = false;
+    }
 }
 
 void Genesys_Device::set_head_pos_zero(ScanHeadId scan_head)

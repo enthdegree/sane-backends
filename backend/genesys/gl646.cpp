@@ -1473,7 +1473,7 @@ void CommandSetGl646::move_back_home(Genesys_Device* dev, bool wait_until_home) 
 
   if (!i)			/* the loop counted down to 0, scanner still is busy */
     {
-        dev->set_head_pos_unknown();
+        dev->set_head_pos_unknown(ScanHeadId::PRIMARY | ScanHeadId::SECONDARY);
         throw SaneException(SANE_STATUS_DEVICE_BUSY, "motor is still on: device busy");
     }
 
@@ -1567,7 +1567,7 @@ void CommandSetGl646::move_back_home(Genesys_Device* dev, bool wait_until_home) 
         // stop the motor
         catch_all_exceptions(__func__, [&](){ gl646_stop_motor (dev); });
         catch_all_exceptions(__func__, [&](){ end_scan_impl(dev, &dev->reg, true, false); });
-        dev->set_head_pos_unknown();
+        dev->set_head_pos_unknown(ScanHeadId::PRIMARY | ScanHeadId::SECONDARY);
         throw SaneException(SANE_STATUS_IO_ERROR, "timeout while waiting for scanhead to go home");
     }
 

@@ -1498,7 +1498,6 @@ void sanei_genesys_asic_init(Genesys_Device* dev, bool /*max_regs*/)
 
     // Move to home if needed
     dev->cmd_set->move_back_home(dev, true);
-    dev->set_head_pos_zero(ScanHeadId::PRIMARY);
 
     // Set powersaving (default = 15 minutes)
     dev->cmd_set->set_powersaving(dev, 15);

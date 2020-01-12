@@ -1175,6 +1175,21 @@ void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
     dbg.log(DBG_info, "scanhead is still moving");
 }
 
+namespace {
+    void handle_motor_position_after_move_back_home_ta(Genesys_Device& dev)
+    {
+        if (dev.is_head_pos_known(ScanHeadId::PRIMARY)) {
+            if (dev.head_pos(ScanHeadId::PRIMARY) > dev.head_pos(ScanHeadId::SECONDARY)) {
+                dev.advance_head_pos_by_steps(ScanHeadId::PRIMARY, Direction::BACKWARD,
+                                              dev.head_pos(ScanHeadId::SECONDARY));
+            } else {
+                dev.set_head_pos_zero(ScanHeadId::PRIMARY);
+            }
+            dev.set_head_pos_zero(ScanHeadId::SECONDARY);
+        }
+    }
+} // namespace
+
 void scanner_move_back_home_ta(Genesys_Device& dev)
 {
     DBG_HELPER(dbg);
@@ -1239,15 +1254,7 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
     if (is_testing_mode()) {
         dev.interface->test_checkpoint("move_back_home_ta");
 
-        if (dev.is_head_pos_known(ScanHeadId::PRIMARY)) {
-            if (dev.head_pos(ScanHeadId::PRIMARY) > dev.head_pos(ScanHeadId::SECONDARY)) {
-                dev.advance_head_pos_by_steps(ScanHeadId::PRIMARY, Direction::BACKWARD,
-                                              dev.head_pos(ScanHeadId::SECONDARY));
-            } else {
-                dev.set_head_pos_zero(ScanHeadId::PRIMARY);
-            }
-            dev.set_head_pos_zero(ScanHeadId::SECONDARY);
-        }
+        handle_motor_position_after_move_back_home_ta(dev);
 
         scanner_stop_action(dev);
         dev.cmd_set->set_motor_mode(dev, local_reg, MotorMode::PRIMARY);
@@ -1261,15 +1268,7 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
         if (status.is_at_home) {
             dbg.log(DBG_info, "TA reached home position");
 
-            if (dev.is_head_pos_known(ScanHeadId::PRIMARY)) {
-                if (dev.head_pos(ScanHeadId::PRIMARY) > dev.head_pos(ScanHeadId::SECONDARY)) {
-                    dev.advance_head_pos_by_steps(ScanHeadId::PRIMARY, Direction::BACKWARD,
-                                                  dev.head_pos(ScanHeadId::SECONDARY));
-                } else {
-                    dev.set_head_pos_zero(ScanHeadId::PRIMARY);
-                }
-                dev.set_head_pos_zero(ScanHeadId::SECONDARY);
-            }
+            handle_motor_position_after_move_back_home_ta(dev);
 
             scanner_stop_action(dev);
             dev.cmd_set->set_motor_mode(dev, local_reg, MotorMode::PRIMARY);

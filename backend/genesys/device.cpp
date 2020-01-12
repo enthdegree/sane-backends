@@ -262,11 +262,25 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev)
 
 void apply_reg_settings_to_device(Genesys_Device& dev, const GenesysRegisterSettingSet& regs)
 {
+    apply_reg_settings_to_device_with_backup(dev, regs);
+}
+
+GenesysRegisterSettingSet
+    apply_reg_settings_to_device_with_backup(Genesys_Device& dev,
+                                             const GenesysRegisterSettingSet& regs)
+{
+    GenesysRegisterSettingSet backup;
     for (const auto& reg : regs) {
-        uint8_t val = dev.interface->read_register(reg.address);
-        val = (val & ~reg.mask) | (reg.value & reg.mask);
-        dev.interface->write_register(reg.address, val);
+        std::uint8_t old_val = dev.interface->read_register(reg.address);
+        std::uint8_t new_val = (old_val & ~reg.mask) | (reg.value & reg.mask);
+        dev.interface->write_register(reg.address, new_val);
+
+        using SettingType = GenesysRegisterSettingSet::SettingType;
+        backup.push_back(SettingType{reg.address,
+                                     static_cast<std::uint8_t>(old_val & reg.mask),
+                                     reg.mask});
     }
+    return backup;
 }
 
 } // namespace genesys

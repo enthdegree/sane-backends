@@ -161,6 +161,9 @@ public:
     virtual void asic_boot(Genesys_Device* dev, bool cold) const = 0;
 
     /// enables or disables XPA slider motor
+    virtual void set_xpa_lamp_power(Genesys_Device& dev, bool set) const = 0;
+
+    /// enables or disables XPA slider motor
     virtual void set_xpa_motor_power(Genesys_Device& dev, Genesys_Register_Set& regs,
                                      bool set) const = 0;
 };

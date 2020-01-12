@@ -28,6 +28,95 @@ namespace genesys {
 
 CommandSetCommon::~CommandSetCommon() = default;
 
+void CommandSetCommon::set_xpa_lamp_power(Genesys_Device& dev, bool set) const
+
+{
+    DBG_HELPER(dbg);
+
+    struct LampSettings {
+        ModelId model_id;
+        ScanMethod scan_method;
+        GenesysRegisterSettingSet regs_on;
+        GenesysRegisterSettingSet regs_off;
+    };
+
+    // FIXME: BUG: we're not clearing the registers to the previous state when returning back when
+    // turning off the lamp
+    LampSettings settings[] = {
+        {   ModelId::CANON_8400F, ScanMethod::TRANSPARENCY, {
+                { 0xa6, 0x34, 0xf4 },
+            }, {
+                { 0xa6, 0x40, 0x70 },
+            }
+        },
+        {   ModelId::CANON_8400F, ScanMethod::TRANSPARENCY_INFRARED, {
+                { 0x6c, 0x40, 0x40 },
+                { 0xa6, 0x01, 0xff },
+            }, {
+                { 0x6c, 0x00, 0x40 },
+                { 0xa6, 0x00, 0xff },
+            }
+        },
+        {   ModelId::CANON_8600F, ScanMethod::TRANSPARENCY, {
+                { 0xa6, 0x34, 0xf4 },
+                { 0xa7, 0xe0, 0xe0 },
+            }, {
+                { 0xa6, 0x40, 0x70 },
+            }
+        },
+        {   ModelId::CANON_8600F, ScanMethod::TRANSPARENCY_INFRARED, {
+                { 0xa6, 0x00, 0xc0 },
+                { 0xa7, 0xe0, 0xe0 },
+                { 0x6c, 0x80, 0x80 },
+            }, {
+                { 0xa6, 0x00, 0xc0 },
+                { 0x6c, 0x00, 0x80 },
+            }
+        },
+        {   ModelId::PLUSTEK_OPTICFILM_7200I, ScanMethod::TRANSPARENCY, {
+            }, {
+                { 0xa6, 0x40, 0x70 }, // BUG: remove this cleanup write, it was enabled by accident
+            }
+        },
+        {   ModelId::PLUSTEK_OPTICFILM_7200I, ScanMethod::TRANSPARENCY_INFRARED, {
+                { 0xa8, 0x07, 0x07 },
+            }, {
+                { 0xa8, 0x00, 0x07 },
+            }
+        },
+        {   ModelId::PLUSTEK_OPTICFILM_7300, ScanMethod::TRANSPARENCY, {}, {} },
+        {   ModelId::PLUSTEK_OPTICFILM_7500I, ScanMethod::TRANSPARENCY, {}, {} },
+        {   ModelId::PLUSTEK_OPTICFILM_7500I, ScanMethod::TRANSPARENCY_INFRARED, {
+                { 0xa8, 0x07, 0x07 },
+            }, {
+                { 0xa8, 0x00, 0x07 },
+            }
+        },
+    };
+
+    for (const auto& setting : settings) {
+        if (setting.model_id == dev.model->model_id &&
+            setting.scan_method == dev.settings.scan_method)
+        {
+            apply_reg_settings_to_device(dev, set ? setting.regs_on : setting.regs_off);
+            return;
+        }
+    }
+
+    // BUG: we're currently calling the function in shut down path of regular lamp
+    if (set) {
+        throw SaneException("Unexpected code path entered");
+    }
+
+    GenesysRegisterSettingSet regs = {
+        { 0xa6, 0x40, 0x70 },
+    };
+    apply_reg_settings_to_device(dev, regs);
+    // TODO: throw exception when we're only calling this function in error return path
+    // throw SaneException("Could not find XPA lamp settings");
+}
+
+
 void CommandSetCommon::set_xpa_motor_power(Genesys_Device& dev, Genesys_Register_Set& regs,
                                            bool set) const
 {

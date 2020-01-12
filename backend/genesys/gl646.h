@@ -48,7 +48,7 @@
 #define BACKEND_GENESYS_GL646_H
 
 #include "genesys.h"
-#include "command_set.h"
+#include "command_set_common.h"
 #include "motor.h"
 
 namespace genesys {
@@ -436,7 +436,7 @@ static Motor_Master motor_master[] = {
      MotorSlope::create_from_steps(2000, 300, 255), 146}, /* 5500 guessed */
 };
 
-class CommandSetGl646 : public CommandSet
+class CommandSetGl646 : public CommandSetCommon
 {
 public:
     ~CommandSetGl646() override = default;

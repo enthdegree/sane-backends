@@ -42,7 +42,7 @@
 */
 
 #include "genesys.h"
-#include "command_set.h"
+#include "command_set_common.h"
 
 #ifndef BACKEND_GENESYS_GL843_H
 #define BACKEND_GENESYS_GL843_H
@@ -50,7 +50,7 @@
 namespace genesys {
 namespace gl843 {
 
-class CommandSetGl843 : public CommandSet
+class CommandSetGl843 : public CommandSetCommon
 {
 public:
     ~CommandSetGl843() override = default;

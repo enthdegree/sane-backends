@@ -45,7 +45,7 @@
 #define BACKEND_GENESYS_GL124_H
 
 #include "genesys.h"
-#include "command_set.h"
+#include "command_set_common.h"
 
 namespace genesys {
 namespace gl124 {
@@ -112,7 +112,7 @@ static Memory_layout layouts[]={
 static void gl124_send_slope_table(Genesys_Device* dev, int table_nr,
                                    const std::vector<uint16_t>& slope_table, int steps);
 
-class CommandSetGl124 : public CommandSet
+class CommandSetGl124 : public CommandSetCommon
 {
 public:
     ~CommandSetGl124() override = default;

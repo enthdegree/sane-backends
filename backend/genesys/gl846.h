@@ -42,7 +42,7 @@
 */
 
 #include "genesys.h"
-#include "command_set.h"
+#include "command_set_common.h"
 
 #ifndef BACKEND_GENESYS_GL846_H
 #define BACKEND_GENESYS_GL846_H
@@ -125,7 +125,7 @@ static Memory_layout layouts[]={
         { nullptr, 0, 0, 0, 0, {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} }
 };
 
-class CommandSetGl846 : public CommandSet
+class CommandSetGl846 : public CommandSetCommon
 {
 public:
     ~CommandSetGl846() override = default;

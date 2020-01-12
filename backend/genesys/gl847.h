@@ -45,7 +45,7 @@
 #define BACKEND_GENESYS_GL847_H
 
 #include "genesys.h"
-#include "command_set.h"
+#include "command_set_common.h"
 
 namespace genesys {
 namespace gl847 {
@@ -113,7 +113,7 @@ static Memory_layout layouts[]={
 	}
 };
 
-class CommandSetGl847 : public CommandSet
+class CommandSetGl847 : public CommandSetCommon
 {
 public:
     ~CommandSetGl847() override = default;

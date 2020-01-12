@@ -252,21 +252,22 @@ AC_DEFUN([SANE_CHECK_PTHREAD],
               [Define if pthread_t is integer.])
   else
     # Until the sanei_thread implementation is fixed.
-    have_pthread=no
     use_pthread=no
   fi
 
-  if test $use_pthread = yes ; then
-    AC_DEFINE_UNQUOTED(USE_PTHREAD, "$use_pthread",
-                   [Define if pthreads should be used instead of forked processes.])
-  else
-    dnl Reset library in case it was found but we are not going to use it.
-    PTHREAD_LIBS=""
-  fi
   if test "$have_pthread" = "yes" ; then
     AM_CPPFLAGS="${AM_CPPFLAGS} -D_REENTRANT"
   fi
   AC_SUBST(PTHREAD_LIBS)
+
+  if test $use_pthread = yes ; then
+    AC_DEFINE_UNQUOTED(USE_PTHREAD, "$use_pthread",
+                   [Define if pthreads should be used instead of forked processes.])
+    SANEI_THREAD_LIBS=$PTHREAD_LIBS
+  else
+    SANEI_THREAD_LIBS=""
+  fi
+  AC_SUBST(SANEI_THREAD_LIBS)
   AC_MSG_CHECKING([whether to enable pthread support])
   AC_MSG_RESULT([$have_pthread])
   AC_MSG_CHECKING([whether to use pthread instead of fork])

@@ -718,11 +718,6 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
         sensor.ccd_start_xoffset, left, top);
 }
 
-namespace gl843 {
-    void gl843_park_xpa_lamp(Genesys_Device* dev);
-    void gl843_set_xpa_motor_power(Genesys_Device* dev, Genesys_Register_Set& regs, bool set);
-} // namespace gl843
-
 namespace gl124 {
     void gl124_setup_scan_gpio(Genesys_Device* dev, int resolution);
 } // namespace gl124
@@ -969,14 +964,14 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
 
     dev.interface->write_registers(local_reg);
     if (uses_secondary_head) {
-        gl843::gl843_set_xpa_motor_power(&dev, local_reg, true);
+        dev.cmd_set->set_xpa_motor_power(dev, local_reg, true);
     }
 
     try {
         scanner_start_action(dev, true);
     } catch (...) {
         catch_all_exceptions(__func__, [&]() {
-            gl843::gl843_set_xpa_motor_power(&dev, local_reg, false);
+            dev.cmd_set->set_xpa_motor_power(dev, local_reg, false);
         });
         catch_all_exceptions(__func__, [&]() { scanner_stop_action(dev); });
         // restore original registers
@@ -997,7 +992,7 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
             scanner_stop_action(dev);
         }
         if (uses_secondary_head) {
-            gl843::gl843_set_xpa_motor_power(&dev, local_reg, false);
+            dev.cmd_set->set_xpa_motor_power(dev, local_reg, false);
         }
         return;
     }
@@ -1020,7 +1015,7 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
         scanner_stop_action(dev);
     }
     if (uses_secondary_head) {
-        gl843::gl843_set_xpa_motor_power(&dev, local_reg, false);
+        dev.cmd_set->set_xpa_motor_power(dev, local_reg, false);
     }
 
     dev.advance_head_pos_by_steps(ScanHeadId::PRIMARY, direction, steps);
@@ -1230,7 +1225,7 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
     scanner_clear_scan_and_feed_counts(dev);
 
     dev.interface->write_registers(local_reg);
-    gl843::gl843_set_xpa_motor_power(&dev, local_reg, true);
+    dev.cmd_set->set_xpa_motor_power(dev, local_reg, true);
 
     try {
         scanner_start_action(dev, true);
@@ -1255,7 +1250,7 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
         }
 
         scanner_stop_action(dev);
-        gl843::gl843_set_xpa_motor_power(&dev, local_reg, false);
+        dev.cmd_set->set_xpa_motor_power(dev, local_reg, false);
         return;
     }
 
@@ -1277,7 +1272,7 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
             }
 
             scanner_stop_action(dev);
-            gl843::gl843_set_xpa_motor_power(&dev, local_reg, false);
+            dev.cmd_set->set_xpa_motor_power(dev, local_reg, false);
             return;
         }
 

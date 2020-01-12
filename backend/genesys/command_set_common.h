@@ -34,6 +34,9 @@ class CommandSetCommon : public CommandSet
 {
 public:
     ~CommandSetCommon() override;
+
+    void set_xpa_motor_power(Genesys_Device& dev, Genesys_Register_Set& regs,
+                             bool set) const override;
 };
 
 } // namespace genesys

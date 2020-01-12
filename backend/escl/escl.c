@@ -35,7 +35,6 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
-#include "../include/sane/sanei_debug.h"
 
 #define min(A,B) (((A)<(B)) ? (A) : (B))
 #define max(A,B) (((A)>(B)) ? (A) : (B))
@@ -150,6 +149,7 @@ convertFromESCLDev(ESCL_Device *cdev)
         snprintf(tmp, sizeof(tmp), "http://%s:%d", cdev->ip_address, cdev->port_nb);
     else
         snprintf(tmp, sizeof(tmp), "https://%s:%d", cdev->ip_address, cdev->port_nb);
+    DBG( 1, "Escl add device : %s\n", tmp);
     sdev->name = strdup(tmp);
     sdev->model = strdup(cdev->model_name);
     sdev->vendor = strdup("ESCL");

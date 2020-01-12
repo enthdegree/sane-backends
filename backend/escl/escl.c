@@ -335,7 +335,7 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_NUM_OPTS].cap = SANE_CAP_SOFT_DETECT;
     s->val[OPT_NUM_OPTS].w = NUM_OPTIONS;
 
-    s->opt[OPT_MODE_GROUP].title = "Scan Mode";
+    s->opt[OPT_MODE_GROUP].title = SANE_TITLE_SCAN_MODE;
     s->opt[OPT_MODE_GROUP].desc = "";
     s->opt[OPT_MODE_GROUP].type = SANE_TYPE_GROUP;
     s->opt[OPT_MODE_GROUP].cap = 0;
@@ -375,7 +375,7 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_GRAY_PREVIEW].type = SANE_TYPE_BOOL;
     s->val[OPT_GRAY_PREVIEW].w = SANE_FALSE;
 
-    s->opt[OPT_GEOMETRY_GROUP].title = "Geometry";
+    s->opt[OPT_GEOMETRY_GROUP].title = SANE_TITLE_GEOMETRY;
     s->opt[OPT_GEOMETRY_GROUP].desc = "";
     s->opt[OPT_GEOMETRY_GROUP].type = SANE_TYPE_GROUP;
     s->opt[OPT_GEOMETRY_GROUP].cap = SANE_CAP_ADVANCED;

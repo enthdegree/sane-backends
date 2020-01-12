@@ -21,6 +21,9 @@
 
    This file implements a SANE backend for eSCL scanners.  */
 
+#define DEBUG_DECLARE_ONLY
+#include "../include/sane/config.h"
+
 #include "escl.h"
 
 #include <stdio.h>
@@ -50,7 +53,7 @@ memory_callback_s(void *contents, size_t size, size_t nmemb, void *userp)
 
     char *str = realloc(mem->memory, mem->size + realsize + 1);
     if (str == NULL) {
-        fprintf(stderr, "not enough memory (realloc returned NULL)\n");
+        DBG(1, "not enough memory (realloc returned NULL)\n");
         return (0);
     }
     mem->memory = str;
@@ -136,14 +139,16 @@ escl_status(SANE_String_Const name)
     strcpy(tmp, name);
     strcat(tmp, scanner_status);
     curl_easy_setopt(curl_handle, CURLOPT_URL, tmp);
+    DBG( 1, "Get Status : %s.\n", tmp);
     if (strncmp(name, "https", 5) == 0) {
+        DBG( 1, "Ignoring safety certificates, use https\n");
         curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 0L);
         curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYHOST, 0L);
     }
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, memory_callback_s);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)var);
     if (curl_easy_perform(curl_handle) != CURLE_OK) {
-        fprintf(stderr, "THERE IS NO SCANNER\n");
+        DBG( 1, "The scanner didn't respond.\n");
         status = SANE_STATUS_INVAL;
         goto clean_data;
     }

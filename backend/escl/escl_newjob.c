@@ -21,6 +21,9 @@
 
    This file implements a SANE backend for eSCL scanners.  */
 
+#define DEBUG_DECLARE_ONLY
+#include "../include/sane/config.h"
+
 #include "escl.h"
 
 #include <stdio.h>
@@ -108,7 +111,7 @@ download_callback(void *str, size_t size, size_t nmemb, void *userp)
     char *content = realloc(download->memory, download->size + realsize + 1);
 
     if (content == NULL) {
-        fprintf(stderr, "not enough memory (realloc returned NULL)\n");
+        DBG( 1, "Not enough memory (realloc returned NULL)\n");
         return (0);
     }
     download->memory = content;
@@ -145,16 +148,19 @@ escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *statu
     *status = SANE_STATUS_GOOD;
     if (name == NULL || scanner == NULL) {
         *status = SANE_STATUS_NO_MEM;
+        DBG( 1, "Create NewJob : the name or the scan are invalid.\n");
         return (NULL);
     }
     upload = (struct uploading *)calloc(1, sizeof(struct uploading));
     if (upload == NULL) {
         *status = SANE_STATUS_NO_MEM;
+        DBG( 1, "Create NewJob : memory allocation failure\n");
         return (NULL);
     }
     download = (struct downloading *)calloc(1, sizeof(struct downloading));
     if (download == NULL) {
         free(upload);
+        DBG( 1, "Create NewJob : memory allocation failure\n");
         *status = SANE_STATUS_NO_MEM;
         return (NULL);
     }
@@ -172,6 +178,7 @@ escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *statu
     }
     else
       format_ext = f_ext;
+    DBG( 1, "Create NewJob : %s\n", scanner->default_format);
     if (curl_handle != NULL) {
         snprintf(cap_data, sizeof(cap_data), settings,
 			scanner->caps[scanner->source].height,
@@ -184,6 +191,7 @@ escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *statu
 			scanner->caps[scanner->source].default_resolution,
 			scanner->caps[scanner->source].default_resolution,
 			scanner->Sources[scanner->source]);
+        DBG( 1, "Create NewJob : %s\n", cap_data);
         upload->read_data = strdup(cap_data);
         upload->size = strlen(cap_data);
         download->memory = malloc(1);
@@ -201,7 +209,7 @@ escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *statu
         curl_easy_setopt(curl_handle, CURLOPT_HEADERFUNCTION, download_callback);
         curl_easy_setopt(curl_handle, CURLOPT_HEADERDATA, (void *)download);
         if (curl_easy_perform(curl_handle) != CURLE_OK) {
-            fprintf(stderr, "THERE IS NO SCANNER\n");
+            DBG( 1, "Create NewJob : the scanner responded incorrectly.\n");
             *status = SANE_STATUS_INVAL;
         }
         else {
@@ -216,16 +224,18 @@ escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *statu
                             *location = '\0';
                             result = strdup(temporary);
                         }
+                       DBG( 1, "Create NewJob : %s\n", result);
                     }
                     free(download->memory);
                 }
                 else {
-                    fprintf(stderr, "THERE IS NO LOCATION\n");
+                    DBG( 1, "Create NewJob : The creation of the failed job\n");
                     *status = SANE_STATUS_INVAL;
                 }
             }
             else {
                 *status = SANE_STATUS_NO_MEM;
+                DBG( 1, "Create NewJob : The creation of the failed job\n");
                 return (NULL);
             }
         }

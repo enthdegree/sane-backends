@@ -1,3 +1,29 @@
+/* sane - Scanner Access Now Easy.
+
+   Copyright (C) 2019 Touboul Nathane
+   Copyright (C) 2019 Thierry HUCHARD <thierry@ordissimo.com>
+
+   This file is part of the SANE package.
+
+   SANE is free software; you can redistribute it and/or modify it under
+   the terms of the GNU General Public License as published by the Free
+   Software Foundation; either version 3 of the License, or (at your
+   option) any later version.
+
+   SANE is distributed in the hope that it will be useful, but WITHOUT
+   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+   for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with sane; see the file COPYING.  If not, write to the Free
+   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+   This file implements a SANE backend for eSCL scanners.  */
+
+#define DEBUG_DECLARE_ONLY
+#include "../include/sane/config.h"
+
 #include "escl.h"
 
 #include "../include/sane/sanei.h"
@@ -36,7 +62,7 @@ get_TIFF_data(capabilities_t *scanner, int *w, int *h, int *components)
     lseek(fileno(scanner->tmp), 0, SEEK_SET);
     tif = TIFFFdOpen(fileno(scanner->tmp), "temp", "r");
     if (!tif) {
-        fprintf(stderr, "Can not open, or not a TIFF file.\n");
+        DBG( 1, "Escl Tiff : Can not open, or not a TIFF file.\n");
         if (scanner->tmp) {
            fclose(scanner->tmp);
            scanner->tmp = NULL;
@@ -50,7 +76,7 @@ get_TIFF_data(capabilities_t *scanner, int *w, int *h, int *components)
     raster = (unsigned char*) malloc(npixels * sizeof (uint32));
     if (raster != NULL)
     {
-        fprintf(stderr, "Memory allocation problem.\n");
+        DBG( 1, "Escl Tiff : Memory allocation problem.\n");
         if (scanner->tmp) {
            fclose(scanner->tmp);
            scanner->tmp = NULL;
@@ -60,7 +86,7 @@ get_TIFF_data(capabilities_t *scanner, int *w, int *h, int *components)
 
     if (!TIFFReadRGBAImage(tif, width, height, (uint32 *)raster, 0))
     {
-        fprintf(stderr, "Problem reading image data.\n");
+        DBG( 1, "Escl Tiff : Problem reading image data.\n");
         if (scanner->tmp) {
            fclose(scanner->tmp);
            scanner->tmp = NULL;

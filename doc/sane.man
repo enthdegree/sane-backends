@@ -1,4 +1,4 @@
-.TH sane 7 "14 Jul 2008" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane 7 "03 Jan 2020" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane
 
 .SH NAME
@@ -238,8 +238,6 @@ for details.
 This is a SANE backend for Nikon Coolscan film-scanners.
 See
 .BR sane\-coolscan2 (5)
-or
-.I http://coolscan2.sourceforge.net
 for details.
 .TP
 .B epjitsu
@@ -421,10 +419,10 @@ SCSI flatbed scanners. See
 for details.
 .TP
 .B pixma
-The pixma backend supports Canon PIXMA MP series (multi-function devices). See
+The pixma backend supports Canon PIXMA MP series (multi-function devices),
+Canon imageCLASS series (laser devices), Canon MAXIFY series and some Canon
+CanoScan series. See
 .BR sane\-pixma (5)
-or
-.I http://home.arcor.de/wittawat/pixma/
 for details.
 .TP
 .B plustek

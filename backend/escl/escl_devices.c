@@ -21,6 +21,9 @@
 
    This file implements a SANE backend for eSCL scanners.  */
 
+#define DEBUG_DECLARE_ONLY
+#include "../include/sane/config.h"
+
 #include "escl.h"
 
 #include <assert.h>
@@ -142,21 +145,21 @@ escl_devices(SANE_Status *status)
 
     *status = SANE_STATUS_GOOD;
     if (!(simple_poll = avahi_simple_poll_new())) {
-        fprintf(stderr, "Failed to create simple poll object.\n");
+        DBG( 1, "Failed to create simple poll object.\n");
         *status = SANE_STATUS_INVAL;
         goto fail;
     }
     client = avahi_client_new(avahi_simple_poll_get(simple_poll), 0,
                                                client_callback, NULL, &error);
     if (!client) {
-        fprintf(stderr, "Failed to create client: %s\n", avahi_strerror(error));
+        DBG( 1, "Failed to create client: %s\n", avahi_strerror(error));
         *status = SANE_STATUS_INVAL;
         goto fail;
     }
     if (!(sb = avahi_service_browser_new(client, AVAHI_IF_UNSPEC,
                                                                    AVAHI_PROTO_UNSPEC, "_uscan._tcp",
                                                                    NULL, 0, browse_callback, client))) {
-        fprintf(stderr, "Failed to create service browser: %s\n",
+        DBG( 1, "Failed to create service browser: %s\n",
                               avahi_strerror(avahi_client_errno(client)));
         *status = SANE_STATUS_INVAL;
         goto fail;
@@ -165,7 +168,7 @@ escl_devices(SANE_Status *status)
                                                                    AVAHI_PROTO_UNSPEC,
                                                                    "_uscans._tcp", NULL, 0,
                                                                    browse_callback, client))) {
-        fprintf(stderr, "Failed to create service browser: %s\n",
+        DBG( 1, "Failed to create service browser: %s\n",
                                 avahi_strerror(avahi_client_errno(client)));
         *status = SANE_STATUS_INVAL;
         goto fail;

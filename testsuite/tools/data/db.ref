@@ -66,7 +66,7 @@
 0x03f0	0x1205	root:scanner	0664
 # Hewlett-Packard ScanJet 4570C | Hewlett-Packard ScanJet 5500C
 0x03f0	0x1305	root:scanner	0664
-# Hewlett-Packard ScanJet 3670C | Hewlett-Packard ScanJet 3690C
+# Hewlett-Packard ScanJet 3670 | Hewlett-Packard ScanJet 3690C
 0x03f0	0x1405	root:scanner	0664
 # Hewlett-Packard ScanJet 5590
 0x03f0	0x1705	root:scanner	0664

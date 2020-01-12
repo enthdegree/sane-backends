@@ -35,7 +35,6 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
-#include "../include/sane/sanei_debug.h"
 
 #define min(A,B) (((A)<(B)) ? (A) : (B))
 #define max(A,B) (((A)>(B)) ? (A) : (B))
@@ -150,6 +149,7 @@ convertFromESCLDev(ESCL_Device *cdev)
         snprintf(tmp, sizeof(tmp), "http://%s:%d", cdev->ip_address, cdev->port_nb);
     else
         snprintf(tmp, sizeof(tmp), "https://%s:%d", cdev->ip_address, cdev->port_nb);
+    DBG( 1, "Escl add device : %s\n", tmp);
     sdev->name = strdup(tmp);
     sdev->model = strdup(cdev->model_name);
     sdev->vendor = strdup("ESCL");
@@ -340,7 +340,7 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_NUM_OPTS].cap = SANE_CAP_SOFT_DETECT;
     s->val[OPT_NUM_OPTS].w = NUM_OPTIONS;
 
-    s->opt[OPT_MODE_GROUP].title = "Scan Mode";
+    s->opt[OPT_MODE_GROUP].title = SANE_TITLE_SCAN_MODE;
     s->opt[OPT_MODE_GROUP].desc = "";
     s->opt[OPT_MODE_GROUP].type = SANE_TYPE_GROUP;
     s->opt[OPT_MODE_GROUP].cap = 0;
@@ -382,7 +382,7 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_GRAY_PREVIEW].type = SANE_TYPE_BOOL;
     s->val[OPT_GRAY_PREVIEW].w = SANE_FALSE;
 
-    s->opt[OPT_GEOMETRY_GROUP].title = "Geometry";
+    s->opt[OPT_GEOMETRY_GROUP].title = SANE_TITLE_GEOMETRY;
     s->opt[OPT_GEOMETRY_GROUP].desc = "";
     s->opt[OPT_GEOMETRY_GROUP].type = SANE_TYPE_GROUP;
     s->opt[OPT_GEOMETRY_GROUP].cap = SANE_CAP_ADVANCED;

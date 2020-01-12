@@ -964,14 +964,14 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
 
     dev.interface->write_registers(local_reg);
     if (uses_secondary_head) {
-        dev.cmd_set->set_xpa_motor_power(dev, local_reg, true);
+        dev.cmd_set->set_motor_mode(dev, local_reg, MotorMode::PRIMARY_AND_SECONDARY);
     }
 
     try {
         scanner_start_action(dev, true);
     } catch (...) {
         catch_all_exceptions(__func__, [&]() {
-            dev.cmd_set->set_xpa_motor_power(dev, local_reg, false);
+            dev.cmd_set->set_motor_mode(dev, local_reg, MotorMode::PRIMARY);
         });
         catch_all_exceptions(__func__, [&]() { scanner_stop_action(dev); });
         // restore original registers
@@ -992,7 +992,7 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
             scanner_stop_action(dev);
         }
         if (uses_secondary_head) {
-            dev.cmd_set->set_xpa_motor_power(dev, local_reg, false);
+            dev.cmd_set->set_motor_mode(dev, local_reg, MotorMode::PRIMARY);
         }
         return;
     }
@@ -1015,7 +1015,7 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
         scanner_stop_action(dev);
     }
     if (uses_secondary_head) {
-        dev.cmd_set->set_xpa_motor_power(dev, local_reg, false);
+        dev.cmd_set->set_motor_mode(dev, local_reg, MotorMode::PRIMARY);
     }
 
     dev.advance_head_pos_by_steps(ScanHeadId::PRIMARY, direction, steps);
@@ -1225,7 +1225,7 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
     scanner_clear_scan_and_feed_counts(dev);
 
     dev.interface->write_registers(local_reg);
-    dev.cmd_set->set_xpa_motor_power(dev, local_reg, true);
+    dev.cmd_set->set_motor_mode(dev, local_reg, MotorMode::PRIMARY_AND_SECONDARY);
 
     try {
         scanner_start_action(dev, true);
@@ -1250,7 +1250,7 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
         }
 
         scanner_stop_action(dev);
-        dev.cmd_set->set_xpa_motor_power(dev, local_reg, false);
+        dev.cmd_set->set_motor_mode(dev, local_reg, MotorMode::PRIMARY);
         return;
     }
 
@@ -1272,7 +1272,7 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
             }
 
             scanner_stop_action(dev);
-            dev.cmd_set->set_xpa_motor_power(dev, local_reg, false);
+            dev.cmd_set->set_motor_mode(dev, local_reg, MotorMode::PRIMARY);
             return;
         }
 

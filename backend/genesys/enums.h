@@ -524,6 +524,11 @@ enum class Direction : unsigned
     BACKWARD = 1
 };
 
+enum class MotorMode : unsigned
+{
+    PRIMARY = 0,
+    PRIMARY_AND_SECONDARY,
+};
 
 } // namespace genesys
 

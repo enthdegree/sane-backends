@@ -37,8 +37,8 @@ public:
 
     void set_xpa_lamp_power(Genesys_Device& dev, bool set) const override;
 
-    void set_xpa_motor_power(Genesys_Device& dev, Genesys_Register_Set& regs,
-                             bool set) const override;
+    void set_motor_mode(Genesys_Device& dev, Genesys_Register_Set& regs,
+                        MotorMode mode) const override;
 };
 
 } // namespace genesys

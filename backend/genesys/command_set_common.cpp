@@ -117,16 +117,16 @@ void CommandSetCommon::set_xpa_lamp_power(Genesys_Device& dev, bool set) const
 }
 
 
-void CommandSetCommon::set_xpa_motor_power(Genesys_Device& dev, Genesys_Register_Set& regs,
-                                           bool set) const
+void CommandSetCommon::set_motor_mode(Genesys_Device& dev, Genesys_Register_Set& regs,
+                                      MotorMode mode) const
 {
     DBG_HELPER(dbg);
 
     struct MotorSettings {
         ModelId model_id;
         ResolutionFilter resolutions;
-        GenesysRegisterSettingSet regs_on;
-        GenesysRegisterSettingSet regs_off;
+        GenesysRegisterSettingSet regs_primary_and_secondary;
+        GenesysRegisterSettingSet regs_primary;
     };
 
     MotorSettings settings[] = {
@@ -184,8 +184,17 @@ void CommandSetCommon::set_xpa_motor_power(Genesys_Device& dev, Genesys_Register
         if (setting.model_id == dev.model->model_id &&
             setting.resolutions.matches(dev.session.output_resolution))
         {
-            apply_reg_settings_to_device(dev, set ? setting.regs_on : setting.regs_off);
-            regs.state.is_xpa_motor_on = set;
+            switch (mode) {
+                case MotorMode::PRIMARY: {
+                    apply_reg_settings_to_device(dev, setting.regs_primary);
+                    break;
+                }
+                case MotorMode::PRIMARY_AND_SECONDARY: {
+                    apply_reg_settings_to_device(dev, setting.regs_primary_and_secondary);
+                    break;
+                }
+            }
+            regs.state.motor_mode = mode;
             return;
         }
     }

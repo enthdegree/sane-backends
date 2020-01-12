@@ -1396,7 +1396,7 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
             }
 
             if (reg->state.is_xpa_on) {
-                dev->cmd_set->set_xpa_motor_power(*dev, *reg, true);
+                dev->cmd_set->set_motor_mode(*dev, *reg, MotorMode::PRIMARY_AND_SECONDARY);
             }
 
             // blinking led
@@ -1408,7 +1408,7 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
                 dev->cmd_set->set_xpa_lamp_power(*dev, true);
             }
             if (reg->state.is_xpa_on) {
-                dev->cmd_set->set_xpa_motor_power(*dev, *reg, true);
+                dev->cmd_set->set_motor_mode(*dev, *reg, MotorMode::PRIMARY_AND_SECONDARY);
             }
             break;
         case GpioId::PLUSTEK_OPTICFILM_7200I:
@@ -1434,11 +1434,21 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
 
     scanner_start_action(*dev, start_motor);
 
-    if (reg->state.is_motor_on) {
-        dev->advance_head_pos_by_session(ScanHeadId::PRIMARY);
-    }
-    if (reg->state.is_xpa_motor_on) {
-        dev->advance_head_pos_by_session(ScanHeadId::SECONDARY);
+    switch (reg->state.motor_mode) {
+        case MotorMode::PRIMARY: {
+            if (reg->state.is_motor_on) {
+                dev->advance_head_pos_by_session(ScanHeadId::PRIMARY);
+            }
+            break;
+        }
+        case MotorMode::PRIMARY_AND_SECONDARY: {
+            if (reg->state.is_motor_on) {
+                dev->advance_head_pos_by_session(ScanHeadId::PRIMARY);
+            }
+            // BUG: we should advance secondary head only if motor was on
+            dev->advance_head_pos_by_session(ScanHeadId::SECONDARY);
+            break;
+        }
     }
 }
 

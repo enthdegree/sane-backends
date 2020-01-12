@@ -52,6 +52,7 @@ kodak
 kodakaio
 kvs1025
 kvs20xx
+kvs40xx
 leo
 lexmark
 ma1509
@@ -67,6 +68,7 @@ nec
 niash
 #p5
 pie
+pieusb
 pint
 pixma
 plustek

@@ -504,6 +504,7 @@ libgenesys_la_SOURCES = genesys/genesys.cpp genesys/genesys.h \
     genesys/buffer.h genesys/buffer.cpp \
     genesys/calibration.h \
     genesys/command_set.h \
+    genesys/command_set_common.h genesys/command_set_common.cpp \
     genesys/conv.h genesys/conv.cpp \
     genesys/device.h genesys/device.cpp \
     genesys/enums.h genesys/enums.cpp \

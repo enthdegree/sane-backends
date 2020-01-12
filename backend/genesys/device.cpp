@@ -124,10 +124,14 @@ unsigned Genesys_Device::head_pos(ScanHeadId scan_head) const
     }
 }
 
-void Genesys_Device::set_head_pos_unknown()
+void Genesys_Device::set_head_pos_unknown(ScanHeadId scan_head)
 {
-    is_head_pos_primary_known_ = false;
-    is_head_pos_secondary_known_ = false;
+    if ((scan_head & ScanHeadId::PRIMARY) != ScanHeadId::NONE) {
+        is_head_pos_primary_known_ = false;
+    }
+    if ((scan_head & ScanHeadId::SECONDARY) != ScanHeadId::NONE) {
+        is_head_pos_secondary_known_ = false;
+    }
 }
 
 void Genesys_Device::set_head_pos_zero(ScanHeadId scan_head)
@@ -262,11 +266,25 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev)
 
 void apply_reg_settings_to_device(Genesys_Device& dev, const GenesysRegisterSettingSet& regs)
 {
+    apply_reg_settings_to_device_with_backup(dev, regs);
+}
+
+GenesysRegisterSettingSet
+    apply_reg_settings_to_device_with_backup(Genesys_Device& dev,
+                                             const GenesysRegisterSettingSet& regs)
+{
+    GenesysRegisterSettingSet backup;
     for (const auto& reg : regs) {
-        uint8_t val = dev.interface->read_register(reg.address);
-        val = (val & ~reg.mask) | (reg.value & reg.mask);
-        dev.interface->write_register(reg.address, val);
+        std::uint8_t old_val = dev.interface->read_register(reg.address);
+        std::uint8_t new_val = (old_val & ~reg.mask) | (reg.value & reg.mask);
+        dev.interface->write_register(reg.address, new_val);
+
+        using SettingType = GenesysRegisterSettingSet::SettingType;
+        backup.push_back(SettingType{reg.address,
+                                     static_cast<std::uint8_t>(old_val & reg.mask),
+                                     reg.mask});
     }
+    return backup;
 }
 
 } // namespace genesys

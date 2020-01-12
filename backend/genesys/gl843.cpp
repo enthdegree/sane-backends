@@ -1360,194 +1360,6 @@ void CommandSetGl843::detect_document_end(Genesys_Device* dev) const
     }
 }
 
-// enables or disables XPA slider motor
-void gl843_set_xpa_motor_power(Genesys_Device* dev, Genesys_Register_Set& regs, bool set)
-{
-    DBG_HELPER(dbg);
-    uint8_t val;
-
-    if (dev->model->model_id == ModelId::CANON_8400F) {
-
-        if (set) {
-            val = dev->interface->read_register(0x6c);
-            val &= ~(REG_0x6C_GPIO16 | REG_0x6C_GPIO13);
-            if (dev->session.output_resolution >= 2400) {
-                val &= ~REG_0x6C_GPIO10;
-            }
-            dev->interface->write_register(0x6c, val);
-
-            val = dev->interface->read_register(0xa9);
-            val |= REG_0xA9_GPO30;
-            val &= ~REG_0xA9_GPO29;
-            dev->interface->write_register(0xa9, val);
-        } else {
-            val = dev->interface->read_register(0x6c);
-            val |= REG_0x6C_GPIO16 | REG_0x6C_GPIO13;
-            dev->interface->write_register(0x6c, val);
-
-            val = dev->interface->read_register(0xa9);
-            val &= ~REG_0xA9_GPO30;
-            val |= REG_0xA9_GPO29;
-            dev->interface->write_register(0xa9, val);
-        }
-    } else if (dev->model->model_id == ModelId::CANON_8600F) {
-        if (set) {
-            val = dev->interface->read_register(REG_0x6C);
-            val &= ~REG_0x6C_GPIO14;
-            if (dev->session.output_resolution >= 2400) {
-                val |= REG_0x6C_GPIO10;
-            }
-            dev->interface->write_register(REG_0x6C, val);
-
-            val = dev->interface->read_register(REG_0xA6);
-            val |= REG_0xA6_GPIO17;
-            val &= ~REG_0xA6_GPIO23;
-            dev->interface->write_register(REG_0xA6, val);
-        } else {
-            val = dev->interface->read_register(REG_0x6C);
-            val |= REG_0x6C_GPIO14;
-            val &= ~REG_0x6C_GPIO10;
-            dev->interface->write_register(REG_0x6C, val);
-
-            val = dev->interface->read_register(REG_0xA6);
-            val &= ~REG_0xA6_GPIO17;
-            val &= ~REG_0xA6_GPIO23;
-            dev->interface->write_register(REG_0xA6, val);
-        }
-    } else if (dev->model->model_id == ModelId::HP_SCANJET_G4050) {
-        if (set) {
-            // set MULTFILM et GPOADF
-            val = dev->interface->read_register(REG_0x6B);
-            val |=REG_0x6B_MULTFILM|REG_0x6B_GPOADF;
-            dev->interface->write_register(REG_0x6B, val);
-
-            val = dev->interface->read_register(REG_0x6C);
-            val &= ~REG_0x6C_GPIO15;
-            dev->interface->write_register(REG_0x6C, val);
-
-            /* Motor power ? No move at all without this one */
-            val = dev->interface->read_register(REG_0xA6);
-            val |= REG_0xA6_GPIO20;
-            dev->interface->write_register(REG_0xA6, val);
-
-            val = dev->interface->read_register(REG_0xA8);
-            val &= ~REG_0xA8_GPO27;
-            dev->interface->write_register(REG_0xA8, val);
-
-            val = dev->interface->read_register(REG_0xA9);
-            val |= REG_0xA9_GPO32|REG_0xA9_GPO31;
-            dev->interface->write_register(REG_0xA9, val);
-        } else {
-            // unset GPOADF
-            val = dev->interface->read_register(REG_0x6B);
-            val &= ~REG_0x6B_GPOADF;
-            dev->interface->write_register(REG_0x6B, val);
-
-            val = dev->interface->read_register(REG_0xA8);
-            val |= REG_0xA8_GPO27;
-            dev->interface->write_register(REG_0xA8, val);
-
-            val = dev->interface->read_register(REG_0xA9);
-            val &= ~REG_0xA9_GPO31;
-            dev->interface->write_register(REG_0xA9, val);
-        }
-    }
-    regs.state.is_xpa_motor_on = set;
-}
-
-
-/** @brief light XPA lamp
- * toggle gpios to switch off regular lamp and light on the
- * XPA light
- * @param dev device to set up
- */
-static void gl843_set_xpa_lamp_power(Genesys_Device* dev, bool set)
-{
-    DBG_HELPER(dbg);
-
-    struct LampSettings {
-        ModelId model_id;
-        ScanMethod scan_method;
-        GenesysRegisterSettingSet regs_on;
-        GenesysRegisterSettingSet regs_off;
-    };
-
-    // FIXME: BUG: we're not clearing the registers to the previous state when returning back when
-    // turning off the lamp
-    LampSettings settings[] = {
-        {   ModelId::CANON_8400F, ScanMethod::TRANSPARENCY, {
-                { 0xa6, 0x34, 0xf4 },
-            }, {
-                { 0xa6, 0x40, 0x70 },
-            }
-        },
-        {   ModelId::CANON_8400F, ScanMethod::TRANSPARENCY_INFRARED, {
-                { 0x6c, 0x40, 0x40 },
-                { 0xa6, 0x01, 0xff },
-            }, {
-                { 0x6c, 0x00, 0x40 },
-                { 0xa6, 0x00, 0xff },
-            }
-        },
-        {   ModelId::CANON_8600F, ScanMethod::TRANSPARENCY, {
-                { 0xa6, 0x34, 0xf4 },
-                { 0xa7, 0xe0, 0xe0 },
-            }, {
-                { 0xa6, 0x40, 0x70 },
-            }
-        },
-        {   ModelId::CANON_8600F, ScanMethod::TRANSPARENCY_INFRARED, {
-                { 0xa6, 0x00, 0xc0 },
-                { 0xa7, 0xe0, 0xe0 },
-                { 0x6c, 0x80, 0x80 },
-            }, {
-                { 0xa6, 0x00, 0xc0 },
-                { 0x6c, 0x00, 0x80 },
-            }
-        },
-        {   ModelId::PLUSTEK_OPTICFILM_7200I, ScanMethod::TRANSPARENCY, {
-            }, {
-                { 0xa6, 0x40, 0x70 }, // BUG: remove this cleanup write, it was enabled by accident
-            }
-        },
-        {   ModelId::PLUSTEK_OPTICFILM_7200I, ScanMethod::TRANSPARENCY_INFRARED, {
-                { 0xa8, 0x07, 0x07 },
-            }, {
-                { 0xa8, 0x00, 0x07 },
-            }
-        },
-        {   ModelId::PLUSTEK_OPTICFILM_7300, ScanMethod::TRANSPARENCY, {}, {} },
-        {   ModelId::PLUSTEK_OPTICFILM_7500I, ScanMethod::TRANSPARENCY, {}, {} },
-        {   ModelId::PLUSTEK_OPTICFILM_7500I, ScanMethod::TRANSPARENCY_INFRARED, {
-                { 0xa8, 0x07, 0x07 },
-            }, {
-                { 0xa8, 0x00, 0x07 },
-            }
-        },
-    };
-
-    for (const auto& setting : settings) {
-        if (setting.model_id == dev->model->model_id &&
-            setting.scan_method == dev->settings.scan_method)
-        {
-            apply_reg_settings_to_device(*dev, set ? setting.regs_on : setting.regs_off);
-            return;
-        }
-    }
-
-    // BUG: we're currently calling the function in shut down path of regular lamp
-    if (set) {
-        throw SaneException("Unexpected code path entered");
-    }
-
-    GenesysRegisterSettingSet regs = {
-        { 0xa6, 0x40, 0x70 },
-    };
-    apply_reg_settings_to_device(*dev, regs);
-    // TODO: throw exception when we're only calling this function in error return path
-    // throw SaneException("Could not find XPA lamp settings");
-}
-
 // Send the low-level scan command
 void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                  Genesys_Register_Set* reg, bool start_motor) const
@@ -1577,11 +1389,11 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
             }
 
             if (reg->state.is_xpa_on && reg->state.is_lamp_on) {
-                gl843_set_xpa_lamp_power(dev, true);
+                dev->cmd_set->set_xpa_lamp_power(*dev, true);
             }
 
             if (reg->state.is_xpa_on) {
-                gl843_set_xpa_motor_power(dev, *reg, true);
+                dev->cmd_set->set_motor_mode(*dev, *reg, MotorMode::PRIMARY_AND_SECONDARY);
             }
 
             // blinking led
@@ -1590,17 +1402,17 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
         case GpioId::CANON_8400F:
         case GpioId::CANON_8600F:
             if (reg->state.is_xpa_on && reg->state.is_lamp_on) {
-                gl843_set_xpa_lamp_power(dev, true);
+                dev->cmd_set->set_xpa_lamp_power(*dev, true);
             }
             if (reg->state.is_xpa_on) {
-                gl843_set_xpa_motor_power(dev, *reg, true);
+                dev->cmd_set->set_motor_mode(*dev, *reg, MotorMode::PRIMARY_AND_SECONDARY);
             }
             break;
         case GpioId::PLUSTEK_OPTICFILM_7200I:
         case GpioId::PLUSTEK_OPTICFILM_7300:
         case GpioId::PLUSTEK_OPTICFILM_7500I: {
             if (reg->state.is_xpa_on && reg->state.is_lamp_on) {
-                gl843_set_xpa_lamp_power(dev, true);
+                dev->cmd_set->set_xpa_lamp_power(*dev, true);
             }
             break;
         }
@@ -1619,11 +1431,21 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
 
     scanner_start_action(*dev, start_motor);
 
-    if (reg->state.is_motor_on) {
-        dev->advance_head_pos_by_session(ScanHeadId::PRIMARY);
-    }
-    if (reg->state.is_xpa_motor_on) {
-        dev->advance_head_pos_by_session(ScanHeadId::SECONDARY);
+    switch (reg->state.motor_mode) {
+        case MotorMode::PRIMARY: {
+            if (reg->state.is_motor_on) {
+                dev->advance_head_pos_by_session(ScanHeadId::PRIMARY);
+            }
+            break;
+        }
+        case MotorMode::PRIMARY_AND_SECONDARY: {
+            if (reg->state.is_motor_on) {
+                dev->advance_head_pos_by_session(ScanHeadId::PRIMARY);
+            }
+            // BUG: we should advance secondary head only if motor was on
+            dev->advance_head_pos_by_session(ScanHeadId::SECONDARY);
+            break;
+        }
     }
 }
 
@@ -1640,7 +1462,7 @@ void CommandSetGl843::end_scan(Genesys_Device* dev, Genesys_Register_Set* reg,
     // turn off XPA lamp if needed
     // BUG: the if condition below probably shouldn't be enabled when XPA is off
     if (reg->state.is_xpa_on || reg->state.is_lamp_on) {
-        gl843_set_xpa_lamp_power(dev, false);
+        dev->cmd_set->set_xpa_lamp_power(*dev, false);
     }
 
     if (!dev->model->is_sheetfed) {

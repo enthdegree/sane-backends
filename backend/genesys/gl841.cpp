@@ -2180,7 +2180,7 @@ static void gl841_feed(Genesys_Device* dev, int steps)
   /* when we come here then the scanner needed too much time for this, so we better stop the motor */
   gl841_stop_action (dev);
 
-    dev->set_head_pos_unknown();
+    dev->set_head_pos_unknown(ScanHeadId::PRIMARY);
 
     throw SaneException(SANE_STATUS_IO_ERROR, "timeout while waiting for scanhead to go home");
 }
@@ -2276,7 +2276,7 @@ void CommandSetGl841::move_back_home(Genesys_Device* dev, bool wait_until_home) 
         // when we come here then the scanner needed too much time for this, so we better stop
         // the motor
         catch_all_exceptions(__func__, [&](){ gl841_stop_action(dev); });
-        dev->set_head_pos_unknown();
+        dev->set_head_pos_unknown(ScanHeadId::PRIMARY);
         throw SaneException(SANE_STATUS_IO_ERROR, "timeout while waiting for scanhead to go home");
     }
 

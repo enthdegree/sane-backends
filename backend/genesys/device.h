@@ -360,7 +360,7 @@ struct Genesys_Device
 
     bool is_head_pos_known(ScanHeadId scan_head) const;
     unsigned head_pos(ScanHeadId scan_head) const;
-    void set_head_pos_unknown();
+    void set_head_pos_unknown(ScanHeadId scan_head);
     void set_head_pos_zero(ScanHeadId scan_head);
     void advance_head_pos_by_session(ScanHeadId scan_head);
     void advance_head_pos_by_steps(ScanHeadId scan_head, Direction direction, unsigned steps);
@@ -381,6 +381,10 @@ private:
 std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev);
 
 void apply_reg_settings_to_device(Genesys_Device& dev, const GenesysRegisterSettingSet& regs);
+
+GenesysRegisterSettingSet
+    apply_reg_settings_to_device_with_backup(Genesys_Device& dev,
+                                             const GenesysRegisterSettingSet& regs);
 
 } // namespace genesys
 

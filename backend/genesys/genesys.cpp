@@ -718,11 +718,6 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
         sensor.ccd_start_xoffset, left, top);
 }
 
-namespace gl843 {
-    void gl843_park_xpa_lamp(Genesys_Device* dev);
-    void gl843_set_xpa_motor_power(Genesys_Device* dev, Genesys_Register_Set& regs, bool set);
-} // namespace gl843
-
 namespace gl124 {
     void gl124_setup_scan_gpio(Genesys_Device* dev, int resolution);
 } // namespace gl124
@@ -969,14 +964,14 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
 
     dev.interface->write_registers(local_reg);
     if (uses_secondary_head) {
-        gl843::gl843_set_xpa_motor_power(&dev, local_reg, true);
+        dev.cmd_set->set_motor_mode(dev, local_reg, MotorMode::PRIMARY_AND_SECONDARY);
     }
 
     try {
         scanner_start_action(dev, true);
     } catch (...) {
         catch_all_exceptions(__func__, [&]() {
-            gl843::gl843_set_xpa_motor_power(&dev, local_reg, false);
+            dev.cmd_set->set_motor_mode(dev, local_reg, MotorMode::PRIMARY);
         });
         catch_all_exceptions(__func__, [&]() { scanner_stop_action(dev); });
         // restore original registers
@@ -997,7 +992,7 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
             scanner_stop_action(dev);
         }
         if (uses_secondary_head) {
-            gl843::gl843_set_xpa_motor_power(&dev, local_reg, false);
+            dev.cmd_set->set_motor_mode(dev, local_reg, MotorMode::PRIMARY);
         }
         return;
     }
@@ -1020,7 +1015,7 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
         scanner_stop_action(dev);
     }
     if (uses_secondary_head) {
-        gl843::gl843_set_xpa_motor_power(&dev, local_reg, false);
+        dev.cmd_set->set_motor_mode(dev, local_reg, MotorMode::PRIMARY);
     }
 
     dev.advance_head_pos_by_steps(ScanHeadId::PRIMARY, direction, steps);
@@ -1174,11 +1169,26 @@ void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
         // when we come here then the scanner needed too much time for this, so we better stop
         // the motor
         catch_all_exceptions(__func__, [&](){ scanner_stop_action(dev); });
-        dev.set_head_pos_unknown();
+        dev.set_head_pos_unknown(ScanHeadId::PRIMARY | ScanHeadId::SECONDARY);
         throw SaneException(SANE_STATUS_IO_ERROR, "timeout while waiting for scanhead to go home");
     }
     dbg.log(DBG_info, "scanhead is still moving");
 }
+
+namespace {
+    void handle_motor_position_after_move_back_home_ta(Genesys_Device& dev)
+    {
+        if (dev.is_head_pos_known(ScanHeadId::PRIMARY)) {
+            if (dev.head_pos(ScanHeadId::PRIMARY) > dev.head_pos(ScanHeadId::SECONDARY)) {
+                dev.advance_head_pos_by_steps(ScanHeadId::PRIMARY, Direction::BACKWARD,
+                                              dev.head_pos(ScanHeadId::SECONDARY));
+            } else {
+                dev.set_head_pos_zero(ScanHeadId::PRIMARY);
+            }
+            dev.set_head_pos_zero(ScanHeadId::SECONDARY);
+        }
+    }
+} // namespace
 
 void scanner_move_back_home_ta(Genesys_Device& dev)
 {
@@ -1230,7 +1240,7 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
     scanner_clear_scan_and_feed_counts(dev);
 
     dev.interface->write_registers(local_reg);
-    gl843::gl843_set_xpa_motor_power(&dev, local_reg, true);
+    dev.cmd_set->set_motor_mode(dev, local_reg, MotorMode::PRIMARY_AND_SECONDARY);
 
     try {
         scanner_start_action(dev, true);
@@ -1244,18 +1254,10 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
     if (is_testing_mode()) {
         dev.interface->test_checkpoint("move_back_home_ta");
 
-        if (dev.is_head_pos_known(ScanHeadId::PRIMARY)) {
-            if (dev.head_pos(ScanHeadId::PRIMARY) > dev.head_pos(ScanHeadId::SECONDARY)) {
-                dev.advance_head_pos_by_steps(ScanHeadId::PRIMARY, Direction::BACKWARD,
-                                              dev.head_pos(ScanHeadId::SECONDARY));
-            } else {
-                dev.set_head_pos_zero(ScanHeadId::PRIMARY);
-            }
-            dev.set_head_pos_zero(ScanHeadId::SECONDARY);
-        }
+        handle_motor_position_after_move_back_home_ta(dev);
 
         scanner_stop_action(dev);
-        gl843::gl843_set_xpa_motor_power(&dev, local_reg, false);
+        dev.cmd_set->set_motor_mode(dev, local_reg, MotorMode::PRIMARY);
         return;
     }
 
@@ -1266,18 +1268,10 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
         if (status.is_at_home) {
             dbg.log(DBG_info, "TA reached home position");
 
-            if (dev.is_head_pos_known(ScanHeadId::PRIMARY)) {
-                if (dev.head_pos(ScanHeadId::PRIMARY) > dev.head_pos(ScanHeadId::SECONDARY)) {
-                    dev.advance_head_pos_by_steps(ScanHeadId::PRIMARY, Direction::BACKWARD,
-                                                  dev.head_pos(ScanHeadId::SECONDARY));
-                } else {
-                    dev.set_head_pos_zero(ScanHeadId::PRIMARY);
-                }
-                dev.set_head_pos_zero(ScanHeadId::SECONDARY);
-            }
+            handle_motor_position_after_move_back_home_ta(dev);
 
             scanner_stop_action(dev);
-            gl843::gl843_set_xpa_motor_power(&dev, local_reg, false);
+            dev.cmd_set->set_motor_mode(dev, local_reg, MotorMode::PRIMARY);
             return;
         }
 

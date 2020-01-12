@@ -178,7 +178,7 @@ escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *statu
     }
     else
       format_ext = f_ext;
-    DBG( 1, "Create NewJob : %s\n", scanner->default_format);
+    DBG( 1, "Create NewJob : %s\n", scanner->caps[scanner->source].default_format);
     if (curl_handle != NULL) {
         snprintf(cap_data, sizeof(cap_data), settings,
 			scanner->caps[scanner->source].height,

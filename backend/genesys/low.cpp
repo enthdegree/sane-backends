@@ -516,7 +516,7 @@ Image read_unshuffled_image_from_scanner(Genesys_Device* dev, const ScanSession&
                                       dev->model->line_mode_color_order);
 
     auto width = get_pixels_from_row_bytes(format, session.output_line_bytes_raw);
-    auto height = session.output_line_count * (dev->model->is_cis ? session.params.channels : 1);
+    auto height = session.optical_line_count;
 
     Image image(width, height, format);
 
@@ -534,26 +534,33 @@ Image read_unshuffled_image_from_scanner(Genesys_Device* dev, const ScanSession&
     ImagePipelineStack pipeline;
     pipeline.push_first_node<ImagePipelineNodeImageSource>(image);
 
+    if (session.segment_count > 1) {
+        auto output_width = session.output_segment_pixel_group_count * session.segment_count;
+        pipeline.push_node<ImagePipelineNodeDesegment>(output_width, dev->segment_order,
+                                                       session.conseq_pixel_dist,
+                                                       1, 1);
+    }
+
     if ((dev->model->flags & GENESYS_FLAG_16BIT_DATA_INVERTED) && session.params.depth == 16) {
-        dev->pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
+        pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
     }
 
 #ifdef WORDS_BIGENDIAN
     if (depth == 16) {
-        dev->pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
+        pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
     }
 #endif
 
     if (dev->model->is_cis && session.params.channels == 3) {
-        dev->pipeline.push_node<ImagePipelineNodeMergeMonoLines>(dev->model->line_mode_color_order);
+        pipeline.push_node<ImagePipelineNodeMergeMonoLines>(dev->model->line_mode_color_order);
     }
 
-    if (dev->pipeline.get_output_format() == PixelFormat::BGR888) {
-        dev->pipeline.push_node<ImagePipelineNodeFormatConvert>(PixelFormat::RGB888);
+    if (pipeline.get_output_format() == PixelFormat::BGR888) {
+        pipeline.push_node<ImagePipelineNodeFormatConvert>(PixelFormat::RGB888);
     }
 
-    if (dev->pipeline.get_output_format() == PixelFormat::BGR161616) {
-        dev->pipeline.push_node<ImagePipelineNodeFormatConvert>(PixelFormat::RGB161616);
+    if (pipeline.get_output_format() == PixelFormat::BGR161616) {
+        pipeline.push_node<ImagePipelineNodeFormatConvert>(PixelFormat::RGB161616);
     }
 
     return pipeline.get_image();
@@ -1067,7 +1074,6 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     // to retrieve from the chip
     s.output_pixels = (s.optical_pixels * s.output_resolution) / s.optical_resolution;
 
-    // Note: staggering is not applied for calibration. Staggering starts at 2400 dpi
     s.num_staggered_lines = 0;
     if (!has_flag(s.params.flags, ScanFlag::IGNORE_LINE_DISTANCE))
     {
@@ -1097,6 +1103,8 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     }
 
     s.output_line_count = s.params.lines + s.max_color_shift_lines + s.num_staggered_lines;
+    s.optical_line_count = dev->model->is_cis ? s.output_line_count * s.params.channels
+                                              : s.output_line_count;
 
     s.output_channel_bytes = multiply_by_depth_ceil(s.output_pixels, s.params.depth);
     s.output_line_bytes = s.output_channel_bytes * s.params.channels;
@@ -1150,16 +1158,15 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     if (dev->model->asic_type == AsicType::GL124 ||
         dev->model->asic_type == AsicType::GL843)
     {
-        s.output_segment_pixel_group_count = multiply_by_depth_ceil(
-            s.output_pixels / s.ccd_size_divisor / s.segment_count, s.params.depth);
+        s.output_segment_pixel_group_count = s.output_pixels /
+                (s.ccd_size_divisor * s.segment_count);
     }
     if (dev->model->asic_type == AsicType::GL845 ||
         dev->model->asic_type == AsicType::GL846 ||
         dev->model->asic_type == AsicType::GL847)
     {
-        s.output_segment_pixel_group_count = multiply_by_depth_ceil(
-            s.optical_pixels / (s.hwdpi_divisor * s.segment_count * ccd_pixels_per_system_pixel),
-            s.params.depth);
+        s.output_segment_pixel_group_count = s.optical_pixels /
+                (s.hwdpi_divisor * s.segment_count * ccd_pixels_per_system_pixel);
     }
 
     s.output_line_bytes_requested = multiply_by_depth_ceil(
@@ -1255,7 +1262,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
         return true;
     };
 
-    auto lines = session.output_line_count * (dev->model->is_cis ? session.params.channels : 1);
+    auto lines = session.optical_line_count;
 
     dev->pipeline.clear();
 

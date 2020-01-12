@@ -1196,11 +1196,8 @@ void CommandSetGl843::init_regs_for_scan_session(Genesys_Device* dev, const Gene
         mflags |= MotorFlag::REVERSE;
     }
 
-    unsigned scan_lines = dev->model->is_cis ? session.output_line_count * session.params.channels
-                                             : session.output_line_count;
-
     gl843_init_motor_regs_scan(dev, sensor, reg, motor_profile, exposure, slope_dpi,
-                               scan_lines, dummy, session.params.starty, mflags);
+                               session.optical_line_count, dummy, session.params.starty, mflags);
 
     dev->read_buffer.clear();
     dev->read_buffer.alloc(session.buffer_size_read);

@@ -1,6 +1,6 @@
 # translation of sane-backends.po to
 # German translation for SANE backend options
-# Copyright (C) 2002-2005 SANE Project.
+# Copyright (C) 2002-2020 SANE Project.
 # Burma Group Karlsruhe, Heiko Schaefer <heiko@burmagroup.de>, 2002.
 # Gerhard Jaeger <gerhard@gjaeger.de>, 2002-2006, 2007.
 # Henning Meier-Geinitz <henning@meier-geinitz.de>, 2002-2005.
@@ -10,13 +10,14 @@
 # Karsten Festag <karsten.festag@gmx.de>, 2002.
 # Burkhard Lück <lueck@hube-lueck.de>, 2009.
 # Rolf Bensch <rolf at bensch hyphen online dot de>, 2012-2019.
+# Ulf Zibis <Ulf.Zibis@CoSoCo.de>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
 "POT-Creation-Date: 2020-01-12 07:09+0000\n"
-"PO-Revision-Date: 2019-08-09 20:08+0200\n"
-"Last-Translator: Rolf Bensch <rolf@bensch-online.de>\n"
+"PO-Revision-Date: 2020-01-13 22:48+0100\n"
+"Last-Translator: Ulf Zibis <Ulf.Zibis@CoSoCo.de>\n"
 "Language-Team: \n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -24,6 +25,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 2.0.6\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Poedit-Bookmarks: 142,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 
 #: include/sane/saneopts.h:154
 #, no-c-format
@@ -63,7 +65,7 @@ msgstr "Scanbereich"
 #: backend/u12.c:592 backend/umax.c:5226 backend/umax_pp.c:619
 #, no-c-format
 msgid "Enhancement"
-msgstr "Farbverbesserung"
+msgstr "Verbesserung"
 
 #: include/sane/saneopts.h:159 backend/epson.c:3197 backend/epson2.c:1215
 #: backend/kvs20xx_opt.c:366 backend/kvs40xx_opt.c:597
@@ -86,7 +88,7 @@ msgstr "Vorschau"
 #: include/sane/saneopts.h:163
 #, no-c-format
 msgid "Force monochrome preview"
-msgstr "Vorschauscan in grau"
+msgstr "Vorschau in monochrom"
 
 #: include/sane/saneopts.h:164
 #, no-c-format
@@ -109,30 +111,31 @@ msgstr "Scangeschwindigkeit"
 msgid "Scan source"
 msgstr "Scanquelle"
 
+# Es könnte auch Rücksetzung oder Rücksetzverfahren gemeint sein
 #: include/sane/saneopts.h:168
 #, no-c-format
 msgid "Force backtracking"
-msgstr "Erzwinge Backtracking"
+msgstr "Erzwinge Rückverfolgung"
 
 #: include/sane/saneopts.h:169
 #, no-c-format
 msgid "Top-left x"
-msgstr "Links Oben x"
+msgstr "Links-oben x"
 
 #: include/sane/saneopts.h:170
 #, no-c-format
 msgid "Top-left y"
-msgstr "Links Oben y"
+msgstr "Links-oben y"
 
 #: include/sane/saneopts.h:171
 #, no-c-format
 msgid "Bottom-right x"
-msgstr "Rechts Unten x"
+msgstr "Rechts-unten x"
 
 #: include/sane/saneopts.h:172
 #, no-c-format
 msgid "Bottom-right y"
-msgstr "Rechts Unten y"
+msgstr "Rechts-unten y"
 
 #: include/sane/saneopts.h:173 backend/canon.c:1216
 #: backend/pixma/pixma_sane_options.c:300
@@ -208,7 +211,7 @@ msgstr "Halbtonmodus"
 #: include/sane/saneopts.h:187
 #, no-c-format
 msgid "Black level"
-msgstr "Wert für Schwarz"
+msgstr "Schwarzwert"
 
 #: include/sane/saneopts.h:188
 #, no-c-format
@@ -238,37 +241,41 @@ msgstr "Schatten"
 #: include/sane/saneopts.h:193
 #, no-c-format
 msgid "Shadow for red"
-msgstr "Schatten Rot"
+msgstr "Schatten für Rot"
 
 #: include/sane/saneopts.h:194
 #, no-c-format
 msgid "Shadow for green"
-msgstr "Schatten Grün"
+msgstr "Schatten für Grün"
 
 #: include/sane/saneopts.h:195
 #, no-c-format
 msgid "Shadow for blue"
-msgstr "Schatten Blau"
+msgstr "Schatten für Blau"
 
+# Es könnte auch Markierung gemeint sein
 #: include/sane/saneopts.h:196
 #, no-c-format
 msgid "Highlight"
-msgstr "Licht"
+msgstr "Hervorhebung"
 
+# Es könnte auch Markierung gemeint sein
 #: include/sane/saneopts.h:197
 #, no-c-format
 msgid "Highlight for red"
-msgstr "Licht Rot"
+msgstr "Hervorhebung für Rot"
 
+# Es könnte auch Markierung gemeint sein
 #: include/sane/saneopts.h:198
 #, no-c-format
 msgid "Highlight for green"
-msgstr "Licht Grün"
+msgstr "Hervorhebung für Grün"
 
+# Es könnte auch Markierung gemeint sein
 #: include/sane/saneopts.h:199
 #, no-c-format
 msgid "Highlight for blue"
-msgstr "Licht Blau"
+msgstr "Hervorhebung für Blau"
 
 #: include/sane/saneopts.h:200
 #, no-c-format
@@ -308,6 +315,7 @@ msgstr "Verbinde X- und Y-Auflösung"
 msgid "Negative"
 msgstr "Negativ"
 
+# Könnte auch einfach nur Kallibrierung sein. Weißabgleich geht aus calibration nicht wirklich hervor.
 #: include/sane/saneopts.h:207
 #, no-c-format
 msgid "Quality calibration"
@@ -401,22 +409,25 @@ msgstr "Beleuchtungszeit zum Scannen von Blau"
 #: include/sane/saneopts.h:227
 #, no-c-format
 msgid "Set exposure-time"
-msgstr "Definiere Beleuchtungszeit"
+msgstr "Setze Beleuchtungszeit"
 
+# Wäre da nicht so was wie Leuchtstärke besser? Lichtwert (eines Films) wird mit exposure value übersetzt.
 #: include/sane/saneopts.h:228
 #, no-c-format
 msgid "Cal. lamp density"
 msgstr "Lichtwert für Kalibrierung"
 
+# Wäre da nicht so was wie Leuchtstärke besser? Lichtwert (eines Films) wird mit exposure value übersetzt.
 #: include/sane/saneopts.h:229
 #, no-c-format
 msgid "Scan lamp density"
 msgstr "Lichtwert beim Scannen"
 
+# Wäre da nicht so was wie Leuchtstärke besser? Lichtwert (eines Films) wird mit exposure value übersetzt.
 #: include/sane/saneopts.h:230
 #, no-c-format
 msgid "Set lamp density"
-msgstr "Definiere Lichtwert"
+msgstr "Setze Lichtwert"
 
 #: include/sane/saneopts.h:231 backend/umax.c:5829
 #, no-c-format
@@ -429,7 +440,7 @@ msgid ""
 "Read-only option that specifies how many options a specific device "
 "supports."
 msgstr ""
-"Nur-Lese-Option, die angibt, wieviele Optionen ein bestimmtes Gerät "
+"Nur-Lese-Option, die angibt, wie viele Optionen ein bestimmtes Gerät "
 "unterstützt."
 
 #: include/sane/saneopts.h:248
@@ -455,7 +466,7 @@ msgstr "Hardware-spezifische Optionen"
 #: include/sane/saneopts.h:252
 #, no-c-format
 msgid "Scanner sensors and buttons"
-msgstr "Scanner-Sensoren und -Knöpfe"
+msgstr "Scanner-Sensoren und -Tasten"
 
 #: include/sane/saneopts.h:255
 #, no-c-format
@@ -470,9 +481,9 @@ msgid ""
 "scanner, it reduces the memory requirements and scan-time of the preview."
 msgstr ""
 "Legt fest, dass alle Vorschauscans im Graustufenmodus durchgeführt "
-"werden. Bei einem Three-Pass-Scanner wird dadurch nur ein Pass benötigt, "
-"bei einem Single-Pass-Scanner wird der Speicherverbrauch und die "
-"Scanzeit verringert."
+"werden. Bei einem Dreifachdurchlauf-Scanner wird dadurch nur ein "
+"Durchlauf benötigt, bei einem Einfachdurchlauf-Scanner wird der "
+"Speicherverbrauch und die Scan-Zeit verringert."
 
 #: include/sane/saneopts.h:264
 #, no-c-format
@@ -486,7 +497,8 @@ msgstr ""
 #: include/sane/saneopts.h:268
 #, no-c-format
 msgid "Selects the scan mode (e.g., lineart, monochrome, or color)."
-msgstr "Wählt den Scanmodus aus (z.B. Strichzeichnung, Grau oder Farbe)."
+msgstr ""
+"Wählt den Scanmodus aus (z.B. Strichzeichnung, Graustufen oder Farbe)."
 
 #: include/sane/saneopts.h:271
 #, no-c-format
@@ -498,10 +510,11 @@ msgstr "Legt die Scangeschwindigkeit fest."
 msgid "Selects the scan source (such as a document-feeder)."
 msgstr "Legt die Scanquelle fest (wie z.B. Dokumenteneinzug)."
 
+# Es könnte auch Rücksetzung gemeint sein
 #: include/sane/saneopts.h:277
 #, no-c-format
 msgid "Controls whether backtracking is forced."
-msgstr "Legt fest, dass Backtracking verwendet wird."
+msgstr "Legt fest, ob Rückverfolgung verwendet wird."
 
 #: include/sane/saneopts.h:280
 #, no-c-format
@@ -586,15 +599,16 @@ msgstr "Gamma-Korrekturtabelle für die grüne Komponente."
 msgid "Gamma-correction table for the blue band."
 msgstr "Gamma-Korrekturtabelle für die blaue Komponente."
 
+# Alternative: des erlangten Abbilds
 #: include/sane/saneopts.h:326
 #, no-c-format
 msgid "Controls the brightness of the acquired image."
-msgstr "Stellt die Helligkeit des Bildes ein."
+msgstr "Stellt die Helligkeit des gewonnenen Abbilds ein."
 
 #: include/sane/saneopts.h:329
 #, no-c-format
 msgid "Controls the contrast of the acquired image."
-msgstr "Stellt den Kontrast des Bildes ein."
+msgstr "Stellt den Kontrast des gewonnenen Abbilds ein."
 
 #: include/sane/saneopts.h:332
 #, no-c-format
@@ -602,24 +616,26 @@ msgid ""
 "Selects the \"graininess\" of the acquired image.  Smaller values result "
 "in sharper images."
 msgstr ""
-"Legt die \"Körnigkeit\" des gescannten Bildes fest. Kleinere Werte "
+"Legt die \"Körnigkeit\" des gewonnenen Abbilds fest. Kleinere Werte "
 "ergeben schärfere Bilder."
 
 #: include/sane/saneopts.h:336
 #, no-c-format
 msgid "Selects whether the acquired image should be halftoned (dithered)."
-msgstr "Legt fest, ob das Bild im Halbtonmodus (Dithering) gescannt wird."
+msgstr ""
+"Legt fest, ob das gewonnene Abbild im Halbtonmodus (Dithering) sein soll."
 
 #: include/sane/saneopts.h:339 include/sane/saneopts.h:354
 #, no-c-format
 msgid "Selects what radiance level should be considered \"black\"."
 msgstr ""
-"Bestimmt, welcher Helligkeitswert als Schwarz angesehen werden soll."
+"Bestimmt, welcher Helligkeitswert als \"Schwarz\" angesehen werden soll."
 
 #: include/sane/saneopts.h:342 include/sane/saneopts.h:363
 #, no-c-format
 msgid "Selects what radiance level should be considered \"white\"."
-msgstr "Bestimmt, welcher Helligkeitswert als Weiß angesehen werden soll."
+msgstr ""
+"Bestimmt, welcher Helligkeitswert als \"Weiß\" angesehen werden soll."
 
 #: include/sane/saneopts.h:345
 #, no-c-format
@@ -646,28 +662,28 @@ msgstr ""
 #, no-c-format
 msgid "Selects what red radiance level should be considered \"black\"."
 msgstr ""
-"Bestimmt, welcher Helligkeitswert der roten Komponente als Schwarz "
+"Bestimmt, welcher Helligkeitswert der roten Komponente als \"Schwarz\" "
 "angesehen werden soll."
 
 #: include/sane/saneopts.h:358
 #, no-c-format
 msgid "Selects what green radiance level should be considered \"black\"."
 msgstr ""
-"Bestimmt, welcher Helligkeitswert der grünen Komponente als Schwarz "
+"Bestimmt, welcher Helligkeitswert der grünen Komponente als \"Schwarz\" "
 "angesehen werden soll."
 
 #: include/sane/saneopts.h:360
 #, no-c-format
 msgid "Selects what blue radiance level should be considered \"black\"."
 msgstr ""
-"Bestimmt, welcher Helligkeitswert der blauen Komponente als Schwarz "
+"Bestimmt, welcher Helligkeitswert der blauen Komponente als \"Schwarz\" "
 "angesehen werden soll."
 
 #: include/sane/saneopts.h:365
 #, no-c-format
 msgid "Selects what red radiance level should be considered \"full red\"."
 msgstr ""
-"Bestimmt, welcher Helligkeitswert der roten Komponente als Weiß "
+"Bestimmt, welcher Helligkeitswert der roten Komponente als \"Weiß\" "
 "angesehen werden soll."
 
 #: include/sane/saneopts.h:367
@@ -675,7 +691,7 @@ msgstr ""
 msgid ""
 "Selects what green radiance level should be considered \"full green\"."
 msgstr ""
-"Bestimmt, welcher Helligkeitswert der grünen Komponente als Weiß "
+"Bestimmt, welcher Helligkeitswert der grünen Komponente als \"Weiß\" "
 "angesehen werden soll."
 
 #: include/sane/saneopts.h:370
@@ -683,13 +699,13 @@ msgstr ""
 msgid ""
 "Selects what blue radiance level should be considered \"full blue\"."
 msgstr ""
-"Bestimmt, welcher Helligkeitswert der blauen Komponente als Weiß "
+"Bestimmt, welcher Helligkeitswert der blauen Komponente als \"Weiß\" "
 "angesehen werden soll."
 
 #: include/sane/saneopts.h:374
 #, no-c-format
 msgid "Controls the \"hue\" (blue-level) of the acquired image."
-msgstr "Legt den Farbwert (Blauwert) des gescannten Bildes fest."
+msgstr "Legt den Farbwert (Blauwert) des gewonnenen Abbilds fest."
 
 #: include/sane/saneopts.h:377
 #, no-c-format
@@ -697,7 +713,7 @@ msgid ""
 "The saturation level controls the amount of \"blooming\" that occurs "
 "when acquiring an image with a camera. Larger values cause more blooming."
 msgstr ""
-"Der Sättigungsgrad steuert die Belichtung einesmit einer Kamera "
+"Der Sättigungsgrad steuert die Belichtung eines mit einer Kamera "
 "aufgenommenen Bildes. Höhere Werte sorgen für eine stärkere Belichtung."
 
 #: include/sane/saneopts.h:382
@@ -742,7 +758,7 @@ msgstr "Benutze die Linse, mit der die optische Auflösung verdoppelt wird"
 #: include/sane/saneopts.h:401 include/sane/saneopts.h:413
 #, no-c-format
 msgid "In RGB-mode use same values for each color"
-msgstr "Benutze die gleichen Wert für alle Farben im RGB Modus"
+msgstr "Benutze die gleichen Werte für alle Farben im RGB-Modus"
 
 #: include/sane/saneopts.h:403
 #, no-c-format
@@ -822,16 +838,19 @@ msgstr "Bestimme die Beleuchtungszeit für den Scan der blauen Komponente"
 msgid "Enable selection of exposure-time"
 msgstr "Aktiviere die Einstellung der Beleuchtungszeiten"
 
+# Wäre da nicht so was wie Leuchtstärke besser? Lichtwert (eines Films) wird mit exposure value übersetzt.
 #: include/sane/saneopts.h:435
 #, no-c-format
 msgid "Define lamp density for calibration"
 msgstr "Definiere die Lichtwerte beim Kalibrieren"
 
+# Wäre da nicht so was wie Leuchtstärke besser? Lichtwert (eines Films) wird mit exposure value übersetzt.
 #: include/sane/saneopts.h:437
 #, no-c-format
 msgid "Define lamp density for scan"
 msgstr "Definiere die Lichtwerte beim Scannen"
 
+# Wäre da nicht so was wie Leuchtstärke besser? Lichtwert (eines Films) wird mit exposure value übersetzt.
 #: include/sane/saneopts.h:439
 #, no-c-format
 msgid "Enable selection of lamp density"
@@ -845,32 +864,32 @@ msgstr "Schalte Lampe beim Beenden des Programms aus"
 #: include/sane/saneopts.h:444
 #, no-c-format
 msgid "Scan button"
-msgstr "Scan Taste"
+msgstr "Scan-Taste"
 
 #: include/sane/saneopts.h:445
 #, no-c-format
 msgid "Email button"
-msgstr "E-Mail Taste"
+msgstr "E-Mail-Taste"
 
 #: include/sane/saneopts.h:446
 #, no-c-format
 msgid "Fax button"
-msgstr "Fax Taste"
+msgstr "Fax-Taste"
 
 #: include/sane/saneopts.h:447
 #, no-c-format
 msgid "Copy button"
-msgstr "Kopieren Taste"
+msgstr "Kopieren-Taste"
 
 #: include/sane/saneopts.h:448
 #, no-c-format
 msgid "PDF button"
-msgstr "PDF Taste"
+msgstr "PDF-Taste"
 
 #: include/sane/saneopts.h:449
 #, no-c-format
 msgid "Cancel button"
-msgstr "Abbrechen Taste"
+msgstr "Abbrechen-Taste"
 
 #: include/sane/saneopts.h:450
 #, no-c-format
@@ -1032,7 +1051,7 @@ msgstr ""
 #: backend/artec_eplus48u.c:2967
 #, no-c-format
 msgid "Button state"
-msgstr "Schalter Status"
+msgstr "Tasten-Status"
 
 #: backend/avision.h:778
 #, no-c-format
@@ -1297,7 +1316,7 @@ msgstr "Filmtyp"
 #: backend/canon.c:1179
 #, no-c-format
 msgid "Selects the film type, i.e. negatives or slides"
-msgstr "Auswahl des Film-Typs (z. B. Negativ oder Dia)"
+msgstr "Auswahl des Film-Typs (z.B. Negativ oder Dia)"
 
 #: backend/canon.c:1191
 #, no-c-format
@@ -2157,22 +2176,22 @@ msgstr "Benutzerdefiniertes CCT-Profil"
 #: backend/epsonds.c:750
 #, no-c-format
 msgid "Load"
-msgstr ""
+msgstr "Lade"
 
 #: backend/epsonds.c:751
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Load a sheet in the ADF"
-msgstr "Wirft das Blatt aus dem automatischen Dokumenteneinzug aus"
+msgstr "Lade ein Blatt im automatischen Dokumenteneinzug"
 
 #: backend/epsonds.c:771
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "ADF Skew Correction"
-msgstr "Keine Korrektur"
+msgstr "ADF-Schräglaufkorrektur"
 
 #: backend/epsonds.c:773
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enables ADF skew correction"
-msgstr "Gammakorrektur abschalten"
+msgstr "aktiviert ADF-Schräglaufkorrektur"
 
 #: backend/fujitsu.c:688 backend/hp-option.c:3330 backend/hp-option.c:3343
 #, no-c-format
@@ -2624,7 +2643,7 @@ msgstr "Heftklammer - Erkennung"
 #, no-c-format
 msgid "Request scanner to detect jams in the ADF caused by staples"
 msgstr ""
-"von Heftklammern verursachter Papierstau im Dokumenteneinzug erkennen"
+"Von Heftklammern verursachter Papierstau im Dokumenteneinzug erkennen"
 
 #: backend/fujitsu.c:3839
 #, no-c-format
@@ -2684,8 +2703,8 @@ msgid ""
 "collection on remaining sides. May conflict with bgcolor option"
 msgstr ""
 "Fügt einen Rand vor und nach dem Einzug eines Dokuments hinzu, damit "
-"kleine Vorlagen auf einer Seite gesammelt werden können. Steht im "
-"Konflikt mit Hintergrundfarbe."
+"kleine Vorlagen auf einer Seite gesammelt werden können. Kann im "
+"Konflikt mit Hintergrundfarbe stehen."
 
 #: backend/fujitsu.c:3943
 #, no-c-format
@@ -2866,7 +2885,7 @@ msgstr "Stempelwert"
 #: backend/fujitsu.c:4201
 #, no-c-format
 msgid "Initial endorser counter value."
-msgstr "Anfangswert für Stempelzähler,"
+msgstr "Anfangswert für Stempelzähler"
 
 #: backend/fujitsu.c:4224
 #, no-c-format
@@ -3025,7 +3044,7 @@ msgstr "Funktionszeichen auf dem Bildschirm"
 #: backend/fujitsu.c:4539
 #, no-c-format
 msgid "Ink low"
-msgstr "wenig Tinte"
+msgstr "Wenig Tinte"
 
 #: backend/fujitsu.c:4540
 #, no-c-format
@@ -3065,7 +3084,7 @@ msgstr "Schwarzer Hintergrund erforderlich"
 #: backend/fujitsu.c:4587
 #, no-c-format
 msgid "Ink remaining"
-msgstr "verbleibende Tinte"
+msgstr "Verbleibende Tinte"
 
 #: backend/fujitsu.c:4588
 #, no-c-format
@@ -3186,7 +3205,7 @@ msgstr ""
 #: backend/genesys/genesys.cpp:4321
 #, no-c-format
 msgid "Lamp off during scan"
-msgstr "während Scan Lampe ausschalten"
+msgstr "Während Scan Lampe ausschalten"
 
 #: backend/genesys/genesys.cpp:4322
 #, no-c-format
@@ -3196,17 +3215,17 @@ msgstr "Die Lampe wird beim Scannen abgeschaltet. "
 #: backend/genesys/genesys.cpp:4349 backend/genesys/genesys.cpp:4350
 #, no-c-format
 msgid "File button"
-msgstr "Datei Taste"
+msgstr "Datei-Taste"
 
 #: backend/genesys/genesys.cpp:4394 backend/genesys/genesys.cpp:4395
 #, no-c-format
 msgid "OCR button"
-msgstr "OCR Taste"
+msgstr "OCR-Taste"
 
 #: backend/genesys/genesys.cpp:4406 backend/genesys/genesys.cpp:4407
 #, no-c-format
 msgid "Power button"
-msgstr "Einschalt Taste"
+msgstr "Einschalt-Taste"
 
 #: backend/genesys/genesys.cpp:4418 backend/genesys/genesys.cpp:4419
 #, no-c-format
@@ -3273,7 +3292,8 @@ msgstr "Interne Offsets ignorieren"
 msgid ""
 "Acquires the image including the internal calibration areas of the "
 "scanner"
-msgstr "Bild mit Kalibrierungsbereichen scannen"
+msgstr ""
+"Gewinnt das Abbild mit den internen Kalibrierbereichen des Scanners"
 
 #: backend/genesys/genesys.h:79 backend/gt68xx.c:149 backend/ma1509.c:108
 #: backend/mustek.c:164 backend/snapscan-options.c:87 backend/umax.c:182
@@ -3282,9 +3302,9 @@ msgid "Transparency Adapter"
 msgstr "Durchlichteinheit"
 
 #: backend/genesys/genesys.h:80
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Transparency Adapter Infrared"
-msgstr "Durchlichteinheit"
+msgstr "Infrarot-Durchlichteinheit"
 
 #: backend/gt68xx.c:470
 #, no-c-format
@@ -3688,7 +3708,7 @@ msgstr "Warten auf vordere Taste"
 #: backend/hp-option.h:165
 #, no-c-format
 msgid "Wait to scan for front-panel button push."
-msgstr "Warte mit dem Scan auf das Drücken der vorderen Taste."
+msgstr "Warte mit dem Scan auf das Drücken einer Frontplattentaste."
 
 #: backend/hp-option.h:172
 #, no-c-format
@@ -3865,7 +3885,7 @@ msgstr "Aktualisiert alle Informationnen über das Gerät"
 #: backend/hp3900_sane.c:1635
 #, no-c-format
 msgid "This option reflects a front panel scanner button"
-msgstr "Diese Option spiegelt die vorderen Scannertasten wieder"
+msgstr "Diese Option spiegelt eine Frontplatten-Scannertaste wider"
 
 #: backend/hp5400_sane.c:313 backend/niash.c:678
 #, no-c-format
@@ -3955,7 +3975,7 @@ msgstr "Letzter Tastendruck"
 #: backend/hp5590.c:119
 #, no-c-format
 msgid "Get ID of last button pressed (read only)"
-msgstr "Lese zuletzt betätigte Taste (read only)"
+msgstr "Lese ID der zuletzt betätigten Taste (nur lesen)"
 
 #: backend/hp5590.c:121
 #, no-c-format
@@ -4347,7 +4367,7 @@ msgstr "Aktiviere/Deaktiviere Längenkontrolle"
 #: backend/kvs40xx_opt.c:417
 #, no-c-format
 msgid "Sets the manual feed mode"
-msgstr "manueller Einzug"
+msgstr "Manueller Einzug"
 
 #: backend/kvs1025_opt.c:611 backend/kvs20xx_opt.c:255
 #: backend/kvs40xx_opt.c:429
@@ -4371,7 +4391,7 @@ msgstr "auf Seite einpassen"
 #: backend/kvs40xx_opt.c:498
 #, no-c-format
 msgid "Fit to page"
-msgstr "auf Seite einpassen"
+msgstr "Auf Seite einpassen"
 
 #: backend/kvs1025_opt.c:633 backend/kvs20xx_opt.c:278
 #: backend/kvs40xx_opt.c:499
@@ -4564,8 +4584,8 @@ msgid ""
 "Length Control Mode causes the scanner to read the shorter of either the "
 "length of the actual paper or logical document length"
 msgstr ""
-"Bei der Längenkontrolle verwendet der Scanner die kürzere Länge, "
-"entweder von der Vorlage oder der vorgegebenen Seitenlänge."
+"Bei der Längenkontrolle verwendet der Scanner die kürzere Länge von "
+"entweder der Vorlage oder der vorgegebenen Seitenlänge"
 
 #: backend/kvs40xx_opt.c:405
 #, no-c-format
@@ -5271,7 +5291,7 @@ msgstr "Helligkeit des Rotwerts"
 #, no-c-format
 msgid "Controls the brightness of the red channel of the acquired image."
 msgstr ""
-"Stellt die Helligkeit der roten Komponente des gescannten Bildes ein."
+"Stellt die Helligkeit der roten Komponente des gewonnenen Abbilds ein."
 
 #: backend/mustek.c:4456
 #, no-c-format
@@ -5282,7 +5302,7 @@ msgstr "Helligkeit des Grünwerts"
 #, no-c-format
 msgid "Controls the brightness of the green channel of the acquired image."
 msgstr ""
-"Stellt die Helligkeit der grünen Komponente des gescannten Bildes ein."
+"Stellt die Helligkeit der grünen Komponente des gewonnenen Abbilds ein."
 
 #: backend/mustek.c:4469
 #, no-c-format
@@ -5293,7 +5313,7 @@ msgstr "Helligkeit des Blauwerts"
 #, no-c-format
 msgid "Controls the brightness of the blue channel of the acquired image."
 msgstr ""
-"Stellt die Helligkeit der blauen Komponente des gescannten Bildes ein."
+"Stellt die Helligkeit der blauen Komponente des gewonnenen Abbilds ein."
 
 #: backend/mustek.c:4495
 #, no-c-format
@@ -5304,7 +5324,7 @@ msgstr "Kontrast der grünen Komponente"
 #, no-c-format
 msgid "Controls the contrast of the red channel of the acquired image."
 msgstr ""
-"Stellt den Kontrast der roten Komponente des gescannten Bildes ein."
+"Stellt den Kontrast der roten Komponente des gewonnenen Abbilds ein."
 
 #: backend/mustek.c:4508
 #, no-c-format
@@ -5315,7 +5335,7 @@ msgstr "Kontrast der grünen Komponente"
 #, no-c-format
 msgid "Controls the contrast of the green channel of the acquired image."
 msgstr ""
-"Stellt den Kontrast der grünen Komponente des gescannten Bildes ein."
+"Stellt den Kontrast der grünen Komponente des gewonnenen Abbilds ein."
 
 #: backend/mustek.c:4521
 #, no-c-format
@@ -5326,7 +5346,7 @@ msgstr "Kontrast der blauen Komponente"
 #, no-c-format
 msgid "Controls the contrast of the blue channel of the acquired image."
 msgstr ""
-"Stellt den Kontrast der blauen Komponente des gescannten Bildes ein."
+"Stellt den Kontrast der blauen Komponente des gewonnenen Abbilds ein."
 
 #: backend/mustek_usb2.c:105
 #, no-c-format
@@ -5368,7 +5388,7 @@ msgstr ""
 "40 Sekunden zu warten."
 
 #: backend/p5.c:1926
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Need calibration"
 msgstr "Benötigt Kalibirierung"
 
@@ -5414,14 +5434,14 @@ msgid ""
 "\"SCAN\" button (for MP150) or \"COLOR\" button (for other models). To "
 "cancel, press \"GRAY\" button."
 msgstr ""
-"Falls aktiviert startet der Scanprozess nicht automatisch. Zum Starten "
-"drücken Sie die Taste \"SCAN\" beim MP1500 oder \"COLOR\" bei anderen "
-"Modellen. Zum Abbrechen drücken Sie die Taste \"GRAY\"."
+"Falls aktiviert startet der Scanprozess nicht unmittelbar. Zum "
+"Fortsetzen drücken Sie die Taste \"SCAN\" beim MP1500 oder \"COLOR\" bei "
+"anderen Modellen. Zum Abbrechen drücken Sie die Taste \"GRAY\"."
 
 #: backend/pixma/pixma_sane_options.c:232
 #, no-c-format
 msgid "Update button state"
-msgstr "Tastenstatus aktualisieren"
+msgstr "Tasten-Status aktualisieren"
 
 #: backend/pixma/pixma_sane_options.c:244
 #, no-c-format
@@ -5605,7 +5625,7 @@ msgstr "Definiert den Ausschaltzeitpunkt der blauen Lampe"
 #: backend/plustek.c:1096
 #, no-c-format
 msgid "This option reflects the status of the scanner buttons."
-msgstr "Diese Option spiegelt den Zustand der Scannerknöpfe wider."
+msgstr "Diese Option spiegelt den Zustand der Scannertasten wider."
 
 #: backend/plustek_pp.c:197
 #, no-c-format
@@ -5957,7 +5977,7 @@ msgstr "Rahmen"
 #: backend/snapscan-options.c:885
 #, no-c-format
 msgid "Frame to be scanned"
-msgstr "zu scannender Rahmen"
+msgstr "Zu scannender Rahmen"
 
 #: backend/snapscan-options.c:897
 #, no-c-format
@@ -6286,7 +6306,7 @@ msgstr "Gibt eine Liste aller Optionen aus."
 #: backend/test.c:712
 #, no-c-format
 msgid "Bool test options"
-msgstr "Bool-Testoptionen"
+msgstr "Binäre Testoptionen"
 
 #: backend/test.c:725
 #, no-c-format
@@ -6299,9 +6319,9 @@ msgid ""
 "(1/6) Bool test option that has soft select and soft detect (and "
 "advanced) capabilities. That's just a normal bool option."
 msgstr ""
-"(1/6) Dies ist eine Bool-Testoption, welche die Fähigkeiten \"soft select"
-"\" und \"soft detect\" (und \"advanced\") hat. Also eine ganz normale "
-"Bool-Option."
+"(1/6) Binäre Testoption, welche die Funktionalitäten \"soft select\" und "
+"\"soft detect\" (und \"advanced\") hat. Also eine ganz normale binäre "
+"Option."
 
 #: backend/test.c:743
 #, no-c-format
@@ -6315,10 +6335,10 @@ msgid ""
 "advanced) capabilities. That means the option can't be set by the "
 "frontend but by the user (e.g. by pressing a button at the device)."
 msgstr ""
-"(2/6) Dies ist eine Bool-Testoption, welche die Fähigkeiten \"hard select"
-"\" und \"soft detect\" (und \"advanced\") hat. Das bedeutet, dass die "
-"Option nicht vom Frontend geändert werden kann, sondern vom Benutzer (z. "
-"B. indem er eine Taste am Gerät drückt)."
+"(2/6) Binäre Testoption, welche die Funktionalitäten \"hard select\" und "
+"\"soft detect\" (und \"advanced\") hat. Das bedeutet, dass die Option "
+"nicht vom \"frontend\" gesetzt werden kann sondern vom Benutzer (z.B. "
+"durch drücken einer Taste am Gerät)."
 
 #: backend/test.c:762
 #, no-c-format
@@ -6332,11 +6352,11 @@ msgid ""
 "That means the option can't be set by the frontend but by the user (e.g. "
 "by pressing a button at the device) and can't be read by the frontend."
 msgstr ""
-"(3/6) Dies is eine Bool-Testoption, welche die Fähigkieten \"hard select"
-"\" (und \"advanced\") hat. Das bedeutet, dass die Option "
-"nicht vom Frontend geändert "
-"werden kann, sondern vom Benutzer (z. B. indem er eine Taste am "
-"Gerät drückt). Außerdem kann sie nicht vom Frontend gelesen werden."
+"(3/6) Binäre Testoption, welche die Funktionalitäten \"hard select"
+"\" (und \"advanced\") hat. Das bedeutet, dass die Option nicht vom "
+"\"frontend\" gesetzt werden kann sondern vom Benutzer (z.B. durch "
+"drücken einer Taste am Gerät) und nicht vom \"frontend\" gelesen werden "
+"kann."
 
 #: backend/test.c:781
 #, no-c-format
@@ -6349,7 +6369,7 @@ msgid ""
 "(4/6) Bool test option that has soft detect (and advanced) capabilities. "
 "That means the option is read-only."
 msgstr ""
-"(4/6) Die ist eine Bool-Testoption, welche die Fähigkeiten \"soft detect"
+"(4/6) Binäre Testoption, welche die Funktionalitäten \"soft detect"
 "\" (und \"advanced\") hat. Das heißt, dass dies eine Nur-Lese-Option ist."
 
 #: backend/test.c:798
@@ -6363,8 +6383,8 @@ msgid ""
 "(5/6) Bool test option that has soft select, soft detect, and emulated "
 "(and advanced) capabilities."
 msgstr ""
-"(5/6) Dies ist eine Bool-Testoption, welche die Fähigkeiten \"soft select"
-"\", \"soft detect\", und \"emulated\" (und \"advanced\") hat."
+"(5/6) Binäre Testoption, welche die Funktionalitäten \"soft select\", "
+"\"soft detect\", und \"emulated\" (und \"advanced\") hat."
 
 #: backend/test.c:815
 #, no-c-format
@@ -6378,9 +6398,9 @@ msgid ""
 "(and advanced) capabilities. This option can be automatically set by the "
 "backend."
 msgstr ""
-"(6/6) Dies ist eine Bool-Testoption, welche die Fähigkeiten \"soft select"
-"\", \"soft detect\", und \"automatic\" (und \"advanced\") hat. Diese "
-"Option kann vom Backend automatisch gesetzt werden."
+"(6/6) Binäre Testoption, welche die Funktionalitäten \"soft select\", "
+"\"soft detect\" und \"automatic\" (und \"advanced\") hat. Diese Option "
+"kann vom \"backend\" automatisch gesetzt werden."
 
 #: backend/test.c:833
 #, no-c-format
@@ -6512,32 +6532,34 @@ msgstr ""
 #: backend/test.c:1008
 #, no-c-format
 msgid "String test options"
-msgstr "String-Testoptionen"
+msgstr "Zeichenketten-Testoptionen"
 
 #: backend/test.c:1021
 #, no-c-format
 msgid "(1/3) String"
-msgstr "(1/3) String"
+msgstr "(1/3) Zeichenketten"
 
 #: backend/test.c:1022
 #, no-c-format
 msgid "(1/3) String test option without constraint."
-msgstr "(1/3) String-Testoption ohne Beschränkung."
+msgstr "(1/3) Zeichenketten-Testoption ohne Beschränkung."
 
 #: backend/test.c:1039
 #, no-c-format
 msgid "(2/3) String constraint string list"
-msgstr "(2/3) String constraint string list"
+msgstr "(2/3) Zeichenketten-Beschränkungsliste"
 
 #: backend/test.c:1040
 #, no-c-format
 msgid "(2/3) String test option with string list constraint."
-msgstr "(2/3) String-Testoption mit einer Stringlisten-Beschränkung."
+msgstr ""
+"(2/3) Zeichenketten-Testoption mit einer Zeichenkettenlisten-"
+"Beschränkung."
 
 #: backend/test.c:1059
 #, no-c-format
 msgid "(3/3) String constraint long string list"
-msgstr "(3/3) String constraint long string list"
+msgstr "(3/3) Lange-Zeichenketten-Beschränkungsliste"
 
 #: backend/test.c:1060
 #, no-c-format
@@ -6545,13 +6567,13 @@ msgid ""
 "(3/3) String test option with string list constraint. Contains some more "
 "entries..."
 msgstr ""
-"(3/3) String-Testoption mit einer Stringlisten-Beschränkung. Enthält ein "
-"paar mehr Einträge..."
+"(3/3) Zeichenketten-Testoption mit einer Zeichenkettenlisten-"
+"Beschränkung. Enthält ein paar mehr Einträge..."
 
 #: backend/test.c:1080
 #, no-c-format
 msgid "Button test options"
-msgstr "Button-Testoptionen"
+msgstr "Tasten-Testoptionen"
 
 #: backend/test.c:1093
 #, no-c-format

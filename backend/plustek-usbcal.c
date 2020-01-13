@@ -306,7 +306,7 @@ cano_AdjustLightsource( Plustek_Device *dev )
 	min_rgb.Blue  = hw->blue_lamp_on;
 
 	if((dev->adj.rlampoff != -1) &&
-	   (dev->adj.glampoff != -1) && (dev->adj.rlampoff != -1)) {
+	   (dev->adj.glampoff != -1) && (dev->adj.blampoff != -1)) {
 		DBG( _DBG_INFO, "- function skipped, using frontend values!\n" );
 		return SANE_TRUE;
 	}

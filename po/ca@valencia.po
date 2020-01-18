@@ -1,13 +1,13 @@
-# Copyright (C) 2018 The SANE developers
+# Copyright (C) 2018-2020 The SANE developers
 # This file is distributed under the same license as the sane-backends package.
 #
-# Antoni Bella Pérez <antonibella5@yahoo.com>, 2018.
+# Antoni Bella Pérez <antonibella5@yahoo.com>, 2018, 2020.
 msgid ""
 msgstr ""
-"Project-Id-Version: sane-backends 1.0.27git\n"
+"Project-Id-Version: sane-backends 1.0.29\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
 "POT-Creation-Date: 2020-01-12 07:09+0000\n"
-"PO-Revision-Date: 2018-09-10 00:37+0100\n"
+"PO-Revision-Date: 2020-01-17 11:40+0100\n"
 "Last-Translator: Antoni Bella Pérez <antonibella5@yahoo.com>\n"
 "Language-Team: Catalan <kde-i18n-ca@kde.org>\n"
 "Language: ca@valencia\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Lokalize 2.0\n"
+"X-Generator: Lokalize 20.03.70\n"
 
 #: include/sane/saneopts.h:154
 #, no-c-format
@@ -416,7 +416,7 @@ msgid "Lamp off at exit"
 msgstr "Apaga la làmpada en eixir"
 
 #: include/sane/saneopts.h:245
-#, fuzzy, no-c-format
+#, no-c-format
 msgid ""
 "Read-only option that specifies how many options a specific device "
 "supports."
@@ -768,7 +768,7 @@ msgid "Analog gamma-correction for blue"
 msgstr "Correcció de la gamma analògica per al blau"
 
 #: include/sane/saneopts.h:415
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Warm up lamp before scanning"
 msgstr "Escalfament de la làmpada abans d'escanejar"
 
@@ -918,9 +918,9 @@ msgid "Operation not supported"
 msgstr "Operació no admesa"
 
 #: backend/sane_strstatus.c:65
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Operation was canceled"
-msgstr "L'operació ha estat cancel·lada"
+msgstr "S'ha cancel·lat l'operació"
 
 #: backend/sane_strstatus.c:68
 #, no-c-format
@@ -1013,7 +1013,7 @@ msgid "Only perform shading-correction"
 msgstr "Realitza només la correcció de les ombres"
 
 #: backend/artec_eplus48u.c:2956
-#, fuzzy, no-c-format
+#, no-c-format
 msgid ""
 "If enabled, only the shading correction is performed during calibration. "
 "The default values for gain, offset and exposure time, either built-in "
@@ -1045,7 +1045,7 @@ msgid "Duplex scan"
 msgstr "Escaneja a dues cares"
 
 #: backend/avision.h:783
-#, fuzzy, no-c-format
+#, no-c-format
 msgid ""
 "Duplex scan provides a scan of the front and back side of the document"
 msgstr ""
@@ -1219,9 +1219,9 @@ msgid "invalid bit IDENTIFY message"
 msgstr "Missatge «IDENTIFY» del bit no vàlid"
 
 #: backend/canon.c:460
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "option not correct"
-msgstr "L'opció no connectar"
+msgstr "Opció no correcta"
 
 #: backend/canon.c:474
 #, no-c-format
@@ -2170,22 +2170,22 @@ msgstr "Perfil CCT definit per l'usuari"
 #: backend/epsonds.c:750
 #, no-c-format
 msgid "Load"
-msgstr ""
+msgstr "Carrega"
 
 #: backend/epsonds.c:751
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Load a sheet in the ADF"
-msgstr "Expulsa el full de l'ADF"
+msgstr "Carrega un full a l'ADF"
 
 #: backend/epsonds.c:771
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "ADF Skew Correction"
-msgstr "Sense correcció"
+msgstr "Correcció de la inclinació a l'ADF"
 
 #: backend/epsonds.c:773
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enables ADF skew correction"
-msgstr "Inhabilita la correcció de la gamma"
+msgstr "Habilita la correcció de la inclinació a l'ADF"
 
 #: backend/fujitsu.c:688 backend/hp-option.c:3330 backend/hp-option.c:3343
 #, no-c-format
@@ -2979,7 +2979,7 @@ msgid "Top edge"
 msgstr "Vora superior"
 
 #: backend/fujitsu.c:4384
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Paper is pulled partly into ADF"
 msgstr "El paper s'ha retirat parcialment dins de l'ADF"
 
@@ -3263,7 +3263,7 @@ msgid "Extra button"
 msgstr "Botó extra"
 
 #: backend/genesys/genesys.cpp:4430 backend/gt68xx.c:755
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Needs calibration"
 msgstr "Necessita calibratge"
 
@@ -3302,19 +3302,21 @@ msgid "Clear calibration cache"
 msgstr "Neteja la memòria cau del calibratge"
 
 #: backend/genesys/genesys.cpp:4476
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Force calibration"
-msgstr "Calibratge tosc"
+msgstr "Força el calibratge"
 
 #: backend/genesys/genesys.cpp:4477
 #, no-c-format
 msgid "Force calibration ignoring all and any calibration caches"
 msgstr ""
+"Força el calibratge ignorant-ho tot i qualsevol memòria cau del "
+"calibratge"
 
 #: backend/genesys/genesys.cpp:4487
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Ignore internal offsets"
-msgstr "Desplaçament del verd"
+msgstr "Ignora els desplaçaments interns"
 
 #: backend/genesys/genesys.cpp:4489
 #, no-c-format
@@ -3322,6 +3324,7 @@ msgid ""
 "Acquires the image including the internal calibration areas of the "
 "scanner"
 msgstr ""
+"Adquireix la imatge, incloses les àrees de calibratge intern de l'escàner"
 
 #: backend/genesys/genesys.h:79 backend/gt68xx.c:149 backend/ma1509.c:108
 #: backend/mustek.c:164 backend/snapscan-options.c:87 backend/umax.c:182
@@ -3330,9 +3333,9 @@ msgid "Transparency Adapter"
 msgstr "Adaptador de transparència"
 
 #: backend/genesys/genesys.h:80
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Transparency Adapter Infrared"
-msgstr "Adaptador de transparència"
+msgstr "Adaptador infraroig de transparència"
 
 #: backend/gt68xx.c:470
 #, no-c-format
@@ -3670,9 +3673,9 @@ msgid "Color Matrix"
 msgstr "Matriu de color"
 
 #: backend/hp-option.h:121
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Set the scanner's color matrix."
-msgstr "Estableix la matriu de color dels escàners."
+msgstr "Estableix la matriu de color de l'escàner."
 
 #: backend/hp-option.h:127
 #, no-c-format
@@ -3767,14 +3770,14 @@ msgid "Scanner model"
 msgstr "Model de l'escàner"
 
 #: backend/hp3900_sane.c:1408
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Allows one to test device behavior with other supported models"
 msgstr ""
 "Permet comprovar el comportament del dispositiu amb els altres models "
 "admesos"
 
 #: backend/hp3900_sane.c:1422
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Image colors will be inverted"
 msgstr "Els colors de la imatge seran invertits"
 
@@ -4012,34 +4015,36 @@ msgid "Get ID of last button pressed (read only)"
 msgstr "Obtén l'ID de l'últim botó premut (només lectura)"
 
 #: backend/hp5590.c:121
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "LCD counter"
-msgstr "Comptador d'escaneigs"
+msgstr "Comptador LCD"
 
 #: backend/hp5590.c:122
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Get value of LCD counter (read only)"
-msgstr "Obtén l'ID de l'últim botó premut (només lectura)"
+msgstr "Obtén el valor del comptador LCD (només lectura)"
 
 #: backend/hp5590.c:124
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Color LED indicator"
-msgstr "Color per a l'art lineal"
+msgstr "Indicador LED del color"
 
 #: backend/hp5590.c:125
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Get value of LED indicator (read only)"
-msgstr "Obtén l'ID de l'últim botó premut (només lectura)"
+msgstr "Obtén el valor del comptador LED (només lectura)"
 
 #: backend/hp5590.c:127
 #, no-c-format
 msgid "Document available in ADF"
-msgstr ""
+msgstr "Document disponible a l'ADF"
 
 #: backend/hp5590.c:128
 #, no-c-format
 msgid "Get state of document-available indicator in ADF (read only)"
 msgstr ""
+"Obtén l'estat de l'indicador de document disponible a l'ADF (només "
+"lectura)"
 
 #: backend/hp5590.c:130
 #, no-c-format
@@ -4351,9 +4356,9 @@ msgid "crt"
 msgstr "CRT"
 
 #: backend/kvs1025_opt.c:229
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "linear"
-msgstr "Art lineal"
+msgstr "Lineal"
 
 #: backend/kvs1025_opt.c:241 backend/kvs20xx_opt.c:138
 #: backend/kvs40xx_opt.c:224
@@ -4559,13 +4564,13 @@ msgstr ""
 "digital"
 
 #: backend/kvs20xx_opt.c:233
-#, fuzzy, no-c-format
+#, no-c-format
 msgid ""
 "Length Control Mode causes the scanner to read the shorter of either the "
 "length of the actual paper or logical document length."
 msgstr ""
-"El mode control de la longitud és un mode on l'escàner llegirà fins a la "
-"longitud més curta del paper real o la longitud lògica del document."
+"El mode control de la longitud fa que l'escàner llija la longitud més "
+"curta real del paper o la longitud lògica del document."
 
 #: backend/kvs20xx_opt.c:424 backend/kvs20xx_opt.c:425
 #: backend/kvs40xx_opt.c:668 backend/kvs40xx_opt.c:669
@@ -4595,14 +4600,14 @@ msgid "B4"
 msgstr "B4"
 
 #: backend/kvs40xx_opt.c:231
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "High sensitivity"
-msgstr "Alta sensibilitat"
+msgstr "Sensibilitat alta"
 
 #: backend/kvs40xx_opt.c:232
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Low sensitivity"
-msgstr "Baixa sensibilitat"
+msgstr "Sensibilitat baixa"
 
 #: backend/kvs40xx_opt.c:243
 #, no-c-format
@@ -4625,13 +4630,13 @@ msgid "Enhanced mode"
 msgstr "Mode millorat"
 
 #: backend/kvs40xx_opt.c:396
-#, fuzzy, no-c-format
+#, no-c-format
 msgid ""
 "Length Control Mode causes the scanner to read the shorter of either the "
 "length of the actual paper or logical document length"
 msgstr ""
-"El mode control de la longitud és un mode on l'escàner llegirà fins a la "
-"longitud més curta del paper real o la longitud lògica del document."
+"El mode control de la longitud fa que l'escàner llija la longitud més "
+"curta real del paper o la longitud lògica del document"
 
 #: backend/kvs40xx_opt.c:405
 #, no-c-format
@@ -4694,10 +4699,10 @@ msgid "JPEG compression"
 msgstr "Compressió del JPEG"
 
 #: backend/kvs40xx_opt.c:718
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "JPEG compression (your application must be able to uncompress)"
 msgstr ""
-"Compressió del JPEG (l'aplicació vostra l'haurà de poder descomprimir)"
+"Compressió del JPEG (la vostra aplicació haurà de poder descomprimir)"
 
 #: backend/kvs40xx_opt.c:737 backend/kvs40xx_opt.c:738
 #, no-c-format
@@ -4730,12 +4735,12 @@ msgid "Skew adjustment"
 msgstr "Ajustament de la inclinació"
 
 #: backend/kvs40xx_opt.c:808
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Stop scanner if a sheet is skewed"
 msgstr "Atura l'escàner quan un paper estiga inclinat"
 
 #: backend/kvs40xx_opt.c:809
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Scanner will stop if a sheet is skewed"
 msgstr "S'aturarà l'escàner quan un paper estiga inclinat"
 
@@ -4745,15 +4750,15 @@ msgid "Crop actual image area"
 msgstr "Escapça una àrea de la imatge real"
 
 #: backend/kvs40xx_opt.c:817
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Scanner will automatically detect image area and crop to it"
 msgstr ""
 "L'escàner detectarà automàticament l'àrea de la imatge i l'escapçarà"
 
 #: backend/kvs40xx_opt.c:827
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Left/right mirror image"
-msgstr "Emmiralla la imatge"
+msgstr "Emmiralla la imatge d'esquerra/dreta"
 
 #: backend/kvs40xx_opt.c:834 backend/kvs40xx_opt.c:835
 #, no-c-format
@@ -5444,7 +5449,7 @@ msgstr ""
 "d'insistir en el temps d'escalfament de 40 segons."
 
 #: backend/p5.c:1926
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Need calibration"
 msgstr "Necessita calibratge"
 
@@ -5525,12 +5530,12 @@ msgid "ADF Waiting Time"
 msgstr "Temps d'espera per a l'ADF"
 
 #: backend/pixma/pixma_sane_options.c:349
-#, fuzzy, no-c-format
+#, no-c-format
 msgid ""
 "When set, the scanner waits upto the specified time in seconds for a new "
 "document inserted into the automatic document feeder."
 msgstr ""
-"Quan s'estableix, l'escàner cerca el temps d'espera en segons perquè "
+"Quan s'estableix, l'escàner espera el temps especificat en segons perquè "
 "s'inserisca un document nou a l'alimentador automàtic de documents."
 
 #: backend/plustek.c:235 backend/plustek_pp.c:204 backend/u12.c:156
@@ -6057,12 +6062,12 @@ msgid "Focus point"
 msgstr "Punt d'enfocament"
 
 #: backend/snapscan-options.c:930
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Color lines per read"
 msgstr "Línies de color per a la lectura"
 
 #: backend/snapscan-options.c:942
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Grayscale lines per read"
 msgstr "Línies en escala de grisos per a la lectura"
 

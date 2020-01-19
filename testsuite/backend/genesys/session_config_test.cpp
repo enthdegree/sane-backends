@@ -30,7 +30,7 @@
 #include "../../../backend/genesys/test_settings.h"
 #include "../../../backend/genesys/test_scanner_interface.h"
 #include "../../../backend/genesys/utilities.h"
-#include "../../include/sane/saneopts.h"
+#include "../../../include/sane/saneopts.h"
 #include "sys/stat.h"
 #include <cstdio>
 #include <cstring>

@@ -89,6 +89,7 @@ escl_add_in_list(ESCL_Device *current)
 SANE_Status
 escl_device_add(int port_nb, const char *model_name, char *ip_address, char *type)
 {
+    char tmp[PATH_MAX] = { 0 };
     ESCL_Device *current = NULL;
     DBG (10, "escl_device_add\n");
     for (current = list_devices_primary; current; current = current->next) {
@@ -101,7 +102,13 @@ escl_device_add(int port_nb, const char *model_name, char *ip_address, char *typ
         return (SANE_STATUS_NO_MEM);
     memset(current, 0, sizeof(*current));
     current->port_nb = port_nb;
-    current->model_name = strdup(model_name);
+
+    if (strcmp(type, "_uscan._tcp") != 0 && strcmp(type, "http") != 0) {
+        snprintf(tmp, sizeof(tmp), "%s SSL", model_name);
+        current->model_name = strdup(tmp);
+    }
+    else
+        current->model_name = strdup(model_name);
     current->ip_address = strdup(ip_address);
     current->type = strdup(type);
     return escl_add_in_list(current);

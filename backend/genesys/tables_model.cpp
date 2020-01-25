@@ -515,7 +515,7 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = 3.5;
+    model.x_offset = 5.5;
     model.y_offset = 17.00;
     model.x_size = 219.9;
     model.y_size = 300.0;
@@ -592,7 +592,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.x_offset_calib_black = 8.0;
 
-    model.x_offset_ta = 85.0;
+    model.x_offset_ta = 94.0;
     model.y_offset_ta = 26.0;
     model.x_size_ta = 70.0;
     model.y_size_ta = 230.0;

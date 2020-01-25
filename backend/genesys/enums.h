@@ -528,6 +528,7 @@ enum class MotorMode : unsigned
 {
     PRIMARY = 0,
     PRIMARY_AND_SECONDARY,
+    SECONDARY,
 };
 
 } // namespace genesys

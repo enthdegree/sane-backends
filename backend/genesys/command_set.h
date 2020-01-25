@@ -160,6 +160,9 @@ public:
     /// cold boot init function
     virtual void asic_boot(Genesys_Device* dev, bool cold) const = 0;
 
+    /// checks if specific scan head is at home position
+    virtual bool is_head_home(Genesys_Device& dev, ScanHeadId scan_head) const = 0;
+
     /// enables or disables XPA slider motor
     virtual void set_xpa_lamp_power(Genesys_Device& dev, bool set) const = 0;
 

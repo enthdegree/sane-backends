@@ -35,6 +35,8 @@ class CommandSetCommon : public CommandSet
 public:
     ~CommandSetCommon() override;
 
+    bool is_head_home(Genesys_Device& dev, ScanHeadId scan_head) const override;
+
     void set_xpa_lamp_power(Genesys_Device& dev, bool set) const override;
 
     void set_motor_mode(Genesys_Device& dev, Genesys_Register_Set& regs,

@@ -2400,7 +2400,7 @@ void genesys_init_sensor_tables()
     // 31 at 600 dpi, 58 at 1200 dpi
     sensor.dummy_pixel = 20;
     sensor.ccd_start_xoffset = 152;
-    sensor.sensor_pixels = 27200;
+    sensor.sensor_pixels = 28400;
     sensor.fau_gain_white_ref = 160;
     sensor.gain_white_ref = 160;
     sensor.exposure = { 0x9c40, 0x9c40, 0x9c40 };

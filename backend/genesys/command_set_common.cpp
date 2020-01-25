@@ -170,16 +170,8 @@ void CommandSetCommon::set_motor_mode(Genesys_Device& dev, Genesys_Register_Set&
     };
 
     MotorSettings settings[] = {
-        {   ModelId::CANON_8400F, { 400, 800, 1600 }, {
+        {   ModelId::CANON_8400F, { 400, 800, 1600, 3200 }, {
                 { 0x6c, 0x00, 0x90 },
-                { 0xa9, 0x04, 0x06 },
-            }, {
-                { 0x6c, 0x90, 0x90 },
-                { 0xa9, 0x02, 0x06 },
-            }, {}
-        },
-        {   ModelId::CANON_8400F, { 3200 }, {
-                { 0x6c, 0x00, 0x92 },
                 { 0xa9, 0x04, 0x06 },
             }, {
                 { 0x6c, 0x90, 0x90 },

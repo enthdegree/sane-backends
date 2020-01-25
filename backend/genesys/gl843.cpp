@@ -1402,6 +1402,20 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
             dev->interface->write_register(REG_0x7E, 0x01);
             break;
         case GpioId::CANON_8400F:
+            if (dev->session.params.xres == 3200)
+            {
+                GenesysRegisterSettingSet reg_settings = {
+                    { 0x6c, 0x00, 0x02 },
+                };
+                apply_reg_settings_to_device(*dev, reg_settings);
+            }
+            if (reg->state.is_xpa_on && reg->state.is_lamp_on) {
+                dev->cmd_set->set_xpa_lamp_power(*dev, true);
+            }
+            if (reg->state.is_xpa_on) {
+                dev->cmd_set->set_motor_mode(*dev, *reg, MotorMode::PRIMARY_AND_SECONDARY);
+            }
+            break;
         case GpioId::CANON_8600F:
             if (reg->state.is_xpa_on && reg->state.is_lamp_on) {
                 dev->cmd_set->set_xpa_lamp_power(*dev, true);

@@ -1631,32 +1631,71 @@ ScanSession CommandSetGl841::calculate_scan_session(const Genesys_Device* dev,
                                                     const Genesys_Sensor& sensor,
                                                     const Genesys_Settings& settings) const
 {
-  int start;
-
-    DBG(DBG_info, "%s ", __func__);
+    DBG_HELPER(dbg);
     debug_dump(DBG_info, settings);
 
-/* start */
-    start = static_cast<int>(dev->model->x_offset);
-    start += static_cast<int>(settings.tl_x);
+    /* steps to move to reach scanning area:
+       - first we move to physical start of scanning
+       either by a fixed steps amount from the black strip
+       or by a fixed amount from parking position,
+       minus the steps done during shading calibration
+       - then we move by the needed offset whitin physical
+       scanning area
 
-    start = static_cast<int>((start * sensor.optical_res) / MM_PER_INCH);
+       assumption: steps are expressed at maximum motor resolution
+
+       we need:
+       float y_offset;
+       float y_size;
+       float y_offset_calib;
+       mm_to_steps()=motor dpi / 2.54 / 10=motor dpi / MM_PER_INCH
+    */
+
+    // if scanner uses GENESYS_FLAG_SEARCH_START y_offset is
+    // relative from origin, else, it is from parking position
+    float move = 0.0f;
+    if (dev->model->flags & GENESYS_FLAG_SEARCH_START) {
+        move += static_cast<float>(dev->model->y_offset_calib_white);
+    }
+
+    move += static_cast<float>(dev->model->y_offset);
+    move += static_cast<float>(dev->settings.tl_y);
+
+    int move_dpi = dev->motor.base_ydpi;
+    move = static_cast<float>((move * move_dpi) / MM_PER_INCH);
+
+    float start = static_cast<float>(dev->model->x_offset);
+    start += static_cast<float>(dev->settings.tl_x);
+    start = static_cast<float>((start * sensor.optical_res) / MM_PER_INCH);
+
+    // we enable true gray for cis scanners only, and just when doing
+    // scan since color calibration is OK for this mode
+    ScanFlag flags = ScanFlag::NONE;
+
+    // true gray (led add for cis scanners)
+    if (dev->model->is_cis && dev->settings.true_gray &&
+        dev->settings.scan_mode != ScanColorMode::COLOR_SINGLE_PASS &&
+        dev->model->sensor_id != SensorId::CIS_CANON_LIDE_80)
+    {
+        // on Lide 80 the LEDADD bit results in only red LED array being lit
+        DBG(DBG_io, "%s: activating LEDADD\n", __func__);
+        flags |= ScanFlag::ENABLE_LEDADD;
+    }
 
     ScanSession session;
-    session.params.xres = settings.xres;
-    session.params.yres = settings.yres;
-    session.params.startx = start;
-    session.params.starty = 0; // not used
-    session.params.pixels = settings.pixels;
-    session.params.requested_pixels = settings.requested_pixels;
-    session.params.lines = settings.lines;
-    session.params.depth = settings.depth;
-    session.params.channels = settings.get_channels();
-    session.params.scan_method = settings.scan_method;
-    session.params.scan_mode = settings.scan_mode;
-    session.params.color_filter = settings.color_filter;
-    session.params.flags = ScanFlag::NONE;
-
+    session.params.xres = dev->settings.xres;
+    session.params.yres = dev->settings.yres;
+    session.params.startx = static_cast<unsigned>(start);
+    session.params.starty = static_cast<unsigned>(move);
+    session.params.pixels = dev->settings.pixels;
+    session.params.requested_pixels = dev->settings.requested_pixels;
+    session.params.lines = dev->settings.lines;
+    session.params.depth = dev->settings.depth;
+    session.params.channels = dev->settings.get_channels();
+    session.params.scan_method = dev->settings.scan_method;
+    session.params.scan_mode = dev->settings.scan_mode;
+    session.params.color_filter = dev->settings.color_filter;
+    session.params.flags = flags;
     compute_session(dev, session, sensor);
 
     return session;
@@ -2463,86 +2502,10 @@ void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 void CommandSetGl841::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const
 {
     DBG_HELPER(dbg);
-  float move;
-  int move_dpi;
-  float start;
 
     debug_dump(DBG_info, dev->settings);
 
-  /* steps to move to reach scanning area:
-     - first we move to physical start of scanning
-     either by a fixed steps amount from the black strip
-     or by a fixed amount from parking position,
-     minus the steps done during shading calibration
-     - then we move by the needed offset whitin physical
-     scanning area
-
-     assumption: steps are expressed at maximum motor resolution
-
-     we need:
-     float y_offset;
-     float y_size;
-     float y_offset_calib;
-     mm_to_steps()=motor dpi / 2.54 / 10=motor dpi / MM_PER_INCH */
-
-  /* if scanner uses GENESYS_FLAG_SEARCH_START y_offset is
-     relative from origin, else, it is from parking position */
-
-  move_dpi = dev->motor.base_ydpi;
-
-  move = 0;
-    if (dev->model->flags & GENESYS_FLAG_SEARCH_START) {
-        move += static_cast<float>(dev->model->y_offset_calib_white);
-    }
-
-  DBG(DBG_info, "%s move=%f steps\n", __func__, move);
-
-    move += static_cast<float>(dev->model->y_offset);
-  DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
-
-    move += static_cast<float>(dev->settings.tl_y);
-  DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
-
-    move = static_cast<float>((move * move_dpi) / MM_PER_INCH);
-
-/* start */
-    start = static_cast<float>(dev->model->x_offset);
-
-    start += static_cast<float>(dev->settings.tl_x);
-
-    start = static_cast<float>((start * sensor.optical_res) / MM_PER_INCH);
-
-  /* we enable true gray for cis scanners only, and just when doing
-   * scan since color calibration is OK for this mode
-   */
-    ScanFlag flags = ScanFlag::NONE;
-
-  /* true gray (led add for cis scanners) */
-  if(dev->model->is_cis && dev->settings.true_gray
-    && dev->settings.scan_mode != ScanColorMode::COLOR_SINGLE_PASS
-    && dev->model->sensor_id != SensorId::CIS_CANON_LIDE_80)
-    {
-      // on Lide 80 the LEDADD bit results in only red LED array being lit
-      DBG(DBG_io, "%s: activating LEDADD\n", __func__);
-        flags |= ScanFlag::ENABLE_LEDADD;
-    }
-
-    ScanSession session;
-    session.params.xres = dev->settings.xres;
-    session.params.yres = dev->settings.yres;
-    session.params.startx = static_cast<unsigned>(start);
-    session.params.starty = static_cast<unsigned>(move);
-    session.params.pixels = dev->settings.pixels;
-    session.params.requested_pixels = dev->settings.requested_pixels;
-    session.params.lines = dev->settings.lines;
-    session.params.depth = dev->settings.depth;
-    session.params.channels = dev->settings.get_channels();
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = dev->settings.scan_mode;
-    session.params.color_filter = dev->settings.color_filter;
-    session.params.flags = flags;
-    compute_session(dev, session, sensor);
-
+    auto session = calculate_scan_session(dev, sensor, dev->settings);
     init_regs_for_scan_session(dev, sensor, &dev->reg, session);
 }
 

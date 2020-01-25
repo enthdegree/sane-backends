@@ -1214,6 +1214,15 @@ void CommandSetGl843::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     DBG(DBG_info, "%s: total bytes to send = %zu\n", __func__, dev->total_bytes_to_read);
 }
 
+static double get_model_x_offset_ta(const Genesys_Device& dev,
+                                    const Genesys_Settings& settings)
+{
+    if (dev.model->model_id == ModelId::CANON_8600F && settings.xres == 4800) {
+        return 85.0;
+    }
+    return dev.model->x_offset_ta;
+}
+
 ScanSession CommandSetGl843::calculate_scan_session(const Genesys_Device* dev,
                                                     const Genesys_Sensor& sensor,
                                                     const Genesys_Settings& settings) const
@@ -1229,7 +1238,7 @@ ScanSession CommandSetGl843::calculate_scan_session(const Genesys_Device* dev,
     if (settings.scan_method == ScanMethod::TRANSPARENCY ||
         settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        start = static_cast<int>(dev->model->x_offset_ta);
+        start = static_cast<int>(get_model_x_offset_ta(*dev, settings));
     } else {
         start = static_cast<int>(dev->model->x_offset);
     }
@@ -1649,7 +1658,7 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
         dev->model->model_id == ModelId::CANON_8600F &&
         dev->settings.xres == 4800)
     {
-        float offset = static_cast<float>(dev->model->x_offset_ta);
+        float offset = static_cast<float>(get_model_x_offset_ta(*dev, dev->settings));
         offset /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
         offset = static_cast<float>((offset * calib_sensor.optical_res) / MM_PER_INCH);
 
@@ -1754,7 +1763,7 @@ void CommandSetGl843::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     if (dev->settings.scan_method==ScanMethod::TRANSPARENCY ||
         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        start = static_cast<float>(dev->model->x_offset_ta);
+        start = static_cast<float>(get_model_x_offset_ta(*dev, dev->settings));
     } else {
         start = static_cast<float>(dev->model->x_offset);
     }
@@ -2048,7 +2057,7 @@ void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sens
         dev->model->model_id == ModelId::CANON_8600F &&
         dev->settings.xres == 4800)
     {
-        start_pixel = static_cast<int>(dev->model->x_offset_ta);
+        start_pixel = static_cast<int>(get_model_x_offset_ta(*dev, dev->settings));
         start_pixel /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
         start_pixel = static_cast<int>((start_pixel * calib_sensor.optical_res) / MM_PER_INCH);
 

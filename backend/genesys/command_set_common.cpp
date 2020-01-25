@@ -23,10 +23,49 @@
 #define DEBUG_DECLARE_ONLY
 
 #include "command_set_common.h"
+#include "low.h"
 
 namespace genesys {
 
 CommandSetCommon::~CommandSetCommon() = default;
+
+bool CommandSetCommon::is_head_home(Genesys_Device& dev, ScanHeadId scan_head) const
+{
+    struct HeadSettings {
+        ModelId model_id;
+        ScanHeadId scan_head;
+        GenesysRegisterSettingSet regs;
+    };
+
+    HeadSettings settings[] = {
+        {   ModelId::CANON_8600F,
+            ScanHeadId::PRIMARY, {
+                { 0x6c, 0x20, 0x60 },
+                { 0xa6, 0x00, 0x01 },
+            }
+        },
+        {   ModelId::CANON_8600F,
+            ScanHeadId::SECONDARY, {
+                { 0x6c, 0x00, 0x60 },
+                { 0xa6, 0x01, 0x01 },
+            }
+        },
+    };
+
+    for (const auto& setting : settings) {
+        if (setting.model_id == dev.model->model_id &&
+            setting.scan_head == scan_head)
+        {
+            auto reg_backup = apply_reg_settings_to_device_with_backup(dev, setting.regs);
+            auto status = scanner_read_status(dev);
+            apply_reg_settings_to_device(dev, reg_backup);
+            return status.is_at_home;
+        }
+    }
+
+    auto status = scanner_read_status(dev);
+    return status.is_at_home;
+}
 
 void CommandSetCommon::set_xpa_lamp_power(Genesys_Device& dev, bool set) const
 
@@ -127,6 +166,7 @@ void CommandSetCommon::set_motor_mode(Genesys_Device& dev, Genesys_Register_Set&
         ResolutionFilter resolutions;
         GenesysRegisterSettingSet regs_primary_and_secondary;
         GenesysRegisterSettingSet regs_primary;
+        GenesysRegisterSettingSet regs_secondary;
     };
 
     MotorSettings settings[] = {
@@ -136,7 +176,7 @@ void CommandSetCommon::set_motor_mode(Genesys_Device& dev, Genesys_Register_Set&
             }, {
                 { 0x6c, 0x90, 0x90 },
                 { 0xa9, 0x02, 0x06 },
-            }
+            }, {}
         },
         {   ModelId::CANON_8400F, { 3200 }, {
                 { 0x6c, 0x00, 0x92 },
@@ -144,22 +184,28 @@ void CommandSetCommon::set_motor_mode(Genesys_Device& dev, Genesys_Register_Set&
             }, {
                 { 0x6c, 0x90, 0x90 },
                 { 0xa9, 0x02, 0x06 },
-            }
+            }, {}
         },
         {   ModelId::CANON_8600F, { 300, 600, 1200 }, {
-                { 0x6c, 0x00, 0x20 },
+                { 0x6c, 0x00, 0x60 },
                 { 0xa6, 0x01, 0x41 },
             }, {
-                { 0x6c, 0x20, 0x22 },
+                { 0x6c, 0x20, 0x62 },
                 { 0xa6, 0x00, 0x41 },
+            }, {
+                { 0x6c, 0x40, 0x62 },
+                { 0xa6, 0x01, 0x41 },
             }
         },
         {   ModelId::CANON_8600F, { 2400, 4800 }, {
-                { 0x6c, 0x02, 0x22 },
+                { 0x6c, 0x02, 0x62 },
                 { 0xa6, 0x01, 0x41 },
             }, {
-                { 0x6c, 0x20, 0x22 },
+                { 0x6c, 0x20, 0x62 },
                 { 0xa6, 0x00, 0x41 },
+            }, {
+                { 0x6c, 0x40, 0x62 },
+                { 0xa6, 0x01, 0x41 },
             }
         },
         {   ModelId::HP_SCANJET_G4050, ResolutionFilter::ANY, {
@@ -173,11 +219,11 @@ void CommandSetCommon::set_motor_mode(Genesys_Device& dev, Genesys_Register_Set&
                 { 0x6b, 0x00, 0x01 }, // BUG: note that only ADF is unset
                 { 0xa8, 0x04, 0x04 },
                 { 0xa9, 0x00, 0x10 }, // note that 0x20 bit is not reset
-            }
+            }, {}
         },
-        {   ModelId::PLUSTEK_OPTICFILM_7200I, ResolutionFilter::ANY, {}, {} },
-        {   ModelId::PLUSTEK_OPTICFILM_7300, ResolutionFilter::ANY, {}, {} },
-        {   ModelId::PLUSTEK_OPTICFILM_7500I, ResolutionFilter::ANY, {}, {} },
+        {   ModelId::PLUSTEK_OPTICFILM_7200I, ResolutionFilter::ANY, {}, {}, {} },
+        {   ModelId::PLUSTEK_OPTICFILM_7300, ResolutionFilter::ANY, {}, {}, {} },
+        {   ModelId::PLUSTEK_OPTICFILM_7500I, ResolutionFilter::ANY, {}, {}, {} },
     };
 
     for (const auto& setting : settings) {
@@ -191,6 +237,10 @@ void CommandSetCommon::set_motor_mode(Genesys_Device& dev, Genesys_Register_Set&
                 }
                 case MotorMode::PRIMARY_AND_SECONDARY: {
                     apply_reg_settings_to_device(dev, setting.regs_primary_and_secondary);
+                    break;
+                }
+                case MotorMode::SECONDARY: {
+                    apply_reg_settings_to_device(dev, setting.regs_secondary);
                     break;
                 }
             }

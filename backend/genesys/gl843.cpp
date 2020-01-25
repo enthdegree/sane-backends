@@ -1446,6 +1446,12 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
             dev->advance_head_pos_by_session(ScanHeadId::SECONDARY);
             break;
         }
+        case MotorMode::SECONDARY: {
+            if (reg->state.is_motor_on) {
+                dev->advance_head_pos_by_session(ScanHeadId::SECONDARY);
+            }
+            break;
+        }
     }
 }
 

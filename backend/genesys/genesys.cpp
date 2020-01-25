@@ -1176,8 +1176,22 @@ void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
 }
 
 namespace {
-    void handle_motor_position_after_move_back_home_ta(Genesys_Device& dev)
+    bool should_use_secondary_motor_mode(Genesys_Device& dev)
     {
+        bool should_use = !dev.is_head_pos_known(ScanHeadId::SECONDARY) ||
+                          !dev.is_head_pos_known(ScanHeadId::PRIMARY) ||
+                          dev.head_pos(ScanHeadId::SECONDARY) > dev.head_pos(ScanHeadId::PRIMARY);
+        bool supports = dev.model->model_id == ModelId::CANON_8600F;
+        return should_use && supports;
+    }
+
+    void handle_motor_position_after_move_back_home_ta(Genesys_Device& dev, MotorMode motor_mode)
+    {
+        if (motor_mode == MotorMode::SECONDARY) {
+            dev.set_head_pos_zero(ScanHeadId::SECONDARY);
+            return;
+        }
+
         if (dev.is_head_pos_known(ScanHeadId::PRIMARY)) {
             if (dev.head_pos(ScanHeadId::PRIMARY) > dev.head_pos(ScanHeadId::SECONDARY)) {
                 dev.advance_head_pos_by_steps(ScanHeadId::PRIMARY, Direction::BACKWARD,
@@ -1209,7 +1223,9 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
     const auto& sensor = sanei_genesys_find_sensor(&dev, resolution, 1, scan_method);
 
     if (dev.is_head_pos_known(ScanHeadId::SECONDARY) &&
-        dev.head_pos(ScanHeadId::SECONDARY) > 1000)
+        dev.is_head_pos_known(ScanHeadId::PRIMARY) &&
+        dev.head_pos(ScanHeadId::SECONDARY) > 1000 &&
+        dev.head_pos(ScanHeadId::SECONDARY) <= dev.head_pos(ScanHeadId::PRIMARY))
     {
         // leave 500 steps for regular slow back home
         scanner_move(dev, scan_method, dev.head_pos(ScanHeadId::SECONDARY) - 500,
@@ -1240,7 +1256,11 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
     scanner_clear_scan_and_feed_counts(dev);
 
     dev.interface->write_registers(local_reg);
-    dev.cmd_set->set_motor_mode(dev, local_reg, MotorMode::PRIMARY_AND_SECONDARY);
+
+    auto motor_mode = should_use_secondary_motor_mode(dev) ? MotorMode::SECONDARY
+                                                           : MotorMode::PRIMARY_AND_SECONDARY;
+
+    dev.cmd_set->set_motor_mode(dev, local_reg, motor_mode);
 
     try {
         scanner_start_action(dev, true);
@@ -1254,7 +1274,7 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
     if (is_testing_mode()) {
         dev.interface->test_checkpoint("move_back_home_ta");
 
-        handle_motor_position_after_move_back_home_ta(dev);
+        handle_motor_position_after_move_back_home_ta(dev, motor_mode);
 
         scanner_stop_action(dev);
         dev.cmd_set->set_motor_mode(dev, local_reg, MotorMode::PRIMARY);
@@ -1268,7 +1288,7 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
         if (status.is_at_home) {
             dbg.log(DBG_info, "TA reached home position");
 
-            handle_motor_position_after_move_back_home_ta(dev);
+            handle_motor_position_after_move_back_home_ta(dev, motor_mode);
 
             scanner_stop_action(dev);
             dev.cmd_set->set_motor_mode(dev, local_reg, MotorMode::PRIMARY);
@@ -4631,7 +4651,7 @@ static void probe_genesys_devices()
    of Genesys_Calibration_Cache as is.
 */
 static const char* CALIBRATION_IDENT = "sane_genesys";
-static const int CALIBRATION_VERSION = 21;
+static const int CALIBRATION_VERSION = 23;
 
 bool read_calibration(std::istream& str, Genesys_Device::Calibration& calibration,
                       const std::string& path)

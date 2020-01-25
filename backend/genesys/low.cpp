@@ -1504,6 +1504,14 @@ void sanei_genesys_asic_init(Genesys_Device* dev, bool /*max_regs*/)
     dev->already_initialized = true;
 
     // Move to home if needed
+    if (dev->model->model_id == ModelId::CANON_8600F) {
+        if (!dev->cmd_set->is_head_home(*dev, ScanHeadId::SECONDARY)) {
+            dev->set_head_pos_unknown(ScanHeadId::SECONDARY);
+        }
+        if (!dev->cmd_set->is_head_home(*dev, ScanHeadId::PRIMARY)) {
+            dev->set_head_pos_unknown(ScanHeadId::SECONDARY);
+        }
+    }
     dev->cmd_set->move_back_home(dev, true);
 
     // Set powersaving (default = 15 minutes)

@@ -1214,6 +1214,15 @@ void CommandSetGl843::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     DBG(DBG_info, "%s: total bytes to send = %zu\n", __func__, dev->total_bytes_to_read);
 }
 
+static double get_model_x_offset_ta(const Genesys_Device& dev,
+                                    const Genesys_Settings& settings)
+{
+    if (dev.model->model_id == ModelId::CANON_8600F && settings.xres == 4800) {
+        return 85.0;
+    }
+    return dev.model->x_offset_ta;
+}
+
 ScanSession CommandSetGl843::calculate_scan_session(const Genesys_Device* dev,
                                                     const Genesys_Sensor& sensor,
                                                     const Genesys_Settings& settings) const
@@ -1229,18 +1238,20 @@ ScanSession CommandSetGl843::calculate_scan_session(const Genesys_Device* dev,
     if (settings.scan_method == ScanMethod::TRANSPARENCY ||
         settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        start = static_cast<int>(dev->model->x_offset_ta);
+        start = static_cast<int>(get_model_x_offset_ta(*dev, settings));
     } else {
         start = static_cast<int>(dev->model->x_offset);
     }
 
-    if (dev->model->model_id == ModelId::CANON_8600F)
+    start += static_cast<int>(settings.tl_x);
+
+    if (dev->model->model_id == ModelId::CANON_8400F ||
+        dev->model->model_id == ModelId::CANON_8600F)
     {
         // FIXME: this is probably just an artifact of a bug elsewhere
         start /= ccd_size_divisor;
     }
 
-    start += static_cast<int>(settings.tl_x);
     start = static_cast<int>((start * sensor.optical_res) / MM_PER_INCH);
 
     ScanSession session;
@@ -1400,6 +1411,20 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
             dev->interface->write_register(REG_0x7E, 0x01);
             break;
         case GpioId::CANON_8400F:
+            if (dev->session.params.xres == 3200)
+            {
+                GenesysRegisterSettingSet reg_settings = {
+                    { 0x6c, 0x00, 0x02 },
+                };
+                apply_reg_settings_to_device(*dev, reg_settings);
+            }
+            if (reg->state.is_xpa_on && reg->state.is_lamp_on) {
+                dev->cmd_set->set_xpa_lamp_power(*dev, true);
+            }
+            if (reg->state.is_xpa_on) {
+                dev->cmd_set->set_motor_mode(*dev, *reg, MotorMode::PRIMARY_AND_SECONDARY);
+            }
+            break;
         case GpioId::CANON_8600F:
             if (reg->state.is_xpa_on && reg->state.is_lamp_on) {
                 dev->cmd_set->set_xpa_lamp_power(*dev, true);
@@ -1444,6 +1469,12 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
             }
             // BUG: we should advance secondary head only if motor was on
             dev->advance_head_pos_by_session(ScanHeadId::SECONDARY);
+            break;
+        }
+        case MotorMode::SECONDARY: {
+            if (reg->state.is_motor_on) {
+                dev->advance_head_pos_by_session(ScanHeadId::SECONDARY);
+            }
             break;
         }
     }
@@ -1627,7 +1658,7 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
         dev->model->model_id == ModelId::CANON_8600F &&
         dev->settings.xres == 4800)
     {
-        float offset = static_cast<float>(dev->model->x_offset_ta);
+        float offset = static_cast<float>(get_model_x_offset_ta(*dev, dev->settings));
         offset /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
         offset = static_cast<float>((offset * calib_sensor.optical_res) / MM_PER_INCH);
 
@@ -1732,10 +1763,11 @@ void CommandSetGl843::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     if (dev->settings.scan_method==ScanMethod::TRANSPARENCY ||
         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        start = static_cast<float>(dev->model->x_offset_ta);
+        start = static_cast<float>(get_model_x_offset_ta(*dev, dev->settings));
     } else {
         start = static_cast<float>(dev->model->x_offset);
     }
+    start = static_cast<float>(start + dev->settings.tl_x);
 
     if (dev->model->model_id == ModelId::CANON_8400F ||
         dev->model->model_id == ModelId::CANON_8600F)
@@ -1744,7 +1776,6 @@ void CommandSetGl843::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
         start /= sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
     }
 
-    start = static_cast<float>(start + dev->settings.tl_x);
     start = static_cast<float>((start * sensor.optical_res) / MM_PER_INCH);
 
     ScanSession session;
@@ -2026,7 +2057,7 @@ void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sens
         dev->model->model_id == ModelId::CANON_8600F &&
         dev->settings.xres == 4800)
     {
-        start_pixel = static_cast<int>(dev->model->x_offset_ta);
+        start_pixel = static_cast<int>(get_model_x_offset_ta(*dev, dev->settings));
         start_pixel /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
         start_pixel = static_cast<int>((start_pixel * calib_sensor.optical_res) / MM_PER_INCH);
 

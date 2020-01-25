@@ -592,7 +592,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.x_offset_calib_black = 8.0;
 
-    model.x_offset_ta = 85.0;
+    model.x_offset_ta = 92.0;
     model.y_offset_ta = 26.0;
     model.x_size_ta = 70.0;
     model.y_size_ta = 230.0;

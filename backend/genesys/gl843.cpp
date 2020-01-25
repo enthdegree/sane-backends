@@ -1234,13 +1234,13 @@ ScanSession CommandSetGl843::calculate_scan_session(const Genesys_Device* dev,
         start = static_cast<int>(dev->model->x_offset);
     }
 
-    if (dev->model->model_id == ModelId::CANON_8600F)
-    {
+    start += static_cast<int>(settings.tl_x);
+
+    if (dev->model->model_id == ModelId::CANON_8600F) {
         // FIXME: this is probably just an artifact of a bug elsewhere
         start /= ccd_size_divisor;
     }
 
-    start += static_cast<int>(settings.tl_x);
     start = static_cast<int>((start * sensor.optical_res) / MM_PER_INCH);
 
     ScanSession session;
@@ -1742,6 +1742,7 @@ void CommandSetGl843::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     } else {
         start = static_cast<float>(dev->model->x_offset);
     }
+    start = static_cast<float>(start + dev->settings.tl_x);
 
     if (dev->model->model_id == ModelId::CANON_8400F ||
         dev->model->model_id == ModelId::CANON_8600F)
@@ -1750,7 +1751,6 @@ void CommandSetGl843::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
         start /= sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
     }
 
-    start = static_cast<float>(start + dev->settings.tl_x);
     start = static_cast<float>((start * sensor.optical_res) / MM_PER_INCH);
 
     ScanSession session;

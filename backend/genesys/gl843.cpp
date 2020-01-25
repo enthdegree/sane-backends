@@ -1236,7 +1236,9 @@ ScanSession CommandSetGl843::calculate_scan_session(const Genesys_Device* dev,
 
     start += static_cast<int>(settings.tl_x);
 
-    if (dev->model->model_id == ModelId::CANON_8600F) {
+    if (dev->model->model_id == ModelId::CANON_8400F ||
+        dev->model->model_id == ModelId::CANON_8600F)
+    {
         // FIXME: this is probably just an artifact of a bug elsewhere
         start /= ccd_size_divisor;
     }

@@ -178,28 +178,33 @@ convertFromESCLDev(ESCL_Device *cdev)
     sdev->name = strdup(tmp);
     if (!sdev->name) {
        DBG (10, "Name allocation failure.\n");
-       free(sdev);
-       return NULL;
+       goto freedev;
     }
     sdev->model = strdup(cdev->model_name);
     if (!sdev->model) {
        DBG (10, "Model allocation failure.\n");
-       free(sdev);
-       return NULL;
+       goto freename;
     }
     sdev->vendor = strdup("ESCL");
     if (!sdev->vendor) {
        DBG (10, "Vendor allocation failure.\n");
-       free(sdev);
-       return NULL;
+       goto freemodel;
     }
     sdev->type = strdup("flatbed scanner");
     if (!sdev->type) {
        DBG (10, "Scanner Type allocation failure.\n");
-       free(sdev);
-       return NULL;
+       goto freevendor;
     }
     return (sdev);
+freevendor:
+    free((void*)sdev->vendor);
+freemodel:
+    free((void*)sdev->model);
+freename:
+    free((void*)sdev->name);
+freedev:
+    free((void*)sdev);
+    return NULL;
 }
 
 /**

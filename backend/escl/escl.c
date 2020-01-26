@@ -72,10 +72,35 @@ typedef struct Handled {
 static SANE_Status
 escl_add_in_list(ESCL_Device *current)
 {
+    if (!current->ip_address) {
+      DBG (10, "Ip Address allocation failure.\n");
+      goto free_device;
+    }
+    if (current->port_nb == 0) {
+      DBG (10, "No port defined.\n");
+      goto free_device;
+    }
+    if (!current->model_name) {
+      DBG (10, "Modele Name allocation failure.\n");
+      goto free_device;
+    }
+    if (!current->type) {
+      DBG (10, "Scanner Type allocation failure.\n");
+      goto free_device;
+    }
     ++num_devices;
     current->next = list_devices_primary;
     list_devices_primary = current;
     return (SANE_STATUS_GOOD);
+free_device:
+    if(current->ip_address)
+       free((void*)current->ip_address);
+    if(current->model_name)
+       free((void*)current->model_name);
+    if(current->type)
+       free((void*)current->type);
+    free(current);
+    return (SANE_STATUS_NO_MEM);
 }
 
 /**
@@ -98,12 +123,11 @@ escl_device_add(int port_nb, const char *model_name, char *ip_address, char *typ
             && strcmp(current->type, type) == 0)
             return (SANE_STATUS_GOOD);
     }
-    current = malloc(sizeof(*current));
+    current = (ESCL_Device*)calloc(1, sizeof(*current));
     if (current == NULL) {
        DBG (10, "New device allocation failure.\n");
        return (SANE_STATUS_NO_MEM);
     }
-    memset(current, 0, sizeof(*current));
     current->port_nb = port_nb;
 
     if (strcmp(type, "_uscan._tcp") != 0 && strcmp(type, "http") != 0) {
@@ -111,20 +135,8 @@ escl_device_add(int port_nb, const char *model_name, char *ip_address, char *typ
     }
     model = (char*)(tmp[0] != 0 ? tmp : model_name);
     current->model_name = strdup(model);
-    if (!current->model_name) {
-       DBG (10, "Modele name allocation failure.\n");
-       return (SANE_STATUS_NO_MEM);
-    }
     current->ip_address = strdup(ip_address);
-    if (!current->ip_address) {
-       DBG (10, "Ip Address allocation failure.\n");
-       return (SANE_STATUS_NO_MEM);
-    }
     current->type = strdup(type);
-    if (!current->type) {
-       DBG (10, "Type connection allocation failure.\n");
-       return (SANE_STATUS_NO_MEM);
-    }
     return escl_add_in_list(current);
 }
 
@@ -268,11 +280,9 @@ static SANE_Status
 attach_one_config(SANEI_Config __sane_unused__ *config, const char *line)
 {
     int port = 0;
-    static int count = 0;
     static ESCL_Device *escl_device = NULL;
 
     if (strncmp(line, "[device]", 8) == 0) {
-        count = 0;
         escl_device = (ESCL_Device*)calloc(1, sizeof(ESCL_Device));
         if (!escl_device) {
            DBG (10, "New Escl_Device allocation failure.\n");
@@ -282,54 +292,28 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line)
     if (strncmp(line, "ip", 2) == 0) {
         const char *ip_space = sanei_config_skip_whitespace(line + 2);
         if (escl_device != NULL && ip_space != NULL) {
-            count++;
             escl_device->ip_address = strdup(ip_space);
-            if (!escl_device->ip_address) {
-              DBG (10, "Ip Address allocation failure.\n");
-              goto free_device;
-            }
         }
     }
     if (sscanf(line, "port %i", &port) == 1 && port != 0) {
         const char *port_space = sanei_config_skip_whitespace(line + 4);
         if (escl_device != NULL && port_space != NULL) {
-            count++;
             escl_device->port_nb = port;
         }
     }
     if (strncmp(line, "model", 5) == 0) {
         const char *model_space = sanei_config_skip_whitespace(line + 5);
         if (escl_device != NULL && model_space != NULL) {
-            count++;
             escl_device->model_name = strdup(model_space);
-            if (!escl_device->model_name) {
-              DBG (10, "Modele Name allocation failure.\n");
-              goto free_ip;
-            }
         }
     }
     if (strncmp(line, "type", 4) == 0) {
         const char *type_space = sanei_config_skip_whitespace(line + 4);
         if (escl_device != NULL && type_space != NULL) {
-            count++;
             escl_device->type = strdup(type_space);
-            if (!escl_device->type) {
-              DBG (10, "Scanner Type allocation failure.\n");
-              goto free_model;
-            }
         }
     }
-    if (count == 4)
-        return (escl_add_in_list(escl_device));
-    return (SANE_STATUS_GOOD);
-free_model:
-    free(escl_device->model_name);
-free_ip:
-    free(escl_device->ip_address);
-free_device:
-    free(escl_device);
-    return (SANE_STATUS_NO_MEM);
-
+    return (escl_add_in_list(escl_device));
 }
 
 /**

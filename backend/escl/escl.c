@@ -72,10 +72,35 @@ typedef struct Handled {
 static SANE_Status
 escl_add_in_list(ESCL_Device *current)
 {
+    if (!current->ip_address) {
+      DBG (10, "Ip Address allocation failure.\n");
+      goto free_device;
+    }
+    if (current->port_nb == 0) {
+      DBG (10, "No port defined.\n");
+      goto free_device;
+    }
+    if (!current->model_name) {
+      DBG (10, "Modele Name allocation failure.\n");
+      goto free_device;
+    }
+    if (!current->type) {
+      DBG (10, "Scanner Type allocation failure.\n");
+      goto free_device;
+    }
     ++num_devices;
     current->next = list_devices_primary;
     list_devices_primary = current;
     return (SANE_STATUS_GOOD);
+free_device:
+    if(current->ip_address)
+       free((void*)current->ip_address);
+    if(current->model_name)
+       free((void*)current->model_name);
+    if(current->type)
+       free((void*)current->type);
+    free(current);
+    return (SANE_STATUS_NO_MEM);
 }
 
 /**
@@ -89,6 +114,8 @@ escl_add_in_list(ESCL_Device *current)
 SANE_Status
 escl_device_add(int port_nb, const char *model_name, char *ip_address, char *type)
 {
+    char tmp[PATH_MAX] = { 0 };
+    char *model = NULL;
     ESCL_Device *current = NULL;
     DBG (10, "escl_device_add\n");
     for (current = list_devices_primary; current; current = current->next) {
@@ -96,12 +123,18 @@ escl_device_add(int port_nb, const char *model_name, char *ip_address, char *typ
             && strcmp(current->type, type) == 0)
             return (SANE_STATUS_GOOD);
     }
-    current = malloc(sizeof(*current));
-    if (current == NULL)
-        return (SANE_STATUS_NO_MEM);
-    memset(current, 0, sizeof(*current));
+    current = (ESCL_Device*)calloc(1, sizeof(*current));
+    if (current == NULL) {
+       DBG (10, "New device allocation failure.\n");
+       return (SANE_STATUS_NO_MEM);
+    }
     current->port_nb = port_nb;
-    current->model_name = strdup(model_name);
+
+    if (strcmp(type, "_uscan._tcp") != 0 && strcmp(type, "http") != 0) {
+        snprintf(tmp, sizeof(tmp), "%s SSL", model_name);
+    }
+    model = (char*)(tmp[0] != 0 ? tmp : model_name);
+    current->model_name = strdup(model);
     current->ip_address = strdup(ip_address);
     current->type = strdup(type);
     return escl_add_in_list(current);
@@ -142,8 +175,12 @@ max_string_size(const SANE_String_Const strings[])
 static SANE_Device *
 convertFromESCLDev(ESCL_Device *cdev)
 {
-    SANE_Device *sdev = (SANE_Device*) calloc(1, sizeof(SANE_Device));
     char tmp[PATH_MAX] = { 0 };
+    SANE_Device *sdev = (SANE_Device*) calloc(1, sizeof(SANE_Device));
+    if (!sdev) {
+       DBG (10, "Sane_Device allocation failure.\n");
+       return NULL;
+    }
 
     if (strcmp(cdev->type, "_uscan._tcp") == 0 || strcmp(cdev->type, "http") == 0)
         snprintf(tmp, sizeof(tmp), "http://%s:%d", cdev->ip_address, cdev->port_nb);
@@ -151,10 +188,35 @@ convertFromESCLDev(ESCL_Device *cdev)
         snprintf(tmp, sizeof(tmp), "https://%s:%d", cdev->ip_address, cdev->port_nb);
     DBG( 1, "Escl add device : %s\n", tmp);
     sdev->name = strdup(tmp);
+    if (!sdev->name) {
+       DBG (10, "Name allocation failure.\n");
+       goto freedev;
+    }
     sdev->model = strdup(cdev->model_name);
+    if (!sdev->model) {
+       DBG (10, "Model allocation failure.\n");
+       goto freename;
+    }
     sdev->vendor = strdup("ESCL");
+    if (!sdev->vendor) {
+       DBG (10, "Vendor allocation failure.\n");
+       goto freemodel;
+    }
     sdev->type = strdup("flatbed scanner");
+    if (!sdev->type) {
+       DBG (10, "Scanner Type allocation failure.\n");
+       goto freevendor;
+    }
     return (sdev);
+freevendor:
+    free((void*)sdev->vendor);
+freemodel:
+    free((void*)sdev->model);
+freename:
+    free((void*)sdev->name);
+freedev:
+    free((void*)sdev);
+    return NULL;
 }
 
 /**
@@ -218,44 +280,40 @@ static SANE_Status
 attach_one_config(SANEI_Config __sane_unused__ *config, const char *line)
 {
     int port = 0;
-    static int count = 0;
     static ESCL_Device *escl_device = NULL;
 
     if (strncmp(line, "[device]", 8) == 0) {
-        count = 0;
         escl_device = (ESCL_Device*)calloc(1, sizeof(ESCL_Device));
+        if (!escl_device) {
+           DBG (10, "New Escl_Device allocation failure.\n");
+           return (SANE_STATUS_NO_MEM);
+        }
     }
     if (strncmp(line, "ip", 2) == 0) {
         const char *ip_space = sanei_config_skip_whitespace(line + 2);
         if (escl_device != NULL && ip_space != NULL) {
-            count++;
             escl_device->ip_address = strdup(ip_space);
         }
     }
     if (sscanf(line, "port %i", &port) == 1 && port != 0) {
         const char *port_space = sanei_config_skip_whitespace(line + 4);
         if (escl_device != NULL && port_space != NULL) {
-            count++;
             escl_device->port_nb = port;
         }
     }
     if (strncmp(line, "model", 5) == 0) {
         const char *model_space = sanei_config_skip_whitespace(line + 5);
         if (escl_device != NULL && model_space != NULL) {
-            count++;
             escl_device->model_name = strdup(model_space);
         }
     }
     if (strncmp(line, "type", 4) == 0) {
         const char *type_space = sanei_config_skip_whitespace(line + 4);
         if (escl_device != NULL && type_space != NULL) {
-            count++;
             escl_device->type = strdup(type_space);
         }
     }
-    if (count == 4)
-        return (escl_add_in_list(escl_device));
-    return (SANE_STATUS_GOOD);
+    return (escl_add_in_list(escl_device));
 }
 
 /**
@@ -349,8 +407,16 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
     s->opt[OPT_MODE].constraint.string_list = s->scanner->ColorModes;
     s->val[OPT_MODE].s = (char *)strdup(s->scanner->ColorModes[0]);
+    if (!s->val[OPT_MODE].s) {
+       DBG (10, "Color Mode Default allocation failure.\n");
+       return (SANE_STATUS_NO_MEM);
+    }
     s->opt[OPT_MODE].size = max_string_size(s->scanner->ColorModes);
     s->scanner->default_color = (char *)strdup(s->scanner->ColorModes[0]);
+    if (!s->scanner->default_color) {
+       DBG (10, "Color Mode Default allocation failure.\n");
+       return (SANE_STATUS_NO_MEM);
+    }
 
     s->opt[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
     s->opt[OPT_RESOLUTION].title = SANE_TITLE_SCAN_RESOLUTION;
@@ -444,6 +510,10 @@ sane_open(SANE_String_Const name, SANE_Handle *h)
     if (handler == NULL)
         return (SANE_STATUS_NO_MEM);
     handler->name = strdup(name);
+    if (!handler->name) {
+       DBG (10, "Handle Name allocation failure.\n");
+       return (SANE_STATUS_NO_MEM);
+    }
     handler->scanner = escl_capabilities(name, &status);
     if (status != SANE_STATUS_GOOD)
         return (status);
@@ -587,6 +657,10 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v, SANE_Int 
             if (handler->val[n].s)
                 free (handler->val[n].s);
             handler->val[n].s = strdup (v);
+            if (!handler->val[n].s) {
+              DBG (10, "OPT_MODE allocation failure.\n");
+              return (SANE_STATUS_NO_MEM);
+            }
             if (i)
                 *i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS | SANE_INFO_INEXACT;
             break;
@@ -634,6 +708,10 @@ sane_start(SANE_Handle h)
           handler->scanner->default_color = strdup("Grayscale8");
        else
           handler->scanner->default_color = strdup("RGB24");
+       if (!handler->scanner->default_color) {
+          DBG (10, "Default Color allocation failure.\n");
+          return (SANE_STATUS_NO_MEM);
+       }
        for (i = 1; i < handler->scanner->SupportedResolutionsSize; i++)
        {
           if (val > handler->scanner->SupportedResolutions[i])
@@ -648,6 +726,10 @@ sane_start(SANE_Handle h)
        handler->scanner->default_color = strdup("Grayscale8");
     else
        handler->scanner->default_color = strdup("RGB24");
+    }
+    if (!handler->scanner->default_color) {
+       DBG (10, "Default Color allocation failure.\n");
+       return (SANE_STATUS_NO_MEM);
     }
     handler->result = escl_newjob(handler->scanner, handler->name, &status);
     if (status != SANE_STATUS_GOOD)

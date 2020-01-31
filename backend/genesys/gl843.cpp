@@ -1230,35 +1230,53 @@ ScanSession CommandSetGl843::calculate_scan_session(const Genesys_Device* dev,
     DBG_HELPER(dbg);
     debug_dump(DBG_info, settings);
 
-  int start;
+    ScanFlag flags = ScanFlag::NONE;
 
-  /* we have 2 domains for ccd: xres below or above half ccd max dpi */
-  unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(settings.xres);
-
+    float move = 0.0f;
     if (settings.scan_method == ScanMethod::TRANSPARENCY ||
         settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        start = static_cast<int>(get_model_x_offset_ta(*dev, settings));
+        // note: move_to_ta() function has already been called and the sensor is at the
+        // transparency adapter
+        if (!dev->ignore_offsets) {
+            move = static_cast<float>(dev->model->y_offset_ta - dev->model->y_offset_sensor_to_ta);
+        }
+        flags |= ScanFlag::USE_XPA;
     } else {
-        start = static_cast<int>(dev->model->x_offset);
+        if (!dev->ignore_offsets) {
+            move = static_cast<float>(dev->model->y_offset);
+        }
     }
 
-    start += static_cast<int>(settings.tl_x);
+    move += static_cast<float>(settings.tl_y);
+
+    int move_dpi = dev->motor.base_ydpi;
+    move = static_cast<float>((move * move_dpi) / MM_PER_INCH);
+
+    float start = 0.0f;
+    if (settings.scan_method==ScanMethod::TRANSPARENCY ||
+        settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+    {
+        start = static_cast<float>(get_model_x_offset_ta(*dev, settings));
+    } else {
+        start = static_cast<float>(dev->model->x_offset);
+    }
+    start = static_cast<float>(start + settings.tl_x);
 
     if (dev->model->model_id == ModelId::CANON_8400F ||
         dev->model->model_id == ModelId::CANON_8600F)
     {
         // FIXME: this is probably just an artifact of a bug elsewhere
-        start /= ccd_size_divisor;
+        start /= sensor.get_ccd_size_divisor_for_dpi(settings.xres);
     }
 
-    start = static_cast<int>((start * sensor.optical_res) / MM_PER_INCH);
+    start = static_cast<float>((start * sensor.optical_res) / MM_PER_INCH);
 
     ScanSession session;
     session.params.xres = settings.xres;
     session.params.yres = settings.yres;
-    session.params.startx = start; // not used
-    session.params.starty = 0; // not used
+    session.params.startx = static_cast<unsigned>(start);
+    session.params.starty = static_cast<unsigned>(move);
     session.params.pixels = settings.pixels;
     session.params.requested_pixels = settings.requested_pixels;
     session.params.lines = settings.lines;
@@ -1267,8 +1285,7 @@ ScanSession CommandSetGl843::calculate_scan_session(const Genesys_Device* dev,
     session.params.scan_method = settings.scan_method;
     session.params.scan_mode = settings.scan_mode;
     session.params.color_filter = settings.color_filter;
-    session.params.flags = ScanFlag::NONE;
-
+    session.params.flags = flags;
     compute_session(dev, session, sensor);
 
     return session;
@@ -1726,73 +1743,7 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 void CommandSetGl843::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const
 {
     DBG_HELPER(dbg);
-  float move;
-  int move_dpi;
-  float start;
-
-    debug_dump(DBG_info, dev->settings);
-
-  move_dpi = dev->motor.base_ydpi;
-
-    ScanFlag flags = ScanFlag::NONE;
-
-    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
-        dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
-    {
-        // note: move_to_ta() function has already been called and the sensor is at the
-        // transparency adapter
-        if (dev->ignore_offsets) {
-            move = 0;
-        } else {
-            move = static_cast<float>(dev->model->y_offset_ta - dev->model->y_offset_sensor_to_ta);
-        }
-        flags |= ScanFlag::USE_XPA;
-    } else {
-        if (dev->ignore_offsets) {
-            move = 0;
-        } else {
-            move = static_cast<float>(dev->model->y_offset);
-        }
-    }
-
-    move += static_cast<float>(dev->settings.tl_y);
-    move = static_cast<float>((move * move_dpi) / MM_PER_INCH);
-  DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
-
-  /* start */
-    if (dev->settings.scan_method==ScanMethod::TRANSPARENCY ||
-        dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
-    {
-        start = static_cast<float>(get_model_x_offset_ta(*dev, dev->settings));
-    } else {
-        start = static_cast<float>(dev->model->x_offset);
-    }
-    start = static_cast<float>(start + dev->settings.tl_x);
-
-    if (dev->model->model_id == ModelId::CANON_8400F ||
-        dev->model->model_id == ModelId::CANON_8600F)
-    {
-        // FIXME: this is probably just an artifact of a bug elsewhere
-        start /= sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
-    }
-
-    start = static_cast<float>((start * sensor.optical_res) / MM_PER_INCH);
-
-    ScanSession session;
-    session.params.xres = dev->settings.xres;
-    session.params.yres = dev->settings.yres;
-    session.params.startx = static_cast<unsigned>(start);
-    session.params.starty = static_cast<unsigned>(move);
-    session.params.pixels = dev->settings.pixels;
-    session.params.requested_pixels = dev->settings.requested_pixels;
-    session.params.lines = dev->settings.lines;
-    session.params.depth = dev->settings.depth;
-    session.params.channels = dev->settings.get_channels();
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = dev->settings.scan_mode;
-    session.params.color_filter = dev->settings.color_filter;
-    session.params.flags = flags;
-    compute_session(dev, session, sensor);
+    ScanSession session = calculate_scan_session(dev, sensor, dev->settings);
 
     init_regs_for_scan_session(dev, sensor, &dev->reg, session);
 }

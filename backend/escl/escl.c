@@ -392,11 +392,11 @@ init_options(SANE_String_Const name, escl_sane_t *s)
         s->opt[i].size = sizeof (SANE_Word);
         s->opt[i].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     }
-    s->x_range.min = s->scanner->MinWidth;
-    s->x_range.max = s->scanner->MaxWidth;
+    s->x_range.min = pixels_to_milimeters(s->scanner->MinWidth);
+    s->x_range.max = pixels_to_milimeters(s->scanner->MaxWidth);
     s->x_range.quant = 0;
-    s->y_range.min = s->scanner->MinHeight;
-    s->y_range.max = s->scanner->MaxHeight;
+    s->y_range.min = pixels_to_milimeters(s->scanner->MinHeight);
+    s->y_range.max = pixels_to_milimeters(s->scanner->MaxHeight);
     s->y_range.quant = 0;
     s->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
     s->opt[OPT_NUM_OPTS].desc = SANE_DESC_NUM_OPTIONS;
@@ -464,10 +464,9 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_TL_X].type = SANE_TYPE_FIXED;
     s->opt[OPT_TL_X].size = sizeof(SANE_Fixed);
     s->opt[OPT_TL_X].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-    s->opt[OPT_TL_X].unit = SANE_UNIT_PIXEL;
+    s->opt[OPT_TL_X].unit = SANE_UNIT_MM;
     s->opt[OPT_TL_X].constraint_type = SANE_CONSTRAINT_RANGE;
     s->opt[OPT_TL_X].constraint.range = &s->x_range;
-    s->val[OPT_TL_X].w = s->x_range.min;
 
     s->opt[OPT_TL_Y].name = SANE_NAME_SCAN_TL_Y;
     s->opt[OPT_TL_Y].title = SANE_TITLE_SCAN_TL_Y;
@@ -475,10 +474,9 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_TL_Y].type = SANE_TYPE_FIXED;
     s->opt[OPT_TL_Y].size = sizeof(SANE_Fixed);
     s->opt[OPT_TL_Y].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-    s->opt[OPT_TL_Y].unit = SANE_UNIT_PIXEL;
+    s->opt[OPT_TL_Y].unit = SANE_UNIT_MM;
     s->opt[OPT_TL_Y].constraint_type = SANE_CONSTRAINT_RANGE;
     s->opt[OPT_TL_Y].constraint.range = &s->y_range;
-    s->val[OPT_TL_Y].w = s->y_range.min;
 
     s->opt[OPT_BR_X].name = SANE_NAME_SCAN_BR_X;
     s->opt[OPT_BR_X].title = SANE_TITLE_SCAN_BR_X;
@@ -486,10 +484,9 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_BR_X].type = SANE_TYPE_FIXED;
     s->opt[OPT_BR_X].size = sizeof(SANE_Fixed);
     s->opt[OPT_BR_X].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-    s->opt[OPT_BR_X].unit = SANE_UNIT_PIXEL;
+    s->opt[OPT_BR_X].unit = SANE_UNIT_MM;
     s->opt[OPT_BR_X].constraint_type = SANE_CONSTRAINT_RANGE;
     s->opt[OPT_BR_X].constraint.range = &s->x_range;
-    s->val[OPT_BR_X].w = s->x_range.max;
 
     s->opt[OPT_BR_Y].name = SANE_NAME_SCAN_BR_Y;
     s->opt[OPT_BR_Y].title = SANE_TITLE_SCAN_BR_Y;
@@ -497,10 +494,9 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_BR_Y].type = SANE_TYPE_FIXED;
     s->opt[OPT_BR_Y].size = sizeof(SANE_Fixed);
     s->opt[OPT_BR_Y].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-    s->opt[OPT_BR_Y].unit = SANE_UNIT_PIXEL;
+    s->opt[OPT_BR_Y].unit = SANE_UNIT_MM;
     s->opt[OPT_BR_Y].constraint_type = SANE_CONSTRAINT_RANGE;
     s->opt[OPT_BR_Y].constraint.range = &s->y_range;
-    s->val[OPT_BR_Y].w = s->y_range.max;
     return (status);
 }
 
@@ -542,8 +538,8 @@ sane_open(SANE_String_Const name, SANE_Handle *h)
     handler->ps.depth = 8;
     handler->ps.last_frame = SANE_TRUE;
     handler->ps.format = SANE_FRAME_RGB;
-    handler->ps.pixels_per_line = handler->val[OPT_BR_X].w;
-    handler->ps.lines = handler->val[OPT_BR_Y].w;
+    handler->ps.pixels_per_line = milimeters_to_pixels(handler->val[OPT_BR_X].w);
+    handler->ps.lines = milimeters_to_pixels(handler->val[OPT_BR_Y].w);
     handler->ps.bytes_per_line = handler->ps.pixels_per_line * 3;
     status = sane_get_parameters(handler, 0);
     if (status != SANE_STATUS_GOOD)
@@ -636,21 +632,9 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v, SANE_Int 
     if (a == SANE_ACTION_GET_VALUE) {
         switch (n) {
         case OPT_TL_X:
-	    printf("OPT_TL_X : %d\n", (int)handler->val[n].w);
-            *(SANE_Word *) v = handler->val[n].w;
-            break;
         case OPT_TL_Y:
-	    printf("OPT_TL_Y : %d\n", (int)handler->val[n].w);
-            *(SANE_Word *) v = handler->val[n].w;
-            break;
         case OPT_BR_X:
-	    printf("OPT_BR_X : %d\n", (int)handler->val[n].w);
-            *(SANE_Word *) v = handler->val[n].w;
-            break;
         case OPT_BR_Y:
-	    printf("OPT_BR_Y : %d\n", (int)handler->val[n].w);
-            *(SANE_Word *) v = handler->val[n].w;
-            break;
         case OPT_NUM_OPTS:
         case OPT_RESOLUTION:
         case OPT_PREVIEW:
@@ -669,29 +653,9 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v, SANE_Int 
     if (a == SANE_ACTION_SET_VALUE) {
         switch (n) {
         case OPT_TL_X:
-            handler->val[n].w = *(SANE_Word *) v;
-	    printf("OPT_TL_X : %d\n", (int)handler->val[n].w);
-            if (i)
-                *i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS | SANE_INFO_INEXACT;
-            break;
         case OPT_TL_Y:
-            handler->val[n].w = *(SANE_Word *) v;
-	    printf("OPT_TL_Y : %d\n", (int)handler->val[n].w);
-            if (i)
-                *i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS | SANE_INFO_INEXACT;
-            break;
         case OPT_BR_X:
-            handler->val[n].w = *(SANE_Word *) v;
-	    printf("OPT_BR_X : %d\n", (int)handler->val[n].w);
-            if (i)
-                *i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS | SANE_INFO_INEXACT;
-            break;
         case OPT_BR_Y:
-            handler->val[n].w = *(SANE_Word *) v;
-	    printf("OPT_BR_Y : %d\n", (int)handler->val[n].w);
-            if (i)
-                *i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS | SANE_INFO_INEXACT;
-            break;
         case OPT_NUM_OPTS:
         case OPT_RESOLUTION:
         case OPT_PREVIEW:
@@ -741,11 +705,6 @@ sane_start(SANE_Handle h)
     handler->write_scan_data = SANE_FALSE;
     handler->decompress_scan_data = SANE_FALSE;
     handler->end_read = SANE_FALSE;
-    handler->scanner->height = handler->val[OPT_BR_Y].w;
-    handler->scanner->width = handler->val[OPT_BR_X].w;
-    handler->scanner->pos_x = handler->val[OPT_TL_X].w;
-    handler->scanner->pos_y = handler->val[OPT_TL_Y].w;
-    fprintf(stdout, "1-Size Image [%dx%d|%dx%d]\n", handler->scanner->pos_x, handler->scanner->pos_y, handler->scanner->width, handler->scanner->height);
     if(handler->scanner->default_color)
        free(handler->scanner->default_color);
     if (handler->val[OPT_PREVIEW].w == SANE_TRUE)
@@ -775,6 +734,15 @@ sane_start(SANE_Handle h)
     else
        handler->scanner->default_color = strdup("RGB24");
     }
+    handler->scanner->height = milimeters_to_pixels(handler->val[OPT_BR_Y].w);
+    handler->scanner->width = milimeters_to_pixels(handler->val[OPT_BR_X].w);
+    handler->scanner->pos_x = milimeters_to_pixels(handler->val[OPT_TL_X].w);
+    handler->scanner->pos_y = milimeters_to_pixels(handler->val[OPT_TL_Y].w);
+    DBG(10, "Calculate Size Image [%dx%d|%dx%d]\n",
+             handler->scanner->pos_x,
+             handler->scanner->pos_y,
+             handler->scanner->height,
+             handler->scanner->width);
     if (!handler->scanner->default_color) {
        DBG (10, "Default Color allocation failure.\n");
        return (SANE_STATUS_NO_MEM);
@@ -797,8 +765,10 @@ sane_start(SANE_Handle h)
     {
        status = get_TIFF_data(handler->scanner, &w, &he, &bps);
     }
-    else
+    else {
+      DBG(10, "Unknow image format\n");
       return SANE_STATUS_INVAL;
+    }
 
     fprintf(stdout, "2-Size Image [%dx%d|%dx%d]\n", 0, 0, w, he);
     if (status != SANE_STATUS_GOOD)
@@ -809,6 +779,7 @@ sane_start(SANE_Handle h)
     handler->ps.bytes_per_line = w * bps;
     handler->ps.last_frame = SANE_TRUE;
     handler->ps.format = SANE_FRAME_RGB;
+    DBG(10, "Real Size Image [%dx%d|%dx%d]\n", 0, 0, w, he);
     return (status);
 }
 

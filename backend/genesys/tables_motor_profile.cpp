@@ -102,6 +102,13 @@ void genesys_init_motor_profile_tables_gl843()
     profile.slope = MotorSlope::create_from_steps(8743, 300, 794);
     gl843_motor_profiles->push_back(profile);
 
+    profile = Motor_Profile(); // BUG: this is a fallback slope that was selected previously
+    profile.motor_id = MotorId::CANON_8600F;
+    profile.exposure = 0;
+    profile.step_type = StepType::HALF;
+    profile.slope = MotorSlope::create_from_steps(44444, 500, 489);
+    gl843_motor_profiles->push_back(profile);
+
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_8600F;
     profile.exposure = 0x59d8;

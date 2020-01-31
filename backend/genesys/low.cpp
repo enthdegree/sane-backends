@@ -1767,8 +1767,7 @@ const Motor_Profile& sanei_genesys_get_motor_profile(const std::vector<Motor_Pro
   /* default fallback */
   if(idx<0)
     {
-      DBG (DBG_warn,"%s: using default motor profile\n",__func__);
-      idx=0;
+        throw SaneException("Motor slope is not configured");
     }
 
     return motors[idx];

@@ -43,6 +43,7 @@
 #include "../include/sane/sane.h"
 
 #include <stdio.h>
+#include <math.h>
 
 #ifndef BACKEND_NAME
 #define BACKEND_NAME escl
@@ -150,6 +151,30 @@ enum
     OPT_BR_Y,
     NUM_OPTIONS
 };
+
+/**
+ * \fn static inline SANE_Fixed milimeter_to_pixel(SANE_Word pixels)
+ * \brief Function Function that converts pixels into millimeters.
+ *
+ * \return SANE_Fixed (Value in pixels)
+ */
+static inline SANE_Fixed
+pixels_to_milimeters (SANE_Word pixels)
+{
+    return SANE_FIX((double) pixels * 25.4 / 300.0);
+}
+
+/**
+ * \fn static inline SANE_Word milimeter_to_pixel(SANE_Fixed milimeter)
+ * \brief Function Function that converts millimeters into pixels.
+ *
+ * \return SANE_Word (Value in milimeters)
+ */
+static inline SANE_Word
+milimeters_to_pixels (SANE_Fixed milimeters)
+{
+    return (SANE_Word) roundl(SANE_UNFIX(milimeters) * 300.0 / 25.4);
+}
 
 ESCL_Device *escl_devices(SANE_Status *status);
 SANE_Status escl_device_add(int port_nb, const char *model_name, char *ip_address, char *type);

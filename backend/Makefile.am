@@ -443,7 +443,7 @@ libescl_la_CPPFLAGS = $(AM_CPPFLAGS) $(JPEG_CFLAGS) $(PNG_CFLAGS) $(TIFF_CFLAGS)
 nodist_libsane_escl_la_SOURCES = escl-s.c
 libsane_escl_la_CPPFLAGS = $(AM_CPPFLAGS) $(JPEG_CFLAGS) $(PNG_CFLAGS) $(TIFF_CFLAGS) $(XML_CFLAGS) $(libcurl_CFLAGS) $(AVAHI_CFLAGS) -DBACKEND_NAME=escl
 libsane_escl_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_escl_la_LIBADD = $(COMMON_LIBS) libescl.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo sane_strstatus.lo $(JPEG_LIBS) $(PNG_LIBS) $(TIFF_LIBS) $(XML_LIBS) $(libcurl_LIBS) $(AVAHI_LIBS)
+libsane_escl_la_LIBADD = $(COMMON_LIBS) libescl.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo sane_strstatus.lo $(MATH_LIB) $(JPEG_LIBS) $(PNG_LIBS) $(TIFF_LIBS) $(XML_LIBS) $(libcurl_LIBS) $(AVAHI_LIBS)
 endif
 endif
 endif

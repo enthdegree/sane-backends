@@ -168,8 +168,13 @@ std::ostream& operator<<(std::ostream& out, const MotorProfile& profile)
 {
     out << "MotorProfile{\n"
         << "    max_exposure: " << profile.max_exposure << '\n'
-        << "    step_type: " << profile.step_type << '\n'
-        << "    slope: " << format_indent_braced_list(4, profile.slope) << '\n'
+        << "    step_type: " << profile.step_type << '\n';
+
+    if (profile.motor_vref != -1) {
+        out << "    motor_vref: " << profile.motor_vref << '\n';
+    }
+
+    out << "    slope: " << format_indent_braced_list(4, profile.slope) << '\n'
         << '}';
     return out;
 }

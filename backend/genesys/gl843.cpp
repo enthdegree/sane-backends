@@ -886,6 +886,15 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     reg->set8(REG_FSHDEC, fast_table.steps_count / step_multiplier);
     reg->set8(REG_FMOVNO, fast_table.steps_count / step_multiplier);
 
+    if (motor_profile.motor_vref != -1) {
+        std::uint8_t vref = 0;
+        vref |= (motor_profile.motor_vref << REG_0x80S_TABLE1_NORMAL) & REG_0x80_TABLE1_NORMAL;
+        vref |= (motor_profile.motor_vref << REG_0x80S_TABLE2_BACK) & REG_0x80_TABLE2_BACK;
+        vref |= (motor_profile.motor_vref << REG_0x80S_TABLE4_FAST) & REG_0x80_TABLE4_FAST;
+        vref |= (motor_profile.motor_vref << REG_0x80S_TABLE5_GO_HOME) & REG_0x80_TABLE5_GO_HOME;
+        reg->set8(REG_0x80, vref);
+    }
+
   /* substract acceleration distance from feedl */
   feedl=feed_steps;
     feedl <<= static_cast<unsigned>(motor_profile.step_type);

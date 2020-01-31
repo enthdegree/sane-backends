@@ -147,6 +147,7 @@ struct MotorProfile
 
     MotorSlope slope;
     StepType step_type = StepType::FULL;
+    int motor_vref = -1;
     unsigned max_exposure = 0; // 0 - any exposure
 };
 

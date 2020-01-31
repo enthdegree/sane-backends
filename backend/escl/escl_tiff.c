@@ -117,7 +117,7 @@ get_TIFF_data(capabilities_t *scanner, int *w, int *h, int *components)
     *h = (int)hei;
     *components = bps;
     if (x_off > 0 || wid < scanner->width ||
-        y_off > 0 || hei < scanner->height) {    
+        y_off > 0 || hei < scanner->height) {
           surface = (unsigned char *)malloc (sizeof (unsigned char) * wid
                      * hei * bps);
           if (surface)

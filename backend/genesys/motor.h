@@ -151,12 +151,12 @@ struct Genesys_Motor
     // slopes to derive individual slopes from
     std::vector<MotorSlope> slopes;
 
-    MotorSlope& get_slope(StepType step_type)
+    MotorSlope& get_slope_with_step_type(StepType step_type)
     {
         return slopes[static_cast<unsigned>(step_type)];
     }
 
-    const MotorSlope& get_slope(StepType step_type) const
+    const MotorSlope& get_slope_with_step_type(StepType step_type) const
     {
         return slopes[static_cast<unsigned>(step_type)];
     }

@@ -354,7 +354,7 @@ void CommandSetGl847::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
 static void gl847_init_motor_regs_scan(Genesys_Device* dev,
                                        const Genesys_Sensor& sensor,
                                        Genesys_Register_Set* reg,
-                                       const Motor_Profile& motor_profile,
+                                       const MotorProfile& motor_profile,
                                        unsigned int scan_exposure_time,
                                        unsigned scan_yres,
                                        unsigned int scan_lines,
@@ -429,7 +429,7 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
         fast_step_type = StepType::QUARTER;
     }
 
-    Motor_Profile fast_motor_profile = motor_profile;
+    MotorProfile fast_motor_profile = motor_profile;
     fast_motor_profile.step_type = fast_step_type;
 
     auto fast_table = sanei_genesys_slope_table(dev->model->asic_type, fast_dpi,
@@ -712,9 +712,7 @@ void CommandSetGl847::init_regs_for_scan_session(Genesys_Device* dev, const Gene
   slope_dpi = slope_dpi * (1 + dummy);
 
     exposure_time = sensor.exposure_lperiod;
-    const auto& motor_profile = sanei_genesys_get_motor_profile(*gl847_motor_profiles,
-                                                                dev->model->motor_id,
-                                                                exposure_time);
+    const auto& motor_profile = get_motor_profile(dev->motor.profiles, exposure_time, session);
 
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
     DBG(DBG_info, "%s : scan_step_type=%d\n", __func__,

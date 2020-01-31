@@ -215,22 +215,6 @@ struct Genesys_USB_Device_Entry {
     Genesys_Model model;
 };
 
-/**
- * structure for motor database
- */
-struct Motor_Profile
-{
-    MotorId motor_id;
-    int exposure;           // used only to select the wanted motor
-    StepType step_type;   // default step type for given exposure
-    MotorSlope slope;
-};
-
-extern StaticInit<std::vector<Motor_Profile>> gl843_motor_profiles;
-extern StaticInit<std::vector<Motor_Profile>> gl846_motor_profiles;
-extern StaticInit<std::vector<Motor_Profile>> gl847_motor_profiles;
-extern StaticInit<std::vector<Motor_Profile>> gl124_motor_profiles;
-
 /*--------------------------------------------------------------------------*/
 /*       common functions needed by low level specific functions            */
 /*--------------------------------------------------------------------------*/
@@ -404,15 +388,20 @@ void scanner_stop_action_no_move(Genesys_Device& dev, Genesys_Register_Set& regs
 
 bool scanner_is_motor_stopped(Genesys_Device& dev);
 
-const Motor_Profile& sanei_genesys_get_motor_profile(const std::vector<Motor_Profile>& motors,
-                                                     MotorId motor_id, int exposure);
+const MotorProfile* get_motor_profile_ptr(const std::vector<MotorProfile>& profiles,
+                                          unsigned exposure,
+                                          const ScanSession& session);
+
+const MotorProfile& get_motor_profile(const std::vector<MotorProfile>& profiles,
+                                      unsigned exposure,
+                                      const ScanSession& session);
 
 MotorSlopeTable sanei_genesys_slope_table(AsicType asic_type, int dpi, int exposure, int base_dpi,
                                           unsigned step_multiplier,
-                                          const Motor_Profile& motor_profile);
+                                          const MotorProfile& motor_profile);
 
 MotorSlopeTable create_slope_table_fastest(AsicType asic_type, unsigned step_multiplier,
-                                           const Motor_Profile& motor_profile);
+                                           const MotorProfile& motor_profile);
 
 /** @brief find lowest motor resolution for the device.
  * Parses the resolution list for motor and
@@ -509,7 +498,6 @@ void genesys_init_sensor_tables();
 void genesys_init_frontend_tables();
 void genesys_init_gpo_tables();
 void genesys_init_motor_tables();
-void genesys_init_motor_profile_tables();
 void genesys_init_usb_device_tables();
 
 template<class T>

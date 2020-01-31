@@ -535,7 +535,6 @@ libgenesys_la_SOURCES = genesys/genesys.cpp genesys/genesys.h \
     genesys/tables_gpo.cpp \
     genesys/tables_model.cpp \
     genesys/tables_motor.cpp \
-    genesys/tables_motor_profile.cpp \
     genesys/tables_sensor.cpp \
     genesys/test_scanner_interface.h genesys/test_scanner_interface.cpp \
     genesys/test_settings.h genesys/test_settings.cpp \

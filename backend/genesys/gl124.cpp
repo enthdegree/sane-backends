@@ -466,7 +466,7 @@ void CommandSetGl124::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
 static void gl124_init_motor_regs_scan(Genesys_Device* dev,
                                        const Genesys_Sensor& sensor,
                                        Genesys_Register_Set* reg,
-                                       const Motor_Profile& motor_profile,
+                                       const MotorProfile& motor_profile,
                                        unsigned int scan_exposure_time,
                                        unsigned scan_yres,
                                        unsigned int scan_lines,
@@ -856,9 +856,7 @@ void CommandSetGl124::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     } else {
         exposure_time = sensor.exposure_lperiod;
     }
-    const auto& motor_profile = sanei_genesys_get_motor_profile(*gl124_motor_profiles,
-                                                                dev->model->motor_id,
-                                                                exposure_time);
+    const auto& motor_profile = get_motor_profile(dev->motor.profiles, exposure_time, session);
 
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
   DBG(DBG_info, "%s : scan_step_type=%d\n", __func__, static_cast<unsigned>(motor_profile.step_type));

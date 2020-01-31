@@ -1720,63 +1720,61 @@ void sanei_genesys_wait_for_home(Genesys_Device* dev)
     }
 }
 
-/** @brief motor profile
- * search for the database of motor profiles and get the best one. Each
- * profile is at full step and at a reference exposure. Use first entry
- * by default.
- * @param motors motor profile database
- * @param motor_type motor id
- * @param exposure exposure time
- * @return a pointer to a Motor_Profile struct
- */
-const Motor_Profile& sanei_genesys_get_motor_profile(const std::vector<Motor_Profile>& motors,
-                                                     MotorId motor_id, int exposure)
+const MotorProfile* get_motor_profile_ptr(const std::vector<MotorProfile>& profiles,
+                                          unsigned exposure,
+                                          const ScanSession& session)
 {
-  int idx;
+    int best_i = -1;
 
-  idx=-1;
-    for (std::size_t i = 0; i < motors.size(); ++i) {
-        // exact match
-        if (motors[i].motor_id == motor_id && motors[i].exposure==exposure) {
-            return motors[i];
+    for (unsigned i = 0; i < profiles.size(); ++i) {
+        const auto& profile = profiles[i];
+
+        if (!profile.resolutions.matches(session.params.yres)) {
+            continue;
+        }
+        if (!profile.scan_methods.matches(session.params.scan_method)) {
+            continue;
         }
 
-        // closest match
-        if (motors[i].motor_id == motor_id) {
-          /* if profile exposure is higher than the required one,
-           * the entry is a candidate for the closest match */
-            if (motors[i].exposure == 0 || motors[i].exposure >= exposure)
-            {
-              if(idx<0)
-                {
-                  /* no match found yet */
-                  idx=i;
-                }
-              else
-                {
-                  /* test for better match */
-                  if(motors[i].exposure<motors[idx].exposure)
-                    {
-                      idx=i;
-                    }
+        if (profile.max_exposure == exposure) {
+            return &profile;
+        }
+
+        if (profile.max_exposure == 0 || profile.max_exposure >= exposure) {
+            if (best_i < 0) {
+                // no match found yet
+                best_i = i;
+            } else {
+                // test for better match
+                if (profiles[i].max_exposure < profiles[best_i].max_exposure) {
+                    best_i = i;
                 }
             }
         }
     }
 
-  /* default fallback */
-  if(idx<0)
-    {
-      DBG (DBG_warn,"%s: using default motor profile\n",__func__);
-      idx=0;
+    if (best_i < 0) {
+        return nullptr;
     }
 
-    return motors[idx];
+    return &profiles[best_i];
+}
+
+const MotorProfile& get_motor_profile(const std::vector<MotorProfile>& profiles,
+                                      unsigned exposure,
+                                      const ScanSession& session)
+{
+    const auto* profile = get_motor_profile_ptr(profiles, exposure, session);
+    if (profile == nullptr) {
+        throw SaneException("Motor slope is not configured");
+    }
+
+    return *profile;
 }
 
 MotorSlopeTable sanei_genesys_slope_table(AsicType asic_type, int dpi, int exposure, int base_dpi,
                                           unsigned step_multiplier,
-                                          const Motor_Profile& motor_profile)
+                                          const MotorProfile& motor_profile)
 {
     unsigned target_speed_w = ((exposure * dpi) / base_dpi);
 
@@ -1787,7 +1785,7 @@ MotorSlopeTable sanei_genesys_slope_table(AsicType asic_type, int dpi, int expos
 }
 
 MotorSlopeTable create_slope_table_fastest(AsicType asic_type, unsigned step_multiplier,
-                                           const Motor_Profile& motor_profile)
+                                           const MotorProfile& motor_profile)
 {
     return create_slope_table(motor_profile.slope, motor_profile.slope.max_speed_w,
                               motor_profile.step_type,

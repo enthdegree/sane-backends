@@ -89,11 +89,11 @@ struct RawPixel;
 
 // low.h
 struct Genesys_USB_Device_Entry;
-struct Motor_Profile;
 
 // motor.h
 struct Genesys_Motor;
 struct MotorSlope;
+struct MotorProfile;
 struct MotorSlopeTable;
 
 // register.h
@@ -113,6 +113,7 @@ class ScannerInterfaceUsb;
 class TestScannerInterface;
 
 // sensor.h
+class ScanMethodFilter;
 class ResolutionFilter;
 struct GenesysFrontendLayout;
 struct Genesys_Frontend;

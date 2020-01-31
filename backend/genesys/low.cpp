@@ -1720,22 +1720,14 @@ void sanei_genesys_wait_for_home(Genesys_Device* dev)
     }
 }
 
-/** @brief motor profile
- * search for the database of motor profiles and get the best one. Each
- * profile is at full step and at a reference exposure. Use first entry
- * by default.
- * @param motors motor profile database
- * @param motor_type motor id
- * @param exposure exposure time
- * @return a pointer to a MotorProfile struct
- */
-const MotorProfile& get_motor_profile_by_exposure(const Genesys_Motor& motor, unsigned exposure,
-                                                  const ScanSession& session)
+const MotorProfile* get_motor_profile_ptr(const std::vector<MotorProfile>& profiles,
+                                          unsigned exposure,
+                                          const ScanSession& session)
 {
     int best_i = -1;
 
-    for (unsigned i = 0; i < motor.profiles.size(); ++i) {
-        const auto& profile = motor.profiles[i];
+    for (unsigned i = 0; i < profiles.size(); ++i) {
+        const auto& profile = profiles[i];
 
         if (!profile.resolutions.matches(session.params.yres)) {
             continue;
@@ -1745,7 +1737,7 @@ const MotorProfile& get_motor_profile_by_exposure(const Genesys_Motor& motor, un
         }
 
         if (profile.max_exposure == exposure) {
-            return profile;
+            return &profile;
         }
 
         if (profile.max_exposure == 0 || profile.max_exposure >= exposure) {
@@ -1754,7 +1746,7 @@ const MotorProfile& get_motor_profile_by_exposure(const Genesys_Motor& motor, un
                 best_i = i;
             } else {
                 // test for better match
-                if (motor.profiles[i].max_exposure < motor.profiles[best_i].max_exposure) {
+                if (profiles[i].max_exposure < profiles[best_i].max_exposure) {
                     best_i = i;
                 }
             }
@@ -1762,10 +1754,22 @@ const MotorProfile& get_motor_profile_by_exposure(const Genesys_Motor& motor, un
     }
 
     if (best_i < 0) {
+        return nullptr;
+    }
+
+    return &profiles[best_i];
+}
+
+const MotorProfile& get_motor_profile(const std::vector<MotorProfile>& profiles,
+                                      unsigned exposure,
+                                      const ScanSession& session)
+{
+    const auto* profile = get_motor_profile_ptr(profiles, exposure, session);
+    if (profile == nullptr) {
         throw SaneException("Motor slope is not configured");
     }
 
-    return motor.profiles[best_i];
+    return *profile;
 }
 
 MotorSlopeTable sanei_genesys_slope_table(AsicType asic_type, int dpi, int exposure, int base_dpi,

@@ -56,8 +56,13 @@ get_TIFF_data(capabilities_t *scanner, int *w, int *h, int *components)
     uint32  width = 0;           /* largeur */
     uint32  height = 0;          /* hauteur */
     unsigned char *raster = NULL;         /* données de l'image */
+    unsigned char *surface = NULL;         /* données de l'image */
     int bps = 4;
     uint32 npixels = 0;
+    int x_off = 0, x = 0;
+    int wid = 0;
+    int y_off = 0, y = 0;
+    int hei = 0;
 
     lseek(fileno(scanner->tmp), 0, SEEK_SET);
     tif = TIFFFdOpen(fileno(scanner->tmp), "temp", "r");
@@ -76,7 +81,7 @@ get_TIFF_data(capabilities_t *scanner, int *w, int *h, int *components)
     raster = (unsigned char*) malloc(npixels * sizeof (uint32));
     if (raster != NULL)
     {
-        DBG( 1, "Escl Tiff : Memory allocation problem.\n");
+        DBG( 1, "Escl Tiff : raster Memory allocation problem.\n");
         if (scanner->tmp) {
            fclose(scanner->tmp);
            scanner->tmp = NULL;
@@ -93,9 +98,44 @@ get_TIFF_data(capabilities_t *scanner, int *w, int *h, int *components)
         }
         return (SANE_STATUS_INVAL);
     }
-    *w = (int)width;
-    *h = (int)height;
+
+    if (width < (unsigned int)scanner->width)
+           scanner->width = width;
+    if (scanner->pos_x < 0)
+           scanner->pos_x = 0;
+
+    if (height < (unsigned int)scanner->height)
+           scanner->height = height;
+    if (scanner->pos_x < 0)
+           scanner->pos_x = 0;
+
+    x_off = scanner->pos_x;
+    wid = scanner->width - x_off;
+    y_off = scanner->pos_y;
+    hei = scanner->height - y_off;
+    *w = (int)wid;
+    *h = (int)hei;
     *components = bps;
+    if (x_off > 0 || wid < scanner->width ||
+        y_off > 0 || hei < scanner->height) {    
+          surface = (unsigned char *)malloc (sizeof (unsigned char) * wid
+                     * hei * bps);
+          if (surface)
+         {
+             for (y = 0; y < hei; y++)
+             {
+                for (x = 0; x < wid; x++)
+                {
+                   surface[y * wid + x] = raster[(y + y_off) * width + x + x_off];
+                }
+             }
+             free(raster);
+         }
+         else
+            surface = raster;
+    }
+    else
+        surface = raster;
     // we don't need row pointers anymore
     scanner->img_data = raster;
     scanner->img_size = (int)(width * height * bps);

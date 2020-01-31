@@ -55,8 +55,13 @@ get_PNG_data(capabilities_t *scanner, int *w, int *h, int *components)
 	unsigned int  height = 0;          /* hauteur */
 	int           bps = 3;  /* composantes d'un texel */
 	unsigned char *texels = NULL;         /* données de l'image */
+	unsigned char *surface = NULL;         /* données de l'image */
         unsigned int i = 0;
 	png_byte magic[8];
+        int x_off = 0, x = 0;
+        int wid = 0;
+        int y_off = 0, y = 0;
+        int hei = 0;
 
 	// read magic number
 	fread (magic, 1, sizeof (magic), scanner->tmp);
@@ -154,27 +159,78 @@ get_PNG_data(capabilities_t *scanner, int *w, int *h, int *components)
 			&bit_depth, &color_type,
 			NULL, NULL, NULL);
 
-    *w = (int)width;
-    *h = (int)height;
+    if (width < (unsigned int)scanner->width)
+           scanner->width = width;
+    if (scanner->pos_x < 0)
+           scanner->pos_x = 0;
+
+    if (height < (unsigned int)scanner->height)
+           scanner->height = height;
+    if (scanner->pos_x < 0)
+           scanner->pos_x = 0;
+
+    x_off = scanner->pos_x;
+    wid = scanner->width - x_off;
+    y_off = scanner->pos_y;
+    hei = scanner->height - y_off;
+    *w = (int)wid;
+    *h = (int)hei;
     *components = bps;
-	// we can now allocate memory for storing pixel data
-	texels = (unsigned char *)malloc (sizeof (unsigned char) * width
-			* height * bps);
-	png_bytep *row_pointers;
-	// setup a pointer array.  Each one points at the begening of a row.
-	row_pointers = (png_bytep *)malloc (sizeof (png_bytep) * height);
-	for (i = 0; i < height; ++i)
-	{
-		row_pointers[i] = (png_bytep)(texels +
-				((height - (i + 1)) * width * bps));
-	}
-	// read pixel data using row pointers
-	png_read_image (png_ptr, row_pointers);
-	// we don't need row pointers anymore
-	scanner->img_data = texels;
-    scanner->img_size = (int)(width * height * bps);
+    // we can now allocate memory for storing pixel data
+    texels = (unsigned char *)malloc (sizeof (unsigned char) * width
+                    * height * bps);
+    if (!texels) {
+        DBG( 1, "Escl Png : texels Memory allocation problem\n");
+        if (scanner->tmp) {
+           fclose(scanner->tmp);
+           scanner->tmp = NULL;
+        }
+        return (SANE_STATUS_NO_MEM);
+    }
+    png_bytep *row_pointers;
+    // setup a pointer array.  Each one points at the begening of a row.
+    row_pointers = (png_bytep *)malloc (sizeof (png_bytep) * height);
+    if (!row_pointers) {
+        DBG( 1, "Escl Png : row_pointers Memory allocation problem\n");
+       free(texels);
+        if (scanner->tmp) {
+           fclose(scanner->tmp);
+           scanner->tmp = NULL;
+        }
+        return (SANE_STATUS_NO_MEM);
+    }
+    for (i = 0; i < height; ++i)
+    {
+            row_pointers[i] = (png_bytep)(texels +
+                            ((height - (i + 1)) * width * bps));
+    }
+    // read pixel data using row pointers
+    png_read_image (png_ptr, row_pointers);
+    if (x_off > 0 || wid < scanner->width ||
+        y_off > 0 || hei < scanner->height) {
+          surface = (unsigned char *)malloc (sizeof (unsigned char) * wid
+                     * hei * bps);
+          if (surface)
+         {
+             for (y = 0; y < hei; y++)
+             {
+                for (x = 0; x < wid; x++)
+                {
+                   surface[y * wid + x] = texels[(y + y_off) * width + x + x_off];
+                }
+             }
+             free(texels);
+         }
+         else
+            surface = texels;
+    }
+    else
+        surface = texels;
+    // we don't need row pointers anymore
+    scanner->img_data = surface;
+    scanner->img_size = (int)(wid * hei * bps);
     scanner->img_read = 0;
-	free (row_pointers);
+    free (row_pointers);
     fclose(scanner->tmp);
     scanner->tmp = NULL;
     return (SANE_STATUS_GOOD);

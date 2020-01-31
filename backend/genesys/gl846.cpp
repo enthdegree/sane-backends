@@ -705,7 +705,7 @@ void CommandSetGl846::init_regs_for_scan_session(Genesys_Device* dev, const Gene
   slope_dpi = slope_dpi * (1 + dummy);
 
     exposure_time = sensor.exposure_lperiod;
-    const auto& motor_profile = sanei_genesys_get_motor_profile(*gl846_motor_profiles,
+    const auto& motor_profile = sanei_genesys_get_motor_profile(*s_motor_profiles,
                                                                 dev->model->motor_id,
                                                                 exposure_time);
 

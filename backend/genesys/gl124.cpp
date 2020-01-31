@@ -856,7 +856,7 @@ void CommandSetGl124::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     } else {
         exposure_time = sensor.exposure_lperiod;
     }
-    const auto& motor_profile = sanei_genesys_get_motor_profile(*gl124_motor_profiles,
+    const auto& motor_profile = sanei_genesys_get_motor_profile(*s_motor_profiles,
                                                                 dev->model->motor_id,
                                                                 exposure_time);
 

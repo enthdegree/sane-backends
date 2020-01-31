@@ -1170,7 +1170,7 @@ void CommandSetGl843::init_regs_for_scan_session(Genesys_Device* dev, const Gene
   if (exposure < 0) {
       throw std::runtime_error("Exposure not defined in sensor definition");
   }
-    const auto& motor_profile = sanei_genesys_get_motor_profile(*gl843_motor_profiles,
+    const auto& motor_profile = sanei_genesys_get_motor_profile(*s_motor_profiles,
                                                                 dev->model->motor_id,
                                                                 exposure);
 

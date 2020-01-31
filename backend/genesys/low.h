@@ -226,10 +226,7 @@ struct Motor_Profile
     MotorSlope slope;
 };
 
-extern StaticInit<std::vector<Motor_Profile>> gl843_motor_profiles;
-extern StaticInit<std::vector<Motor_Profile>> gl846_motor_profiles;
-extern StaticInit<std::vector<Motor_Profile>> gl847_motor_profiles;
-extern StaticInit<std::vector<Motor_Profile>> gl124_motor_profiles;
+extern StaticInit<std::vector<Motor_Profile>> s_motor_profiles;
 
 /*--------------------------------------------------------------------------*/
 /*       common functions needed by low level specific functions            */

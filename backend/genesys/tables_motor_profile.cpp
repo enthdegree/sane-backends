@@ -47,67 +47,69 @@
 
 namespace genesys {
 
-StaticInit<std::vector<Motor_Profile>> gl843_motor_profiles;
+StaticInit<std::vector<Motor_Profile>> s_motor_profiles;
 
-void genesys_init_motor_profile_tables_gl843()
+void genesys_init_motor_profile_tables()
 {
-    gl843_motor_profiles.init();
+    s_motor_profiles.init();
+
+    // gl843
 
     auto profile = Motor_Profile();
     profile.motor_id = MotorId::KVSS080;
     profile.exposure = 8000;
     profile.step_type = StepType::HALF;
     profile.slope = MotorSlope::create_from_steps(44444, 500, 489);
-    gl843_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::G4050;
     profile.exposure = 8016;
     profile.step_type = StepType::HALF;
     profile.slope = MotorSlope::create_from_steps(7842, 320, 602);
-    gl843_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::G4050;
     profile.exposure = 15624;
     profile.step_type = StepType::HALF;
     profile.slope = MotorSlope::create_from_steps(9422, 254, 1004);
-    gl843_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::G4050;
     profile.exposure = 42752;
     profile.step_type = StepType::QUARTER;
     profile.slope = MotorSlope::create_from_steps(42752, 1706, 610);
-    gl843_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::G4050;
     profile.exposure = 56064;
     profile.step_type = StepType::HALF;
     profile.slope = MotorSlope::create_from_steps(28032, 2238, 604);
-    gl843_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_4400F;
     profile.exposure = 11640;
     profile.step_type = StepType::HALF;
     profile.slope = MotorSlope::create_from_steps(49152, 484, 1014);
-    gl843_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_8400F;
     profile.exposure = 50000;
     profile.step_type = StepType::QUARTER;
     profile.slope = MotorSlope::create_from_steps(8743, 300, 794);
-    gl843_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile(); // BUG: this is a fallback slope that was selected previously
     profile.motor_id = MotorId::CANON_8600F;
     profile.exposure = 0;
     profile.step_type = StepType::HALF;
     profile.slope = MotorSlope::create_from_steps(44444, 500, 489);
-    gl843_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_8600F;
@@ -115,273 +117,245 @@ void genesys_init_motor_profile_tables_gl843()
     profile.step_type = StepType::QUARTER;
     // FIXME: if the exposure is lower then we'll select another motor
     profile.slope = MotorSlope::create_from_steps(54612, 1500, 219);
-    gl843_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::PLUSTEK_OPTICFILM_7200I;
     profile.exposure = 0;
     profile.step_type = StepType::HALF;
     profile.slope = MotorSlope::create_from_steps(39682, 1191, 15);
-    gl843_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::PLUSTEK_OPTICFILM_7300;
     profile.exposure = 0x2f44;
     profile.step_type = StepType::QUARTER;
     profile.slope = MotorSlope::create_from_steps(31250, 1512, 6);
-    gl843_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::PLUSTEK_OPTICFILM_7500I;
     profile.exposure = 0;
     profile.step_type = StepType::QUARTER;
     profile.slope = MotorSlope::create_from_steps(31250, 1375, 7);
-    gl843_motor_profiles->push_back(profile);
-}
+    s_motor_profiles->push_back(profile);
 
-StaticInit<std::vector<Motor_Profile>> gl846_motor_profiles;
+    // gl846
 
-void genesys_init_motor_profile_tables_gl846()
-{
-    gl846_motor_profiles.init();
-
-    auto profile = Motor_Profile();
+    profile = Motor_Profile();
     profile.motor_id = MotorId::IMG101;
     profile.exposure = 11000;
     profile.step_type = StepType::HALF;
     profile.slope = MotorSlope::create_from_steps(22000, 1000, 1017);
-
-    gl846_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::PLUSTEK_OPTICBOOK_3800;
     profile.exposure = 11000;
     profile.step_type = StepType::HALF;
     profile.slope = MotorSlope::create_from_steps(22000, 1000, 1017);
-    gl846_motor_profiles->push_back(profile);
-}
+    s_motor_profiles->push_back(profile);
 
-/**
- * database of motor profiles
- */
+    // gl847
 
-StaticInit<std::vector<Motor_Profile>> gl847_motor_profiles;
-
-void genesys_init_motor_profile_tables_gl847()
-{
-    gl847_motor_profiles.init();
-
-    auto profile = Motor_Profile();
+    profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_LIDE_100;
     profile.exposure = 2848;
     profile.step_type = StepType::HALF;
     profile.slope = MotorSlope::create_from_steps(46876, 534, 255);
-    gl847_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_LIDE_100;
     profile.exposure = 1424;
     profile.step_type = StepType::HALF;
     profile.slope = MotorSlope::create_from_steps(46876, 534, 255);
-    gl847_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_LIDE_100;
     profile.exposure = 1432;
     profile.step_type = StepType::HALF;
     profile.slope = MotorSlope::create_from_steps(46876, 534, 255);
-    gl847_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_LIDE_100;
     profile.exposure = 2712;
     profile.step_type = StepType::QUARTER;
     profile.slope = MotorSlope::create_from_steps(46876, 534, 279);
-    gl847_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_LIDE_100;
     profile.exposure = 5280;
     profile.step_type = StepType::EIGHTH;
     profile.slope = MotorSlope::create_from_steps(31680, 534, 247);
-    gl847_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_LIDE_200;
     profile.exposure = 2848;
     profile.step_type = StepType::HALF;
     profile.slope = MotorSlope::create_from_steps(46876, 534, 255);
-    gl847_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_LIDE_200;
     profile.exposure = 1424;
     profile.step_type = StepType::HALF;
     profile.slope = MotorSlope::create_from_steps(46876, 534, 255);
-    gl847_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_LIDE_200;
     profile.exposure = 1432;
     profile.step_type = StepType::HALF;
     profile.slope = MotorSlope::create_from_steps(46876, 534, 255);
-    gl847_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_LIDE_200;
     profile.exposure = 2712;
     profile.step_type = StepType::QUARTER;
     profile.slope = MotorSlope::create_from_steps(46876, 534, 279);
-    gl847_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_LIDE_200;
     profile.exposure = 5280;
     profile.step_type = StepType::EIGHTH;
     profile.slope = MotorSlope::create_from_steps(31680, 534, 247);
-    gl847_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_LIDE_200;
     profile.exposure = 10416;
     profile.step_type = StepType::EIGHTH;
     profile.slope = MotorSlope::create_from_steps(31680, 534, 247);
-    gl847_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_LIDE_700;
     profile.exposure = 2848;
     profile.step_type = StepType::HALF;
     profile.slope = MotorSlope::create_from_steps(46876, 534, 255);
-    gl847_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_LIDE_700;
     profile.exposure = 1424;
     profile.step_type = StepType::HALF;
     profile.slope = MotorSlope::create_from_steps(46876, 534, 255);
-    gl847_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_LIDE_700;
     profile.exposure = 1504;
     profile.step_type = StepType::HALF;
     profile.slope = MotorSlope::create_from_steps(46876, 534, 255);
-    gl847_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_LIDE_700;
     profile.exposure = 2696;
     profile.step_type = StepType::HALF;
     profile.slope = MotorSlope::create_from_steps(46876, 2022, 127);
-    gl847_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_LIDE_700;
     profile.exposure = 10576;
     profile.step_type = StepType::EIGHTH;
     profile.slope = MotorSlope::create_from_steps(46876, 15864, 2);
-    gl847_motor_profiles->push_back(profile);
-}
+    s_motor_profiles->push_back(profile);
 
-StaticInit<std::vector<Motor_Profile>> gl124_motor_profiles;
-
-void genesys_init_motor_profile_tables_gl124()
-{
-    gl124_motor_profiles.init();
+    // gl124
 
     // NEXT LPERIOD=PREVIOUS*2-192
-    Motor_Profile profile;
+    profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_LIDE_110;
     profile.exposure = 2768;
     profile.step_type = StepType::FULL;
     profile.slope = MotorSlope::create_from_steps(62496, 335, 255);
-    gl124_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_LIDE_110;
     profile.exposure = 5360;
     profile.step_type = StepType::HALF;
     profile.slope = MotorSlope::create_from_steps(62496, 335, 469);
-    gl124_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_LIDE_110;
     profile.exposure = 10528;
     profile.step_type = StepType::HALF;
     profile.slope = MotorSlope::create_from_steps(62496, 2632, 3);
-    gl124_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_LIDE_110;
     profile.exposure = 20864;
     profile.step_type = StepType::QUARTER;
     profile.slope = MotorSlope::create_from_steps(62496, 10432, 3);
-    gl124_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_LIDE_120;
     profile.exposure = 4608;
     profile.step_type = StepType::FULL;
     profile.slope = MotorSlope::create_from_steps(62496, 864, 127);
-    gl124_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_LIDE_120;
     profile.exposure = 5360;
     profile.step_type = StepType::HALF;
     profile.slope = MotorSlope::create_from_steps(62496, 2010, 63);
-    gl124_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_LIDE_120;
     profile.exposure = 10528;
     profile.step_type = StepType::QUARTER;
     profile.slope = MotorSlope::create_from_steps(62464, 2632, 3);
-    gl124_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_LIDE_120;
     profile.exposure = 20864;
     profile.step_type = StepType::QUARTER;
     profile.slope = MotorSlope::create_from_steps(62592, 10432, 5);
-    gl124_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_LIDE_210;
     profile.exposure = 2768;
     profile.step_type = StepType::FULL;
     profile.slope = MotorSlope::create_from_steps(62496, 335, 255);
-    gl124_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_LIDE_210;
     profile.exposure = 5360;
     profile.step_type = StepType::HALF;
     profile.slope = MotorSlope::create_from_steps(62496, 335, 469);
-    gl124_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_LIDE_210;
     profile.exposure = 10528;
     profile.step_type = StepType::HALF;
     profile.slope = MotorSlope::create_from_steps(62496, 2632, 3);
-    gl124_motor_profiles->push_back(profile);
+    s_motor_profiles->push_back(profile);
 
     profile = Motor_Profile();
     profile.motor_id = MotorId::CANON_LIDE_210;
     profile.exposure = 20864;
     profile.step_type = StepType::QUARTER;
     profile.slope = MotorSlope::create_from_steps(62496, 10432, 4);
-    gl124_motor_profiles->push_back(profile);
-}
-
-void genesys_init_motor_profile_tables()
-{
-    genesys_init_motor_profile_tables_gl843();
-    genesys_init_motor_profile_tables_gl846();
-    genesys_init_motor_profile_tables_gl847();
-    genesys_init_motor_profile_tables_gl124();
+    s_motor_profiles->push_back(profile);
 }
 
 } // namespace genesys

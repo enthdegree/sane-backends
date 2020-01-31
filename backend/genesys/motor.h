@@ -172,6 +172,8 @@ struct Genesys_Motor
     int optical_ydpi = 0;
     // slopes to derive individual slopes from
     std::vector<MotorProfile> profiles;
+    // slopes to derive individual slopes from for fast moving
+    std::vector<MotorProfile> fast_profiles;
 
     MotorSlope& get_slope_with_step_type(StepType step_type)
     {

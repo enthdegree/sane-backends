@@ -800,6 +800,7 @@ void CommandSetGl843::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
 
 static void gl843_init_motor_regs_scan(Genesys_Device* dev,
                                        const Genesys_Sensor& sensor,
+                                       const ScanSession& session,
                                        Genesys_Register_Set* reg,
                                        const MotorProfile& motor_profile,
                                        unsigned int exposure,
@@ -863,7 +864,9 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
         r->value &= ~REG_0x02_MTRREV;
     }
 
-  /* scan and backtracking slope table */
+
+
+    // scan and backtracking slope table
     auto scan_table = sanei_genesys_slope_table(dev->model->asic_type, scan_yres, exposure,
                                                 dev->motor.base_ydpi, step_multiplier,
                                                 motor_profile);
@@ -875,10 +878,16 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     reg->set8(REG_FASTNO, scan_table.steps_count / step_multiplier);
 
     // fast table
+    const auto* fast_profile = get_motor_profile_ptr(dev->motor.fast_profiles, 0, session);
+    if (fast_profile == nullptr) {
+        fast_profile = &motor_profile;
+    }
+
     unsigned fast_yres = sanei_genesys_get_lowest_ydpi(dev);
     auto fast_table = sanei_genesys_slope_table(dev->model->asic_type, fast_yres, exposure,
                                                 dev->motor.base_ydpi, step_multiplier,
-                                                motor_profile);
+                                                *fast_profile);
+
     gl843_send_slope_table(dev, STOP_TABLE, fast_table.table, fast_table.steps_count);
     gl843_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.steps_count);
     gl843_send_slope_table(dev, HOME_TABLE, fast_table.table, fast_table.steps_count);
@@ -886,12 +895,12 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     reg->set8(REG_FSHDEC, fast_table.steps_count / step_multiplier);
     reg->set8(REG_FMOVNO, fast_table.steps_count / step_multiplier);
 
-    if (motor_profile.motor_vref != -1) {
+    if (motor_profile.motor_vref != -1 && fast_profile->motor_vref != 1) {
         std::uint8_t vref = 0;
         vref |= (motor_profile.motor_vref << REG_0x80S_TABLE1_NORMAL) & REG_0x80_TABLE1_NORMAL;
         vref |= (motor_profile.motor_vref << REG_0x80S_TABLE2_BACK) & REG_0x80_TABLE2_BACK;
-        vref |= (motor_profile.motor_vref << REG_0x80S_TABLE4_FAST) & REG_0x80_TABLE4_FAST;
-        vref |= (motor_profile.motor_vref << REG_0x80S_TABLE5_GO_HOME) & REG_0x80_TABLE5_GO_HOME;
+        vref |= (fast_profile->motor_vref << REG_0x80S_TABLE4_FAST) & REG_0x80_TABLE4_FAST;
+        vref |= (fast_profile->motor_vref << REG_0x80S_TABLE5_GO_HOME) & REG_0x80_TABLE5_GO_HOME;
         reg->set8(REG_0x80, vref);
     }
 
@@ -1203,7 +1212,7 @@ void CommandSetGl843::init_regs_for_scan_session(Genesys_Device* dev, const Gene
         mflags |= MotorFlag::REVERSE;
     }
 
-    gl843_init_motor_regs_scan(dev, sensor, reg, motor_profile, exposure, slope_dpi,
+    gl843_init_motor_regs_scan(dev, sensor, session, reg, motor_profile, exposure, slope_dpi,
                                session.optical_line_count, dummy, session.params.starty, mflags);
 
     dev->read_buffer.clear();

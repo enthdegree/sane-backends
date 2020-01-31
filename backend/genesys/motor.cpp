@@ -185,7 +185,10 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Motor& motor)
         << "    optical_ydpi: " << motor.optical_ydpi << '\n'
         << "    profiles: "
         << format_indent_braced_list(4, format_vector_indent_braced(4, "MotorProfile",
-                                                                    motor.profiles))
+                                                                    motor.profiles)) << '\n'
+        << "    fast_profiles: "
+        << format_indent_braced_list(4, format_vector_indent_braced(4, "MotorProfile",
+                                                                    motor.fast_profiles)) << '\n'
         << '}';
     return out;
 }

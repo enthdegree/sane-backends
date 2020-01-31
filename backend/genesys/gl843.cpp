@@ -801,7 +801,7 @@ void CommandSetGl843::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
 static void gl843_init_motor_regs_scan(Genesys_Device* dev,
                                        const Genesys_Sensor& sensor,
                                        Genesys_Register_Set* reg,
-                                       const Motor_Profile& motor_profile,
+                                       const MotorProfile& motor_profile,
                                        unsigned int exposure,
                                        unsigned scan_yres,
                                        unsigned int scan_lines,
@@ -1170,9 +1170,7 @@ void CommandSetGl843::init_regs_for_scan_session(Genesys_Device* dev, const Gene
   if (exposure < 0) {
       throw std::runtime_error("Exposure not defined in sensor definition");
   }
-    const auto& motor_profile = sanei_genesys_get_motor_profile(*s_motor_profiles,
-                                                                dev->model->motor_id,
-                                                                exposure);
+    const auto& motor_profile = get_motor_profile_by_exposure(dev->motor, exposure);
 
   DBG(DBG_info, "%s : exposure=%d pixels\n", __func__, exposure);
     DBG(DBG_info, "%s : scan_step_type=%d\n", __func__,

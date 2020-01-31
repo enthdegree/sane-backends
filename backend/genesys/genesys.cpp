@@ -4865,7 +4865,6 @@ void sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
   genesys_init_frontend_tables();
     genesys_init_gpo_tables();
     genesys_init_motor_tables();
-    genesys_init_motor_profile_tables();
     genesys_init_usb_device_tables();
 
 

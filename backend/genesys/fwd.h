@@ -113,6 +113,7 @@ class ScannerInterfaceUsb;
 class TestScannerInterface;
 
 // sensor.h
+class ScanMethodFilter;
 class ResolutionFilter;
 struct GenesysFrontendLayout;
 struct Genesys_Frontend;

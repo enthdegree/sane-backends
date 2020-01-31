@@ -48,6 +48,7 @@
 #include <cstdint>
 #include <vector>
 #include "enums.h"
+#include "sensor.h"
 
 namespace genesys {
 
@@ -148,6 +149,12 @@ struct MotorProfile
     MotorSlope slope;
     StepType step_type = StepType::FULL;
     int motor_vref = -1;
+
+    // the resolutions this profile is good for
+    ResolutionFilter resolutions = ResolutionFilter::ANY;
+    // the scan method this profile is good for. If the list is empty, good for any method.
+    ScanMethodFilter scan_methods = ScanMethodFilter::ANY;
+
     unsigned max_exposure = 0; // 0 - any exposure
 };
 

@@ -1179,7 +1179,7 @@ void CommandSetGl843::init_regs_for_scan_session(Genesys_Device* dev, const Gene
   if (exposure < 0) {
       throw std::runtime_error("Exposure not defined in sensor definition");
   }
-    const auto& motor_profile = get_motor_profile_by_exposure(dev->motor, exposure);
+    const auto& motor_profile = get_motor_profile_by_exposure(dev->motor, exposure, session);
 
   DBG(DBG_info, "%s : exposure=%d pixels\n", __func__, exposure);
     DBG(DBG_info, "%s : scan_step_type=%d\n", __func__,

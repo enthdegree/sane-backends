@@ -705,7 +705,7 @@ void CommandSetGl846::init_regs_for_scan_session(Genesys_Device* dev, const Gene
   slope_dpi = slope_dpi * (1 + dummy);
 
     exposure_time = sensor.exposure_lperiod;
-    const auto& motor_profile = get_motor_profile_by_exposure(dev->motor, exposure_time);
+    const auto& motor_profile = get_motor_profile_by_exposure(dev->motor, exposure_time, session);
 
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
     DBG(DBG_info, "%s : scan_step_type=%d\n", __func__,

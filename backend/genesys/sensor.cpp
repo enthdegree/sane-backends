@@ -122,6 +122,16 @@ std::ostream& operator<<(std::ostream& out, const ResolutionFilter& resolutions)
     return out;
 }
 
+std::ostream& operator<<(std::ostream& out, const ScanMethodFilter& methods)
+{
+    if (methods.matches_any()) {
+        out << "ANY";
+        return out;
+    }
+    out << format_vector_unsigned(4, methods.methods());
+    return out;
+}
+
 std::ostream& operator<<(std::ostream& out, const Genesys_Sensor& sensor)
 {
     out << "Genesys_Sensor{\n"

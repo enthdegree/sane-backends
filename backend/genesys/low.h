@@ -388,7 +388,8 @@ void scanner_stop_action_no_move(Genesys_Device& dev, Genesys_Register_Set& regs
 
 bool scanner_is_motor_stopped(Genesys_Device& dev);
 
-const MotorProfile& get_motor_profile_by_exposure(const Genesys_Motor& motor, unsigned exposure);
+const MotorProfile& get_motor_profile_by_exposure(const Genesys_Motor& motor, unsigned exposure,
+                                                  const ScanSession& session);
 
 MotorSlopeTable sanei_genesys_slope_table(AsicType asic_type, int dpi, int exposure, int base_dpi,
                                           unsigned step_multiplier,

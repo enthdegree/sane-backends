@@ -1729,12 +1729,20 @@ void sanei_genesys_wait_for_home(Genesys_Device* dev)
  * @param exposure exposure time
  * @return a pointer to a MotorProfile struct
  */
-const MotorProfile& get_motor_profile_by_exposure(const Genesys_Motor& motor, unsigned exposure)
+const MotorProfile& get_motor_profile_by_exposure(const Genesys_Motor& motor, unsigned exposure,
+                                                  const ScanSession& session)
 {
     int best_i = -1;
 
     for (unsigned i = 0; i < motor.profiles.size(); ++i) {
         const auto& profile = motor.profiles[i];
+
+        if (!profile.resolutions.matches(session.params.yres)) {
+            continue;
+        }
+        if (!profile.scan_methods.matches(session.params.scan_method)) {
+            continue;
+        }
 
         if (profile.max_exposure == exposure) {
             return profile;

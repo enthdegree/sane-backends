@@ -290,6 +290,46 @@ void serialize(Stream& str, ResolutionFilter& x)
 }
 
 
+class ScanMethodFilter
+{
+public:
+    struct Any {};
+    static constexpr Any ANY{};
+
+    ScanMethodFilter() : matches_any_{false} {}
+    ScanMethodFilter(Any) : matches_any_{true} {}
+    ScanMethodFilter(std::initializer_list<ScanMethod> methods) :
+        matches_any_{false},
+        methods_{methods}
+    {}
+
+    bool matches(ScanMethod method) const
+    {
+        if (matches_any_)
+            return true;
+        auto it = std::find(methods_.begin(), methods_.end(), method);
+        return it != methods_.end();
+    }
+
+    bool operator==(const ScanMethodFilter& other) const
+    {
+        return  matches_any_ == other.matches_any_ && methods_ == other.methods_;
+    }
+
+    bool matches_any() const { return matches_any_; }
+    const std::vector<ScanMethod>& methods() const { return methods_; }
+
+private:
+    bool matches_any_ = false;
+    std::vector<ScanMethod> methods_;
+
+    template<class Stream>
+    friend void serialize(Stream& str, ResolutionFilter& x);
+};
+
+std::ostream& operator<<(std::ostream& out, const ScanMethodFilter& methods);
+
+
 struct Genesys_Sensor {
 
     Genesys_Sensor() = default;

@@ -164,15 +164,25 @@ std::ostream& operator<<(std::ostream& out, const MotorSlope& slope)
     return out;
 }
 
+std::ostream& operator<<(std::ostream& out, const MotorProfile& profile)
+{
+    out << "MotorProfile{\n"
+        << "    max_exposure: " << profile.max_exposure << '\n'
+        << "    step_type: " << profile.step_type << '\n'
+        << "    slope: " << format_indent_braced_list(4, profile.slope) << '\n'
+        << '}';
+    return out;
+}
+
 std::ostream& operator<<(std::ostream& out, const Genesys_Motor& motor)
 {
     out << "Genesys_Motor{\n"
         << "    id: " << static_cast<unsigned>(motor.id) << '\n'
         << "    base_ydpi: " << motor.base_ydpi << '\n'
         << "    optical_ydpi: " << motor.optical_ydpi << '\n'
-        << "    slopes: "
-        << format_indent_braced_list(4, format_vector_indent_braced(4, "MotorSlope",
-                                                                    motor.slopes))
+        << "    profiles: "
+        << format_indent_braced_list(4, format_vector_indent_braced(4, "MotorProfile",
+                                                                    motor.profiles))
         << '}';
     return out;
 }

@@ -53,6 +53,8 @@ void genesys_init_motor_tables()
 {
     s_motors.init();
 
+    MotorProfile profile;
+
     Genesys_Motor motor;
     motor.id = MotorId::UMAX;
     motor.base_ydpi = 1200;
@@ -261,10 +263,64 @@ void genesys_init_motor_tables()
     motor.id = MotorId::CANON_8600F;
     motor.base_ydpi = 2400;
     motor.optical_ydpi = 9600;
-    // BUG: this is a fallback slope that was selected previously and preserved for compatibility
-    motor.profiles.push_back({MotorSlope::create_from_steps(44444, 500, 489), StepType::HALF, 0});
-    motor.profiles.push_back({MotorSlope::create_from_steps(54612, 1500, 219),
-                              StepType::QUARTER, 23000});
+
+    profile = MotorProfile();
+    profile.slope = MotorSlope::create_from_steps(54612, 1500, 219);
+    profile.step_type = StepType::QUARTER;
+    profile.motor_vref = 3;
+    profile.resolutions = { 300, 600 };
+    profile.scan_methods = { ScanMethod::FLATBED };
+    motor.profiles.push_back(std::move(profile));
+
+    profile = MotorProfile();
+    profile.slope = MotorSlope::create_from_steps(54612, 1500, 219);
+    profile.step_type = StepType::HALF;
+    profile.motor_vref = 2;
+    profile.resolutions = { 1200, 2400 };
+    profile.scan_methods = { ScanMethod::FLATBED };
+    motor.profiles.push_back(std::move(profile));
+
+    profile = MotorProfile();
+    profile.slope = MotorSlope::create_from_steps(54612, 1500, 219);
+    profile.step_type = StepType::QUARTER;
+    profile.motor_vref = 2;
+    profile.resolutions = { 4800 };
+    profile.scan_methods = { ScanMethod::FLATBED };
+    motor.profiles.push_back(std::move(profile));
+
+    profile = MotorProfile();
+    profile.slope = MotorSlope::create_from_steps(54612, 1500, 219);
+    profile.step_type = StepType::QUARTER;
+    profile.motor_vref = 2;
+    profile.resolutions = { 300, 600 };
+    profile.scan_methods = { ScanMethod::TRANSPARENCY,
+                             ScanMethod::TRANSPARENCY_INFRARED };
+    motor.profiles.push_back(std::move(profile));
+
+    profile = MotorProfile();
+    profile.slope = MotorSlope::create_from_steps(54612, 1500, 219);
+    profile.step_type = StepType::HALF;
+    profile.motor_vref = 1;
+    profile.resolutions = { 1200, 2400 };
+    profile.scan_methods = { ScanMethod::TRANSPARENCY,
+                             ScanMethod::TRANSPARENCY_INFRARED };
+    motor.profiles.push_back(std::move(profile));
+
+    profile = MotorProfile();
+    profile.slope = MotorSlope::create_from_steps(54612, 1500, 219);
+    profile.step_type = StepType::QUARTER;
+    profile.motor_vref = 0;
+    profile.resolutions = { 4800 };
+    profile.scan_methods = { ScanMethod::TRANSPARENCY,
+                             ScanMethod::TRANSPARENCY_INFRARED };
+    motor.profiles.push_back(std::move(profile));
+
+    profile = MotorProfile();
+    profile.slope = MotorSlope::create_from_steps(59240, 582, 1020);
+    profile.step_type = StepType::HALF;
+    profile.motor_vref = 2;
+    motor.fast_profiles.push_back(std::move(profile));
+
     s_motors->push_back(std::move(motor));
 
 

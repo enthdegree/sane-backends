@@ -402,11 +402,11 @@ gl843_init_registers (Genesys_Device * dev)
     // STEPSEL[0:1]. Motor movement step mode selection for tables 1-3 in
     // scanning mode.
     // MTRPWM[0:5]. Motor phase PWM duty cycle setting for tables 1-3
-    dev->reg.init_reg(0x67, 0x7f);
+    dev->reg.init_reg(0x67, 0x7f); // MOTOR_PROFILE
     // FSTPSEL[0:1]: Motor movement step mode selection for tables 4-5 in
     // command mode.
     // FASTPWM[5:0]: Motor phase PWM duty cycle setting for tables 4-5
-    dev->reg.init_reg(0x68, 0x7f);
+    dev->reg.init_reg(0x68, 0x7f); // MOTOR_PROFILE
 
     if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300) {
         dev->reg.init_reg(0x67, 0x80);
@@ -415,17 +415,11 @@ gl843_init_registers (Genesys_Device * dev)
 
     // FSHDEC[0:7]: The number of deceleration steps after scanning is finished
     // (table 3)
-    dev->reg.init_reg(0x69, 0x01);
-    if (dev->model->model_id == ModelId::CANON_8600F) {
-        dev->reg.init_reg(0x69, 64);
-    }
+    dev->reg.init_reg(0x69, 0x01); // MOTOR_PROFILE
 
     // FMOVNO[0:7] The number of acceleration or deceleration steps for fast
     // moving (table 4)
-    dev->reg.init_reg(0x6a, 0x04);
-    if (dev->model->model_id == ModelId::CANON_8600F) {
-        dev->reg.init_reg(0x69, 64);
-    }
+    dev->reg.init_reg(0x6a, 0x04); // MOTOR_PROFILE
 
     // GPIO-related register bits
     dev->reg.init_reg(0x6b, 0x30);
@@ -516,7 +510,7 @@ gl843_init_registers (Genesys_Device * dev)
 
     // VRHOME, VRMOVE, VRBACK, VRSCAN: Vref settings of the motor driver IC for
     // moving in various situations.
-    dev->reg.init_reg(0x80, 0x00);
+    dev->reg.init_reg(0x80, 0x00); // MOTOR_PROFILE
     if (dev->model->model_id == ModelId::CANON_4400F) {
         dev->reg.init_reg(0x80, 0x0c);
     }
@@ -797,6 +791,19 @@ void CommandSetGl843::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
     }
 }
 
+static bool should_use_new_fast_table(const Genesys_Device& dev)
+{
+    switch (dev.model->model_id) {
+        case ModelId::CANON_8600F:
+        case ModelId::CANON_8400F:
+        case ModelId::PLUSTEK_OPTICFILM_7200I:
+        case ModelId::PLUSTEK_OPTICFILM_7300:
+        case ModelId::PLUSTEK_OPTICFILM_7500I:
+            return true;
+        default:
+            return false;
+    }
+}
 
 static void gl843_init_motor_regs_scan(Genesys_Device* dev,
                                        const Genesys_Sensor& sensor,
@@ -877,22 +884,38 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     reg->set8(REG_STEPNO, scan_table.steps_count / step_multiplier);
     reg->set8(REG_FASTNO, scan_table.steps_count / step_multiplier);
 
+    if (should_use_new_fast_table(*dev)) {
+        // FIXME: move all models to the 8600F behavior
+        gl843_send_slope_table(dev, STOP_TABLE, scan_table.table, scan_table.steps_count);
+        reg->set8(REG_FSHDEC, scan_table.steps_count / step_multiplier);
+    }
+
     // fast table
     const auto* fast_profile = get_motor_profile_ptr(dev->motor.fast_profiles, 0, session);
     if (fast_profile == nullptr) {
         fast_profile = &motor_profile;
     }
 
-    unsigned fast_yres = sanei_genesys_get_lowest_ydpi(dev);
-    auto fast_table = sanei_genesys_slope_table(dev->model->asic_type, fast_yres, exposure,
-                                                dev->motor.base_ydpi, step_multiplier,
-                                                *fast_profile);
+    MotorSlopeTable fast_table;
 
-    gl843_send_slope_table(dev, STOP_TABLE, fast_table.table, fast_table.steps_count);
+    if (should_use_new_fast_table(*dev)) {
+        fast_table = create_slope_table_fastest(dev->model->asic_type, step_multiplier,
+                                                *fast_profile);
+    } else {
+        unsigned fast_yres = sanei_genesys_get_lowest_ydpi(dev);
+        fast_table = sanei_genesys_slope_table(dev->model->asic_type, fast_yres, exposure,
+                                               dev->motor.base_ydpi, step_multiplier,
+                                               *fast_profile);
+    }
+
+    if (!should_use_new_fast_table(*dev)) {
+        // FIXME: move all models to the 8600F behavior
+        gl843_send_slope_table(dev, STOP_TABLE, fast_table.table, fast_table.steps_count);
+        reg->set8(REG_FSHDEC, fast_table.steps_count / step_multiplier);
+    }
     gl843_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.steps_count);
     gl843_send_slope_table(dev, HOME_TABLE, fast_table.table, fast_table.steps_count);
 
-    reg->set8(REG_FSHDEC, fast_table.steps_count / step_multiplier);
     reg->set8(REG_FMOVNO, fast_table.steps_count / step_multiplier);
 
     if (motor_profile.motor_vref != -1 && fast_profile->motor_vref != 1) {

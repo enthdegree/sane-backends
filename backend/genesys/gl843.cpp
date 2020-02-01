@@ -975,7 +975,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
   r->value |= scan_dummy;	/* dummy lines */
 
     reg->set8_mask(REG_0x67, static_cast<unsigned>(motor_profile.step_type) << REG_0x67S_STEPSEL, 0xc0);
-    reg->set8_mask(REG_0x68, static_cast<unsigned>(motor_profile.step_type) << REG_0x68S_FSTPSEL, 0xc0);
+    reg->set8_mask(REG_0x68, static_cast<unsigned>(fast_profile->step_type) << REG_0x68S_FSTPSEL, 0xc0);
 
     // steps for STOP table
     reg->set8(REG_FMOVDEC, fast_table.steps_count / step_multiplier);

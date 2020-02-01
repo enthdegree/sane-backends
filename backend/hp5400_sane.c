@@ -196,12 +196,12 @@ static const SANE_Int   setResolutions[] = {6, 75, 150, 300, 600, 1200, 2400};
 #else
 static const SANE_Int   setResolutions[] = {5, 75, 150, 300, 600, 1200};
 #endif
-static const SANE_Range rangeXmm = {0, 220, 1};
-static const SANE_Range rangeYmm = {0, 300, 1};
+static const SANE_Range rangeXmm = {0, 216, 1};
+static const SANE_Range rangeYmm = {0, 297, 1};
 static const SANE_Range rangeXoffset = {0, 20, 1};
 static const SANE_Range rangeYoffset = {0, 70, 1};
-static const SANE_Int offsetX = 5;
-static const SANE_Int offsetY = 52;
+static const SANE_Int offsetX = 0;
+static const SANE_Int offsetY = 0;
 
 
 static void _InitOptions(TScanner *s)

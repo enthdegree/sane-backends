@@ -256,7 +256,7 @@ void genesys_init_motor_tables()
     motor.optical_ydpi = 6400;
 
     profile = MotorProfile();
-    profile.slope = MotorSlope::create_from_steps(20202 * 4, 900 * 4, 50);
+    profile.slope = MotorSlope::create_from_steps(20202 * 4, 333 * 4, 100);
     profile.step_type = StepType::QUARTER;
     profile.motor_vref = 0;
     profile.resolutions = ResolutionFilter::ANY;
@@ -264,7 +264,7 @@ void genesys_init_motor_tables()
     motor.profiles.push_back(std::move(profile));
 
     profile = MotorProfile();
-    profile.slope = MotorSlope::create_from_steps(65535 * 4, 900 * 4, 100);
+    profile.slope = MotorSlope::create_from_steps(65535 * 4, 333 * 4, 100);
     profile.step_type = StepType::QUARTER;
     profile.motor_vref = 2;
     profile.resolutions = ResolutionFilter::ANY;

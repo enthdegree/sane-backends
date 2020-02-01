@@ -796,6 +796,7 @@ static bool should_use_new_fast_table(const Genesys_Device& dev)
     switch (dev.model->model_id) {
         case ModelId::CANON_8600F:
         case ModelId::CANON_8400F:
+        case ModelId::PLUSTEK_OPTICFILM_7200I:
             return true;
         default:
             return false;

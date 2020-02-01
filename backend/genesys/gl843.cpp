@@ -791,6 +791,16 @@ void CommandSetGl843::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
     }
 }
 
+static bool should_use_new_fast_table(const Genesys_Device& dev)
+{
+    switch (dev.model->model_id) {
+        case ModelId::CANON_8600F:
+        case ModelId::CANON_8400F:
+            return true;
+        default:
+            return false;
+    }
+}
 
 static void gl843_init_motor_regs_scan(Genesys_Device* dev,
                                        const Genesys_Sensor& sensor,
@@ -871,7 +881,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     reg->set8(REG_STEPNO, scan_table.steps_count / step_multiplier);
     reg->set8(REG_FASTNO, scan_table.steps_count / step_multiplier);
 
-    if (dev->model->model_id == ModelId::CANON_8600F) {
+    if (should_use_new_fast_table(*dev)) {
         // FIXME: move all models to the 8600F behavior
         gl843_send_slope_table(dev, STOP_TABLE, scan_table.table, scan_table.steps_count);
         reg->set8(REG_FSHDEC, scan_table.steps_count / step_multiplier);
@@ -885,7 +895,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
 
     MotorSlopeTable fast_table;
 
-    if (dev->model->model_id == ModelId::CANON_8600F) {
+    if (should_use_new_fast_table(*dev)) {
         fast_table = create_slope_table_fastest(dev->model->asic_type, step_multiplier,
                                                 *fast_profile);
     } else {
@@ -895,7 +905,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
                                                *fast_profile);
     }
 
-    if (dev->model->model_id != ModelId::CANON_8600F) {
+    if (!should_use_new_fast_table(*dev)) {
         // FIXME: move all models to the 8600F behavior
         gl843_send_slope_table(dev, STOP_TABLE, fast_table.table, fast_table.steps_count);
         reg->set8(REG_FSHDEC, fast_table.steps_count / step_multiplier);

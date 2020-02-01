@@ -254,8 +254,31 @@ void genesys_init_motor_tables()
     motor.id = MotorId::CANON_8400F;
     motor.base_ydpi = 1600;
     motor.optical_ydpi = 6400;
-    motor.profiles.push_back({MotorSlope::create_from_steps(8743, 300, 794),
-                              StepType::QUARTER, 50000});
+
+    profile = MotorProfile();
+    profile.slope = MotorSlope::create_from_steps(20202 * 4, 900 * 4, 50);
+    profile.step_type = StepType::QUARTER;
+    profile.motor_vref = 0;
+    profile.resolutions = ResolutionFilter::ANY;
+    profile.scan_methods = { ScanMethod::FLATBED };
+    motor.profiles.push_back(std::move(profile));
+
+    profile = MotorProfile();
+    profile.slope = MotorSlope::create_from_steps(65535 * 4, 900 * 4, 100);
+    profile.step_type = StepType::QUARTER;
+    profile.motor_vref = 2;
+    profile.resolutions = ResolutionFilter::ANY;
+    profile.scan_methods = { ScanMethod::TRANSPARENCY, ScanMethod::TRANSPARENCY_INFRARED };
+    motor.profiles.push_back(std::move(profile));
+
+    profile = MotorProfile();
+    profile.slope = MotorSlope::create_from_steps(65535 * 4, 333 * 4, 200);
+    profile.step_type = StepType::QUARTER;
+    profile.motor_vref = 2;
+    profile.resolutions = ResolutionFilter::ANY;
+    profile.scan_methods = ScanMethodFilter::ANY;
+    motor.fast_profiles.push_back(std::move(profile));
+
     s_motors->push_back(std::move(motor));
 
 

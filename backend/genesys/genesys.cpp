@@ -2569,7 +2569,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
      Wn = white average for column n
      Dn = dark average for column n
    */
-    if (get_registers_gain4_bit(dev->model->asic_type, dev->calib_reg)) {
+    if (get_registers_gain4_bit(dev->model->asic_type, dev->reg)) {
         coeff = 0x4000;
     } else {
         coeff = 0x2000;

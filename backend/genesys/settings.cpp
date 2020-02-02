@@ -72,14 +72,20 @@ std::ostream& operator<<(std::ostream& out, const SetupParams& params)
 {
     StreamStateSaver state_saver{out};
 
+    bool reverse = has_flag(params.flags, ScanFlag::REVERSE);
+
     out << "SetupParams{\n"
-        << "    xres: " << params.xres << " yres: " << params.yres << '\n'
-        << "    lines: " << params.lines << '\n'
-        << "    pixels per line (actual): " << params.pixels << '\n'
-        << "    pixels per line (requested): " << params.requested_pixels << '\n'
+        << "    xres: " << params.xres
+            << " startx: " << params.startx
+            << " pixels per line (actual): " << params.pixels
+            << " pixels per line (requested): " << params.requested_pixels << '\n'
+
+        << "    yres: " << params.yres
+            << " lines: " << params.lines
+            << " starty: " << params.starty << (reverse ? " (reverse)" : "") << '\n'
+
         << "    depth: " << params.depth << '\n'
         << "    channels: " << params.channels << '\n'
-        << "    startx: " << params.startx << " starty: " << params.starty << '\n'
         << "    scan_mode: " << params.scan_mode << '\n'
         << "    color_filter: " << params.color_filter << '\n'
         << "    flags: " << params.flags << '\n'

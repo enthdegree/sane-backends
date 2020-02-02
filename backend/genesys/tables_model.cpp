@@ -546,9 +546,7 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::CANON_8400F;
     model.gpio_id = GpioId::CANON_8400F;
     model.motor_id = MotorId::CANON_8400F;
-    model.flags = GENESYS_FLAG_HAS_UTA |
-                  GENESYS_FLAG_HAS_UTA_INFRARED |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
+    model.flags = GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_DARK_CALIBRATION |
                   GENESYS_FLAG_FULL_HWDPI_MODE |
@@ -615,9 +613,7 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::CANON_8600F;
     model.gpio_id = GpioId::CANON_8600F;
     model.motor_id = MotorId::CANON_8600F;
-    model.flags = GENESYS_FLAG_HAS_UTA |
-                  GENESYS_FLAG_HAS_UTA_INFRARED |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
+    model.flags = GENESYS_FLAG_OFFSET_CALIBRATION |
                   GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_DARK_CALIBRATION |
                   GENESYS_FLAG_FULL_HWDPI_MODE |
@@ -2621,9 +2617,7 @@ void genesys_init_usb_device_tables()
     model.gpio_id = GpioId::PLUSTEK_OPTICFILM_7200I;
     model.motor_id = MotorId::PLUSTEK_OPTICFILM_7200I;
 
-    model.flags = GENESYS_FLAG_HAS_UTA |
-                  GENESYS_FLAG_HAS_UTA_INFRARED |
-                  GENESYS_FLAG_CUSTOM_GAMMA |
+    model.flags = GENESYS_FLAG_CUSTOM_GAMMA |
                   GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_DARK_CALIBRATION |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
@@ -2688,8 +2682,7 @@ void genesys_init_usb_device_tables()
     model.gpio_id = GpioId::PLUSTEK_OPTICFILM_7300;
     model.motor_id = MotorId::PLUSTEK_OPTICFILM_7300;
 
-    model.flags = GENESYS_FLAG_HAS_UTA |
-                  GENESYS_FLAG_CUSTOM_GAMMA |
+    model.flags = GENESYS_FLAG_CUSTOM_GAMMA |
                   GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_DARK_CALIBRATION |
                   GENESYS_FLAG_OFFSET_CALIBRATION |
@@ -2753,9 +2746,7 @@ void genesys_init_usb_device_tables()
     model.gpio_id = GpioId::PLUSTEK_OPTICFILM_7500I;
     model.motor_id = MotorId::PLUSTEK_OPTICFILM_7500I;
 
-    model.flags = GENESYS_FLAG_HAS_UTA |
-                  GENESYS_FLAG_HAS_UTA_INFRARED |
-                  GENESYS_FLAG_CUSTOM_GAMMA |
+    model.flags = GENESYS_FLAG_CUSTOM_GAMMA |
                   GENESYS_FLAG_SKIP_WARMUP |
                   GENESYS_FLAG_DARK_CALIBRATION |
                   GENESYS_FLAG_OFFSET_CALIBRATION |

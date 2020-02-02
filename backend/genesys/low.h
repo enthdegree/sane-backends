@@ -125,9 +125,6 @@
 
 #define GENESYS_FLAG_MUST_WAIT        (1 << 10)	/**< tells wether the scanner must wait for the head when parking */
 
-
-#define GENESYS_FLAG_HAS_UTA          (1 << 11)	/**< scanner has a transparency adapter */
-
 #define GENESYS_FLAG_DARK_WHITE_CALIBRATION (1 << 12) /**< yet another calibration method. does white and dark shading in one run, depending on a black and a white strip*/
 #define GENESYS_FLAG_CUSTOM_GAMMA     (1 << 13)       /**< allow custom gamma tables */
 #define GENESYS_FLAG_NO_CALIBRATION   (1 << 14)       /**< allow scanners to use skip the calibration, needed for sheetfed scanners */
@@ -135,8 +132,6 @@
 #define GENESYS_FLAG_SHADING_NO_MOVE  (1 << 17)       /**< scanner doesn't move sensor during shading calibration */
 #define GENESYS_FLAG_SHADING_REPARK   (1 << 18)       /**< repark head between shading scans */
 #define GENESYS_FLAG_FULL_HWDPI_MODE  (1 << 19)       /**< scanner always use maximum hw dpi to setup the sensor */
-// scanner has infrared transparency scanning capability
-#define GENESYS_FLAG_HAS_UTA_INFRARED (1 << 20)
 // scanner calibration is handled on the host side
 #define GENESYS_FLAG_CALIBRATION_HOST_SIDE (1 << 21)
 #define GENESYS_FLAG_16BIT_DATA_INVERTED (1 << 22)

@@ -965,37 +965,29 @@ void CommandSetGl847::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 {
     DBG_HELPER(dbg);
 
-  dev->calib_channels = 3;
+    unsigned channels = 3;
 
-  /* initial calibration reg values */
-  regs = dev->reg;
+    unsigned resolution = sensor.get_register_hwdpi(dev->settings.xres);
 
-    dev->calib_resolution = sensor.get_register_hwdpi(dev->settings.xres);
-
-    const auto& calib_sensor = sanei_genesys_find_sensor(dev, dev->calib_resolution,
-                                                         dev->calib_channels,
+    const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                          dev->settings.scan_method);
 
-  dev->calib_total_bytes_to_read = 0;
-  dev->calib_lines = dev->model->shading_lines;
-    if (dev->calib_resolution == 4800) {
-        dev->calib_lines *= 2;
+    unsigned calib_lines = dev->model->shading_lines;
+    if (resolution == 4800) {
+        calib_lines *= 2;
     }
-    dev->calib_pixels = (calib_sensor.sensor_pixels * dev->calib_resolution) /
-                        calib_sensor.optical_res;
-
-    DBG(DBG_io, "%s: calib_lines  = %zu\n", __func__, dev->calib_lines);
-    DBG(DBG_io, "%s: calib_pixels = %zu\n", __func__, dev->calib_pixels);
+    unsigned calib_pixels = (calib_sensor.sensor_pixels * resolution) /
+                             calib_sensor.optical_res;
 
     ScanSession session;
-    session.params.xres = dev->calib_resolution;
+    session.params.xres = resolution;
     session.params.yres = dev->motor.base_ydpi;
     session.params.startx = 0;
     session.params.starty = 20;
-    session.params.pixels = dev->calib_pixels;
-    session.params.lines = dev->calib_lines;
+    session.params.pixels = calib_pixels;
+    session.params.lines = calib_lines;
     session.params.depth = 16;
-    session.params.channels = dev->calib_channels;
+    session.params.channels = channels;
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = dev->settings.color_filter;
@@ -1009,11 +1001,14 @@ void CommandSetGl847::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 
   /* we use ModelFlag::SHADING_REPARK */
     dev->set_head_pos_zero(ScanHeadId::PRIMARY);
+
+    dev->calib_session = session;
 }
 
 /** @brief set up registers for the actual scan
  */
-void CommandSetGl847::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const
+void CommandSetGl847::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                         Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
   float move;
@@ -1043,7 +1038,7 @@ void CommandSetGl847::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
 
   move_dpi = dev->motor.base_ydpi;
 
-    move = static_cast<float>(dev->model->y_offset);
+    move = dev->model->y_offset;
     move = static_cast<float>(move + dev->settings.tl_y);
     move = static_cast<float>((move * move_dpi) / MM_PER_INCH);
     move -= dev->head_pos(ScanHeadId::PRIMARY);
@@ -1064,8 +1059,8 @@ void CommandSetGl847::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
   DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
 
   /* start */
-    start = static_cast<float>(dev->model->x_offset);
-    start = static_cast<float>(start + dev->settings.tl_x);
+    start = dev->model->x_offset;
+    start = start + dev->settings.tl_x;
     start = static_cast<float>((start * sensor.optical_res) / MM_PER_INCH);
 
     ScanSession session;
@@ -1085,7 +1080,7 @@ void CommandSetGl847::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     session.params.flags = ScanFlag::DISABLE_BUFFER_FULL_MOVE;
     compute_session(dev, session, sensor);
 
-    init_regs_for_scan_session(dev, sensor, &dev->reg, session);
+    init_regs_for_scan_session(dev, sensor, &regs, session);
 }
 
 
@@ -1184,7 +1179,7 @@ SensorExposure CommandSetGl847::led_calibration(Genesys_Device* dev, const Genes
   uint16_t exp[3];
   float move;
 
-    move = static_cast<float>(dev->model->y_offset_calib_white);
+    move = dev->model->y_offset_calib_white;
     move = static_cast<float>((move * (dev->motor.base_ydpi / 4)) / MM_PER_INCH);
     if (move > 20) {
         scanner_move(*dev, dev->model->default_method, static_cast<unsigned>(move),
@@ -1769,7 +1764,6 @@ void CommandSetGl847::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
   /* offset calibration is always done in color mode */
   channels = 3;
-  dev->calib_pixels = sensor.sensor_pixels;
   lines=1;
     pixels= (sensor.sensor_pixels * sensor.optical_res) / sensor.optical_res;
     black_pixels = (sensor.black_pixels * sensor.optical_res) / sensor.optical_res;

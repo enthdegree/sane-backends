@@ -1655,17 +1655,17 @@ ScanSession CommandSetGl841::calculate_scan_session(const Genesys_Device* dev,
     // relative from origin, else, it is from parking position
     float move = 0.0f;
     if (has_flag(dev->model->flags, ModelFlag::SEARCH_START)) {
-        move += static_cast<float>(dev->model->y_offset_calib_white);
+        move += dev->model->y_offset_calib_white;
     }
 
-    move += static_cast<float>(dev->model->y_offset);
-    move += static_cast<float>(dev->settings.tl_y);
+    move += dev->model->y_offset;
+    move += dev->settings.tl_y;
 
     int move_dpi = dev->motor.base_ydpi;
     move = static_cast<float>((move * move_dpi) / MM_PER_INCH);
 
-    float start = static_cast<float>(dev->model->x_offset);
-    start += static_cast<float>(dev->settings.tl_x);
+    float start = dev->model->x_offset;
+    start += dev->settings.tl_x;
     start = static_cast<float>((start * sensor.optical_res) / MM_PER_INCH);
 
     // we enable true gray for cis scanners only, and just when doing
@@ -1990,10 +1990,9 @@ void CommandSetGl841::eject_document(Genesys_Device* dev) const
 	}
     }
 
-    feed_mm = static_cast<float>(dev->model->eject_feed);
-  if (dev->document)
-    {
-        feed_mm += static_cast<float>(dev->model->post_scan);
+    feed_mm = dev->model->eject_feed;
+    if (dev->document) {
+        feed_mm += dev->model->post_scan;
     }
 
         sanei_genesys_read_feed_steps(dev, &init_steps);
@@ -2432,12 +2431,9 @@ void CommandSetGl841::init_regs_for_coarse_calibration(Genesys_Device* dev,
 void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                             Genesys_Register_Set& regs) const
 {
-    DBG_HELPER_ARGS(dbg, "lines = %zu", dev->calib_lines);
+    DBG_HELPER(dbg);
   SANE_Int ydpi;
     unsigned starty = 0;
-
-  /* initial calibration reg values */
-  regs = dev->reg;
 
   ydpi = dev->motor.base_ydpi;
   if (dev->model->motor_id == MotorId::PLUSTEK_OPTICPRO_3600)  /* TODO PLUSTEK_3600: 1200dpi not yet working, produces dark bar */
@@ -2459,26 +2455,23 @@ void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
       starty = 70;
     }
 
-  dev->calib_channels = 3;
-  dev->calib_lines = dev->model->shading_lines;
+    unsigned channels = 3;
 
     unsigned resolution = sensor.get_logical_hwdpi(dev->settings.xres);
     unsigned factor = sensor.optical_res / resolution;
 
-    const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, dev->calib_channels,
+    const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                          dev->settings.scan_method);
-
-    dev->calib_pixels = calib_sensor.sensor_pixels / factor;
 
     ScanSession session;
     session.params.xres = resolution;
     session.params.yres = ydpi;
     session.params.startx = 0;
     session.params.starty = starty;
-    session.params.pixels = dev->calib_pixels;
-    session.params.lines = dev->calib_lines;
+    session.params.pixels = calib_sensor.sensor_pixels / factor;
+    session.params.lines = dev->model->shading_lines;
     session.params.depth = 16;
-    session.params.channels = dev->calib_channels;
+    session.params.channels = channels;
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = dev->settings.color_filter;
@@ -2489,17 +2482,20 @@ void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     compute_session(dev, session, calib_sensor);
 
     init_regs_for_scan_session(dev, calib_sensor, &regs, session);
+
+    dev->calib_session = session;
 }
 
 // set up registers for the actual scan
-void CommandSetGl841::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const
+void CommandSetGl841::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                         Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
 
     debug_dump(DBG_info, dev->settings);
 
     auto session = calculate_scan_session(dev, sensor, dev->settings);
-    init_regs_for_scan_session(dev, sensor, &dev->reg, session);
+    init_regs_for_scan_session(dev, sensor, &regs, session);
 }
 
 

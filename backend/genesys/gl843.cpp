@@ -1251,11 +1251,11 @@ void CommandSetGl843::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     DBG(DBG_info, "%s: total bytes to send = %zu\n", __func__, dev->total_bytes_to_read);
 }
 
-static double get_model_x_offset_ta(const Genesys_Device& dev,
+static float get_model_x_offset_ta(const Genesys_Device& dev,
                                     const Genesys_Settings& settings)
 {
     if (dev.model->model_id == ModelId::CANON_8600F && settings.xres == 4800) {
-        return 85.0;
+        return 85.0f;
     }
     return dev.model->x_offset_ta;
 }
@@ -1276,16 +1276,16 @@ ScanSession CommandSetGl843::calculate_scan_session(const Genesys_Device* dev,
         // note: move_to_ta() function has already been called and the sensor is at the
         // transparency adapter
         if (!dev->ignore_offsets) {
-            move = static_cast<float>(dev->model->y_offset_ta - dev->model->y_offset_sensor_to_ta);
+            move = dev->model->y_offset_ta - dev->model->y_offset_sensor_to_ta;
         }
         flags |= ScanFlag::USE_XPA;
     } else {
         if (!dev->ignore_offsets) {
-            move = static_cast<float>(dev->model->y_offset);
+            move = dev->model->y_offset;
         }
     }
 
-    move += static_cast<float>(settings.tl_y);
+    move += settings.tl_y;
 
     int move_dpi = dev->motor.base_ydpi;
     move = static_cast<float>((move * move_dpi) / MM_PER_INCH);
@@ -1294,11 +1294,11 @@ ScanSession CommandSetGl843::calculate_scan_session(const Genesys_Device* dev,
     if (settings.scan_method==ScanMethod::TRANSPARENCY ||
         settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        start = static_cast<float>(get_model_x_offset_ta(*dev, settings));
+        start = get_model_x_offset_ta(*dev, settings);
     } else {
-        start = static_cast<float>(dev->model->x_offset);
+        start = dev->model->x_offset;
     }
-    start = static_cast<float>(start + settings.tl_x);
+    start = start + settings.tl_x;
 
     if (dev->model->model_id == ModelId::CANON_8400F ||
         dev->model->model_id == ModelId::CANON_8600F)
@@ -1698,45 +1698,41 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     DBG_HELPER(dbg);
   int move, resolution, dpihw, factor;
 
-  /* initial calibration reg values */
-  regs = dev->reg;
-
-  dev->calib_channels = 3;
-
+    unsigned calib_lines = 0;
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        dev->calib_lines = dev->model->shading_ta_lines;
+        calib_lines = dev->model->shading_ta_lines;
     } else {
-        dev->calib_lines = dev->model->shading_lines;
+        calib_lines = dev->model->shading_lines;
     }
 
     dpihw = sensor.get_logical_hwdpi(dev->settings.xres);
   factor=sensor.optical_res/dpihw;
   resolution=dpihw;
 
-  const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, dev->calib_channels,
+    unsigned channels = 3;
+  const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                        dev->settings.scan_method);
 
+    unsigned calib_pixels = 0;
+    unsigned calib_pixels_offset = 0;
+
     if (should_calibrate_only_active_area(*dev, dev->settings)) {
-        float offset = static_cast<float>(get_model_x_offset_ta(*dev, dev->settings));
+        float offset = get_model_x_offset_ta(*dev, dev->settings);
         offset /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
         offset = static_cast<float>((offset * resolution) / MM_PER_INCH);
 
-        float size = static_cast<float>(dev->model->x_size_ta);
+        float size = dev->model->x_size_ta;
         size /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
         size = static_cast<float>((size * resolution) / MM_PER_INCH);
 
-        dev->calib_pixels_offset = static_cast<std::size_t>(offset);
-        dev->calib_pixels = static_cast<std::size_t>(size);
+        calib_pixels_offset = static_cast<std::size_t>(offset);
+        calib_pixels = static_cast<std::size_t>(size);
+    } else {
+        calib_pixels_offset = 0;
+        calib_pixels = calib_sensor.sensor_pixels / factor;
     }
-    else
-    {
-        dev->calib_pixels_offset = 0;
-        dev->calib_pixels = calib_sensor.sensor_pixels / factor;
-    }
-
-  dev->calib_resolution = resolution;
 
     ScanFlag flags = ScanFlag::DISABLE_SHADING |
                      ScanFlag::DISABLE_GAMMA |
@@ -1759,12 +1755,12 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     ScanSession session;
     session.params.xres = resolution;
     session.params.yres = resolution;
-    session.params.startx = dev->calib_pixels_offset;
+    session.params.startx = calib_pixels_offset;
     session.params.starty = move;
-    session.params.pixels = dev->calib_pixels;
-    session.params.lines = dev->calib_lines;
+    session.params.pixels = calib_pixels;
+    session.params.lines = calib_lines;
     session.params.depth = 16;
-    session.params.channels = dev->calib_channels;
+    session.params.channels = channels;
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = dev->settings.scan_mode;
     session.params.color_filter = dev->settings.color_filter;
@@ -1773,21 +1769,18 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 
     init_regs_for_scan_session(dev, calib_sensor, &regs, session);
 
-     // the pixel number may be updated to conform to scanner constraints
-    dev->calib_pixels = session.output_pixels;
-
     dev->calib_session = session;
-    dev->calib_total_bytes_to_read = session.output_total_bytes_raw;
 }
 
 /** @brief set up registers for the actual scan
  */
-void CommandSetGl843::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const
+void CommandSetGl843::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                         Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
     ScanSession session = calculate_scan_session(dev, sensor, dev->settings);
 
-    init_regs_for_scan_session(dev, sensor, &dev->reg, session);
+    init_regs_for_scan_session(dev, sensor, &regs, session);
 }
 
 /**

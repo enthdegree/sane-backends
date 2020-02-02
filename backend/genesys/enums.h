@@ -442,9 +442,6 @@ enum class ModelFlag : unsigned
     // use 14-bit gamma table instead of 12-bit
     GAMMA_14BIT = 1 << 1,
 
-    // has XPA adapter
-    XPA = 1 << 3,
-
     // skip lamp warmup (genesys_warmup())
     SKIP_WARMUP = 1 << 4,
 

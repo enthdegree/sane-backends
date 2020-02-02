@@ -62,15 +62,24 @@ std::vector<unsigned> MethodResolutions::get_resolutions() const
     return ret;
 }
 
-const MethodResolutions& Genesys_Model::get_resolution_settings(ScanMethod method) const
+const MethodResolutions* Genesys_Model::get_resolution_settings_ptr(ScanMethod method) const
 {
     for (const auto& res_for_method : resolutions) {
         for (auto res_method : res_for_method.methods) {
             if (res_method == method) {
-                return res_for_method;
+                return &res_for_method;
             }
         }
     }
+    return nullptr;
+
+}
+const MethodResolutions& Genesys_Model::get_resolution_settings(ScanMethod method) const
+{
+    const auto* ptr = get_resolution_settings_ptr(method);
+    if (ptr)
+        return *ptr;
+
     throw SaneException("Could not find resolution settings for method %d",
                         static_cast<unsigned>(method));
 }
@@ -79,6 +88,12 @@ std::vector<unsigned> Genesys_Model::get_resolutions(ScanMethod method) const
 {
     return get_resolution_settings(method).get_resolutions();
 }
+
+bool Genesys_Model::has_method(ScanMethod method) const
+{
+    return get_resolution_settings_ptr(method) != nullptr;
+}
+
 
 Genesys_Device::~Genesys_Device()
 {
@@ -224,13 +239,7 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev)
         << static_cast<unsigned>(dev.control[4]) << ' '
         << static_cast<unsigned>(dev.control[5]) << '\n' << std::dec
         << "    average_size: " << dev.average_size << '\n'
-        << "    calib_pixels: " << dev.calib_pixels << '\n'
-        << "    calib_lines: " << dev.calib_lines << '\n'
-        << "    calib_channels: " << dev.calib_channels << '\n'
-        << "    calib_resolution: " << dev.calib_resolution << '\n'
-        << "    calib_total_bytes_to_read: " << dev.calib_total_bytes_to_read << '\n'
         << "    calib_session: " << format_indent_braced_list(4, dev.calib_session) << '\n'
-        << "    calib_pixels_offset: " << dev.calib_pixels_offset << '\n'
         << "    gamma_override_tables[0].size(): " << dev.gamma_override_tables[0].size() << '\n'
         << "    gamma_override_tables[1].size(): " << dev.gamma_override_tables[1].size() << '\n'
         << "    gamma_override_tables[2].size(): " << dev.gamma_override_tables[2].size() << '\n'

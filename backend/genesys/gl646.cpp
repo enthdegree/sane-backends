@@ -1695,8 +1695,8 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   settings.tl_y = 0;
     settings.pixels = (calib_sensor.sensor_pixels * settings.xres) / calib_sensor.optical_res;
     settings.requested_pixels = settings.pixels;
-  dev->calib_lines = dev->model->shading_lines;
-  settings.lines = dev->calib_lines * (3 - ccd_size_divisor);
+    unsigned calib_lines = dev->model->shading_lines;
+    settings.lines = calib_lines;
   settings.depth = 16;
   settings.color_filter = dev->settings.color_filter;
 
@@ -1705,14 +1705,8 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 
     // we don't want top offset, but we need right margin to be the same than the one for the final
     // scan
-    setup_for_scan(dev, calib_sensor, &dev->reg, settings, true, false, false, false);
-
-  /* used when sending shading calibration data */
-  dev->calib_pixels = settings.pixels;
-    dev->calib_channels = dev->session.params.channels;
-    if (!dev->model->is_cis) {
-      dev->calib_channels = 3;
-    }
+    dev->calib_session = setup_for_scan(dev, calib_sensor, &dev->reg, settings,
+                                        true, false, false, false);
 
   /* no shading */
     dev->reg.find_reg(0x01).value &= ~REG_0x01_DVDSET;
@@ -1724,9 +1718,9 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   /* TODO another flag to setup regs ? */
   /* enforce needed LINCNT, getting rid of extra lines for color reordering */
     if (!dev->model->is_cis) {
-        dev->reg.set24(REG_LINCNT, dev->calib_lines);
+        dev->reg.set24(REG_LINCNT, calib_lines);
     } else {
-        dev->reg.set24(REG_LINCNT, dev->calib_lines * 3);
+        dev->reg.set24(REG_LINCNT, calib_lines * 3);
     }
 
   DBG(DBG_info, "%s:\n\tdev->settings.xres=%d\n\tdev->settings.yres=%d\n", __func__,
@@ -1744,7 +1738,8 @@ bool CommandSetGl646::needs_home_before_init_regs_for_scan(Genesys_Device* dev) 
  * set up registers for the actual scan. The scan's parameters are given
  * through the device settings. It allocates the scan buffers.
  */
-void CommandSetGl646::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const
+void CommandSetGl646::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                         Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
 
@@ -1752,11 +1747,11 @@ void CommandSetGl646::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
 
     ScanSession session = calculate_scan_session(dev, sensor, dev->settings);
 
-    init_regs_for_scan_session(dev, sensor, &dev->reg, session);
+    init_regs_for_scan_session(dev, sensor, &regs, session);
 
   /* gamma is only enabled at final scan time */
     if (dev->settings.depth < 16) {
-        dev->reg.find_reg(0x05).value |= REG_0x05_GMMENB;
+        regs.find_reg(0x05).value |= REG_0x05_GMMENB;
     }
 }
 
@@ -1771,14 +1766,14 @@ void CommandSetGl646::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
  * @param xcorrection take x geometry correction into account (fixed and detected offsets)
  * @param ycorrection take y geometry correction into account
  */
-static void setup_for_scan(Genesys_Device* dev,
-                           const Genesys_Sensor& sensor,
-                           Genesys_Register_Set*regs,
-                           Genesys_Settings settings,
-                           bool split,
-                           bool xcorrection,
-                           bool ycorrection,
-                           bool reverse)
+static ScanSession setup_for_scan(Genesys_Device* dev,
+                                  const Genesys_Sensor& sensor,
+                                  Genesys_Register_Set*regs,
+                                  Genesys_Settings settings,
+                                  bool split,
+                                  bool xcorrection,
+                                  bool ycorrection,
+                                  bool reverse)
 {
     DBG_HELPER(dbg);
 
@@ -1790,12 +1785,12 @@ static void setup_for_scan(Genesys_Device* dev,
     if (!split) {
         if (!dev->model->is_sheetfed) {
             if (ycorrection) {
-                move = static_cast<float>(dev->model->y_offset);
+                move = dev->model->y_offset;
             }
 
             // add tl_y to base movement
         }
-        move += static_cast<float>(settings.tl_y);
+        move += settings.tl_y;
 
         if (move < 0) {
             DBG(DBG_error, "%s: overriding negative move value %f\n", __func__, move);
@@ -1805,12 +1800,12 @@ static void setup_for_scan(Genesys_Device* dev,
     move = static_cast<float>((move * dev->motor.optical_ydpi) / MM_PER_INCH);
     DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
 
-    float start = static_cast<float>(settings.tl_x);
+    float start = settings.tl_x;
     if (xcorrection) {
         if (settings.scan_method == ScanMethod::FLATBED) {
-            start += static_cast<float>(dev->model->x_offset);
+            start += dev->model->x_offset;
         } else {
-            start += static_cast<float>(dev->model->x_offset_ta);
+            start += dev->model->x_offset_ta;
         }
     }
     start = static_cast<float>((start * sensor.optical_res) / MM_PER_INCH);
@@ -1841,6 +1836,8 @@ static void setup_for_scan(Genesys_Device* dev,
     compute_session(dev, session, sensor);
 
     dev->cmd_set->init_regs_for_scan_session(dev, sensor, regs, session);
+
+    return session;
 }
 
 /**
@@ -3119,7 +3116,7 @@ void CommandSetGl646::update_hardware_sensors(Genesys_Scanner* session) const
     }
 
   /* XPA detection */
-    if (has_flag(dev->model->flags, ModelFlag::XPA)) {
+    if (dev->model->has_method(ScanMethod::TRANSPARENCY)) {
         switch (dev->model->gpio_id) {
             case GpioId::HP3670:
             case GpioId::HP2400:
@@ -3367,10 +3364,10 @@ ScanSession CommandSetGl646::calculate_scan_session(const Genesys_Device* dev,
     float move = 0;
     // XXX STEF XXX MD5345 -> optical_ydpi, other base_ydpi => half/full step ? */
     if (!dev->model->is_sheetfed) {
-        move = static_cast<float>(dev->model->y_offset);
+        move = dev->model->y_offset;
         // add tl_y to base movement
     }
-    move += static_cast<float>(settings.tl_y);
+    move += settings.tl_y;
 
     if (move < 0) {
         DBG(DBG_error, "%s: overriding negative move value %f\n", __func__, move);
@@ -3378,11 +3375,11 @@ ScanSession CommandSetGl646::calculate_scan_session(const Genesys_Device* dev,
     }
 
     move = static_cast<float>((move * dev->motor.optical_ydpi) / MM_PER_INCH);
-    float start = static_cast<float>(settings.tl_x);
+    float start = settings.tl_x;
     if (settings.scan_method == ScanMethod::FLATBED) {
-        start += static_cast<float>(dev->model->x_offset);
+        start += dev->model->x_offset;
     } else {
-        start += static_cast<float>(dev->model->x_offset_ta);
+        start += dev->model->x_offset_ta;
     }
     start = static_cast<float>((start * sensor.optical_res) / MM_PER_INCH);
 

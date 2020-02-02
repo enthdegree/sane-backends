@@ -1512,7 +1512,6 @@ void genesys_init_usb_device_tables()
     model.gpio_id = GpioId::HP3670;
     model.motor_id = MotorId::HP3670;
     model.flags = ModelFlag::GAMMA_14BIT |
-                  ModelFlag::XPA |
                   ModelFlag::DARK_CALIBRATION |
                   ModelFlag::OFFSET_CALIBRATION |
                   ModelFlag::CUSTOM_GAMMA;

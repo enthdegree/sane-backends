@@ -63,8 +63,7 @@ struct Genesys_Calibration_Cache
     Genesys_Frontend frontend;
     Genesys_Sensor sensor;
 
-    size_t calib_pixels = 0;
-    size_t calib_channels = 0;
+    ScanSession session;
     size_t average_size = 0;
     std::vector<std::uint16_t> white_average_data;
     std::vector<std::uint16_t> dark_average_data;
@@ -75,8 +74,7 @@ struct Genesys_Calibration_Cache
             last_calibration == other.last_calibration &&
             frontend == other.frontend &&
             sensor == other.sensor &&
-            calib_pixels == other.calib_pixels &&
-            calib_channels == other.calib_channels &&
+            session == other.session &&
             average_size == other.average_size &&
             white_average_data == other.white_average_data &&
             dark_average_data == other.dark_average_data;
@@ -94,8 +92,7 @@ void serialize(Stream& str, Genesys_Calibration_Cache& x)
     serialize_newline(str);
     serialize(str, x.sensor);
     serialize_newline(str);
-    serialize(str, x.calib_pixels);
-    serialize(str, x.calib_channels);
+    serialize(str, x.session);
     serialize(str, x.average_size);
     serialize_newline(str);
     serialize(str, x.white_average_data);

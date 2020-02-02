@@ -93,6 +93,47 @@ std::ostream& operator<<(std::ostream& out, const SetupParams& params)
     return out;
 }
 
+bool ScanSession::operator==(const ScanSession& other) const
+{
+    return params == other.params &&
+        computed == other.computed &&
+        hwdpi_divisor == other.hwdpi_divisor &&
+        ccd_size_divisor == other.ccd_size_divisor &&
+        optical_resolution == other.optical_resolution &&
+        optical_pixels == other.optical_pixels &&
+        optical_pixels_raw == other.optical_pixels_raw &&
+        optical_line_count == other.optical_line_count &&
+        output_resolution == other.output_resolution &&
+        output_pixels == other.output_pixels &&
+        output_channel_bytes == other.output_channel_bytes &&
+        output_line_bytes == other.output_line_bytes &&
+        output_line_bytes_raw == other.output_line_bytes_raw &&
+        output_line_bytes_requested == other.output_line_bytes_requested &&
+        output_line_count == other.output_line_count &&
+        output_total_bytes_raw == other.output_total_bytes_raw &&
+        output_total_bytes == other.output_total_bytes &&
+        num_staggered_lines == other.num_staggered_lines &&
+        max_color_shift_lines == other.max_color_shift_lines &&
+        color_shift_lines_r == other.color_shift_lines_r &&
+        color_shift_lines_g == other.color_shift_lines_g &&
+        color_shift_lines_b == other.color_shift_lines_b &&
+        segment_count == other.segment_count &&
+        pixel_startx == other.pixel_startx &&
+        pixel_endx == other.pixel_endx &&
+        pixel_count_multiplier == other.pixel_count_multiplier &&
+        conseq_pixel_dist == other.conseq_pixel_dist &&
+        output_segment_pixel_group_count == other.output_segment_pixel_group_count &&
+        output_segment_start_offset == other.output_segment_start_offset &&
+        buffer_size_read == other.buffer_size_read &&
+        buffer_size_lines == other.buffer_size_lines &&
+        buffer_size_shrink == other.buffer_size_shrink &&
+        buffer_size_out == other.buffer_size_out &&
+        enable_ledadd == other.enable_ledadd &&
+        pipeline_needs_reorder == other.pipeline_needs_reorder &&
+        pipeline_needs_ccd == other.pipeline_needs_ccd &&
+        pipeline_needs_shrink == other.pipeline_needs_shrink;
+}
+
 std::ostream& operator<<(std::ostream& out, const ScanSession& session)
 {
     out << "ScanSession{\n"

@@ -60,9 +60,9 @@ struct Genesys_Settings
     unsigned yres = 0;
 
     //x start on scan table in mm
-    double tl_x = 0;
+    float tl_x = 0;
     // y start on scan table in mm
-    double tl_y = 0;
+    float tl_y = 0;
 
     // number of lines at scan resolution
     unsigned int lines = 0;
@@ -320,9 +320,54 @@ struct ScanSession {
             throw std::runtime_error("ScanSession is not computed");
         }
     }
+
+    bool operator==(const ScanSession& other) const;
 };
 
 std::ostream& operator<<(std::ostream& out, const ScanSession& session);
+
+template<class Stream>
+void serialize(Stream& str, ScanSession& x)
+{
+    serialize(str, x.params);
+    serialize_newline(str);
+    serialize(str, x.computed);
+    serialize(str, x.hwdpi_divisor);
+    serialize(str, x.ccd_size_divisor);
+    serialize(str, x.optical_resolution);
+    serialize(str, x.optical_pixels);
+    serialize(str, x.optical_pixels_raw);
+    serialize(str, x.optical_line_count);
+    serialize(str, x.output_resolution);
+    serialize(str, x.output_pixels);
+    serialize(str, x.output_channel_bytes);
+    serialize(str, x.output_line_bytes);
+    serialize(str, x.output_line_bytes_raw);
+    serialize(str, x.output_line_bytes_requested);
+    serialize(str, x.output_line_count);
+    serialize(str, x.output_total_bytes_raw);
+    serialize(str, x.output_total_bytes);
+    serialize(str, x.num_staggered_lines);
+    serialize(str, x.max_color_shift_lines);
+    serialize(str, x.color_shift_lines_r);
+    serialize(str, x.color_shift_lines_g);
+    serialize(str, x.color_shift_lines_b);
+    serialize(str, x.segment_count);
+    serialize(str, x.pixel_startx);
+    serialize(str, x.pixel_endx);
+    serialize(str, x.pixel_count_multiplier);
+    serialize(str, x.conseq_pixel_dist);
+    serialize(str, x.output_segment_pixel_group_count);
+    serialize(str, x.output_segment_start_offset);
+    serialize(str, x.buffer_size_read);
+    serialize(str, x.buffer_size_lines);
+    serialize(str, x.buffer_size_shrink);
+    serialize(str, x.buffer_size_out);
+    serialize(str, x.enable_ledadd);
+    serialize(str, x.pipeline_needs_reorder);
+    serialize(str, x.pipeline_needs_ccd);
+    serialize(str, x.pipeline_needs_shrink);
+}
 
 std::ostream& operator<<(std::ostream& out, const SANE_Parameters& params);
 

@@ -96,11 +96,11 @@ inline void check_raises_raised_unexpected(const char* function, const char* pat
 #define ASSERT_FALSE(x)  do { check_true(!bool(x), __func__, __FILE__, __LINE__); } \
                          while (false)
 
-#define ASSERT_RAISES(x, e) \
+#define ASSERT_RAISES(x, T) \
     do { try { \
         x; \
         check_raises_did_not_raise(__func__, __FILE__, __LINE__); \
-    } catch (e) { \
+    } catch (const T&) { \
         check_raises_success(__func__, __FILE__, __LINE__); \
     } catch (...) { \
         check_raises_raised_unexpected(__func__, __FILE__, __LINE__); \

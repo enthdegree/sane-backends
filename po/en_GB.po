@@ -4,10 +4,10 @@
 # Andrew Coles <andrew_coles@yahoo.co.uk>, 2009.
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
+"Project-Id-Version: sane-backends 1.0.29\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
 "POT-Creation-Date: 2020-01-12 07:09+0000\n"
-"PO-Revision-Date: 2019-08-05 18:15-0700\n"
+"PO-Revision-Date: 2020-01-26 16:27+0900\n"
 "Last-Translator: Ralph Little <littlesincanada@yahoo.co.uk>\n"
 "Language-Team: British English <kde-i18n-doc@kde.org>\n"
 "Language: en_GB\n"
@@ -416,12 +416,12 @@ msgid "Lamp off at exit"
 msgstr "Lamp off at exit"
 
 #: include/sane/saneopts.h:245
-#, fuzzy, no-c-format
+#, no-c-format
 msgid ""
 "Read-only option that specifies how many options a specific device "
 "supports."
 msgstr ""
-"Read-only option that specifies how many options a specific devices "
+"Read-only option that specifies how many options a specific device "
 "supports."
 
 #: include/sane/saneopts.h:248
@@ -745,7 +745,7 @@ msgid "Analog gamma-correction for blue"
 msgstr "Analogue gamma-correction for blue"
 
 #: include/sane/saneopts.h:415
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Warm up lamp before scanning"
 msgstr "Warm up lamp before scanning"
 
@@ -895,7 +895,7 @@ msgid "Operation not supported"
 msgstr "Operation not supported"
 
 #: backend/sane_strstatus.c:65
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Operation was canceled"
 msgstr "Operation was cancelled"
 
@@ -989,7 +989,7 @@ msgid "Only perform shading-correction"
 msgstr "Only perform shading-correction"
 
 #: backend/artec_eplus48u.c:2956
-#, fuzzy, no-c-format
+#, no-c-format
 msgid ""
 "If enabled, only the shading correction is performed during calibration. "
 "The default values for gain, offset and exposure time, either built-in "
@@ -1020,7 +1020,7 @@ msgid "Duplex scan"
 msgstr "Duplex scan"
 
 #: backend/avision.h:783
-#, fuzzy, no-c-format
+#, no-c-format
 msgid ""
 "Duplex scan provides a scan of the front and back side of the document"
 msgstr ""
@@ -1190,9 +1190,8 @@ msgstr "medium not present"
 msgid "invalid bit IDENTIFY message"
 msgstr "invalid bit IDENTIFY message"
 
-# Check this text. Does it make sense?
 #: backend/canon.c:460
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "option not correct"
 msgstr "option not correct"
 
@@ -2124,22 +2123,22 @@ msgstr "User defined CCT profile"
 #: backend/epsonds.c:750
 #, no-c-format
 msgid "Load"
-msgstr ""
+msgstr "Load"
 
 #: backend/epsonds.c:751
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Load a sheet in the ADF"
-msgstr "Eject the sheet in the ADF"
+msgstr "Load a sheet in the ADF"
 
 #: backend/epsonds.c:771
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "ADF Skew Correction"
-msgstr "No Correction"
+msgstr "ADF Skew Correction"
 
 #: backend/epsonds.c:773
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enables ADF skew correction"
-msgstr "Disable gamma correction"
+msgstr "Enables ADF skew correction"
 
 #: backend/fujitsu.c:688 backend/hp-option.c:3330 backend/hp-option.c:3343
 #, no-c-format
@@ -2894,7 +2893,7 @@ msgid "Top edge"
 msgstr "Top edge"
 
 #: backend/fujitsu.c:4384
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Paper is pulled partly into ADF"
 msgstr "Paper is pulled partly into ADF"
 
@@ -3166,7 +3165,7 @@ msgid "Extra button"
 msgstr "Extra button"
 
 #: backend/genesys/genesys.cpp:4430 backend/gt68xx.c:755
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Needs calibration"
 msgstr "Needs calibration"
 
@@ -3215,9 +3214,9 @@ msgid "Force calibration ignoring all and any calibration caches"
 msgstr "Force calibration ignoring all and any calibration caches"
 
 #: backend/genesys/genesys.cpp:4487
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Ignore internal offsets"
-msgstr "Green offset"
+msgstr "Ignore internal offsets"
 
 #: backend/genesys/genesys.cpp:4489
 #, no-c-format
@@ -3225,6 +3224,8 @@ msgid ""
 "Acquires the image including the internal calibration areas of the "
 "scanner"
 msgstr ""
+"Acquires the image including the internal calibration areas of the "
+"scanner"
 
 #: backend/genesys/genesys.h:79 backend/gt68xx.c:149 backend/ma1509.c:108
 #: backend/mustek.c:164 backend/snapscan-options.c:87 backend/umax.c:182
@@ -3233,9 +3234,9 @@ msgid "Transparency Adapter"
 msgstr "Transparency Adapter"
 
 #: backend/genesys/genesys.h:80
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Transparency Adapter Infrared"
-msgstr "Transparency Adapter"
+msgstr "Transparency Adapter Infrared"
 
 #: backend/gt68xx.c:470
 #, no-c-format
@@ -3564,7 +3565,7 @@ msgid "Color Matrix"
 msgstr "Colour Matrix"
 
 #: backend/hp-option.h:121
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Set the scanner's color matrix."
 msgstr "Set the scanner's colour matrix."
 
@@ -3660,12 +3661,12 @@ msgid "Scanner model"
 msgstr "Scanner model"
 
 #: backend/hp3900_sane.c:1408
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Allows one to test device behavior with other supported models"
 msgstr "Allows one to test device behaviour with other supported models"
 
 #: backend/hp3900_sane.c:1422
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Image colors will be inverted"
 msgstr "Image colours will be inverted"
 
@@ -4237,9 +4238,9 @@ msgid "crt"
 msgstr "crt"
 
 #: backend/kvs1025_opt.c:229
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "linear"
-msgstr "Lineart"
+msgstr "linear"
 
 #: backend/kvs1025_opt.c:241 backend/kvs20xx_opt.c:138
 #: backend/kvs40xx_opt.c:224
@@ -4436,7 +4437,7 @@ msgid "Request driver to remove border from pages digitally"
 msgstr "Request driver to remove border from pages digitally"
 
 #: backend/kvs20xx_opt.c:233
-#, fuzzy, no-c-format
+#, no-c-format
 msgid ""
 "Length Control Mode causes the scanner to read the shorter of either the "
 "length of the actual paper or logical document length."
@@ -4472,12 +4473,12 @@ msgid "B4"
 msgstr "B4"
 
 #: backend/kvs40xx_opt.c:231
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "High sensitivity"
 msgstr "High sensitivity"
 
 #: backend/kvs40xx_opt.c:232
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Low sensitivity"
 msgstr "Low sensitivity"
 
@@ -4502,13 +4503,13 @@ msgid "Enhanced mode"
 msgstr "Enhanced mode"
 
 #: backend/kvs40xx_opt.c:396
-#, fuzzy, no-c-format
+#, no-c-format
 msgid ""
 "Length Control Mode causes the scanner to read the shorter of either the "
 "length of the actual paper or logical document length"
 msgstr ""
 "Length Control Mode causes the scanner to read the shorter of either the "
-"length of the actual paper or logical document length."
+"length of the actual paper or logical document length"
 
 # The grammar is a bit suspect here.
 #: backend/kvs40xx_opt.c:405
@@ -4571,7 +4572,7 @@ msgid "JPEG compression"
 msgstr "JPEG compression"
 
 #: backend/kvs40xx_opt.c:718
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "JPEG compression (your application must be able to uncompress)"
 msgstr "JPEG compression (your application must be able to uncompress)"
 
@@ -4606,14 +4607,14 @@ msgid "Skew adjustment"
 msgstr "Skew adjustment"
 
 #: backend/kvs40xx_opt.c:808
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Stop scanner if a sheet is skewed"
 msgstr "Stop scanner if a sheet is skewed"
 
 #: backend/kvs40xx_opt.c:809
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Scanner will stop if a sheet is skewed"
-msgstr "Scanner will be stopped if sheet is skewed"
+msgstr "Scanner will stop if a sheet is skewed"
 
 #: backend/kvs40xx_opt.c:816
 #, no-c-format
@@ -4621,14 +4622,14 @@ msgid "Crop actual image area"
 msgstr "Crop actual image area"
 
 #: backend/kvs40xx_opt.c:817
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Scanner will automatically detect image area and crop to it"
-msgstr "Scanner automatically detects image area and crops it"
+msgstr "Scanner will automatically detect image area and crop to it"
 
 #: backend/kvs40xx_opt.c:827
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Left/right mirror image"
-msgstr "Mirror image"
+msgstr "Left/right mirror image"
 
 #: backend/kvs40xx_opt.c:834 backend/kvs40xx_opt.c:835
 #, no-c-format
@@ -5298,8 +5299,9 @@ msgstr ""
 "Warm-up until the lamp's brightness is constant instead of insisting on "
 "40 seconds warm-up time."
 
+# Original would be better as "Needs calibration". "Need calibration" is a command rather than a statement of fact which is what is required here, as in "You must need calibration, or else"
 #: backend/p5.c:1926
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Need calibration"
 msgstr "Needs calibration"
 
@@ -5379,13 +5381,13 @@ msgid "ADF Waiting Time"
 msgstr "ADF Waiting Time"
 
 #: backend/pixma/pixma_sane_options.c:349
-#, fuzzy, no-c-format
+#, no-c-format
 msgid ""
 "When set, the scanner waits upto the specified time in seconds for a new "
 "document inserted into the automatic document feeder."
 msgstr ""
-"When set, the scanner waits the specified time in seconds for a new "
-"document to be inserted into the automatic document feeder."
+"When set, the scanner waits upto the specified time in seconds for a new "
+"document inserted into the automatic document feeder."
 
 #: backend/plustek.c:235 backend/plustek_pp.c:204 backend/u12.c:156
 #, no-c-format
@@ -5906,12 +5908,12 @@ msgid "Focus point"
 msgstr "Focus point"
 
 #: backend/snapscan-options.c:930
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Color lines per read"
 msgstr "Colour lines per read"
 
 #: backend/snapscan-options.c:942
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Grayscale lines per read"
 msgstr "Greyscale lines per read"
 

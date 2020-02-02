@@ -22,6 +22,8 @@ $ make install
          - libusb-1.0.0-dev or similar
          - libjpeg-dev or libjpeg8-dev or libjpeg-turbo-devel or turbojpeg-devel
          - libpng-dev or similar
+         - libcurl4-gnutls-dev or similar
+         - libxml2-dev or similar
 
 2.2. Get the latest SANE backend from git:
       You can download "daily git snapshot" from here:

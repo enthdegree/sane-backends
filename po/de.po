@@ -12,11 +12,11 @@
 # Rolf Bensch <rolf at bensch hyphen online dot de>, 2012-2019.
 msgid ""
 msgstr ""
-"Project-Id-Version: sane-backends\n"
+"Project-Id-Version: sane-backends 1.0.29\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
 "POT-Creation-Date: 2020-01-12 07:09+0000\n"
-"PO-Revision-Date: 2019-08-09 20:08+0200\n"
-"Last-Translator: Rolf Bensch <rolf@bensch-online.de>\n"
+"PO-Revision-Date: 2020-01-26 16:29+0900\n"
+"Last-Translator: Ulf Zibis <Ulf.Zibis@CoSoCo.de>\n"
 "Language-Team: \n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -2157,22 +2157,22 @@ msgstr "Benutzerdefiniertes CCT-Profil"
 #: backend/epsonds.c:750
 #, no-c-format
 msgid "Load"
-msgstr ""
+msgstr "Lade"
 
 #: backend/epsonds.c:751
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Load a sheet in the ADF"
-msgstr "Wirft das Blatt aus dem automatischen Dokumenteneinzug aus"
+msgstr "Lade ein Blatt im automatischen Dokumenteneinzug"
 
 #: backend/epsonds.c:771
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "ADF Skew Correction"
-msgstr "Keine Korrektur"
+msgstr "ADF-Schräglaufkorrektur"
 
 #: backend/epsonds.c:773
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enables ADF skew correction"
-msgstr "Gammakorrektur abschalten"
+msgstr "aktiviert ADF-Schräglaufkorrektur"
 
 #: backend/fujitsu.c:688 backend/hp-option.c:3330 backend/hp-option.c:3343
 #, no-c-format
@@ -3216,7 +3216,7 @@ msgstr "Zusatztaste"
 #: backend/genesys/genesys.cpp:4430 backend/gt68xx.c:755
 #, no-c-format
 msgid "Needs calibration"
-msgstr "Benötigt Kalibirierung"
+msgstr "Benötigt Kalibrierung"
 
 #: backend/genesys/genesys.cpp:4431 backend/gt68xx.c:756 backend/p5.c:1928
 #, no-c-format
@@ -3282,9 +3282,9 @@ msgid "Transparency Adapter"
 msgstr "Durchlichteinheit"
 
 #: backend/genesys/genesys.h:80
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Transparency Adapter Infrared"
-msgstr "Durchlichteinheit"
+msgstr "Infrarot-Durchlichteinheit"
 
 #: backend/gt68xx.c:470
 #, no-c-format
@@ -5368,9 +5368,9 @@ msgstr ""
 "40 Sekunden zu warten."
 
 #: backend/p5.c:1926
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Need calibration"
-msgstr "Benötigt Kalibirierung"
+msgstr "Benötigt Kalibrierung"
 
 #: backend/pixma/pixma.c:397
 #, no-c-format

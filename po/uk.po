@@ -1,13 +1,13 @@
 # Copyright (C) 2009
 # This file is distributed under the same license as the sane-backends package.
 #
-# Yuri Chornoivan <yurchor@ukr.net>, 2009, 2010, 2011, 2012, 2013, 2015, 2017, 2018, 2019.
+# Yuri Chornoivan <yurchor@ukr.net>, 2009, 2010, 2011, 2012, 2013, 2015, 2017, 2018, 2019, 2020.
 msgid ""
 msgstr ""
-"Project-Id-Version: sane-backends\n"
+"Project-Id-Version: sane-backends 1.0.29\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
 "POT-Creation-Date: 2020-01-12 07:09+0000\n"
-"PO-Revision-Date: 2019-12-02 16:41+0200\n"
+"PO-Revision-Date: 2020-01-26 16:30+0900\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <translation@linux.org.ua>\n"
 "Language: uk\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Lokalize 20.03.70\n"
-"Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 &&"
+" n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: include/sane/saneopts.h:154
 #, no-c-format
@@ -532,7 +532,8 @@ msgstr ""
 #: include/sane/saneopts.h:298
 #, no-c-format
 msgid "Sets the vertical resolution of the scanned image."
-msgstr "Визначає вертикальну роздільну здатність засканованого зображення."
+msgstr ""
+"Визначає вертикальну роздільну здатність засканованого зображення."
 
 #: include/sane/saneopts.h:301
 #, no-c-format
@@ -726,7 +727,8 @@ msgstr "Використовувати лінзу, яка подвоює опт�
 #: include/sane/saneopts.h:401 include/sane/saneopts.h:413
 #, no-c-format
 msgid "In RGB-mode use same values for each color"
-msgstr "У режимі RGB використовувати однакові значення для кожного кольору"
+msgstr ""
+"У режимі RGB використовувати однакові значення для кожного кольору"
 
 #: include/sane/saneopts.h:403
 #, no-c-format
@@ -2147,22 +2149,22 @@ msgstr "Визначений користувачем профіль CCT"
 #: backend/epsonds.c:750
 #, no-c-format
 msgid "Load"
-msgstr ""
+msgstr "Завантажити"
 
 #: backend/epsonds.c:751
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Load a sheet in the ADF"
-msgstr "Виштовхнути аркуш з протяжного пристрою"
+msgstr "Завантажити аркуш до протяжного пристрою"
 
 #: backend/epsonds.c:771
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "ADF Skew Correction"
-msgstr "Без виправлення"
+msgstr "Виправлення нахилу у протяжному пристрої"
 
 #: backend/epsonds.c:773
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enables ADF skew correction"
-msgstr "Вимкнути виправлення гами"
+msgstr "Вмикає виправлення нахилу у протяжному пристрої"
 
 #: backend/fujitsu.c:688 backend/hp-option.c:3330 backend/hp-option.c:3343
 #, no-c-format
@@ -2529,7 +2531,8 @@ msgstr "Дія ПП"
 #: backend/fujitsu.c:3657
 #, no-c-format
 msgid "Action following double feed error"
-msgstr "Дія, яку буде виконано у відповідь на помилку подвійного подавання"
+msgstr ""
+"Дія, яку буде виконано у відповідь на помилку подвійного подавання"
 
 #: backend/fujitsu.c:3673
 #, no-c-format
@@ -2651,7 +2654,8 @@ msgstr "Режим буферизації"
 
 #: backend/fujitsu.c:3885
 #, no-c-format
-msgid "Request scanner to read pages quickly from ADF into internal memory"
+msgid ""
+"Request scanner to read pages quickly from ADF into internal memory"
 msgstr ""
 "Наказати сканеру швидко читати сторінки з протяжного пристрою до "
 "внутрішньої пам’яті"
@@ -2664,7 +2668,8 @@ msgstr "Попереднє захоплення"
 #: backend/fujitsu.c:3905
 #, no-c-format
 msgid "Request scanner to grab next page from ADF"
-msgstr "Наказати сканеру захопити наступну сторінку із протяжного пристрою"
+msgstr ""
+"Наказати сканеру захопити наступну сторінку із протяжного пристрою"
 
 #: backend/fujitsu.c:3924
 #, no-c-format
@@ -3303,9 +3308,9 @@ msgid "Transparency Adapter"
 msgstr "Адаптер плівок"
 
 #: backend/genesys/genesys.h:80
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Transparency Adapter Infrared"
-msgstr "Адаптер плівок"
+msgstr "Адаптер плівок для інфрачервоного сканування"
 
 #: backend/gt68xx.c:470
 #, no-c-format
@@ -3696,7 +3701,8 @@ msgstr "8-бітовий вивід"
 
 #: backend/hp-option.h:158
 #, no-c-format
-msgid "Use bit depth greater eight internally, but output only eight bits."
+msgid ""
+"Use bit depth greater eight internally, but output only eight bits."
 msgstr ""
 "Для внутрішньої обробки використовувати глибини кольорів, більші за 8-"
 "бітові, але виводити дані лише у 8-бітовому форматі."
@@ -4664,7 +4670,8 @@ msgstr "Стискання JPEG"
 #: backend/kvs40xx_opt.c:718
 #, no-c-format
 msgid "JPEG compression (your application must be able to uncompress)"
-msgstr "Стискання JPEG (ваша програма повинна мати змогу розпакувати дані)"
+msgstr ""
+"Стискання JPEG (ваша програма повинна мати змогу розпакувати дані)"
 
 #: backend/kvs40xx_opt.c:737 backend/kvs40xx_opt.c:738
 #, no-c-format
@@ -5051,7 +5058,8 @@ msgstr "Скалярна гама синього"
 #: backend/microtek2.h:665
 #, no-c-format
 msgid "Selects a value for scalar gamma correction (blue channel)"
-msgstr "Визначає значення для скалярного виправлення гами (канал синього)."
+msgstr ""
+"Визначає значення для скалярного виправлення гами (канал синього)."
 
 #: backend/microtek2.h:669
 #, no-c-format
@@ -5318,7 +5326,8 @@ msgstr "Яскравість зеленого"
 
 #: backend/mustek.c:4457
 #, no-c-format
-msgid "Controls the brightness of the green channel of the acquired image."
+msgid ""
+"Controls the brightness of the green channel of the acquired image."
 msgstr "Керує яскравістю каналу зеленого у отриманому зображенні."
 
 #: backend/mustek.c:4469
@@ -5401,7 +5410,7 @@ msgstr ""
 "секундному розігріві."
 
 #: backend/p5.c:1926
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Need calibration"
 msgstr "Потребує калібрування"
 
@@ -6183,7 +6192,8 @@ msgstr "Границя читання"
 
 #: backend/test.c:485
 #, no-c-format
-msgid "Limit the amount of data transferred with each call to sane_read()."
+msgid ""
+"Limit the amount of data transferred with each call to sane_read()."
 msgstr ""
 "Обмежити об’єм даних, що передаються під час кожного виклику sane_read()."
 
@@ -6730,19 +6740,3 @@ msgstr "Визначає зсув каналу зеленого"
 #, no-c-format
 msgid "Sets blue channel offset"
 msgstr "Визначає зсув каналу синього"
-
-#~ msgid "Disable dynamic lineart"
-#~ msgstr "Вимкнути динамічне штрихування"
-
-#~ msgid ""
-#~ "Disable use of a software adaptive algorithm to generate lineart "
-#~ "relying instead on hardware lineart."
-#~ msgstr ""
-#~ "Вимкнути використання адаптивного програмного алгоритму для створення "
-#~ "штрихування замість апаратного алгоритму штрихування."
-
-#~ msgid "linier"
-#~ msgstr "лінійна"
-
-#~ msgid "It is right and left reversing"
-#~ msgstr "Перевертання ліворуч і праворуч"

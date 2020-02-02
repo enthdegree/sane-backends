@@ -1309,8 +1309,6 @@ void sanei_genesys_calculate_zmod(bool two_table,
                                   unsigned buffer_acceleration_steps,
                                   uint32_t* out_z1, uint32_t* out_z2)
 {
-    DBG(DBG_info, "%s: two_table=%d\n", __func__, two_table);
-
     // acceleration total time
     unsigned sum = std::accumulate(slope_table.begin(), slope_table.begin() + acceleration_steps,
                                    0, std::plus<unsigned>());

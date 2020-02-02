@@ -2912,7 +2912,7 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
         coarse_res = 1200;
     }
 
-    auto local_reg = dev->calib_reg;
+    auto local_reg = dev->initial_regs;
 
   /* do offset calibration if needed */
     if (has_flag(dev->model->flags, ModelFlag::OFFSET_CALIBRATION)) {
@@ -3039,7 +3039,7 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
     DBG_HELPER(dbg);
     bool forward = true;
 
-    auto local_reg = dev->calib_reg;
+    auto local_reg = dev->initial_regs;
 
     // first step, load document
     dev->cmd_set->load_document(dev);

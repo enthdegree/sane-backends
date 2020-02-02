@@ -218,8 +218,7 @@ gl846_init_registers (Genesys_Device * dev)
     const auto& sensor = sanei_genesys_find_sensor_any(dev);
     sanei_genesys_set_dpihw(dev->reg, sensor, sensor.optical_res);
 
-  /* initalize calibration reg */
-  dev->calib_reg = dev->reg;
+    dev->initial_regs = dev->reg;
 }
 
 /**@brief send slope table for motor movement

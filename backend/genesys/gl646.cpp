@@ -2726,8 +2726,7 @@ void CommandSetGl646::init(Genesys_Device* dev) const
         // Init shading data
         sanei_genesys_init_shading_data(dev, sensor, sensor.sensor_pixels);
 
-      /* initial calibration reg values */
-      dev->calib_reg = dev->reg;
+        dev->initial_regs = dev->reg;
     }
 
     // execute physical unit init only if cold

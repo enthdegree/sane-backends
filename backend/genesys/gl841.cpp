@@ -1745,7 +1745,7 @@ void CommandSetGl841::save_power(Genesys_Device* dev, bool enable) const
             uint8_t val = dev->interface->read_register(REG_0x6B);
             dev->interface->write_register(REG_0x6B, val & ~REG_0x6B_GPO17);
             dev->reg.find_reg(0x6b).value &= ~REG_0x6B_GPO17;
-            dev->calib_reg.find_reg(0x6b).value &= ~REG_0x6B_GPO17;
+            dev->initial_regs.find_reg(0x6b).value &= ~REG_0x6B_GPO17;
 	  }
 
         set_fe(dev, sensor, AFE_POWER_SAVE);
@@ -1777,13 +1777,13 @@ void CommandSetGl841::save_power(Genesys_Device* dev, bool enable) const
             val = dev->interface->read_register(REG_0x6B);
             dev->interface->write_register(REG_0x6B, val | REG_0x6B_GPO17);
             dev->reg.find_reg(0x6b).value |= REG_0x6B_GPO17;
-            dev->calib_reg.find_reg(0x6b).value |= REG_0x6B_GPO17;
+            dev->initial_regs.find_reg(0x6b).value |= REG_0x6B_GPO17;
 
 	    /*enable GPO18*/
             val = dev->interface->read_register(REG_0x6B);
             dev->interface->write_register(REG_0x6B, val | REG_0x6B_GPO18);
             dev->reg.find_reg(0x6b).value |= REG_0x6B_GPO18;
-            dev->calib_reg.find_reg(0x6b).value |= REG_0x6B_GPO18;
+            dev->initial_regs.find_reg(0x6b).value |= REG_0x6B_GPO18;
 
 	}
     if (dev->model->gpio_id == GpioId::DP665
@@ -1792,7 +1792,7 @@ void CommandSetGl841::save_power(Genesys_Device* dev, bool enable) const
             uint8_t val = dev->interface->read_register(REG_0x6B);
             dev->interface->write_register(REG_0x6B, val | REG_0x6B_GPO17);
             dev->reg.find_reg(0x6b).value |= REG_0x6B_GPO17;
-            dev->calib_reg.find_reg(0x6b).value |= REG_0x6B_GPO17;
+            dev->initial_regs.find_reg(0x6b).value |= REG_0x6B_GPO17;
 	  }
 
     }
@@ -3446,8 +3446,8 @@ void CommandSetGl841::init(Genesys_Device* dev) const
     // Set analog frontend
     dev->cmd_set->set_fe(dev, sensor, AFE_INIT);
 
-    // FIXME: move_back_home modifies dev->calib_reg and requires it to be filled
-    dev->calib_reg = dev->reg;
+    // FIXME: move_back_home modifies dev->initial_regs and requires it to be filled
+    dev->initial_regs = dev->reg;
 
     // Move home
     dev->cmd_set->move_back_home(dev, true);
@@ -3466,7 +3466,7 @@ void CommandSetGl841::init(Genesys_Device* dev) const
     dev->cmd_set->send_gamma_table(dev, sensor);
 
   /* initial calibration reg values */
-  Genesys_Register_Set& regs = dev->calib_reg;
+    Genesys_Register_Set& regs = dev->initial_regs;
   regs = dev->reg;
 
     unsigned resolution = sensor.get_logical_hwdpi(300);

@@ -2052,13 +2052,13 @@ void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sens
   black_pixels = calib_sensor.black_pixels / factor;
 
     if (should_calibrate_only_active_area(*dev, dev->settings)) {
-        start_pixel = static_cast<int>(get_model_x_offset_ta(*dev, dev->settings));
-        start_pixel /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
-        start_pixel = static_cast<int>((start_pixel * resolution) / MM_PER_INCH);
+        float offset = get_model_x_offset_ta(*dev, dev->settings);
+        offset /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
+        start_pixel = static_cast<int>((offset * resolution) / MM_PER_INCH);
 
-        target_pixels = static_cast<int>(dev->model->x_size_ta);
-        target_pixels /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
-        target_pixels = static_cast<int>((target_pixels * resolution) / MM_PER_INCH);
+        float size = dev->model->x_size_ta;
+        size /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
+        target_pixels = static_cast<int>((size * resolution) / MM_PER_INCH);
     }
 
     ScanFlag flags = ScanFlag::DISABLE_SHADING |

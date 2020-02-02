@@ -2636,7 +2636,6 @@ void CommandSetGl646::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
 
     // now registers are ok, write them to scanner
     gl646_set_fe(dev, local_sensor, AFE_SET, settings.xres);
-    dev->interface->write_registers(*local_reg);
 }
 
 

@@ -1956,7 +1956,6 @@ void CommandSetGl124::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
   *total_size = num_pixels * 3 * 1;        /* colors * bytes_per_color * scan lines */
 
   sanei_genesys_set_motor_power(*reg, false);
-    dev->interface->write_registers(*reg);
 }
 
 /** @brief default GPIO values

@@ -2428,7 +2428,6 @@ void CommandSetGl843::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     init_regs_for_scan_session(dev, calib_sensor, reg, session);
 
   sanei_genesys_set_motor_power(*reg, false);
-    dev->interface->write_registers(*reg);
 }
 
 /**

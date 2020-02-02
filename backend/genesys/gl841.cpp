@@ -3387,8 +3387,6 @@ void CommandSetGl841::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     num_pixels = session.output_pixels;
 
   *total_size = num_pixels * 3 * 2 * 1;	/* colors * bytes_per_color * scan lines */
-
-    dev->interface->write_registers(*local_reg);
 }
 
 

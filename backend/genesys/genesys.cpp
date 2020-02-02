@@ -3177,6 +3177,8 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
 
     dev->cmd_set->init_regs_for_warmup(dev, sensor, &dev->reg, &channels, &total_size);
+    dev->interface->write_registers(dev->reg);
+
   std::vector<uint8_t> first_line(total_size);
   std::vector<uint8_t> second_line(total_size);
 

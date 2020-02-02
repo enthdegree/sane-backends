@@ -337,8 +337,6 @@ gl124_init_registers (Genesys_Device * dev)
     // fine tune upon device description
     const auto& sensor = sanei_genesys_find_sensor_any(dev);
     sanei_genesys_set_dpihw(dev->reg, sensor, sensor.optical_res);
-
-  dev->calib_reg = dev->reg;
 }
 
 /**@brief send slope table for motor movement
@@ -1170,8 +1168,6 @@ void CommandSetGl124::init_regs_for_coarse_calibration(Genesys_Device* dev,
 
   DBG(DBG_info, "%s: optical sensor res: %d dpi, actual res: %d\n", __func__,
       sensor.optical_res / sensor.ccd_pixels_per_system_pixel(), dev->settings.xres);
-
-    dev->interface->write_registers(regs);
 }
 
 
@@ -1240,8 +1236,6 @@ void CommandSetGl124::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
         throw;
     }
     sanei_genesys_set_motor_power(regs, false);
-
-    dev->interface->write_registers(regs);
 }
 
 void CommandSetGl124::wait_for_motor_stop(Genesys_Device* dev) const
@@ -1960,7 +1954,6 @@ void CommandSetGl124::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
   *total_size = num_pixels * 3 * 1;        /* colors * bytes_per_color * scan lines */
 
   sanei_genesys_set_motor_power(*reg, false);
-    dev->interface->write_registers(*reg);
 }
 
 /** @brief default GPIO values

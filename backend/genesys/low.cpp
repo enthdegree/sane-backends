@@ -1493,8 +1493,7 @@ void sanei_genesys_asic_init(Genesys_Device* dev, bool /*max_regs*/)
 
   dev->settings.color_filter = ColorFilter::RED;
 
-  /* duplicate initial values into calibration registers */
-  dev->calib_reg = dev->reg;
+    dev->initial_regs = dev->reg;
 
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
 

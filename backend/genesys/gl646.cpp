@@ -1729,9 +1729,6 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
         dev->reg.set24(REG_LINCNT, dev->calib_lines * 3);
     }
 
-  /* copy reg to calib_reg */
-  dev->calib_reg = dev->reg;
-
   DBG(DBG_info, "%s:\n\tdev->settings.xres=%d\n\tdev->settings.yres=%d\n", __func__,
       dev->settings.xres, dev->settings.yres);
 }
@@ -2636,7 +2633,6 @@ void CommandSetGl646::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
 
     // now registers are ok, write them to scanner
     gl646_set_fe(dev, local_sensor, AFE_SET, settings.xres);
-    dev->interface->write_registers(*local_reg);
 }
 
 
@@ -2730,8 +2726,7 @@ void CommandSetGl646::init(Genesys_Device* dev) const
         // Init shading data
         sanei_genesys_init_shading_data(dev, sensor, sensor.sensor_pixels);
 
-      /* initial calibration reg values */
-      dev->calib_reg = dev->reg;
+        dev->initial_regs = dev->reg;
     }
 
     // execute physical unit init only if cold

@@ -209,7 +209,7 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev)
         << "    ignore_offsets: " << dev.ignore_offsets << '\n'
         << "    model: (not printed)\n"
         << "    reg: " << format_indent_braced_list(4, dev.reg) << '\n'
-        << "    calib_reg: " << format_indent_braced_list(4, dev.calib_reg) << '\n'
+        << "    initial_regs: " << format_indent_braced_list(4, dev.initial_regs) << '\n'
         << "    settings: " << format_indent_braced_list(4, dev.settings) << '\n'
         << "    frontend: " << format_indent_braced_list(4, dev.frontend) << '\n'
         << "    frontend_initial: " << format_indent_braced_list(4, dev.frontend_initial) << '\n'

@@ -250,7 +250,7 @@ struct Genesys_Device
     std::unique_ptr<CommandSet> cmd_set;
 
     Genesys_Register_Set reg;
-    Genesys_Register_Set calib_reg;
+    Genesys_Register_Set initial_regs;
     Genesys_Settings settings;
     Genesys_Frontend frontend, frontend_initial;
 

@@ -217,9 +217,6 @@ gl846_init_registers (Genesys_Device * dev)
 
     const auto& sensor = sanei_genesys_find_sensor_any(dev);
     sanei_genesys_set_dpihw(dev->reg, sensor, sensor.optical_res);
-
-  /* initalize calibration reg */
-  dev->calib_reg = dev->reg;
 }
 
 /**@brief send slope table for motor movement
@@ -952,8 +949,6 @@ void CommandSetGl846::init_regs_for_coarse_calibration(Genesys_Device* dev,
 
     DBG(DBG_info, "%s: optical sensor res: %d dpi, actual res: %d\n", __func__,
         sensor.optical_res / sensor.ccd_pixels_per_system_pixel(), dev->settings.xres);
-
-    dev->interface->write_registers(regs);
 }
 
 // init registers for shading calibration
@@ -1011,8 +1006,6 @@ void CommandSetGl846::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     compute_session(dev, session, calib_sensor);
 
     init_regs_for_scan_session(dev, calib_sensor, &regs, session);
-
-    dev->interface->write_registers(regs);
 
   /* we use ModelFlag::SHADING_REPARK */
     dev->set_head_pos_zero(ScanHeadId::PRIMARY);

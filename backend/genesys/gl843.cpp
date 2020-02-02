@@ -654,8 +654,6 @@ gl843_init_registers (Genesys_Device * dev)
         dev->reg.init_reg(0xac, 0x00);
     }
 
-    dev->calib_reg = dev->reg;
-
     if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I) {
         uint8_t data[32] = {
             0x8c, 0x8f, 0xc9, 0x00, 0x01, 0x00, 0x00, 0x00,
@@ -1678,8 +1676,6 @@ void CommandSetGl843::init_regs_for_coarse_calibration(Genesys_Device* dev,
 
   DBG(DBG_info, "%s: optical sensor res: %d dpi, actual res: %d\n", __func__,
       sensor.optical_res / sensor.ccd_pixels_per_system_pixel(), dev->settings.xres);
-
-    dev->interface->write_registers(regs);
 }
 
 static bool should_calibrate_only_active_area(const Genesys_Device& dev,
@@ -1782,8 +1778,6 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 
     dev->calib_session = session;
     dev->calib_total_bytes_to_read = session.output_total_bytes_raw;
-
-    dev->interface->write_registers(regs);
 }
 
 /** @brief set up registers for the actual scan
@@ -2432,7 +2426,6 @@ void CommandSetGl843::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     init_regs_for_scan_session(dev, calib_sensor, reg, session);
 
   sanei_genesys_set_motor_power(*reg, false);
-    dev->interface->write_registers(*reg);
 }
 
 /**

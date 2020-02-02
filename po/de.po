@@ -12,10 +12,10 @@
 # Rolf Bensch <rolf at bensch hyphen online dot de>, 2012-2019.
 msgid ""
 msgstr ""
-"Project-Id-Version: sane-backends\n"
+"Project-Id-Version: sane-backends 1.0.29\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
 "POT-Creation-Date: 2020-01-12 07:09+0000\n"
-"PO-Revision-Date: 2020-01-18 12:11+0900\n"
+"PO-Revision-Date: 2020-01-26 16:29+0900\n"
 "Last-Translator: Ulf Zibis <Ulf.Zibis@CoSoCo.de>\n"
 "Language-Team: \n"
 "Language: de\n"

@@ -4,10 +4,10 @@
 # Andrew Coles <andrew_coles@yahoo.co.uk>, 2009.
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
+"Project-Id-Version: sane-backends 1.0.29\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
 "POT-Creation-Date: 2020-01-12 07:09+0000\n"
-"PO-Revision-Date: 2020-01-12 10:33-0800\n"
+"PO-Revision-Date: 2020-01-26 16:27+0900\n"
 "Last-Translator: Ralph Little <littlesincanada@yahoo.co.uk>\n"
 "Language-Team: British English <kde-i18n-doc@kde.org>\n"
 "Language: en_GB\n"

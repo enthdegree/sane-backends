@@ -711,7 +711,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     regs_set_optical_off(dev->model->asic_type, *reg);
     r = sanei_genesys_get_address (reg, REG_0x01);
     if (has_flag(session.params.flags, ScanFlag::DISABLE_SHADING) ||
-        (dev->model->flags & GENESYS_FLAG_NO_CALIBRATION))
+        has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION))
     {
         r->value &= ~REG_0x01_DVDSET;
     } else {

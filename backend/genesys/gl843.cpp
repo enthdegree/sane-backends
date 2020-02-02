@@ -96,7 +96,7 @@ static void gl843_setup_sensor(Genesys_Device* dev, const Genesys_Sensor& sensor
     for (const auto& custom_reg : sensor.custom_regs) {
         regs->set8(custom_reg.address, custom_reg.value);
     }
-    if (!(dev->model->flags & GENESYS_FLAG_FULL_HWDPI_MODE) &&
+    if (!has_flag(dev->model->flags, ModelFlag::FULL_HWDPI_MODE) &&
         dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7200I &&
         dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7300 &&
         dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7500I)
@@ -982,7 +982,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
 
   /* Vref XXX STEF XXX : optical divider or step type ? */
   r = sanei_genesys_get_address (reg, 0x80);
-  if (!(dev->model->flags & GENESYS_FLAG_FULL_HWDPI_MODE))
+  if (!has_flag(dev->model->flags, ModelFlag::FULL_HWDPI_MODE))
     {
       r->value = 0x50;
         coeff = sensor.get_hwdpi_divisor_for_dpi(scan_yres);
@@ -1057,8 +1057,8 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     regs_set_optical_off(dev->model->asic_type, *reg);
     r = sanei_genesys_get_address (reg, REG_0x01);
     if (has_flag(session.params.flags, ScanFlag::DISABLE_SHADING) ||
-        (dev->model->flags & GENESYS_FLAG_NO_CALIBRATION ||
-        (dev->model->flags & GENESYS_FLAG_CALIBRATION_HOST_SIDE)))
+        has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION) ||
+        has_flag(dev->model->flags, ModelFlag::CALIBRATION_HOST_SIDE))
     {
         r->value &= ~REG_0x01_DVDSET;
     } else {

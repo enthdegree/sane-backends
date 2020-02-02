@@ -112,7 +112,7 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::WOLFSON_UMAX;
     model.gpio_id = GpioId::UMAX;
     model.motor_id = MotorId::UMAX;
-    model.flags = GENESYS_FLAG_UNTESTED;
+    model.flags = ModelFlag::UNTESTED;
     model.buttons = GENESYS_HAS_NO_BUTTONS;
     model.shading_lines = 20;
     model.shading_ta_lines = 0;
@@ -170,10 +170,10 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::CANON_LIDE_35;
     model.gpio_id = GpioId::CANON_LIDE_35;
     model.motor_id = MotorId::CANON_LIDE_35;
-    model.flags = GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_DARK_WHITE_CALIBRATION |
-                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.flags = ModelFlag::SKIP_WARMUP |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::DARK_WHITE_CALIBRATION |
+                  ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW |
                     GENESYS_HAS_FILE_SW |
                     GENESYS_HAS_EMAIL_SW |
@@ -234,9 +234,9 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::KVSS080;
     model.gpio_id = GpioId::KVSS080;
     model.motor_id = MotorId::KVSS080;
-    model.flags = GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.flags = ModelFlag::SKIP_WARMUP |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW;
     model.shading_lines = 100;
     model.shading_ta_lines = 0;
@@ -294,10 +294,10 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::G4050;
     model.gpio_id = GpioId::G4050;
     model.motor_id = MotorId::G4050;
-    model.flags = GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_SHADING_REPARK |
-                  GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.flags = ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::SHADING_REPARK |
+                  ModelFlag::SKIP_WARMUP |
+                  ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;
     model.shading_lines = 100;
     model.shading_ta_lines = 0;
@@ -353,10 +353,10 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::G4050;
     model.gpio_id = GpioId::G4050;
     model.motor_id = MotorId::G4050;
-    model.flags = GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.flags = ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::SKIP_WARMUP |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;
     model.shading_lines = 100;
     model.shading_ta_lines = 0;
@@ -414,10 +414,10 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::G4050;
     model.gpio_id = GpioId::G4050;
     model.motor_id = MotorId::G4050;
-    model.flags = GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.flags = ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::SKIP_WARMUP |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;
     model.shading_lines = 100;
     model.shading_ta_lines = 0;
@@ -475,12 +475,12 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::CANON_4400F;
     model.gpio_id = GpioId::CANON_4400F;
     model.motor_id = MotorId::CANON_4400F;
-    model.flags = GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_FULL_HWDPI_MODE |
-                  GENESYS_FLAG_CUSTOM_GAMMA |
-                  GENESYS_FLAG_SHADING_REPARK;
+    model.flags = ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::SKIP_WARMUP |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::FULL_HWDPI_MODE |
+                  ModelFlag::CUSTOM_GAMMA |
+                  ModelFlag::SHADING_REPARK;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;
     model.shading_lines = 100;
     model.shading_ta_lines = 0;
@@ -546,14 +546,12 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::CANON_8400F;
     model.gpio_id = GpioId::CANON_8400F;
     model.motor_id = MotorId::CANON_8400F;
-    model.flags = GENESYS_FLAG_HAS_UTA |
-                  GENESYS_FLAG_HAS_UTA_INFRARED |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_FULL_HWDPI_MODE |
-                  GENESYS_FLAG_CUSTOM_GAMMA |
-                  GENESYS_FLAG_SHADING_REPARK;
+    model.flags = ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::SKIP_WARMUP |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::FULL_HWDPI_MODE |
+                  ModelFlag::CUSTOM_GAMMA |
+                  ModelFlag::SHADING_REPARK;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;
     model.shading_lines = 100;
     model.shading_ta_lines = 50;
@@ -615,14 +613,12 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::CANON_8600F;
     model.gpio_id = GpioId::CANON_8600F;
     model.motor_id = MotorId::CANON_8600F;
-    model.flags = GENESYS_FLAG_HAS_UTA |
-                  GENESYS_FLAG_HAS_UTA_INFRARED |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_FULL_HWDPI_MODE |
-                  GENESYS_FLAG_CUSTOM_GAMMA |
-                  GENESYS_FLAG_SHADING_REPARK;
+    model.flags = ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::SKIP_WARMUP |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::FULL_HWDPI_MODE |
+                  ModelFlag::CUSTOM_GAMMA |
+                  ModelFlag::SHADING_REPARK;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;
     model.shading_lines = 50;
     model.shading_ta_lines = 50;
@@ -680,12 +676,12 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::CANON_LIDE_200;
     model.gpio_id = GpioId::CANON_LIDE_200;
     model.motor_id = MotorId::CANON_LIDE_100;
-    model.flags = GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_SIS_SENSOR |
-                  GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_SHADING_REPARK |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.flags = ModelFlag::SKIP_WARMUP |
+                  ModelFlag::SIS_SENSOR |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::SHADING_REPARK |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW |
                     GENESYS_HAS_COPY_SW |
                     GENESYS_HAS_EMAIL_SW |
@@ -745,11 +741,11 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::CANON_LIDE_110;
     model.gpio_id = GpioId::CANON_LIDE_110;
     model.motor_id = MotorId::CANON_LIDE_110;
-    model.flags = GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_SHADING_REPARK |
-                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.flags = ModelFlag::SKIP_WARMUP |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::SHADING_REPARK |
+                  ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW |
                     GENESYS_HAS_COPY_SW |
                     GENESYS_HAS_EMAIL_SW |
@@ -808,11 +804,11 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::CANON_LIDE_120;
     model.gpio_id = GpioId::CANON_LIDE_120;
     model.motor_id = MotorId::CANON_LIDE_120;
-    model.flags = GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_SHADING_REPARK |
-                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.flags = ModelFlag::SKIP_WARMUP |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::SHADING_REPARK |
+                  ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW |
                     GENESYS_HAS_COPY_SW |
                     GENESYS_HAS_EMAIL_SW |
@@ -874,11 +870,11 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::CANON_LIDE_110;
     model.gpio_id = GpioId::CANON_LIDE_210;
     model.motor_id = MotorId::CANON_LIDE_210;
-    model.flags = GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_SHADING_REPARK |
-                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.flags = ModelFlag::SKIP_WARMUP |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::SHADING_REPARK |
+                  ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW |
                     GENESYS_HAS_COPY_SW |
                     GENESYS_HAS_EMAIL_SW |
@@ -940,11 +936,11 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::CANON_LIDE_110;
     model.gpio_id = GpioId::CANON_LIDE_210;
     model.motor_id = MotorId::CANON_LIDE_210;
-    model.flags = GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_SHADING_REPARK |
-                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.flags = ModelFlag::SKIP_WARMUP |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::SHADING_REPARK |
+                  ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW |
                     GENESYS_HAS_COPY_SW |
                     GENESYS_HAS_EMAIL_SW |
@@ -1006,12 +1002,12 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::CANON_LIDE_200;
     model.gpio_id = GpioId::CANON_LIDE_200;
     model.motor_id = MotorId::CANON_LIDE_200;
-    model.flags = GENESYS_FLAG_UNTESTED |
-                  GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_SIS_SENSOR |
-                  GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.flags = ModelFlag::UNTESTED |
+                  ModelFlag::SKIP_WARMUP |
+                  ModelFlag::SIS_SENSOR |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW |
                     GENESYS_HAS_COPY_SW |
                     GENESYS_HAS_EMAIL_SW |
@@ -1071,12 +1067,12 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::CANON_LIDE_700F;
     model.gpio_id = GpioId::CANON_LIDE_700F;
     model.motor_id = MotorId::CANON_LIDE_700;
-    model.flags = GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_SIS_SENSOR |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_SHADING_REPARK |
-                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.flags = ModelFlag::SKIP_WARMUP |
+                  ModelFlag::SIS_SENSOR |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::SHADING_REPARK |
+                  ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW |
                     GENESYS_HAS_COPY_SW |
                     GENESYS_HAS_EMAIL_SW |
@@ -1136,12 +1132,12 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::CANON_LIDE_200;
     model.gpio_id = GpioId::CANON_LIDE_200;
     model.motor_id = MotorId::CANON_LIDE_200;
-    model.flags = GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_SIS_SENSOR |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_SHADING_REPARK |
-                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.flags = ModelFlag::SKIP_WARMUP |
+                  ModelFlag::SIS_SENSOR |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::SHADING_REPARK |
+                  ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW |
                     GENESYS_HAS_COPY_SW |
                     GENESYS_HAS_EMAIL_SW |
@@ -1201,10 +1197,10 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::CANON_LIDE_35;
     model.gpio_id = GpioId::CANON_LIDE_35;
     model.motor_id = MotorId::CANON_LIDE_35;
-    model.flags = GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_DARK_WHITE_CALIBRATION |
-                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.flags = ModelFlag::SKIP_WARMUP |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::DARK_WHITE_CALIBRATION |
+                  ModelFlag::CUSTOM_GAMMA;
 
     model.buttons = GENESYS_HAS_COPY_SW |
                     GENESYS_HAS_SCAN_SW |
@@ -1265,10 +1261,10 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::CANON_LIDE_80;
     model.gpio_id = GpioId::CANON_LIDE_80;
     model.motor_id = MotorId::CANON_LIDE_80;
-    model.flags = GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_DARK_WHITE_CALIBRATION |
-                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.flags = ModelFlag::SKIP_WARMUP |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::DARK_WHITE_CALIBRATION |
+                  ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW |
                     GENESYS_HAS_FILE_SW |
                     GENESYS_HAS_EMAIL_SW |
@@ -1328,12 +1324,12 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::WOLFSON_HP2300;
     model.gpio_id = GpioId::HP2300;
     model.motor_id = MotorId::HP2300;
-    model.flags = GENESYS_FLAG_14BIT_GAMMA |
-                  GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_SEARCH_START |
-                  GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.flags = ModelFlag::GAMMA_14BIT |
+                  ModelFlag::SKIP_WARMUP |
+                  ModelFlag::SEARCH_START |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW;
     model.shading_lines = 40;
     model.shading_ta_lines = 0;
@@ -1391,11 +1387,11 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::WOLFSON_HP2400;
     model.gpio_id = GpioId::HP2400;
     model.motor_id = MotorId::HP2400;
-    model.flags = GENESYS_FLAG_14BIT_GAMMA |
-                  GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.flags = ModelFlag::GAMMA_14BIT |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::SKIP_WARMUP |
+                  ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_SCAN_SW;
     model.shading_lines = 20;
     model.shading_ta_lines = 0;
@@ -1453,11 +1449,11 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::AD_XP200;
     model.gpio_id = GpioId::XP200;
     model.motor_id = MotorId::XP200;
-    model.flags = GENESYS_FLAG_14BIT_GAMMA |
-                  GENESYS_FLAG_CUSTOM_GAMMA |
-                  GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_OFFSET_CALIBRATION;
+    model.flags = ModelFlag::GAMMA_14BIT |
+                  ModelFlag::CUSTOM_GAMMA |
+                  ModelFlag::SKIP_WARMUP |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::OFFSET_CALIBRATION;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
     model.shading_lines = 120;
     model.shading_ta_lines = 0;
@@ -1515,11 +1511,11 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::WOLFSON_HP3670;
     model.gpio_id = GpioId::HP3670;
     model.motor_id = MotorId::HP3670;
-    model.flags = GENESYS_FLAG_14BIT_GAMMA |
-                  GENESYS_FLAG_XPA |
-                  GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.flags = ModelFlag::GAMMA_14BIT |
+                  ModelFlag::XPA |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_SCAN_SW;
     model.shading_lines = 20;
     model.shading_ta_lines = 0;
@@ -1577,7 +1573,7 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::WOLFSON_ST12;
     model.gpio_id = GpioId::ST12;
     model.motor_id = MotorId::UMAX;
-    model.flags = GENESYS_FLAG_UNTESTED | GENESYS_FLAG_14BIT_GAMMA;
+    model.flags = ModelFlag::UNTESTED | ModelFlag::GAMMA_14BIT;
     model.buttons = GENESYS_HAS_NO_BUTTONS;
     model.shading_lines = 20;
     model.shading_ta_lines = 0;
@@ -1634,11 +1630,11 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::WOLFSON_ST24;
     model.gpio_id = GpioId::ST24;
     model.motor_id = MotorId::ST24;
-    model.flags = GENESYS_FLAG_UNTESTED |
-                  GENESYS_FLAG_14BIT_GAMMA |
-                  GENESYS_FLAG_CUSTOM_GAMMA |
-                  GENESYS_FLAG_SEARCH_START |
-                  GENESYS_FLAG_OFFSET_CALIBRATION;
+    model.flags = ModelFlag::UNTESTED |
+                  ModelFlag::GAMMA_14BIT |
+                  ModelFlag::CUSTOM_GAMMA |
+                  ModelFlag::SEARCH_START |
+                  ModelFlag::OFFSET_CALIBRATION;
     model.buttons = GENESYS_HAS_NO_BUTTONS;
     model.shading_lines = 20;
     model.shading_ta_lines = 0;
@@ -1694,12 +1690,12 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::WOLFSON_5345;
     model.gpio_id = GpioId::MD_5345;
     model.motor_id = MotorId::MD_5345;
-    model.flags = GENESYS_FLAG_14BIT_GAMMA |
-                  GENESYS_FLAG_SEARCH_START |
-                  GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_SHADING_NO_MOVE |
-                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.flags = ModelFlag::GAMMA_14BIT |
+                  ModelFlag::SEARCH_START |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::SHADING_NO_MOVE |
+                  ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_COPY_SW |
                     GENESYS_HAS_EMAIL_SW |
                     GENESYS_HAS_POWER_SW |
@@ -1760,10 +1756,10 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::WOLFSON_XP300;
     model.gpio_id = GpioId::XP300;
     model.motor_id = MotorId::XP300;
-    model.flags = GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.flags = ModelFlag::SKIP_WARMUP |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
     model.shading_lines = 100;
     model.shading_ta_lines = 0;
@@ -1820,10 +1816,10 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::WOLFSON_XP300;
     model.gpio_id = GpioId::DP665;
     model.motor_id = MotorId::DP665;
-    model.flags = GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.flags = ModelFlag::SKIP_WARMUP |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
     model.shading_lines = 100;
     model.shading_ta_lines = 0;
@@ -1880,10 +1876,10 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::WOLFSON_XP300;
     model.gpio_id = GpioId::DP665;
     model.motor_id = MotorId::ROADWARRIOR;
-    model.flags = GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_CUSTOM_GAMMA |
-                  GENESYS_FLAG_DARK_CALIBRATION;
+    model.flags = ModelFlag::SKIP_WARMUP |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::CUSTOM_GAMMA |
+                  ModelFlag::DARK_CALIBRATION;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
     model.shading_lines = 100;
     model.shading_ta_lines = 0;
@@ -1940,10 +1936,10 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::WOLFSON_XP300;
     model.gpio_id = GpioId::DP665;
     model.motor_id = MotorId::ROADWARRIOR;
-    model.flags = GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_NO_CALIBRATION |
-                  GENESYS_FLAG_CUSTOM_GAMMA |
-                  GENESYS_FLAG_UNTESTED;
+    model.flags = ModelFlag::SKIP_WARMUP |
+                  ModelFlag::NO_CALIBRATION |
+                  ModelFlag::CUSTOM_GAMMA |
+                  ModelFlag::UNTESTED;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW;
     model.shading_lines = 300;
     model.shading_ta_lines = 0;
@@ -2001,10 +1997,10 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::WOLFSON_XP300;
     model.gpio_id = GpioId::DP665;
     model.motor_id = MotorId::ROADWARRIOR;
-    model.flags = GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_CUSTOM_GAMMA |
-                  GENESYS_FLAG_DARK_CALIBRATION;
+    model.flags = ModelFlag::SKIP_WARMUP |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::CUSTOM_GAMMA |
+                  ModelFlag::DARK_CALIBRATION;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
     model.shading_lines = 100;
     model.shading_ta_lines = 0;
@@ -2061,10 +2057,10 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::WOLFSON_DSM600;
     model.gpio_id = GpioId::DP665;
     model.motor_id = MotorId::DSMOBILE_600;
-    model.flags = GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_CUSTOM_GAMMA |
-                  GENESYS_FLAG_DARK_CALIBRATION;
+    model.flags = ModelFlag::SKIP_WARMUP |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::CUSTOM_GAMMA |
+                  ModelFlag::DARK_CALIBRATION;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
     model.shading_lines = 100;
     model.shading_ta_lines = 0;
@@ -2122,10 +2118,10 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::WOLFSON_DSM600;
     model.gpio_id = GpioId::DP665;
     model.motor_id = MotorId::DSMOBILE_600;
-    model.flags = GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_CUSTOM_GAMMA |
-                  GENESYS_FLAG_DARK_CALIBRATION;
+    model.flags = ModelFlag::SKIP_WARMUP |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::CUSTOM_GAMMA |
+                  ModelFlag::DARK_CALIBRATION;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
     model.shading_lines = 100;
     model.shading_ta_lines = 0;
@@ -2182,10 +2178,10 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::WOLFSON_DSM600;
     model.gpio_id = GpioId::DP685;
     model.motor_id = MotorId::XP300;
-    model.flags = GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_CUSTOM_GAMMA |
-                  GENESYS_FLAG_DARK_CALIBRATION;
+    model.flags = ModelFlag::SKIP_WARMUP |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::CUSTOM_GAMMA |
+                  ModelFlag::DARK_CALIBRATION;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
     model.shading_lines = 100;
     model.shading_ta_lines = 0;
@@ -2244,10 +2240,10 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::WOLFSON_XP300;
     model.gpio_id = GpioId::XP300;
     model.motor_id = MotorId::XP300;
-    model.flags = GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_CUSTOM_GAMMA |
-                  GENESYS_FLAG_DARK_CALIBRATION;
+    model.flags = ModelFlag::SKIP_WARMUP |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::CUSTOM_GAMMA |
+                  ModelFlag::DARK_CALIBRATION;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
     model.shading_lines = 100;
     model.shading_ta_lines = 0;
@@ -2305,11 +2301,11 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::WOLFSON_XP300;
     model.gpio_id = GpioId::XP300;
     model.motor_id = MotorId::XP300;
-    model.flags = GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_CUSTOM_GAMMA |
-                  GENESYS_FLAG_UNTESTED;
+    model.flags = ModelFlag::SKIP_WARMUP |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::CUSTOM_GAMMA |
+                  ModelFlag::UNTESTED;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
     model.shading_lines = 100;
     model.shading_ta_lines = 0;
@@ -2366,11 +2362,11 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::WOLFSON_5345;
     model.gpio_id = GpioId::MD_5345;
     model.motor_id = MotorId::MD_5345;
-    model.flags = GENESYS_FLAG_14BIT_GAMMA |
-                  GENESYS_FLAG_SEARCH_START |
-                  GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.flags = ModelFlag::GAMMA_14BIT |
+                  ModelFlag::SEARCH_START |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_COPY_SW |
                     GENESYS_HAS_EMAIL_SW |
                     GENESYS_HAS_POWER_SW |
@@ -2431,11 +2427,11 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::WOLFSON_5345;
     model.gpio_id = GpioId::MD_5345;
     model.motor_id = MotorId::MD_5345;
-    model.flags = GENESYS_FLAG_14BIT_GAMMA |
-                  GENESYS_FLAG_SEARCH_START |
-                  GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.flags = ModelFlag::GAMMA_14BIT |
+                  ModelFlag::SEARCH_START |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_COPY_SW |
                     GENESYS_HAS_EMAIL_SW |
                     GENESYS_HAS_POWER_SW |
@@ -2497,10 +2493,10 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::WOLFSON_XP300;
     model.gpio_id = GpioId::DP665;
     model.motor_id = MotorId::ROADWARRIOR;
-    model.flags = GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_CUSTOM_GAMMA |
-                  GENESYS_FLAG_DARK_CALIBRATION;
+    model.flags = ModelFlag::SKIP_WARMUP |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::CUSTOM_GAMMA |
+                  ModelFlag::DARK_CALIBRATION;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
     model.shading_lines = 100;
     model.shading_ta_lines = 0;
@@ -2558,11 +2554,11 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::PLUSTEK_OPTICPRO_3600;
     model.gpio_id = GpioId::PLUSTEK_OPTICPRO_3600;
     model.motor_id = MotorId::PLUSTEK_OPTICPRO_3600;
-    model.flags = GENESYS_FLAG_UNTESTED |                // not fully working yet
-                  GENESYS_FLAG_CUSTOM_GAMMA |
-                  GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_OFFSET_CALIBRATION;
+    model.flags = ModelFlag::UNTESTED |                // not fully working yet
+                  ModelFlag::CUSTOM_GAMMA |
+                  ModelFlag::SKIP_WARMUP |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::OFFSET_CALIBRATION;
     model.buttons = GENESYS_HAS_NO_BUTTONS;
     model.shading_lines = 7;
     model.shading_ta_lines = 0;
@@ -2621,16 +2617,13 @@ void genesys_init_usb_device_tables()
     model.gpio_id = GpioId::PLUSTEK_OPTICFILM_7200I;
     model.motor_id = MotorId::PLUSTEK_OPTICFILM_7200I;
 
-    model.flags = GENESYS_FLAG_HAS_UTA |
-                  GENESYS_FLAG_HAS_UTA_INFRARED |
-                  GENESYS_FLAG_CUSTOM_GAMMA |
-                  GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_HAS_NO_BUTTONS |
-                  GENESYS_FLAG_SHADING_REPARK |
-                  GENESYS_FLAG_CALIBRATION_HOST_SIDE |
-                  GENESYS_FLAG_16BIT_DATA_INVERTED;
+    model.flags = ModelFlag::CUSTOM_GAMMA |
+                  ModelFlag::SKIP_WARMUP |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::SHADING_REPARK |
+                  ModelFlag::CALIBRATION_HOST_SIDE |
+                  ModelFlag::INVERTED_16BIT_DATA;
 
     model.shading_lines = 7;
     model.shading_ta_lines = 50;
@@ -2688,14 +2681,12 @@ void genesys_init_usb_device_tables()
     model.gpio_id = GpioId::PLUSTEK_OPTICFILM_7300;
     model.motor_id = MotorId::PLUSTEK_OPTICFILM_7300;
 
-    model.flags = GENESYS_FLAG_HAS_UTA |
-                  GENESYS_FLAG_CUSTOM_GAMMA |
-                  GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_HAS_NO_BUTTONS |
-                  GENESYS_FLAG_SHADING_REPARK |
-                  GENESYS_FLAG_CALIBRATION_HOST_SIDE;
+    model.flags = ModelFlag::CUSTOM_GAMMA |
+                  ModelFlag::SKIP_WARMUP |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::SHADING_REPARK |
+                  ModelFlag::CALIBRATION_HOST_SIDE;
 
     model.shading_lines = 7;
     model.shading_ta_lines = 50;
@@ -2753,15 +2744,12 @@ void genesys_init_usb_device_tables()
     model.gpio_id = GpioId::PLUSTEK_OPTICFILM_7500I;
     model.motor_id = MotorId::PLUSTEK_OPTICFILM_7500I;
 
-    model.flags = GENESYS_FLAG_HAS_UTA |
-                  GENESYS_FLAG_HAS_UTA_INFRARED |
-                  GENESYS_FLAG_CUSTOM_GAMMA |
-                  GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_HAS_NO_BUTTONS |
-                  GENESYS_FLAG_SHADING_REPARK |
-                  GENESYS_FLAG_CALIBRATION_HOST_SIDE;
+    model.flags = ModelFlag::CUSTOM_GAMMA |
+                  ModelFlag::SKIP_WARMUP |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::SHADING_REPARK |
+                  ModelFlag::CALIBRATION_HOST_SIDE;
 
     model.shading_lines = 7;
     model.shading_ta_lines = 50;
@@ -2818,13 +2806,13 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::CANON_LIDE_200;        // Not defined yet for N6310
     model.gpio_id = GpioId::HP_N6310;
     model.motor_id = MotorId::CANON_LIDE_200;    // Not defined yet for N6310
-    model.flags = GENESYS_FLAG_UNTESTED |
-                  GENESYS_FLAG_14BIT_GAMMA |
-                  GENESYS_FLAG_DARK_CALIBRATION |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_CUSTOM_GAMMA |
-                  GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_NO_CALIBRATION;
+    model.flags = ModelFlag::UNTESTED |
+                  ModelFlag::GAMMA_14BIT |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::CUSTOM_GAMMA |
+                  ModelFlag::SKIP_WARMUP |
+                  ModelFlag::NO_CALIBRATION;
 
     model.buttons = GENESYS_HAS_NO_BUTTONS;
     model.shading_lines = 100;
@@ -2883,9 +2871,9 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::PLUSTEK_OPTICBOOK_3800;
     model.gpio_id = GpioId::PLUSTEK_OPTICBOOK_3800;
     model.motor_id = MotorId::PLUSTEK_OPTICBOOK_3800;
-    model.flags = GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_CUSTOM_GAMMA;
+    model.flags = ModelFlag::SKIP_WARMUP |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_NO_BUTTONS;  // TODO there are 4 buttons to support
     model.shading_lines = 100;
     model.shading_ta_lines = 0;
@@ -2943,10 +2931,10 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::IMG101;
     model.gpio_id = GpioId::IMG101;
     model.motor_id = MotorId::IMG101;
-    model.flags = GENESYS_FLAG_SKIP_WARMUP |
-                  GENESYS_FLAG_OFFSET_CALIBRATION |
-                  GENESYS_FLAG_CUSTOM_GAMMA |
-                  GENESYS_FLAG_UNTESTED;
+    model.flags = ModelFlag::SKIP_WARMUP |
+                  ModelFlag::OFFSET_CALIBRATION |
+                  ModelFlag::CUSTOM_GAMMA |
+                  ModelFlag::UNTESTED;
     model.buttons = GENESYS_HAS_NO_BUTTONS ;
     model.shading_lines = 100;
     model.shading_ta_lines = 0;

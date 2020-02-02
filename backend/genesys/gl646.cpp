@@ -232,9 +232,8 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
         regs->find_reg(0x01).value &= ~REG_0x01_CISSET;
     }
 
-  /* if device has no calibration, don't enable shading correction */
-  if (dev->model->flags & GENESYS_FLAG_NO_CALIBRATION)
-    {
+    // if device has no calibration, don't enable shading correction
+    if (has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION)) {
         regs->find_reg(0x01).value &= ~REG_0x01_DVDSET;
     }
 
@@ -317,7 +316,7 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     sanei_genesys_set_dpihw(*regs, sensor, sensor.optical_res);
 
   /* gamma enable for scans */
-    if (dev->model->flags & GENESYS_FLAG_14BIT_GAMMA) {
+    if (has_flag(dev->model->flags, ModelFlag::GAMMA_14BIT)) {
         regs->find_reg(0x05).value |= REG_0x05_GMM14BIT;
     }
 
@@ -666,7 +665,7 @@ gl646_init_regs (Genesys_Device * dev)
   dev->reg.find_reg(0x05).value = 0x00;	/* 12 bits gamma, disable gamma, 24 clocks/pixel */
     sanei_genesys_set_dpihw(dev->reg, sensor, sensor.optical_res);
 
-    if (dev->model->flags & GENESYS_FLAG_14BIT_GAMMA) {
+    if (has_flag(dev->model->flags, ModelFlag::GAMMA_14BIT)) {
         dev->reg.find_reg(0x05).value |= REG_0x05_GMM14BIT;
     }
     if (dev->model->adc_id == AdcId::AD_XP200) {
@@ -1857,9 +1856,7 @@ void CommandSetGl646::send_gamma_table(Genesys_Device* dev, const Genesys_Sensor
   int address;
   int bits;
 
-  /* gamma table size */
-  if (dev->model->flags & GENESYS_FLAG_14BIT_GAMMA)
-    {
+     if (has_flag(dev->model->flags, ModelFlag::GAMMA_14BIT)) {
       size = 16384;
       bits = 14;
     }
@@ -2828,16 +2825,13 @@ void CommandSetGl646::init(Genesys_Device* dev) const
 
   /* ensure head is correctly parked, and check lock */
     if (!dev->model->is_sheetfed) {
-      if (dev->model->flags & GENESYS_FLAG_REPARK)
-	{
+        if (has_flag(dev->model->flags, ModelFlag::REPARK)) {
             // FIXME: if repark fails, we should print an error message that the scanner is locked and
             // the user should unlock the lock. We should also rethrow with SANE_STATUS_JAMMED
             gl646_repark_head(dev);
-	}
-      else
-    {
+        } else {
             move_back_home(dev, true);
-	}
+        }
     }
 
   /* here session and device are initialized */
@@ -3130,8 +3124,7 @@ void CommandSetGl646::update_hardware_sensors(Genesys_Scanner* session) const
     }
 
   /* XPA detection */
-  if (dev->model->flags & GENESYS_FLAG_XPA)
-    {
+    if (has_flag(dev->model->flags, ModelFlag::XPA)) {
         switch (dev->model->gpio_id) {
             case GpioId::HP3670:
             case GpioId::HP2400:

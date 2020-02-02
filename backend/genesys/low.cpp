@@ -541,7 +541,7 @@ Image read_unshuffled_image_from_scanner(Genesys_Device* dev, const ScanSession&
                                                        1, 1);
     }
 
-    if ((dev->model->flags & GENESYS_FLAG_16BIT_DATA_INVERTED) && session.params.depth == 16) {
+    if (has_flag(dev->model->flags, ModelFlag::INVERTED_16BIT_DATA) && session.params.depth == 16) {
         pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
     }
 
@@ -1297,7 +1297,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
                                                         "_0_before_swap.pnm");
     }
 
-    if ((dev->model->flags & GENESYS_FLAG_16BIT_DATA_INVERTED) && depth == 16) {
+    if (has_flag(dev->model->flags, ModelFlag::INVERTED_16BIT_DATA) && depth == 16) {
         dev->pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
     }
 
@@ -1349,8 +1349,8 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
                                                         "_3_after_stagger.pnm");
     }
 
-    if ((dev->model->flags & GENESYS_FLAG_CALIBRATION_HOST_SIDE) &&
-        !(dev->model->flags & GENESYS_FLAG_NO_CALIBRATION))
+    if (has_flag(dev->model->flags, ModelFlag::CALIBRATION_HOST_SIDE) &&
+        !has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION))
     {
         dev->pipeline.push_node<ImagePipelineNodeCalibrate>(dev->dark_average_data,
                                                             dev->white_average_data);

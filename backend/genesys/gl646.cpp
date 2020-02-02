@@ -1705,7 +1705,8 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 
     // we don't want top offset, but we need right margin to be the same than the one for the final
     // scan
-    setup_for_scan(dev, calib_sensor, &dev->reg, settings, true, false, false, false);
+    dev->calib_session = setup_for_scan(dev, calib_sensor, &dev->reg, settings,
+                                        true, false, false, false);
 
   /* used when sending shading calibration data */
   dev->calib_pixels = settings.pixels;
@@ -1772,14 +1773,14 @@ void CommandSetGl646::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
  * @param xcorrection take x geometry correction into account (fixed and detected offsets)
  * @param ycorrection take y geometry correction into account
  */
-static void setup_for_scan(Genesys_Device* dev,
-                           const Genesys_Sensor& sensor,
-                           Genesys_Register_Set*regs,
-                           Genesys_Settings settings,
-                           bool split,
-                           bool xcorrection,
-                           bool ycorrection,
-                           bool reverse)
+static ScanSession setup_for_scan(Genesys_Device* dev,
+                                  const Genesys_Sensor& sensor,
+                                  Genesys_Register_Set*regs,
+                                  Genesys_Settings settings,
+                                  bool split,
+                                  bool xcorrection,
+                                  bool ycorrection,
+                                  bool reverse)
 {
     DBG_HELPER(dbg);
 
@@ -1842,6 +1843,8 @@ static void setup_for_scan(Genesys_Device* dev,
     compute_session(dev, session, sensor);
 
     dev->cmd_set->init_regs_for_scan_session(dev, sensor, regs, session);
+
+    return session;
 }
 
 /**

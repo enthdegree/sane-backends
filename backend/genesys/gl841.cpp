@@ -2485,6 +2485,8 @@ void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     compute_session(dev, session, calib_sensor);
 
     init_regs_for_scan_session(dev, calib_sensor, &regs, session);
+
+    dev->calib_session = session;
 }
 
 // set up registers for the actual scan

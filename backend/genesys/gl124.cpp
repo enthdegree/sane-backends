@@ -1233,6 +1233,8 @@ void CommandSetGl124::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
         throw;
     }
     sanei_genesys_set_motor_power(regs, false);
+
+    dev->calib_session = session;
 }
 
 void CommandSetGl124::wait_for_motor_stop(Genesys_Device* dev) const

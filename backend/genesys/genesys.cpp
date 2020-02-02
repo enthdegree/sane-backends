@@ -1453,6 +1453,18 @@ genesys_average_black (Genesys_Device * dev, int channel,
 static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sensor)
 {
     DBG_HELPER_ARGS(dbg, "scan_mode = %d", static_cast<unsigned>(dev->settings.scan_mode));
+
+    // FIXME: remove when updating tests
+    dev->interface->record_progress_message("init_regs_for_coarse_calibration");
+    dev->cmd_set->init_regs_for_coarse_calibration(dev, sensor, dev->calib_reg);
+
+    if (dev->model->asic_type != AsicType::GL646) {
+        dev->interface->write_registers(dev->calib_reg);
+    }
+
+    // FIXME: remove when updating tests
+    dev->interface->record_progress_message("genesys_coarse_calibration");
+
   int black_pixels;
   int white_average;
   uint8_t offset[4] = { 0xa0, 0x00, 0xa0, 0x40 };	/* first value isn't used */
@@ -2900,16 +2912,10 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
         dev->interface->record_progress_message("coarse_gain_calibration");
         dev->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, coarse_res);
     } else {
-    /* since we have 2 gain calibration proc, skip second if first one was
-       used. */
-        dev->interface->record_progress_message("init_regs_for_coarse_calibration");
-        dev->cmd_set->init_regs_for_coarse_calibration(dev, sensor, dev->calib_reg);
+        // since we have 2 gain calibration proc, skip second if first one was used.
 
-        if (dev->model->asic_type != AsicType::GL646) {
-            dev->interface->write_registers(dev->calib_reg);
-        }
-
-        dev->interface->record_progress_message("genesys_coarse_calibration");
+        // FIXME: enable when updating tests
+        // dev->interface->record_progress_message("genesys_coarse_calibration");
         genesys_coarse_calibration(dev, sensor);
     }
 
@@ -2947,14 +2953,9 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
             dev->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, coarse_res);
         } else {
             // since we have 2 gain calibration proc, skip second if first one was used
-            dev->interface->record_progress_message("init_regs_for_coarse_calibration");
-            dev->cmd_set->init_regs_for_coarse_calibration(dev, sensor, dev->calib_reg);
 
-            if (dev->model->asic_type != AsicType::GL646) {
-                dev->interface->write_registers(dev->calib_reg);
-            }
-
-            dev->interface->record_progress_message("genesys_coarse_calibration");
+            // FIXME: enable when updating tests
+            // dev->interface->record_progress_message("genesys_coarse_calibration");
             genesys_coarse_calibration(dev, sensor);
         }
     }
@@ -3062,17 +3063,8 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
       /* since all the registers are set up correctly, just use them */
 
         dev->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, sensor.optical_res);
-    }
-  else
-    /* since we have 2 gain calibration proc, skip second if first one was
-       used. */
-    {
-        dev->cmd_set->init_regs_for_coarse_calibration(dev, sensor, dev->calib_reg);
-
-        if (dev->model->asic_type != AsicType::GL646) {
-            dev->interface->write_registers(dev->calib_reg);
-        }
-
+    } else {
+        // since we have 2 gain calibration proc, skip second if first one was used
         genesys_coarse_calibration(dev, sensor);
     }
 

@@ -690,7 +690,7 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
       top += 10;
         dev->model->y_offset_calib_white = (top * MM_PER_INCH) / dpi;
         DBG(DBG_info, "%s: black stripe y_offset = %f mm \n", __func__,
-            dev->model->y_offset_calib_white.value());
+            dev->model->y_offset_calib_white);
     }
 
   /* find white corner in dark area : TODO yet another flag */
@@ -711,7 +711,7 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
       top = top / count;
         dev->model->y_offset_calib_white = (top * MM_PER_INCH) / dpi;
         DBG(DBG_info, "%s: white corner y_offset = %f mm\n", __func__,
-            dev->model->y_offset_calib_white.value());
+            dev->model->y_offset_calib_white);
     }
 
     DBG(DBG_proc, "%s: ccd_start_xoffset = %d, left = %d, top = %d\n", __func__,
@@ -1464,7 +1464,7 @@ static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sens
 
     unsigned channels = dev->settings.get_channels();
 
-  DBG(DBG_info, "channels %d y_size %f xres %d\n", channels, dev->model->y_size.value(),
+  DBG(DBG_info, "channels %d y_size %f xres %d\n", channels, dev->model->y_size,
       dev->settings.xres);
     unsigned size = static_cast<unsigned>(channels * 2 * dev->model->y_size * dev->settings.xres /
                                           MM_PER_INCH);

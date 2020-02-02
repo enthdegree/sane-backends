@@ -2912,20 +2912,22 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
         coarse_res = 1200;
     }
 
+    auto local_reg = dev->calib_reg;
+
   /* do offset calibration if needed */
     if (has_flag(dev->model->flags, ModelFlag::OFFSET_CALIBRATION)) {
         dev->interface->record_progress_message("offset_calibration");
-        dev->cmd_set->offset_calibration(dev, sensor, dev->calib_reg);
+        dev->cmd_set->offset_calibration(dev, sensor, local_reg);
 
       /* since all the registers are set up correctly, just use them */
         dev->interface->record_progress_message("coarse_gain_calibration");
-        dev->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, coarse_res);
+        dev->cmd_set->coarse_gain_calibration(dev, sensor, local_reg, coarse_res);
     } else {
         // since we have 2 gain calibration proc, skip second if first one was used.
 
         // FIXME: enable when updating tests
         // dev->interface->record_progress_message("genesys_coarse_calibration");
-        genesys_coarse_calibration(dev, sensor, dev->calib_reg);
+        genesys_coarse_calibration(dev, sensor, local_reg);
     }
 
   if (dev->model->is_cis)
@@ -2937,7 +2939,7 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
             case AsicType::GL845:
             case AsicType::GL846:
             case AsicType::GL847: {
-                auto calib_exposure = dev->cmd_set->led_calibration(dev, sensor, dev->calib_reg);
+                auto calib_exposure = dev->cmd_set->led_calibration(dev, sensor, local_reg);
                 for (auto& sensor_update :
                         sanei_genesys_find_sensors_all_for_write(dev, sensor.method)) {
                     sensor_update.get().exposure = calib_exposure;
@@ -2946,7 +2948,7 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
                 break;
             }
             default: {
-                sensor.exposure = dev->cmd_set->led_calibration(dev, sensor, dev->calib_reg);
+                sensor.exposure = dev->cmd_set->led_calibration(dev, sensor, local_reg);
             }
         }
 
@@ -2954,18 +2956,18 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
       /* calibrate afe again to match new exposure */
         if (has_flag(dev->model->flags, ModelFlag::OFFSET_CALIBRATION)) {
             dev->interface->record_progress_message("offset_calibration");
-            dev->cmd_set->offset_calibration(dev, sensor, dev->calib_reg);
+            dev->cmd_set->offset_calibration(dev, sensor, local_reg);
 
             // since all the registers are set up correctly, just use them
 
             dev->interface->record_progress_message("coarse_gain_calibration");
-            dev->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, coarse_res);
+            dev->cmd_set->coarse_gain_calibration(dev, sensor, local_reg, coarse_res);
         } else {
             // since we have 2 gain calibration proc, skip second if first one was used
 
             // FIXME: enable when updating tests
             // dev->interface->record_progress_message("genesys_coarse_calibration");
-            genesys_coarse_calibration(dev, sensor, dev->calib_reg);
+            genesys_coarse_calibration(dev, sensor, local_reg);
         }
     }
 
@@ -2993,22 +2995,22 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
     if (has_flag(dev->model->flags, ModelFlag::DARK_WHITE_CALIBRATION)) {
         // FIXME: enable when updating tests
         // dev->interface->record_progress_message("genesys_dark_white_shading_calibration");
-        genesys_dark_white_shading_calibration(dev, sensor, dev->calib_reg);
+        genesys_dark_white_shading_calibration(dev, sensor, local_reg);
     } else {
-        DBG(DBG_proc, "%s : genesys_dark_shading_calibration dev->calib_reg ", __func__);
-        debug_dump(DBG_proc, dev->calib_reg);
+        DBG(DBG_proc, "%s : genesys_dark_shading_calibration local_reg ", __func__);
+        debug_dump(DBG_proc, local_reg);
 
         if (has_flag(dev->model->flags, ModelFlag::DARK_CALIBRATION)) {
             // FIXME: enable when updating tests
             // dev->interface->record_progress_message("genesys_dark_shading_calibration");
-            genesys_dark_shading_calibration(dev, sensor, dev->calib_reg, "init_regs_for_shading",
+            genesys_dark_shading_calibration(dev, sensor, local_reg, "init_regs_for_shading",
                                              "genesys_dark_shading_calibration");
             genesys_repark_sensor_before_shading(dev);
         }
 
         // FIXME: enable when updating tests
         // dev->interface->record_progress_message("genesys_white_shading_calibration");
-        genesys_white_shading_calibration(dev, sensor, dev->calib_reg, "init_regs_for_shading2",
+        genesys_white_shading_calibration(dev, sensor, local_reg, "init_regs_for_shading2",
                                           "genesys_white_shading_calibration");
         genesys_repark_sensor_after_white_shading(dev);
 
@@ -3037,6 +3039,8 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
     DBG_HELPER(dbg);
     bool forward = true;
 
+    auto local_reg = dev->calib_reg;
+
     // first step, load document
     dev->cmd_set->load_document(dev);
 
@@ -3062,19 +3066,19 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
 
   if (dev->model->is_cis)
     {
-        dev->cmd_set->led_calibration(dev, sensor, dev->calib_reg);
+        dev->cmd_set->led_calibration(dev, sensor, local_reg);
     }
 
   /* calibrate afe */
     if (has_flag(dev->model->flags, ModelFlag::OFFSET_CALIBRATION)) {
-        dev->cmd_set->offset_calibration(dev, sensor, dev->calib_reg);
+        dev->cmd_set->offset_calibration(dev, sensor, local_reg);
 
       /* since all the registers are set up correctly, just use them */
 
-        dev->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, sensor.optical_res);
+        dev->cmd_set->coarse_gain_calibration(dev, sensor, local_reg, sensor.optical_res);
     } else {
         // since we have 2 gain calibration proc, skip second if first one was used
-        genesys_coarse_calibration(dev, sensor, dev->calib_reg);
+        genesys_coarse_calibration(dev, sensor, local_reg);
     }
 
   /* search for a full width black strip and then do a 16 bit scan to
@@ -3089,7 +3093,7 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
         }
 
         try {
-            genesys_dark_shading_calibration(dev, sensor, dev->calib_reg, nullptr, nullptr);
+            genesys_dark_shading_calibration(dev, sensor, local_reg, nullptr, nullptr);
         } catch (...) {
             catch_all_exceptions(__func__, [&](){ dev->cmd_set->eject_document(dev); });
             throw;
@@ -3109,7 +3113,7 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
   genesys_repark_sensor_before_shading(dev);
 
     try {
-        genesys_white_shading_calibration(dev, sensor, dev->calib_reg, nullptr, nullptr);
+        genesys_white_shading_calibration(dev, sensor, local_reg, nullptr, nullptr);
         genesys_repark_sensor_after_white_shading(dev);
     } catch (...) {
         catch_all_exceptions(__func__, [&](){ dev->cmd_set->eject_document(dev); });

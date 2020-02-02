@@ -1041,8 +1041,8 @@ void CommandSetGl846::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
 
   move_dpi = dev->motor.base_ydpi;
 
-    move = static_cast<float>(dev->model->y_offset);
-    move = static_cast<float>(move + dev->settings.tl_y);
+    move = dev->model->y_offset;
+    move = move + dev->settings.tl_y;
     move = static_cast<float>((move * move_dpi) / MM_PER_INCH);
     move -= dev->head_pos(ScanHeadId::PRIMARY);
   DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
@@ -1062,8 +1062,8 @@ void CommandSetGl846::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
   DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
 
   /* start */
-    start = static_cast<float>(dev->model->x_offset);
-    start = static_cast<float>(start + dev->settings.tl_x);
+    start = dev->model->x_offset;
+    start = start + dev->settings.tl_x;
     start = static_cast<float>((start * sensor.optical_res) / MM_PER_INCH);
 
     ScanSession session;
@@ -1181,7 +1181,7 @@ SensorExposure CommandSetGl846::led_calibration(Genesys_Device* dev, const Genes
   int turn;
   uint16_t exp[3];
 
-    float move = static_cast<float>(dev->model->y_offset_calib_white);
+    float move = dev->model->y_offset_calib_white;
      move = static_cast<float>((move * (dev->motor.base_ydpi / 4)) / MM_PER_INCH);
   if(move>20)
     {

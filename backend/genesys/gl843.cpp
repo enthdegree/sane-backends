@@ -1251,11 +1251,11 @@ void CommandSetGl843::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     DBG(DBG_info, "%s: total bytes to send = %zu\n", __func__, dev->total_bytes_to_read);
 }
 
-static double get_model_x_offset_ta(const Genesys_Device& dev,
+static float get_model_x_offset_ta(const Genesys_Device& dev,
                                     const Genesys_Settings& settings)
 {
     if (dev.model->model_id == ModelId::CANON_8600F && settings.xres == 4800) {
-        return 85.0;
+        return 85.0f;
     }
     return dev.model->x_offset_ta;
 }
@@ -1276,16 +1276,16 @@ ScanSession CommandSetGl843::calculate_scan_session(const Genesys_Device* dev,
         // note: move_to_ta() function has already been called and the sensor is at the
         // transparency adapter
         if (!dev->ignore_offsets) {
-            move = static_cast<float>(dev->model->y_offset_ta - dev->model->y_offset_sensor_to_ta);
+            move = dev->model->y_offset_ta - dev->model->y_offset_sensor_to_ta;
         }
         flags |= ScanFlag::USE_XPA;
     } else {
         if (!dev->ignore_offsets) {
-            move = static_cast<float>(dev->model->y_offset);
+            move = dev->model->y_offset;
         }
     }
 
-    move += static_cast<float>(settings.tl_y);
+    move += settings.tl_y;
 
     int move_dpi = dev->motor.base_ydpi;
     move = static_cast<float>((move * move_dpi) / MM_PER_INCH);
@@ -1294,11 +1294,11 @@ ScanSession CommandSetGl843::calculate_scan_session(const Genesys_Device* dev,
     if (settings.scan_method==ScanMethod::TRANSPARENCY ||
         settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        start = static_cast<float>(get_model_x_offset_ta(*dev, settings));
+        start = get_model_x_offset_ta(*dev, settings);
     } else {
-        start = static_cast<float>(dev->model->x_offset);
+        start = dev->model->x_offset;
     }
-    start = static_cast<float>(start + settings.tl_x);
+    start = start + settings.tl_x;
 
     if (dev->model->model_id == ModelId::CANON_8400F ||
         dev->model->model_id == ModelId::CANON_8600F)
@@ -1716,11 +1716,11 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
                                                        dev->settings.scan_method);
 
     if (should_calibrate_only_active_area(*dev, dev->settings)) {
-        float offset = static_cast<float>(get_model_x_offset_ta(*dev, dev->settings));
+        float offset = get_model_x_offset_ta(*dev, dev->settings);
         offset /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
         offset = static_cast<float>((offset * resolution) / MM_PER_INCH);
 
-        float size = static_cast<float>(dev->model->x_size_ta);
+        float size = dev->model->x_size_ta;
         size /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
         size = static_cast<float>((size * resolution) / MM_PER_INCH);
 

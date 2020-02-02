@@ -3973,13 +3973,13 @@ static void set_xy_range_option_values(Genesys_Scanner& s)
 {
     if (s.scan_method == ScanMethod::FLATBED)
     {
-        s.opt_x_range = create_range(static_cast<float>(s.dev->model->x_size));
-        s.opt_y_range = create_range(static_cast<float>(s.dev->model->y_size));
+        s.opt_x_range = create_range(s.dev->model->x_size);
+        s.opt_y_range = create_range(s.dev->model->y_size);
     }
   else
     {
-        s.opt_x_range = create_range(static_cast<float>(s.dev->model->x_size_ta));
-        s.opt_y_range = create_range(static_cast<float>(s.dev->model->y_size_ta));
+        s.opt_x_range = create_range(s.dev->model->x_size_ta);
+        s.opt_y_range = create_range(s.dev->model->y_size_ta);
     }
 
     s.opt[OPT_TL_X].constraint.range = &s.opt_x_range;
@@ -4090,8 +4090,8 @@ static void init_options(Genesys_Scanner* s)
   s->opt[OPT_GEOMETRY_GROUP].size = 0;
   s->opt[OPT_GEOMETRY_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
-    s->opt_x_range = create_range(static_cast<float>(model->x_size));
-    s->opt_y_range = create_range(static_cast<float>(model->y_size));
+    s->opt_x_range = create_range(model->x_size);
+    s->opt_y_range = create_range(model->y_size);
 
     // scan area
   s->opt[OPT_TL_X].name = SANE_NAME_SCAN_TL_X;

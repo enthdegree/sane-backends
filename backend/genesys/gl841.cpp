@@ -1655,17 +1655,17 @@ ScanSession CommandSetGl841::calculate_scan_session(const Genesys_Device* dev,
     // relative from origin, else, it is from parking position
     float move = 0.0f;
     if (has_flag(dev->model->flags, ModelFlag::SEARCH_START)) {
-        move += static_cast<float>(dev->model->y_offset_calib_white);
+        move += dev->model->y_offset_calib_white;
     }
 
-    move += static_cast<float>(dev->model->y_offset);
-    move += static_cast<float>(dev->settings.tl_y);
+    move += dev->model->y_offset;
+    move += dev->settings.tl_y;
 
     int move_dpi = dev->motor.base_ydpi;
     move = static_cast<float>((move * move_dpi) / MM_PER_INCH);
 
-    float start = static_cast<float>(dev->model->x_offset);
-    start += static_cast<float>(dev->settings.tl_x);
+    float start = dev->model->x_offset;
+    start += dev->settings.tl_x;
     start = static_cast<float>((start * sensor.optical_res) / MM_PER_INCH);
 
     // we enable true gray for cis scanners only, and just when doing
@@ -1990,10 +1990,9 @@ void CommandSetGl841::eject_document(Genesys_Device* dev) const
 	}
     }
 
-    feed_mm = static_cast<float>(dev->model->eject_feed);
-  if (dev->document)
-    {
-        feed_mm += static_cast<float>(dev->model->post_scan);
+    feed_mm = dev->model->eject_feed;
+    if (dev->document) {
+        feed_mm += dev->model->post_scan;
     }
 
         sanei_genesys_read_feed_steps(dev, &init_steps);

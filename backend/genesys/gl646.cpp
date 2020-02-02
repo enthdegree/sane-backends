@@ -1791,12 +1791,12 @@ static void setup_for_scan(Genesys_Device* dev,
     if (!split) {
         if (!dev->model->is_sheetfed) {
             if (ycorrection) {
-                move = static_cast<float>(dev->model->y_offset);
+                move = dev->model->y_offset;
             }
 
             // add tl_y to base movement
         }
-        move += static_cast<float>(settings.tl_y);
+        move += settings.tl_y;
 
         if (move < 0) {
             DBG(DBG_error, "%s: overriding negative move value %f\n", __func__, move);
@@ -1806,12 +1806,12 @@ static void setup_for_scan(Genesys_Device* dev,
     move = static_cast<float>((move * dev->motor.optical_ydpi) / MM_PER_INCH);
     DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
 
-    float start = static_cast<float>(settings.tl_x);
+    float start = settings.tl_x;
     if (xcorrection) {
         if (settings.scan_method == ScanMethod::FLATBED) {
-            start += static_cast<float>(dev->model->x_offset);
+            start += dev->model->x_offset;
         } else {
-            start += static_cast<float>(dev->model->x_offset_ta);
+            start += dev->model->x_offset_ta;
         }
     }
     start = static_cast<float>((start * sensor.optical_res) / MM_PER_INCH);
@@ -3368,10 +3368,10 @@ ScanSession CommandSetGl646::calculate_scan_session(const Genesys_Device* dev,
     float move = 0;
     // XXX STEF XXX MD5345 -> optical_ydpi, other base_ydpi => half/full step ? */
     if (!dev->model->is_sheetfed) {
-        move = static_cast<float>(dev->model->y_offset);
+        move = dev->model->y_offset;
         // add tl_y to base movement
     }
-    move += static_cast<float>(settings.tl_y);
+    move += settings.tl_y;
 
     if (move < 0) {
         DBG(DBG_error, "%s: overriding negative move value %f\n", __func__, move);
@@ -3379,11 +3379,11 @@ ScanSession CommandSetGl646::calculate_scan_session(const Genesys_Device* dev,
     }
 
     move = static_cast<float>((move * dev->motor.optical_ydpi) / MM_PER_INCH);
-    float start = static_cast<float>(settings.tl_x);
+    float start = settings.tl_x;
     if (settings.scan_method == ScanMethod::FLATBED) {
-        start += static_cast<float>(dev->model->x_offset);
+        start += dev->model->x_offset;
     } else {
-        start += static_cast<float>(dev->model->x_offset_ta);
+        start += dev->model->x_offset_ta;
     }
     start = static_cast<float>((start * sensor.optical_res) / MM_PER_INCH);
 

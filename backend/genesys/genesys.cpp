@@ -2872,6 +2872,10 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
         dev->interface->record_progress_message("init_regs_for_coarse_calibration");
         dev->cmd_set->init_regs_for_coarse_calibration(dev, sensor, dev->calib_reg);
 
+        if (dev->model->asic_type != AsicType::GL646) {
+            dev->interface->write_registers(dev->calib_reg);
+        }
+
         dev->interface->record_progress_message("genesys_coarse_calibration");
         genesys_coarse_calibration(dev, sensor);
     }
@@ -2912,6 +2916,10 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
             // since we have 2 gain calibration proc, skip second if first one was used
             dev->interface->record_progress_message("init_regs_for_coarse_calibration");
             dev->cmd_set->init_regs_for_coarse_calibration(dev, sensor, dev->calib_reg);
+
+            if (dev->model->asic_type != AsicType::GL646) {
+                dev->interface->write_registers(dev->calib_reg);
+            }
 
             dev->interface->record_progress_message("genesys_coarse_calibration");
             genesys_coarse_calibration(dev, sensor);
@@ -3043,6 +3051,10 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
        used. */
     {
         dev->cmd_set->init_regs_for_coarse_calibration(dev, sensor, dev->calib_reg);
+
+        if (dev->model->asic_type != AsicType::GL646) {
+            dev->interface->write_registers(dev->calib_reg);
+        }
 
         genesys_coarse_calibration(dev, sensor);
     }

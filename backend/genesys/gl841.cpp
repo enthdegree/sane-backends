@@ -2425,11 +2425,6 @@ void CommandSetGl841::init_regs_for_coarse_calibration(Genesys_Device* dev,
 
   DBG(DBG_info, "%s: optical sensor res: %d dpi, actual res: %d\n", __func__,
       sensor.optical_res / sensor.ccd_pixels_per_system_pixel(), dev->settings.xres);
-
-    dev->interface->write_registers(regs);
-
-/*  if (DBG_LEVEL >= DBG_info)
-    sanei_gl841_print_registers (regs);*/
 }
 
 

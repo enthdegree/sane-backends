@@ -960,8 +960,6 @@ void CommandSetGl847::init_regs_for_coarse_calibration(Genesys_Device* dev,
 
   DBG(DBG_info, "%s: optical sensor res: %d dpi, actual res: %d\n", __func__,
       sensor.optical_res / sensor.ccd_pixels_per_system_pixel(), dev->settings.xres);
-
-    dev->interface->write_registers(regs);
 }
 
 // init registers for shading calibration

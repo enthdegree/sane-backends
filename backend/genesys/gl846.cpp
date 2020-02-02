@@ -964,15 +964,12 @@ void CommandSetGl846::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                          dev->settings.scan_method);
   dev->calib_total_bytes_to_read = 0;
-  dev->calib_lines = dev->model->shading_lines;
+    unsigned calib_lines = dev->model->shading_lines;
     if (resolution == 4800) {
-        dev->calib_lines *= 2;
+        calib_lines *= 2;
     }
     unsigned calib_pixels = (calib_sensor.sensor_pixels * resolution) /
                              calib_sensor.optical_res;
-
-    DBG(DBG_io, "%s: calib_lines  = %zu\n", __func__, dev->calib_lines);
-    DBG(DBG_io, "%s: calib_pixels = %u\n", __func__, calib_pixels);
 
   /* this is aworkaround insufficent distance for slope
    * motor acceleration TODO special motor slope for shading  */
@@ -987,7 +984,7 @@ void CommandSetGl846::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     session.params.startx = 0;
     session.params.starty = static_cast<unsigned>(move);
     session.params.pixels = calib_pixels;
-    session.params.lines = dev->calib_lines;
+    session.params.lines = calib_lines;
     session.params.depth = 16;
     session.params.channels = channels;
     session.params.scan_method = dev->settings.scan_method;

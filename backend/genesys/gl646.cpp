@@ -1695,8 +1695,8 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   settings.tl_y = 0;
     settings.pixels = (calib_sensor.sensor_pixels * settings.xres) / calib_sensor.optical_res;
     settings.requested_pixels = settings.pixels;
-  dev->calib_lines = dev->model->shading_lines;
-    settings.lines = dev->calib_lines;
+    unsigned calib_lines = dev->model->shading_lines;
+    settings.lines = calib_lines;
   settings.depth = 16;
   settings.color_filter = dev->settings.color_filter;
 
@@ -1718,9 +1718,9 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   /* TODO another flag to setup regs ? */
   /* enforce needed LINCNT, getting rid of extra lines for color reordering */
     if (!dev->model->is_cis) {
-        dev->reg.set24(REG_LINCNT, dev->calib_lines);
+        dev->reg.set24(REG_LINCNT, calib_lines);
     } else {
-        dev->reg.set24(REG_LINCNT, dev->calib_lines * 3);
+        dev->reg.set24(REG_LINCNT, calib_lines * 3);
     }
 
   DBG(DBG_info, "%s:\n\tdev->settings.xres=%d\n\tdev->settings.yres=%d\n", __func__,

@@ -1694,9 +1694,9 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
     if (dev->calib_total_bytes_to_read > 0) {
         size = dev->calib_total_bytes_to_read;
     } else if (dev->model->asic_type == AsicType::GL843) {
-        size = channels * 2 * pixels_per_line * dev->calib_lines;
+        size = channels * 2 * pixels_per_line * dev->calib_session.params.lines;
     } else {
-        size = channels * 2 * pixels_per_line * (dev->calib_lines + 1);
+        size = channels * 2 * pixels_per_line * (dev->calib_session.params.lines + 1);
     }
 
   std::vector<uint16_t> calibration_data(size / 2);
@@ -1757,13 +1757,13 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
     compute_array_percentile_approx(out_average_data.data() +
                                         dev->calib_session.params.startx * channels,
                                     calibration_data.data(),
-                                    dev->calib_lines, pixels_per_line * channels,
+                                    dev->calib_session.params.lines, pixels_per_line * channels,
                                     0.5f);
 
     if (DBG_LEVEL >= DBG_data) {
         sanei_genesys_write_pnm_file16((log_filename_prefix + "_shading.pnm").c_str(),
                                        calibration_data.data(),
-                                       channels, pixels_per_line, dev->calib_lines);
+                                       channels, pixels_per_line, dev->calib_session.params.lines);
         sanei_genesys_write_pnm_file16((log_filename_prefix + "_average.pnm").c_str(),
                                        out_average_data.data(),
                                        channels, out_pixels_per_line, 1);
@@ -1900,7 +1900,7 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
                                                    const Genesys_Sensor& sensor,
                                                    Genesys_Register_Set& local_reg)
 {
-    DBG_HELPER_ARGS(dbg, "lines = %zu", dev->calib_lines);
+    DBG_HELPER(dbg);
 
     // FIXME: remove when updating tests
     dev->interface->record_progress_message("init_regs_for_shading");
@@ -1941,10 +1941,11 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
   dev->dark_average_data.clear();
   dev->dark_average_data.resize(dev->average_size);
 
-  if (dev->calib_total_bytes_to_read > 0)
-    size = dev->calib_total_bytes_to_read;
-  else
-    size = channels * 2 * pixels_per_line * dev->calib_lines;
+    if (dev->calib_total_bytes_to_read > 0) {
+        size = dev->calib_total_bytes_to_read;
+    } else {
+        size = channels * 2 * pixels_per_line * dev->calib_session.params.lines;
+    }
 
   std::vector<uint8_t> calibration_data(size);
 
@@ -1977,13 +1978,13 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
         {
           sanei_genesys_write_pnm_file("gl_black_white_shading.pnm", calibration_data.data(),
                                        16, 1, pixels_per_line*channels,
-                                       dev->calib_lines);
+                                       dev->calib_session.params.lines);
         }
       else
         {
           sanei_genesys_write_pnm_file("gl_black_white_shading.pnm", calibration_data.data(),
                                        16, channels, pixels_per_line,
-                                       dev->calib_lines);
+                                       dev->calib_session.params.lines);
         }
     }
 
@@ -2003,7 +2004,7 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
       dark = 0xffff;
       white = 0;
 
-            for (std::size_t y = 0; y < dev->calib_lines; y++)
+            for (std::size_t y = 0; y < dev->calib_session.params.lines; y++)
 	{
 	  col = calibration_data[(x + y * pixels_per_line * channels) * 2];
 	  col |=
@@ -2027,7 +2028,7 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
       white_count = 0;
       white_sum = 0;
 
-            for (std::size_t y = 0; y < dev->calib_lines; y++)
+            for (std::size_t y = 0; y < dev->calib_session.params.lines; y++)
 	{
 	  col = calibration_data[(x + y * pixels_per_line * channels) * 2];
 	  col |=

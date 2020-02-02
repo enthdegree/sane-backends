@@ -1698,13 +1698,13 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     DBG_HELPER(dbg);
   int move, resolution, dpihw, factor;
 
-
+    unsigned calib_lines = 0;
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        dev->calib_lines = dev->model->shading_ta_lines;
+        calib_lines = dev->model->shading_ta_lines;
     } else {
-        dev->calib_lines = dev->model->shading_lines;
+        calib_lines = dev->model->shading_lines;
     }
 
     dpihw = sensor.get_logical_hwdpi(dev->settings.xres);
@@ -1758,7 +1758,7 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     session.params.startx = calib_pixels_offset;
     session.params.starty = move;
     session.params.pixels = calib_pixels;
-    session.params.lines = dev->calib_lines;
+    session.params.lines = calib_lines;
     session.params.depth = 16;
     session.params.channels = channels;
     session.params.scan_method = dev->settings.scan_method;

@@ -269,8 +269,6 @@ struct Genesys_Device
     std::uint8_t control[6] = {};
 
     size_t average_size = 0;
-    // number of lines used during shading calibration
-    size_t calib_lines = 0;
      // bytes to read from USB when calibrating. If 0, this is not set
     size_t calib_total_bytes_to_read = 0;
 

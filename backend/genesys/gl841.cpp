@@ -2431,7 +2431,7 @@ void CommandSetGl841::init_regs_for_coarse_calibration(Genesys_Device* dev,
 void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                             Genesys_Register_Set& regs) const
 {
-    DBG_HELPER_ARGS(dbg, "lines = %zu", dev->calib_lines);
+    DBG_HELPER(dbg);
   SANE_Int ydpi;
     unsigned starty = 0;
 
@@ -2456,7 +2456,6 @@ void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     }
 
     unsigned channels = 3;
-  dev->calib_lines = dev->model->shading_lines;
 
     unsigned resolution = sensor.get_logical_hwdpi(dev->settings.xres);
     unsigned factor = sensor.optical_res / resolution;
@@ -2470,7 +2469,7 @@ void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     session.params.startx = 0;
     session.params.starty = starty;
     session.params.pixels = calib_sensor.sensor_pixels / factor;
-    session.params.lines = dev->calib_lines;
+    session.params.lines = dev->model->shading_lines;
     session.params.depth = 16;
     session.params.channels = channels;
     session.params.scan_method = dev->settings.scan_method;

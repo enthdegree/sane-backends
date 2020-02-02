@@ -56,7 +56,6 @@ struct Genesys_Calibration_Cache;
 class CommandSet;
 
 // device.h
-class FixedFloat;
 struct Genesys_Gpo;
 struct MethodResolutions;
 struct Genesys_Model;

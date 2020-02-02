@@ -162,9 +162,9 @@ static const SANE_Range u16_range = {
 };
 
 static const SANE_Range percentage_range = {
-  SANE_FIX (0),			/* minimum */
-  SANE_FIX (100),		/* maximum */
-  SANE_FIX (1)			/* quantization */
+    float_to_fixed(0),     // minimum
+    float_to_fixed(100),   // maximum
+    float_to_fixed(1)      // quantization
 };
 
 static const SANE_Range threshold_curve_range = {
@@ -690,7 +690,7 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
       top += 10;
         dev->model->y_offset_calib_white = (top * MM_PER_INCH) / dpi;
         DBG(DBG_info, "%s: black stripe y_offset = %f mm \n", __func__,
-            dev->model->y_offset_calib_white.value());
+            dev->model->y_offset_calib_white);
     }
 
   /* find white corner in dark area : TODO yet another flag */
@@ -711,7 +711,7 @@ void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& s
       top = top / count;
         dev->model->y_offset_calib_white = (top * MM_PER_INCH) / dpi;
         DBG(DBG_info, "%s: white corner y_offset = %f mm\n", __func__,
-            dev->model->y_offset_calib_white.value());
+            dev->model->y_offset_calib_white);
     }
 
     DBG(DBG_proc, "%s: ccd_start_xoffset = %d, left = %d, top = %d\n", __func__,
@@ -1464,7 +1464,7 @@ static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sens
 
     unsigned channels = dev->settings.get_channels();
 
-  DBG(DBG_info, "channels %d y_size %f xres %d\n", channels, dev->model->y_size.value(),
+  DBG(DBG_info, "channels %d y_size %f xres %d\n", channels, dev->model->y_size,
       dev->settings.xres);
     unsigned size = static_cast<unsigned>(channels * 2 * dev->model->y_size * dev->settings.xres /
                                           MM_PER_INCH);
@@ -3585,12 +3585,12 @@ static unsigned pick_resolution(const std::vector<unsigned>& resolutions, unsign
 static void calc_parameters(Genesys_Scanner* s)
 {
     DBG_HELPER(dbg);
-  double tl_x = 0, tl_y = 0, br_x = 0, br_y = 0;
+    float tl_x = 0, tl_y = 0, br_x = 0, br_y = 0;
 
-    tl_x = SANE_UNFIX(s->pos_top_left_x);
-    tl_y = SANE_UNFIX(s->pos_top_left_y);
-    br_x = SANE_UNFIX(s->pos_bottom_right_x);
-    br_y = SANE_UNFIX(s->pos_bottom_right_y);
+    tl_x = fixed_to_float(s->pos_top_left_x);
+    tl_y = fixed_to_float(s->pos_top_left_y);
+    br_x = fixed_to_float(s->pos_bottom_right_x);
+    br_y = fixed_to_float(s->pos_bottom_right_y);
 
     s->params.last_frame = true;	/* only single pass scanning supported */
 
@@ -3704,7 +3704,7 @@ static void calc_parameters(Genesys_Scanner* s)
   s->dev->settings.tl_y = tl_y;
 
     // threshold setting
-    s->dev->settings.threshold = static_cast<int>(2.55 * (SANE_UNFIX(s->threshold)));
+    s->dev->settings.threshold = static_cast<int>(2.55f * (fixed_to_float(s->threshold)));
 
     // color filter
     if (s->color_filter == "Red") {
@@ -3730,9 +3730,9 @@ static void calc_parameters(Genesys_Scanner* s)
   /* some digital processing requires the whole picture to be buffered */
   /* no digital processing takes place when doing preview, or when bit depth is
    * higher than 8 bits */
-  if ((s->swdespeck || s->swcrop || s->swdeskew || s->swderotate ||(SANE_UNFIX(s->swskip)>0))
-    && (!s->preview)
-    && (s->bit_depth <= 8))
+    if ((s->swdespeck || s->swcrop || s->swdeskew || s->swderotate ||(fixed_to_float(s->swskip)>0))
+        && (!s->preview)
+        && (s->bit_depth <= 8))
     {
         s->dev->buffer_image = true;
     }
@@ -3807,9 +3807,9 @@ init_gamma_vector_option (Genesys_Scanner * scanner, int option)
 static SANE_Range create_range(float size)
 {
     SANE_Range range;
-    range.min = SANE_FIX(0.0);
-    range.max = SANE_FIX(size);
-    range.quant = SANE_FIX(0.0);
+    range.min = float_to_fixed(0.0);
+    range.max = float_to_fixed(size);
+    range.quant = float_to_fixed(0.0);
     return range;
 }
 
@@ -4226,7 +4226,7 @@ static void init_options(Genesys_Scanner* s)
   s->opt[OPT_THRESHOLD].unit = SANE_UNIT_PERCENT;
   s->opt[OPT_THRESHOLD].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_THRESHOLD].constraint.range = &percentage_range;
-  s->threshold = SANE_FIX(50);
+    s->threshold = float_to_fixed(50);
 
   /* BW threshold curve */
   s->opt[OPT_THRESHOLD_CURVE].name = "threshold-curve";
@@ -5176,7 +5176,7 @@ static void print_option(DebugMessageHelper& dbg, const Genesys_Scanner& s, int 
             return;
         }
         case SANE_TYPE_FIXED: {
-            dbg.vlog(DBG_proc, "value: %f", SANE_UNFIX(*reinterpret_cast<SANE_Word*>(val)));
+            dbg.vlog(DBG_proc, "value: %f", fixed_to_float(*reinterpret_cast<SANE_Word*>(val)));
             return;
         }
         case SANE_TYPE_STRING: {
@@ -5904,7 +5904,7 @@ void sane_start_impl(SANE_Handle handle)
         if (s->swskip > 0 && IS_ACTIVE(OPT_SWSKIP)) {
             auto status = sanei_magic_isBlank(&s->params,
                                               s->dev->img_buffer.data(),
-                                              SANE_UNFIX(s->swskip));
+                                              fixed_to_float(s->swskip));
 
             if (status == SANE_STATUS_NO_DOCS && s->dev->model->is_sheetfed) {
                 DBG(DBG_info, "%s: blank page, recurse\n", __func__);

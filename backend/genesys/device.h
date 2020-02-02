@@ -55,6 +55,7 @@
 #include "register.h"
 #include "usb_device.h"
 #include "scanner_interface.h"
+#include "utilities.h"
 #include <vector>
 
 namespace genesys {
@@ -75,24 +76,6 @@ struct Genesys_Gpo
         - have the enable registers at 0x6e and 0x6f.
     */
     GenesysRegisterSettingSet regs;
-};
-
-/// Stores a SANE_Fixed value which is automatically converted from and to floating-point values
-class FixedFloat
-{
-public:
-    FixedFloat() = default;
-    FixedFloat(const FixedFloat&) = default;
-    FixedFloat(double number) : value_{SANE_FIX(number)} {}
-    FixedFloat& operator=(const FixedFloat&) = default;
-    FixedFloat& operator=(double number) { value_ = SANE_FIX(number); return *this; }
-
-    operator double() const { return value(); }
-
-    double value() const { return SANE_UNFIX(value_); }
-
-private:
-    SANE_Fixed value_ = 0;
 };
 
 struct MethodResolutions
@@ -143,49 +126,49 @@ struct Genesys_Model
     // All offsets below are with respect to the sensor home position
 
     // Start of scan area in mm
-    FixedFloat x_offset = 0;
+    float x_offset = 0;
 
     // Start of scan area in mm (Amount of feeding needed to get to the medium)
-    FixedFloat y_offset = 0;
+    float y_offset = 0;
 
     // Size of scan area in mm
-    FixedFloat x_size = 0;
+    float x_size = 0;
 
     // Size of scan area in mm
-    FixedFloat y_size = 0;
+    float y_size = 0;
 
     // Start of white strip in mm
-    FixedFloat y_offset_calib_white = 0;
+    float y_offset_calib_white = 0;
 
     // Start of black mark in mm
-    FixedFloat x_offset_calib_black = 0;
+    float x_offset_calib_black = 0;
 
     // Start of scan area in transparency mode in mm
-    FixedFloat x_offset_ta = 0;
+    float x_offset_ta = 0;
 
     // Start of scan area in transparency mode in mm
-    FixedFloat y_offset_ta = 0;
+    float y_offset_ta = 0;
 
     // Size of scan area in transparency mode in mm
-    FixedFloat x_size_ta = 0;
+    float x_size_ta = 0;
 
     // Size of scan area in transparency mode in mm
-    FixedFloat y_size_ta = 0;
+    float y_size_ta = 0;
 
     // The position of the sensor when it's aligned with the lamp for transparency scanning
-    FixedFloat y_offset_sensor_to_ta = 0;
+    float y_offset_sensor_to_ta = 0;
 
     // Start of white strip in transparency mode in mm
-    FixedFloat y_offset_calib_white_ta = 0;
+    float y_offset_calib_white_ta = 0;
 
     // Start of black strip in transparency mode in mm
-    FixedFloat y_offset_calib_black_ta = 0;
+    float y_offset_calib_black_ta = 0;
 
     // Size of scan area after paper sensor stop sensing document in mm
-    FixedFloat post_scan = 0;
+    float post_scan = 0;
 
     // Amount of feeding needed to eject document after finishing scanning in mm
-    FixedFloat eject_feed = 0;
+    float eject_feed = 0;
 
     // Line-distance correction (in pixel at optical_ydpi) for CCD scanners
     SANE_Int ld_shift_r = 0;

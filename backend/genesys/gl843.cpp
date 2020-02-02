@@ -654,8 +654,6 @@ gl843_init_registers (Genesys_Device * dev)
         dev->reg.init_reg(0xac, 0x00);
     }
 
-    dev->calib_reg = dev->reg;
-
     if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I) {
         uint8_t data[32] = {
             0x8c, 0x8f, 0xc9, 0x00, 0x01, 0x00, 0x00, 0x00,

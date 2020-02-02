@@ -1012,8 +1012,6 @@ void CommandSetGl847::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 
     init_regs_for_scan_session(dev, calib_sensor, &regs, session);
 
-    dev->interface->write_registers(regs);
-
   /* we use ModelFlag::SHADING_REPARK */
     dev->set_head_pos_zero(ScanHeadId::PRIMARY);
 }

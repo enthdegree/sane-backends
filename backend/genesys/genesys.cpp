@@ -2943,6 +2943,10 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
         dev->interface->record_progress_message("init_regs_for_shading");
         dev->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
 
+        if (dev->model->asic_type != AsicType::GL646) {
+            dev->interface->write_registers(dev->calib_reg);
+        }
+
         dev->interface->record_progress_message("genesys_dark_white_shading_calibration");
         genesys_dark_white_shading_calibration(dev, sensor);
     } else {
@@ -2953,6 +2957,10 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
             dev->interface->record_progress_message("init_regs_for_shading");
             dev->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
 
+            if (dev->model->asic_type != AsicType::GL646) {
+                dev->interface->write_registers(dev->calib_reg);
+            }
+
             dev->interface->record_progress_message("genesys_dark_shading_calibration");
             genesys_dark_shading_calibration(dev, sensor);
             genesys_repark_sensor_before_shading(dev);
@@ -2960,6 +2968,10 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
 
         dev->interface->record_progress_message("init_regs_for_shading2");
         dev->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
+
+        if (dev->model->asic_type != AsicType::GL646) {
+            dev->interface->write_registers(dev->calib_reg);
+        }
 
         dev->interface->record_progress_message("genesys_white_shading_calibration");
         genesys_white_shading_calibration(dev, sensor);
@@ -3048,6 +3060,10 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
 
         dev->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
 
+        if (dev->model->asic_type != AsicType::GL646) {
+            dev->interface->write_registers(dev->calib_reg);
+        }
+
         try {
             genesys_dark_shading_calibration(dev, sensor);
         } catch (...) {
@@ -3069,6 +3085,10 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
   genesys_repark_sensor_before_shading(dev);
 
     dev->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
+
+    if (dev->model->asic_type != AsicType::GL646) {
+        dev->interface->write_registers(dev->calib_reg);
+    }
 
     try {
         genesys_white_shading_calibration(dev, sensor);

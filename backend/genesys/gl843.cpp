@@ -1782,8 +1782,6 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 
     dev->calib_session = session;
     dev->calib_total_bytes_to_read = session.output_total_bytes_raw;
-
-    dev->interface->write_registers(regs);
 }
 
 /** @brief set up registers for the actual scan

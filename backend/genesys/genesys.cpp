@@ -1667,14 +1667,13 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
 
   size_t size;
   uint32_t pixels_per_line;
-  uint8_t channels;
 
     if (dev->model->asic_type == AsicType::GL843) {
         pixels_per_line = dev->calib_session.output_pixels;
     } else {
         pixels_per_line = dev->calib_session.params.pixels;
     }
-  channels = dev->calib_channels;
+    unsigned channels = dev->calib_session.params.channels;
 
     unsigned out_pixels_per_line = pixels_per_line + dev->calib_session.params.startx;
 
@@ -1792,7 +1791,6 @@ static void genesys_dummy_dark_shading(Genesys_Device* dev, const Genesys_Sensor
 {
     DBG_HELPER(dbg);
   uint32_t pixels_per_line;
-  uint8_t channels;
   uint32_t skip, xend;
   int dummy1, dummy2, dummy3;	/* dummy black average per channel */
 
@@ -1802,7 +1800,7 @@ static void genesys_dummy_dark_shading(Genesys_Device* dev, const Genesys_Sensor
         pixels_per_line = dev->calib_session.params.pixels;
     }
 
-  channels = dev->calib_channels;
+    unsigned channels = dev->calib_session.params.channels;
 
     unsigned out_pixels_per_line = pixels_per_line + dev->calib_session.params.startx;
 
@@ -1921,7 +1919,6 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
 
   size_t size;
   uint32_t pixels_per_line;
-  uint8_t channels;
   unsigned int x;
   uint32_t dark, white, dark_sum, white_sum, dark_count, white_count, col,
     dif;
@@ -1932,7 +1929,7 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
         pixels_per_line = dev->calib_session.params.pixels;
     }
 
-  channels = dev->calib_channels;
+    unsigned channels = dev->calib_session.params.channels;
 
     unsigned out_pixels_per_line = pixels_per_line + dev->calib_session.params.startx;
 
@@ -2539,7 +2536,6 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
     }
 
   uint32_t pixels_per_line;
-  uint8_t channels;
   int o;
   unsigned int length;		/**> number of shading calibration data words */
   unsigned int factor;
@@ -2551,7 +2547,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
         pixels_per_line = dev->calib_session.params.pixels + dev->calib_session.params.startx;
     }
 
-  channels = dev->calib_channels;
+    unsigned channels = dev->calib_session.params.channels;
 
   /* we always build data for three channels, even for gray
    * we make the shading data such that each color channel data line is contiguous
@@ -2591,6 +2587,11 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
   /* allocate computed size */
   // contains 16bit words in little endian
   std::vector<uint8_t> shading_data(length, 0);
+
+    if (!dev->calib_session.computed) {
+        genesys_send_offset_and_shading(dev, sensor, shading_data.data(), length);
+        return;
+    }
 
   /* TARGET/(Wn-Dn) = white gain -> ~1.xxx then it is multiplied by 0x2000
      or 0x4000 to give an integer
@@ -2846,7 +2847,6 @@ genesys_restore_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 
             dev->calib_session = cache.session;
           dev->average_size = cache.average_size;
-          dev->calib_channels = cache.calib_channels;
 
           dev->dark_average_data = cache.dark_average_data;
           dev->white_average_data = cache.white_average_data;
@@ -2901,7 +2901,6 @@ static void genesys_save_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   found_cache_it->sensor = sensor;
 
     found_cache_it->session = dev->calib_session;
-  found_cache_it->calib_channels = dev->calib_channels;
 
 #ifdef HAVE_SYS_TIME_H
     gettimeofday(&time, nullptr);
@@ -4709,7 +4708,7 @@ static void probe_genesys_devices()
    of Genesys_Calibration_Cache as is.
 */
 static const char* CALIBRATION_IDENT = "sane_genesys";
-static const int CALIBRATION_VERSION = 24;
+static const int CALIBRATION_VERSION = 25;
 
 bool read_calibration(std::istream& str, Genesys_Device::Calibration& calibration,
                       const std::string& path)

@@ -1698,7 +1698,6 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     DBG_HELPER(dbg);
   int move, resolution, dpihw, factor;
 
-  dev->calib_channels = 3;
 
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
@@ -1712,7 +1711,8 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   factor=sensor.optical_res/dpihw;
   resolution=dpihw;
 
-  const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, dev->calib_channels,
+    unsigned channels = 3;
+  const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                        dev->settings.scan_method);
 
     unsigned calib_pixels = 0;
@@ -1760,7 +1760,7 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     session.params.pixels = calib_pixels;
     session.params.lines = dev->calib_lines;
     session.params.depth = 16;
-    session.params.channels = dev->calib_channels;
+    session.params.channels = channels;
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = dev->settings.scan_mode;
     session.params.color_filter = dev->settings.color_filter;

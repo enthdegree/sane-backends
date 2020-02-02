@@ -958,12 +958,10 @@ void CommandSetGl846::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     DBG_HELPER(dbg);
   float move;
 
-  dev->calib_channels = 3;
-
+    unsigned channels = 3;
     unsigned resolution = sensor.get_register_hwdpi(dev->settings.xres);
 
-    const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution,
-                                                         dev->calib_channels,
+    const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                          dev->settings.scan_method);
   dev->calib_total_bytes_to_read = 0;
   dev->calib_lines = dev->model->shading_lines;
@@ -991,7 +989,7 @@ void CommandSetGl846::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     session.params.pixels = calib_pixels;
     session.params.lines = dev->calib_lines;
     session.params.depth = 16;
-    session.params.channels = dev->calib_channels;
+    session.params.channels = channels;
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = dev->settings.color_filter;

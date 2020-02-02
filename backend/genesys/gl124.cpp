@@ -1194,7 +1194,6 @@ void CommandSetGl124::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                          dev->settings.scan_method);
-  dev->calib_total_bytes_to_read = 0;
     factor = calib_sensor.optical_res / resolution;
 
   /* distance to move to reach white target at high resolution */

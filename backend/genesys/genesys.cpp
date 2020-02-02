@@ -1690,11 +1690,9 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
     }
 
     // FIXME: the current calculation is likely incorrect on non-GL843 implementations,
-    // but this needs checking
-    if (dev->calib_total_bytes_to_read > 0) {
-        size = dev->calib_total_bytes_to_read;
-    } else if (dev->model->asic_type == AsicType::GL843) {
-        size = channels * 2 * pixels_per_line * dev->calib_session.params.lines;
+    // but this needs checking. Note the extra line when computing size.
+    if (dev->model->asic_type == AsicType::GL843) {
+        size = dev->calib_session.output_total_bytes_raw;
     } else {
         size = channels * 2 * pixels_per_line * (dev->calib_session.params.lines + 1);
     }
@@ -1941,8 +1939,8 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
   dev->dark_average_data.clear();
   dev->dark_average_data.resize(dev->average_size);
 
-    if (dev->calib_total_bytes_to_read > 0) {
-        size = dev->calib_total_bytes_to_read;
+    if (dev->model->asic_type == AsicType::GL843) {
+        size = dev->calib_session.output_total_bytes_raw;
     } else {
         size = channels * 2 * pixels_per_line * dev->calib_session.params.lines;
     }

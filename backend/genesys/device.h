@@ -269,8 +269,6 @@ struct Genesys_Device
     std::uint8_t control[6] = {};
 
     size_t average_size = 0;
-     // bytes to read from USB when calibrating. If 0, this is not set
-    size_t calib_total_bytes_to_read = 0;
 
     // the session that was configured for calibration
     ScanSession calib_session;

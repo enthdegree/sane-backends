@@ -967,25 +967,25 @@ void CommandSetGl847::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 
   dev->calib_channels = 3;
 
-    dev->calib_resolution = sensor.get_register_hwdpi(dev->settings.xres);
+    unsigned resolution = sensor.get_register_hwdpi(dev->settings.xres);
 
-    const auto& calib_sensor = sanei_genesys_find_sensor(dev, dev->calib_resolution,
+    const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution,
                                                          dev->calib_channels,
                                                          dev->settings.scan_method);
 
   dev->calib_total_bytes_to_read = 0;
   dev->calib_lines = dev->model->shading_lines;
-    if (dev->calib_resolution == 4800) {
+    if (resolution == 4800) {
         dev->calib_lines *= 2;
     }
-    unsigned calib_pixels = (calib_sensor.sensor_pixels * dev->calib_resolution) /
+    unsigned calib_pixels = (calib_sensor.sensor_pixels * resolution) /
                              calib_sensor.optical_res;
 
     DBG(DBG_io, "%s: calib_lines  = %zu\n", __func__, dev->calib_lines);
     DBG(DBG_io, "%s: calib_pixels = %u\n", __func__, calib_pixels);
 
     ScanSession session;
-    session.params.xres = dev->calib_resolution;
+    session.params.xres = resolution;
     session.params.yres = dev->motor.base_ydpi;
     session.params.startx = 0;
     session.params.starty = 20;

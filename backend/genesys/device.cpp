@@ -241,7 +241,6 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev)
         << "    average_size: " << dev.average_size << '\n'
         << "    calib_lines: " << dev.calib_lines << '\n'
         << "    calib_channels: " << dev.calib_channels << '\n'
-        << "    calib_resolution: " << dev.calib_resolution << '\n'
         << "    calib_total_bytes_to_read: " << dev.calib_total_bytes_to_read << '\n'
         << "    calib_session: " << format_indent_braced_list(4, dev.calib_session) << '\n'
         << "    gamma_override_tables[0].size(): " << dev.gamma_override_tables[0].size() << '\n'

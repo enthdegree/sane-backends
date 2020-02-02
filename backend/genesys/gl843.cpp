@@ -1734,8 +1734,6 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
         calib_pixels = calib_sensor.sensor_pixels / factor;
     }
 
-  dev->calib_resolution = resolution;
-
     ScanFlag flags = ScanFlag::DISABLE_SHADING |
                      ScanFlag::DISABLE_GAMMA |
                      ScanFlag::DISABLE_BUFFER_FULL_MOVE |

@@ -272,7 +272,6 @@ struct Genesys_Device
     // number of lines used during shading calibration
     size_t calib_lines = 0;
     size_t calib_channels = 0;
-    size_t calib_resolution = 0;
      // bytes to read from USB when calibrating. If 0, this is not set
     size_t calib_total_bytes_to_read = 0;
 

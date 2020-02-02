@@ -3119,7 +3119,7 @@ void CommandSetGl646::update_hardware_sensors(Genesys_Scanner* session) const
     }
 
   /* XPA detection */
-    if (has_flag(dev->model->flags, ModelFlag::XPA)) {
+    if (dev->model->has_method(ScanMethod::TRANSPARENCY)) {
         switch (dev->model->gpio_id) {
             case GpioId::HP3670:
             case GpioId::HP2400:

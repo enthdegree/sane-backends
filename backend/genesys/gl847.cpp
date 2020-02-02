@@ -585,7 +585,7 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     r->value |= REG_0x01_SHDAREA;
 
     if (has_flag(session.params.flags, ScanFlag::DISABLE_SHADING) ||
-        (dev->model->flags & GENESYS_FLAG_NO_CALIBRATION))
+        has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION))
     {
         r->value &= ~REG_0x01_DVDSET;
     }
@@ -1014,7 +1014,7 @@ void CommandSetGl847::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 
     dev->interface->write_registers(regs);
 
-  /* we use GENESYS_FLAG_SHADING_REPARK */
+  /* we use ModelFlag::SHADING_REPARK */
     dev->set_head_pos_zero(ScanHeadId::PRIMARY);
 }
 
@@ -1045,7 +1045,7 @@ void CommandSetGl847::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
      float y_offset_calib;
      mm_to_steps()=motor dpi / 2.54 / 10=motor dpi / MM_PER_INCH */
 
-  /* if scanner uses GENESYS_FLAG_SEARCH_START y_offset is
+  /* if scanner uses ModelFlag::SEARCH_START y_offset is
      relative from origin, else, it is from parking position */
 
   move_dpi = dev->motor.base_ydpi;

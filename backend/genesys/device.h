@@ -210,8 +210,8 @@ struct Genesys_Model
     // stepper motor type
     MotorId motor_id = MotorId::UNKNOWN;
 
-    // Which hacks are needed for this scanner?
-    SANE_Word flags = 0;
+    // Which customizations are needed for this scanner?
+    ModelFlag flags = ModelFlag::NONE;
 
     // Button flags, described existing buttons for the model
     SANE_Word buttons = 0;

@@ -394,7 +394,7 @@ std::vector<TestConfig> get_all_test_configs()
     std::unordered_set<std::string> model_names;
 
     for (const auto& usb_dev : *genesys::s_usb_devices) {
-        if (usb_dev.model.flags & GENESYS_FLAG_UNTESTED) {
+        if (genesys::has_flag(usb_dev.model.flags, genesys::ModelFlag::UNTESTED)) {
             continue;
         }
         if (model_names.find(usb_dev.model.name) != model_names.end()) {

@@ -108,34 +108,6 @@
 #define GENESYS_GREEN 1
 #define GENESYS_BLUE  2
 
-/* Flags */
-#define GENESYS_FLAG_UNTESTED     (1 << 0)	/**< Print a warning for these scanners */
-#define GENESYS_FLAG_14BIT_GAMMA  (1 << 1)	/**< use 14bit Gamma table instead of 12 */
-#define GENESYS_FLAG_XPA          (1 << 3)
-#define GENESYS_FLAG_SKIP_WARMUP  (1 << 4)	/**< skip genesys_warmup()              */
-/** @brief offset calibration flag
- * signals that the scanner does offset calibration. In this case off_calibration() and
- * coarse_gain_calibration() functions must be implemented
- */
-#define GENESYS_FLAG_OFFSET_CALIBRATION   (1 << 5)
-#define GENESYS_FLAG_SEARCH_START (1 << 6)	/**< do start search before scanning    */
-#define GENESYS_FLAG_REPARK       (1 << 7)	/**< repark head (and check for lock) by
-						   moving without scanning */
-#define GENESYS_FLAG_DARK_CALIBRATION (1 << 8)	/**< do dark calibration */
-
-#define GENESYS_FLAG_MUST_WAIT        (1 << 10)	/**< tells wether the scanner must wait for the head when parking */
-
-#define GENESYS_FLAG_DARK_WHITE_CALIBRATION (1 << 12) /**< yet another calibration method. does white and dark shading in one run, depending on a black and a white strip*/
-#define GENESYS_FLAG_CUSTOM_GAMMA     (1 << 13)       /**< allow custom gamma tables */
-#define GENESYS_FLAG_NO_CALIBRATION   (1 << 14)       /**< allow scanners to use skip the calibration, needed for sheetfed scanners */
-#define GENESYS_FLAG_SIS_SENSOR       (1 << 16)       /**< handling of multi-segments sensors in software */
-#define GENESYS_FLAG_SHADING_NO_MOVE  (1 << 17)       /**< scanner doesn't move sensor during shading calibration */
-#define GENESYS_FLAG_SHADING_REPARK   (1 << 18)       /**< repark head between shading scans */
-#define GENESYS_FLAG_FULL_HWDPI_MODE  (1 << 19)       /**< scanner always use maximum hw dpi to setup the sensor */
-// scanner calibration is handled on the host side
-#define GENESYS_FLAG_CALIBRATION_HOST_SIDE (1 << 21)
-#define GENESYS_FLAG_16BIT_DATA_INVERTED (1 << 22)
-
 #define GENESYS_HAS_NO_BUTTONS       0              /**< scanner has no supported button */
 #define GENESYS_HAS_SCAN_SW          (1 << 0)       /**< scanner has SCAN button */
 #define GENESYS_HAS_FILE_SW          (1 << 1)       /**< scanner has FILE button */

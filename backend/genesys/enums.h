@@ -431,6 +431,88 @@ enum class AsicType : unsigned
 };
 
 
+enum class ModelFlag : unsigned
+{
+    // no flags
+    NONE = 0,
+
+    // scanner is not tested, print a warning as it's likely it won't work
+    UNTESTED = 1 << 0,
+
+    // use 14-bit gamma table instead of 12-bit
+    GAMMA_14BIT = 1 << 1,
+
+    // has XPA adapter
+    XPA = 1 << 3,
+
+    // skip lamp warmup (genesys_warmup())
+    SKIP_WARMUP = 1 << 4,
+
+    // the scanner does offset and gain calibration
+    OFFSET_CALIBRATION = 1 << 5,
+
+    // search start point befor scanning
+    SEARCH_START = 1 << 6,
+
+    // repark head and check for lock by moving without scanning
+    REPARK = 1 << 7,
+
+    // do dark calibration
+    DARK_CALIBRATION = 1 << 8,
+
+    // whether scanner must wait for the head while parking
+    MUST_WAIT = 1 << 10,
+
+    // do dark and white calibration in one run
+    DARK_WHITE_CALIBRATION = 1 << 12,
+
+    // allow custom gamma tables
+    CUSTOM_GAMMA = 1 << 13,
+
+    // skip calibration completely, this is needed for sheet-fed scanners
+    NO_CALIBRATION = 1 << 14,
+
+    // the scanner uses multi-segment sensors that must be handled during calibration
+    SIS_SENSOR = 1 << 16,
+
+    // the scanner does not move sensor during scanner calibration
+    SHADING_NO_MOVE = 1 << 17,
+
+    // the head must be reparked between shading scans
+    SHADING_REPARK = 1 << 18,
+
+    // the scanner always uses maximum hwdpi to setup the sensor
+    FULL_HWDPI_MODE = 1 << 19,
+
+    // scanner calibration is handled on the host side
+    CALIBRATION_HOST_SIDE = 1 << 21,
+
+    // the scanner outputs 16-bit data that is byte-inverted
+    INVERTED_16BIT_DATA = 1 << 22,
+};
+
+inline ModelFlag operator|(ModelFlag left, ModelFlag right)
+{
+    return static_cast<ModelFlag>(static_cast<unsigned>(left) | static_cast<unsigned>(right));
+}
+
+inline ModelFlag& operator|=(ModelFlag& left, ModelFlag right)
+{
+    left = left | right;
+    return left;
+}
+
+inline ModelFlag operator&(ModelFlag left, ModelFlag right)
+{
+    return static_cast<ModelFlag>(static_cast<unsigned>(left) & static_cast<unsigned>(right));
+}
+
+inline bool has_flag(ModelFlag flags, ModelFlag which)
+{
+    return (flags & which) == which;
+}
+
+
 enum class ScanFlag : unsigned
 {
     NONE = 0,

@@ -1308,7 +1308,7 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     r = sanei_genesys_get_address (reg, 0x01);
     r->value |= REG_0x01_SCAN;
     if (has_flag(session.params.flags, ScanFlag::DISABLE_SHADING) ||
-        (dev->model->flags & GENESYS_FLAG_NO_CALIBRATION)) {
+        has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION)) {
         r->value &= ~REG_0x01_DVDSET;
     } else {
         r->value |= REG_0x01_DVDSET;
@@ -1651,10 +1651,10 @@ ScanSession CommandSetGl841::calculate_scan_session(const Genesys_Device* dev,
        mm_to_steps()=motor dpi / 2.54 / 10=motor dpi / MM_PER_INCH
     */
 
-    // if scanner uses GENESYS_FLAG_SEARCH_START y_offset is
+    // if scanner uses ModelFlag::SEARCH_START y_offset is
     // relative from origin, else, it is from parking position
     float move = 0.0f;
-    if (dev->model->flags & GENESYS_FLAG_SEARCH_START) {
+    if (has_flag(dev->model->flags, ModelFlag::SEARCH_START)) {
         move += static_cast<float>(dev->model->y_offset_calib_white);
     }
 
@@ -3465,8 +3465,7 @@ void CommandSetGl841::init(Genesys_Device* dev) const
     sanei_genesys_init_shading_data(dev, sensor, sensor.sensor_pixels);
 
   /* ensure head is correctly parked, and check lock */
-  if (dev->model->flags & GENESYS_FLAG_REPARK)
-    {
+    if (has_flag(dev->model->flags, ModelFlag::REPARK)) {
         // FIXME: if repark fails, we should print an error message that the scanner is locked and
         // the user should unlock the lock. We should also rethrow with SANE_STATUS_JAMMED
         sanei_gl841_repark_head(dev);

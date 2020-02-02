@@ -382,7 +382,7 @@ void sanei_genesys_create_default_gamma_table(Genesys_Device* dev,
     int size = 0;
     int max = 0;
     if (dev->model->asic_type == AsicType::GL646) {
-        if (dev->model->flags & GENESYS_FLAG_14BIT_GAMMA) {
+        if (has_flag(dev->model->flags, ModelFlag::GAMMA_14BIT)) {
             size = 16384;
         } else {
             size = 4096;
@@ -506,7 +506,7 @@ void sanei_genesys_init_shading_data(Genesys_Device* dev, const Genesys_Sensor& 
 {
     DBG_HELPER_ARGS(dbg, "pixels_per_line: %d", pixels_per_line);
 
-    if (dev->model->flags & GENESYS_FLAG_CALIBRATION_HOST_SIDE) {
+    if (has_flag(dev->model->flags, ModelFlag::CALIBRATION_HOST_SIDE)) {
         return;
     }
 
@@ -1668,8 +1668,7 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
   std::vector<uint16_t> calibration_data(size / 2);
 
     bool motor = true;
-  if (dev->model->flags & GENESYS_FLAG_SHADING_NO_MOVE)
-    {
+    if (has_flag(dev->model->flags, ModelFlag::SHADING_NO_MOVE)) {
         motor = false;
     }
 
@@ -1688,7 +1687,7 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
     if (is_dark) {
         // wait some time to let lamp to get dark
         dev->interface->sleep_ms(200);
-    } else if (dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION) {
+    } else if (has_flag(dev->model->flags, ModelFlag::DARK_CALIBRATION)) {
         // make sure lamp is bright again
         // FIXME: what about scanners that take a long time to warm the lamp?
         dev->interface->sleep_ms(500);
@@ -1710,7 +1709,7 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
 
     dev->cmd_set->end_scan(dev, &dev->calib_reg, true);
 
-    if (dev->model->flags & GENESYS_FLAG_16BIT_DATA_INVERTED) {
+    if (has_flag(dev->model->flags, ModelFlag::INVERTED_16BIT_DATA)) {
         for (std::size_t i = 0; i < size / 2; ++i) {
             auto value = calibration_data[i];
             value = ((value >> 8) & 0xff) | ((value << 8) & 0xff00);
@@ -1823,7 +1822,7 @@ static void genesys_dummy_dark_shading(Genesys_Device* dev, const Genesys_Sensor
 static void genesys_repark_sensor_before_shading(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-    if (dev->model->flags & GENESYS_FLAG_SHADING_REPARK) {
+    if (has_flag(dev->model->flags, ModelFlag::SHADING_REPARK)) {
         dev->cmd_set->move_back_home(dev, true);
 
         if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
@@ -1837,7 +1836,7 @@ static void genesys_repark_sensor_before_shading(Genesys_Device* dev)
 static void genesys_repark_sensor_after_white_shading(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-    if (dev->model->flags & GENESYS_FLAG_SHADING_REPARK) {
+    if (has_flag(dev->model->flags, ModelFlag::SHADING_REPARK)) {
         dev->cmd_set->move_back_home(dev, true);
     }
 }
@@ -1882,8 +1881,7 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
   std::vector<uint8_t> calibration_data(size);
 
     bool motor = true;
-  if (dev->model->flags & GENESYS_FLAG_SHADING_NO_MOVE)
-    {
+    if (has_flag(dev->model->flags, ModelFlag::SHADING_NO_MOVE)) {
         motor = false;
     }
 
@@ -2463,7 +2461,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
 {
     DBG_HELPER(dbg);
 
-    if (dev->model->flags & GENESYS_FLAG_CALIBRATION_HOST_SIDE) {
+    if (has_flag(dev->model->flags, ModelFlag::CALIBRATION_HOST_SIDE)) {
         return;
     }
 
@@ -2861,8 +2859,7 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
     }
 
   /* do offset calibration if needed */
-  if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION)
-    {
+    if (has_flag(dev->model->flags, ModelFlag::OFFSET_CALIBRATION)) {
         dev->interface->record_progress_message("offset_calibration");
         dev->cmd_set->offset_calibration(dev, sensor, dev->calib_reg);
 
@@ -2903,7 +2900,7 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
 
 
       /* calibrate afe again to match new exposure */
-      if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION) {
+        if (has_flag(dev->model->flags, ModelFlag::OFFSET_CALIBRATION)) {
             dev->interface->record_progress_message("offset_calibration");
             dev->cmd_set->offset_calibration(dev, sensor, dev->calib_reg);
 
@@ -2922,8 +2919,7 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
     }
 
   /* we always use sensor pixel number when the ASIC can't handle multi-segments sensor */
-  if (!(dev->model->flags & GENESYS_FLAG_SIS_SENSOR))
-    {
+    if (!has_flag(dev->model->flags, ModelFlag::SIS_SENSOR)) {
         pixels_per_line = static_cast<std::uint32_t>((dev->model->x_size * dev->settings.xres) /
                                                      MM_PER_INCH);
     }
@@ -2943,7 +2939,7 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
   }
 
     // shading calibration
-    if (dev->model->flags & GENESYS_FLAG_DARK_WHITE_CALIBRATION) {
+    if (has_flag(dev->model->flags, ModelFlag::DARK_WHITE_CALIBRATION)) {
         dev->interface->record_progress_message("init_regs_for_shading");
         dev->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
 
@@ -2953,7 +2949,7 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
         DBG(DBG_proc, "%s : genesys_dark_shading_calibration dev->calib_reg ", __func__);
         debug_dump(DBG_proc, dev->calib_reg);
 
-        if (dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION) {
+        if (has_flag(dev->model->flags, ModelFlag::DARK_CALIBRATION)) {
             dev->interface->record_progress_message("init_regs_for_shading");
             dev->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
 
@@ -2969,7 +2965,7 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
         genesys_white_shading_calibration(dev, sensor);
         genesys_repark_sensor_after_white_shading(dev);
 
-        if (!(dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION)) {
+        if (!has_flag(dev->model->flags, ModelFlag::DARK_CALIBRATION)) {
             genesys_dummy_dark_shading(dev, sensor);
         }
     }
@@ -3023,8 +3019,7 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
     }
 
   /* calibrate afe */
-  if (dev->model->flags & GENESYS_FLAG_OFFSET_CALIBRATION)
-    {
+    if (has_flag(dev->model->flags, ModelFlag::OFFSET_CALIBRATION)) {
         dev->cmd_set->offset_calibration(dev, sensor, dev->calib_reg);
 
       /* since all the registers are set up correctly, just use them */
@@ -3042,9 +3037,8 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
 
   /* search for a full width black strip and then do a 16 bit scan to
    * gather black shading data */
-  if (dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION)
-    {
-      /* seek black/white reverse/forward */
+    if (has_flag(dev->model->flags, ModelFlag::DARK_CALIBRATION)) {
+        // seek black/white reverse/forward
         try {
             dev->cmd_set->search_strip(dev, sensor, forward, true);
         } catch (...) {
@@ -3086,8 +3080,8 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
 
     // in case we haven't black shading data, build it from black pixels of white calibration
     // FIXME: shouldn't we use genesys_dummy_dark_shading() ?
-    if (!(dev->model->flags & GENESYS_FLAG_DARK_CALIBRATION)) {
-      dev->dark_average_data.clear();
+    if (!has_flag(dev->model->flags, ModelFlag::DARK_CALIBRATION)) {
+        dev->dark_average_data.clear();
         dev->dark_average_data.resize(dev->average_size, 0x0f0f);
       /* XXX STEF XXX
        * with black point in white shading, build an average black
@@ -3266,8 +3260,8 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
 
   /* wait for lamp warmup : until a warmup for TRANSPARENCY is designed, skip
    * it when scanning from XPA. */
-  if (!(dev->model->flags & GENESYS_FLAG_SKIP_WARMUP)
-    && (dev->settings.scan_method == ScanMethod::FLATBED))
+    if (!has_flag(dev->model->flags, ModelFlag::SKIP_WARMUP) &&
+        (dev->settings.scan_method == ScanMethod::FLATBED))
     {
         genesys_warmup_lamp(dev);
     }
@@ -3275,9 +3269,9 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
   /* set top left x and y values by scanning the internals if flatbed scanners */
     if (!dev->model->is_sheetfed) {
       /* do the geometry detection only once */
-      if ((dev->model->flags & GENESYS_FLAG_SEARCH_START)
-      && (dev->model->y_offset_calib_white == 0))
-	{
+        if (has_flag(dev->model->flags, ModelFlag::SEARCH_START) &&
+            (dev->model->y_offset_calib_white == 0))
+        {
         dev->cmd_set->search_start_position (dev);
 
             dev->parking = false;
@@ -3318,7 +3312,7 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
     {
        /* calibration : sheetfed scanners can't calibrate before each scan */
        /* and also those who have the NO_CALIBRATION flag                  */
-        if (!(dev->model->flags & GENESYS_FLAG_NO_CALIBRATION) && !dev->model->is_sheetfed) {
+        if (!has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION) && !dev->model->is_sheetfed) {
             genesys_scanner_calibration(dev, sensor);
           genesys_save_calibration (dev, sensor);
 	}
@@ -3356,7 +3350,7 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
   /* GL124 is using SHDAREA, so we have to wait for scan to be set up before
    * sending shading data */
     if (dev->cmd_set->has_send_shading_data() &&
-        !(dev->model->flags & GENESYS_FLAG_NO_CALIBRATION))
+        !has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION))
     {
         genesys_send_shading_coefficient(dev, sensor);
     }
@@ -3451,7 +3445,7 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
     {
       /* issue park command immediatly in case scanner can handle it
        * so we save time */
-        if (!dev->model->is_sheetfed && !(dev->model->flags & GENESYS_FLAG_MUST_WAIT) &&
+        if (!dev->model->is_sheetfed && !has_flag(dev->model->flags, ModelFlag::MUST_WAIT) &&
             !dev->parking)
         {
             dev->cmd_set->move_back_home(dev, false);
@@ -3643,7 +3637,7 @@ static void calc_parameters(Genesys_Scanner* s)
 
   /* we need an even pixels number
    * TODO invert test logic or generalize behaviour across all ASICs */
-    if ((s->dev->model->flags & GENESYS_FLAG_SIS_SENSOR) ||
+    if (has_flag(s->dev->model->flags, ModelFlag::SIS_SENSOR) ||
         s->dev->model->asic_type == AsicType::GL847 ||
         s->dev->model->asic_type == AsicType::GL124 ||
         s->dev->model->asic_type == AsicType::GL845 ||
@@ -3772,7 +3766,7 @@ static void create_bpp_list (Genesys_Scanner * s, const std::vector<unsigned>& b
 
 /** @brief this function initialize a gamma vector based on the ASIC:
  * Set up a default gamma table vector based on device description
- * gl646: 12 or 14 bits gamma table depending on GENESYS_FLAG_14BIT_GAMMA
+ * gl646: 12 or 14 bits gamma table depending on ModelFlag::GAMMA_14BIT
  * gl84x: 16 bits
  * gl12x: 16 bits
  * @param scanner pointer to scanner session to get options
@@ -3788,8 +3782,7 @@ init_gamma_vector_option (Genesys_Scanner * scanner, int option)
   scanner->opt[option].unit = SANE_UNIT_NONE;
   scanner->opt[option].constraint_type = SANE_CONSTRAINT_RANGE;
     if (scanner->dev->model->asic_type == AsicType::GL646) {
-      if ((scanner->dev->model->flags & GENESYS_FLAG_14BIT_GAMMA) != 0)
-	{
+        if (has_flag(scanner->dev->model->flags, ModelFlag::GAMMA_14BIT)) {
 	  scanner->opt[option].size = 16384 * sizeof (SANE_Word);
 	  scanner->opt[option].constraint.range = &u14_range;
 	}
@@ -4128,8 +4121,7 @@ static void init_options(Genesys_Scanner* s)
   /* currently, there are only gamma table options in this group,
    * so if the scanner doesn't support gamma table, disable the
    * whole group */
-  if (!(model->flags & GENESYS_FLAG_CUSTOM_GAMMA))
-    {
+    if (!has_flag(model->flags, ModelFlag::CUSTOM_GAMMA)) {
       s->opt[OPT_ENHANCEMENT_GROUP].cap |= SANE_CAP_INACTIVE;
       s->opt[OPT_CUSTOM_GAMMA].cap |= SANE_CAP_INACTIVE;
       DBG(DBG_info, "%s: custom gamma disabled\n", __func__);
@@ -4793,8 +4785,8 @@ static void genesys_buffer_image(Genesys_Scanner *s)
    * computing so we can save time
    */
     if (!dev->model->is_sheetfed && !dev->parking) {
-        dev->cmd_set->move_back_home(dev, dev->model->flags & GENESYS_FLAG_MUST_WAIT);
-      dev->parking = !(s->dev->model->flags & GENESYS_FLAG_MUST_WAIT);
+        dev->cmd_set->move_back_home(dev, has_flag(dev->model->flags, ModelFlag::MUST_WAIT));
+        dev->parking = !has_flag(s->dev->model->flags, ModelFlag::MUST_WAIT);
     }
 
   /* in case of dynamic lineart, we have buffered gray data which
@@ -5002,8 +4994,7 @@ static void sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
         throw SaneException("could not find the device to open: %s", devicename);
     }
 
-  if (dev->model->flags & GENESYS_FLAG_UNTESTED)
-    {
+    if (has_flag(dev->model->flags, ModelFlag::UNTESTED)) {
       DBG(DBG_error0, "WARNING: Your scanner is not fully supported or at least \n");
       DBG(DBG_error0, "         had only limited testing. Please be careful and \n");
       DBG(DBG_error0, "         report any failure/success to \n");
@@ -5997,7 +5988,7 @@ void sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_
 
       /* issue park command immediatly in case scanner can handle it
        * so we save time */
-        if (!dev->model->is_sheetfed && !(dev->model->flags & GENESYS_FLAG_MUST_WAIT) &&
+        if (!dev->model->is_sheetfed && !has_flag(dev->model->flags, ModelFlag::MUST_WAIT) &&
             !dev->parking)
         {
             dev->cmd_set->move_back_home(dev, false);
@@ -6097,10 +6088,10 @@ void sane_cancel_impl(SANE_Handle handle)
   /* park head if flatbed scanner */
     if (!s->dev->model->is_sheetfed) {
         if (!s->dev->parking) {
-            s->dev->cmd_set->move_back_home (s->dev, s->dev->model->flags &
-                                                    GENESYS_FLAG_MUST_WAIT);
+            s->dev->cmd_set->move_back_home (s->dev, has_flag(s->dev->model->flags,
+                                                              ModelFlag::MUST_WAIT));
 
-          s->dev->parking = !(s->dev->model->flags & GENESYS_FLAG_MUST_WAIT);
+            s->dev->parking = !has_flag(s->dev->model->flags, ModelFlag::MUST_WAIT);
         }
     }
   else

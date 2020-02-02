@@ -1450,16 +1450,17 @@ genesys_average_black (Genesys_Device * dev, int channel,
 
 // todo: check; it works but the lines 1, 2, and 3 are too dark even with the
 // same offset and gain settings?
-static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sensor)
+static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sensor,
+                                       Genesys_Register_Set& local_reg)
 {
     DBG_HELPER_ARGS(dbg, "scan_mode = %d", static_cast<unsigned>(dev->settings.scan_mode));
 
     // FIXME: remove when updating tests
     dev->interface->record_progress_message("init_regs_for_coarse_calibration");
-    dev->cmd_set->init_regs_for_coarse_calibration(dev, sensor, dev->calib_reg);
+    dev->cmd_set->init_regs_for_coarse_calibration(dev, sensor, local_reg);
 
     if (dev->model->asic_type != AsicType::GL646) {
-        dev->interface->write_registers(dev->calib_reg);
+        dev->interface->write_registers(local_reg);
     }
 
     // FIXME: remove when updating tests
@@ -1577,11 +1578,11 @@ static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sens
           dev->frontend.get_offset(2));
 
 
-        dev->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, false);
+        dev->cmd_set->begin_scan(dev, sensor, &local_reg, false);
 
         if (is_testing_mode()) {
             dev->interface->test_checkpoint("coarse_calibration");
-            dev->cmd_set->end_scan(dev, &dev->calib_reg, true);
+            dev->cmd_set->end_scan(dev, &local_reg, true);
             return;
         }
 
@@ -1598,7 +1599,7 @@ static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sens
         sanei_genesys_write_pnm_file("gl_coarse.pnm", all_data_8.data(), 8, channels, size / 6, 4);
 	}
 
-        dev->cmd_set->end_scan(dev, &dev->calib_reg, true);
+        dev->cmd_set->end_scan(dev, &local_reg, true);
 
       if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
 	{
@@ -2916,7 +2917,7 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
 
         // FIXME: enable when updating tests
         // dev->interface->record_progress_message("genesys_coarse_calibration");
-        genesys_coarse_calibration(dev, sensor);
+        genesys_coarse_calibration(dev, sensor, dev->calib_reg);
     }
 
   if (dev->model->is_cis)
@@ -2956,7 +2957,7 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
 
             // FIXME: enable when updating tests
             // dev->interface->record_progress_message("genesys_coarse_calibration");
-            genesys_coarse_calibration(dev, sensor);
+            genesys_coarse_calibration(dev, sensor, dev->calib_reg);
         }
     }
 
@@ -3065,7 +3066,7 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
         dev->cmd_set->coarse_gain_calibration(dev, sensor, dev->calib_reg, sensor.optical_res);
     } else {
         // since we have 2 gain calibration proc, skip second if first one was used
-        genesys_coarse_calibration(dev, sensor);
+        genesys_coarse_calibration(dev, sensor, dev->calib_reg);
     }
 
   /* search for a full width black strip and then do a 16 bit scan to

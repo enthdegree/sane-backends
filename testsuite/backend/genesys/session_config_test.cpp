@@ -143,7 +143,7 @@ public:
         auto i = find_option(name, SANE_TYPE_FIXED);
         int value = 0;
         TIE(sane_control_option(handle_, i, SANE_ACTION_GET_VALUE, &value, nullptr));
-        return static_cast<float>(SANE_UNFIX(value));
+        return genesys::fixed_to_float(value);
     }
 
     void set_value_float(const std::string& name, float value)

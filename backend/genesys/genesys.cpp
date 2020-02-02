@@ -1652,7 +1652,9 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
     }
     dev->cmd_set->init_regs_for_shading(dev, sensor, local_reg);
 
-    if (dev->model->asic_type != AsicType::GL646) {
+    if (dev->model->asic_type == AsicType::GL646) {
+        local_reg = dev->reg;
+    } else {
         dev->interface->write_registers(local_reg);
     }
 
@@ -1896,7 +1898,9 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
 
     dev->cmd_set->init_regs_for_shading(dev, sensor, local_reg);
 
-    if (dev->model->asic_type != AsicType::GL646) {
+    if (dev->model->asic_type == AsicType::GL646) {
+        local_reg = dev->reg;
+    } else {
         dev->interface->write_registers(local_reg);
     }
 

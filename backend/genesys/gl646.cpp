@@ -1729,9 +1729,6 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
         dev->reg.set24(REG_LINCNT, dev->calib_lines * 3);
     }
 
-  /* copy reg to calib_reg */
-  dev->calib_reg = dev->reg;
-
   DBG(DBG_info, "%s:\n\tdev->settings.xres=%d\n\tdev->settings.yres=%d\n", __func__,
       dev->settings.xres, dev->settings.yres);
 }

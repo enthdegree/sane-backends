@@ -60,9 +60,9 @@ struct Genesys_Settings
     unsigned yres = 0;
 
     //x start on scan table in mm
-    double tl_x = 0;
+    float tl_x = 0;
     // y start on scan table in mm
-    double tl_y = 0;
+    float tl_y = 0;
 
     // number of lines at scan resolution
     unsigned int lines = 0;

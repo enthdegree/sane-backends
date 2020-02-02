@@ -1682,6 +1682,19 @@ void CommandSetGl843::init_regs_for_coarse_calibration(Genesys_Device* dev,
     dev->interface->write_registers(regs);
 }
 
+static bool should_calibrate_only_active_area(const Genesys_Device& dev,
+                                              const Genesys_Settings& settings)
+{
+    if (settings.scan_method == ScanMethod::TRANSPARENCY ||
+        settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+    {
+        if (dev.model->model_id == ModelId::CANON_8600F && settings.xres == 4800) {
+            return true;
+        }
+    }
+    return false;
+}
+
 // init registers for shading calibration shading calibration is done at dpihw
 void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                             Genesys_Register_Set& regs) const
@@ -1709,18 +1722,14 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, dev->calib_channels,
                                                        dev->settings.scan_method);
 
-    if ((dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
-         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED) &&
-        dev->model->model_id == ModelId::CANON_8600F &&
-        dev->settings.xres == 4800)
-    {
+    if (should_calibrate_only_active_area(*dev, dev->settings)) {
         float offset = static_cast<float>(get_model_x_offset_ta(*dev, dev->settings));
         offset /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
-        offset = static_cast<float>((offset * calib_sensor.optical_res) / MM_PER_INCH);
+        offset = static_cast<float>((offset * resolution) / MM_PER_INCH);
 
         float size = static_cast<float>(dev->model->x_size_ta);
         size /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
-        size = static_cast<float>((size * calib_sensor.optical_res) / MM_PER_INCH);
+        size = static_cast<float>((size * resolution) / MM_PER_INCH);
 
         dev->calib_pixels_offset = static_cast<std::size_t>(offset);
         dev->calib_pixels = static_cast<std::size_t>(size);
@@ -2042,18 +2051,14 @@ void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sens
   int start_pixel = 0;
   black_pixels = calib_sensor.black_pixels / factor;
 
-    if ((dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
-         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED) &&
-        dev->model->model_id == ModelId::CANON_8600F &&
-        dev->settings.xres == 4800)
-    {
-        start_pixel = static_cast<int>(get_model_x_offset_ta(*dev, dev->settings));
-        start_pixel /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
-        start_pixel = static_cast<int>((start_pixel * calib_sensor.optical_res) / MM_PER_INCH);
+    if (should_calibrate_only_active_area(*dev, dev->settings)) {
+        float offset = get_model_x_offset_ta(*dev, dev->settings);
+        offset /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
+        start_pixel = static_cast<int>((offset * resolution) / MM_PER_INCH);
 
-        target_pixels = static_cast<int>(dev->model->x_size_ta);
-        target_pixels /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
-        target_pixels = static_cast<int>((target_pixels * calib_sensor.optical_res) / MM_PER_INCH);
+        float size = dev->model->x_size_ta;
+        size /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
+        target_pixels = static_cast<int>((size * resolution) / MM_PER_INCH);
     }
 
     ScanFlag flags = ScanFlag::DISABLE_SHADING |

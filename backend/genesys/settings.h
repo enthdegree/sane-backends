@@ -320,6 +320,8 @@ struct ScanSession {
             throw std::runtime_error("ScanSession is not computed");
         }
     }
+
+    bool operator==(const ScanSession& other) const;
 };
 
 std::ostream& operator<<(std::ostream& out, const ScanSession& session);

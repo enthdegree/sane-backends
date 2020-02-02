@@ -3384,7 +3384,7 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
         dev->cmd_set->move_to_ta(dev);
     }
 
-    dev->cmd_set->init_regs_for_scan(dev, sensor);
+    dev->cmd_set->init_regs_for_scan(dev, sensor, dev->reg);
 
   /* no lamp during scan */
     if (lamp_off) {

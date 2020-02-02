@@ -1259,7 +1259,8 @@ void CommandSetGl124::wait_for_motor_stop(Genesys_Device* dev) const
 
 /** @brief set up registers for the actual scan
  */
-void CommandSetGl124::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const
+void CommandSetGl124::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                         Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
   float move;
@@ -1304,7 +1305,7 @@ void CommandSetGl124::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     session.params.flags = ScanFlag::NONE;
     compute_session(dev, session, sensor);
 
-    init_regs_for_scan_session(dev, sensor, &dev->reg, session);
+    init_regs_for_scan_session(dev, sensor, &regs, session);
 }
 
 /**

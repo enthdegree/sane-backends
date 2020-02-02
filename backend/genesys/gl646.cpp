@@ -1744,7 +1744,8 @@ bool CommandSetGl646::needs_home_before_init_regs_for_scan(Genesys_Device* dev) 
  * set up registers for the actual scan. The scan's parameters are given
  * through the device settings. It allocates the scan buffers.
  */
-void CommandSetGl646::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const
+void CommandSetGl646::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                         Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
 
@@ -1752,11 +1753,11 @@ void CommandSetGl646::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
 
     ScanSession session = calculate_scan_session(dev, sensor, dev->settings);
 
-    init_regs_for_scan_session(dev, sensor, &dev->reg, session);
+    init_regs_for_scan_session(dev, sensor, &regs, session);
 
   /* gamma is only enabled at final scan time */
     if (dev->settings.depth < 16) {
-        dev->reg.find_reg(0x05).value |= REG_0x05_GMMENB;
+        regs.find_reg(0x05).value |= REG_0x05_GMMENB;
     }
 }
 

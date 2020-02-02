@@ -1883,17 +1883,18 @@ static void genesys_white_shading_calibration(Genesys_Device* dev, const Genesys
 // This calibration uses a scan over the calibration target, comprising a black and a white strip.
 // (So the motor must be on.)
 static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
-                                                   const Genesys_Sensor& sensor)
+                                                   const Genesys_Sensor& sensor,
+                                                   Genesys_Register_Set& local_reg)
 {
     DBG_HELPER_ARGS(dbg, "lines = %zu", dev->calib_lines);
 
     // FIXME: remove when updating tests
     dev->interface->record_progress_message("init_regs_for_shading");
 
-    dev->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
+    dev->cmd_set->init_regs_for_shading(dev, sensor, local_reg);
 
     if (dev->model->asic_type != AsicType::GL646) {
-        dev->interface->write_registers(dev->calib_reg);
+        dev->interface->write_registers(local_reg);
     }
 
     // FIXME: remove when updating tests
@@ -1932,22 +1933,22 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
     }
 
     // turn on motor and lamp power
-    sanei_genesys_set_lamp_power(dev, sensor, dev->calib_reg, true);
-    sanei_genesys_set_motor_power(dev->calib_reg, motor);
+    sanei_genesys_set_lamp_power(dev, sensor, local_reg, true);
+    sanei_genesys_set_motor_power(local_reg, motor);
 
-    dev->interface->write_registers(dev->calib_reg);
+    dev->interface->write_registers(local_reg);
 
-    dev->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, false);
+    dev->cmd_set->begin_scan(dev, sensor, &local_reg, false);
 
     if (is_testing_mode()) {
         dev->interface->test_checkpoint("dark_white_shading_calibration");
-        dev->cmd_set->end_scan(dev, &dev->calib_reg, true);
+        dev->cmd_set->end_scan(dev, &local_reg, true);
         return;
     }
 
     sanei_genesys_read_data_from_scanner(dev, calibration_data.data(), size);
 
-    dev->cmd_set->end_scan(dev, &dev->calib_reg, true);
+    dev->cmd_set->end_scan(dev, &local_reg, true);
 
   if (DBG_LEVEL >= DBG_data)
     {
@@ -2985,7 +2986,7 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
     if (has_flag(dev->model->flags, ModelFlag::DARK_WHITE_CALIBRATION)) {
         // FIXME: enable when updating tests
         // dev->interface->record_progress_message("genesys_dark_white_shading_calibration");
-        genesys_dark_white_shading_calibration(dev, sensor);
+        genesys_dark_white_shading_calibration(dev, sensor, dev->calib_reg);
     } else {
         DBG(DBG_proc, "%s : genesys_dark_shading_calibration dev->calib_reg ", __func__);
         debug_dump(DBG_proc, dev->calib_reg);

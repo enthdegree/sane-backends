@@ -50,7 +50,30 @@
 #include <sstream>
 #include <vector>
 
+
 namespace genesys {
+
+// just like SANE_FIX and SANE_UNFIX except that the conversion is done by a function and argument
+// precision is handled correctly
+inline SANE_Word double_to_fixed(double v)
+{
+    return static_cast<SANE_Word>(v * (1 << SANE_FIXED_SCALE_SHIFT));
+}
+
+inline SANE_Word float_to_fixed(float v)
+{
+    return static_cast<SANE_Word>(v * (1 << SANE_FIXED_SCALE_SHIFT));
+}
+
+inline float fixed_to_float(SANE_Word v)
+{
+    return static_cast<float>(v) / (1 << SANE_FIXED_SCALE_SHIFT);
+}
+
+inline double fixed_to_double(SANE_Word v)
+{
+    return static_cast<double>(v) / (1 << SANE_FIXED_SCALE_SHIFT);
+}
 
 template<class T>
 void compute_array_percentile_approx(T* result, const T* data,

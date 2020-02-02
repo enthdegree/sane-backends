@@ -55,6 +55,7 @@
 #include "register.h"
 #include "usb_device.h"
 #include "scanner_interface.h"
+#include "utilities.h"
 #include <vector>
 
 namespace genesys {
@@ -83,13 +84,13 @@ class FixedFloat
 public:
     FixedFloat() = default;
     FixedFloat(const FixedFloat&) = default;
-    FixedFloat(double number) : value_{SANE_FIX(number)} {}
+    FixedFloat(double number) : value_{double_to_fixed(number)} {}
     FixedFloat& operator=(const FixedFloat&) = default;
-    FixedFloat& operator=(double number) { value_ = SANE_FIX(number); return *this; }
+    FixedFloat& operator=(double number) { value_ = double_to_fixed(number); return *this; }
 
     operator double() const { return value(); }
 
-    double value() const { return SANE_UNFIX(value_); }
+    double value() const { return fixed_to_double(value_); }
 
 private:
     SANE_Fixed value_ = 0;

@@ -2436,9 +2436,6 @@ void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   SANE_Int ydpi;
     unsigned starty = 0;
 
-  /* initial calibration reg values */
-  regs = dev->reg;
-
   ydpi = dev->motor.base_ydpi;
   if (dev->model->motor_id == MotorId::PLUSTEK_OPTICPRO_3600)  /* TODO PLUSTEK_3600: 1200dpi not yet working, produces dark bar */
     {

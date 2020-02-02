@@ -1178,9 +1178,6 @@ void CommandSetGl124::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     DBG_HELPER(dbg);
   int move, resolution, dpihw, factor;
 
-  /* initial calibration reg values */
-  regs = dev->reg;
-
   dev->calib_channels = 3;
   dev->calib_lines = dev->model->shading_lines;
     dpihw = sensor.get_register_hwdpi(dev->settings.xres);

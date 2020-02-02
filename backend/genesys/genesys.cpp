@@ -1650,11 +1650,13 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
     if (shading_progress_msg) { // FIXME: remove when updating tests
         dev->interface->record_progress_message(shading_progress_msg);
     }
-    dev->cmd_set->init_regs_for_shading(dev, sensor, local_reg);
 
     if (dev->model->asic_type == AsicType::GL646) {
+        dev->cmd_set->init_regs_for_shading(dev, sensor, local_reg);
         local_reg = dev->reg;
     } else {
+        local_reg = dev->reg;
+        dev->cmd_set->init_regs_for_shading(dev, sensor, local_reg);
         dev->interface->write_registers(local_reg);
     }
 
@@ -1896,11 +1898,12 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
     // FIXME: remove when updating tests
     dev->interface->record_progress_message("init_regs_for_shading");
 
-    dev->cmd_set->init_regs_for_shading(dev, sensor, local_reg);
-
     if (dev->model->asic_type == AsicType::GL646) {
+        dev->cmd_set->init_regs_for_shading(dev, sensor, local_reg);
         local_reg = dev->reg;
     } else {
+        local_reg = dev->reg;
+        dev->cmd_set->init_regs_for_shading(dev, sensor, local_reg);
         dev->interface->write_registers(local_reg);
     }
 

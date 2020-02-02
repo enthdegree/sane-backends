@@ -960,9 +960,6 @@ void CommandSetGl846::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 
   dev->calib_channels = 3;
 
-  /* initial calibration reg values */
-  regs = dev->reg;
-
     dev->calib_resolution = sensor.get_register_hwdpi(dev->settings.xres);
 
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, dev->calib_resolution,

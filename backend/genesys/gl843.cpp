@@ -1715,6 +1715,9 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, dev->calib_channels,
                                                        dev->settings.scan_method);
 
+    unsigned calib_pixels = 0;
+    unsigned calib_pixels_offset = 0;
+
     if (should_calibrate_only_active_area(*dev, dev->settings)) {
         float offset = get_model_x_offset_ta(*dev, dev->settings);
         offset /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
@@ -1724,13 +1727,11 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
         size /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
         size = static_cast<float>((size * resolution) / MM_PER_INCH);
 
-        dev->calib_pixels_offset = static_cast<std::size_t>(offset);
-        dev->calib_pixels = static_cast<std::size_t>(size);
-    }
-    else
-    {
-        dev->calib_pixels_offset = 0;
-        dev->calib_pixels = calib_sensor.sensor_pixels / factor;
+        calib_pixels_offset = static_cast<std::size_t>(offset);
+        calib_pixels = static_cast<std::size_t>(size);
+    } else {
+        calib_pixels_offset = 0;
+        calib_pixels = calib_sensor.sensor_pixels / factor;
     }
 
   dev->calib_resolution = resolution;
@@ -1756,9 +1757,9 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     ScanSession session;
     session.params.xres = resolution;
     session.params.yres = resolution;
-    session.params.startx = dev->calib_pixels_offset;
+    session.params.startx = calib_pixels_offset;
     session.params.starty = move;
-    session.params.pixels = dev->calib_pixels;
+    session.params.pixels = calib_pixels;
     session.params.lines = dev->calib_lines;
     session.params.depth = 16;
     session.params.channels = dev->calib_channels;
@@ -1769,9 +1770,6 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     compute_session(dev, session, calib_sensor);
 
     init_regs_for_scan_session(dev, calib_sensor, &regs, session);
-
-     // the pixel number may be updated to conform to scanner constraints
-    dev->calib_pixels = session.output_pixels;
 
     dev->calib_session = session;
     dev->calib_total_bytes_to_read = session.output_total_bytes_raw;

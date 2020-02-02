@@ -1709,7 +1709,6 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
                                         true, false, false, false);
 
   /* used when sending shading calibration data */
-  dev->calib_pixels = settings.pixels;
     dev->calib_channels = dev->session.params.channels;
     if (!dev->model->is_cis) {
       dev->calib_channels = 3;

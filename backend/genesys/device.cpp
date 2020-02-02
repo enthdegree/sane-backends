@@ -239,13 +239,11 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev)
         << static_cast<unsigned>(dev.control[4]) << ' '
         << static_cast<unsigned>(dev.control[5]) << '\n' << std::dec
         << "    average_size: " << dev.average_size << '\n'
-        << "    calib_pixels: " << dev.calib_pixels << '\n'
         << "    calib_lines: " << dev.calib_lines << '\n'
         << "    calib_channels: " << dev.calib_channels << '\n'
         << "    calib_resolution: " << dev.calib_resolution << '\n'
         << "    calib_total_bytes_to_read: " << dev.calib_total_bytes_to_read << '\n'
         << "    calib_session: " << format_indent_braced_list(4, dev.calib_session) << '\n'
-        << "    calib_pixels_offset: " << dev.calib_pixels_offset << '\n'
         << "    gamma_override_tables[0].size(): " << dev.gamma_override_tables[0].size() << '\n'
         << "    gamma_override_tables[1].size(): " << dev.gamma_override_tables[1].size() << '\n'
         << "    gamma_override_tables[2].size(): " << dev.gamma_override_tables[2].size() << '\n'

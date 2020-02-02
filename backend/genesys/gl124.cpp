@@ -1198,7 +1198,6 @@ void CommandSetGl124::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   dev->calib_resolution = resolution;
   dev->calib_total_bytes_to_read = 0;
     factor = calib_sensor.optical_res / resolution;
-    dev->calib_pixels = calib_sensor.sensor_pixels / factor;
 
   /* distance to move to reach white target at high resolution */
   move=0;
@@ -1213,7 +1212,7 @@ void CommandSetGl124::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     session.params.yres = resolution;
     session.params.startx = 0;
     session.params.starty = move;
-    session.params.pixels = dev->calib_pixels;
+    session.params.pixels = calib_sensor.sensor_pixels / factor;
     session.params.lines = dev->calib_lines;
     session.params.depth = 16;
     session.params.channels = dev->calib_channels;
@@ -1665,7 +1664,6 @@ void CommandSetGl124::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
   /* offset calibration is always done in color mode */
   channels = 3;
-  dev->calib_pixels = sensor.sensor_pixels;
   lines=1;
     pixels = (sensor.sensor_pixels * sensor.optical_res) / sensor.optical_res;
     black_pixels = (sensor.black_pixels * sensor.optical_res) / sensor.optical_res;

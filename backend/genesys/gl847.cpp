@@ -978,18 +978,18 @@ void CommandSetGl847::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     if (dev->calib_resolution == 4800) {
         dev->calib_lines *= 2;
     }
-    dev->calib_pixels = (calib_sensor.sensor_pixels * dev->calib_resolution) /
-                        calib_sensor.optical_res;
+    unsigned calib_pixels = (calib_sensor.sensor_pixels * dev->calib_resolution) /
+                             calib_sensor.optical_res;
 
     DBG(DBG_io, "%s: calib_lines  = %zu\n", __func__, dev->calib_lines);
-    DBG(DBG_io, "%s: calib_pixels = %zu\n", __func__, dev->calib_pixels);
+    DBG(DBG_io, "%s: calib_pixels = %u\n", __func__, calib_pixels);
 
     ScanSession session;
     session.params.xres = dev->calib_resolution;
     session.params.yres = dev->motor.base_ydpi;
     session.params.startx = 0;
     session.params.starty = 20;
-    session.params.pixels = dev->calib_pixels;
+    session.params.pixels = calib_pixels;
     session.params.lines = dev->calib_lines;
     session.params.depth = 16;
     session.params.channels = dev->calib_channels;
@@ -1769,7 +1769,6 @@ void CommandSetGl847::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
   /* offset calibration is always done in color mode */
   channels = 3;
-  dev->calib_pixels = sensor.sensor_pixels;
   lines=1;
     pixels= (sensor.sensor_pixels * sensor.optical_res) / sensor.optical_res;
     black_pixels = (sensor.black_pixels * sensor.optical_res) / sensor.optical_res;

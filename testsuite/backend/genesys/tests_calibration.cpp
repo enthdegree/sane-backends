@@ -104,7 +104,6 @@ Genesys_Calibration_Cache create_fake_calibration_entry()
     sensor.gamma = {1.0, 1.0, 1.0};
     calib.sensor = sensor;
 
-    calib.calib_pixels = 12345;
     calib.calib_channels = 3;
     calib.average_size = 7;
     calib.white_average_data = { 8, 7, 6, 5, 4, 3, 2 };

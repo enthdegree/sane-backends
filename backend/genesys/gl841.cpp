@@ -2464,14 +2464,12 @@ void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, dev->calib_channels,
                                                          dev->settings.scan_method);
 
-    dev->calib_pixels = calib_sensor.sensor_pixels / factor;
-
     ScanSession session;
     session.params.xres = resolution;
     session.params.yres = ydpi;
     session.params.startx = 0;
     session.params.starty = starty;
-    session.params.pixels = dev->calib_pixels;
+    session.params.pixels = calib_sensor.sensor_pixels / factor;
     session.params.lines = dev->calib_lines;
     session.params.depth = 16;
     session.params.channels = dev->calib_channels;

@@ -269,8 +269,6 @@ struct Genesys_Device
     std::uint8_t control[6] = {};
 
     size_t average_size = 0;
-    // number of pixels used during shading calibration
-    size_t calib_pixels = 0;
     // number of lines used during shading calibration
     size_t calib_lines = 0;
     size_t calib_channels = 0;
@@ -280,11 +278,6 @@ struct Genesys_Device
 
     // the session that was configured for calibration
     ScanSession calib_session;
-
-    // certain scanners support much higher resolution when scanning transparency, but we can't
-    // read whole width of the scanner as a single line at that resolution. Thus for stuff like
-    // calibration we want to read only the possible calibration area.
-    size_t calib_pixels_offset = 0;
 
     // gamma overrides. If a respective array is not empty then it means that the gamma for that
     // color is overridden.

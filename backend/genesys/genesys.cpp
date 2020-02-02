@@ -1639,6 +1639,7 @@ static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sens
  * @param dev scanner's device
  */
 static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                             Genesys_Register_Set& local_reg,
                                              std::vector<std::uint16_t>& out_average_data,
                                              bool is_dark, const std::string& log_filename_prefix,
                                              const char* shading_progress_msg,
@@ -1649,10 +1650,10 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
     if (shading_progress_msg) { // FIXME: remove when updating tests
         dev->interface->record_progress_message(shading_progress_msg);
     }
-    dev->cmd_set->init_regs_for_shading(dev, sensor, dev->calib_reg);
+    dev->cmd_set->init_regs_for_shading(dev, sensor, local_reg);
 
     if (dev->model->asic_type != AsicType::GL646) {
-        dev->interface->write_registers(dev->calib_reg);
+        dev->interface->write_registers(local_reg);
     }
 
     if (function_progress_msg) { // FIXME: remove when updating tests
@@ -1702,14 +1703,14 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
     // turn off motor and lamp power for flatbed scanners, but not for sheetfed scanners
     // because they have a calibration sheet with a sufficient black strip
     if (is_dark && !dev->model->is_sheetfed) {
-        sanei_genesys_set_lamp_power(dev, sensor, dev->calib_reg, false);
-        sanei_genesys_set_motor_power(dev->calib_reg, motor);
+        sanei_genesys_set_lamp_power(dev, sensor, local_reg, false);
+        sanei_genesys_set_motor_power(local_reg, motor);
     } else {
-        sanei_genesys_set_lamp_power(dev, sensor, dev->calib_reg, true);
-        sanei_genesys_set_motor_power(dev->calib_reg, motor);
+        sanei_genesys_set_lamp_power(dev, sensor, local_reg, true);
+        sanei_genesys_set_motor_power(local_reg, motor);
     }
 
-    dev->interface->write_registers(dev->calib_reg);
+    dev->interface->write_registers(local_reg);
 
     if (is_dark) {
         // wait some time to let lamp to get dark
@@ -1721,20 +1722,20 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
     }
 
     bool start_motor = !is_dark;
-    dev->cmd_set->begin_scan(dev, sensor, &dev->calib_reg, start_motor);
+    dev->cmd_set->begin_scan(dev, sensor, &local_reg, start_motor);
 
 
     if (is_testing_mode()) {
         dev->interface->test_checkpoint(is_dark ? "dark_shading_calibration"
                                                 : "white_shading_calibration");
-        dev->cmd_set->end_scan(dev, &dev->calib_reg, true);
+        dev->cmd_set->end_scan(dev, &local_reg, true);
         return;
     }
 
     sanei_genesys_read_data_from_scanner(dev, reinterpret_cast<std::uint8_t*>(calibration_data.data()),
                                          size);
 
-    dev->cmd_set->end_scan(dev, &dev->calib_reg, true);
+    dev->cmd_set->end_scan(dev, &local_reg, true);
 
     if (has_flag(dev->model->flags, ModelFlag::INVERTED_16BIT_DATA)) {
         for (std::size_t i = 0; i < size / 2; ++i) {
@@ -1764,11 +1765,12 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
 
 
 static void genesys_dark_shading_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                             Genesys_Register_Set& local_reg,
                                              const char* shading_progress_msg,
                                              const char* function_progress_msg)
 {
     DBG_HELPER(dbg);
-    genesys_shading_calibration_impl(dev, sensor, dev->dark_average_data, true, "gl_black_",
+    genesys_shading_calibration_impl(dev, sensor, local_reg, dev->dark_average_data, true, "gl_black_",
                                      shading_progress_msg, function_progress_msg);
 }
 /*
@@ -1872,11 +1874,12 @@ static void genesys_repark_sensor_after_white_shading(Genesys_Device* dev)
 }
 
 static void genesys_white_shading_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                              Genesys_Register_Set& local_reg,
                                               const char* shading_progress_msg,
                                               const char* function_progress_msg)
 {
     DBG_HELPER(dbg);
-    genesys_shading_calibration_impl(dev, sensor, dev->white_average_data, false, "gl_white_",
+    genesys_shading_calibration_impl(dev, sensor, local_reg, dev->white_average_data, false, "gl_white_",
                                      shading_progress_msg, function_progress_msg);
 }
 
@@ -2994,14 +2997,14 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
         if (has_flag(dev->model->flags, ModelFlag::DARK_CALIBRATION)) {
             // FIXME: enable when updating tests
             // dev->interface->record_progress_message("genesys_dark_shading_calibration");
-            genesys_dark_shading_calibration(dev, sensor, "init_regs_for_shading",
+            genesys_dark_shading_calibration(dev, sensor, dev->calib_reg, "init_regs_for_shading",
                                              "genesys_dark_shading_calibration");
             genesys_repark_sensor_before_shading(dev);
         }
 
         // FIXME: enable when updating tests
         // dev->interface->record_progress_message("genesys_white_shading_calibration");
-        genesys_white_shading_calibration(dev, sensor, "init_regs_for_shading2",
+        genesys_white_shading_calibration(dev, sensor, dev->calib_reg, "init_regs_for_shading2",
                                           "genesys_white_shading_calibration");
         genesys_repark_sensor_after_white_shading(dev);
 
@@ -3082,7 +3085,7 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
         }
 
         try {
-            genesys_dark_shading_calibration(dev, sensor, nullptr, nullptr);
+            genesys_dark_shading_calibration(dev, sensor, dev->calib_reg, nullptr, nullptr);
         } catch (...) {
             catch_all_exceptions(__func__, [&](){ dev->cmd_set->eject_document(dev); });
             throw;
@@ -3102,7 +3105,7 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
   genesys_repark_sensor_before_shading(dev);
 
     try {
-        genesys_white_shading_calibration(dev, sensor, nullptr, nullptr);
+        genesys_white_shading_calibration(dev, sensor, dev->calib_reg, nullptr, nullptr);
         genesys_repark_sensor_after_white_shading(dev);
     } catch (...) {
         catch_all_exceptions(__func__, [&](){ dev->cmd_set->eject_document(dev); });

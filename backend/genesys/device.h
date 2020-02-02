@@ -206,9 +206,15 @@ struct Genesys_Model
     // how many lines are used to search start position
     SANE_Int search_lines = 0;
 
+    // returns nullptr if method is not supported
+    const MethodResolutions* get_resolution_settings_ptr(ScanMethod method) const;
+
+    // throws if method is not supported
     const MethodResolutions& get_resolution_settings(ScanMethod method) const;
 
     std::vector<unsigned> get_resolutions(ScanMethod method) const;
+
+    bool has_method(ScanMethod method) const;
 };
 
 /**

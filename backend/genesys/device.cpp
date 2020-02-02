@@ -62,15 +62,24 @@ std::vector<unsigned> MethodResolutions::get_resolutions() const
     return ret;
 }
 
-const MethodResolutions& Genesys_Model::get_resolution_settings(ScanMethod method) const
+const MethodResolutions* Genesys_Model::get_resolution_settings_ptr(ScanMethod method) const
 {
     for (const auto& res_for_method : resolutions) {
         for (auto res_method : res_for_method.methods) {
             if (res_method == method) {
-                return res_for_method;
+                return &res_for_method;
             }
         }
     }
+    return nullptr;
+
+}
+const MethodResolutions& Genesys_Model::get_resolution_settings(ScanMethod method) const
+{
+    const auto* ptr = get_resolution_settings_ptr(method);
+    if (ptr)
+        return *ptr;
+
     throw SaneException("Could not find resolution settings for method %d",
                         static_cast<unsigned>(method));
 }
@@ -79,6 +88,12 @@ std::vector<unsigned> Genesys_Model::get_resolutions(ScanMethod method) const
 {
     return get_resolution_settings(method).get_resolutions();
 }
+
+bool Genesys_Model::has_method(ScanMethod method) const
+{
+    return get_resolution_settings_ptr(method) != nullptr;
+}
+
 
 Genesys_Device::~Genesys_Device()
 {

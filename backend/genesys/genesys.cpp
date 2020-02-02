@@ -1942,6 +1942,8 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
     if (dev->model->asic_type == AsicType::GL843) {
         size = dev->calib_session.output_total_bytes_raw;
     } else {
+        // FIXME: on GL841 this is different than dev->calib_session.output_total_bytes_raw,
+        // needs checking
         size = channels * 2 * pixels_per_line * dev->calib_session.params.lines;
     }
 

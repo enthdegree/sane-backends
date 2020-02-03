@@ -546,7 +546,7 @@ Image read_unshuffled_image_from_scanner(Genesys_Device* dev, const ScanSession&
     }
 
 #ifdef WORDS_BIGENDIAN
-    if (depth == 16) {
+    if (session.params.depth == 16) {
         pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
     }
 #endif

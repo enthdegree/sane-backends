@@ -392,11 +392,11 @@ init_options(SANE_String_Const name, escl_sane_t *s)
         s->opt[i].size = sizeof (SANE_Word);
         s->opt[i].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     }
-    s->x_range.min = pixels_to_milimeters(s->scanner->MinWidth);
-    s->x_range.max = pixels_to_milimeters(s->scanner->MaxWidth);
+    s->x_range.min = PIXEL_TO_MM(s->scanner->MinWidth, 300.0);
+    s->x_range.max = PIXEL_TO_MM(s->scanner->MaxWidth, 300.0);
     s->x_range.quant = 0;
-    s->y_range.min = pixels_to_milimeters(s->scanner->MinHeight);
-    s->y_range.max = pixels_to_milimeters(s->scanner->MaxHeight);
+    s->y_range.min = PIXEL_TO_MM(s->scanner->MinHeight, 300.0);
+    s->y_range.max = PIXEL_TO_MM(s->scanner->MaxHeight, 300.0);
     s->y_range.quant = 0;
     s->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
     s->opt[OPT_NUM_OPTS].desc = SANE_DESC_NUM_OPTIONS;
@@ -538,8 +538,8 @@ sane_open(SANE_String_Const name, SANE_Handle *h)
     handler->ps.depth = 8;
     handler->ps.last_frame = SANE_TRUE;
     handler->ps.format = SANE_FRAME_RGB;
-    handler->ps.pixels_per_line = milimeters_to_pixels(handler->val[OPT_BR_X].w);
-    handler->ps.lines = milimeters_to_pixels(handler->val[OPT_BR_Y].w);
+    handler->ps.pixels_per_line = MM_TO_PIXEL(handler->val[OPT_BR_X].w, 300.0);
+    handler->ps.lines = MM_TO_PIXEL(handler->val[OPT_BR_Y].w, 300.0);
     handler->ps.bytes_per_line = handler->ps.pixels_per_line * 3;
     status = sane_get_parameters(handler, 0);
     if (status != SANE_STATUS_GOOD)
@@ -734,10 +734,10 @@ sane_start(SANE_Handle h)
     else
        handler->scanner->default_color = strdup("RGB24");
     }
-    handler->scanner->height = milimeters_to_pixels(handler->val[OPT_BR_Y].w);
-    handler->scanner->width = milimeters_to_pixels(handler->val[OPT_BR_X].w);
-    handler->scanner->pos_x = milimeters_to_pixels(handler->val[OPT_TL_X].w);
-    handler->scanner->pos_y = milimeters_to_pixels(handler->val[OPT_TL_Y].w);
+    handler->scanner->height = MM_TO_PIXEL(handler->val[OPT_BR_Y].w, 300.0);
+    handler->scanner->width = MM_TO_PIXEL(handler->val[OPT_BR_X].w, 300.0);
+    handler->scanner->pos_x = MM_TO_PIXEL(handler->val[OPT_TL_X].w, 300.0);
+    handler->scanner->pos_y = MM_TO_PIXEL(handler->val[OPT_TL_Y].w, 300.0);
     DBG(10, "Calculate Size Image [%dx%d|%dx%d]\n",
              handler->scanner->pos_x,
              handler->scanner->pos_y,

@@ -1,4 +1,4 @@
-.TH sane\-fujitsu 5 "08 Apr 2017" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane\-fujitsu 5 "07 Feb 2020" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-fujitsu
 
 .SH NAME
@@ -10,7 +10,7 @@ The
 library implements a SANE (Scanner Access Now Easy) backend which
 provides access to most Fujitsu flatbed and ADF scanners.
 
-This document describes backend version 134, which shipped with SANE 1.0.28.
+This document describes backend version 136, which shipped with SANE 1.0.30.
 
 .SH SUPPORTED HARDWARE
 This version supports every known model which speaks the Fujitsu SCSI and
@@ -54,7 +54,7 @@ Effort has been made to expose all hardware options, including:
 source s
 .RS
 Selects the source for the scan. Options
-may include "Flatbed", "ADF Front", "ADF Back", "ADF Duplex".
+may include "Flatbed", "ADF Front", "ADF Back", "ADF Duplex", "Card Front", "Card Back", "Card Duplex".
 .RE
 .PP
 mode m

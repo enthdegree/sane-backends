@@ -50,100 +50,59 @@
  * \return SANE_STATUS_GOOD (if everything is OK, otherwise, SANE_STATUS_NO_MEM/SANE_STATUS_INVAL)
  */
 SANE_Status
-get_TIFF_data(capabilities_t *scanner, int *w, int *h, int *components)
+get_TIFF_data(capabilities_t *scanner, int *width, int *height, int *bps)
 {
     TIFF* tif = NULL;
-    uint32  width = 0;           /* largeur */
-    uint32  height = 0;          /* hauteur */
-    unsigned char *raster = NULL;         /* données de l'image */
-    unsigned char *surface = NULL;         /* données de l'image */
-    int bps = 4;
+    uint32  w = 0;
+    uint32  h = 0;
+    unsigned char *surface = NULL;         /*  image data*/
+    int components = 4;
     uint32 npixels = 0;
-    int x_off = 0, x = 0;
-    int wid = 0;
-    int y_off = 0, y = 0;
-    int hei = 0;
+    SANE_Status status = SANE_STATUS_GOOD;
 
     lseek(fileno(scanner->tmp), 0, SEEK_SET);
     tif = TIFFFdOpen(fileno(scanner->tmp), "temp", "r");
     if (!tif) {
         DBG( 1, "Escl Tiff : Can not open, or not a TIFF file.\n");
-        if (scanner->tmp) {
-           fclose(scanner->tmp);
-           scanner->tmp = NULL;
-        }
-        return (SANE_STATUS_INVAL);
+        status = SANE_STATUS_INVAL;
+	goto close_file;
     }
 
-    TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &width);
-    TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &height);
-    npixels = width * height;
-    raster = (unsigned char*) malloc(npixels * sizeof (uint32));
-    if (raster != NULL)
+    TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &w);
+    TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &h);
+    npixels = w * h;
+    surface = (unsigned char*) malloc(npixels * sizeof (uint32));
+    if (surface != NULL)
     {
         DBG( 1, "Escl Tiff : raster Memory allocation problem.\n");
-        if (scanner->tmp) {
-           fclose(scanner->tmp);
-           scanner->tmp = NULL;
-        }
-        return (SANE_STATUS_INVAL);
+        status = SANE_STATUS_INVAL;
+	goto close_tiff;
     }
 
-    if (!TIFFReadRGBAImage(tif, width, height, (uint32 *)raster, 0))
+    if (!TIFFReadRGBAImage(tif, w, h, (uint32 *)surface, 0))
     {
         DBG( 1, "Escl Tiff : Problem reading image data.\n");
-        if (scanner->tmp) {
-           fclose(scanner->tmp);
-           scanner->tmp = NULL;
-        }
-        return (SANE_STATUS_INVAL);
+        status = SANE_STATUS_INVAL;
+        free(surface); 
+	goto close_tiff;
     }
 
-    if (width < (unsigned int)scanner->width)
-           scanner->width = width;
-    if (scanner->pos_x < 0)
-           scanner->pos_x = 0;
-
-    if (height < (unsigned int)scanner->height)
-           scanner->height = height;
-    if (scanner->pos_x < 0)
-           scanner->pos_x = 0;
-
-    x_off = scanner->pos_x;
-    wid = scanner->width - x_off;
-    y_off = scanner->pos_y;
-    hei = scanner->height - y_off;
-    *w = (int)wid;
-    *h = (int)hei;
-    *components = bps;
-    if (x_off > 0 || wid < scanner->width ||
-        y_off > 0 || hei < scanner->height) {
-          surface = (unsigned char *)malloc (sizeof (unsigned char) * wid
-                     * hei * bps);
-          if (surface)
-         {
-             for (y = 0; y < hei; y++)
-             {
-                for (x = 0; x < wid; x++)
-                {
-                   surface[y * wid + x] = raster[(y + y_off) * width + x + x_off];
-                }
-             }
-             free(raster);
-         }
-         else
-            surface = raster;
+    *bps = components;
+    
+    // If necessary, trim the image. 
+    surface = escl_crop_surface(scanner, surface, w, h, components, width, height);
+    if (!surface)  {
+        DBG( 1, "Escl Tiff : Surface Memory allocation problem\n");
+        status = SANE_STATUS_INVAL;
     }
-    else
-        surface = raster;
-    // we don't need row pointers anymore
-    scanner->img_data = raster;
-    scanner->img_size = (int)(width * height * bps);
-    scanner->img_read = 0;
+
+close_tiff: 
     TIFFClose(tif);
-    fclose(scanner->tmp);
+close_file:
+    if (scanner->tmp)
+       fclose(scanner->tmp);
     scanner->tmp = NULL;
-    return (SANE_STATUS_GOOD);
+    return (status);
 }
 #else
 

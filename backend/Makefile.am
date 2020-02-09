@@ -437,7 +437,7 @@ EXTRA_DIST += dmc.conf.in
 if have_libavahi
 if have_libcurl
 if have_libxml2
-libescl_la_SOURCES = escl/escl.c  escl/escl_capabilities.c  escl/escl_devices.c  escl/escl.h  escl/escl_newjob.c  escl/escl_reset.c  escl/escl_scan.c  escl/escl_status.c escl/escl_jpeg.c escl/escl_png.c escl/escl_tiff.c escl/escl_crop.c 
+libescl_la_SOURCES = escl/escl.c  escl/escl_capabilities.c  escl/escl_devices.c  escl/escl.h  escl/escl_newjob.c  escl/escl_reset.c  escl/escl_scan.c  escl/escl_status.c escl/escl_jpeg.c escl/escl_png.c escl/escl_tiff.c escl/escl_crop.c
 libescl_la_CPPFLAGS = $(AM_CPPFLAGS) $(JPEG_CFLAGS) $(PNG_CFLAGS) $(TIFF_CFLAGS) $(XML_CFLAGS) $(libcurl_CFLAGS) $(AVAHI_CFLAGS) -DBACKEND_NAME=escl
 
 nodist_libsane_escl_la_SOURCES = escl-s.c

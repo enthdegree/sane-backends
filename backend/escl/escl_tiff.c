@@ -83,20 +83,20 @@ get_TIFF_data(capabilities_t *scanner, int *width, int *height, int *bps)
     {
         DBG( 1, "Escl Tiff : Problem reading image data.\n");
         status = SANE_STATUS_INVAL;
-        free(surface); 
+        free(surface);
 	goto close_tiff;
     }
 
     *bps = components;
-    
-    // If necessary, trim the image. 
+
+    // If necessary, trim the image.
     surface = escl_crop_surface(scanner, surface, w, h, components, width, height);
     if (!surface)  {
         DBG( 1, "Escl Tiff : Surface Memory allocation problem\n");
         status = SANE_STATUS_INVAL;
     }
 
-close_tiff: 
+close_tiff:
     TIFFClose(tif);
 close_file:
     if (scanner->tmp)

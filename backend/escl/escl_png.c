@@ -165,15 +165,15 @@ get_PNG_data(capabilities_t *scanner, int *width, int *height, int *bps)
     }
     // read pixel data using row pointers
     png_read_image (png_ptr, row_pointers);
-   
-    // If necessary, trim the image. 
+
+    // If necessary, trim the image.
     surface = escl_crop_surface(scanner, surface, w, h, components, width, height);
     if (!surface)  {
         DBG( 1, "Escl Png : Surface Memory allocation problem\n");
         status = SANE_STATUS_NO_MEM;
 	goto close_file;
     }
-    
+
     free (row_pointers);
 
 close_file:

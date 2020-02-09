@@ -87,4 +87,3 @@ escl_crop_surface(capabilities_t *scanner,
 finish:
     return surface;
 }
-

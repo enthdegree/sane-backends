@@ -445,7 +445,7 @@ void test_node_calibrate_8bit()
     ImagePipelineStack stack;
     stack.push_first_node<ImagePipelineNodeArraySource>(1, 1, PixelFormat::RGB888,
                                                         std::move(in_data));
-    stack.push_node<ImagePipelineNodeCalibrate>(bottom, top);
+    stack.push_node<ImagePipelineNodeCalibrate>(bottom, top, 0);
 
     ASSERT_EQ(stack.get_output_width(), 1u);
     ASSERT_EQ(stack.get_output_height(), 1u);
@@ -481,7 +481,7 @@ void test_node_calibrate_16bit()
     ImagePipelineStack stack;
     stack.push_first_node<ImagePipelineNodeArraySource>(1, 1, PixelFormat::RGB161616,
                                                         std::move(in_data));
-    stack.push_node<ImagePipelineNodeCalibrate>(bottom, top);
+    stack.push_node<ImagePipelineNodeCalibrate>(bottom, top, 0);
 
     ASSERT_EQ(stack.get_output_width(), 1u);
     ASSERT_EQ(stack.get_output_height(), 1u);

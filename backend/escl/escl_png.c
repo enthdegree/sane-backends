@@ -120,7 +120,7 @@ get_PNG_data(capabilities_t *scanner, int *width, int *height, int *bps)
                 goto close_file;
 	}
 
-   if (color_type ==  PNG_COLOR_TYPE_RGB_ALPHA)
+    if (color_type ==  PNG_COLOR_TYPE_RGB_ALPHA)
         components = 4;
     else
 	components = 3;

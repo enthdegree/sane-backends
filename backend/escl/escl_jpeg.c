@@ -200,8 +200,8 @@ get_JPEG_data(capabilities_t *scanner, int *width, int *height, int *bps)
 
     if (cinfo.output_height < (unsigned int)scanner->height)
            scanner->height = cinfo.output_height;
-    if (scanner->pos_x < 0)
-          scanner->pos_x = 0;
+    if (scanner->pos_y < 0)
+          scanner->pos_y = 0;
 
     x_off = scanner->pos_x;
     w = scanner->width - x_off;

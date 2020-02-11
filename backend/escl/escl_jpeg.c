@@ -154,7 +154,7 @@ output_no_message(j_common_ptr __sane_unused__ cinfo)
  * \return SANE_STATUS_GOOD (if everything is OK, otherwise, SANE_STATUS_NO_MEM/SANE_STATUS_INVAL)
  */
 SANE_Status
-	get_JPEG_data(capabilities_t *scanner, int *width, int *height, int *bps)
+get_JPEG_data(capabilities_t *scanner, int *width, int *height, int *bps)
 {
     int start = 0;
     struct jpeg_decompress_struct cinfo;

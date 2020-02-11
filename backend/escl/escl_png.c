@@ -49,14 +49,15 @@
  * \return SANE_STATUS_GOOD (if everything is OK, otherwise, SANE_STATUS_NO_MEM/SANE_STATUS_INVAL)
  */
 SANE_Status
-get_PNG_data(capabilities_t *scanner, int *w, int *h, int *components)
+get_PNG_data(capabilities_t *scanner, int *width, int *height, int *bps)
 {
-	unsigned int  width = 0;           /* largeur */
-	unsigned int  height = 0;          /* hauteur */
-	int           bps = 3;  /* composantes d'un texel */
-	unsigned char *texels = NULL;         /* données de l'image */
+	unsigned int  w = 0;
+	unsigned int  h = 0;
+	int           components = 3;
+	unsigned char *surface = NULL;         /* Image data */
         unsigned int i = 0;
 	png_byte magic[8];
+	SANE_Status status = SANE_STATUS_GOOD;
 
 	// read magic number
 	fread (magic, 1, sizeof (magic), scanner->tmp);
@@ -64,11 +65,8 @@ get_PNG_data(capabilities_t *scanner, int *w, int *h, int *components)
 	if (!png_check_sig (magic, sizeof (magic)))
 	{
 		DBG( 1, "Escl Png : PNG error is not a valid PNG image!\n");
-                if (scanner->tmp) {
-                   fclose(scanner->tmp);
-                   scanner->tmp = NULL;
-                }
-		return (SANE_STATUS_INVAL);
+                status = SANE_STATUS_INVAL;
+                goto close_file;
 	}
 	// create a png read struct
 	png_structp png_ptr = png_create_read_struct
@@ -76,12 +74,8 @@ get_PNG_data(capabilities_t *scanner, int *w, int *h, int *components)
 	if (!png_ptr)
 	{
 		DBG( 1, "Escl Png : PNG error create a png read struct\n");
-                if (scanner->tmp)
-                if (scanner->tmp) {
-                   fclose(scanner->tmp);
-                   scanner->tmp = NULL;
-                }
-		return (SANE_STATUS_INVAL);
+                status = SANE_STATUS_INVAL;
+                goto close_file;
 	}
 	// create a png info struct
 	png_infop info_ptr = png_create_info_struct (png_ptr);
@@ -89,26 +83,19 @@ get_PNG_data(capabilities_t *scanner, int *w, int *h, int *components)
 	{
 		DBG( 1, "Escl Png : PNG error create a png info struct\n");
 		png_destroy_read_struct (&png_ptr, NULL, NULL);
-                if (scanner->tmp) {
-                   fclose(scanner->tmp);
-                   scanner->tmp = NULL;
-                }
-		return (SANE_STATUS_INVAL);
+                status = SANE_STATUS_INVAL;
+                goto close_file;
 	}
 	// initialize the setjmp for returning properly after a libpng
 	//   error occured
 	if (setjmp (png_jmpbuf (png_ptr)))
 	{
 		png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
-		if (texels)
-		  free (texels);
-        fprintf(stderr,"PNG read error.\n");
-                if (scanner->tmp) {
-                   fclose(scanner->tmp);
-                   scanner->tmp = NULL;
-                }
+		if (surface)
+		  free (surface);
 		DBG( 1, "Escl Png : PNG read error.\n");
-		return (SANE_STATUS_INVAL);
+                status = SANE_STATUS_INVAL;
+                goto close_file;
 	}
 	// setup libpng for using standard C fread() function
 	//   with our FILE pointer
@@ -128,63 +115,79 @@ get_PNG_data(capabilities_t *scanner, int *w, int *h, int *components)
 		png_set_palette_to_rgb (png_ptr);
 	else if (color_type != PNG_COLOR_TYPE_RGB && color_type != PNG_COLOR_TYPE_RGB_ALPHA)
 	{
-        fprintf(stderr,"PNG format not supported.\n");
-                if (scanner->tmp) {
-                   fclose(scanner->tmp);
-                   scanner->tmp = NULL;
-                }
-		return (SANE_STATUS_INVAL);
+                DBG(1, "PNG format not supported.\n");
+                status = SANE_STATUS_NO_MEM;
+                goto close_file;
 	}
-    if (color_type ==  PNG_COLOR_TYPE_RGB_ALPHA)
-        bps = 4;
-    else
-	    bps = 3;
-	if (png_get_valid (png_ptr, info_ptr, PNG_INFO_tRNS))
-		png_set_tRNS_to_alpha (png_ptr);
-	if (bit_depth == 16)
-		png_set_strip_16 (png_ptr);
-	else if (bit_depth < 8)
-		png_set_packing (png_ptr);
-	// update info structure to apply transformations
-	png_read_update_info (png_ptr, info_ptr);
-	// retrieve updated information
-	png_get_IHDR (png_ptr, info_ptr,
-			(png_uint_32*)(&width),
-			(png_uint_32*)(&height),
-			&bit_depth, &color_type,
-			NULL, NULL, NULL);
 
-    *w = (int)width;
-    *h = (int)height;
-    *components = bps;
-	// we can now allocate memory for storing pixel data
-	texels = (unsigned char *)malloc (sizeof (unsigned char) * width
-			* height * bps);
-	png_bytep *row_pointers;
-	// setup a pointer array.  Each one points at the begening of a row.
-	row_pointers = (png_bytep *)malloc (sizeof (png_bytep) * height);
-	for (i = 0; i < height; ++i)
-	{
-		row_pointers[i] = (png_bytep)(texels +
-				((height - (i + 1)) * width * bps));
-	}
-	// read pixel data using row pointers
-	png_read_image (png_ptr, row_pointers);
-	// we don't need row pointers anymore
-	scanner->img_data = texels;
-    scanner->img_size = (int)(width * height * bps);
-    scanner->img_read = 0;
-	free (row_pointers);
-    fclose(scanner->tmp);
+    if (color_type ==  PNG_COLOR_TYPE_RGB_ALPHA)
+        components = 4;
+    else
+	components = 3;
+
+    if (png_get_valid (png_ptr, info_ptr, PNG_INFO_tRNS))
+    	png_set_tRNS_to_alpha (png_ptr);
+    if (bit_depth == 16)
+   	png_set_strip_16 (png_ptr);
+    else if (bit_depth < 8)
+   	png_set_packing (png_ptr);
+    // update info structure to apply transformations
+    png_read_update_info (png_ptr, info_ptr);
+    // retrieve updated information
+    png_get_IHDR (png_ptr, info_ptr,
+                 (png_uint_32*)(&w),
+		 (png_uint_32*)(&h),
+		 &bit_depth, &color_type,
+		 NULL, NULL, NULL);
+
+    *bps = components;
+    // we can now allocate memory for storing pixel data
+    surface = (unsigned char *)malloc (sizeof (unsigned char) * w
+                    * h * components);
+    if (!surface) {
+        DBG( 1, "Escl Png : texels Memory allocation problem\n");
+        status = SANE_STATUS_NO_MEM;
+	goto close_file;
+    }
+    png_bytep *row_pointers;
+    // setup a pointer array.  Each one points at the begening of a row.
+    row_pointers = (png_bytep *)malloc (sizeof (png_bytep) * h);
+    if (!row_pointers) {
+        DBG( 1, "Escl Png : row_pointers Memory allocation problem\n");
+        free(surface);
+        status = SANE_STATUS_NO_MEM;
+	goto close_file;
+    }
+    for (i = 0; i < h; ++i)
+    {
+            row_pointers[i] = (png_bytep)(surface +
+                            ((h - (i + 1)) * w * components));
+    }
+    // read pixel data using row pointers
+    png_read_image (png_ptr, row_pointers);
+
+    // If necessary, trim the image.
+    surface = escl_crop_surface(scanner, surface, w, h, components, width, height);
+    if (!surface)  {
+        DBG( 1, "Escl Png : Surface Memory allocation problem\n");
+        status = SANE_STATUS_NO_MEM;
+	goto close_file;
+    }
+
+    free (row_pointers);
+
+close_file:
+    if (scanner->tmp)
+        fclose(scanner->tmp);
     scanner->tmp = NULL;
-    return (SANE_STATUS_GOOD);
+    return (status);
 }
 #else
 
 SANE_Status
 get_PNG_data(capabilities_t __sane_unused__ *scanner,
-              int __sane_unused__ *w,
-              int __sane_unused__ *h,
+              int __sane_unused__ *width,
+              int __sane_unused__ *height,
               int __sane_unused__ *bps)
 {
     return (SANE_STATUS_INVAL);

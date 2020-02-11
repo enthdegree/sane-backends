@@ -381,12 +381,12 @@ init_options(SANE_String_Const name, escl_sane_t *s)
         s->opt[i].size = sizeof (SANE_Word);
         s->opt[i].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     }
-    s->x_range.min = 0;
-    s->x_range.max = s->scanner->MaxWidth - s->scanner->MinWidth;
-    s->x_range.quant = 1;
-    s->y_range.min = 0;
-    s->y_range.max = s->scanner->MaxHeight - s->scanner->MinHeight;
-    s->y_range.quant = 1;
+    s->x_range.min = PIXEL_TO_MM(s->scanner->MinWidth, 300.0);
+    s->x_range.max = PIXEL_TO_MM(s->scanner->MaxWidth, 300.0);
+    s->x_range.quant = 0;
+    s->y_range.min = PIXEL_TO_MM(s->scanner->MinHeight, 300.0);
+    s->y_range.max = PIXEL_TO_MM(s->scanner->MaxHeight, 300.0);
+    s->y_range.quant = 0;
     s->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
     s->opt[OPT_NUM_OPTS].desc = SANE_DESC_NUM_OPTIONS;
     s->opt[OPT_NUM_OPTS].type = SANE_TYPE_INT;
@@ -442,7 +442,7 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->val[OPT_GRAY_PREVIEW].w = SANE_FALSE;
 
     s->opt[OPT_GEOMETRY_GROUP].title = SANE_TITLE_GEOMETRY;
-    s->opt[OPT_GEOMETRY_GROUP].desc = "";
+    s->opt[OPT_GEOMETRY_GROUP].desc = SANE_DESC_GEOMETRY;
     s->opt[OPT_GEOMETRY_GROUP].type = SANE_TYPE_GROUP;
     s->opt[OPT_GEOMETRY_GROUP].cap = SANE_CAP_ADVANCED;
     s->opt[OPT_GEOMETRY_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
@@ -451,37 +451,41 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_TL_X].title = SANE_TITLE_SCAN_TL_X;
     s->opt[OPT_TL_X].desc = SANE_DESC_SCAN_TL_X;
     s->opt[OPT_TL_X].type = SANE_TYPE_FIXED;
-    s->opt[OPT_TL_X].unit = SANE_UNIT_PIXEL;
+    s->opt[OPT_TL_X].size = sizeof(SANE_Fixed);
+    s->opt[OPT_TL_X].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    s->opt[OPT_TL_X].unit = SANE_UNIT_MM;
     s->opt[OPT_TL_X].constraint_type = SANE_CONSTRAINT_RANGE;
     s->opt[OPT_TL_X].constraint.range = &s->x_range;
-    s->val[OPT_TL_X].w = s->scanner->RiskyLeftMargin;
 
     s->opt[OPT_TL_Y].name = SANE_NAME_SCAN_TL_Y;
     s->opt[OPT_TL_Y].title = SANE_TITLE_SCAN_TL_Y;
     s->opt[OPT_TL_Y].desc = SANE_DESC_SCAN_TL_Y;
     s->opt[OPT_TL_Y].type = SANE_TYPE_FIXED;
-    s->opt[OPT_TL_Y].unit = SANE_UNIT_PIXEL;
+    s->opt[OPT_TL_Y].size = sizeof(SANE_Fixed);
+    s->opt[OPT_TL_Y].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    s->opt[OPT_TL_Y].unit = SANE_UNIT_MM;
     s->opt[OPT_TL_Y].constraint_type = SANE_CONSTRAINT_RANGE;
     s->opt[OPT_TL_Y].constraint.range = &s->y_range;
-    s->val[OPT_TL_Y].w = s->scanner->RiskyTopMargin;
 
     s->opt[OPT_BR_X].name = SANE_NAME_SCAN_BR_X;
     s->opt[OPT_BR_X].title = SANE_TITLE_SCAN_BR_X;
     s->opt[OPT_BR_X].desc = SANE_DESC_SCAN_BR_X;
     s->opt[OPT_BR_X].type = SANE_TYPE_FIXED;
-    s->opt[OPT_BR_X].unit = SANE_UNIT_PIXEL;
+    s->opt[OPT_BR_X].size = sizeof(SANE_Fixed);
+    s->opt[OPT_BR_X].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    s->opt[OPT_BR_X].unit = SANE_UNIT_MM;
     s->opt[OPT_BR_X].constraint_type = SANE_CONSTRAINT_RANGE;
     s->opt[OPT_BR_X].constraint.range = &s->x_range;
-    s->val[OPT_BR_X].w = s->scanner->MaxWidth;
 
     s->opt[OPT_BR_Y].name = SANE_NAME_SCAN_BR_Y;
     s->opt[OPT_BR_Y].title = SANE_TITLE_SCAN_BR_Y;
     s->opt[OPT_BR_Y].desc = SANE_DESC_SCAN_BR_Y;
     s->opt[OPT_BR_Y].type = SANE_TYPE_FIXED;
-    s->opt[OPT_BR_Y].unit = SANE_UNIT_PIXEL;
+    s->opt[OPT_BR_Y].size = sizeof(SANE_Fixed);
+    s->opt[OPT_BR_Y].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    s->opt[OPT_BR_Y].unit = SANE_UNIT_MM;
     s->opt[OPT_BR_Y].constraint_type = SANE_CONSTRAINT_RANGE;
     s->opt[OPT_BR_Y].constraint.range = &s->y_range;
-    s->val[OPT_BR_Y].w = s->scanner->MaxHeight;
     return (status);
 }
 
@@ -523,8 +527,8 @@ sane_open(SANE_String_Const name, SANE_Handle *h)
     handler->ps.depth = 8;
     handler->ps.last_frame = SANE_TRUE;
     handler->ps.format = SANE_FRAME_RGB;
-    handler->ps.pixels_per_line = handler->val[OPT_BR_X].w;
-    handler->ps.lines = handler->val[OPT_BR_Y].w;
+    handler->ps.pixels_per_line = MM_TO_PIXEL(handler->val[OPT_BR_X].w, 300.0);
+    handler->ps.lines = MM_TO_PIXEL(handler->val[OPT_BR_Y].w, 300.0);
     handler->ps.bytes_per_line = handler->ps.pixels_per_line * 3;
     status = sane_get_parameters(handler, 0);
     if (status != SANE_STATUS_GOOD)
@@ -588,7 +592,7 @@ sane_get_option_descriptor(SANE_Handle h, SANE_Int n)
 
     if ((unsigned) n >= NUM_OPTIONS || n < 0)
         return (0);
-    return (s->opt + n);
+    return (&s->opt[n]);
 }
 
 /**
@@ -616,12 +620,12 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v, SANE_Int 
         return (SANE_STATUS_INVAL);
     if (a == SANE_ACTION_GET_VALUE) {
         switch (n) {
-        case OPT_NUM_OPTS:
-        case OPT_RESOLUTION:
         case OPT_TL_X:
         case OPT_TL_Y:
         case OPT_BR_X:
         case OPT_BR_Y:
+        case OPT_NUM_OPTS:
+        case OPT_RESOLUTION:
         case OPT_PREVIEW:
         case OPT_GRAY_PREVIEW:
             *(SANE_Word *) v = handler->val[n].w;
@@ -641,14 +645,10 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v, SANE_Int 
         case OPT_TL_Y:
         case OPT_BR_X:
         case OPT_BR_Y:
+        case OPT_NUM_OPTS:
+        case OPT_RESOLUTION:
         case OPT_PREVIEW:
         case OPT_GRAY_PREVIEW:
-            handler->val[n].w = *(SANE_Word *) v;
-            if (i && handler->val[n].w != *(SANE_Word *) v)
-                *i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS | SANE_INFO_INEXACT;
-            handler->val[n].w = *(SANE_Word *) v;
-            break;
-        case OPT_RESOLUTION:
             handler->val[n].w = *(SANE_Word *) v;
             if (i)
                 *i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS | SANE_INFO_INEXACT;
@@ -694,10 +694,6 @@ sane_start(SANE_Handle h)
     handler->write_scan_data = SANE_FALSE;
     handler->decompress_scan_data = SANE_FALSE;
     handler->end_read = SANE_FALSE;
-    handler->scanner->height = handler->val[OPT_BR_Y].w;
-    handler->scanner->width = handler->val[OPT_BR_X].w;
-    handler->scanner->pos_x = handler->val[OPT_TL_X].w;
-    handler->scanner->pos_y = handler->val[OPT_TL_Y].w;
     if(handler->scanner->default_color)
        free(handler->scanner->default_color);
     if (handler->val[OPT_PREVIEW].w == SANE_TRUE)
@@ -727,6 +723,15 @@ sane_start(SANE_Handle h)
     else
        handler->scanner->default_color = strdup("RGB24");
     }
+    handler->scanner->height = MM_TO_PIXEL(handler->val[OPT_BR_Y].w, 300.0);
+    handler->scanner->width = MM_TO_PIXEL(handler->val[OPT_BR_X].w, 300.0);
+    handler->scanner->pos_x = MM_TO_PIXEL(handler->val[OPT_TL_X].w, 300.0);
+    handler->scanner->pos_y = MM_TO_PIXEL(handler->val[OPT_TL_Y].w, 300.0);
+    DBG(10, "Calculate Size Image [%dx%d|%dx%d]\n",
+             handler->scanner->pos_x,
+             handler->scanner->pos_y,
+             handler->scanner->height,
+             handler->scanner->width);
     if (!handler->scanner->default_color) {
        DBG (10, "Default Color allocation failure.\n");
        return (SANE_STATUS_NO_MEM);
@@ -749,9 +754,12 @@ sane_start(SANE_Handle h)
     {
        status = get_TIFF_data(handler->scanner, &w, &he, &bps);
     }
-    else
+    else {
+      DBG(10, "Unknow image format\n");
       return SANE_STATUS_INVAL;
+    }
 
+    DBG(10, "2-Size Image [%dx%d|%dx%d]\n", 0, 0, w, he);
     if (status != SANE_STATUS_GOOD)
         return (status);
     handler->ps.depth = 8;
@@ -760,6 +768,7 @@ sane_start(SANE_Handle h)
     handler->ps.bytes_per_line = w * bps;
     handler->ps.last_frame = SANE_TRUE;
     handler->ps.format = SANE_FRAME_RGB;
+    DBG(10, "Real Size Image [%dx%d|%dx%d]\n", 0, 0, w, he);
     return (status);
 }
 

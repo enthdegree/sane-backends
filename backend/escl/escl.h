@@ -43,6 +43,7 @@
 #include "../include/sane/sane.h"
 
 #include <stdio.h>
+#include <math.h>
 
 #ifndef BACKEND_NAME
 #define BACKEND_NAME escl
@@ -151,21 +152,30 @@ enum
     NUM_OPTIONS
 };
 
+#define PIXEL_TO_MM(pixels, dpi) SANE_FIX(SANE_UNFIX(pixels) * 25.4 / (dpi))
+#define MM_TO_PIXEL(millimeters, dpi) SANE_FIX(SANE_UNFIX(millimeters) * (dpi) / 25.4)
+
 ESCL_Device *escl_devices(SANE_Status *status);
-SANE_Status escl_device_add(int port_nb, const char *model_name, char *ip_address, char *type);
+SANE_Status escl_device_add(int port_nb, const char *model_name,
+		            char *ip_address, char *type);
 SANE_Status escl_status(SANE_String_Const name);
 capabilities_t *escl_capabilities(SANE_String_Const name, SANE_Status *status);
-char *escl_newjob(capabilities_t *scanner, SANE_String_Const name, SANE_Status *status);
-SANE_Status escl_scan(capabilities_t *scanner, SANE_String_Const name, char *result);
+char *escl_newjob(capabilities_t *scanner, SANE_String_Const name,
+		  SANE_Status *status);
+SANE_Status escl_scan(capabilities_t *scanner, SANE_String_Const name,
+	              char *result);
 void escl_scanner(SANE_String_Const name, char *result);
 
+unsigned char *escl_crop_surface(capabilities_t *scanner, unsigned char *surface,
+	                      int w, int h, int bps, int *width, int *height);
+
 // JPEG
-SANE_Status get_JPEG_data(capabilities_t *scanner, int *w, int *h, int *bps);
+SANE_Status get_JPEG_data(capabilities_t *scanner, int *width, int *height, int *bps);
 
 // PNG
-SANE_Status get_PNG_data(capabilities_t *scanner, int *w, int *h, int *bps);
+SANE_Status get_PNG_data(capabilities_t *scanner, int *width, int *height, int *bps);
 
 // TIFF
-SANE_Status get_TIFF_data(capabilities_t *scanner, int *w, int *h, int *bps);
+SANE_Status get_TIFF_data(capabilities_t *scanner, int *width, int *height, int *bps);
 
 #endif

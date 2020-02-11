@@ -770,7 +770,7 @@ sane_start(SANE_Handle h)
       return SANE_STATUS_INVAL;
     }
 
-    fprintf(stdout, "2-Size Image [%dx%d|%dx%d]\n", 0, 0, w, he);
+    DBG(10, "2-Size Image [%dx%d|%dx%d]\n", 0, 0, w, he);
     if (status != SANE_STATUS_GOOD)
         return (status);
     handler->ps.depth = 8;

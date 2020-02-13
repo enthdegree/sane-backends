@@ -1568,8 +1568,8 @@
 :model "MAXIFY MB5100 Series"
 :interface "USB Ethernet WiFi"
 :usbid "0x04a9" "0x1790"
-:status :untested
-:comment "Testers needed!"
+:status :complete
+:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI)."
 
 :model "MAXIFY MB5300 Series"
 :interface "USB Ethernet"

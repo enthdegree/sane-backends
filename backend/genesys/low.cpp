@@ -1350,10 +1350,13 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
     }
 
     if (has_flag(dev->model->flags, ModelFlag::CALIBRATION_HOST_SIDE) &&
-        !has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION))
+        !has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION) &&
+        !has_flag(session.params.flags, ScanFlag::DISABLE_SHADING))
     {
         dev->pipeline.push_node<ImagePipelineNodeCalibrate>(dev->dark_average_data,
-                                                            dev->white_average_data);
+                                                            dev->white_average_data,
+                                                            dev->calib_session.params.startx *
+                                                                dev->calib_session.params.channels);
 
         if (DBG_LEVEL >= DBG_io2) {
             dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +

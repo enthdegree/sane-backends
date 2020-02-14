@@ -666,16 +666,21 @@ bool ImagePipelineNodeExtract::get_next_row_data(std::uint8_t* out_data)
 
 ImagePipelineNodeCalibrate::ImagePipelineNodeCalibrate(ImagePipelineNode& source,
                                                        const std::vector<std::uint16_t>& bottom,
-                                                       const std::vector<std::uint16_t>& top) :
+                                                       const std::vector<std::uint16_t>& top,
+                                                       std::size_t x_start) :
     source_{source}
 {
-    auto size = std::min(bottom.size(), top.size());
+    std::size_t size = 0;
+    if (bottom.size() >= x_start && top.size() >= x_start) {
+        size = std::min(bottom.size() - x_start, top.size() - x_start);
+    }
+
     offset_.reserve(size);
     multiplier_.reserve(size);
 
     for (std::size_t i = 0; i < size; ++i) {
-        offset_.push_back(bottom[i] / 65535.0f);
-        multiplier_.push_back(65535.0f / (top[i] - bottom[i]));
+        offset_.push_back(bottom[i + x_start] / 65535.0f);
+        multiplier_.push_back(65535.0f / (top[i + x_start] - bottom[i + x_start]));
     }
 }
 

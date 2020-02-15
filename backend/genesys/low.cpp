@@ -952,7 +952,13 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
         s.pixel_endx /= s.hwdpi_divisor;
 
         // in case of stagger we have to start at an odd coordinate
-        bool stagger_starts_even = dev->model->model_id == ModelId::CANON_8400F;
+        bool stagger_starts_even = false;
+        if (dev->model->model_id == ModelId::CANON_4400F ||
+            dev->model->model_id == ModelId::CANON_8400F)
+        {
+            stagger_starts_even = true;
+        }
+
         if (s.num_staggered_lines > 0) {
             if (!stagger_starts_even && (s.pixel_startx & 1) == 0) {
                 s.pixel_startx++;
@@ -1186,6 +1192,8 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
         s.enable_ledadd = (s.params.channels == 1 && dev->model->is_cis && dev->settings.true_gray);
     }
 
+    s.use_host_side_calib = sensor.use_host_side_calib;
+
     if (dev->model->asic_type == AsicType::GL841 ||
         dev->model->asic_type == AsicType::GL843)
     {
@@ -1244,7 +1252,8 @@ static FakeBufferModel get_fake_usb_buffer_model(const ScanSession& session)
     return model;
 }
 
-void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
+void build_image_pipeline(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                          const ScanSession& session)
 {
     static unsigned s_pipeline_index = 0;
 
@@ -1349,13 +1358,18 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
                                                         "_3_after_stagger.pnm");
     }
 
-    if (has_flag(dev->model->flags, ModelFlag::CALIBRATION_HOST_SIDE) &&
+    if (session.use_host_side_calib &&
         !has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION) &&
         !has_flag(session.params.flags, ScanFlag::DISABLE_SHADING))
     {
+        unsigned pixel_shift = session.params.startx * dev->calib_session.params.xres /
+                sensor.optical_res;
+        if (dev->model->model_id == ModelId::CANON_4400F) {
+            pixel_shift = session.params.startx;
+        }
         dev->pipeline.push_node<ImagePipelineNodeCalibrate>(dev->dark_average_data,
                                                             dev->white_average_data,
-                                                            dev->calib_session.params.startx *
+                                                            pixel_shift *
                                                                 dev->calib_session.params.channels);
 
         if (DBG_LEVEL >= DBG_io2) {

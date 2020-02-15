@@ -792,6 +792,7 @@ void CommandSetGl843::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
 static bool should_use_new_fast_table(const Genesys_Device& dev)
 {
     switch (dev.model->model_id) {
+        case ModelId::CANON_4400F:
         case ModelId::CANON_8600F:
         case ModelId::CANON_8400F:
         case ModelId::PLUSTEK_OPTICFILM_7200I:
@@ -1056,7 +1057,7 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     r = sanei_genesys_get_address (reg, REG_0x01);
     if (has_flag(session.params.flags, ScanFlag::DISABLE_SHADING) ||
         has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION) ||
-        has_flag(dev->model->flags, ModelFlag::CALIBRATION_HOST_SIDE))
+        session.use_host_side_calib)
     {
         r->value &= ~REG_0x01_DVDSET;
     } else {
@@ -1239,7 +1240,7 @@ void CommandSetGl843::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     dev->read_buffer.clear();
     dev->read_buffer.alloc(session.buffer_size_read);
 
-    build_image_pipeline(dev, session);
+    build_image_pipeline(dev, sensor, session);
 
     dev->read_active = true;
 
@@ -1256,6 +1257,9 @@ static float get_model_x_offset_ta(const Genesys_Device& dev,
 {
     if (dev.model->model_id == ModelId::CANON_8600F && settings.xres == 4800) {
         return 85.0f;
+    }
+    if (dev.model->model_id == ModelId::CANON_4400F && settings.xres == 4800) {
+        return dev.model->x_offset_ta - 10.0;
     }
     return dev.model->x_offset_ta;
 }
@@ -1300,7 +1304,9 @@ ScanSession CommandSetGl843::calculate_scan_session(const Genesys_Device* dev,
     }
     start = start + settings.tl_x;
 
-    if (dev->model->model_id == ModelId::CANON_8400F ||
+    if ((dev->model->model_id == ModelId::CANON_4400F &&
+            settings.scan_method == ScanMethod::TRANSPARENCY) ||
+        dev->model->model_id == ModelId::CANON_8400F ||
         dev->model->model_id == ModelId::CANON_8600F)
     {
         // FIXME: this is probably just an artifact of a bug elsewhere
@@ -1684,6 +1690,9 @@ static bool should_calibrate_only_active_area(const Genesys_Device& dev,
     if (settings.scan_method == ScanMethod::TRANSPARENCY ||
         settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
+        if (dev.model->model_id == ModelId::CANON_4400F && settings.xres >= 4800) {
+            return true;
+        }
         if (dev.model->model_id == ModelId::CANON_8600F && settings.xres == 4800) {
             return true;
         }
@@ -2597,7 +2606,8 @@ void CommandSetGl843::move_to_ta(Genesys_Device* dev) const
     float resolution = resolution_settings.get_min_resolution_y();
 
     unsigned multiplier = 16;
-    if (dev->model->model_id == ModelId::CANON_8400F) {
+    if (dev->model->model_id == ModelId::CANON_8400F ||
+        dev->model->model_id == ModelId::CANON_4400F) {
         multiplier = 4;
     }
     unsigned feed = static_cast<unsigned>(multiplier * (dev->model->y_offset_sensor_to_ta * resolution) /

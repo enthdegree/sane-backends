@@ -506,10 +506,6 @@ void sanei_genesys_init_shading_data(Genesys_Device* dev, const Genesys_Sensor& 
 {
     DBG_HELPER_ARGS(dbg, "pixels_per_line: %d", pixels_per_line);
 
-    if (has_flag(dev->model->flags, ModelFlag::CALIBRATION_HOST_SIDE)) {
-        return;
-    }
-
   int channels;
   int i;
 
@@ -903,7 +899,9 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
     const auto& sensor = sanei_genesys_find_sensor(&dev, resolution, 3, scan_method);
 
     bool uses_secondary_head = (scan_method == ScanMethod::TRANSPARENCY ||
-                                scan_method == ScanMethod::TRANSPARENCY_INFRARED);
+                                scan_method == ScanMethod::TRANSPARENCY_INFRARED) &&
+                               (!has_flag(dev.model->flags, ModelFlag::UTA_NO_SECONDARY_MOTOR));
+
     bool uses_secondary_pos = uses_secondary_head &&
                               dev.model->default_method == ScanMethod::FLATBED;
 
@@ -1043,10 +1041,11 @@ void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
     }
 
     // FIXME: also check whether the scanner actually has a secondary head
-    if (!dev.is_head_pos_known(ScanHeadId::SECONDARY) ||
+    if ((!dev.is_head_pos_known(ScanHeadId::SECONDARY) ||
         dev.head_pos(ScanHeadId::SECONDARY) > 0 ||
         dev.settings.scan_method == ScanMethod::TRANSPARENCY ||
-        dev.settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+        dev.settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED) &&
+            (!has_flag(dev.model->flags, ModelFlag::UTA_NO_SECONDARY_MOTOR)))
     {
         scanner_move_back_home_ta(dev);
     }
@@ -2532,7 +2531,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
 {
     DBG_HELPER(dbg);
 
-    if (has_flag(dev->model->flags, ModelFlag::CALIBRATION_HOST_SIDE)) {
+    if (sensor.use_host_side_calib) {
         return;
     }
 
@@ -4709,7 +4708,7 @@ static void probe_genesys_devices()
    of Genesys_Calibration_Cache as is.
 */
 static const char* CALIBRATION_IDENT = "sane_genesys";
-static const int CALIBRATION_VERSION = 25;
+static const int CALIBRATION_VERSION = 26;
 
 bool read_calibration(std::istream& str, Genesys_Device::Calibration& calibration,
                       const std::string& path)

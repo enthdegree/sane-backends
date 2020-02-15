@@ -438,6 +438,10 @@ void genesys_init_usb_device_tables()
             { ScanMethod::FLATBED },
             { 1200, 600, 300 },
             { 1200, 600, 300 },
+        }, {
+            { ScanMethod::TRANSPARENCY },
+            { 4800, 2400, 1200 },
+            { 9600, 4800, 2400, 1200 },
         }
     };
 
@@ -452,13 +456,13 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.x_offset_calib_black = 0.0;
 
-    model.x_offset_ta = 8.0;
-    model.y_offset_ta = 13.00;
-    model.x_size_ta = 217.9;
-    model.y_size_ta = 250.0;
+    model.x_offset_ta = 115.0;
+    model.y_offset_ta = 60.0;
+    model.x_size_ta = 35.0;
+    model.y_size_ta = 230.0;
 
-    model.y_offset_sensor_to_ta = 0.0;
-    model.y_offset_calib_white_ta = 40.0;
+    model.y_offset_sensor_to_ta = 46.0;
+    model.y_offset_calib_white_ta = 47.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -480,10 +484,12 @@ void genesys_init_usb_device_tables()
                   ModelFlag::DARK_CALIBRATION |
                   ModelFlag::FULL_HWDPI_MODE |
                   ModelFlag::CUSTOM_GAMMA |
-                  ModelFlag::SHADING_REPARK;
+                  ModelFlag::SHADING_REPARK |
+                  ModelFlag::UTA_NO_SECONDARY_MOTOR;
+
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;
     model.shading_lines = 100;
-    model.shading_ta_lines = 0;
+    model.shading_ta_lines = 50;
     model.search_lines = 100;
 
     s_usb_devices->emplace_back(0x04a9, 0x2228, model);
@@ -2621,7 +2627,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::DARK_CALIBRATION |
                   ModelFlag::OFFSET_CALIBRATION |
                   ModelFlag::SHADING_REPARK |
-                  ModelFlag::CALIBRATION_HOST_SIDE |
                   ModelFlag::INVERTED_16BIT_DATA;
 
     model.shading_lines = 7;
@@ -2684,8 +2689,7 @@ void genesys_init_usb_device_tables()
                   ModelFlag::SKIP_WARMUP |
                   ModelFlag::DARK_CALIBRATION |
                   ModelFlag::OFFSET_CALIBRATION |
-                  ModelFlag::SHADING_REPARK |
-                  ModelFlag::CALIBRATION_HOST_SIDE;
+                  ModelFlag::SHADING_REPARK;
 
     model.shading_lines = 7;
     model.shading_ta_lines = 50;
@@ -2747,8 +2751,7 @@ void genesys_init_usb_device_tables()
                   ModelFlag::SKIP_WARMUP |
                   ModelFlag::DARK_CALIBRATION |
                   ModelFlag::OFFSET_CALIBRATION |
-                  ModelFlag::SHADING_REPARK |
-                  ModelFlag::CALIBRATION_HOST_SIDE;
+                  ModelFlag::SHADING_REPARK;
 
     model.shading_lines = 7;
     model.shading_ta_lines = 50;

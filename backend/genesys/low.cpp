@@ -1252,7 +1252,8 @@ static FakeBufferModel get_fake_usb_buffer_model(const ScanSession& session)
     return model;
 }
 
-void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
+void build_image_pipeline(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                          const ScanSession& session)
 {
     static unsigned s_pipeline_index = 0;
 
@@ -1361,9 +1362,14 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
         !has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION) &&
         !has_flag(session.params.flags, ScanFlag::DISABLE_SHADING))
     {
+        unsigned pixel_shift = session.params.startx * dev->calib_session.params.xres /
+                sensor.optical_res;
+        if (dev->model->model_id == ModelId::CANON_4400F) {
+            pixel_shift = session.params.startx;
+        }
         dev->pipeline.push_node<ImagePipelineNodeCalibrate>(dev->dark_average_data,
                                                             dev->white_average_data,
-                                                            dev->calib_session.params.startx *
+                                                            pixel_shift *
                                                                 dev->calib_session.params.channels);
 
         if (DBG_LEVEL >= DBG_io2) {

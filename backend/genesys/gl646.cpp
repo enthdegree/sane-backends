@@ -550,7 +550,7 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     dev->read_buffer.clear();
     dev->read_buffer.alloc(session.buffer_size_read);
 
-    build_image_pipeline(dev, session);
+    build_image_pipeline(dev, sensor, session);
 
     dev->read_active = true;
 

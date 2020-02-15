@@ -899,7 +899,9 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
     const auto& sensor = sanei_genesys_find_sensor(&dev, resolution, 3, scan_method);
 
     bool uses_secondary_head = (scan_method == ScanMethod::TRANSPARENCY ||
-                                scan_method == ScanMethod::TRANSPARENCY_INFRARED);
+                                scan_method == ScanMethod::TRANSPARENCY_INFRARED) &&
+                               (!has_flag(dev.model->flags, ModelFlag::UTA_NO_SECONDARY_MOTOR));
+
     bool uses_secondary_pos = uses_secondary_head &&
                               dev.model->default_method == ScanMethod::FLATBED;
 
@@ -1039,10 +1041,11 @@ void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
     }
 
     // FIXME: also check whether the scanner actually has a secondary head
-    if (!dev.is_head_pos_known(ScanHeadId::SECONDARY) ||
+    if ((!dev.is_head_pos_known(ScanHeadId::SECONDARY) ||
         dev.head_pos(ScanHeadId::SECONDARY) > 0 ||
         dev.settings.scan_method == ScanMethod::TRANSPARENCY ||
-        dev.settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+        dev.settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED) &&
+            (!has_flag(dev.model->flags, ModelFlag::UTA_NO_SECONDARY_MOTOR)))
     {
         scanner_move_back_home_ta(dev);
     }

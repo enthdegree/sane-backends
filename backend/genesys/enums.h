@@ -483,6 +483,9 @@ enum class ModelFlag : unsigned
 
     // the scanner outputs 16-bit data that is byte-inverted
     INVERTED_16BIT_DATA = 1 << 20,
+
+    // the scanner has transparency, but it's implemented using only one motor
+    UTA_NO_SECONDARY_MOTOR = 1 << 21
 };
 
 inline ModelFlag operator|(ModelFlag left, ModelFlag right)

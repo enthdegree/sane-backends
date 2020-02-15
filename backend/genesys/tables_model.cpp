@@ -2621,7 +2621,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::DARK_CALIBRATION |
                   ModelFlag::OFFSET_CALIBRATION |
                   ModelFlag::SHADING_REPARK |
-                  ModelFlag::CALIBRATION_HOST_SIDE |
                   ModelFlag::INVERTED_16BIT_DATA;
 
     model.shading_lines = 7;
@@ -2684,8 +2683,7 @@ void genesys_init_usb_device_tables()
                   ModelFlag::SKIP_WARMUP |
                   ModelFlag::DARK_CALIBRATION |
                   ModelFlag::OFFSET_CALIBRATION |
-                  ModelFlag::SHADING_REPARK |
-                  ModelFlag::CALIBRATION_HOST_SIDE;
+                  ModelFlag::SHADING_REPARK;
 
     model.shading_lines = 7;
     model.shading_ta_lines = 50;
@@ -2747,8 +2745,7 @@ void genesys_init_usb_device_tables()
                   ModelFlag::SKIP_WARMUP |
                   ModelFlag::DARK_CALIBRATION |
                   ModelFlag::OFFSET_CALIBRATION |
-                  ModelFlag::SHADING_REPARK |
-                  ModelFlag::CALIBRATION_HOST_SIDE;
+                  ModelFlag::SHADING_REPARK;
 
     model.shading_lines = 7;
     model.shading_ta_lines = 50;

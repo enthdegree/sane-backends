@@ -1186,6 +1186,8 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
         s.enable_ledadd = (s.params.channels == 1 && dev->model->is_cis && dev->settings.true_gray);
     }
 
+    s.use_host_side_calib = sensor.use_host_side_calib;
+
     if (dev->model->asic_type == AsicType::GL841 ||
         dev->model->asic_type == AsicType::GL843)
     {
@@ -1349,7 +1351,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
                                                         "_3_after_stagger.pnm");
     }
 
-    if (has_flag(dev->model->flags, ModelFlag::CALIBRATION_HOST_SIDE) &&
+    if (session.use_host_side_calib &&
         !has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION) &&
         !has_flag(session.params.flags, ScanFlag::DISABLE_SHADING))
     {

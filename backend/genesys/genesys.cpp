@@ -506,10 +506,6 @@ void sanei_genesys_init_shading_data(Genesys_Device* dev, const Genesys_Sensor& 
 {
     DBG_HELPER_ARGS(dbg, "pixels_per_line: %d", pixels_per_line);
 
-    if (has_flag(dev->model->flags, ModelFlag::CALIBRATION_HOST_SIDE)) {
-        return;
-    }
-
   int channels;
   int i;
 
@@ -2532,7 +2528,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
 {
     DBG_HELPER(dbg);
 
-    if (has_flag(dev->model->flags, ModelFlag::CALIBRATION_HOST_SIDE)) {
+    if (sensor.use_host_side_calib) {
         return;
     }
 
@@ -4709,7 +4705,7 @@ static void probe_genesys_devices()
    of Genesys_Calibration_Cache as is.
 */
 static const char* CALIBRATION_IDENT = "sane_genesys";
-static const int CALIBRATION_VERSION = 25;
+static const int CALIBRATION_VERSION = 26;
 
 bool read_calibration(std::istream& str, Genesys_Device::Calibration& calibration,
                       const std::string& path)

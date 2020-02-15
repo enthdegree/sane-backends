@@ -3209,6 +3209,7 @@ void genesys_init_sensor_tables()
     sensor.gain_white_ref = 230;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
     sensor.stagger_config = StaggerConfig{7200, 4};
+    sensor.use_host_side_calib = true;
     sensor.custom_regs = {
         { 0x08, 0x00 },
         { 0x09, 0x00 },
@@ -3300,6 +3301,7 @@ void genesys_init_sensor_tables()
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
     sensor.exposure_lperiod = 0x2f44;
     sensor.stagger_config = StaggerConfig{7200, 4};
+    sensor.use_host_side_calib = true;
     sensor.custom_regs = {
         { 0x08, 0x00 },
         { 0x09, 0x00 },
@@ -3374,6 +3376,7 @@ void genesys_init_sensor_tables()
     sensor.gain_white_ref = 230;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
     sensor.stagger_config = StaggerConfig{7200, 4};
+    sensor.use_host_side_calib = true;
     sensor.custom_regs = {
         { 0x08, 0x00 },
         { 0x09, 0x00 },

@@ -481,11 +481,8 @@ enum class ModelFlag : unsigned
     // the scanner always uses maximum hwdpi to setup the sensor
     FULL_HWDPI_MODE = 1 << 19,
 
-    // scanner calibration is handled on the host side
-    CALIBRATION_HOST_SIDE = 1 << 21,
-
     // the scanner outputs 16-bit data that is byte-inverted
-    INVERTED_16BIT_DATA = 1 << 22,
+    INVERTED_16BIT_DATA = 1 << 20,
 };
 
 inline ModelFlag operator|(ModelFlag left, ModelFlag right)

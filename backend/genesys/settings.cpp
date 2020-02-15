@@ -129,6 +129,7 @@ bool ScanSession::operator==(const ScanSession& other) const
         buffer_size_shrink == other.buffer_size_shrink &&
         buffer_size_out == other.buffer_size_out &&
         enable_ledadd == other.enable_ledadd &&
+        use_host_side_calib == other.use_host_side_calib &&
         pipeline_needs_reorder == other.pipeline_needs_reorder &&
         pipeline_needs_ccd == other.pipeline_needs_ccd &&
         pipeline_needs_shrink == other.pipeline_needs_shrink;
@@ -165,6 +166,8 @@ std::ostream& operator<<(std::ostream& out, const ScanSession& session)
         << "    buffer_size_read: " << session.buffer_size_lines << '\n'
         << "    buffer_size_shrink: " << session.buffer_size_shrink << '\n'
         << "    buffer_size_out: " << session.buffer_size_out << '\n'
+        << "    enable_ledadd: " << session.enable_ledadd << '\n'
+        << "    use_host_side_calib: " << session.use_host_side_calib << '\n'
         << "    filters: "
             << (session.pipeline_needs_reorder ? " reorder": "")
             << (session.pipeline_needs_ccd ? " ccd": "")

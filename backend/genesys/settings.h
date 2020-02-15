@@ -309,6 +309,9 @@ struct ScanSession {
     // whether to enable ledadd functionality
     bool enable_ledadd = false;
 
+    // whether calibration should be performed host-side
+    bool use_host_side_calib = false;
+
     // what pipeline modifications are needed
     bool pipeline_needs_reorder = false;
     bool pipeline_needs_ccd = false;
@@ -364,6 +367,7 @@ void serialize(Stream& str, ScanSession& x)
     serialize(str, x.buffer_size_shrink);
     serialize(str, x.buffer_size_out);
     serialize(str, x.enable_ledadd);
+    serialize(str, x.use_host_side_calib);
     serialize(str, x.pipeline_needs_reorder);
     serialize(str, x.pipeline_needs_ccd);
     serialize(str, x.pipeline_needs_shrink);

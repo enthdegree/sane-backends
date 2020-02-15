@@ -792,6 +792,7 @@ void CommandSetGl843::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
 static bool should_use_new_fast_table(const Genesys_Device& dev)
 {
     switch (dev.model->model_id) {
+        case ModelId::CANON_4400F:
         case ModelId::CANON_8600F:
         case ModelId::CANON_8400F:
         case ModelId::PLUSTEK_OPTICFILM_7200I:

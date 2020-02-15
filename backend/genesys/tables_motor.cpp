@@ -245,8 +245,27 @@ void genesys_init_motor_tables()
     motor.id = MotorId::CANON_4400F;
     motor.base_ydpi = 2400;
     motor.optical_ydpi = 9600;
-    motor.profiles.push_back({MotorSlope::create_from_steps(49152, 484, 1014),
-                              StepType::HALF, 11640});
+
+    profile = MotorProfile();
+    profile.slope = MotorSlope::create_from_steps(28597 * 2, 727 * 2, 200);
+    profile.step_type = StepType::QUARTER;
+    profile.motor_vref = 1;
+    profile.resolutions = { 300, 600 };
+    motor.profiles.push_back(std::move(profile));
+
+    profile = MotorProfile();
+    profile.slope = MotorSlope::create_from_steps(28597 * 2, 727 * 2, 200);
+    profile.step_type = StepType::QUARTER;
+    profile.motor_vref = 0;
+    profile.resolutions = { 1200, 2400, 4800, 9600 };
+    motor.profiles.push_back(std::move(profile));
+
+    profile = MotorProfile();
+    profile.slope = MotorSlope::create_from_steps(28597 * 2, 279 * 2, 1000);
+    profile.step_type = StepType::QUARTER;
+    profile.motor_vref = 0;
+    motor.fast_profiles.push_back(std::move(profile));
+
     s_motors->push_back(std::move(motor));
 
 

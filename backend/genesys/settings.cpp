@@ -125,9 +125,6 @@ bool ScanSession::operator==(const ScanSession& other) const
         output_segment_pixel_group_count == other.output_segment_pixel_group_count &&
         output_segment_start_offset == other.output_segment_start_offset &&
         buffer_size_read == other.buffer_size_read &&
-        buffer_size_lines == other.buffer_size_lines &&
-        buffer_size_shrink == other.buffer_size_shrink &&
-        buffer_size_out == other.buffer_size_out &&
         enable_ledadd == other.enable_ledadd &&
         use_host_side_calib == other.use_host_side_calib &&
         pipeline_needs_reorder == other.pipeline_needs_reorder &&
@@ -163,9 +160,6 @@ std::ostream& operator<<(std::ostream& out, const ScanSession& session)
         << "    output_segment_pixel_group_count: "
             << session.output_segment_pixel_group_count << '\n'
         << "    buffer_size_read: " << session.buffer_size_read << '\n'
-        << "    buffer_size_read: " << session.buffer_size_lines << '\n'
-        << "    buffer_size_shrink: " << session.buffer_size_shrink << '\n'
-        << "    buffer_size_out: " << session.buffer_size_out << '\n'
         << "    enable_ledadd: " << session.enable_ledadd << '\n'
         << "    use_host_side_calib: " << session.use_host_side_calib << '\n'
         << "    filters: "

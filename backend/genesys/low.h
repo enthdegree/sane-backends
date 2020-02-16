@@ -324,22 +324,11 @@ void regs_set_optical_off(AsicType asic_type, Genesys_Register_Set& regs);
 void sanei_genesys_set_dpihw(Genesys_Register_Set& regs, const Genesys_Sensor& sensor,
                              unsigned dpihw);
 
-inline uint16_t sanei_genesys_fixup_exposure_value(uint16_t value)
-{
-    if ((value & 0xff00) == 0) {
-        value |= 0x100;
-    }
-    if ((value & 0x00ff) == 0) {
-        value |= 0x1;
-    }
-    return value;
-}
-
 inline SensorExposure sanei_genesys_fixup_exposure(SensorExposure exposure)
 {
-    exposure.red = sanei_genesys_fixup_exposure_value(exposure.red);
-    exposure.green = sanei_genesys_fixup_exposure_value(exposure.green);
-    exposure.blue = sanei_genesys_fixup_exposure_value(exposure.blue);
+    exposure.red = std::max<std::uint16_t>(1, exposure.red);
+    exposure.green = std::max<std::uint16_t>(1, exposure.green);
+    exposure.blue = std::max<std::uint16_t>(1, exposure.blue);
     return exposure;
 }
 

@@ -228,7 +228,6 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev)
         << "    settings: " << format_indent_braced_list(4, dev.settings) << '\n'
         << "    frontend: " << format_indent_braced_list(4, dev.frontend) << '\n'
         << "    frontend_initial: " << format_indent_braced_list(4, dev.frontend_initial) << '\n'
-        << "    frontend_is_init: " << dev.frontend_is_init << '\n'
         << "    gpo.regs: " << format_indent_braced_list(4, dev.gpo.regs) << '\n'
         << "    motor: " << format_indent_braced_list(4, dev.motor) << '\n'
         << "    control[0..6]: " << std::hex

@@ -54,15 +54,6 @@
 namespace genesys {
 namespace gl843 {
 
-// Set address for writing data
-static void gl843_set_buffer_address(Genesys_Device* dev, uint32_t addr)
-{
-    DBG_HELPER_ARGS(dbg, "setting address to 0x%05x", addr & 0xffff);
-
-    dev->interface->write_register(0x5b, ((addr >> 8) & 0xff));
-    dev->interface->write_register(0x5c, (addr & 0xff));
-}
-
 /**
  * compute the step multiplier used
  */
@@ -626,7 +617,7 @@ gl843_init_registers (Genesys_Device * dev)
         dev->reg.init_reg(0xaa, 0x00);
     }
 
-    // GPOM9, MULSTOP[0-2], NODECEL, TB3TB1, TB5TB2, FIX16CLK. Not documented
+    // GPOM9, MULSTOP[0-2], NODECEL, TB3TB1, TB5TB2, FIX16CLK.
     if (dev->model->model_id != ModelId::CANON_8400F &&
         dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7200I &&
         dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7300) {
@@ -637,10 +628,9 @@ gl843_init_registers (Genesys_Device * dev)
     }
     if (dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
         dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
+        dev->model->model_id == ModelId::CANON_8600F ||
         dev->model->model_id == ModelId::HP_SCANJET_4850C)
     {
-        // BUG: this should apply to ModelId::CANON_CANOSCAN_8600F too, but due to previous bug
-        // the 8400F case overwrote it
         dev->reg.init_reg(0xab, 0x40);
     }
 
@@ -662,8 +652,7 @@ gl843_init_registers (Genesys_Device * dev)
             0x6a, 0x73, 0x63, 0x68, 0x69, 0x65, 0x6e, 0x00,
         };
 
-        dev->interface->write_buffer(0x3c, 0x3ff000, data, 32,
-                                     ScannerInterface::FLAG_SWAP_REGISTERS);
+        dev->interface->write_buffer(0x3c, 0x3ff000, data, 32);
     }
 }
 
@@ -675,7 +664,6 @@ static void gl843_send_slope_table(Genesys_Device* dev, int table_nr,
     DBG_HELPER_ARGS(dbg, "table_nr = %d, steps = %d", table_nr, steps);
 
   int i;
-  char msg[10000];
 
   std::vector<uint8_t> table(steps * 2);
   for (i = 0; i < steps; i++)
@@ -684,26 +672,13 @@ static void gl843_send_slope_table(Genesys_Device* dev, int table_nr,
       table[i * 2 + 1] = slope_table[i] >> 8;
     }
 
-  if (DBG_LEVEL >= DBG_io)
-    {
-        std::sprintf(msg, "write slope %d (%d)=", table_nr, steps);
-        for (i = 0; i < steps; i++) {
-            std::sprintf (msg+strlen(msg), "%d", slope_table[i]);
-	}
-      DBG(DBG_io, "%s: %s\n", __func__, msg);
-    }
-
     if (dev->interface->is_mock()) {
         dev->interface->record_slope_table(table_nr, slope_table);
     }
 
     // slope table addresses are fixed : 0x40000,  0x48000,  0x50000,  0x58000,  0x60000
     // XXX STEF XXX USB 1.1 ? sanei_genesys_write_0x8c (dev, 0x0f, 0x14);
-    dev->interface->write_gamma(0x28,  0x40000 + 0x8000 * table_nr, table.data(), steps * 2,
-                                ScannerInterface::FLAG_SWAP_REGISTERS);
-
-    // FIXME: remove this when updating tests
-    gl843_set_buffer_address(dev, 0);
+    dev->interface->write_gamma(0x28,  0x40000 + 0x8000 * table_nr, table.data(), steps * 2);
 }
 
 static void gl843_set_ad_fe(Genesys_Device* dev)
@@ -720,14 +695,12 @@ void CommandSetGl843::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
                                set == AFE_SET ? "set" :
                                set == AFE_POWER_SAVE ? "powersave" : "huh?");
     (void) sensor;
-  int i;
 
   if (set == AFE_INIT)
     {
         DBG(DBG_proc, "%s(): setting DAC %u\n", __func__,
             static_cast<unsigned>(dev->model->adc_id));
-      dev->frontend = dev->frontend_initial;
-        dev->frontend_is_init = true;
+        dev->frontend = dev->frontend_initial;
     }
 
     // check analog frontend type
@@ -743,64 +716,25 @@ void CommandSetGl843::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
 
   DBG(DBG_proc, "%s(): frontend reset complete\n", __func__);
 
-  for (i = 1; i <= 3; i++)
-    {
-        // FIXME: the check below is just historical artifact, we can remove it when convenient
-        if (!dev->frontend_is_init) {
-            dev->interface->write_fe_register(i, 0x00);
-        } else {
-            dev->interface->write_fe_register(i, dev->frontend.regs.get_value(0x00 + i));
-        }
+    for (unsigned i = 1; i <= 3; i++) {
+        dev->interface->write_fe_register(i, dev->frontend.regs.get_value(0x00 + i));
     }
     for (const auto& reg : sensor.custom_fe_regs) {
         dev->interface->write_fe_register(reg.address, reg.value);
     }
 
-  for (i = 0; i < 3; i++)
-    {
-         // FIXME: the check below is just historical artifact, we can remove it when convenient
-        if (!dev->frontend_is_init) {
-            dev->interface->write_fe_register(0x20 + i, 0x00);
-        } else {
-            dev->interface->write_fe_register(0x20 + i, dev->frontend.get_offset(i));
-        }
+    for (unsigned i = 0; i < 3; i++) {
+        dev->interface->write_fe_register(0x20 + i, dev->frontend.get_offset(i));
     }
 
     if (dev->model->sensor_id == SensorId::CCD_KVSS080) {
-      for (i = 0; i < 3; i++)
-	{
-            // FIXME: the check below is just historical artifact, we can remove it when convenient
-            if (!dev->frontend_is_init) {
-                dev->interface->write_fe_register(0x24 + i, 0x00);
-            } else {
-                dev->interface->write_fe_register(0x24 + i, dev->frontend.regs.get_value(0x24 + i));
-            }
-	}
-    }
-
-  for (i = 0; i < 3; i++)
-    {
-        // FIXME: the check below is just historical artifact, we can remove it when convenient
-        if (!dev->frontend_is_init) {
-            dev->interface->write_fe_register(0x28 + i, 0x00);
-        } else {
-            dev->interface->write_fe_register(0x28 + i, dev->frontend.get_gain(i));
+        for (unsigned i = 0; i < 3; i++) {
+            dev->interface->write_fe_register(0x24 + i, dev->frontend.regs.get_value(0x24 + i));
         }
     }
-}
 
-static bool should_use_new_fast_table(const Genesys_Device& dev)
-{
-    switch (dev.model->model_id) {
-        case ModelId::CANON_4400F:
-        case ModelId::CANON_8600F:
-        case ModelId::CANON_8400F:
-        case ModelId::PLUSTEK_OPTICFILM_7200I:
-        case ModelId::PLUSTEK_OPTICFILM_7300:
-        case ModelId::PLUSTEK_OPTICFILM_7500I:
-            return true;
-        default:
-            return false;
+    for (unsigned i = 0; i < 3; i++) {
+        dev->interface->write_fe_register(0x28 + i, dev->frontend.get_gain(i));
     }
 }
 
@@ -879,15 +813,11 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
 
     gl843_send_slope_table(dev, SCAN_TABLE, scan_table.table, scan_table.steps_count);
     gl843_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table, scan_table.steps_count);
+    gl843_send_slope_table(dev, STOP_TABLE, scan_table.table, scan_table.steps_count);
 
     reg->set8(REG_STEPNO, scan_table.steps_count / step_multiplier);
     reg->set8(REG_FASTNO, scan_table.steps_count / step_multiplier);
-
-    if (should_use_new_fast_table(*dev)) {
-        // FIXME: move all models to the 8600F behavior
-        gl843_send_slope_table(dev, STOP_TABLE, scan_table.table, scan_table.steps_count);
-        reg->set8(REG_FSHDEC, scan_table.steps_count / step_multiplier);
-    }
+    reg->set8(REG_FSHDEC, scan_table.steps_count / step_multiplier);
 
     // fast table
     const auto* fast_profile = get_motor_profile_ptr(dev->motor.fast_profiles, 0, session);
@@ -895,23 +825,9 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
         fast_profile = &motor_profile;
     }
 
-    MotorSlopeTable fast_table;
+    auto fast_table = create_slope_table_fastest(dev->model->asic_type, step_multiplier,
+                                                 *fast_profile);
 
-    if (should_use_new_fast_table(*dev)) {
-        fast_table = create_slope_table_fastest(dev->model->asic_type, step_multiplier,
-                                                *fast_profile);
-    } else {
-        unsigned fast_yres = sanei_genesys_get_lowest_ydpi(dev);
-        fast_table = sanei_genesys_slope_table(dev->model->asic_type, fast_yres, exposure,
-                                               dev->motor.base_ydpi, step_multiplier,
-                                               *fast_profile);
-    }
-
-    if (!should_use_new_fast_table(*dev)) {
-        // FIXME: move all models to the 8600F behavior
-        gl843_send_slope_table(dev, STOP_TABLE, fast_table.table, fast_table.steps_count);
-        reg->set8(REG_FSHDEC, fast_table.steps_count / step_multiplier);
-    }
     gl843_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.steps_count);
     gl843_send_slope_table(dev, HOME_TABLE, fast_table.table, fast_table.steps_count);
 
@@ -1313,7 +1229,7 @@ ScanSession CommandSetGl843::calculate_scan_session(const Genesys_Device* dev,
         start /= sensor.get_ccd_size_divisor_for_dpi(settings.xres);
     }
 
-    start = static_cast<float>((start * sensor.optical_res) / MM_PER_INCH);
+    start = static_cast<float>((start * settings.xres) / MM_PER_INCH);
 
     ScanSession session;
     session.params.xres = settings.xres;
@@ -1526,9 +1442,8 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
         case MotorMode::PRIMARY_AND_SECONDARY: {
             if (reg->state.is_motor_on) {
                 dev->advance_head_pos_by_session(ScanHeadId::PRIMARY);
+                dev->advance_head_pos_by_session(ScanHeadId::SECONDARY);
             }
-            // BUG: we should advance secondary head only if motor was on
-            dev->advance_head_pos_by_session(ScanHeadId::SECONDARY);
             break;
         }
         case MotorMode::SECONDARY: {
@@ -1550,9 +1465,7 @@ void CommandSetGl843::end_scan(Genesys_Device* dev, Genesys_Register_Set* reg,
     // post scan gpio
     dev->interface->write_register(0x7e, 0x00);
 
-    // turn off XPA lamp if needed
-    // BUG: the if condition below probably shouldn't be enabled when XPA is off
-    if (reg->state.is_xpa_on || reg->state.is_lamp_on) {
+    if (reg->state.is_xpa_on) {
         dev->cmd_set->set_xpa_lamp_power(*dev, false);
     }
 
@@ -1820,8 +1733,7 @@ void CommandSetGl843::send_gamma_table(Genesys_Device* dev, const Genesys_Sensor
         gamma[i * 2 + size * 4 + 1] = (bgamma[i] >> 8) & 0xff;
     }
 
-    dev->interface->write_gamma(0x28, 0x0000, gamma.data(), size * 2 * 3,
-                                ScannerInterface::FLAG_SWAP_REGISTERS);
+    dev->interface->write_gamma(0x28, 0x0000, gamma.data(), size * 2 * 3);
 }
 
 /* this function does the led calibration by scanning one line of the calibration
@@ -2410,7 +2322,7 @@ void CommandSetGl843::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     ScanSession session;
     session.params.xres = resolution;
     session.params.yres = resolution;
-    session.params.startx = num_pixels/2;
+    session.params.startx = (num_pixels / 2) * resolution / calib_sensor.optical_res;
     session.params.starty = 0;
     session.params.pixels = num_pixels;
     session.params.lines = 1;
@@ -2535,13 +2447,6 @@ void CommandSetGl843::asic_boot(Genesys_Device* dev, bool cold) const
 
   /* prevent further writings by bulk write register */
   dev->reg.remove_reg(0x0b);
-
-    if (dev->model->model_id != ModelId::CANON_8600F) {
-      // set up end access
-      // FIXME: this is overwritten in gl843_init_gpio
-        dev->interface->write_register(REG_0xA7, 0x04);
-        dev->interface->write_register(REG_0xA9, 0x00);
-    }
 
     // set RAM read address
     dev->interface->write_register(REG_0x29, 0x00);
@@ -2877,8 +2782,7 @@ void CommandSetGl843::send_shading_data(Genesys_Device* dev, const Genesys_Senso
 	}
     }
 
-    dev->interface->write_buffer(0x3c, 0, final_data.data(), count,
-                                 ScannerInterface::FLAG_SMALL_ADDRESS);
+    dev->interface->write_buffer(0x3c, 0, final_data.data(), count);
 }
 
 bool CommandSetGl843::needs_home_before_init_regs_for_scan(Genesys_Device* dev) const

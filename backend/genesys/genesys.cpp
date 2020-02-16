@@ -500,14 +500,10 @@ static void genesys_send_offset_and_shading(Genesys_Device* dev, const Genesys_S
     dev->interface->write_buffer(0x3c, start_address, data, size);
 }
 
-// ?
 void sanei_genesys_init_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                      int pixels_per_line)
 {
     DBG_HELPER_ARGS(dbg, "pixels_per_line: %d", pixels_per_line);
-
-  int channels;
-  int i;
 
     if (dev->cmd_set->has_send_shading_data()) {
         return;
@@ -515,22 +511,14 @@ void sanei_genesys_init_shading_data(Genesys_Device* dev, const Genesys_Sensor& 
 
   DBG(DBG_proc, "%s (pixels_per_line = %d)\n", __func__, pixels_per_line);
 
-    // BUG: GRAY shouldn't probably be in the if condition below. Discovered when refactoring
-    if (dev->settings.scan_mode == ScanColorMode::GRAY ||
-        dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
-    {
-        channels = 3;
-    } else {
-        channels = 1;
-    }
+    unsigned channels = dev->settings.get_channels();
 
   // 16 bit black, 16 bit white
   std::vector<uint8_t> shading_data(pixels_per_line * 4 * channels, 0);
 
   uint8_t* shading_data_ptr = shading_data.data();
 
-  for (i = 0; i < pixels_per_line * channels; i++)
-    {
+    for (unsigned i = 0; i < pixels_per_line * channels; i++) {
       *shading_data_ptr++ = 0x00;	/* dark lo */
       *shading_data_ptr++ = 0x00;	/* dark hi */
       *shading_data_ptr++ = 0x00;	/* white lo */
@@ -747,36 +735,6 @@ void scanner_clear_scan_and_feed_counts(Genesys_Device& dev)
     }
 }
 
-void scanner_clear_scan_and_feed_counts2(Genesys_Device& dev)
-{
-    // FIXME: switch to scanner_clear_scan_and_feed_counts when updating tests
-    switch (dev.model->asic_type) {
-        case AsicType::GL843: {
-            dev.interface->write_register(gl843::REG_0x0D, gl843::REG_0x0D_CLRLNCNT);
-            dev.interface->write_register(gl843::REG_0x0D, gl843::REG_0x0D_CLRMCNT);
-            break;
-        }
-        case AsicType::GL845:
-        case AsicType::GL846: {
-            dev.interface->write_register(gl846::REG_0x0D, gl846::REG_0x0D_CLRLNCNT);
-            dev.interface->write_register(gl846::REG_0x0D, gl846::REG_0x0D_CLRMCNT);
-            break;
-        }
-        case AsicType::GL847: {
-            dev.interface->write_register(gl847::REG_0x0D, gl847::REG_0x0D_CLRLNCNT);
-            dev.interface->write_register(gl847::REG_0x0D, gl847::REG_0x0D_CLRMCNT);
-            break;
-        }
-        case AsicType::GL124: {
-            dev.interface->write_register(gl124::REG_0x0D, gl124::REG_0x0D_CLRLNCNT);
-            dev.interface->write_register(gl124::REG_0x0D, gl124::REG_0x0D_CLRMCNT);
-            break;
-        }
-        default:
-            throw SaneException("Unsupported asic type");
-    }
-}
-
 bool scanner_is_motor_stopped(Genesys_Device& dev)
 {
     switch (dev.model->asic_type) {
@@ -927,17 +885,14 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
     session.params.yres = resolution;
     session.params.startx = 0;
     session.params.starty = steps;
-    session.params.pixels = 100;
+    session.params.pixels = 50;
     session.params.lines = 3;
     session.params.depth = 8;
-    session.params.channels = 3;
+    session.params.channels = 1;
     session.params.scan_method = scan_method;
-    session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-    if (dev.model->asic_type == AsicType::GL843) {
-        session.params.color_filter = ColorFilter::RED;
-    } else {
-        session.params.color_filter = dev.settings.color_filter;
-    }
+    session.params.scan_mode = ScanColorMode::GRAY;
+    session.params.color_filter = ColorFilter::GREEN;
+
     session.params.flags = ScanFlag::DISABLE_SHADING |
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::FEEDING |
@@ -956,9 +911,10 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
     dev.cmd_set->init_regs_for_scan_session(&dev, sensor, &local_reg, session);
 
     if (dev.model->asic_type != AsicType::GL843) {
-        regs_set_exposure(dev.model->asic_type, local_reg, {0, 0, 0});
+        regs_set_exposure(dev.model->asic_type, local_reg,
+                          sanei_genesys_fixup_exposure({0, 0, 0}));
     }
-    scanner_clear_scan_and_feed_counts2(dev);
+    scanner_clear_scan_and_feed_counts(dev);
 
     dev.interface->write_registers(local_reg);
     if (uses_secondary_head) {
@@ -985,10 +941,7 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
             dev.advance_head_pos_by_steps(ScanHeadId::SECONDARY, direction, steps);
         }
 
-        // FIXME: why don't we stop the scanner like on other ASICs
-        if (dev.model->asic_type != AsicType::GL843) {
-            scanner_stop_action(dev);
-        }
+        scanner_stop_action(dev);
         if (uses_secondary_head) {
             dev.cmd_set->set_motor_mode(dev, local_reg, MotorMode::PRIMARY);
         }
@@ -1008,10 +961,7 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
         dev.interface->sleep_ms(10);
     }
 
-    // FIXME: why don't we stop the scanner like on other ASICs
-    if (dev.model->asic_type != AsicType::GL843) {
-        scanner_stop_action(dev);
-    }
+    scanner_stop_action(dev);
     if (uses_secondary_head) {
         dev.cmd_set->set_motor_mode(dev, local_reg, MotorMode::PRIMARY);
     }
@@ -1070,15 +1020,6 @@ void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
         return;
     }
 
-    if (dev.model->model_id == ModelId::CANON_LIDE_210) {
-        // move the head back a little first
-        if (dev.is_head_pos_known(ScanHeadId::PRIMARY) &&
-            dev.head_pos(ScanHeadId::PRIMARY) > 30)
-        {
-            scanner_move(dev, dev.model->default_method, 20, Direction::BACKWARD);
-        }
-    }
-
     Genesys_Register_Set local_reg = dev.reg;
     unsigned resolution = sanei_genesys_get_lowest_ydpi(&dev);
 
@@ -1087,28 +1028,21 @@ void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
     ScanSession session;
     session.params.xres = resolution;
     session.params.yres = resolution;
-    session.params.startx = 100;
-    if (dev.model->asic_type == AsicType::GL843) {
-        session.params.starty = 40000;
-    } else {
-        session.params.starty = 30000;
-    }
-    session.params.pixels = 100;
-    session.params.lines = 100;
+    session.params.startx = 0;
+    session.params.starty = 40000;
+    session.params.pixels = 50;
+    session.params.lines = 3;
     session.params.depth = 8;
     session.params.channels = 1;
     session.params.scan_method = dev.settings.scan_method;
-    if (dev.model->asic_type == AsicType::GL843) {
-        session.params.scan_mode = ScanColorMode::LINEART;
-        session.params.color_filter = dev.settings.color_filter;
-    } else {
-        session.params.scan_mode = ScanColorMode::GRAY;
-        session.params.color_filter = ColorFilter::RED;
-    }
+    session.params.scan_mode = ScanColorMode::GRAY;
+    session.params.color_filter = ColorFilter::GREEN;
+
     session.params.flags =  ScanFlag::DISABLE_SHADING |
                             ScanFlag::DISABLE_GAMMA |
                             ScanFlag::IGNORE_LINE_DISTANCE |
                             ScanFlag::REVERSE;
+
     if (dev.model->asic_type == AsicType::GL843) {
         session.params.flags |= ScanFlag::DISABLE_BUFFER_FULL_MOVE;
     }
@@ -1234,15 +1168,16 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
     ScanSession session;
     session.params.xres = resolution;
     session.params.yres = resolution;
-    session.params.startx = 100;
-    session.params.starty = 30000;
-    session.params.pixels = 100;
-    session.params.lines = 100;
+    session.params.startx = 0;
+    session.params.starty = 40000;
+    session.params.pixels = 50;
+    session.params.lines = 3;
     session.params.depth = 8;
     session.params.channels = 1;
     session.params.scan_method = scan_method;
     session.params.scan_mode = ScanColorMode::GRAY;
-    session.params.color_filter = ColorFilter::RED;
+    session.params.color_filter = ColorFilter::GREEN;
+
     session.params.flags =  ScanFlag::DISABLE_SHADING |
                             ScanFlag::DISABLE_GAMMA |
                             ScanFlag::IGNORE_LINE_DISTANCE |
@@ -1454,16 +1389,11 @@ static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sens
 {
     DBG_HELPER_ARGS(dbg, "scan_mode = %d", static_cast<unsigned>(dev->settings.scan_mode));
 
-    // FIXME: remove when updating tests
-    dev->interface->record_progress_message("init_regs_for_coarse_calibration");
     dev->cmd_set->init_regs_for_coarse_calibration(dev, sensor, local_reg);
 
     if (dev->model->asic_type != AsicType::GL646) {
         dev->interface->write_registers(local_reg);
     }
-
-    // FIXME: remove when updating tests
-    dev->interface->record_progress_message("genesys_coarse_calibration");
 
   int black_pixels;
   int white_average;
@@ -1640,15 +1570,9 @@ static void genesys_coarse_calibration(Genesys_Device* dev, Genesys_Sensor& sens
 static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                              Genesys_Register_Set& local_reg,
                                              std::vector<std::uint16_t>& out_average_data,
-                                             bool is_dark, const std::string& log_filename_prefix,
-                                             const char* shading_progress_msg,
-                                             const char* function_progress_msg)
+                                             bool is_dark, const std::string& log_filename_prefix)
 {
     DBG_HELPER(dbg);
-
-    if (shading_progress_msg) { // FIXME: remove when updating tests
-        dev->interface->record_progress_message(shading_progress_msg);
-    }
 
     if (dev->model->asic_type == AsicType::GL646) {
         dev->cmd_set->init_regs_for_shading(dev, sensor, local_reg);
@@ -1659,9 +1583,6 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
         dev->interface->write_registers(local_reg);
     }
 
-    if (function_progress_msg) { // FIXME: remove when updating tests
-        dev->interface->record_progress_message(function_progress_msg);
-    }
     debug_dump(DBG_info, dev->calib_session);
 
   size_t size;
@@ -1674,7 +1595,10 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
     }
     unsigned channels = dev->calib_session.params.channels;
 
-    unsigned out_pixels_per_line = pixels_per_line + dev->calib_session.params.startx;
+    // BUG: we are using wrong pixel number here
+    unsigned start_offset =
+            dev->calib_session.params.startx * sensor.optical_res / dev->calib_session.params.xres;
+    unsigned out_pixels_per_line = pixels_per_line + start_offset;
 
     // FIXME: we set this during both dark and white calibration. A cleaner approach should
     // probably be used
@@ -1749,10 +1673,10 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
     }
 
     std::fill(out_average_data.begin(),
-              out_average_data.begin() + dev->calib_session.params.startx * channels, 0);
+              out_average_data.begin() + start_offset * channels, 0);
 
     compute_array_percentile_approx(out_average_data.data() +
-                                        dev->calib_session.params.startx * channels,
+                                        start_offset * channels,
                                     calibration_data.data(),
                                     dev->calib_session.params.lines, pixels_per_line * channels,
                                     0.5f);
@@ -1769,13 +1693,11 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
 
 
 static void genesys_dark_shading_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                             Genesys_Register_Set& local_reg,
-                                             const char* shading_progress_msg,
-                                             const char* function_progress_msg)
+                                             Genesys_Register_Set& local_reg)
 {
     DBG_HELPER(dbg);
-    genesys_shading_calibration_impl(dev, sensor, local_reg, dev->dark_average_data, true, "gl_black_",
-                                     shading_progress_msg, function_progress_msg);
+    genesys_shading_calibration_impl(dev, sensor, local_reg, dev->dark_average_data, true,
+                                     "gl_black");
 }
 /*
  * this function builds dummy dark calibration data so that we can
@@ -1799,7 +1721,11 @@ static void genesys_dummy_dark_shading(Genesys_Device* dev, const Genesys_Sensor
 
     unsigned channels = dev->calib_session.params.channels;
 
-    unsigned out_pixels_per_line = pixels_per_line + dev->calib_session.params.startx;
+    // BUG: we are using wrong pixel number here
+    unsigned start_offset =
+            dev->calib_session.params.startx * sensor.optical_res / dev->calib_session.params.xres;
+
+    unsigned out_pixels_per_line = pixels_per_line + start_offset;
 
     dev->average_size = channels * out_pixels_per_line;
   dev->dark_average_data.clear();
@@ -1882,13 +1808,11 @@ static void genesys_repark_sensor_after_white_shading(Genesys_Device* dev)
 }
 
 static void genesys_white_shading_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                              Genesys_Register_Set& local_reg,
-                                              const char* shading_progress_msg,
-                                              const char* function_progress_msg)
+                                              Genesys_Register_Set& local_reg)
 {
     DBG_HELPER(dbg);
-    genesys_shading_calibration_impl(dev, sensor, local_reg, dev->white_average_data, false, "gl_white_",
-                                     shading_progress_msg, function_progress_msg);
+    genesys_shading_calibration_impl(dev, sensor, local_reg, dev->white_average_data, false,
+                                     "gl_white");
 }
 
 // This calibration uses a scan over the calibration target, comprising a black and a white strip.
@@ -1899,9 +1823,6 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
 {
     DBG_HELPER(dbg);
 
-    // FIXME: remove when updating tests
-    dev->interface->record_progress_message("init_regs_for_shading");
-
     if (dev->model->asic_type == AsicType::GL646) {
         dev->cmd_set->init_regs_for_shading(dev, sensor, local_reg);
         local_reg = dev->reg;
@@ -1910,9 +1831,6 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
         dev->cmd_set->init_regs_for_shading(dev, sensor, local_reg);
         dev->interface->write_registers(local_reg);
     }
-
-    // FIXME: remove when updating tests
-    dev->interface->record_progress_message("genesys_dark_white_shading_calibration");
 
   size_t size;
   uint32_t pixels_per_line;
@@ -1928,7 +1846,11 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
 
     unsigned channels = dev->calib_session.params.channels;
 
-    unsigned out_pixels_per_line = pixels_per_line + dev->calib_session.params.startx;
+    // BUG: we are using wrong pixel number here
+    unsigned start_offset =
+            dev->calib_session.params.startx * sensor.optical_res / dev->calib_session.params.xres;
+
+    unsigned out_pixels_per_line = pixels_per_line + start_offset;
 
     dev->average_size = channels * out_pixels_per_line;
 
@@ -1989,14 +1911,14 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
 
 
     std::fill(dev->dark_average_data.begin(),
-              dev->dark_average_data.begin() + dev->calib_session.params.startx * channels, 0);
+              dev->dark_average_data.begin() + start_offset * channels, 0);
     std::fill(dev->white_average_data.begin(),
-              dev->white_average_data.begin() + dev->calib_session.params.startx * channels, 0);
+              dev->white_average_data.begin() + start_offset * channels, 0);
 
     uint16_t* average_white = dev->white_average_data.data() +
-                              dev->calib_session.params.startx * channels;
+                              start_offset * channels;
     uint16_t* average_dark = dev->dark_average_data.data() +
-                             dev->calib_session.params.startx * channels;
+                             start_offset * channels;
 
   for (x = 0; x < pixels_per_line * channels; x++)
     {
@@ -2541,10 +2463,15 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
   unsigned int factor;
   unsigned int coeff, target_code, words_per_color = 0;
 
+
+    // BUG: we are using wrong pixel number here
+    unsigned start_offset =
+            dev->calib_session.params.startx * sensor.optical_res / dev->calib_session.params.xres;
+
     if (dev->model->asic_type == AsicType::GL843) {
-        pixels_per_line = dev->calib_session.output_pixels + dev->calib_session.params.startx;
+        pixels_per_line = dev->calib_session.output_pixels + start_offset;
     } else {
-        pixels_per_line = dev->calib_session.params.pixels + dev->calib_session.params.startx;
+        pixels_per_line = dev->calib_session.params.pixels + start_offset;
     }
 
     unsigned channels = dev->calib_session.params.channels;
@@ -2947,9 +2874,7 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
         dev->cmd_set->coarse_gain_calibration(dev, sensor, local_reg, coarse_res);
     } else {
         // since we have 2 gain calibration proc, skip second if first one was used.
-
-        // FIXME: enable when updating tests
-        // dev->interface->record_progress_message("genesys_coarse_calibration");
+        dev->interface->record_progress_message("genesys_coarse_calibration");
         genesys_coarse_calibration(dev, sensor, local_reg);
     }
 
@@ -2987,9 +2912,7 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
             dev->cmd_set->coarse_gain_calibration(dev, sensor, local_reg, coarse_res);
         } else {
             // since we have 2 gain calibration proc, skip second if first one was used
-
-            // FIXME: enable when updating tests
-            // dev->interface->record_progress_message("genesys_coarse_calibration");
+            dev->interface->record_progress_message("genesys_coarse_calibration");
             genesys_coarse_calibration(dev, sensor, local_reg);
         }
     }
@@ -3016,25 +2939,21 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
 
     // shading calibration
     if (has_flag(dev->model->flags, ModelFlag::DARK_WHITE_CALIBRATION)) {
-        // FIXME: enable when updating tests
-        // dev->interface->record_progress_message("genesys_dark_white_shading_calibration");
+        dev->interface->record_progress_message("genesys_dark_white_shading_calibration");
         genesys_dark_white_shading_calibration(dev, sensor, local_reg);
     } else {
         DBG(DBG_proc, "%s : genesys_dark_shading_calibration local_reg ", __func__);
         debug_dump(DBG_proc, local_reg);
 
         if (has_flag(dev->model->flags, ModelFlag::DARK_CALIBRATION)) {
-            // FIXME: enable when updating tests
-            // dev->interface->record_progress_message("genesys_dark_shading_calibration");
-            genesys_dark_shading_calibration(dev, sensor, local_reg, "init_regs_for_shading",
-                                             "genesys_dark_shading_calibration");
+            dev->interface->record_progress_message("genesys_dark_shading_calibration");
+            genesys_dark_shading_calibration(dev, sensor, local_reg);
             genesys_repark_sensor_before_shading(dev);
         }
 
-        // FIXME: enable when updating tests
-        // dev->interface->record_progress_message("genesys_white_shading_calibration");
-        genesys_white_shading_calibration(dev, sensor, local_reg, "init_regs_for_shading2",
-                                          "genesys_white_shading_calibration");
+        dev->interface->record_progress_message("genesys_white_shading_calibration");
+        genesys_white_shading_calibration(dev, sensor, local_reg);
+
         genesys_repark_sensor_after_white_shading(dev);
 
         if (!has_flag(dev->model->flags, ModelFlag::DARK_CALIBRATION)) {
@@ -3101,6 +3020,7 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
         dev->cmd_set->coarse_gain_calibration(dev, sensor, local_reg, sensor.optical_res);
     } else {
         // since we have 2 gain calibration proc, skip second if first one was used
+        dev->interface->record_progress_message("genesys_coarse_calibration");
         genesys_coarse_calibration(dev, sensor, local_reg);
     }
 
@@ -3116,7 +3036,7 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
         }
 
         try {
-            genesys_dark_shading_calibration(dev, sensor, local_reg, nullptr, nullptr);
+            genesys_dark_shading_calibration(dev, sensor, local_reg);
         } catch (...) {
             catch_all_exceptions(__func__, [&](){ dev->cmd_set->eject_document(dev); });
             throw;
@@ -3136,7 +3056,7 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
   genesys_repark_sensor_before_shading(dev);
 
     try {
-        genesys_white_shading_calibration(dev, sensor, local_reg, nullptr, nullptr);
+        genesys_white_shading_calibration(dev, sensor, local_reg);
         genesys_repark_sensor_after_white_shading(dev);
     } catch (...) {
         catch_all_exceptions(__func__, [&](){ dev->cmd_set->eject_document(dev); });
@@ -5708,9 +5628,7 @@ static void set_option_value(Genesys_Scanner* s, int option, void *val, SANE_Int
     case OPT_EXPIRATION_TIME:
         if (*reinterpret_cast<SANE_Word*>(val) != s->expiration_time) {
             s->expiration_time = *reinterpret_cast<SANE_Word*>(val);
-            // BUG: this is most likely not intended behavior, found out during refactor
-                s->dev->cmd_set->set_powersaving(s->dev, s->expiration_time);
-	}
+        }
         break;
 
     case OPT_CUSTOM_GAMMA:

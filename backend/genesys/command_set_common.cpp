@@ -113,11 +113,7 @@ void CommandSetCommon::set_xpa_lamp_power(Genesys_Device& dev, bool set) const
                 { 0x6c, 0x00, 0x80 },
             }
         },
-        {   ModelId::PLUSTEK_OPTICFILM_7200I, ScanMethod::TRANSPARENCY, {
-            }, {
-                { 0xa6, 0x40, 0x70 }, // BUG: remove this cleanup write, it was enabled by accident
-            }
-        },
+        {   ModelId::PLUSTEK_OPTICFILM_7200I, ScanMethod::TRANSPARENCY, {}, {} },
         {   ModelId::PLUSTEK_OPTICFILM_7200I, ScanMethod::TRANSPARENCY_INFRARED, {
                 { 0xa8, 0x07, 0x07 },
             }, {
@@ -143,17 +139,7 @@ void CommandSetCommon::set_xpa_lamp_power(Genesys_Device& dev, bool set) const
         }
     }
 
-    // BUG: we're currently calling the function in shut down path of regular lamp
-    if (set) {
-        throw SaneException("Unexpected code path entered");
-    }
-
-    GenesysRegisterSettingSet regs = {
-        { 0xa6, 0x40, 0x70 },
-    };
-    apply_reg_settings_to_device(dev, regs);
-    // TODO: throw exception when we're only calling this function in error return path
-    // throw SaneException("Could not find XPA lamp settings");
+    throw SaneException("Could not find XPA lamp settings");
 }
 
 

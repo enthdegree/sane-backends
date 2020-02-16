@@ -622,19 +622,8 @@ void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sen
         regs.find_reg(0x03).value &= ~REG_0x03_LAMPPWR;
 
         if (dev->model->asic_type == AsicType::GL841) {
-            regs_set_exposure(dev->model->asic_type, regs, {0x0101, 0x0101, 0x0101});
+            regs_set_exposure(dev->model->asic_type, regs, sanei_genesys_fixup_exposure({0, 0, 0}));
             regs.set8(0x19, 0xff);
-        }
-
-        if (dev->model->asic_type == AsicType::GL843) {
-            if (dev->model->model_id == ModelId::PANASONIC_KV_SS080 ||
-                dev->model->model_id == ModelId::HP_SCANJET_4850C ||
-                dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
-                dev->model->model_id == ModelId::HP_SCANJET_G4050)
-            {
-                // BUG: datasheet says we shouldn't set exposure to zero
-                regs_set_exposure(dev->model->asic_type, regs, {0, 0, 0});
-            }
         }
     }
     regs.state.is_lamp_on = set;
@@ -801,70 +790,9 @@ static unsigned align_int_up(unsigned num, unsigned alignment)
     return num;
 }
 
-void compute_session_buffer_sizes(AsicType asic, ScanSession& s)
+std::size_t compute_session_buffer_sizes(const ScanSession& s)
 {
-    size_t line_bytes = s.output_line_bytes;
-    size_t line_bytes_stagger = s.output_line_bytes;
-
-    if (asic != AsicType::GL646) {
-        // BUG: this is historical artifact and should be removed. Note that buffer sizes affect
-        // how often we request the scanner for data and thus change the USB traffic.
-        line_bytes_stagger =
-                multiply_by_depth_ceil(s.optical_pixels, s.params.depth) * s.params.channels;
-    }
-
-    struct BufferConfig {
-        size_t* result_size = nullptr;
-        size_t lines = 0;
-        size_t lines_mult = 0;
-        size_t max_size = 0; // does not apply if 0
-        size_t stagger_lines = 0;
-
-        BufferConfig() = default;
-        BufferConfig(std::size_t* rs, std::size_t l, std::size_t lm, std::size_t ms,
-                     std::size_t sl) :
-            result_size{rs},
-            lines{l},
-            lines_mult{lm},
-            max_size{ms},
-            stagger_lines{sl}
-        {}
-    };
-
-    std::array<BufferConfig, 4> configs;
-    if (asic == AsicType::GL124 || asic == AsicType::GL843) {
-        configs = { {
-            { &s.buffer_size_read, 32, 1, 0, s.max_color_shift_lines + s.num_staggered_lines },
-            { &s.buffer_size_lines, 32, 1, 0, s.max_color_shift_lines + s.num_staggered_lines },
-            { &s.buffer_size_shrink, 16, 1, 0, 0 },
-            { &s.buffer_size_out, 8, 1, 0, 0 },
-        } };
-    } else if (asic == AsicType::GL841) {
-        size_t max_buf = sanei_genesys_get_bulk_max_size(asic);
-        configs = { {
-            { &s.buffer_size_read, 8, 2, max_buf, s.max_color_shift_lines + s.num_staggered_lines },
-            { &s.buffer_size_lines, 8, 2, max_buf, s.max_color_shift_lines + s.num_staggered_lines },
-            { &s.buffer_size_shrink, 8, 1, max_buf, 0 },
-            { &s.buffer_size_out, 8, 1, 0, 0 },
-        } };
-    } else {
-        configs = { {
-            { &s.buffer_size_read, 16, 1, 0, s.max_color_shift_lines + s.num_staggered_lines },
-            { &s.buffer_size_lines, 16, 1, 0, s.max_color_shift_lines + s.num_staggered_lines },
-            { &s.buffer_size_shrink, 8, 1, 0, 0 },
-            { &s.buffer_size_out, 8, 1, 0, 0 },
-        } };
-    }
-
-    for (BufferConfig& config : configs) {
-        size_t buf_size = line_bytes * config.lines;
-        if (config.max_size > 0 && buf_size > config.max_size) {
-            buf_size = (config.max_size / line_bytes) * line_bytes;
-        }
-        buf_size *= config.lines_mult;
-        buf_size += line_bytes_stagger * config.stagger_lines;
-        *config.result_size = buf_size;
-    }
+    return s.output_line_bytes * (32 + s.max_color_shift_lines + s.num_staggered_lines);
 }
 
 void compute_session_pipeline(const Genesys_Device* dev, ScanSession& s)
@@ -907,7 +835,7 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
         if (has_flag(s.params.flags, ScanFlag::USE_XCORRECTION) && sensor.ccd_start_xoffset > 0) {
             s.pixel_startx = sensor.ccd_start_xoffset;
         }
-        s.pixel_startx += s.params.startx;
+        s.pixel_startx += s.params.startx * sensor.optical_res / s.params.xres;
 
         if (sensor.stagger_config.stagger_at_resolution(s.params.xres, s.params.yres) > 0) {
             s.pixel_startx |= 1;
@@ -919,7 +847,9 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
         s.pixel_endx /= sensor.ccd_pixels_per_system_pixel() * s.ccd_size_divisor;
 
     } else if (dev->model->asic_type == AsicType::GL841) {
-        s.pixel_startx = ((sensor.ccd_start_xoffset + s.params.startx) * s.optical_resolution)
+        unsigned startx = s.params.startx * sensor.optical_res / s.params.xres;
+
+        s.pixel_startx = ((sensor.ccd_start_xoffset + startx) * s.optical_resolution)
                                 / sensor.optical_res;
 
         s.pixel_startx += sensor.dummy_pixel + 1;
@@ -944,8 +874,9 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
         s.pixel_endx = s.pixel_startx + s.optical_pixels;
 
     } else if (dev->model->asic_type == AsicType::GL843) {
+        unsigned startx = s.params.startx * sensor.optical_res / s.params.xres;
 
-        s.pixel_startx = (s.params.startx + sensor.dummy_pixel) / ccd_pixels_per_system_pixel;
+        s.pixel_startx = (startx + sensor.dummy_pixel) / ccd_pixels_per_system_pixel;
         s.pixel_endx = s.pixel_startx + s.optical_pixels / ccd_pixels_per_system_pixel;
 
         s.pixel_startx /= s.hwdpi_divisor;
@@ -973,7 +904,9 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
                dev->model->asic_type == AsicType::GL846 ||
                dev->model->asic_type == AsicType::GL847)
     {
-        s.pixel_startx = s.params.startx;
+        unsigned startx = s.params.startx * sensor.optical_res / s.params.xres;
+
+        s.pixel_startx = startx;
 
         if (s.num_staggered_lines > 0) {
             s.pixel_startx |= 1;
@@ -986,7 +919,9 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
         s.pixel_endx /= s.hwdpi_divisor * s.segment_count * ccd_pixels_per_system_pixel;
 
     } else if (dev->model->asic_type == AsicType::GL124) {
-        s.pixel_startx = s.params.startx;
+        unsigned startx = s.params.startx * sensor.optical_res / s.params.xres;
+
+        s.pixel_startx = startx;
 
         if (s.num_staggered_lines > 0) {
             s.pixel_startx |= 1;
@@ -1181,7 +1116,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     s.output_total_bytes_raw = s.output_line_bytes_raw * s.output_line_count;
     s.output_total_bytes = s.output_line_bytes * s.output_line_count;
 
-    compute_session_buffer_sizes(dev->model->asic_type, s);
+    s.buffer_size_read = compute_session_buffer_sizes(s);
     compute_session_pipeline(dev, s);
     compute_session_pixel_offsets(dev, s, sensor);
 
@@ -1234,24 +1169,6 @@ static std::size_t get_usb_buffer_read_size(AsicType asic, const ScanSession& se
     }
 }
 
-static FakeBufferModel get_fake_usb_buffer_model(const ScanSession& session)
-{
-    FakeBufferModel model;
-    model.push_step(session.buffer_size_read, 1);
-
-    if (session.pipeline_needs_reorder) {
-        model.push_step(session.buffer_size_lines, session.output_line_bytes);
-    }
-    if (session.pipeline_needs_ccd) {
-        model.push_step(session.buffer_size_shrink, session.output_line_bytes);
-    }
-    if (session.pipeline_needs_shrink) {
-        model.push_step(session.buffer_size_out, session.output_line_bytes);
-    }
-
-    return model;
-}
-
 void build_image_pipeline(Genesys_Device* dev, const Genesys_Sensor& sensor,
                           const ScanSession& session)
 {
@@ -1297,7 +1214,7 @@ void build_image_pipeline(Genesys_Device* dev, const Genesys_Sensor& sensor,
 
         dev->pipeline.push_first_node<ImagePipelineNodeBufferedGenesysUsb>(
                 width, lines, format, read_bytes_left_after_deseg,
-                get_fake_usb_buffer_model(session), read_data_from_usb);
+                session.buffer_size_read, read_data_from_usb);
     }
 
     if (DBG_LEVEL >= DBG_io2) {
@@ -1362,10 +1279,10 @@ void build_image_pipeline(Genesys_Device* dev, const Genesys_Sensor& sensor,
         !has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION) &&
         !has_flag(session.params.flags, ScanFlag::DISABLE_SHADING))
     {
-        unsigned pixel_shift = session.params.startx * dev->calib_session.params.xres /
-                sensor.optical_res;
+        unsigned pixel_shift = session.params.startx;
         if (dev->model->model_id == ModelId::CANON_4400F) {
-            pixel_shift = session.params.startx;
+            pixel_shift =
+                    session.params.startx * sensor.optical_res / dev->calib_session.params.xres;
         }
         dev->pipeline.push_node<ImagePipelineNodeCalibrate>(dev->dark_average_data,
                                                             dev->white_average_data,

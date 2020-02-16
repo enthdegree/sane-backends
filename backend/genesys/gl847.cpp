@@ -254,7 +254,6 @@ static void gl847_send_slope_table(Genesys_Device* dev, int table_nr,
 {
     DBG_HELPER_ARGS(dbg, "table_nr = %d, steps = %d", table_nr, steps);
   int i;
-  char msg[10000];
 
   /* sanity check */
   if(table_nr<0 || table_nr>4)
@@ -267,16 +266,6 @@ static void gl847_send_slope_table(Genesys_Device* dev, int table_nr,
     {
       table[i * 2] = slope_table[i] & 0xff;
       table[i * 2 + 1] = slope_table[i] >> 8;
-    }
-
-  if (DBG_LEVEL >= DBG_io)
-    {
-        std::sprintf(msg, "write slope %d (%d)=", table_nr, steps);
-      for (i = 0; i < steps; i++)
-	{
-            std::sprintf(msg + std::strlen(msg), "%d", slope_table[i]);
-	}
-      DBG (DBG_io, "%s: %s\n", __func__, msg);
     }
 
     if (dev->interface->is_mock()) {
@@ -762,7 +751,7 @@ ScanSession CommandSetGl847::calculate_scan_session(const Genesys_Device* dev,
   /* start */
     start = static_cast<int>(dev->model->x_offset);
     start = static_cast<int>(start + settings.tl_x);
-    start = static_cast<int>((start * sensor.optical_res) / MM_PER_INCH);
+    start = static_cast<int>((start * settings.xres) / MM_PER_INCH);
 
     ScanSession session;
     session.params.xres = settings.xres;
@@ -1061,7 +1050,7 @@ void CommandSetGl847::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
   /* start */
     start = dev->model->x_offset;
     start = start + dev->settings.tl_x;
-    start = static_cast<float>((start * sensor.optical_res) / MM_PER_INCH);
+    start = static_cast<float>((start * dev->settings.xres) / MM_PER_INCH);
 
     ScanSession session;
     session.params.xres = dev->settings.xres;

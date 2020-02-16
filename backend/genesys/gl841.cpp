@@ -323,42 +323,17 @@ gl841_init_lide80 (Genesys_Device * dev)
     }
 
     // specific scanner settings, clock and gpio first
-    // FIXME: remove the dummy reads as we don't use the values
-    if (!is_testing_mode()) {
-        dev->interface->read_register(REG_0x6B);
-    }
     dev->interface->write_register(REG_0x6B, 0x0c);
     dev->interface->write_register(0x06, 0x10);
     dev->interface->write_register(REG_0x6E, 0x6d);
     dev->interface->write_register(REG_0x6F, 0x80);
     dev->interface->write_register(REG_0x6B, 0x0e);
-    if (!is_testing_mode()) {
-        dev->interface->read_register(REG_0x6C);
-    }
     dev->interface->write_register(REG_0x6C, 0x00);
-    if (!is_testing_mode()) {
-        dev->interface->read_register(REG_0x6D);
-    }
     dev->interface->write_register(REG_0x6D, 0x8f);
-    if (!is_testing_mode()) {
-        dev->interface->read_register(REG_0x6B);
-    }
     dev->interface->write_register(REG_0x6B, 0x0e);
-    if (!is_testing_mode()) {
-        dev->interface->read_register(REG_0x6B);
-    }
     dev->interface->write_register(REG_0x6B, 0x0e);
-    if (!is_testing_mode()) {
-        dev->interface->read_register(REG_0x6B);
-    }
     dev->interface->write_register(REG_0x6B, 0x0a);
-    if (!is_testing_mode()) {
-        dev->interface->read_register(REG_0x6B);
-    }
     dev->interface->write_register(REG_0x6B, 0x02);
-    if (!is_testing_mode()) {
-        dev->interface->read_register(REG_0x6B);
-    }
     dev->interface->write_register(REG_0x6B, 0x06);
 
     dev->interface->write_0x8c(0x10, 0x94);
@@ -537,7 +512,6 @@ static void gl841_send_slope_table(Genesys_Device* dev, int table_nr,
     DBG_HELPER_ARGS(dbg, "table_nr = %d, steps = %d", table_nr, steps);
   int dpihw;
   int start_address;
-  char msg[4000];
 /*#ifdef WORDS_BIGENDIAN*/
   int i;
 /*#endif*/
@@ -559,15 +533,6 @@ static void gl841_send_slope_table(Genesys_Device* dev, int table_nr,
       table[i * 2] = slope_table[i] & 0xff;
       table[i * 2 + 1] = slope_table[i] >> 8;
   }
-
-  if (DBG_LEVEL >= DBG_io)
-    {
-        std::sprintf(msg, "write slope %d (%d)=", table_nr, steps);
-        for (i = 0; i < steps; i++) {
-            std::sprintf (msg+strlen(msg), ",%d", slope_table[i]);
-	}
-      DBG(DBG_io, "%s: %s\n", __func__, msg);
-    }
 
     if (dev->interface->is_mock()) {
         dev->interface->record_slope_table(table_nr, slope_table);
@@ -814,8 +779,7 @@ uint8_t *table;
             table=tdefault;
         }
         dev->interface->write_register(0x66, 0x00);
-        dev->interface->write_gamma(0x28, 0xc000, table, 128,
-                                    ScannerInterface::FLAG_SWAP_REGISTERS);
+        dev->interface->write_gamma(0x28, 0xc000, table, 128);
         dev->interface->write_register(0x5b, 0x00);
         dev->interface->write_register(0x5c, 0x00);
     }
@@ -1666,7 +1630,7 @@ ScanSession CommandSetGl841::calculate_scan_session(const Genesys_Device* dev,
 
     float start = dev->model->x_offset;
     start += dev->settings.tl_x;
-    start = static_cast<float>((start * sensor.optical_res) / MM_PER_INCH);
+    start = static_cast<float>((start * dev->settings.xres) / MM_PER_INCH);
 
     // we enable true gray for cis scanners only, and just when doing
     // scan since color calibration is OK for this mode

@@ -2396,21 +2396,6 @@ void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
                                             Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
-    unsigned starty = 0;
-
-    if (dev->model->motor_id == MotorId::CANON_LIDE_80) {
-      /* get over extra dark area for this model.
-	 It looks like different devices have dark areas of different width
-	 due to manufacturing variability. The initial value of starty was 140,
-	 but it moves the sensor almost past the dark area completely in places
-	 on certain devices.
-
-	 On a particular device the black area starts at roughly position
-	 160 to 230 depending on location (the dark area is not completely
-	 parallel to the frame).
-      */
-      starty = 70;
-    }
 
     unsigned channels = 3;
 
@@ -2421,7 +2406,9 @@ void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
                                                          dev->settings.scan_method);
 
     unsigned calib_lines =
-            static_cast<unsigned>(dev->model->y_size_calib_mm * resolution / MM_PER_INCH);
+            static_cast<unsigned>(dev->model->y_size_calib_dark_white_mm * resolution / MM_PER_INCH);
+    unsigned starty =
+            static_cast<unsigned>(dev->model->y_offset_calib_dark_white_mm * dev->motor.base_ydpi / MM_PER_INCH);
     ScanSession session;
     session.params.xres = resolution;
     session.params.yres = resolution;

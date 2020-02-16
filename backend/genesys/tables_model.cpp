@@ -88,6 +88,12 @@ void genesys_init_usb_device_tables()
         model.y_offset_sensor_to_ta = 0.0;
         model.y_offset_calib_white_ta = 0.0;
         model.y_size_calib_ta_mm = 0.0;
+
+        If the scanner does not have ModelFlag::DARK_WHITE_CALIBRATION, then the following
+        properties are optional:
+
+        model.y_offset_calib_dark_white_mm = 0.0;
+        model.y_size_calib_dark_white_mm = 0.0;
     */
 
     s_usb_devices.init();
@@ -165,6 +171,8 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_calib_white = 3.0;
     model.y_size_calib_mm = 3.0;
+    model.y_offset_calib_dark_white_mm = 1.0;
+    model.y_size_calib_dark_white_mm = 6.0;
     model.x_offset_calib_black = 0.0;
 
     model.post_scan = 0.0;
@@ -1083,6 +1091,8 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_calib_white = 3.0;
     model.y_size_calib_mm = 3.0;
+    model.y_offset_calib_dark_white_mm = 1.0;
+    model.y_size_calib_dark_white_mm = 6.0;
     model.x_offset_calib_black = 0.0;
 
     model.post_scan = 0.0;
@@ -1136,6 +1146,8 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_calib_white = 4.5;
     model.y_size_calib_mm = 3.0;
+    model.y_offset_calib_dark_white_mm = 1.0;
+    model.y_size_calib_dark_white_mm = 6.0;
     model.x_offset_calib_black = 0.0;
 
     model.post_scan = 0.0;

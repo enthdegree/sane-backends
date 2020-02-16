@@ -137,11 +137,18 @@ struct Genesys_Model
     // Size of scan area in mm
     float y_size = 0;
 
-    // Start of white strip in mm
+    // Start of white strip in mm for scanners that use separate dark and white shading calibration.
     float y_offset_calib_white = 0;
 
     // The size of the scan area that is used to acquire shading data in mm
     float y_size_calib_mm = 0;
+
+    // Start of the black/white strip in mm for scanners that use unified dark and white shading
+    // calibration.
+    float y_offset_calib_dark_white_mm = 0;
+
+    // The size of the scan area that is used to acquire dark/white shading data in mm
+    float y_size_calib_dark_white_mm = 0;
 
     // Start of black mark in mm
     float x_offset_calib_black = 0;

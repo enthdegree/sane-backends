@@ -1067,15 +1067,6 @@ void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
         return;
     }
 
-    if (dev.model->model_id == ModelId::CANON_LIDE_210) {
-        // move the head back a little first
-        if (dev.is_head_pos_known(ScanHeadId::PRIMARY) &&
-            dev.head_pos(ScanHeadId::PRIMARY) > 30)
-        {
-            scanner_move(dev, dev.model->default_method, 20, Direction::BACKWARD);
-        }
-    }
-
     Genesys_Register_Set local_reg = dev.reg;
     unsigned resolution = sanei_genesys_get_lowest_ydpi(&dev);
 

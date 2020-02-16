@@ -2448,13 +2448,6 @@ void CommandSetGl843::asic_boot(Genesys_Device* dev, bool cold) const
   /* prevent further writings by bulk write register */
   dev->reg.remove_reg(0x0b);
 
-    if (dev->model->model_id != ModelId::CANON_8600F) {
-      // set up end access
-      // FIXME: this is overwritten in gl843_init_gpio
-        dev->interface->write_register(REG_0xA7, 0x04);
-        dev->interface->write_register(REG_0xA9, 0x00);
-    }
-
     // set RAM read address
     dev->interface->write_register(REG_0x29, 0x00);
     dev->interface->write_register(REG_0x2A, 0x00);

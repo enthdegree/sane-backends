@@ -2494,7 +2494,6 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
   int avg[3], avga, avge;
   int turn;
   uint16_t exp[3], target;
-  int move;
 
   /* these 2 boundaries should be per sensor */
   uint16_t min_exposure=500;
@@ -2502,9 +2501,8 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
 
   /* feed to white strip if needed */
     if (dev->model->y_offset_calib_white > 0) {
-        move = static_cast<int>(dev->model->y_offset_calib_white);
-        move = static_cast<int>((move * (dev->motor.base_ydpi)) / MM_PER_INCH);
-      DBG(DBG_io, "%s: move=%d lines\n", __func__, move);
+        unsigned move = static_cast<unsigned>(
+                (dev->model->y_offset_calib_white * (dev->motor.base_ydpi)) / MM_PER_INCH);
         gl841_feed(dev, move);
     }
 
@@ -3162,13 +3160,11 @@ void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys
   int num_pixels;
   float gain[3];
   int lines=1;
-  int move;
 
     // feed to white strip if needed
     if (dev->model->y_offset_calib_white > 0) {
-        move = static_cast<int>(dev->model->y_offset_calib_white);
-        move = static_cast<int>((move * (dev->motor.base_ydpi)) / MM_PER_INCH);
-      DBG(DBG_io, "%s: move=%d lines\n", __func__, move);
+        unsigned move = static_cast<unsigned>(
+                (dev->model->y_offset_calib_white * (dev->motor.base_ydpi)) / MM_PER_INCH);
         gl841_feed(dev, move);
     }
 

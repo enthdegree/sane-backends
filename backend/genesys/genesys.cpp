@@ -735,36 +735,6 @@ void scanner_clear_scan_and_feed_counts(Genesys_Device& dev)
     }
 }
 
-void scanner_clear_scan_and_feed_counts2(Genesys_Device& dev)
-{
-    // FIXME: switch to scanner_clear_scan_and_feed_counts when updating tests
-    switch (dev.model->asic_type) {
-        case AsicType::GL843: {
-            dev.interface->write_register(gl843::REG_0x0D, gl843::REG_0x0D_CLRLNCNT);
-            dev.interface->write_register(gl843::REG_0x0D, gl843::REG_0x0D_CLRMCNT);
-            break;
-        }
-        case AsicType::GL845:
-        case AsicType::GL846: {
-            dev.interface->write_register(gl846::REG_0x0D, gl846::REG_0x0D_CLRLNCNT);
-            dev.interface->write_register(gl846::REG_0x0D, gl846::REG_0x0D_CLRMCNT);
-            break;
-        }
-        case AsicType::GL847: {
-            dev.interface->write_register(gl847::REG_0x0D, gl847::REG_0x0D_CLRLNCNT);
-            dev.interface->write_register(gl847::REG_0x0D, gl847::REG_0x0D_CLRMCNT);
-            break;
-        }
-        case AsicType::GL124: {
-            dev.interface->write_register(gl124::REG_0x0D, gl124::REG_0x0D_CLRLNCNT);
-            dev.interface->write_register(gl124::REG_0x0D, gl124::REG_0x0D_CLRMCNT);
-            break;
-        }
-        default:
-            throw SaneException("Unsupported asic type");
-    }
-}
-
 bool scanner_is_motor_stopped(Genesys_Device& dev)
 {
     switch (dev.model->asic_type) {
@@ -944,7 +914,7 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
         regs_set_exposure(dev.model->asic_type, local_reg,
                           sanei_genesys_fixup_exposure({0, 0, 0}));
     }
-    scanner_clear_scan_and_feed_counts2(dev);
+    scanner_clear_scan_and_feed_counts(dev);
 
     dev.interface->write_registers(local_reg);
     if (uses_secondary_head) {

@@ -1185,8 +1185,8 @@ void genesys_init_usb_device_tables()
     model.x_size = 218.0;
     model.y_size = 299.0;
 
-    model.y_offset_calib_white = 6.0;
-    model.y_size_calib_mm = 1.5; // FIXME: check if the white area is really so small
+    model.y_offset_calib_white = 3.0;
+    model.y_size_calib_mm = 3.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;

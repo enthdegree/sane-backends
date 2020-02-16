@@ -941,7 +941,8 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
     dev.cmd_set->init_regs_for_scan_session(&dev, sensor, &local_reg, session);
 
     if (dev.model->asic_type != AsicType::GL843) {
-        regs_set_exposure(dev.model->asic_type, local_reg, {0, 0, 0});
+        regs_set_exposure(dev.model->asic_type, local_reg,
+                          sanei_genesys_fixup_exposure({0, 0, 0}));
     }
     scanner_clear_scan_and_feed_counts2(dev);
 

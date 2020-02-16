@@ -625,17 +625,6 @@ void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sen
             regs_set_exposure(dev->model->asic_type, regs, {0x0101, 0x0101, 0x0101});
             regs.set8(0x19, 0xff);
         }
-
-        if (dev->model->asic_type == AsicType::GL843) {
-            if (dev->model->model_id == ModelId::PANASONIC_KV_SS080 ||
-                dev->model->model_id == ModelId::HP_SCANJET_4850C ||
-                dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
-                dev->model->model_id == ModelId::HP_SCANJET_G4050)
-            {
-                // BUG: datasheet says we shouldn't set exposure to zero
-                regs_set_exposure(dev->model->asic_type, regs, {0, 0, 0});
-            }
-        }
     }
     regs.state.is_lamp_on = set;
 }

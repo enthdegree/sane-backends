@@ -709,6 +709,11 @@ namespace gl124 {
 void scanner_clear_scan_and_feed_counts(Genesys_Device& dev)
 {
     switch (dev.model->asic_type) {
+        case AsicType::GL841: {
+            dev.interface->write_register(gl841::REG_0x0D,
+                                          gl841::REG_0x0D_CLRLNCNT);
+            break;
+        }
         case AsicType::GL843: {
             dev.interface->write_register(gl843::REG_0x0D,
                                           gl843::REG_0x0D_CLRLNCNT | gl843::REG_0x0D_CLRMCNT);
@@ -786,6 +791,7 @@ void scanner_stop_action(Genesys_Device& dev)
     DBG_HELPER(dbg);
 
     switch (dev.model->asic_type) {
+        case AsicType::GL841:
         case AsicType::GL843:
         case AsicType::GL845:
         case AsicType::GL846:

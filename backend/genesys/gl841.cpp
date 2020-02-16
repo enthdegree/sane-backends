@@ -2126,67 +2126,6 @@ void CommandSetGl841::end_scan(Genesys_Device* dev, Genesys_Register_Set __sane_
     }
 }
 
-// Moves the slider to steps
-static void gl841_feed(Genesys_Device* dev, int steps)
-{
-    DBG_HELPER_ARGS(dbg, "steps = %d", steps);
-  Genesys_Register_Set local_reg;
-  int loop;
-
-    gl841_stop_action(dev);
-
-  // FIXME: we should pick sensor according to the resolution scanner is currently operating on
-  const auto& sensor = sanei_genesys_find_sensor_any(dev);
-
-  local_reg = dev->reg;
-
-    regs_set_optical_off(dev->model->asic_type, local_reg);
-
-    gl841_init_motor_regs(dev, sensor, &local_reg, steps, MOTOR_ACTION_FEED, MotorFlag::NONE);
-
-    dev->interface->write_registers(local_reg);
-
-    try {
-        scanner_start_action(*dev, true);
-    } catch (...) {
-        catch_all_exceptions(__func__, [&]() { gl841_stop_action (dev); });
-        // restore original registers
-        catch_all_exceptions(__func__, [&]()
-        {
-            dev->interface->write_registers(dev->reg);
-        });
-        throw;
-    }
-
-    if (is_testing_mode()) {
-        dev->interface->test_checkpoint("feed");
-        dev->advance_head_pos_by_steps(ScanHeadId::PRIMARY, Direction::FORWARD, steps);
-        gl841_stop_action(dev);
-        return;
-    }
-
-  loop = 0;
-  while (loop < 300)		/* do not wait longer then 30 seconds */
-  {
-        auto status = scanner_read_status(*dev);
-
-        if (!status.is_motor_enabled) {
-            DBG(DBG_proc, "%s: finished\n", __func__);
-            dev->advance_head_pos_by_steps(ScanHeadId::PRIMARY, Direction::FORWARD, steps);
-            return;
-      }
-        dev->interface->sleep_ms(100);
-      ++loop;
-  }
-
-  /* when we come here then the scanner needed too much time for this, so we better stop the motor */
-  gl841_stop_action (dev);
-
-    dev->set_head_pos_unknown(ScanHeadId::PRIMARY);
-
-    throw SaneException(SANE_STATUS_IO_ERROR, "timeout while waiting for scanhead to go home");
-}
-
 // Moves the slider to the home (top) position slowly
 void CommandSetGl841::move_back_home(Genesys_Device* dev, bool wait_until_home) const
 {
@@ -2483,7 +2422,7 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
     if (dev->model->y_offset_calib_white > 0) {
         unsigned move = static_cast<unsigned>(
                 (dev->model->y_offset_calib_white * (dev->motor.base_ydpi)) / MM_PER_INCH);
-        gl841_feed(dev, move);
+        scanner_move(*dev, dev->model->default_method, move, Direction::FORWARD);
     }
 
   /* offset calibration is always done in color mode */
@@ -2804,7 +2743,8 @@ void CommandSetGl841::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
   /* Analog Device fronted have a different calibration */
     if ((dev->reg.find_reg(0x04).value & REG_0x04_FESET) == 0x02) {
-      return ad_fe_offset_calibration(dev, sensor, regs);
+        ad_fe_offset_calibration(dev, sensor, regs);
+        return;
     }
 
   /* offset calibration is always done in color mode */
@@ -3145,7 +3085,7 @@ void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     if (dev->model->y_offset_calib_white > 0) {
         unsigned move = static_cast<unsigned>(
                 (dev->model->y_offset_calib_white * (dev->motor.base_ydpi)) / MM_PER_INCH);
-        gl841_feed(dev, move);
+        scanner_move(*dev, dev->model->default_method, move, Direction::FORWARD);
     }
 
   /* coarse gain calibration is allways done in color mode */
@@ -3340,7 +3280,7 @@ static void sanei_gl841_repark_head(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
 
-    gl841_feed(dev,232);
+    scanner_move(*dev, dev->model->default_method, 232, Direction::FORWARD);
 
     // toggle motor flag, put an huge step number and redo move backward
     dev->cmd_set->move_back_home(dev, true);

@@ -259,11 +259,6 @@ struct Genesys_Device
     Genesys_Register_Set initial_regs;
     Genesys_Settings settings;
     Genesys_Frontend frontend, frontend_initial;
-
-    // whether the frontend is initialized. This is currently used just to preserve historical
-    // behavior
-    bool frontend_is_init = false;
-
     Genesys_Gpo gpo;
     Genesys_Motor motor;
     std::uint8_t control[6] = {};

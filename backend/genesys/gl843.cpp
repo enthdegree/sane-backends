@@ -695,14 +695,12 @@ void CommandSetGl843::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
                                set == AFE_SET ? "set" :
                                set == AFE_POWER_SAVE ? "powersave" : "huh?");
     (void) sensor;
-  int i;
 
   if (set == AFE_INIT)
     {
         DBG(DBG_proc, "%s(): setting DAC %u\n", __func__,
             static_cast<unsigned>(dev->model->adc_id));
-      dev->frontend = dev->frontend_initial;
-        dev->frontend_is_init = true;
+        dev->frontend = dev->frontend_initial;
     }
 
     // check analog frontend type
@@ -718,49 +716,25 @@ void CommandSetGl843::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
 
   DBG(DBG_proc, "%s(): frontend reset complete\n", __func__);
 
-  for (i = 1; i <= 3; i++)
-    {
-        // FIXME: the check below is just historical artifact, we can remove it when convenient
-        if (!dev->frontend_is_init) {
-            dev->interface->write_fe_register(i, 0x00);
-        } else {
-            dev->interface->write_fe_register(i, dev->frontend.regs.get_value(0x00 + i));
-        }
+    for (unsigned i = 1; i <= 3; i++) {
+        dev->interface->write_fe_register(i, dev->frontend.regs.get_value(0x00 + i));
     }
     for (const auto& reg : sensor.custom_fe_regs) {
         dev->interface->write_fe_register(reg.address, reg.value);
     }
 
-  for (i = 0; i < 3; i++)
-    {
-         // FIXME: the check below is just historical artifact, we can remove it when convenient
-        if (!dev->frontend_is_init) {
-            dev->interface->write_fe_register(0x20 + i, 0x00);
-        } else {
-            dev->interface->write_fe_register(0x20 + i, dev->frontend.get_offset(i));
-        }
+    for (unsigned i = 0; i < 3; i++) {
+        dev->interface->write_fe_register(0x20 + i, dev->frontend.get_offset(i));
     }
 
     if (dev->model->sensor_id == SensorId::CCD_KVSS080) {
-      for (i = 0; i < 3; i++)
-	{
-            // FIXME: the check below is just historical artifact, we can remove it when convenient
-            if (!dev->frontend_is_init) {
-                dev->interface->write_fe_register(0x24 + i, 0x00);
-            } else {
-                dev->interface->write_fe_register(0x24 + i, dev->frontend.regs.get_value(0x24 + i));
-            }
-	}
+        for (unsigned i = 0; i < 3; i++) {
+            dev->interface->write_fe_register(0x24 + i, dev->frontend.regs.get_value(0x24 + i));
+        }
     }
 
-  for (i = 0; i < 3; i++)
-    {
-        // FIXME: the check below is just historical artifact, we can remove it when convenient
-        if (!dev->frontend_is_init) {
-            dev->interface->write_fe_register(0x28 + i, 0x00);
-        } else {
-            dev->interface->write_fe_register(0x28 + i, dev->frontend.get_gain(i));
-        }
+    for (unsigned i = 0; i < 3; i++) {
+        dev->interface->write_fe_register(0x28 + i, dev->frontend.get_gain(i));
     }
 }
 

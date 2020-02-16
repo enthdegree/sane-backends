@@ -665,22 +665,12 @@ static void gl843_send_slope_table(Genesys_Device* dev, int table_nr,
     DBG_HELPER_ARGS(dbg, "table_nr = %d, steps = %d", table_nr, steps);
 
   int i;
-  char msg[10000];
 
   std::vector<uint8_t> table(steps * 2);
   for (i = 0; i < steps; i++)
     {
       table[i * 2] = slope_table[i] & 0xff;
       table[i * 2 + 1] = slope_table[i] >> 8;
-    }
-
-  if (DBG_LEVEL >= DBG_io)
-    {
-        std::sprintf(msg, "write slope %d (%d)=", table_nr, steps);
-        for (i = 0; i < steps; i++) {
-            std::sprintf (msg+strlen(msg), "%d", slope_table[i]);
-	}
-      DBG(DBG_io, "%s: %s\n", __func__, msg);
     }
 
     if (dev->interface->is_mock()) {

@@ -626,7 +626,7 @@ gl843_init_registers (Genesys_Device * dev)
         dev->reg.init_reg(0xaa, 0x00);
     }
 
-    // GPOM9, MULSTOP[0-2], NODECEL, TB3TB1, TB5TB2, FIX16CLK. Not documented
+    // GPOM9, MULSTOP[0-2], NODECEL, TB3TB1, TB5TB2, FIX16CLK.
     if (dev->model->model_id != ModelId::CANON_8400F &&
         dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7200I &&
         dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7300) {
@@ -637,10 +637,9 @@ gl843_init_registers (Genesys_Device * dev)
     }
     if (dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
         dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
+        dev->model->model_id == ModelId::CANON_8600F ||
         dev->model->model_id == ModelId::HP_SCANJET_4850C)
     {
-        // BUG: this should apply to ModelId::CANON_CANOSCAN_8600F too, but due to previous bug
-        // the 8400F case overwrote it
         dev->reg.init_reg(0xab, 0x40);
     }
 

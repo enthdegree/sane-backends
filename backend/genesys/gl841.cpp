@@ -2396,16 +2396,9 @@ void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
                                             Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
-  SANE_Int ydpi;
     unsigned starty = 0;
 
-  ydpi = dev->motor.base_ydpi;
-  if (dev->model->motor_id == MotorId::PLUSTEK_OPTICPRO_3600)  /* TODO PLUSTEK_3600: 1200dpi not yet working, produces dark bar */
-    {
-      ydpi = 600;
-    }
     if (dev->model->motor_id == MotorId::CANON_LIDE_80) {
-      ydpi = gl841_get_dpihw(dev);
       /* get over extra dark area for this model.
 	 It looks like different devices have dark areas of different width
 	 due to manufacturing variability. The initial value of starty was 140,
@@ -2428,10 +2421,10 @@ void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
                                                          dev->settings.scan_method);
 
     unsigned calib_lines =
-            static_cast<unsigned>(dev->model->y_size_calib_mm * ydpi / MM_PER_INCH);
+            static_cast<unsigned>(dev->model->y_size_calib_mm * resolution / MM_PER_INCH);
     ScanSession session;
     session.params.xres = resolution;
-    session.params.yres = ydpi;
+    session.params.yres = resolution;
     session.params.startx = 0;
     session.params.starty = starty;
     session.params.pixels = calib_sensor.sensor_pixels / factor;

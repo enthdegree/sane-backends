@@ -323,42 +323,17 @@ gl841_init_lide80 (Genesys_Device * dev)
     }
 
     // specific scanner settings, clock and gpio first
-    // FIXME: remove the dummy reads as we don't use the values
-    if (!is_testing_mode()) {
-        dev->interface->read_register(REG_0x6B);
-    }
     dev->interface->write_register(REG_0x6B, 0x0c);
     dev->interface->write_register(0x06, 0x10);
     dev->interface->write_register(REG_0x6E, 0x6d);
     dev->interface->write_register(REG_0x6F, 0x80);
     dev->interface->write_register(REG_0x6B, 0x0e);
-    if (!is_testing_mode()) {
-        dev->interface->read_register(REG_0x6C);
-    }
     dev->interface->write_register(REG_0x6C, 0x00);
-    if (!is_testing_mode()) {
-        dev->interface->read_register(REG_0x6D);
-    }
     dev->interface->write_register(REG_0x6D, 0x8f);
-    if (!is_testing_mode()) {
-        dev->interface->read_register(REG_0x6B);
-    }
     dev->interface->write_register(REG_0x6B, 0x0e);
-    if (!is_testing_mode()) {
-        dev->interface->read_register(REG_0x6B);
-    }
     dev->interface->write_register(REG_0x6B, 0x0e);
-    if (!is_testing_mode()) {
-        dev->interface->read_register(REG_0x6B);
-    }
     dev->interface->write_register(REG_0x6B, 0x0a);
-    if (!is_testing_mode()) {
-        dev->interface->read_register(REG_0x6B);
-    }
     dev->interface->write_register(REG_0x6B, 0x02);
-    if (!is_testing_mode()) {
-        dev->interface->read_register(REG_0x6B);
-    }
     dev->interface->write_register(REG_0x6B, 0x06);
 
     dev->interface->write_0x8c(0x10, 0x94);

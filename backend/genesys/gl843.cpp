@@ -1550,9 +1550,7 @@ void CommandSetGl843::end_scan(Genesys_Device* dev, Genesys_Register_Set* reg,
     // post scan gpio
     dev->interface->write_register(0x7e, 0x00);
 
-    // turn off XPA lamp if needed
-    // BUG: the if condition below probably shouldn't be enabled when XPA is off
-    if (reg->state.is_xpa_on || reg->state.is_lamp_on) {
+    if (reg->state.is_xpa_on) {
         dev->cmd_set->set_xpa_lamp_power(*dev, false);
     }
 

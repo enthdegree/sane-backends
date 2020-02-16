@@ -143,17 +143,7 @@ void CommandSetCommon::set_xpa_lamp_power(Genesys_Device& dev, bool set) const
         }
     }
 
-    // BUG: we're currently calling the function in shut down path of regular lamp
-    if (set) {
-        throw SaneException("Unexpected code path entered");
-    }
-
-    GenesysRegisterSettingSet regs = {
-        { 0xa6, 0x40, 0x70 },
-    };
-    apply_reg_settings_to_device(dev, regs);
-    // TODO: throw exception when we're only calling this function in error return path
-    // throw SaneException("Could not find XPA lamp settings");
+    throw SaneException("Could not find XPA lamp settings");
 }
 
 

@@ -3176,10 +3176,8 @@ void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys
             gain[ch], out_gain);
     }
 
-    for (unsigned j = 0; j < channels; j++)
-    {
-      if(gain[j] > 10)
-        {
+    for (unsigned j = 0; j < channels; j++) {
+        if (gain[j] > 30) {
 	  DBG (DBG_error0, "**********************************************\n");
 	  DBG (DBG_error0, "**********************************************\n");
 	  DBG (DBG_error0, "****                                      ****\n");

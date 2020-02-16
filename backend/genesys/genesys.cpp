@@ -941,10 +941,7 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
             dev.advance_head_pos_by_steps(ScanHeadId::SECONDARY, direction, steps);
         }
 
-        // FIXME: why don't we stop the scanner like on other ASICs
-        if (dev.model->asic_type != AsicType::GL843) {
-            scanner_stop_action(dev);
-        }
+        scanner_stop_action(dev);
         if (uses_secondary_head) {
             dev.cmd_set->set_motor_mode(dev, local_reg, MotorMode::PRIMARY);
         }
@@ -964,10 +961,7 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
         dev.interface->sleep_ms(10);
     }
 
-    // FIXME: why don't we stop the scanner like on other ASICs
-    if (dev.model->asic_type != AsicType::GL843) {
-        scanner_stop_action(dev);
-    }
+    scanner_stop_action(dev);
     if (uses_secondary_head) {
         dev.cmd_set->set_motor_mode(dev, local_reg, MotorMode::PRIMARY);
     }

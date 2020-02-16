@@ -927,17 +927,14 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
     session.params.yres = resolution;
     session.params.startx = 0;
     session.params.starty = steps;
-    session.params.pixels = 100;
+    session.params.pixels = 50;
     session.params.lines = 3;
     session.params.depth = 8;
-    session.params.channels = 3;
+    session.params.channels = 1;
     session.params.scan_method = scan_method;
-    session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-    if (dev.model->asic_type == AsicType::GL843) {
-        session.params.color_filter = ColorFilter::RED;
-    } else {
-        session.params.color_filter = dev.settings.color_filter;
-    }
+    session.params.scan_mode = ScanColorMode::GRAY;
+    session.params.color_filter = ColorFilter::GREEN;
+
     session.params.flags = ScanFlag::DISABLE_SHADING |
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::FEEDING |
@@ -1087,28 +1084,21 @@ void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
     ScanSession session;
     session.params.xres = resolution;
     session.params.yres = resolution;
-    session.params.startx = 100 * resolution / sensor.optical_res;
-    if (dev.model->asic_type == AsicType::GL843) {
-        session.params.starty = 40000;
-    } else {
-        session.params.starty = 30000;
-    }
-    session.params.pixels = 100;
-    session.params.lines = 100;
+    session.params.startx = 0;
+    session.params.starty = 40000;
+    session.params.pixels = 50;
+    session.params.lines = 3;
     session.params.depth = 8;
     session.params.channels = 1;
     session.params.scan_method = dev.settings.scan_method;
-    if (dev.model->asic_type == AsicType::GL843) {
-        session.params.scan_mode = ScanColorMode::LINEART;
-        session.params.color_filter = dev.settings.color_filter;
-    } else {
-        session.params.scan_mode = ScanColorMode::GRAY;
-        session.params.color_filter = ColorFilter::RED;
-    }
+    session.params.scan_mode = ScanColorMode::GRAY;
+    session.params.color_filter = ColorFilter::GREEN;
+
     session.params.flags =  ScanFlag::DISABLE_SHADING |
                             ScanFlag::DISABLE_GAMMA |
                             ScanFlag::IGNORE_LINE_DISTANCE |
                             ScanFlag::REVERSE;
+
     if (dev.model->asic_type == AsicType::GL843) {
         session.params.flags |= ScanFlag::DISABLE_BUFFER_FULL_MOVE;
     }
@@ -1234,15 +1224,16 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
     ScanSession session;
     session.params.xres = resolution;
     session.params.yres = resolution;
-    session.params.startx = 100 * resolution / sensor.optical_res;
-    session.params.starty = 30000;
-    session.params.pixels = 100;
-    session.params.lines = 100;
+    session.params.startx = 0;
+    session.params.starty = 40000;
+    session.params.pixels = 50;
+    session.params.lines = 3;
     session.params.depth = 8;
     session.params.channels = 1;
     session.params.scan_method = scan_method;
     session.params.scan_mode = ScanColorMode::GRAY;
-    session.params.color_filter = ColorFilter::RED;
+    session.params.color_filter = ColorFilter::GREEN;
+
     session.params.flags =  ScanFlag::DISABLE_SHADING |
                             ScanFlag::DISABLE_GAMMA |
                             ScanFlag::IGNORE_LINE_DISTANCE |

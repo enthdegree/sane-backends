@@ -1095,7 +1095,6 @@ void CommandSetGl124::search_start_position(Genesys_Device* dev) const
     session.params.color_filter = ColorFilter::GREEN;
     session.params.flags = ScanFlag::DISABLE_SHADING |
                            ScanFlag::DISABLE_GAMMA |
-                           ScanFlag::IGNORE_LINE_DISTANCE |
                            ScanFlag::DISABLE_BUFFER_FULL_MOVE;
     compute_session(dev, session, sensor);
 
@@ -1159,7 +1158,8 @@ void CommandSetGl124::init_regs_for_coarse_calibration(Genesys_Device* dev,
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::SINGLE_LINE |
                            ScanFlag::FEEDING |
-                           ScanFlag::IGNORE_LINE_DISTANCE;
+                           ScanFlag::IGNORE_STAGGER_OFFSET |
+                           ScanFlag::IGNORE_COLOR_OFFSET;
     compute_session(dev, session, sensor);
 
     init_regs_for_scan_session(dev, sensor, &regs, session);
@@ -1176,28 +1176,23 @@ void CommandSetGl124::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
                                             Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
-  int move, resolution, dpihw, factor;
 
     unsigned channels = 3;
-    unsigned calib_lines = dev->model->shading_lines;
-    dpihw = sensor.get_register_hwdpi(dev->settings.xres);
-  if(dpihw>=2400)
-    {
-        calib_lines *= 2;
-    }
-  resolution=dpihw;
+    unsigned dpihw = sensor.get_register_hwdpi(dev->settings.xres);
+    unsigned resolution = dpihw;
 
     unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
 
     resolution /= ccd_size_divisor;
-    calib_lines /= ccd_size_divisor; // reducing just because we reduced the resolution
+    unsigned calib_lines =
+            static_cast<unsigned>(dev->model->y_size_calib_mm * resolution / MM_PER_INCH);
 
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                          dev->settings.scan_method);
-    factor = calib_sensor.optical_res / resolution;
+    unsigned factor = calib_sensor.optical_res / resolution;
 
   /* distance to move to reach white target at high resolution */
-  move=0;
+    unsigned move=0;
     if (dev->settings.yres >= 1200) {
         move = static_cast<int>(dev->model->y_offset_calib_white);
         move = static_cast<int>((move * (dev->motor.base_ydpi/4)) / MM_PER_INCH);
@@ -1218,8 +1213,7 @@ void CommandSetGl124::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     session.params.color_filter = ColorFilter::RED;
     session.params.flags = ScanFlag::DISABLE_SHADING |
                            ScanFlag::DISABLE_GAMMA |
-                           ScanFlag::DISABLE_BUFFER_FULL_MOVE |
-                           ScanFlag::IGNORE_LINE_DISTANCE;
+                           ScanFlag::DISABLE_BUFFER_FULL_MOVE;
     compute_session(dev, session, calib_sensor);
 
     try {
@@ -1446,7 +1440,8 @@ static void move_to_calibration_area(Genesys_Device* dev, const Genesys_Sensor& 
     session.params.flags = ScanFlag::DISABLE_SHADING |
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::SINGLE_LINE |
-                           ScanFlag::IGNORE_LINE_DISTANCE;
+                           ScanFlag::IGNORE_STAGGER_OFFSET |
+                           ScanFlag::IGNORE_COLOR_OFFSET;
     compute_session(dev, session, move_sensor);
 
     dev->cmd_set->init_regs_for_scan_session(dev, move_sensor, &regs, session);
@@ -1522,7 +1517,8 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
     session.params.flags = ScanFlag::DISABLE_SHADING |
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::SINGLE_LINE |
-                           ScanFlag::IGNORE_LINE_DISTANCE;
+                           ScanFlag::IGNORE_STAGGER_OFFSET |
+                           ScanFlag::IGNORE_COLOR_OFFSET;
     compute_session(dev, session, calib_sensor);
 
     init_regs_for_scan_session(dev, calib_sensor, &regs, session);
@@ -1681,7 +1677,8 @@ void CommandSetGl124::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     session.params.flags = ScanFlag::DISABLE_SHADING |
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::SINGLE_LINE |
-                           ScanFlag::IGNORE_LINE_DISTANCE;
+                           ScanFlag::IGNORE_STAGGER_OFFSET |
+                           ScanFlag::IGNORE_COLOR_OFFSET;
     compute_session(dev, session, sensor);
 
     init_regs_for_scan_session(dev, sensor, &regs, session);
@@ -1831,7 +1828,8 @@ void CommandSetGl124::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     session.params.flags = ScanFlag::DISABLE_SHADING |
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::SINGLE_LINE |
-                           ScanFlag::IGNORE_LINE_DISTANCE;
+                           ScanFlag::IGNORE_STAGGER_OFFSET |
+                           ScanFlag::IGNORE_COLOR_OFFSET;
     compute_session(dev, session, sensor);
 
     try {
@@ -1939,7 +1937,8 @@ void CommandSetGl124::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     session.params.flags = ScanFlag::DISABLE_SHADING |
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::SINGLE_LINE |
-                           ScanFlag::IGNORE_LINE_DISTANCE;
+                           ScanFlag::IGNORE_STAGGER_OFFSET |
+                           ScanFlag::IGNORE_COLOR_OFFSET;
     compute_session(dev, session, sensor);
 
     init_regs_for_scan_session(dev, sensor, reg, session);

@@ -1514,7 +1514,6 @@ void CommandSetGl843::search_start_position(Genesys_Device* dev) const
     session.params.color_filter = ColorFilter::GREEN;
     session.params.flags =  ScanFlag::DISABLE_SHADING |
                             ScanFlag::DISABLE_GAMMA |
-                            ScanFlag::IGNORE_LINE_DISTANCE |
                             ScanFlag::DISABLE_BUFFER_FULL_MOVE;
     compute_session(dev, session, sensor);
 
@@ -1567,7 +1566,8 @@ void CommandSetGl843::init_regs_for_coarse_calibration(Genesys_Device* dev,
     ScanFlag flags = ScanFlag::DISABLE_SHADING |
                      ScanFlag::DISABLE_GAMMA |
                      ScanFlag::SINGLE_LINE |
-                     ScanFlag::IGNORE_LINE_DISTANCE;
+                     ScanFlag::IGNORE_STAGGER_OFFSET |
+                     ScanFlag::IGNORE_COLOR_OFFSET;
 
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED) {
@@ -1620,13 +1620,13 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     DBG_HELPER(dbg);
   int move, resolution, dpihw, factor;
 
-    unsigned calib_lines = 0;
+    float calib_size_mm = 0;
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        calib_lines = dev->model->shading_ta_lines;
+        calib_size_mm = dev->model->y_size_calib_ta_mm;
     } else {
-        calib_lines = dev->model->shading_lines;
+        calib_size_mm = dev->model->y_size_calib_mm;
     }
 
     dpihw = sensor.get_logical_hwdpi(dev->settings.xres);
@@ -1658,8 +1658,7 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 
     ScanFlag flags = ScanFlag::DISABLE_SHADING |
                      ScanFlag::DISABLE_GAMMA |
-                     ScanFlag::DISABLE_BUFFER_FULL_MOVE |
-                     ScanFlag::IGNORE_LINE_DISTANCE;
+                     ScanFlag::DISABLE_BUFFER_FULL_MOVE;
 
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
@@ -1673,6 +1672,7 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     }
 
     move = static_cast<int>((move * resolution) / MM_PER_INCH);
+    unsigned calib_lines = static_cast<unsigned>(calib_size_mm * resolution / MM_PER_INCH);
 
     ScanSession session;
     session.params.xres = resolution;
@@ -1777,7 +1777,8 @@ SensorExposure CommandSetGl843::led_calibration(Genesys_Device* dev, const Genes
     session.params.flags =  ScanFlag::DISABLE_SHADING |
                             ScanFlag::DISABLE_GAMMA |
                             ScanFlag::SINGLE_LINE |
-                            ScanFlag::IGNORE_LINE_DISTANCE;
+                            ScanFlag::IGNORE_STAGGER_OFFSET |
+                            ScanFlag::IGNORE_COLOR_OFFSET;
     compute_session(dev, session, calib_sensor);
 
     init_regs_for_scan_session(dev, calib_sensor, &regs, session);
@@ -1972,7 +1973,8 @@ void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     ScanFlag flags = ScanFlag::DISABLE_SHADING |
                      ScanFlag::DISABLE_GAMMA |
                      ScanFlag::SINGLE_LINE |
-                     ScanFlag::IGNORE_LINE_DISTANCE;
+                     ScanFlag::IGNORE_STAGGER_OFFSET |
+                     ScanFlag::IGNORE_COLOR_OFFSET;
 
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
@@ -2192,7 +2194,8 @@ void CommandSetGl843::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     ScanFlag flags = ScanFlag::DISABLE_SHADING |
                      ScanFlag::DISABLE_GAMMA |
                      ScanFlag::SINGLE_LINE |
-                     ScanFlag::IGNORE_LINE_DISTANCE;
+                     ScanFlag::IGNORE_STAGGER_OFFSET |
+                     ScanFlag::IGNORE_COLOR_OFFSET;
 
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
@@ -2334,7 +2337,8 @@ void CommandSetGl843::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     session.params.flags =  ScanFlag::DISABLE_SHADING |
                             ScanFlag::DISABLE_GAMMA |
                             ScanFlag::SINGLE_LINE |
-                            ScanFlag::IGNORE_LINE_DISTANCE;
+                            ScanFlag::IGNORE_STAGGER_OFFSET |
+                            ScanFlag::IGNORE_COLOR_OFFSET;
     compute_session(dev, session, calib_sensor);
 
     init_regs_for_scan_session(dev, calib_sensor, reg, session);
@@ -2533,7 +2537,7 @@ void CommandSetGl843::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
                                    bool forward, bool black) const
 {
     DBG_HELPER_ARGS(dbg, "%s %s",  black ? "black" : "white", forward ? "forward" : "reverse");
-  unsigned int pixels, lines, channels;
+  unsigned int pixels, channels;
   Genesys_Register_Set local_reg;
     int dpi;
   unsigned int pass, count, found, x, y;
@@ -2551,7 +2555,7 @@ void CommandSetGl843::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
   /* 10 MM */
   /* lines = (10 * dpi) / MM_PER_INCH; */
   /* shading calibation is done with dev->motor.base_ydpi */
-  lines = (dev->model->shading_lines * dpi) / dev->motor.base_ydpi;
+   unsigned lines = static_cast<unsigned>(dev->model->y_size_calib_mm * dpi / MM_PER_INCH);
   pixels = (calib_sensor.sensor_pixels * dpi) / calib_sensor.optical_res;
 
     dev->set_head_pos_zero(ScanHeadId::PRIMARY);

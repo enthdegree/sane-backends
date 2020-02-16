@@ -168,15 +168,11 @@ void genesys_init_motor_tables()
     motor.id = MotorId::CANON_LIDE_100;
     motor.base_ydpi = 1200;
     motor.optical_ydpi = 6400;
-    motor.profiles.push_back({MotorSlope::create_from_steps(46876, 534, 255),
-                              StepType::HALF, 1424});
-    motor.profiles.push_back({MotorSlope::create_from_steps(46876, 534, 255),
+    motor.profiles.push_back({MotorSlope::create_from_steps(46876, 864, 255),
                               StepType::HALF, 1432});
-    motor.profiles.push_back({MotorSlope::create_from_steps(46876, 534, 255),
-                              StepType::HALF, 2848});
-    motor.profiles.push_back({MotorSlope::create_from_steps(46876, 534, 279),
+    motor.profiles.push_back({MotorSlope::create_from_steps(46876, 864, 279),
                               StepType::QUARTER, 2712});
-    motor.profiles.push_back({MotorSlope::create_from_steps(31680, 534, 247),
+    motor.profiles.push_back({MotorSlope::create_from_steps(31680, 864, 247),
                               StepType::EIGHTH, 5280});
     s_motors->push_back(std::move(motor));
 
@@ -185,17 +181,13 @@ void genesys_init_motor_tables()
     motor.id = MotorId::CANON_LIDE_200;
     motor.base_ydpi = 1200;
     motor.optical_ydpi = 6400;
-    motor.profiles.push_back({MotorSlope::create_from_steps(46876, 534, 255),
-                              StepType::HALF, 1424});
-    motor.profiles.push_back({MotorSlope::create_from_steps(46876, 534, 255),
+    motor.profiles.push_back({MotorSlope::create_from_steps(46876, 864, 255),
                               StepType::HALF, 1432});
-    motor.profiles.push_back({MotorSlope::create_from_steps(46876, 534, 255),
-                              StepType::HALF, 2848});
-    motor.profiles.push_back({MotorSlope::create_from_steps(46876, 534, 279),
+    motor.profiles.push_back({MotorSlope::create_from_steps(46876, 864, 279),
                               StepType::QUARTER, 2712});
-    motor.profiles.push_back({MotorSlope::create_from_steps(31680, 534, 247),
+    motor.profiles.push_back({MotorSlope::create_from_steps(31680, 864, 247),
                               StepType::EIGHTH, 5280});
-    motor.profiles.push_back({MotorSlope::create_from_steps(31680, 534, 247),
+    motor.profiles.push_back({MotorSlope::create_from_steps(31680, 864, 247),
                               StepType::EIGHTH, 10416});
     s_motors->push_back(std::move(motor));
 

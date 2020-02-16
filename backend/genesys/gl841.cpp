@@ -2126,67 +2126,6 @@ void CommandSetGl841::end_scan(Genesys_Device* dev, Genesys_Register_Set __sane_
     }
 }
 
-// Moves the slider to steps
-static void gl841_feed(Genesys_Device* dev, int steps)
-{
-    DBG_HELPER_ARGS(dbg, "steps = %d", steps);
-  Genesys_Register_Set local_reg;
-  int loop;
-
-    gl841_stop_action(dev);
-
-  // FIXME: we should pick sensor according to the resolution scanner is currently operating on
-  const auto& sensor = sanei_genesys_find_sensor_any(dev);
-
-  local_reg = dev->reg;
-
-    regs_set_optical_off(dev->model->asic_type, local_reg);
-
-    gl841_init_motor_regs(dev, sensor, &local_reg, steps, MOTOR_ACTION_FEED, MotorFlag::NONE);
-
-    dev->interface->write_registers(local_reg);
-
-    try {
-        scanner_start_action(*dev, true);
-    } catch (...) {
-        catch_all_exceptions(__func__, [&]() { gl841_stop_action (dev); });
-        // restore original registers
-        catch_all_exceptions(__func__, [&]()
-        {
-            dev->interface->write_registers(dev->reg);
-        });
-        throw;
-    }
-
-    if (is_testing_mode()) {
-        dev->interface->test_checkpoint("feed");
-        dev->advance_head_pos_by_steps(ScanHeadId::PRIMARY, Direction::FORWARD, steps);
-        gl841_stop_action(dev);
-        return;
-    }
-
-  loop = 0;
-  while (loop < 300)		/* do not wait longer then 30 seconds */
-  {
-        auto status = scanner_read_status(*dev);
-
-        if (!status.is_motor_enabled) {
-            DBG(DBG_proc, "%s: finished\n", __func__);
-            dev->advance_head_pos_by_steps(ScanHeadId::PRIMARY, Direction::FORWARD, steps);
-            return;
-      }
-        dev->interface->sleep_ms(100);
-      ++loop;
-  }
-
-  /* when we come here then the scanner needed too much time for this, so we better stop the motor */
-  gl841_stop_action (dev);
-
-    dev->set_head_pos_unknown(ScanHeadId::PRIMARY);
-
-    throw SaneException(SANE_STATUS_IO_ERROR, "timeout while waiting for scanhead to go home");
-}
-
 // Moves the slider to the home (top) position slowly
 void CommandSetGl841::move_back_home(Genesys_Device* dev, bool wait_until_home) const
 {
@@ -2318,7 +2257,6 @@ void CommandSetGl841::search_start_position(Genesys_Device* dev) const
     session.params.color_filter = ColorFilter::GREEN;
     session.params.flags = ScanFlag::DISABLE_SHADING |
                            ScanFlag::DISABLE_GAMMA |
-                           ScanFlag::IGNORE_LINE_DISTANCE |
                            ScanFlag::DISABLE_BUFFER_FULL_MOVE;
     compute_session(dev, session, sensor);
 
@@ -2381,7 +2319,8 @@ void CommandSetGl841::init_regs_for_coarse_calibration(Genesys_Device* dev,
     session.params.flags = ScanFlag::DISABLE_SHADING |
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::SINGLE_LINE |
-                           ScanFlag::IGNORE_LINE_DISTANCE;
+                           ScanFlag::IGNORE_STAGGER_OFFSET |
+                           ScanFlag::IGNORE_COLOR_OFFSET;
     compute_session(dev, session, sensor);
 
     init_regs_for_scan_session(dev, sensor, &regs, session);
@@ -2396,28 +2335,6 @@ void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
                                             Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
-  SANE_Int ydpi;
-    unsigned starty = 0;
-
-  ydpi = dev->motor.base_ydpi;
-  if (dev->model->motor_id == MotorId::PLUSTEK_OPTICPRO_3600)  /* TODO PLUSTEK_3600: 1200dpi not yet working, produces dark bar */
-    {
-      ydpi = 600;
-    }
-    if (dev->model->motor_id == MotorId::CANON_LIDE_80) {
-      ydpi = gl841_get_dpihw(dev);
-      /* get over extra dark area for this model.
-	 It looks like different devices have dark areas of different width
-	 due to manufacturing variability. The initial value of starty was 140,
-	 but it moves the sensor almost past the dark area completely in places
-	 on certain devices.
-
-	 On a particular device the black area starts at roughly position
-	 160 to 230 depending on location (the dark area is not completely
-	 parallel to the frame).
-      */
-      starty = 70;
-    }
 
     unsigned channels = 3;
 
@@ -2427,22 +2344,24 @@ void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                          dev->settings.scan_method);
 
+    unsigned calib_lines =
+            static_cast<unsigned>(dev->model->y_size_calib_dark_white_mm * resolution / MM_PER_INCH);
+    unsigned starty =
+            static_cast<unsigned>(dev->model->y_offset_calib_dark_white_mm * dev->motor.base_ydpi / MM_PER_INCH);
     ScanSession session;
     session.params.xres = resolution;
-    session.params.yres = ydpi;
+    session.params.yres = resolution;
     session.params.startx = 0;
     session.params.starty = starty;
     session.params.pixels = calib_sensor.sensor_pixels / factor;
-    session.params.lines = dev->model->shading_lines;
+    session.params.lines = calib_lines;
     session.params.depth = 16;
     session.params.channels = channels;
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = dev->settings.color_filter;
     session.params.flags = ScanFlag::DISABLE_SHADING |
-                           ScanFlag::DISABLE_GAMMA |
-                           /*ScanFlag::DISABLE_BUFFER_FULL_MOVE |*/
-                           ScanFlag::IGNORE_LINE_DISTANCE;
+                           ScanFlag::DISABLE_GAMMA;
     compute_session(dev, session, calib_sensor);
 
     init_regs_for_scan_session(dev, calib_sensor, &regs, session);
@@ -2494,7 +2413,6 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
   int avg[3], avga, avge;
   int turn;
   uint16_t exp[3], target;
-  int move;
 
   /* these 2 boundaries should be per sensor */
   uint16_t min_exposure=500;
@@ -2502,10 +2420,9 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
 
   /* feed to white strip if needed */
     if (dev->model->y_offset_calib_white > 0) {
-        move = static_cast<int>(dev->model->y_offset_calib_white);
-        move = static_cast<int>((move * (dev->motor.base_ydpi)) / MM_PER_INCH);
-      DBG(DBG_io, "%s: move=%d lines\n", __func__, move);
-        gl841_feed(dev, move);
+        unsigned move = static_cast<unsigned>(
+                (dev->model->y_offset_calib_white * (dev->motor.base_ydpi)) / MM_PER_INCH);
+        scanner_move(*dev, dev->model->default_method, move, Direction::FORWARD);
     }
 
   /* offset calibration is always done in color mode */
@@ -2534,7 +2451,8 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
     session.params.flags = ScanFlag::DISABLE_SHADING |
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::SINGLE_LINE |
-                           ScanFlag::IGNORE_LINE_DISTANCE;
+                           ScanFlag::IGNORE_STAGGER_OFFSET |
+                           ScanFlag::IGNORE_COLOR_OFFSET;
     compute_session(dev, session, calib_sensor_base);
 
     init_regs_for_scan_session(dev, calib_sensor_base, &regs, session);
@@ -2728,7 +2646,8 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
     session.params.flags = ScanFlag::DISABLE_SHADING |
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::SINGLE_LINE |
-                           ScanFlag::IGNORE_LINE_DISTANCE;
+                           ScanFlag::IGNORE_STAGGER_OFFSET |
+                           ScanFlag::IGNORE_COLOR_OFFSET;
     compute_session(dev, session, calib_sensor);
 
     dev->cmd_set->init_regs_for_scan_session(dev, calib_sensor, &regs, session);
@@ -2824,7 +2743,8 @@ void CommandSetGl841::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
   /* Analog Device fronted have a different calibration */
     if ((dev->reg.find_reg(0x04).value & REG_0x04_FESET) == 0x02) {
-      return ad_fe_offset_calibration(dev, sensor, regs);
+        ad_fe_offset_calibration(dev, sensor, regs);
+        return;
     }
 
   /* offset calibration is always done in color mode */
@@ -2853,7 +2773,8 @@ void CommandSetGl841::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     session.params.flags = ScanFlag::DISABLE_SHADING |
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::SINGLE_LINE |
-                           ScanFlag::IGNORE_LINE_DISTANCE |
+                           ScanFlag::IGNORE_STAGGER_OFFSET |
+                           ScanFlag::IGNORE_COLOR_OFFSET |
                            ScanFlag::DISABLE_LAMP;
     compute_session(dev, session, calib_sensor);
 
@@ -3159,14 +3080,12 @@ void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys
   int num_pixels;
   float gain[3];
   int lines=1;
-  int move;
 
     // feed to white strip if needed
     if (dev->model->y_offset_calib_white > 0) {
-        move = static_cast<int>(dev->model->y_offset_calib_white);
-        move = static_cast<int>((move * (dev->motor.base_ydpi)) / MM_PER_INCH);
-      DBG(DBG_io, "%s: move=%d lines\n", __func__, move);
-        gl841_feed(dev, move);
+        unsigned move = static_cast<unsigned>(
+                (dev->model->y_offset_calib_white * (dev->motor.base_ydpi)) / MM_PER_INCH);
+        scanner_move(*dev, dev->model->default_method, move, Direction::FORWARD);
     }
 
   /* coarse gain calibration is allways done in color mode */
@@ -3195,7 +3114,8 @@ void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     session.params.flags = ScanFlag::DISABLE_SHADING |
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::SINGLE_LINE |
-                           ScanFlag::IGNORE_LINE_DISTANCE;
+                           ScanFlag::IGNORE_STAGGER_OFFSET |
+                           ScanFlag::IGNORE_COLOR_OFFSET;
     compute_session(dev, session, calib_sensor);
 
     init_regs_for_scan_session(dev, calib_sensor, &regs, session);
@@ -3256,10 +3176,8 @@ void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys
             gain[ch], out_gain);
     }
 
-    for (unsigned j = 0; j < channels; j++)
-    {
-      if(gain[j] > 10)
-        {
+    for (unsigned j = 0; j < channels; j++) {
+        if (gain[j] > 30) {
 	  DBG (DBG_error0, "**********************************************\n");
 	  DBG (DBG_error0, "**********************************************\n");
 	  DBG (DBG_error0, "****                                      ****\n");
@@ -3339,7 +3257,8 @@ void CommandSetGl841::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     session.params.flags = ScanFlag::DISABLE_SHADING |
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::SINGLE_LINE |
-                           ScanFlag::IGNORE_LINE_DISTANCE;
+                           ScanFlag::IGNORE_STAGGER_OFFSET |
+                           ScanFlag::IGNORE_COLOR_OFFSET;
     compute_session(dev, session, sensor);
 
     init_regs_for_scan_session(dev, sensor, local_reg, session);
@@ -3359,7 +3278,7 @@ static void sanei_gl841_repark_head(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
 
-    gl841_feed(dev,232);
+    scanner_move(*dev, dev->model->default_method, 232, Direction::FORWARD);
 
     // toggle motor flag, put an huge step number and redo move backward
     dev->cmd_set->move_back_home(dev, true);
@@ -3452,7 +3371,8 @@ void CommandSetGl841::init(Genesys_Device* dev) const
     session.params.flags = ScanFlag::DISABLE_SHADING |
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::SINGLE_LINE |
-                           ScanFlag::IGNORE_LINE_DISTANCE;
+                           ScanFlag::IGNORE_STAGGER_OFFSET |
+                           ScanFlag::IGNORE_COLOR_OFFSET;
     compute_session(dev, session, calib_sensor);
 
     init_regs_for_scan_session(dev, calib_sensor, &regs, session);
@@ -3553,9 +3473,9 @@ void CommandSetGl841::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
     unsigned dpi = resolution_settings.get_min_resolution_x();
   channels = 1;
 
-  /* shading calibation is done with dev->motor.base_ydpi */
-  /* lines = (dev->model->shading_lines * dpi) / dev->motor.base_ydpi; */
-    lines = static_cast<unsigned>((10 * dpi) / MM_PER_INCH);
+    // shading calibation is done with dev->motor.base_ydpi
+    lines = 10; // TODO: use dev->model->search_lines
+    lines = static_cast<unsigned>((lines * dpi) / MM_PER_INCH);
 
   pixels = (sensor.sensor_pixels * dpi) / sensor.optical_res;
 

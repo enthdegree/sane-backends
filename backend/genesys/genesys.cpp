@@ -896,7 +896,8 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
     session.params.flags = ScanFlag::DISABLE_SHADING |
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::FEEDING |
-                           ScanFlag::IGNORE_LINE_DISTANCE;
+                           ScanFlag::IGNORE_STAGGER_OFFSET |
+                           ScanFlag::IGNORE_COLOR_OFFSET;
 
     if (dev.model->asic_type == AsicType::GL124) {
         session.params.flags |= ScanFlag::DISABLE_BUFFER_FULL_MOVE;
@@ -1040,7 +1041,8 @@ void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
 
     session.params.flags =  ScanFlag::DISABLE_SHADING |
                             ScanFlag::DISABLE_GAMMA |
-                            ScanFlag::IGNORE_LINE_DISTANCE |
+                            ScanFlag::IGNORE_STAGGER_OFFSET |
+                            ScanFlag::IGNORE_COLOR_OFFSET |
                             ScanFlag::REVERSE;
 
     if (dev.model->asic_type == AsicType::GL843) {
@@ -1180,7 +1182,8 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
 
     session.params.flags =  ScanFlag::DISABLE_SHADING |
                             ScanFlag::DISABLE_GAMMA |
-                            ScanFlag::IGNORE_LINE_DISTANCE |
+                            ScanFlag::IGNORE_STAGGER_OFFSET |
+                            ScanFlag::IGNORE_COLOR_OFFSET |
                             ScanFlag::REVERSE;
 
     compute_session(&dev, session, sensor);

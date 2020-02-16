@@ -2318,7 +2318,6 @@ void CommandSetGl841::search_start_position(Genesys_Device* dev) const
     session.params.color_filter = ColorFilter::GREEN;
     session.params.flags = ScanFlag::DISABLE_SHADING |
                            ScanFlag::DISABLE_GAMMA |
-                           ScanFlag::IGNORE_LINE_DISTANCE |
                            ScanFlag::DISABLE_BUFFER_FULL_MOVE;
     compute_session(dev, session, sensor);
 
@@ -2381,7 +2380,8 @@ void CommandSetGl841::init_regs_for_coarse_calibration(Genesys_Device* dev,
     session.params.flags = ScanFlag::DISABLE_SHADING |
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::SINGLE_LINE |
-                           ScanFlag::IGNORE_LINE_DISTANCE;
+                           ScanFlag::IGNORE_STAGGER_OFFSET |
+                           ScanFlag::IGNORE_COLOR_OFFSET;
     compute_session(dev, session, sensor);
 
     init_regs_for_scan_session(dev, sensor, &regs, session);
@@ -2440,9 +2440,7 @@ void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = dev->settings.color_filter;
     session.params.flags = ScanFlag::DISABLE_SHADING |
-                           ScanFlag::DISABLE_GAMMA |
-                           /*ScanFlag::DISABLE_BUFFER_FULL_MOVE |*/
-                           ScanFlag::IGNORE_LINE_DISTANCE;
+                           ScanFlag::DISABLE_GAMMA;
     compute_session(dev, session, calib_sensor);
 
     init_regs_for_scan_session(dev, calib_sensor, &regs, session);
@@ -2534,7 +2532,8 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
     session.params.flags = ScanFlag::DISABLE_SHADING |
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::SINGLE_LINE |
-                           ScanFlag::IGNORE_LINE_DISTANCE;
+                           ScanFlag::IGNORE_STAGGER_OFFSET |
+                           ScanFlag::IGNORE_COLOR_OFFSET;
     compute_session(dev, session, calib_sensor_base);
 
     init_regs_for_scan_session(dev, calib_sensor_base, &regs, session);
@@ -2728,7 +2727,8 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
     session.params.flags = ScanFlag::DISABLE_SHADING |
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::SINGLE_LINE |
-                           ScanFlag::IGNORE_LINE_DISTANCE;
+                           ScanFlag::IGNORE_STAGGER_OFFSET |
+                           ScanFlag::IGNORE_COLOR_OFFSET;
     compute_session(dev, session, calib_sensor);
 
     dev->cmd_set->init_regs_for_scan_session(dev, calib_sensor, &regs, session);
@@ -2853,7 +2853,8 @@ void CommandSetGl841::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     session.params.flags = ScanFlag::DISABLE_SHADING |
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::SINGLE_LINE |
-                           ScanFlag::IGNORE_LINE_DISTANCE |
+                           ScanFlag::IGNORE_STAGGER_OFFSET |
+                           ScanFlag::IGNORE_COLOR_OFFSET |
                            ScanFlag::DISABLE_LAMP;
     compute_session(dev, session, calib_sensor);
 
@@ -3195,7 +3196,8 @@ void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     session.params.flags = ScanFlag::DISABLE_SHADING |
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::SINGLE_LINE |
-                           ScanFlag::IGNORE_LINE_DISTANCE;
+                           ScanFlag::IGNORE_STAGGER_OFFSET |
+                           ScanFlag::IGNORE_COLOR_OFFSET;
     compute_session(dev, session, calib_sensor);
 
     init_regs_for_scan_session(dev, calib_sensor, &regs, session);
@@ -3339,7 +3341,8 @@ void CommandSetGl841::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     session.params.flags = ScanFlag::DISABLE_SHADING |
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::SINGLE_LINE |
-                           ScanFlag::IGNORE_LINE_DISTANCE;
+                           ScanFlag::IGNORE_STAGGER_OFFSET |
+                           ScanFlag::IGNORE_COLOR_OFFSET;
     compute_session(dev, session, sensor);
 
     init_regs_for_scan_session(dev, sensor, local_reg, session);
@@ -3452,7 +3455,8 @@ void CommandSetGl841::init(Genesys_Device* dev) const
     session.params.flags = ScanFlag::DISABLE_SHADING |
                            ScanFlag::DISABLE_GAMMA |
                            ScanFlag::SINGLE_LINE |
-                           ScanFlag::IGNORE_LINE_DISTANCE;
+                           ScanFlag::IGNORE_STAGGER_OFFSET |
+                           ScanFlag::IGNORE_COLOR_OFFSET;
     compute_session(dev, session, calib_sensor);
 
     init_regs_for_scan_session(dev, calib_sensor, &regs, session);

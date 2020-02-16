@@ -1016,7 +1016,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     s.output_pixels = (s.optical_pixels * s.output_resolution) / s.optical_resolution;
 
     s.num_staggered_lines = 0;
-    if (!has_flag(s.params.flags, ScanFlag::IGNORE_LINE_DISTANCE))
+    if (!has_flag(s.params.flags, ScanFlag::IGNORE_STAGGER_OFFSET))
     {
         s.num_staggered_lines = sensor.stagger_config.stagger_at_resolution(s.params.xres,
                                                                             s.params.yres);
@@ -1038,7 +1038,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     s.color_shift_lines_b = (s.color_shift_lines_b * s.params.yres) / dev->motor.base_ydpi;
 
     s.max_color_shift_lines = 0;
-    if (s.params.channels > 1 && !has_flag(s.params.flags, ScanFlag::IGNORE_LINE_DISTANCE)) {
+    if (s.params.channels > 1 && !has_flag(s.params.flags, ScanFlag::IGNORE_COLOR_OFFSET)) {
         s.max_color_shift_lines = std::max(s.color_shift_lines_r, std::max(s.color_shift_lines_g,
                                                                            s.color_shift_lines_b));
     }

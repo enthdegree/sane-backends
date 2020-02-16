@@ -517,14 +517,22 @@ enum class ScanFlag : unsigned
     DISABLE_SHADING = 1 << 1,
     DISABLE_GAMMA = 1 << 2,
     DISABLE_BUFFER_FULL_MOVE = 1 << 3,
-    IGNORE_LINE_DISTANCE = 1 << 4,
-    DISABLE_LAMP = 1 << 5,
-    CALIBRATION = 1 << 6,
-    FEEDING = 1 << 7,
-    USE_XPA = 1 << 8,
-    ENABLE_LEDADD = 1 << 9,
-    USE_XCORRECTION = 1 << 10,
-    REVERSE = 1 << 11,
+
+    // if this flag is set the sensor will always be handled ignoring staggering of multiple
+    // sensors to achieve high resolution.
+    IGNORE_STAGGER_OFFSET = 1 << 4,
+
+    // if this flag is set the sensor will always be handled as if the components that scan
+    // different colors are at the same position.
+    IGNORE_COLOR_OFFSET = 1 << 5,
+
+    DISABLE_LAMP = 1 << 6,
+    CALIBRATION = 1 << 7,
+    FEEDING = 1 << 8,
+    USE_XPA = 1 << 9,
+    ENABLE_LEDADD = 1 << 10,
+    USE_XCORRECTION = 1 << 11,
+    REVERSE = 1 << 12,
 };
 
 inline ScanFlag operator|(ScanFlag left, ScanFlag right)

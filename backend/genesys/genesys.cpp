@@ -500,14 +500,10 @@ static void genesys_send_offset_and_shading(Genesys_Device* dev, const Genesys_S
     dev->interface->write_buffer(0x3c, start_address, data, size);
 }
 
-// ?
 void sanei_genesys_init_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                      int pixels_per_line)
 {
     DBG_HELPER_ARGS(dbg, "pixels_per_line: %d", pixels_per_line);
-
-  int channels;
-  int i;
 
     if (dev->cmd_set->has_send_shading_data()) {
         return;
@@ -515,22 +511,14 @@ void sanei_genesys_init_shading_data(Genesys_Device* dev, const Genesys_Sensor& 
 
   DBG(DBG_proc, "%s (pixels_per_line = %d)\n", __func__, pixels_per_line);
 
-    // BUG: GRAY shouldn't probably be in the if condition below. Discovered when refactoring
-    if (dev->settings.scan_mode == ScanColorMode::GRAY ||
-        dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
-    {
-        channels = 3;
-    } else {
-        channels = 1;
-    }
+    unsigned channels = dev->settings.get_channels();
 
   // 16 bit black, 16 bit white
   std::vector<uint8_t> shading_data(pixels_per_line * 4 * channels, 0);
 
   uint8_t* shading_data_ptr = shading_data.data();
 
-  for (i = 0; i < pixels_per_line * channels; i++)
-    {
+    for (unsigned i = 0; i < pixels_per_line * channels; i++) {
       *shading_data_ptr++ = 0x00;	/* dark lo */
       *shading_data_ptr++ = 0x00;	/* dark hi */
       *shading_data_ptr++ = 0x00;	/* white lo */

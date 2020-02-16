@@ -5694,9 +5694,7 @@ static void set_option_value(Genesys_Scanner* s, int option, void *val, SANE_Int
     case OPT_EXPIRATION_TIME:
         if (*reinterpret_cast<SANE_Word*>(val) != s->expiration_time) {
             s->expiration_time = *reinterpret_cast<SANE_Word*>(val);
-            // BUG: this is most likely not intended behavior, found out during refactor
-                s->dev->cmd_set->set_powersaving(s->dev, s->expiration_time);
-	}
+        }
         break;
 
     case OPT_CUSTOM_GAMMA:

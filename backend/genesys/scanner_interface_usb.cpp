@@ -351,7 +351,7 @@ void ScannerInterfaceUsb::bulk_write_data(std::uint8_t addr, std::uint8_t* data,
 }
 
 void ScannerInterfaceUsb::write_buffer(std::uint8_t type, std::uint32_t addr, std::uint8_t* data,
-                                       std::size_t size, Flags flags)
+                                       std::size_t size)
 {
     DBG_HELPER_ARGS(dbg, "type: 0x%02x, addr: 0x%08x, size: 0x%08zx", type, addr, size);
     if (dev_->model->asic_type != AsicType::GL646 &&
@@ -362,19 +362,9 @@ void ScannerInterfaceUsb::write_buffer(std::uint8_t type, std::uint32_t addr, st
     }
 
     if (dev_->model->asic_type == AsicType::GL843) {
-        if (flags & FLAG_SWAP_REGISTERS) {
-            if (!(flags & FLAG_SMALL_ADDRESS)) {
-                write_register(0x29, ((addr >> 20) & 0xff));
-            }
-            write_register(0x2a, ((addr >> 12) & 0xff));
-            write_register(0x2b, ((addr >> 4) & 0xff));
-        } else {
-            write_register(0x2b, ((addr >> 4) & 0xff));
-            write_register(0x2a, ((addr >> 12) & 0xff));
-            if (!(flags & FLAG_SMALL_ADDRESS)) {
-                write_register(0x29, ((addr >> 20) & 0xff));
-            }
-        }
+        write_register(0x2b, ((addr >> 4) & 0xff));
+        write_register(0x2a, ((addr >> 12) & 0xff));
+        write_register(0x29, ((addr >> 20) & 0xff));
     } else {
         write_register(0x2b, ((addr >> 4) & 0xff));
         write_register(0x2a, ((addr >> 12) & 0xff));
@@ -383,7 +373,7 @@ void ScannerInterfaceUsb::write_buffer(std::uint8_t type, std::uint32_t addr, st
 }
 
 void ScannerInterfaceUsb::write_gamma(std::uint8_t type, std::uint32_t addr, std::uint8_t* data,
-                                      std::size_t size, Flags flags)
+                                      std::size_t size)
 {
     DBG_HELPER_ARGS(dbg, "type: 0x%02x, addr: 0x%08x, size: 0x%08zx", type, addr, size);
     if (dev_->model->asic_type != AsicType::GL841 &&
@@ -392,13 +382,8 @@ void ScannerInterfaceUsb::write_gamma(std::uint8_t type, std::uint32_t addr, std
         throw SaneException("Unsupported transfer mode");
     }
 
-    if (flags & FLAG_SWAP_REGISTERS) {
-        write_register(0x5b, ((addr >> 12) & 0xff));
-        write_register(0x5c, ((addr >> 4) & 0xff));
-    } else {
-        write_register(0x5c, ((addr >> 4) & 0xff));
-        write_register(0x5b, ((addr >> 12) & 0xff));
-    }
+    write_register(0x5b, ((addr >> 12) & 0xff));
+    write_register(0x5c, ((addr >> 4) & 0xff));
     bulk_write_data(type, data, size);
 
     if (dev_->model->asic_type == AsicType::GL843) {

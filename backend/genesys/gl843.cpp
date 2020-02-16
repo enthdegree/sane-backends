@@ -652,8 +652,7 @@ gl843_init_registers (Genesys_Device * dev)
             0x6a, 0x73, 0x63, 0x68, 0x69, 0x65, 0x6e, 0x00,
         };
 
-        dev->interface->write_buffer(0x3c, 0x3ff000, data, 32,
-                                     ScannerInterface::FLAG_SWAP_REGISTERS);
+        dev->interface->write_buffer(0x3c, 0x3ff000, data, 32);
     }
 }
 
@@ -679,8 +678,7 @@ static void gl843_send_slope_table(Genesys_Device* dev, int table_nr,
 
     // slope table addresses are fixed : 0x40000,  0x48000,  0x50000,  0x58000,  0x60000
     // XXX STEF XXX USB 1.1 ? sanei_genesys_write_0x8c (dev, 0x0f, 0x14);
-    dev->interface->write_gamma(0x28,  0x40000 + 0x8000 * table_nr, table.data(), steps * 2,
-                                ScannerInterface::FLAG_SWAP_REGISTERS);
+    dev->interface->write_gamma(0x28,  0x40000 + 0x8000 * table_nr, table.data(), steps * 2);
 }
 
 static void gl843_set_ad_fe(Genesys_Device* dev)
@@ -1794,8 +1792,7 @@ void CommandSetGl843::send_gamma_table(Genesys_Device* dev, const Genesys_Sensor
         gamma[i * 2 + size * 4 + 1] = (bgamma[i] >> 8) & 0xff;
     }
 
-    dev->interface->write_gamma(0x28, 0x0000, gamma.data(), size * 2 * 3,
-                                ScannerInterface::FLAG_SWAP_REGISTERS);
+    dev->interface->write_gamma(0x28, 0x0000, gamma.data(), size * 2 * 3);
 }
 
 /* this function does the led calibration by scanning one line of the calibration
@@ -2851,8 +2848,7 @@ void CommandSetGl843::send_shading_data(Genesys_Device* dev, const Genesys_Senso
 	}
     }
 
-    dev->interface->write_buffer(0x3c, 0, final_data.data(), count,
-                                 ScannerInterface::FLAG_SMALL_ADDRESS);
+    dev->interface->write_buffer(0x3c, 0, final_data.data(), count);
 }
 
 bool CommandSetGl843::needs_home_before_init_regs_for_scan(Genesys_Device* dev) const

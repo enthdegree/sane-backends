@@ -779,8 +779,7 @@ uint8_t *table;
             table=tdefault;
         }
         dev->interface->write_register(0x66, 0x00);
-        dev->interface->write_gamma(0x28, 0xc000, table, 128,
-                                    ScannerInterface::FLAG_SWAP_REGISTERS);
+        dev->interface->write_gamma(0x28, 0xc000, table, 128);
         dev->interface->write_register(0x5b, 0x00);
         dev->interface->write_register(0x5c, 0x00);
     }

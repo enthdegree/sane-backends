@@ -1643,20 +1643,6 @@ void CommandSetGl646::search_start_position(Genesys_Device* dev) const
     }
 }
 
-/**
- * internally overriden during effective calibration
- * sets up register for coarse gain calibration
- */
-void CommandSetGl646::init_regs_for_coarse_calibration(Genesys_Device* dev,
-                                                       const Genesys_Sensor& sensor,
-                                                       Genesys_Register_Set& regs) const
-{
-    DBG_HELPER(dbg);
-    (void) dev;
-    (void) sensor;
-    (void) regs;
-}
-
 
 /**
  * init registers for shading calibration

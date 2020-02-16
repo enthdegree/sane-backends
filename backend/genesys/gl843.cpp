@@ -1555,48 +1555,6 @@ void CommandSetGl843::search_start_position(Genesys_Device* dev) const
     }
 }
 
-// sets up register for coarse gain calibration
-// todo: check it for scanners using it
-void CommandSetGl843::init_regs_for_coarse_calibration(Genesys_Device* dev,
-                                                       const Genesys_Sensor& sensor,
-                                                       Genesys_Register_Set& regs) const
-{
-    DBG_HELPER(dbg);
-
-    ScanFlag flags = ScanFlag::DISABLE_SHADING |
-                     ScanFlag::DISABLE_GAMMA |
-                     ScanFlag::SINGLE_LINE |
-                     ScanFlag::IGNORE_STAGGER_OFFSET |
-                     ScanFlag::IGNORE_COLOR_OFFSET;
-
-    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
-        dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED) {
-        flags |= ScanFlag::USE_XPA;
-    }
-
-    ScanSession session;
-    session.params.xres = dev->settings.xres;
-    session.params.yres = dev->settings.yres;
-    session.params.startx = 0;
-    session.params.starty = 0;
-    session.params.pixels = sensor.optical_res / sensor.ccd_pixels_per_system_pixel();
-    session.params.lines = 20;
-    session.params.depth = 16;
-    session.params.channels = dev->settings.get_channels();
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = dev->settings.scan_mode;
-    session.params.color_filter = dev->settings.color_filter;
-    session.params.flags = flags;
-    compute_session(dev, session, sensor);
-
-    init_regs_for_scan_session(dev, sensor, &regs, session);
-
-  sanei_genesys_set_motor_power(regs, false);
-
-  DBG(DBG_info, "%s: optical sensor res: %d dpi, actual res: %d\n", __func__,
-      sensor.optical_res / sensor.ccd_pixels_per_system_pixel(), dev->settings.xres);
-}
-
 static bool should_calibrate_only_active_area(const Genesys_Device& dev,
                                               const Genesys_Settings& settings)
 {

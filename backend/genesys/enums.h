@@ -445,9 +445,6 @@ enum class ModelFlag : unsigned
     // skip lamp warmup (genesys_warmup())
     SKIP_WARMUP = 1 << 4,
 
-    // the scanner does offset and gain calibration
-    OFFSET_CALIBRATION = 1 << 5,
-
     // search start point befor scanning
     SEARCH_START = 1 << 6,
 

@@ -456,6 +456,7 @@ void genesys_init_frontend_tables();
 void genesys_init_gpo_tables();
 void genesys_init_motor_tables();
 void genesys_init_usb_device_tables();
+void verify_usb_device_tables();
 
 template<class T>
 void debug_dump(unsigned level, const T& value)

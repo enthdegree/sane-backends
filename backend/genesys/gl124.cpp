@@ -1176,28 +1176,23 @@ void CommandSetGl124::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
                                             Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
-  int move, resolution, dpihw, factor;
 
     unsigned channels = 3;
-    unsigned calib_lines = dev->model->shading_lines;
-    dpihw = sensor.get_register_hwdpi(dev->settings.xres);
-  if(dpihw>=2400)
-    {
-        calib_lines *= 2;
-    }
-  resolution=dpihw;
+    unsigned dpihw = sensor.get_register_hwdpi(dev->settings.xres);
+    unsigned resolution = dpihw;
 
     unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
 
     resolution /= ccd_size_divisor;
-    calib_lines /= ccd_size_divisor; // reducing just because we reduced the resolution
+    unsigned calib_lines =
+            static_cast<unsigned>(dev->model->y_size_calib_mm * resolution / MM_PER_INCH);
 
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                          dev->settings.scan_method);
-    factor = calib_sensor.optical_res / resolution;
+    unsigned factor = calib_sensor.optical_res / resolution;
 
   /* distance to move to reach white target at high resolution */
-  move=0;
+    unsigned move=0;
     if (dev->settings.yres >= 1200) {
         move = static_cast<int>(dev->model->y_offset_calib_white);
         move = static_cast<int>((move * (dev->motor.base_ydpi/4)) / MM_PER_INCH);

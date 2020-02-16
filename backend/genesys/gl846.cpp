@@ -954,10 +954,9 @@ void CommandSetGl846::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                          dev->settings.scan_method);
-    unsigned calib_lines = dev->model->shading_lines;
-    if (resolution == 4800) {
-        calib_lines *= 2;
-    }
+
+    unsigned calib_lines =
+            static_cast<unsigned>(dev->model->y_size_calib_mm * resolution / MM_PER_INCH);
     unsigned calib_pixels = (calib_sensor.sensor_pixels * resolution) /
                              calib_sensor.optical_res;
 
@@ -1489,7 +1488,7 @@ void CommandSetGl846::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
                                    bool black) const
 {
     DBG_HELPER_ARGS(dbg, "%s %s", black ? "black" : "white", forward ? "forward" : "reverse");
-  unsigned int pixels, lines, channels;
+    unsigned int pixels, channels;
   Genesys_Register_Set local_reg;
     unsigned int pass, count, found;
   char title[80];
@@ -1505,8 +1504,8 @@ void CommandSetGl846::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
   /* 10 MM */
   /* lines = (10 * dpi) / MM_PER_INCH; */
   /* shading calibation is done with dev->motor.base_ydpi */
-  lines = (dev->model->shading_lines * dpi) / dev->motor.base_ydpi;
-  pixels = (sensor.sensor_pixels * dpi) / sensor.optical_res;
+    unsigned lines = static_cast<unsigned>(dev->model->y_size_calib_mm * dpi / MM_PER_INCH);
+    pixels = (sensor.sensor_pixels * dpi) / sensor.optical_res;
 
     dev->set_head_pos_zero(ScanHeadId::PRIMARY);
 

@@ -62,6 +62,12 @@ StaticInit<std::vector<Genesys_USB_Device_Entry>> s_usb_devices;
 
 void genesys_init_usb_device_tables()
 {
+    // on many scanners scanning a single line takes aroung 10ms. In order not to take excessive
+    // amount of time, the sizes of the calibration slots are limited as follows:
+    // 2400 dpi or less: 4mm (would take ~4 seconds on 2400 dpi)
+    // 4800 dpi or less: 3mm (would take ~6 seconds on 4800 dpi)
+    // anything more: 2mm (would take ~7 seconds on 9600 dpi)
+
     s_usb_devices.init();
 
     Genesys_Model model;
@@ -87,6 +93,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 299.0;
 
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 1.0;
 
     model.x_offset_ta = 0.0;
@@ -96,6 +103,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -114,8 +122,6 @@ void genesys_init_usb_device_tables()
     model.motor_id = MotorId::UMAX;
     model.flags = ModelFlag::UNTESTED;
     model.buttons = GENESYS_HAS_NO_BUTTONS;
-    model.shading_lines = 20;
-    model.shading_ta_lines = 0;
     model.search_lines = 200;
 
     s_usb_devices->emplace_back(0x0638, 0x0a10, model);
@@ -145,6 +151,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 299.0;
 
     model.y_offset_calib_white = 6.0;
+    model.y_size_calib_mm = 1.5; // FIXME: re-check the location of the white strip
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -154,6 +161,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -178,8 +186,6 @@ void genesys_init_usb_device_tables()
                     GENESYS_HAS_FILE_SW |
                     GENESYS_HAS_EMAIL_SW |
                     GENESYS_HAS_COPY_SW;
-    model.shading_lines = 280;
-    model.shading_ta_lines = 0;
     model.search_lines = 400;
 
     s_usb_devices->emplace_back(0x04a9, 0x2213, model);
@@ -209,6 +215,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 300.0;
 
     model.y_offset_calib_white = 9.0;
+    model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -218,6 +225,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -238,8 +246,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::OFFSET_CALIBRATION |
                   ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW;
-    model.shading_lines = 100;
-    model.shading_ta_lines = 0;
     model.search_lines = 100;
 
     s_usb_devices->emplace_back(0x04da, 0x100f, model);
@@ -269,6 +275,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 314.5;
 
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -278,6 +285,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -299,8 +307,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::SKIP_WARMUP |
                   ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;
-    model.shading_lines = 100;
-    model.shading_ta_lines = 0;
     model.search_lines = 100;
     s_usb_devices->emplace_back(0x03f0, 0x1b05, model);
 
@@ -329,6 +335,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 315.0;
 
     model.y_offset_calib_white = 3.0;
+    model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -338,6 +345,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -358,8 +366,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::DARK_CALIBRATION |
                   ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;
-    model.shading_lines = 100;
-    model.shading_ta_lines = 0;
     model.search_lines = 100;
 
     s_usb_devices->emplace_back(0x03f0, 0x4505, model);
@@ -389,6 +395,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 315.0;
 
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 8.0;
@@ -398,6 +405,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 40.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -419,8 +427,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::DARK_CALIBRATION |
                   ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;
-    model.shading_lines = 100;
-    model.shading_ta_lines = 0;
     model.search_lines = 100;
 
     s_usb_devices->emplace_back(0x03f0, 0x4605, model);
@@ -454,6 +460,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 297.0;
 
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 115.0;
@@ -463,6 +470,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 46.0;
     model.y_offset_calib_white_ta = 47.0;
+    model.y_size_calib_ta_mm = 2.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -488,8 +496,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::UTA_NO_SECONDARY_MOTOR;
 
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;
-    model.shading_lines = 100;
-    model.shading_ta_lines = 50;
     model.search_lines = 100;
 
     s_usb_devices->emplace_back(0x04a9, 0x2228, model);
@@ -527,6 +533,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 300.0;
 
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 3.0;
     model.x_offset_calib_black = 10.0;
 
     model.x_offset_ta = 75.0;
@@ -536,6 +543,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 22.0;
     model.y_offset_calib_white_ta = 25.0;
+    model.y_size_calib_ta_mm = 3.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -559,8 +567,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::CUSTOM_GAMMA |
                   ModelFlag::SHADING_REPARK;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;
-    model.shading_lines = 100;
-    model.shading_ta_lines = 50;
     model.search_lines = 100;
 
     s_usb_devices->emplace_back(0x04a9, 0x221e, model);
@@ -594,6 +600,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 297.0;
 
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 8.0;
 
     model.x_offset_ta = 94.0;
@@ -603,6 +610,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 11.5;
     model.y_offset_calib_white_ta = 14.0;
+    model.y_size_calib_ta_mm = 3.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -626,8 +634,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::CUSTOM_GAMMA |
                   ModelFlag::SHADING_REPARK;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;
-    model.shading_lines = 50;
-    model.shading_ta_lines = 50;
     model.search_lines = 100;
 
     s_usb_devices->emplace_back(0x04a9, 0x2229, model);
@@ -657,6 +663,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 299.0;
 
     model.y_offset_calib_white = 1.0;
+    model.y_size_calib_mm = 3.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -666,6 +673,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -692,8 +700,6 @@ void genesys_init_usb_device_tables()
                     GENESYS_HAS_COPY_SW |
                     GENESYS_HAS_EMAIL_SW |
                     GENESYS_HAS_FILE_SW;
-    model.shading_lines = 50;
-    model.shading_ta_lines = 0;
     model.search_lines = 400;
 
     s_usb_devices->emplace_back(0x04a9, 0x1904, model);
@@ -723,6 +729,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 300.0;
 
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 3.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -732,6 +739,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -756,8 +764,6 @@ void genesys_init_usb_device_tables()
                     GENESYS_HAS_COPY_SW |
                     GENESYS_HAS_EMAIL_SW |
                     GENESYS_HAS_FILE_SW;
-    model.shading_lines = 25;
-    model.shading_ta_lines = 0;
     model.search_lines = 400;
 
     s_usb_devices->emplace_back(0x04a9, 0x1909, model);
@@ -787,6 +793,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 300.0;
 
     model.y_offset_calib_white = 1.0;
+    model.y_size_calib_mm = 3.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -796,6 +803,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -819,8 +827,6 @@ void genesys_init_usb_device_tables()
                     GENESYS_HAS_COPY_SW |
                     GENESYS_HAS_EMAIL_SW |
                     GENESYS_HAS_FILE_SW;
-    model.shading_lines = 50;
-    model.shading_ta_lines = 0;
     model.search_lines = 400;
 
     s_usb_devices->emplace_back(0x04a9, 0x190e, model);
@@ -851,6 +857,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 297.5;
 
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 3.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -860,6 +867,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -886,8 +894,6 @@ void genesys_init_usb_device_tables()
                     GENESYS_HAS_EMAIL_SW |
                     GENESYS_HAS_FILE_SW |
                     GENESYS_HAS_EXTRA_SW;
-    model.shading_lines = 60;
-    model.shading_ta_lines = 0;
     model.search_lines = 400;
 
     s_usb_devices->emplace_back(0x04a9, 0x190a, model);
@@ -918,6 +924,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 297.5;
 
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 3.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -927,6 +934,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -952,8 +960,6 @@ void genesys_init_usb_device_tables()
                     GENESYS_HAS_EMAIL_SW |
                     GENESYS_HAS_FILE_SW |
                     GENESYS_HAS_EXTRA_SW;
-    model.shading_lines = 60;
-    model.shading_ta_lines = 0;
     model.search_lines = 400;
 
     s_usb_devices->emplace_back(0x04a9, 0x190f, model);
@@ -983,6 +989,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 299.0;
 
     model.y_offset_calib_white = 3.0;
+    model.y_size_calib_mm = 3.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -992,6 +999,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -1018,8 +1026,6 @@ void genesys_init_usb_device_tables()
                     GENESYS_HAS_COPY_SW |
                     GENESYS_HAS_EMAIL_SW |
                     GENESYS_HAS_FILE_SW;
-    model.shading_lines = 50;
-    model.shading_ta_lines = 0;
     model.search_lines = 400;
 
     s_usb_devices->emplace_back(0x04a9, 0x1906, model);
@@ -1049,6 +1055,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 297.0;
 
     model.y_offset_calib_white = 1.0;
+    model.y_size_calib_mm = 3.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -1058,6 +1065,8 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
+
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
 
@@ -1083,8 +1092,6 @@ void genesys_init_usb_device_tables()
                     GENESYS_HAS_COPY_SW |
                     GENESYS_HAS_EMAIL_SW |
                     GENESYS_HAS_FILE_SW;
-    model.shading_lines = 70;
-    model.shading_ta_lines = 0;
     model.search_lines = 400;
 
     s_usb_devices->emplace_back(0x04a9, 0x1907, model);
@@ -1114,6 +1121,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 299.0;
 
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 3.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -1123,6 +1131,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -1148,8 +1157,6 @@ void genesys_init_usb_device_tables()
                     GENESYS_HAS_COPY_SW |
                     GENESYS_HAS_EMAIL_SW |
                     GENESYS_HAS_FILE_SW;
-    model.shading_lines = 50;
-    model.shading_ta_lines = 0;
     model.search_lines = 400;
 
     s_usb_devices->emplace_back(0x04a9, 0x1905, model);
@@ -1179,6 +1186,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 299.0;
 
     model.y_offset_calib_white = 6.0;
+    model.y_size_calib_mm = 1.5; // FIXME: check if the white area is really so small
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -1188,6 +1196,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -1212,10 +1221,7 @@ void genesys_init_usb_device_tables()
                     GENESYS_HAS_SCAN_SW |
                     GENESYS_HAS_FILE_SW |
                     GENESYS_HAS_EMAIL_SW;
-    model.shading_lines = 300;
-    model.shading_ta_lines = 0;
     model.search_lines = 400;
-    // this is completely untested
     s_usb_devices->emplace_back(0x04a9, 0x221c, model);
 
 
@@ -1242,6 +1248,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 299.0;
 
     model.y_offset_calib_white = 4.5;
+    model.y_size_calib_mm = 3.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -1251,6 +1258,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -1275,8 +1283,6 @@ void genesys_init_usb_device_tables()
                     GENESYS_HAS_FILE_SW |
                     GENESYS_HAS_EMAIL_SW |
                     GENESYS_HAS_COPY_SW;
-    model.shading_lines = 160;
-    model.shading_ta_lines = 0;
     model.search_lines = 400;
 
     s_usb_devices->emplace_back(0x04a9, 0x2214, model);
@@ -1306,6 +1312,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 295.0;
 
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 1.0;
 
     model.x_offset_ta = 0.0;
@@ -1315,6 +1322,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -1337,8 +1345,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::OFFSET_CALIBRATION |
                   ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW;
-    model.shading_lines = 40;
-    model.shading_ta_lines = 0;
     model.search_lines = 132;
 
     s_usb_devices->emplace_back(0x03f0, 0x0901, model);
@@ -1368,6 +1374,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 297.2;
 
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 2.0; // FIXME: check if white area is really so small
     model.x_offset_calib_black = 1.0;
 
     model.x_offset_ta = 0.0;
@@ -1377,6 +1384,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -1399,8 +1407,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::SKIP_WARMUP |
                   ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_SCAN_SW;
-    model.shading_lines = 20;
-    model.shading_ta_lines = 0;
     model.search_lines = 132;
 
     s_usb_devices->emplace_back(0x03f0, 0x0a01, model);
@@ -1430,6 +1436,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 297.2;
 
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -1439,6 +1446,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -1461,8 +1469,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::DARK_CALIBRATION |
                   ModelFlag::OFFSET_CALIBRATION;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
-    model.shading_lines = 120;
-    model.shading_ta_lines = 0;
     model.search_lines = 132;
 
     s_usb_devices->emplace_back(0x04a7, 0x0426, model);
@@ -1492,6 +1498,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 300.0;
 
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 1.0;
 
     model.x_offset_ta = 104.0;
@@ -1501,6 +1508,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 76.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -1522,8 +1530,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::OFFSET_CALIBRATION |
                   ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_COPY_SW | GENESYS_HAS_EMAIL_SW | GENESYS_HAS_SCAN_SW;
-    model.shading_lines = 20;
-    model.shading_ta_lines = 0;
     model.search_lines = 200;
 
     s_usb_devices->emplace_back(0x03f0, 0x1405, model);
@@ -1553,6 +1559,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 299.0;
 
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 1.0;
 
     model.x_offset_ta = 0.0;
@@ -1562,6 +1569,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -1580,8 +1588,6 @@ void genesys_init_usb_device_tables()
     model.motor_id = MotorId::UMAX;
     model.flags = ModelFlag::UNTESTED | ModelFlag::GAMMA_14BIT;
     model.buttons = GENESYS_HAS_NO_BUTTONS;
-    model.shading_lines = 20;
-    model.shading_ta_lines = 0;
     model.search_lines = 200;
 
     s_usb_devices->emplace_back(0x07b3, 0x0600, model);
@@ -1610,6 +1616,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 299.0;
 
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 1.0;
 
     model.x_offset_ta = 0.0;
@@ -1619,6 +1626,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -1641,8 +1649,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::SEARCH_START |
                   ModelFlag::OFFSET_CALIBRATION;
     model.buttons = GENESYS_HAS_NO_BUTTONS;
-    model.shading_lines = 20;
-    model.shading_ta_lines = 0;
     model.search_lines = 200;
 
     s_usb_devices->emplace_back(0x07b3, 0x0601, model);
@@ -1671,6 +1677,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 296.4;
 
     model.y_offset_calib_white = 0.00;
+    model.y_size_calib_mm = 3.0; // FIXME: the y_offset is most likely incorrect
     model.x_offset_calib_black = 0.00;
 
     model.x_offset_ta = 0.00;
@@ -1680,6 +1687,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.00;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -1706,8 +1714,6 @@ void genesys_init_usb_device_tables()
                     GENESYS_HAS_POWER_SW |
                     GENESYS_HAS_OCR_SW |
                     GENESYS_HAS_SCAN_SW;
-    model.shading_lines = 40;
-    model.shading_ta_lines = 0;
     model.search_lines = 200;
 
     s_usb_devices->emplace_back(0x0461, 0x0377, model);
@@ -1736,6 +1742,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 511;
 
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -1745,6 +1752,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 26.5;
     // this is larger than needed -- accounts for second sensor head, which is a calibration item
@@ -1766,8 +1774,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::DARK_CALIBRATION |
                   ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
-    model.shading_lines = 100;
-    model.shading_ta_lines = 0;
     model.search_lines = 400;
 
     s_usb_devices->emplace_back(0x04a7, 0x0474, model);
@@ -1796,6 +1802,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 511;
 
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -1805,6 +1812,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 17.5;
     model.eject_feed = 0.0;
@@ -1826,8 +1834,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::DARK_CALIBRATION |
                   ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
-    model.shading_lines = 100;
-    model.shading_ta_lines = 0;
     model.search_lines = 400;
 
     s_usb_devices->emplace_back(0x0a82, 0x4803, model);
@@ -1856,6 +1862,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 511;
 
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -1865,6 +1872,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 16.0;
     model.eject_feed = 0.0;
@@ -1886,8 +1894,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::CUSTOM_GAMMA |
                   ModelFlag::DARK_CALIBRATION;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
-    model.shading_lines = 100;
-    model.shading_ta_lines = 0;
     model.search_lines = 400;
 
     s_usb_devices->emplace_back(0x04a7, 0x0494, model);
@@ -1916,6 +1922,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 511;
 
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -1925,6 +1932,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 16.0;
     model.eject_feed = 0.0;
@@ -1946,8 +1954,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::CUSTOM_GAMMA |
                   ModelFlag::UNTESTED;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW;
-    model.shading_lines = 300;
-    model.shading_ta_lines = 0;
     model.search_lines = 400;
 
     s_usb_devices->emplace_back(0x0a82, 0x4802, model);
@@ -1977,6 +1983,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 511;
 
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -1986,6 +1993,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 16.0;
     model.eject_feed = 0.0;
@@ -2007,8 +2015,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::CUSTOM_GAMMA |
                   ModelFlag::DARK_CALIBRATION;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
-    model.shading_lines = 100;
-    model.shading_ta_lines = 0;
     model.search_lines = 400;
 
     s_usb_devices->emplace_back(0x04a7, 0x049b, model);
@@ -2037,6 +2043,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 511;
 
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -2046,6 +2053,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 16.0;
     model.eject_feed = 0.0;
@@ -2067,8 +2075,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::CUSTOM_GAMMA |
                   ModelFlag::DARK_CALIBRATION;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
-    model.shading_lines = 100;
-    model.shading_ta_lines = 0;
     model.search_lines = 400;
 
     s_usb_devices->emplace_back(0x0a17, 0x3210, model);
@@ -2099,6 +2105,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 511;
 
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -2108,6 +2115,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 16.0;
     model.eject_feed = 0.0;
@@ -2128,8 +2136,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::CUSTOM_GAMMA |
                   ModelFlag::DARK_CALIBRATION;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
-    model.shading_lines = 100;
-    model.shading_ta_lines = 0;
     model.search_lines = 400;
 
     s_usb_devices->emplace_back(0x1dcc, 0x4812, model);
@@ -2158,6 +2164,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 500;
 
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -2167,6 +2174,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 26.5;
     // this is larger than needed -- accounts for second sensor head, which is a calibration item
@@ -2188,8 +2196,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::CUSTOM_GAMMA |
                   ModelFlag::DARK_CALIBRATION;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
-    model.shading_lines = 100;
-    model.shading_ta_lines = 0;
     model.search_lines = 400;
 
 
@@ -2220,6 +2226,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 511;
 
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -2229,6 +2236,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 26.5;
     // this is larger than needed -- accounts for second sensor head, which is a calibration item
@@ -2250,8 +2258,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::CUSTOM_GAMMA |
                   ModelFlag::DARK_CALIBRATION;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
-    model.shading_lines = 100;
-    model.shading_ta_lines = 0;
     model.search_lines = 400;
 
     s_usb_devices->emplace_back(0x0a82, 0x4800, model);
@@ -2281,6 +2287,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 511;
 
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -2290,10 +2297,12 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 26.5;
     // this is larger than needed -- accounts for second sensor head, which is a calibration item
     model.eject_feed = 0.0;
+
     model.ld_shift_r = 0;
     model.ld_shift_g = 0;
     model.ld_shift_b = 0;
@@ -2312,8 +2321,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::CUSTOM_GAMMA |
                   ModelFlag::UNTESTED;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
-    model.shading_lines = 100;
-    model.shading_ta_lines = 0;
     model.search_lines = 400;
 
     s_usb_devices->emplace_back(0x1dcc, 0x4810, model);
@@ -2343,6 +2350,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 296.4;
 
     model.y_offset_calib_white = 0.00;
+    model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.00;
 
     model.x_offset_ta = 0.00;
@@ -2352,6 +2360,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.00;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -2377,8 +2386,6 @@ void genesys_init_usb_device_tables()
                     GENESYS_HAS_POWER_SW |
                     GENESYS_HAS_OCR_SW |
                     GENESYS_HAS_SCAN_SW;
-    model.shading_lines = 40;
-    model.shading_ta_lines = 0;
     model.search_lines = 200;
 
     s_usb_devices->emplace_back(0x04a7, 0x0229, model);
@@ -2408,6 +2415,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 296.4;
 
     model.y_offset_calib_white = 0.00;
+    model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.00;
 
     model.x_offset_ta = 0.00;
@@ -2417,6 +2425,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.00;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -2442,8 +2451,6 @@ void genesys_init_usb_device_tables()
                     GENESYS_HAS_POWER_SW |
                     GENESYS_HAS_OCR_SW |
                     GENESYS_HAS_SCAN_SW;
-    model.shading_lines = 40;
-    model.shading_ta_lines = 0;
     model.search_lines = 200;
 
     s_usb_devices->emplace_back(0x0461, 0x038b, model);
@@ -2473,6 +2480,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 511;
 
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -2482,6 +2490,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 16.0;
     model.eject_feed = 0.0;
@@ -2503,8 +2512,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::CUSTOM_GAMMA |
                   ModelFlag::DARK_CALIBRATION;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW | GENESYS_HAS_CALIBRATE;
-    model.shading_lines = 100;
-    model.shading_ta_lines = 0;
     model.search_lines = 400;
 
     s_usb_devices->emplace_back(0x04a7, 0x04ac, model);
@@ -2534,6 +2541,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 297.0;
 
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -2543,6 +2551,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -2565,8 +2574,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::DARK_CALIBRATION |
                   ModelFlag::OFFSET_CALIBRATION;
     model.buttons = GENESYS_HAS_NO_BUTTONS;
-    model.shading_lines = 7;
-    model.shading_ta_lines = 0;
     model.search_lines = 200;
 
     s_usb_devices->emplace_back(0x07b3, 0x0900, model);
@@ -2595,16 +2602,21 @@ void genesys_init_usb_device_tables()
     model.y_offset = 0.0;
     model.x_size = 36.0;
     model.y_size = 44.0;
+
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 0.0;
     model.x_offset_calib_black = 6.5;
 
     model.x_offset_ta = 0.0;
     model.y_offset_ta = 29.0;
     model.x_size_ta = 36.0;
     model.y_size_ta = 24.0;
+
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_black_ta = 6.5;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 2.0;
+
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
 
@@ -2629,8 +2641,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::SHADING_REPARK |
                   ModelFlag::INVERTED_16BIT_DATA;
 
-    model.shading_lines = 7;
-    model.shading_ta_lines = 50;
     model.search_lines = 200;
     s_usb_devices->emplace_back(0x07b3, 0x0c04, model);
 
@@ -2658,16 +2668,21 @@ void genesys_init_usb_device_tables()
     model.y_offset = 0.0;
     model.x_size = 36.0;
     model.y_size = 44.0;
+
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 0.0;
     model.x_offset_calib_black = 6.5;
 
     model.x_offset_ta = 0.0;
     model.y_offset_ta = 29.0;
     model.x_size_ta = 36.0;
     model.y_size_ta = 24.0;
+
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_black_ta = 6.5;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 2.0;
+
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
 
@@ -2691,8 +2706,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::OFFSET_CALIBRATION |
                   ModelFlag::SHADING_REPARK;
 
-    model.shading_lines = 7;
-    model.shading_ta_lines = 50;
     model.search_lines = 200;
     s_usb_devices->emplace_back(0x07b3, 0x0c12, model);
 
@@ -2720,16 +2733,21 @@ void genesys_init_usb_device_tables()
     model.y_offset = 0.0;
     model.x_size = 36.0;
     model.y_size = 44.0;
+
     model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 0.0;
     model.x_offset_calib_black = 6.5;
 
     model.x_offset_ta = 0.0;
     model.y_offset_ta = 29.0;
     model.x_size_ta = 36.0;
     model.y_size_ta = 24.0;
+
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_black_ta = 6.5;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 2.0;
+
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
 
@@ -2753,8 +2771,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::OFFSET_CALIBRATION |
                   ModelFlag::SHADING_REPARK;
 
-    model.shading_lines = 7;
-    model.shading_ta_lines = 50;
     model.search_lines = 200;
     s_usb_devices->emplace_back(0x07b3, 0x0c13, model);
 
@@ -2782,7 +2798,8 @@ void genesys_init_usb_device_tables()
     model.x_size = 216;
     model.y_size = 511;
 
-    model.y_offset_calib_white = 3.0;
+    model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 4.0; // FIXME: y_offset is liely incorrect
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -2792,6 +2809,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 0;
     model.eject_feed = 0;
@@ -2817,8 +2835,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::NO_CALIBRATION;
 
     model.buttons = GENESYS_HAS_NO_BUTTONS;
-    model.shading_lines = 100;
-    model.shading_ta_lines = 0;
     model.search_lines = 100;
 
     s_usb_devices->emplace_back(0x03f0, 0x4705, model);
@@ -2848,6 +2864,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 300.0;
 
     model.y_offset_calib_white = 9.0;
+    model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -2857,6 +2874,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -2877,8 +2895,6 @@ void genesys_init_usb_device_tables()
                   ModelFlag::OFFSET_CALIBRATION |
                   ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_NO_BUTTONS;  // TODO there are 4 buttons to support
-    model.shading_lines = 100;
-    model.shading_ta_lines = 0;
     model.search_lines = 100;
 
     s_usb_devices->emplace_back(0x07b3, 0x1300, model);
@@ -2908,6 +2924,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 300.0;
 
     model.y_offset_calib_white = 9.0;
+    model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
 
     model.x_offset_ta = 0.0;
@@ -2917,6 +2934,7 @@ void genesys_init_usb_device_tables()
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 0.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -2938,11 +2956,28 @@ void genesys_init_usb_device_tables()
                   ModelFlag::CUSTOM_GAMMA |
                   ModelFlag::UNTESTED;
     model.buttons = GENESYS_HAS_NO_BUTTONS ;
-    model.shading_lines = 100;
-    model.shading_ta_lines = 0;
     model.search_lines = 100;
 
     s_usb_devices->emplace_back(0x1083, 0x162e, model);
- }
+}
+
+void verify_usb_device_tables()
+{
+    for (const auto& device : *s_usb_devices) {
+        const auto& model = device.model;
+        if (model.has_method(ScanMethod::FLATBED)) {
+            if (model.y_size_calib_mm == 0.0f) {
+                throw SaneException("Calibration size can't be zero");
+            }
+        }
+        if (model.has_method(ScanMethod::TRANSPARENCY) ||
+            model.has_method(ScanMethod::TRANSPARENCY_INFRARED))
+        {
+            if (model.y_size_calib_ta_mm == 0.0f) {
+                throw SaneException("Calibration size can't be zero");
+            }
+        }
+    }
+}
 
 } // namespace genesys

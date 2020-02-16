@@ -140,6 +140,9 @@ struct Genesys_Model
     // Start of white strip in mm
     float y_offset_calib_white = 0;
 
+    // The size of the scan area that is used to acquire shading data in mm
+    float y_size_calib_mm = 0;
+
     // Start of black mark in mm
     float x_offset_calib_black = 0;
 
@@ -163,6 +166,9 @@ struct Genesys_Model
 
     // Start of black strip in transparency mode in mm
     float y_offset_calib_black_ta = 0;
+
+    // The size of the scan area that is used to acquire shading data in transparency mode in mm
+    float y_size_calib_ta_mm = 0;
 
     // Size of scan area after paper sensor stop sensing document in mm
     float post_scan = 0;
@@ -199,10 +205,6 @@ struct Genesys_Model
     // Button flags, described existing buttons for the model
     SANE_Word buttons = 0;
 
-    // how many lines are used for shading calibration
-    SANE_Int shading_lines = 0;
-    // how many lines are used for shading calibration in TA mode
-    SANE_Int shading_ta_lines = 0;
     // how many lines are used to search start position
     SANE_Int search_lines = 0;
 

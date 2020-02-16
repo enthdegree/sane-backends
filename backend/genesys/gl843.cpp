@@ -1620,13 +1620,13 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     DBG_HELPER(dbg);
   int move, resolution, dpihw, factor;
 
-    unsigned calib_lines = 0;
+    float calib_size_mm = 0;
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        calib_lines = dev->model->shading_ta_lines;
+        calib_size_mm = dev->model->y_size_calib_ta_mm;
     } else {
-        calib_lines = dev->model->shading_lines;
+        calib_size_mm = dev->model->y_size_calib_mm;
     }
 
     dpihw = sensor.get_logical_hwdpi(dev->settings.xres);
@@ -1672,6 +1672,7 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     }
 
     move = static_cast<int>((move * resolution) / MM_PER_INCH);
+    unsigned calib_lines = static_cast<unsigned>(calib_size_mm * resolution / MM_PER_INCH);
 
     ScanSession session;
     session.params.xres = resolution;
@@ -2536,7 +2537,7 @@ void CommandSetGl843::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
                                    bool forward, bool black) const
 {
     DBG_HELPER_ARGS(dbg, "%s %s",  black ? "black" : "white", forward ? "forward" : "reverse");
-  unsigned int pixels, lines, channels;
+  unsigned int pixels, channels;
   Genesys_Register_Set local_reg;
     int dpi;
   unsigned int pass, count, found, x, y;
@@ -2554,7 +2555,7 @@ void CommandSetGl843::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
   /* 10 MM */
   /* lines = (10 * dpi) / MM_PER_INCH; */
   /* shading calibation is done with dev->motor.base_ydpi */
-  lines = (dev->model->shading_lines * dpi) / dev->motor.base_ydpi;
+   unsigned lines = static_cast<unsigned>(dev->model->y_size_calib_mm * dpi / MM_PER_INCH);
   pixels = (calib_sensor.sensor_pixels * dpi) / calib_sensor.optical_res;
 
     dev->set_head_pos_zero(ScanHeadId::PRIMARY);

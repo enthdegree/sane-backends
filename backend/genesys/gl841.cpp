@@ -2427,13 +2427,15 @@ void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                          dev->settings.scan_method);
 
+    unsigned calib_lines =
+            static_cast<unsigned>(dev->model->y_size_calib_mm * ydpi / MM_PER_INCH);
     ScanSession session;
     session.params.xres = resolution;
     session.params.yres = ydpi;
     session.params.startx = 0;
     session.params.starty = starty;
     session.params.pixels = calib_sensor.sensor_pixels / factor;
-    session.params.lines = dev->model->shading_lines;
+    session.params.lines = calib_lines;
     session.params.depth = 16;
     session.params.channels = channels;
     session.params.scan_method = dev->settings.scan_method;
@@ -3557,9 +3559,9 @@ void CommandSetGl841::search_strip(Genesys_Device* dev, const Genesys_Sensor& se
     unsigned dpi = resolution_settings.get_min_resolution_x();
   channels = 1;
 
-  /* shading calibation is done with dev->motor.base_ydpi */
-  /* lines = (dev->model->shading_lines * dpi) / dev->motor.base_ydpi; */
-    lines = static_cast<unsigned>((10 * dpi) / MM_PER_INCH);
+    // shading calibation is done with dev->motor.base_ydpi
+    lines = 10; // TODO: use dev->model->search_lines
+    lines = static_cast<unsigned>((lines * dpi) / MM_PER_INCH);
 
   pixels = (sensor.sensor_pixels * dpi) / sensor.optical_res;
 

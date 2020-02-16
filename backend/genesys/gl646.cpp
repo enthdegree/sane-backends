@@ -1695,8 +1695,11 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   settings.tl_y = 0;
     settings.pixels = (calib_sensor.sensor_pixels * settings.xres) / calib_sensor.optical_res;
     settings.requested_pixels = settings.pixels;
-    unsigned calib_lines = dev->model->shading_lines;
+
+    unsigned calib_lines =
+            static_cast<unsigned>(dev->model->y_size_calib_mm * settings.yres / MM_PER_INCH);
     settings.lines = calib_lines;
+
   settings.depth = 16;
   settings.color_filter = dev->settings.color_filter;
 

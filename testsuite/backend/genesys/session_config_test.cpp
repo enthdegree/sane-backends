@@ -389,6 +389,7 @@ TestResult perform_single_test(const TestConfig& config, const std::string& chec
 std::vector<TestConfig> get_all_test_configs()
 {
     genesys::genesys_init_usb_device_tables();
+    genesys::verify_usb_device_tables();
 
     std::vector<TestConfig> configs;
     std::unordered_set<std::string> model_names;

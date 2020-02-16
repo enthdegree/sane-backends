@@ -1525,9 +1525,8 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
         case MotorMode::PRIMARY_AND_SECONDARY: {
             if (reg->state.is_motor_on) {
                 dev->advance_head_pos_by_session(ScanHeadId::PRIMARY);
+                dev->advance_head_pos_by_session(ScanHeadId::SECONDARY);
             }
-            // BUG: we should advance secondary head only if motor was on
-            dev->advance_head_pos_by_session(ScanHeadId::SECONDARY);
             break;
         }
         case MotorMode::SECONDARY: {

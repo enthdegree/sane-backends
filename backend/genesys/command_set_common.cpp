@@ -113,11 +113,7 @@ void CommandSetCommon::set_xpa_lamp_power(Genesys_Device& dev, bool set) const
                 { 0x6c, 0x00, 0x80 },
             }
         },
-        {   ModelId::PLUSTEK_OPTICFILM_7200I, ScanMethod::TRANSPARENCY, {
-            }, {
-                { 0xa6, 0x40, 0x70 }, // BUG: remove this cleanup write, it was enabled by accident
-            }
-        },
+        {   ModelId::PLUSTEK_OPTICFILM_7200I, ScanMethod::TRANSPARENCY, {}, {} },
         {   ModelId::PLUSTEK_OPTICFILM_7200I, ScanMethod::TRANSPARENCY_INFRARED, {
                 { 0xa8, 0x07, 0x07 },
             }, {

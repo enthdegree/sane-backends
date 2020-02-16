@@ -54,15 +54,6 @@
 namespace genesys {
 namespace gl843 {
 
-// Set address for writing data
-static void gl843_set_buffer_address(Genesys_Device* dev, uint32_t addr)
-{
-    DBG_HELPER_ARGS(dbg, "setting address to 0x%05x", addr & 0xffff);
-
-    dev->interface->write_register(0x5b, ((addr >> 8) & 0xff));
-    dev->interface->write_register(0x5c, (addr & 0xff));
-}
-
 /**
  * compute the step multiplier used
  */
@@ -700,9 +691,6 @@ static void gl843_send_slope_table(Genesys_Device* dev, int table_nr,
     // XXX STEF XXX USB 1.1 ? sanei_genesys_write_0x8c (dev, 0x0f, 0x14);
     dev->interface->write_gamma(0x28,  0x40000 + 0x8000 * table_nr, table.data(), steps * 2,
                                 ScannerInterface::FLAG_SWAP_REGISTERS);
-
-    // FIXME: remove this when updating tests
-    gl843_set_buffer_address(dev, 0);
 }
 
 static void gl843_set_ad_fe(Genesys_Device* dev)

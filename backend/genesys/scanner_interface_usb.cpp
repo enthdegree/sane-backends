@@ -386,8 +386,7 @@ void ScannerInterfaceUsb::write_gamma(std::uint8_t type, std::uint32_t addr, std
                                       std::size_t size, Flags flags)
 {
     DBG_HELPER_ARGS(dbg, "type: 0x%02x, addr: 0x%08x, size: 0x%08zx", type, addr, size);
-    if (dev_->model->asic_type != AsicType::GL646 &&
-        dev_->model->asic_type != AsicType::GL841 &&
+    if (dev_->model->asic_type != AsicType::GL841 &&
         dev_->model->asic_type != AsicType::GL843)
     {
         throw SaneException("Unsupported transfer mode");
@@ -401,6 +400,13 @@ void ScannerInterfaceUsb::write_gamma(std::uint8_t type, std::uint32_t addr, std
         write_register(0x5b, ((addr >> 12) & 0xff));
     }
     bulk_write_data(type, data, size);
+
+    if (dev_->model->asic_type == AsicType::GL843) {
+        // it looks like we need to reset the address so that subsequent buffer operations work.
+        // Most likely the MTRTBL register is to blame.
+        write_register(0x5b, 0);
+        write_register(0x5c, 0);
+    }
 }
 
 void ScannerInterfaceUsb::write_ahb(std::uint32_t addr, std::uint32_t size, std::uint8_t* data)

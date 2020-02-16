@@ -116,7 +116,7 @@ struct SetupParams {
     unsigned xres = NOT_SET;
     // resolution in y direction
     unsigned yres = NOT_SET;
-    // start pixel in X direction, from dummy_pixel + 1
+    // start pixel in X direction, from dummy_pixel + 1. Counted in terms of xres.
     unsigned startx = NOT_SET;
     // start pixel in Y direction, counted according to base_ydpi
     unsigned starty = NOT_SET;

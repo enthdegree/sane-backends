@@ -760,7 +760,7 @@ ScanSession CommandSetGl846::calculate_scan_session(const Genesys_Device* dev,
   /* start */
     start = static_cast<int>(dev->model->x_offset);
     start += static_cast<int>(settings.tl_x);
-    start = static_cast<int>((start * sensor.optical_res) / MM_PER_INCH);
+    start = static_cast<int>((start * settings.xres) / MM_PER_INCH);
 
     ScanSession session;
     session.params.xres = settings.xres;
@@ -1059,7 +1059,7 @@ void CommandSetGl846::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
   /* start */
     start = dev->model->x_offset;
     start = start + dev->settings.tl_x;
-    start = static_cast<float>((start * sensor.optical_res) / MM_PER_INCH);
+    start = static_cast<float>((start * dev->settings.xres) / MM_PER_INCH);
 
     ScanSession session;
     session.params.xres = dev->settings.xres;

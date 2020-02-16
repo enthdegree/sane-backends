@@ -907,7 +907,7 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
         if (has_flag(s.params.flags, ScanFlag::USE_XCORRECTION) && sensor.ccd_start_xoffset > 0) {
             s.pixel_startx = sensor.ccd_start_xoffset;
         }
-        s.pixel_startx += s.params.startx;
+        s.pixel_startx += s.params.startx * sensor.optical_res / s.params.xres;
 
         if (sensor.stagger_config.stagger_at_resolution(s.params.xres, s.params.yres) > 0) {
             s.pixel_startx |= 1;
@@ -919,7 +919,9 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
         s.pixel_endx /= sensor.ccd_pixels_per_system_pixel() * s.ccd_size_divisor;
 
     } else if (dev->model->asic_type == AsicType::GL841) {
-        s.pixel_startx = ((sensor.ccd_start_xoffset + s.params.startx) * s.optical_resolution)
+        unsigned startx = s.params.startx * sensor.optical_res / s.params.xres;
+
+        s.pixel_startx = ((sensor.ccd_start_xoffset + startx) * s.optical_resolution)
                                 / sensor.optical_res;
 
         s.pixel_startx += sensor.dummy_pixel + 1;
@@ -944,8 +946,9 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
         s.pixel_endx = s.pixel_startx + s.optical_pixels;
 
     } else if (dev->model->asic_type == AsicType::GL843) {
+        unsigned startx = s.params.startx * sensor.optical_res / s.params.xres;
 
-        s.pixel_startx = (s.params.startx + sensor.dummy_pixel) / ccd_pixels_per_system_pixel;
+        s.pixel_startx = (startx + sensor.dummy_pixel) / ccd_pixels_per_system_pixel;
         s.pixel_endx = s.pixel_startx + s.optical_pixels / ccd_pixels_per_system_pixel;
 
         s.pixel_startx /= s.hwdpi_divisor;
@@ -973,7 +976,9 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
                dev->model->asic_type == AsicType::GL846 ||
                dev->model->asic_type == AsicType::GL847)
     {
-        s.pixel_startx = s.params.startx;
+        unsigned startx = s.params.startx * sensor.optical_res / s.params.xres;
+
+        s.pixel_startx = startx;
 
         if (s.num_staggered_lines > 0) {
             s.pixel_startx |= 1;
@@ -986,7 +991,9 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
         s.pixel_endx /= s.hwdpi_divisor * s.segment_count * ccd_pixels_per_system_pixel;
 
     } else if (dev->model->asic_type == AsicType::GL124) {
-        s.pixel_startx = s.params.startx;
+        unsigned startx = s.params.startx * sensor.optical_res / s.params.xres;
+
+        s.pixel_startx = startx;
 
         if (s.num_staggered_lines > 0) {
             s.pixel_startx |= 1;
@@ -1362,10 +1369,10 @@ void build_image_pipeline(Genesys_Device* dev, const Genesys_Sensor& sensor,
         !has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION) &&
         !has_flag(session.params.flags, ScanFlag::DISABLE_SHADING))
     {
-        unsigned pixel_shift = session.params.startx * dev->calib_session.params.xres /
-                sensor.optical_res;
+        unsigned pixel_shift = session.params.startx;
         if (dev->model->model_id == ModelId::CANON_4400F) {
-            pixel_shift = session.params.startx;
+            pixel_shift =
+                    session.params.startx * sensor.optical_res / dev->calib_session.params.xres;
         }
         dev->pipeline.push_node<ImagePipelineNodeCalibrate>(dev->dark_average_data,
                                                             dev->white_average_data,

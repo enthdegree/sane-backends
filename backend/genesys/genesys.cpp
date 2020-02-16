@@ -1087,7 +1087,7 @@ void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
     ScanSession session;
     session.params.xres = resolution;
     session.params.yres = resolution;
-    session.params.startx = 100;
+    session.params.startx = 100 * resolution / sensor.optical_res;
     if (dev.model->asic_type == AsicType::GL843) {
         session.params.starty = 40000;
     } else {
@@ -1234,7 +1234,7 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
     ScanSession session;
     session.params.xres = resolution;
     session.params.yres = resolution;
-    session.params.startx = 100;
+    session.params.startx = 100 * resolution / sensor.optical_res;
     session.params.starty = 30000;
     session.params.pixels = 100;
     session.params.lines = 100;
@@ -1674,7 +1674,10 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
     }
     unsigned channels = dev->calib_session.params.channels;
 
-    unsigned out_pixels_per_line = pixels_per_line + dev->calib_session.params.startx;
+    // BUG: we are using wrong pixel number here
+    unsigned start_offset =
+            dev->calib_session.params.startx * sensor.optical_res / dev->calib_session.params.xres;
+    unsigned out_pixels_per_line = pixels_per_line + start_offset;
 
     // FIXME: we set this during both dark and white calibration. A cleaner approach should
     // probably be used
@@ -1749,10 +1752,10 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
     }
 
     std::fill(out_average_data.begin(),
-              out_average_data.begin() + dev->calib_session.params.startx * channels, 0);
+              out_average_data.begin() + start_offset * channels, 0);
 
     compute_array_percentile_approx(out_average_data.data() +
-                                        dev->calib_session.params.startx * channels,
+                                        start_offset * channels,
                                     calibration_data.data(),
                                     dev->calib_session.params.lines, pixels_per_line * channels,
                                     0.5f);
@@ -1799,7 +1802,11 @@ static void genesys_dummy_dark_shading(Genesys_Device* dev, const Genesys_Sensor
 
     unsigned channels = dev->calib_session.params.channels;
 
-    unsigned out_pixels_per_line = pixels_per_line + dev->calib_session.params.startx;
+    // BUG: we are using wrong pixel number here
+    unsigned start_offset =
+            dev->calib_session.params.startx * sensor.optical_res / dev->calib_session.params.xres;
+
+    unsigned out_pixels_per_line = pixels_per_line + start_offset;
 
     dev->average_size = channels * out_pixels_per_line;
   dev->dark_average_data.clear();
@@ -1928,7 +1935,11 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
 
     unsigned channels = dev->calib_session.params.channels;
 
-    unsigned out_pixels_per_line = pixels_per_line + dev->calib_session.params.startx;
+    // BUG: we are using wrong pixel number here
+    unsigned start_offset =
+            dev->calib_session.params.startx * sensor.optical_res / dev->calib_session.params.xres;
+
+    unsigned out_pixels_per_line = pixels_per_line + start_offset;
 
     dev->average_size = channels * out_pixels_per_line;
 
@@ -1989,14 +2000,14 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
 
 
     std::fill(dev->dark_average_data.begin(),
-              dev->dark_average_data.begin() + dev->calib_session.params.startx * channels, 0);
+              dev->dark_average_data.begin() + start_offset * channels, 0);
     std::fill(dev->white_average_data.begin(),
-              dev->white_average_data.begin() + dev->calib_session.params.startx * channels, 0);
+              dev->white_average_data.begin() + start_offset * channels, 0);
 
     uint16_t* average_white = dev->white_average_data.data() +
-                              dev->calib_session.params.startx * channels;
+                              start_offset * channels;
     uint16_t* average_dark = dev->dark_average_data.data() +
-                             dev->calib_session.params.startx * channels;
+                             start_offset * channels;
 
   for (x = 0; x < pixels_per_line * channels; x++)
     {
@@ -2541,10 +2552,15 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
   unsigned int factor;
   unsigned int coeff, target_code, words_per_color = 0;
 
+
+    // BUG: we are using wrong pixel number here
+    unsigned start_offset =
+            dev->calib_session.params.startx * sensor.optical_res / dev->calib_session.params.xres;
+
     if (dev->model->asic_type == AsicType::GL843) {
-        pixels_per_line = dev->calib_session.output_pixels + dev->calib_session.params.startx;
+        pixels_per_line = dev->calib_session.output_pixels + start_offset;
     } else {
-        pixels_per_line = dev->calib_session.params.pixels + dev->calib_session.params.startx;
+        pixels_per_line = dev->calib_session.params.pixels + start_offset;
     }
 
     unsigned channels = dev->calib_session.params.channels;

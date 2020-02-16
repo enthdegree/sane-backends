@@ -1666,7 +1666,7 @@ ScanSession CommandSetGl841::calculate_scan_session(const Genesys_Device* dev,
 
     float start = dev->model->x_offset;
     start += dev->settings.tl_x;
-    start = static_cast<float>((start * sensor.optical_res) / MM_PER_INCH);
+    start = static_cast<float>((start * dev->settings.xres) / MM_PER_INCH);
 
     // we enable true gray for cis scanners only, and just when doing
     // scan since color calibration is OK for this mode

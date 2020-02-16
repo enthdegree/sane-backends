@@ -1313,7 +1313,7 @@ ScanSession CommandSetGl843::calculate_scan_session(const Genesys_Device* dev,
         start /= sensor.get_ccd_size_divisor_for_dpi(settings.xres);
     }
 
-    start = static_cast<float>((start * sensor.optical_res) / MM_PER_INCH);
+    start = static_cast<float>((start * settings.xres) / MM_PER_INCH);
 
     ScanSession session;
     session.params.xres = settings.xres;
@@ -2410,7 +2410,7 @@ void CommandSetGl843::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     ScanSession session;
     session.params.xres = resolution;
     session.params.yres = resolution;
-    session.params.startx = num_pixels/2;
+    session.params.startx = (num_pixels / 2) * resolution / calib_sensor.optical_res;
     session.params.starty = 0;
     session.params.pixels = num_pixels;
     session.params.lines = 1;

@@ -73,23 +73,6 @@ private:
     std::vector<std::uint8_t> buffer_;
 };
 
-class FakeBufferModel
-{
-public:
-    FakeBufferModel() {}
-
-    void push_step(std::size_t buffer_size, std::size_t row_bytes);
-
-    std::size_t available_space() const;
-
-    void simulate_read(std::size_t size);
-
-private:
-    std::vector<std::size_t> sizes_;
-    std::vector<std::size_t> available_sizes_;
-    std::vector<std::size_t> row_bytes_;
-};
-
 // This class is similar to ImageBuffer, but preserves historical peculiarities of buffer handling
 // in the backend to preserve exact behavior
 class ImageBufferGenesysUsb
@@ -98,7 +81,7 @@ public:
     using ProducerCallback = std::function<void(std::size_t size, std::uint8_t* out_data)>;
 
     ImageBufferGenesysUsb() {}
-    ImageBufferGenesysUsb(std::size_t total_size, const FakeBufferModel& buffer_model,
+    ImageBufferGenesysUsb(std::size_t total_size, std::size_t buffer_size,
                           ProducerCallback producer);
 
     std::size_t remaining_size() const { return remaining_size_; }
@@ -115,11 +98,11 @@ private:
 
     std::size_t remaining_size_ = 0;
 
+    std::size_t buffer_size_ = 0;
+
     std::size_t buffer_offset_ = 0;
     std::size_t buffer_end_ = 0;
     std::vector<std::uint8_t> buffer_;
-
-    FakeBufferModel buffer_model_;
 
     ProducerCallback producer_;
 };

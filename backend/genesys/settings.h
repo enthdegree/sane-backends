@@ -300,11 +300,8 @@ struct ScanSession {
     // Currently it's always zero.
     unsigned output_segment_start_offset = 0;
 
-    // the sizes of the corresponding buffers
+    // the size of the read buffer.
     size_t buffer_size_read = 0;
-    size_t buffer_size_lines = 0;
-    size_t buffer_size_shrink = 0;
-    size_t buffer_size_out = 0;
 
     // whether to enable ledadd functionality
     bool enable_ledadd = false;
@@ -363,9 +360,6 @@ void serialize(Stream& str, ScanSession& x)
     serialize(str, x.output_segment_pixel_group_count);
     serialize(str, x.output_segment_start_offset);
     serialize(str, x.buffer_size_read);
-    serialize(str, x.buffer_size_lines);
-    serialize(str, x.buffer_size_shrink);
-    serialize(str, x.buffer_size_out);
     serialize(str, x.enable_ledadd);
     serialize(str, x.use_host_side_calib);
     serialize(str, x.pipeline_needs_reorder);

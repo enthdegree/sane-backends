@@ -109,11 +109,11 @@ bool ImagePipelineNodeBufferedCallableSource::get_next_row_data(std::uint8_t* ou
 
 ImagePipelineNodeBufferedGenesysUsb::ImagePipelineNodeBufferedGenesysUsb(
         std::size_t width, std::size_t height, PixelFormat format, std::size_t total_size,
-        const FakeBufferModel& buffer_model, ProducerCallback producer) :
+        std::size_t buffer_size, ProducerCallback producer) :
     width_{width},
     height_{height},
     format_{format},
-    buffer_{total_size, buffer_model, producer}
+    buffer_{total_size, buffer_size, producer}
 {
     set_remaining_bytes(total_size);
 }

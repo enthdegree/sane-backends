@@ -622,7 +622,7 @@ void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sen
         regs.find_reg(0x03).value &= ~REG_0x03_LAMPPWR;
 
         if (dev->model->asic_type == AsicType::GL841) {
-            regs_set_exposure(dev->model->asic_type, regs, {0x0101, 0x0101, 0x0101});
+            regs_set_exposure(dev->model->asic_type, regs, sanei_genesys_fixup_exposure({0, 0, 0}));
             regs.set8(0x19, 0xff);
         }
     }

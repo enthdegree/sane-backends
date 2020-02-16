@@ -2873,19 +2873,12 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
 
     auto local_reg = dev->initial_regs;
 
-  /* do offset calibration if needed */
-    if (has_flag(dev->model->flags, ModelFlag::OFFSET_CALIBRATION)) {
-        dev->interface->record_progress_message("offset_calibration");
-        dev->cmd_set->offset_calibration(dev, sensor, local_reg);
+    // do offset calibration if needed
+    dev->interface->record_progress_message("offset_calibration");
+    dev->cmd_set->offset_calibration(dev, sensor, local_reg);
 
-      /* since all the registers are set up correctly, just use them */
-        dev->interface->record_progress_message("coarse_gain_calibration");
-        dev->cmd_set->coarse_gain_calibration(dev, sensor, local_reg, coarse_res);
-    } else {
-        // since we have 2 gain calibration proc, skip second if first one was used.
-        dev->interface->record_progress_message("genesys_coarse_calibration");
-        genesys_coarse_calibration(dev, sensor, local_reg);
-    }
+    dev->interface->record_progress_message("coarse_gain_calibration");
+    dev->cmd_set->coarse_gain_calibration(dev, sensor, local_reg, coarse_res);
 
   if (dev->model->is_cis)
     {
@@ -2910,20 +2903,12 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
         }
 
 
-      /* calibrate afe again to match new exposure */
-        if (has_flag(dev->model->flags, ModelFlag::OFFSET_CALIBRATION)) {
-            dev->interface->record_progress_message("offset_calibration");
-            dev->cmd_set->offset_calibration(dev, sensor, local_reg);
+        // calibrate afe again to match new exposure
+        dev->interface->record_progress_message("offset_calibration");
+        dev->cmd_set->offset_calibration(dev, sensor, local_reg);
 
-            // since all the registers are set up correctly, just use them
-
-            dev->interface->record_progress_message("coarse_gain_calibration");
-            dev->cmd_set->coarse_gain_calibration(dev, sensor, local_reg, coarse_res);
-        } else {
-            // since we have 2 gain calibration proc, skip second if first one was used
-            dev->interface->record_progress_message("genesys_coarse_calibration");
-            genesys_coarse_calibration(dev, sensor, local_reg);
-        }
+        dev->interface->record_progress_message("coarse_gain_calibration");
+        dev->cmd_set->coarse_gain_calibration(dev, sensor, local_reg, coarse_res);
     }
 
   /* we always use sensor pixel number when the ASIC can't handle multi-segments sensor */
@@ -3020,18 +3005,9 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
         dev->cmd_set->led_calibration(dev, sensor, local_reg);
     }
 
-  /* calibrate afe */
-    if (has_flag(dev->model->flags, ModelFlag::OFFSET_CALIBRATION)) {
-        dev->cmd_set->offset_calibration(dev, sensor, local_reg);
+    dev->cmd_set->offset_calibration(dev, sensor, local_reg);
 
-      /* since all the registers are set up correctly, just use them */
-
-        dev->cmd_set->coarse_gain_calibration(dev, sensor, local_reg, sensor.optical_res);
-    } else {
-        // since we have 2 gain calibration proc, skip second if first one was used
-        dev->interface->record_progress_message("genesys_coarse_calibration");
-        genesys_coarse_calibration(dev, sensor, local_reg);
-    }
+    dev->cmd_set->coarse_gain_calibration(dev, sensor, local_reg, sensor.optical_res);
 
   /* search for a full width black strip and then do a 16 bit scan to
    * gather black shading data */

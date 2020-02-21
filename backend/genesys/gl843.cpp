@@ -1928,6 +1928,12 @@ void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sens
         target_pixels = static_cast<int>((size * resolution) / MM_PER_INCH);
     }
 
+    if (dev->model->model_id == ModelId::CANON_4400F &&
+        dev->settings.scan_method == ScanMethod::FLATBED)
+    {
+        return;
+    }
+
     ScanFlag flags = ScanFlag::DISABLE_SHADING |
                      ScanFlag::DISABLE_GAMMA |
                      ScanFlag::SINGLE_LINE |

@@ -743,21 +743,33 @@ ScanSession CommandSetGl847::calculate_scan_session(const Genesys_Device* dev,
                                                     const Genesys_Sensor& sensor,
                                                     const Genesys_Settings& settings) const
 {
-  int start;
-
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, settings);
 
-  /* start */
-    start = static_cast<int>(dev->model->x_offset);
-    start = static_cast<int>(start + settings.tl_x);
-    start = static_cast<int>((start * settings.xres) / MM_PER_INCH);
+    /*  Steps to move to reach scanning area:
+
+        - first we move to physical start of scanning either by a fixed steps amount from the
+          black strip or by a fixed amount from parking position, minus the steps done during
+          shading calibration.
+
+        - then we move by the needed offset whitin physical scanning area
+    */
+    unsigned move_dpi = dev->motor.base_ydpi;
+
+    float move = dev->model->y_offset;
+    move = move + settings.tl_y;
+    move = static_cast<float>((move * move_dpi) / MM_PER_INCH);
+    move -= dev->head_pos(ScanHeadId::PRIMARY);
+
+    float start = dev->model->x_offset;
+    start = start + dev->settings.tl_x;
+    start = static_cast<float>((start * settings.xres) / MM_PER_INCH);
 
     ScanSession session;
     session.params.xres = settings.xres;
     session.params.yres = settings.yres;
-    session.params.startx = start; // not used
-    session.params.starty = 0; // not used
+    session.params.startx = static_cast<unsigned>(start);
+    session.params.starty = static_cast<unsigned>(move);
     session.params.pixels = settings.pixels;
     session.params.requested_pixels = settings.requested_pixels;
     session.params.lines = settings.lines;
@@ -766,7 +778,8 @@ ScanSession CommandSetGl847::calculate_scan_session(const Genesys_Device* dev,
     session.params.scan_method = settings.scan_method;
     session.params.scan_mode = settings.scan_mode;
     session.params.color_filter = settings.color_filter;
-    session.params.flags = ScanFlag::NONE;
+    // backtracking isn't handled well, so don't enable it
+    session.params.flags = ScanFlag::DISABLE_BUFFER_FULL_MOVE;
 
     compute_session(dev, session, sensor);
 
@@ -889,73 +902,21 @@ void CommandSetGl847::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
                                          Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
-  float move;
-  int move_dpi;
-  float start;
 
-    debug_dump(DBG_info, dev->settings);
+    auto session = calculate_scan_session(dev, sensor, dev->settings);
 
-  /* steps to move to reach scanning area:
-     - first we move to physical start of scanning
-     either by a fixed steps amount from the black strip
-     or by a fixed amount from parking position,
-     minus the steps done during shading calibration
-     - then we move by the needed offset whitin physical
-     scanning area
+    /*  Fast move to scan area:
 
-     assumption: steps are expressed at maximum motor resolution
-
-     we need:
-     float y_offset;
-     float y_size;
-     float y_offset_calib;
-     mm_to_steps()=motor dpi / 2.54 / 10=motor dpi / MM_PER_INCH */
-
-  /* if scanner uses ModelFlag::SEARCH_START y_offset is
-     relative from origin, else, it is from parking position */
-
-  move_dpi = dev->motor.base_ydpi;
-
-    move = dev->model->y_offset;
-    move = static_cast<float>(move + dev->settings.tl_y);
-    move = static_cast<float>((move * move_dpi) / MM_PER_INCH);
-    move -= dev->head_pos(ScanHeadId::PRIMARY);
-  DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
-
-  /* fast move to scan area */
-  /* we don't move fast the whole distance since it would involve
-   * computing acceleration/deceleration distance for scan
-   * resolution. So leave a remainder for it so scan makes the final
-   * move tuning */
-    if (dev->settings.get_channels() * dev->settings.yres >= 600 && move > 700) {
-        scanner_move(*dev, dev->model->default_method, static_cast<unsigned>(move - 500),
+        We don't move fast the whole distance since it would involve computing
+        acceleration/deceleration distance for scan resolution. So leave a remainder for it so
+        scan makes the final move tuning
+    */
+    if (dev->settings.get_channels() * dev->settings.yres >= 600 && session.params.starty > 700) {
+        scanner_move(*dev, dev->model->default_method,
+                     static_cast<unsigned>(session.params.starty - 500),
                      Direction::FORWARD);
-      move=500;
+        session.params.starty = 500;
     }
-
-  DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
-  DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
-
-  /* start */
-    start = dev->model->x_offset;
-    start = start + dev->settings.tl_x;
-    start = static_cast<float>((start * dev->settings.xres) / MM_PER_INCH);
-
-    ScanSession session;
-    session.params.xres = dev->settings.xres;
-    session.params.yres = dev->settings.yres;
-    session.params.startx = static_cast<unsigned>(start);
-    session.params.starty = static_cast<unsigned>(move);
-    session.params.pixels = dev->settings.pixels;
-    session.params.requested_pixels = dev->settings.requested_pixels;
-    session.params.lines = dev->settings.lines;
-    session.params.depth = dev->settings.depth;
-    session.params.channels = dev->settings.get_channels();
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = dev->settings.scan_mode;
-    session.params.color_filter = dev->settings.color_filter;
-    // backtracking isn't handled well, so don't enable it
-    session.params.flags = ScanFlag::DISABLE_BUFFER_FULL_MOVE;
     compute_session(dev, session, sensor);
 
     init_regs_for_scan_session(dev, sensor, &regs, session);

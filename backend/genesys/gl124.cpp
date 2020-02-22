@@ -904,21 +904,24 @@ ScanSession CommandSetGl124::calculate_scan_session(const Genesys_Device* dev,
                                                     const Genesys_Sensor& sensor,
                                                     const Genesys_Settings& settings) const
 {
-  int start;
-
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, settings);
 
-  /* start */
-    start = static_cast<int>(dev->model->x_offset);
-    start += static_cast<int>(settings.tl_x);
-    start = static_cast<int>((start * settings.xres) / MM_PER_INCH);
+    unsigned move_dpi = dev->motor.base_ydpi / 4;
+    float move = dev->model->y_offset;
+    move += dev->settings.tl_y;
+    move = static_cast<float>((move * move_dpi) / MM_PER_INCH);
+
+    float start = dev->model->x_offset;
+    start += settings.tl_x;
+    start /= sensor.get_ccd_size_divisor_for_dpi(settings.xres);
+    start = static_cast<float>((start * settings.xres) / MM_PER_INCH);
 
     ScanSession session;
     session.params.xres = settings.xres;
     session.params.yres = settings.yres;
-    session.params.startx = start;
-    session.params.starty = 0; // not used
+    session.params.startx = static_cast<unsigned>(start);
+    session.params.starty = static_cast<unsigned>(move);
     session.params.pixels = settings.pixels;
     session.params.requested_pixels = settings.requested_pixels;
     session.params.lines = settings.lines;
@@ -1144,46 +1147,14 @@ void CommandSetGl124::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
                                          Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
-  float move;
-  int move_dpi;
-  float start;
+    auto session = calculate_scan_session(dev, sensor, dev->settings);
 
-    debug_dump(DBG_info, dev->settings);
-
-  /* y (motor) distance to move to reach scanned area */
-  move_dpi = dev->motor.base_ydpi/4;
-    move = dev->model->y_offset;
-    move += dev->settings.tl_y;
-    move = static_cast<float>((move * move_dpi) / MM_PER_INCH);
-  DBG (DBG_info, "%s: move=%f steps\n", __func__, move);
-
-    if (dev->settings.get_channels() * dev->settings.yres >= 600 && move > 700) {
-        scanner_move(*dev, dev->model->default_method, static_cast<unsigned>(move - 500),
+    if (dev->settings.get_channels() * dev->settings.yres >= 600 && session.params.starty > 700) {
+        scanner_move(*dev, dev->model->default_method,
+                     static_cast<unsigned>(session.params.starty - 500),
                      Direction::FORWARD);
-      move=500;
+        session.params.starty = 500;
     }
-  DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
-
-  /* start */
-    start = dev->model->x_offset;
-    start += dev->settings.tl_x;
-    start /= sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
-    start = static_cast<float>((start * dev->settings.xres) / MM_PER_INCH);
-
-    ScanSession session;
-    session.params.xres = dev->settings.xres;
-    session.params.yres = dev->settings.yres;
-    session.params.startx = static_cast<unsigned>(start);
-    session.params.starty = static_cast<unsigned>(move);
-    session.params.pixels = dev->settings.pixels;
-    session.params.requested_pixels = dev->settings.requested_pixels;
-    session.params.lines = dev->settings.lines;
-    session.params.depth = dev->settings.depth;
-    session.params.channels = dev->settings.get_channels();
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = dev->settings.scan_mode;
-    session.params.color_filter = dev->settings.color_filter;
-    session.params.flags = ScanFlag::NONE;
     compute_session(dev, session, sensor);
 
     init_regs_for_scan_session(dev, sensor, &regs, session);

@@ -123,6 +123,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 1.0;
+    model.x_size_calib_mm = 10800.0 * MM_PER_INCH / 1200;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -173,6 +174,7 @@ void genesys_init_usb_device_tables()
     model.y_size_calib_mm = 3.0;
     model.y_offset_calib_dark_white_mm = 1.0;
     model.y_size_calib_dark_white_mm = 6.0;
+    model.x_size_calib_mm = 10400.0 * MM_PER_INCH / 1200;
     model.x_offset_calib_black = 0.0;
 
     model.post_scan = 0.0;
@@ -228,6 +230,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 9.0;
     model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 5376.0 * MM_PER_INCH / 600;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -278,6 +281,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 5360.1 * MM_PER_INCH / 600;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -328,6 +332,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 3.0;
     model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 5360.1 * MM_PER_INCH / 600;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -378,6 +383,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 5360.1 * MM_PER_INCH / 600;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -433,6 +439,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 2.0;
     model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 5700.0 * MM_PER_INCH / 600;
 
     model.x_offset_ta = 115.0;
     model.y_offset_ta = 60.0;
@@ -505,6 +512,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 3.0;
     model.x_offset_calib_black = 10.0;
+    model.x_size_calib_mm = 28400.0 * MM_PER_INCH / 3200;
 
     model.x_offset_ta = 75.0;
     model.y_offset_ta = 45.00;
@@ -571,6 +579,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 8.0;
+    model.x_size_calib_mm = 11372 * MM_PER_INCH / 1200;
 
     model.x_offset_ta = 94.0;
     model.y_offset_ta = 26.0;
@@ -633,6 +642,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 1.0;
     model.y_size_calib_mm = 3.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 5136.1 * MM_PER_INCH / 600;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -689,6 +699,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 3.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 5168.0 * MM_PER_INCH / 600;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -743,6 +754,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 1.0;
     model.y_size_calib_mm = 3.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 5104.0 * MM_PER_INCH / 600;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -797,6 +809,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 3.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 5168.0 * MM_PER_INCH / 600;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -854,6 +867,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 3.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 5168.0 * MM_PER_INCH / 600;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -909,6 +923,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 3.0;
     model.y_size_calib_mm = 3.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 5136.0 * MM_PER_INCH / 600;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -965,6 +980,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 1.0;
     model.y_size_calib_mm = 3.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 5188.0 * MM_PER_INCH / 600;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -1021,6 +1037,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 3.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 5136.1 * MM_PER_INCH / 600;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -1078,6 +1095,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_dark_white_mm = 1.0;
     model.y_size_calib_dark_white_mm = 6.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 10400.0 * MM_PER_INCH / 1200;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -1132,6 +1150,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_dark_white_mm = 1.0;
     model.y_size_calib_dark_white_mm = 6.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 10240.0 * MM_PER_INCH / 1200;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -1186,6 +1205,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 1.0;
+    model.x_size_calib_mm = 5368.0 * MM_PER_INCH / 600;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -1238,6 +1258,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 2.0; // FIXME: check if white area is really so small
     model.x_offset_calib_black = 1.0;
+    model.x_size_calib_mm = 10872.1 * MM_PER_INCH / 1200;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -1290,6 +1311,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 5200.0 * MM_PER_INCH / 600;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -1342,6 +1364,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 1.0;
+    model.x_size_calib_mm = 10872.1 * MM_PER_INCH / 1200;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -1393,6 +1416,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 1.0;
+    model.x_size_calib_mm = 5416.0 * MM_PER_INCH / 600;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -1441,6 +1465,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 1.0;
+    model.x_size_calib_mm = 10800.0 * MM_PER_INCH / 1200;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -1492,6 +1517,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.00;
     model.y_size_calib_mm = 3.0; // FIXME: the y_offset is most likely incorrect
     model.x_offset_calib_black = 0.00;
+    model.x_size_calib_mm = 10872.1 * MM_PER_INCH / 1200;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -1547,6 +1573,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 10240.1 * MM_PER_INCH / 600;
 
     model.post_scan = 26.5;
     // this is larger than needed -- accounts for second sensor head, which is a calibration item
@@ -1597,6 +1624,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 2496.0 * MM_PER_INCH / 600;
 
     model.post_scan = 17.5;
     model.eject_feed = 0.0;
@@ -1647,6 +1675,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 5200.0 * MM_PER_INCH / 600;
 
     model.post_scan = 16.0;
     model.eject_feed = 0.0;
@@ -1697,6 +1726,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 5200.0 * MM_PER_INCH / 600;
 
     model.post_scan = 16.0;
     model.eject_feed = 0.0;
@@ -1749,6 +1779,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 5200.0 * MM_PER_INCH / 600;
 
     model.post_scan = 16.0;
     model.eject_feed = 0.0;
@@ -1799,6 +1830,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 5200.0 * MM_PER_INCH / 600;
 
     model.post_scan = 16.0;
     model.eject_feed = 0.0;
@@ -1851,6 +1883,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 5200.0 * MM_PER_INCH / 600;
 
     model.post_scan = 16.0;
     model.eject_feed = 0.0;
@@ -1900,6 +1933,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 5020.0 * MM_PER_INCH / 600;
 
     model.post_scan = 26.5;
     // this is larger than needed -- accounts for second sensor head, which is a calibration item
@@ -1952,6 +1986,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 10240.0 * MM_PER_INCH / 600;
 
     model.post_scan = 26.5;
     // this is larger than needed -- accounts for second sensor head, which is a calibration item
@@ -2003,6 +2038,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 10240.0 * MM_PER_INCH / 600;
 
     model.post_scan = 26.5;
     // this is larger than needed -- accounts for second sensor head, which is a calibration item
@@ -2056,6 +2092,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.00;
     model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.00;
+    model.x_size_calib_mm = 10872.1 * MM_PER_INCH / 1200;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -2111,6 +2148,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.00;
     model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.00;
+    model.x_size_calib_mm = 10872.1 * MM_PER_INCH / 1200;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -2166,6 +2204,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 5200.0 * MM_PER_INCH / 600;
 
     model.post_scan = 16.0;
     model.eject_feed = 0.0;
@@ -2217,6 +2256,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 10100.0 * MM_PER_INCH / 1200;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -2270,6 +2310,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 0.0;
     model.x_offset_calib_black = 6.5;
+    model.x_size_calib_mm = 10200.0 * MM_PER_INCH / 7200;
 
     model.x_offset_ta = 0.0;
     model.y_offset_ta = 29.0;
@@ -2335,6 +2376,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 0.0;
     model.x_offset_calib_black = 6.5;
+    model.x_size_calib_mm = 10200.0 * MM_PER_INCH / 7200;
 
     model.x_offset_ta = 0.0;
     model.y_offset_ta = 29.0;
@@ -2404,6 +2446,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_ta = 29.0;
     model.x_size_ta = 36.0;
     model.y_size_ta = 24.0;
+    model.x_size_calib_mm = 10200.0 * MM_PER_INCH / 7200;
 
     model.y_offset_sensor_to_ta = 0.0;
     model.y_offset_calib_black_ta = 6.5;
@@ -2462,6 +2505,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 0.0;
     model.y_size_calib_mm = 4.0; // FIXME: y_offset is liely incorrect
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 42720.0 * MM_PER_INCH / 2400;
 
     model.post_scan = 0;
     model.eject_feed = 0;
@@ -2517,6 +2561,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 9.0;
     model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 10200.0 * MM_PER_INCH / 1200;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -2567,6 +2612,7 @@ void genesys_init_usb_device_tables()
     model.y_offset_calib_white = 9.0;
     model.y_size_calib_mm = 4.0;
     model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 10800.0 * MM_PER_INCH / 1200;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
@@ -2596,6 +2642,11 @@ void verify_usb_device_tables()
 {
     for (const auto& device : *s_usb_devices) {
         const auto& model = device.model;
+
+        if (model.x_size_calib_mm == 0.0f) {
+            throw SaneException("Calibration width can't be zero");
+        }
+
         if (model.has_method(ScanMethod::FLATBED)) {
             if (model.y_size_calib_mm == 0.0f) {
                 throw SaneException("Calibration size can't be zero");

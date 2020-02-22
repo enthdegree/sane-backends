@@ -150,6 +150,9 @@ struct Genesys_Model
     // The size of the scan area that is used to acquire dark/white shading data in mm
     float y_size_calib_dark_white_mm = 0;
 
+    // The width of the scan area that is used to acquire shading data
+    float x_size_calib_mm = 0;
+
     // Start of black mark in mm
     float x_offset_calib_black = 0;
 

@@ -2230,6 +2230,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_CANON_4400F;
     sensor.optical_res = 4800;
+    sensor.register_dpihw_override = 4800;
     sensor.ccd_size_divisor = 4;
     sensor.black_pixels = 50*8;
     // 31 at 600 dpi, 58 at 1200 dpi
@@ -2241,7 +2242,7 @@ void genesys_init_sensor_tables()
     sensor.stagger_config = StaggerConfig{4800, 8};
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
     sensor.get_logical_hwdpi_fun = get_sensor_optical_with_ccd_divisor;
-    sensor.get_register_hwdpi_fun = [](const Genesys_Sensor&, unsigned) { return 4800; };
+    sensor.get_register_hwdpi_fun = get_sensor_optical_with_ccd_divisor;
     sensor.get_hwdpi_divisor_fun = [](const Genesys_Sensor&, unsigned) { return 1; };
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
@@ -2339,7 +2340,7 @@ void genesys_init_sensor_tables()
     sensor.custom_regs = {};
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
     sensor.get_logical_hwdpi_fun = get_sensor_optical_with_ccd_divisor;
-    sensor.get_register_hwdpi_fun = [](const Genesys_Sensor&, unsigned) { return 4800; };
+    sensor.get_register_hwdpi_fun = get_sensor_optical_with_ccd_divisor;
     sensor.get_hwdpi_divisor_fun = [](const Genesys_Sensor&, unsigned) { return 1; };
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
@@ -2484,6 +2485,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_CANON_8600F;
     sensor.optical_res = 4800;
+    sensor.register_dpihw_override = 4800;
     sensor.ccd_size_divisor = 4;
     sensor.black_pixels = 31;
     sensor.dummy_pixel = 20;
@@ -2495,7 +2497,7 @@ void genesys_init_sensor_tables()
     sensor.custom_regs = {};
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
     sensor.get_logical_hwdpi_fun = get_sensor_optical_with_ccd_divisor;
-    sensor.get_register_hwdpi_fun = [](const Genesys_Sensor&, unsigned) { return 4800; };
+    sensor.get_register_hwdpi_fun = get_sensor_optical_with_ccd_divisor;
     sensor.get_hwdpi_divisor_fun = [](const Genesys_Sensor&, unsigned) { return 1; };
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 

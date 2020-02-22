@@ -1179,7 +1179,7 @@ void genesys_init_usb_device_tables()
     model.bpp_color_values = { 8, 16 };
 
     model.x_offset = 2.0;
-    model.y_offset = 7.5;
+    model.y_offset = 7.5; // FIXME: incorrect, needs updating
     model.x_size = 215.9;
     model.y_size = 295.0;
 
@@ -1203,7 +1203,6 @@ void genesys_init_usb_device_tables()
     model.motor_id = MotorId::HP2300;
     model.flags = ModelFlag::GAMMA_14BIT |
                   ModelFlag::SKIP_WARMUP |
-                  ModelFlag::SEARCH_START |
                   ModelFlag::DARK_CALIBRATION |
                   ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_COPY_SW;
@@ -1434,7 +1433,7 @@ void genesys_init_usb_device_tables()
     model.bpp_color_values = { 8, 16 };
 
     model.x_offset = 3.5;
-    model.y_offset = 7.5;
+    model.y_offset = 7.5; // FIXME: incorrect, needs updating
     model.x_size = 218.0;
     model.y_size = 299.0;
 
@@ -1459,8 +1458,7 @@ void genesys_init_usb_device_tables()
     model.motor_id = MotorId::ST24;
     model.flags = ModelFlag::UNTESTED |
                   ModelFlag::GAMMA_14BIT |
-                  ModelFlag::CUSTOM_GAMMA |
-                  ModelFlag::SEARCH_START;
+                  ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_NO_BUTTONS;
     model.search_lines = 200;
 
@@ -1485,12 +1483,12 @@ void genesys_init_usb_device_tables()
     model.bpp_color_values = { 8, 16 };
 
     model.x_offset = 0.30;
-    model.y_offset = 0.80;
+    model.y_offset = 4.0; // FIXME: incorrect, needs updating
     model.x_size = 220.0;
     model.y_size = 296.4;
 
     model.y_offset_calib_white = 0.00;
-    model.y_size_calib_mm = 3.0; // FIXME: the y_offset is most likely incorrect
+    model.y_size_calib_mm = 3.0;
     model.x_offset_calib_black = 0.00;
 
     model.post_scan = 0.0;
@@ -1508,7 +1506,6 @@ void genesys_init_usb_device_tables()
     model.gpio_id = GpioId::MD_5345;
     model.motor_id = MotorId::MD_5345;
     model.flags = ModelFlag::GAMMA_14BIT |
-                  ModelFlag::SEARCH_START |
                   ModelFlag::DARK_CALIBRATION |
                   ModelFlag::SHADING_NO_MOVE |
                   ModelFlag::CUSTOM_GAMMA;
@@ -2049,7 +2046,7 @@ void genesys_init_usb_device_tables()
     model.bpp_color_values = { 8, 16 };
 
     model.x_offset = 4.00;
-    model.y_offset = 0.80;
+    model.y_offset = 5.0; // FIXME: incorrect, needs updating
     model.x_size = 215.9;
     model.y_size = 296.4;
 
@@ -2072,7 +2069,6 @@ void genesys_init_usb_device_tables()
     model.gpio_id = GpioId::MD_5345;
     model.motor_id = MotorId::MD_5345;
     model.flags = ModelFlag::GAMMA_14BIT |
-                  ModelFlag::SEARCH_START |
                   ModelFlag::DARK_CALIBRATION |
                   ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_COPY_SW |
@@ -2104,7 +2100,7 @@ void genesys_init_usb_device_tables()
     model.bpp_color_values = { 8, 16 };
 
     model.x_offset = 4.00;
-    model.y_offset = 0.80;
+    model.y_offset = 5.0; // FIXME: incorrect, needs updating
     model.x_size = 215.9;
     model.y_size = 296.4;
 
@@ -2127,7 +2123,6 @@ void genesys_init_usb_device_tables()
     model.gpio_id = GpioId::MD_5345;
     model.motor_id = MotorId::MD_5345;
     model.flags = ModelFlag::GAMMA_14BIT |
-                  ModelFlag::SEARCH_START |
                   ModelFlag::DARK_CALIBRATION |
                   ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_COPY_SW |

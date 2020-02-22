@@ -1178,8 +1178,8 @@ void genesys_init_usb_device_tables()
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = 2.0;
-    model.y_offset = 7.5; // FIXME: incorrect, needs updating
+    model.x_offset = 6.5;
+    model.y_offset = 8;
     model.x_size = 215.9;
     model.y_size = 295.0;
 

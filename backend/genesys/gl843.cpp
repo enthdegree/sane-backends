@@ -1514,7 +1514,7 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
         calib_size_mm = dev->model->y_size_calib_mm;
     }
 
-    unsigned resolution = sensor.get_logical_hwdpi(dev->settings.xres);
+    unsigned resolution = sensor.get_register_hwdpi(dev->settings.xres);
 
     unsigned channels = 3;
   const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
@@ -1829,7 +1829,7 @@ void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sens
   lines = 8;
 
     // compute divider factor to compute final pixels number
-    dpihw = sensor.get_logical_hwdpi(dev->settings.xres);
+    dpihw = sensor.get_register_hwdpi(dev->settings.xres);
   factor = sensor.optical_res / dpihw;
   resolution = dpihw;
 
@@ -2052,7 +2052,7 @@ void CommandSetGl843::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     if (dev->frontend.layout.type != FrontendType::WOLFSON)
         return;
 
-    dpihw = sensor.get_logical_hwdpi(dpi);
+    dpihw = sensor.get_register_hwdpi(dpi);
 
     // coarse gain calibration is always done in color mode
     unsigned channels = 3;
@@ -2193,7 +2193,7 @@ void CommandSetGl843::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
   /* setup scan */
   *channels=3;
   resolution=600;
-    dpihw = sensor.get_logical_hwdpi(resolution);
+    dpihw = sensor.get_register_hwdpi(resolution);
   resolution=dpihw;
 
   const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, *channels,
@@ -2632,7 +2632,7 @@ void CommandSetGl843::send_shading_data(Genesys_Device* dev, const Genesys_Senso
             dev->model->model_id == ModelId::CANON_8600F)
         {
             int half_ccd_factor = dev->session.optical_resolution /
-                                  sensor.get_logical_hwdpi(dev->session.output_resolution);
+                                  sensor.get_register_hwdpi(dev->session.output_resolution);
             strpixel /= half_ccd_factor * sensor.ccd_pixels_per_system_pixel();
             endpixel /= half_ccd_factor * sensor.ccd_pixels_per_system_pixel();
         }

@@ -1422,8 +1422,7 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
             break;
     }
 
-    // clear scan and feed count
-    dev->interface->write_register(REG_0x0D, REG_0x0D_CLRLNCNT | REG_0x0D_CLRMCNT);
+    scanner_clear_scan_and_feed_counts(*dev);
 
     // enable scan and motor
     uint8_t val = dev->interface->read_register(REG_0x01);

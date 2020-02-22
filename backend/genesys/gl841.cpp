@@ -1614,15 +1614,7 @@ ScanSession CommandSetGl841::calculate_scan_session(const Genesys_Device* dev,
        float y_offset_calib;
        mm_to_steps()=motor dpi / 2.54 / 10=motor dpi / MM_PER_INCH
     */
-
-    // if scanner uses ModelFlag::SEARCH_START y_offset is
-    // relative from origin, else, it is from parking position
-    float move = 0.0f;
-    if (has_flag(dev->model->flags, ModelFlag::SEARCH_START)) {
-        move += dev->model->y_offset_calib_white;
-    }
-
-    move += dev->model->y_offset;
+    float move = dev->model->y_offset;
     move += dev->settings.tl_y;
 
     int move_dpi = dev->motor.base_ydpi;

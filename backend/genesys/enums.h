@@ -445,9 +445,6 @@ enum class ModelFlag : unsigned
     // skip lamp warmup (genesys_warmup())
     SKIP_WARMUP = 1 << 4,
 
-    // search start point befor scanning
-    SEARCH_START = 1 << 6,
-
     // repark head and check for lock by moving without scanning
     REPARK = 1 << 7,
 
@@ -468,9 +465,6 @@ enum class ModelFlag : unsigned
 
     // the scanner uses multi-segment sensors that must be handled during calibration
     SIS_SENSOR = 1 << 16,
-
-    // the scanner does not move sensor during scanner calibration
-    SHADING_NO_MOVE = 1 << 17,
 
     // the head must be reparked between shading scans
     SHADING_REPARK = 1 << 18,

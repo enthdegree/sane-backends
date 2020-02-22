@@ -529,179 +529,6 @@ void sanei_genesys_init_shading_data(Genesys_Device* dev, const Genesys_Sensor& 
                                     pixels_per_line * 4 * channels);
 }
 
-
-// Find the position of the reference point: takes gray level 8 bits data and find
-// first CCD usable pixel and top of scanning area
-void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& sensor,
-                                          const uint8_t* src_data, int start_pixel, int dpi,
-                                          int width, int height)
-{
-    DBG_HELPER(dbg);
-  int x, y;
-  int current, left, top = 0;
-  int size, count;
-  int level = 80;		/* edge threshold level */
-
-    // sanity check
-    if ((width < 3) || (height < 3)) {
-        throw SaneException("invalid width or height");
-    }
-
-  /* transformed image data */
-  size = width * height;
-  std::vector<uint8_t> image2(size, 0);
-  std::vector<uint8_t> image(size, 0);
-
-  /* laplace filter to denoise picture */
-    std::memcpy(image2.data(), src_data, size);
-    std::memcpy(image.data(), src_data, size);	// to initialize unprocessed part of the image buffer
-
-    for (y = 1; y < height - 1; y++) {
-        for (x = 1; x < width - 1; x++) {
-            image[y * width + x] =
-                (image2[(y - 1) * width + x + 1] + 2 * image2[(y - 1) * width + x] +
-                image2[(y - 1) * width + x - 1] + 2 * image2[y * width + x + 1] +
-                4 * image2[y * width + x] + 2 * image2[y * width + x - 1] +
-                image2[(y + 1) * width + x + 1] + 2 * image2[(y + 1) * width + x] +
-                image2[(y + 1) * width + x - 1]) / 16;
-        }
-    }
-
-    image2 = image;
-  if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl_laplace.pnm", image.data(), 8, 1, width, height);
-
-  /* apply X direction sobel filter
-     -1  0  1
-     -2  0  2
-     -1  0  1
-     and finds threshold level
-   */
-  level = 0;
-    for (y = 2; y < height - 2; y++) {
-        for (x = 2; x < width - 2; x++) {
-            current = image2[(y - 1) * width + x + 1] - image2[(y - 1) * width + x - 1] +
-                      2 * image2[y * width + x + 1] - 2 * image2[y * width + x - 1] +
-                      image2[(y + 1) * width + x + 1] - image2[(y + 1) * width + x - 1];
-	if (current < 0)
-	  current = -current;
-	if (current > 255)
-	  current = 255;
-	image[y * width + x] = current;
-	if (current > level)
-	  level = current;
-        }
-    }
-  if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl_xsobel.pnm", image.data(), 8, 1, width, height);
-
-  /* set up detection level */
-  level = level / 3;
-
-  /* find left black margin first
-     todo: search top before left
-     we average the result of N searches */
-  left = 0;
-  count = 0;
-  for (y = 2; y < 11; y++)
-    {
-      x = 8;
-      while ((x < width / 2) && (image[y * width + x] < level))
-	{
-	  image[y * width + x] = 255;
-	  x++;
-	}
-      count++;
-      left += x;
-    }
-  if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl_detected-xsobel.pnm", image.data(), 8, 1, width, height);
-  left = left / count;
-
-    // turn it in CCD pixel at full sensor optical resolution
-    sensor.ccd_start_xoffset = start_pixel + (left * sensor.optical_res) / dpi;
-
-  /* find top edge by detecting black strip */
-  /* apply Y direction sobel filter
-     -1 -2 -1
-     0  0  0
-     1  2  1
-   */
-  level = 0;
-    for (y = 2; y < height - 2; y++) {
-        for (x = 2; x < width - 2; x++) {
-            current = -image2[(y - 1) * width + x + 1] - 2 * image2[(y - 1) * width + x] -
-                      image2[(y - 1) * width + x - 1] + image2[(y + 1) * width + x + 1] +
-                      2 * image2[(y + 1) * width + x] + image2[(y + 1) * width + x - 1];
-	if (current < 0)
-	  current = -current;
-	if (current > 255)
-	  current = 255;
-	image[y * width + x] = current;
-	if (current > level)
-	  level = current;
-      }
-    }
-  if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl_ysobel.pnm", image.data(), 8, 1, width, height);
-
-  /* set up detection level */
-  level = level / 3;
-
-  /* search top of horizontal black stripe : TODO yet another flag */
-    if (dev->model->sensor_id == SensorId::CCD_5345
-        && dev->model->motor_id == MotorId::MD_5345)
-    {
-      top = 0;
-      count = 0;
-      for (x = width / 2; x < width - 1; x++)
-	{
-	  y = 2;
-	  while ((y < height) && (image[x + y * width] < level))
-	    {
-	      image[y * width + x] = 255;
-	      y++;
-	    }
-	  count++;
-	  top += y;
-	}
-      if (DBG_LEVEL >= DBG_data)
-        sanei_genesys_write_pnm_file("gl_detected-ysobel.pnm", image.data(), 8, 1, width, height);
-      top = top / count;
-
-      /* bottom of black stripe is of fixed witdh, this hardcoded value
-       * will be moved into device struct if more such values are needed */
-      top += 10;
-        dev->model->y_offset_calib_white = (top * MM_PER_INCH) / dpi;
-        DBG(DBG_info, "%s: black stripe y_offset = %f mm \n", __func__,
-            dev->model->y_offset_calib_white);
-    }
-
-  /* find white corner in dark area : TODO yet another flag */
-    if ((dev->model->sensor_id == SensorId::CCD_HP2300 && dev->model->motor_id == MotorId::HP2300) ||
-        (dev->model->sensor_id == SensorId::CCD_HP2400 && dev->model->motor_id == MotorId::HP2400) ||
-        (dev->model->sensor_id == SensorId::CCD_HP3670 && dev->model->motor_id == MotorId::HP3670))
-    {
-      top = 0;
-      count = 0;
-      for (x = 10; x < 60; x++)
-	{
-	  y = 2;
-	  while ((y < height) && (image[x + y * width] < level))
-	    y++;
-	  top += y;
-	  count++;
-	}
-      top = top / count;
-        dev->model->y_offset_calib_white = (top * MM_PER_INCH) / dpi;
-        DBG(DBG_info, "%s: white corner y_offset = %f mm\n", __func__,
-            dev->model->y_offset_calib_white);
-    }
-
-    DBG(DBG_proc, "%s: ccd_start_xoffset = %d, left = %d, top = %d\n", __func__,
-        sensor.ccd_start_xoffset, left, top);
-}
-
 namespace gl124 {
     void gl124_setup_scan_gpio(Genesys_Device* dev, int resolution);
 } // namespace gl124
@@ -1336,20 +1163,14 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
 
   std::vector<uint16_t> calibration_data(size / 2);
 
-    bool motor = true;
-    if (has_flag(dev->model->flags, ModelFlag::SHADING_NO_MOVE)) {
-        motor = false;
-    }
-
     // turn off motor and lamp power for flatbed scanners, but not for sheetfed scanners
     // because they have a calibration sheet with a sufficient black strip
     if (is_dark && !dev->model->is_sheetfed) {
         sanei_genesys_set_lamp_power(dev, sensor, local_reg, false);
-        sanei_genesys_set_motor_power(local_reg, motor);
     } else {
         sanei_genesys_set_lamp_power(dev, sensor, local_reg, true);
-        sanei_genesys_set_motor_power(local_reg, motor);
     }
+    sanei_genesys_set_motor_power(local_reg, true);
 
     dev->interface->write_registers(local_reg);
 
@@ -1584,14 +1405,9 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
 
   std::vector<uint8_t> calibration_data(size);
 
-    bool motor = true;
-    if (has_flag(dev->model->flags, ModelFlag::SHADING_NO_MOVE)) {
-        motor = false;
-    }
-
     // turn on motor and lamp power
     sanei_genesys_set_lamp_power(dev, sensor, local_reg, true);
-    sanei_genesys_set_motor_power(local_reg, motor);
+    sanei_genesys_set_motor_power(local_reg, true);
 
     dev->interface->write_registers(local_reg);
 
@@ -2944,23 +2760,9 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
 
   /* set top left x and y values by scanning the internals if flatbed scanners */
     if (!dev->model->is_sheetfed) {
-      /* do the geometry detection only once */
-        if (has_flag(dev->model->flags, ModelFlag::SEARCH_START) &&
-            (dev->model->y_offset_calib_white == 0))
-        {
-        dev->cmd_set->search_start_position (dev);
-
-            dev->parking = false;
-            dev->cmd_set->move_back_home(dev, true);
-	}
-      else
-	{
-	  /* Go home */
-	  /* TODO: check we can drop this since we cannot have the
-	     scanner's head wandering here */
-            dev->parking = false;
-            dev->cmd_set->move_back_home(dev, true);
-	}
+        // TODO: check we can drop this since we cannot have the scanner's head wandering here
+        dev->parking = false;
+        dev->cmd_set->move_back_home(dev, true);
     }
 
   /* move to calibration area for transparency adapter */

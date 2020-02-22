@@ -97,7 +97,6 @@ public:
      */
     virtual void send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor) const = 0;
 
-    virtual void search_start_position(Genesys_Device* dev) const = 0;
     virtual void offset_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                     Genesys_Register_Set& regs) const = 0;
     virtual void coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,

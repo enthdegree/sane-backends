@@ -286,10 +286,6 @@ void sanei_genesys_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& s
 
 extern void sanei_genesys_stop_motor(Genesys_Device* dev);
 
-extern void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& sensor,
-                                                 const uint8_t* src_data, int start_pixel, int dpi,
-                                                 int width, int height);
-
 // moves the scan head by the specified steps at the motor base dpi
 void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, Direction direction);
 

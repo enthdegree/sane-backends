@@ -2036,16 +2036,6 @@ void CommandSetGl124::eject_document(Genesys_Device* dev) const
     throw SaneException("not implemented");
 }
 
-void CommandSetGl124::search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                   bool forward, bool black) const
-{
-    (void) dev;
-    (void) sensor;
-    (void) forward;
-    (void) black;
-    throw SaneException("not implemented");
-}
-
 void CommandSetGl124::move_to_ta(Genesys_Device* dev) const
 {
     (void) dev;

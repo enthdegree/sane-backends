@@ -374,8 +374,6 @@ struct Genesys_Sensor {
     int dummy_pixel = 0;
     // last pixel of CCD margin at optical resolution
     int ccd_start_xoffset = 0;
-    // total pixels used by the sensor
-    int sensor_pixels = 0;
     // TA CCD target code (reference gain)
     int fau_gain_white_ref = 0;
     // CCD target code (reference gain)
@@ -455,7 +453,6 @@ struct Genesys_Sensor {
             black_pixels == other.black_pixels &&
             dummy_pixel == other.dummy_pixel &&
             ccd_start_xoffset == other.ccd_start_xoffset &&
-            sensor_pixels == other.sensor_pixels &&
             fau_gain_white_ref == other.fau_gain_white_ref &&
             gain_white_ref == other.gain_white_ref &&
             exposure == other.exposure &&
@@ -482,7 +479,6 @@ void serialize(Stream& str, Genesys_Sensor& x)
     serialize(str, x.black_pixels);
     serialize(str, x.dummy_pixel);
     serialize(str, x.ccd_start_xoffset);
-    serialize(str, x.sensor_pixels);
     serialize(str, x.fau_gain_white_ref);
     serialize(str, x.gain_white_ref);
     serialize_newline(str);

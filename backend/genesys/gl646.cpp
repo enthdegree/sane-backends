@@ -1679,7 +1679,7 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   settings.yres = settings.xres;
   settings.tl_x = 0;
   settings.tl_y = 0;
-    settings.pixels = (calib_sensor.sensor_pixels * settings.xres) / calib_sensor.optical_res;
+    settings.pixels = dev->model->x_size_calib_mm * settings.xres / MM_PER_INCH;
     settings.requested_pixels = settings.pixels;
 
     unsigned calib_lines =
@@ -1911,7 +1911,7 @@ SensorExposure CommandSetGl646::led_calibration(Genesys_Device* dev, const Genes
   settings.yres = resolution;
   settings.tl_x = 0;
   settings.tl_y = 0;
-    settings.pixels = (sensor.sensor_pixels * resolution) / sensor.optical_res;
+    settings.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
     settings.requested_pixels = settings.pixels;
   settings.lines = 1;
   settings.depth = 16;
@@ -2085,7 +2085,7 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   settings.yres = resolution;
   settings.tl_x = 0;
   settings.tl_y = 0;
-    settings.pixels = (calib_sensor.sensor_pixels * resolution) / calib_sensor.optical_res;
+    settings.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
     settings.requested_pixels = settings.pixels;
   settings.lines = CALIBRATION_LINES;
   settings.depth = 8;
@@ -2196,7 +2196,7 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
   settings.yres = resolution;
   settings.tl_x = 0;
   settings.tl_y = 0;
-    settings.pixels = (calib_sensor.sensor_pixels * resolution) / calib_sensor.optical_res;
+    settings.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
     settings.requested_pixels = settings.pixels;
   settings.lines = CALIBRATION_LINES;
   settings.depth = 8;
@@ -2332,7 +2332,7 @@ static void ad_fe_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
   settings.yres = resolution;
   settings.tl_x = 0;
   settings.tl_y = 0;
-    settings.pixels = (calib_sensor.sensor_pixels * resolution) / calib_sensor.optical_res;
+    settings.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
     settings.requested_pixels = settings.pixels;
   settings.lines = CALIBRATION_LINES;
   settings.depth = 8;
@@ -2439,7 +2439,7 @@ void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys
   if (settings.scan_method == ScanMethod::FLATBED)
     {
       settings.tl_x = 0;
-        settings.pixels = (calib_sensor.sensor_pixels * resolution) / calib_sensor.optical_res;
+        settings.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
     }
   else
     {
@@ -2588,7 +2588,7 @@ void CommandSetGl646::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
   settings.yres = resolution;
   settings.tl_x = 0;
   settings.tl_y = 0;
-    settings.pixels = (local_sensor.sensor_pixels * resolution) / local_sensor.optical_res;
+    settings.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
     settings.requested_pixels = settings.pixels;
   settings.lines = 2;
   settings.depth = 8;
@@ -2710,7 +2710,9 @@ void CommandSetGl646::init(Genesys_Device* dev) const
       gl646_init_regs (dev);
 
         // Init shading data
-        sanei_genesys_init_shading_data(dev, sensor, sensor.sensor_pixels);
+        sanei_genesys_init_shading_data(dev, sensor,
+                                        dev->model->x_size_calib_mm * sensor.optical_res /
+                                            MM_PER_INCH);
 
         dev->initial_regs = dev->reg;
     }
@@ -2990,7 +2992,7 @@ static void simple_move(Genesys_Device* dev, SANE_Int distance)
   settings.yres = resolution;
   settings.tl_y = 0;
   settings.tl_x = 0;
-  settings.pixels = (sensor.sensor_pixels * settings.xres) / sensor.optical_res;
+    settings.pixels = dev->model->x_size_calib_mm * settings.xres / MM_PER_INCH;
     settings.requested_pixels = settings.pixels;
     settings.lines = static_cast<unsigned>((distance * settings.xres) / MM_PER_INCH);
   settings.depth = 8;

@@ -1152,7 +1152,6 @@ void CommandSetGl124::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                          dev->settings.scan_method);
-    unsigned factor = calib_sensor.optical_res / resolution;
 
   /* distance to move to reach white target at high resolution */
     unsigned move=0;
@@ -1167,7 +1166,7 @@ void CommandSetGl124::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     session.params.yres = resolution;
     session.params.startx = 0;
     session.params.starty = move;
-    session.params.pixels = calib_sensor.sensor_pixels / factor;
+    session.params.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
     session.params.lines = calib_lines;
     session.params.depth = 16;
     session.params.channels = channels;
@@ -1377,13 +1376,11 @@ static void move_to_calibration_area(Genesys_Device* dev, const Genesys_Sensor& 
     (void) sensor;
 
     DBG_HELPER(dbg);
-  int pixels;
 
     unsigned resolution = 600;
     unsigned channels = 3;
     const auto& move_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                          dev->settings.scan_method);
-    pixels = (move_sensor.sensor_pixels * 600) / move_sensor.optical_res;
 
   /* initial calibration reg values */
   regs = dev->reg;
@@ -1393,7 +1390,7 @@ static void move_to_calibration_area(Genesys_Device* dev, const Genesys_Sensor& 
     session.params.yres = resolution;
     session.params.startx = 0;
     session.params.starty = 0;
-    session.params.pixels = pixels;
+    session.params.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
     session.params.lines = 1;
     session.params.depth = 8;
     session.params.channels = channels;
@@ -1440,7 +1437,6 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
                                                 Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
-  int num_pixels;
   int resolution;
   int dpihw;
     int i;
@@ -1460,7 +1456,6 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
 
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                          dev->settings.scan_method);
-    num_pixels = (calib_sensor.sensor_pixels * resolution) / calib_sensor.optical_res;
 
   /* initial calibration reg values */
   regs = dev->reg;
@@ -1470,7 +1465,7 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
     session.params.yres = resolution;
     session.params.startx = 0;
     session.params.starty = 0;
-    session.params.pixels = num_pixels;
+    session.params.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;;
     session.params.lines = 1;
     session.params.depth = 16;
     session.params.channels = channels;
@@ -1610,7 +1605,7 @@ void CommandSetGl124::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     unsigned channels;
     int pass = 0, avg;
     int topavg, bottomavg, lines;
-  int top, bottom, black_pixels, pixels;
+    int top, bottom, black_pixels;
 
     // no gain nor offset for TI AFE
     uint8_t reg0a = dev->interface->read_register(REG_0x0A);
@@ -1621,7 +1616,7 @@ void CommandSetGl124::offset_calibration(Genesys_Device* dev, const Genesys_Sens
   /* offset calibration is always done in color mode */
   channels = 3;
   lines=1;
-    pixels = (sensor.sensor_pixels * sensor.optical_res) / sensor.optical_res;
+    unsigned pixels = dev->model->x_size_calib_mm * sensor.optical_res / MM_PER_INCH;
     black_pixels = (sensor.black_pixels * sensor.optical_res) / sensor.optical_res;
   DBG(DBG_io2, "%s: black_pixels=%d\n", __func__, black_pixels);
 
@@ -1754,7 +1749,6 @@ void CommandSetGl124::coarse_gain_calibration(Genesys_Device* dev, const Genesys
                                               Genesys_Register_Set& regs, int dpi) const
 {
     DBG_HELPER_ARGS(dbg, "dpi = %d", dpi);
-  int pixels;
   float gain[3],coeff;
     int code, lines;
 
@@ -1774,14 +1768,13 @@ void CommandSetGl124::coarse_gain_calibration(Genesys_Device* dev, const Genesys
         coeff = 1.0f;
     }
   lines=10;
-     pixels = (sensor.sensor_pixels * sensor.optical_res) / sensor.optical_res;
 
     ScanSession session;
     session.params.xres = sensor.optical_res;
     session.params.yres = sensor.optical_res;
     session.params.startx = 0;
     session.params.starty = 0;
-    session.params.pixels = pixels;
+    session.params.pixels = dev->model->x_size_calib_mm * sensor.optical_res / MM_PER_INCH;;
     session.params.lines = lines;
     session.params.depth = 8;
     session.params.channels = channels;
@@ -1888,9 +1881,9 @@ void CommandSetGl124::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     ScanSession session;
     session.params.xres = sensor.optical_res;
     session.params.yres = dev->motor.base_ydpi;
-    session.params.startx = sensor.sensor_pixels / 4;
+    session.params.startx = dev->model->x_size_calib_mm * sensor.optical_res / MM_PER_INCH / 4;
     session.params.starty = 0;
-    session.params.pixels = sensor.sensor_pixels / 2;
+    session.params.pixels = dev->model->x_size_calib_mm * sensor.optical_res / MM_PER_INCH / 2;
     session.params.lines = 1;
     session.params.depth = 8;
     session.params.channels = *channels;

@@ -2620,10 +2620,9 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
     if (!has_flag(dev->model->flags, ModelFlag::SIS_SENSOR)) {
         pixels_per_line = static_cast<std::uint32_t>((dev->model->x_size * dev->settings.xres) /
                                                      MM_PER_INCH);
-    }
-  else
-    {
-      pixels_per_line = sensor.sensor_pixels;
+    } else {
+        pixels_per_line = static_cast<std::uint32_t>((dev->model->x_size_calib_mm * dev->settings.xres)
+                                                      / MM_PER_INCH);
     }
 
     // send default shading data
@@ -2762,7 +2761,7 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
        * with black point in white shading, build an average black
        * pixel and use it to fill the dark_average
        * dev->calib_pixels
-       (sensor.sensor_pixels * dev->settings.xres) / sensor.optical_res,
+       (sensor.x_size_calib_mm * dev->settings.xres) / MM_PER_INCH,
        dev->calib_lines,
        */
     }
@@ -4318,7 +4317,7 @@ static void probe_genesys_devices()
    of Genesys_Calibration_Cache as is.
 */
 static const char* CALIBRATION_IDENT = "sane_genesys";
-static const int CALIBRATION_VERSION = 26;
+static const int CALIBRATION_VERSION = 27;
 
 bool read_calibration(std::istream& str, Genesys_Device::Calibration& calibration,
                       const std::string& path)

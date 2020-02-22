@@ -3139,22 +3139,6 @@ void CommandSetGl841::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
   *total_size = num_pixels * 3 * 2 * 1;	/* colors * bytes_per_color * scan lines */
 }
 
-
-/*
- * this function moves head without scanning, forward, then backward
- * so that the head goes to park position.
- * as a by-product, also check for lock
- */
-static void sanei_gl841_repark_head(Genesys_Device* dev)
-{
-    DBG_HELPER(dbg);
-
-    scanner_move(*dev, dev->model->default_method, 232, Direction::FORWARD);
-
-    // toggle motor flag, put an huge step number and redo move backward
-    dev->cmd_set->move_back_home(dev, true);
-}
-
 /*
  * initialize ASIC : registers, motor tables, and gamma tables
  * then ensure scanner's head is at home
@@ -3210,7 +3194,8 @@ void CommandSetGl841::init(Genesys_Device* dev) const
     if (has_flag(dev->model->flags, ModelFlag::REPARK)) {
         // FIXME: if repark fails, we should print an error message that the scanner is locked and
         // the user should unlock the lock. We should also rethrow with SANE_STATUS_JAMMED
-        sanei_gl841_repark_head(dev);
+        scanner_move(*dev, dev->model->default_method, 232, Direction::FORWARD);
+        dev->cmd_set->move_back_home(dev, true);
     }
 
     // send gamma tables

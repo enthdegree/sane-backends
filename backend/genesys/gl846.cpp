@@ -741,21 +741,33 @@ ScanSession CommandSetGl846::calculate_scan_session(const Genesys_Device* dev,
                                                     const Genesys_Sensor& sensor,
                                                     const Genesys_Settings& settings) const
 {
-  int start;
-
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, settings);
 
-  /* start */
-    start = static_cast<int>(dev->model->x_offset);
-    start += static_cast<int>(settings.tl_x);
-    start = static_cast<int>((start * settings.xres) / MM_PER_INCH);
+    /*  Steps to move to reach scanning area:
+
+        - first we move to physical start of scanning either by a fixed steps amount from the
+          black strip or by a fixed amount from parking position, minus the steps done during
+          shading calibration.
+
+        - then we move by the needed offset whitin physical scanning area
+    */
+    unsigned move_dpi = dev->motor.base_ydpi;
+
+    float move = dev->model->y_offset;
+    move = move + settings.tl_y;
+    move = static_cast<float>((move * move_dpi) / MM_PER_INCH);
+    move -= dev->head_pos(ScanHeadId::PRIMARY);
+
+    float start = dev->model->x_offset;
+    start = start + dev->settings.tl_x;
+    start = static_cast<float>((start * settings.xres) / MM_PER_INCH);
 
     ScanSession session;
     session.params.xres = settings.xres;
     session.params.yres = settings.yres;
-    session.params.startx = start; // not used
-    session.params.starty = 0; // not used
+    session.params.startx = static_cast<unsigned>(start);
+    session.params.starty = static_cast<unsigned>(move);
     session.params.pixels = settings.pixels;
     session.params.requested_pixels = settings.requested_pixels;
     session.params.lines = settings.lines;
@@ -764,7 +776,8 @@ ScanSession CommandSetGl846::calculate_scan_session(const Genesys_Device* dev,
     session.params.scan_method = settings.scan_method;
     session.params.scan_mode = settings.scan_mode;
     session.params.color_filter = settings.color_filter;
-    session.params.flags = ScanFlag::NONE;
+    // backtracking isn't handled well, so don't enable it
+    session.params.flags = ScanFlag::DISABLE_BUFFER_FULL_MOVE;
 
     compute_session(dev, session, sensor);
 
@@ -799,10 +812,7 @@ void CommandSetGl846::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
     dev->interface->write_register(REG_0x6C, val);
   */
 
-    val = REG_0x0D_CLRLNCNT;
-    dev->interface->write_register(REG_0x0D, val);
-    val = REG_0x0D_CLRMCNT;
-    dev->interface->write_register(REG_0x0D, val);
+    scanner_clear_scan_and_feed_counts(*dev);
 
     val = dev->interface->read_register(REG_0x01);
     val |= REG_0x01_SCAN;
@@ -888,73 +898,21 @@ void CommandSetGl846::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
                                          Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
-  float move;
-  int move_dpi;
-  float start;
 
-    debug_dump(DBG_info, dev->settings);
+    auto session = calculate_scan_session(dev, sensor, dev->settings);
 
-  /* steps to move to reach scanning area:
-     - first we move to physical start of scanning
-     either by a fixed steps amount from the black strip
-     or by a fixed amount from parking position,
-     minus the steps done during shading calibration
-     - then we move by the needed offset whitin physical
-     scanning area
+    /*  Fast move to scan area:
 
-     assumption: steps are expressed at maximum motor resolution
-
-     we need:
-     float y_offset;
-     float y_size;
-     float y_offset_calib;
-     mm_to_steps()=motor dpi / 2.54 / 10=motor dpi / MM_PER_INCH */
-
-  /* if scanner uses ModelFlag::SEARCH_START y_offset is
-     relative from origin, else, it is from parking position */
-
-  move_dpi = dev->motor.base_ydpi;
-
-    move = dev->model->y_offset;
-    move = move + dev->settings.tl_y;
-    move = static_cast<float>((move * move_dpi) / MM_PER_INCH);
-    move -= dev->head_pos(ScanHeadId::PRIMARY);
-  DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
-
-  /* fast move to scan area */
-  /* we don't move fast the whole distance since it would involve
-   * computing acceleration/deceleration distance for scan
-   * resolution. So leave a remainder for it so scan makes the final
-   * move tuning */
-    if (dev->settings.get_channels() * dev->settings.yres >= 600 && move > 700) {
-        scanner_move(*dev, dev->model->default_method, static_cast<unsigned>(move - 500),
+        We don't move fast the whole distance since it would involve computing
+        acceleration/deceleration distance for scan resolution. So leave a remainder for it so
+        scan makes the final move tuning
+    */
+    if (dev->settings.get_channels() * dev->settings.yres >= 600 && session.params.starty > 700) {
+        scanner_move(*dev, dev->model->default_method,
+                     static_cast<unsigned>(session.params.starty - 500),
                      Direction::FORWARD);
-      move=500;
+        session.params.starty = 500;
     }
-
-  DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
-  DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
-
-  /* start */
-    start = dev->model->x_offset;
-    start = start + dev->settings.tl_x;
-    start = static_cast<float>((start * dev->settings.xres) / MM_PER_INCH);
-
-    ScanSession session;
-    session.params.xres = dev->settings.xres;
-    session.params.yres = dev->settings.yres;
-    session.params.startx = static_cast<unsigned>(start);
-    session.params.starty = static_cast<unsigned>(move);
-    session.params.pixels = dev->settings.pixels;
-    session.params.requested_pixels = dev->settings.requested_pixels;
-    session.params.lines = dev->settings.lines;
-    session.params.depth = dev->settings.depth;
-    session.params.channels = dev->settings.get_channels();
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = dev->settings.scan_mode;
-    session.params.color_filter = dev->settings.color_filter;
-    // backtracking isn't handled well, so don't enable it
-    session.params.flags = ScanFlag::DISABLE_BUFFER_FULL_MOVE;
     compute_session(dev, session, sensor);
 
     init_regs_for_scan_session(dev, sensor, &regs, session);
@@ -1362,192 +1320,6 @@ void CommandSetGl846::update_home_sensor_gpio(Genesys_Device& dev) const
     std::uint8_t val = dev.interface->read_register(REG_0x6C);
     val |= 0x41;
     dev.interface->write_register(REG_0x6C, val);
-}
-
-/** @brief search for a full width black or white strip.
- * This function searches for a black or white stripe across the scanning area.
- * When searching backward, the searched area must completely be of the desired
- * color since this area will be used for calibration which scans forward.
- * @param dev scanner device
- * @param forward true if searching forward, false if searching backward
- * @param black true if searching for a black strip, false for a white strip
- */
-void CommandSetGl846::search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor, bool forward,
-                                   bool black) const
-{
-    DBG_HELPER_ARGS(dbg, "%s %s", black ? "black" : "white", forward ? "forward" : "reverse");
-    unsigned channels;
-  Genesys_Register_Set local_reg;
-    unsigned int pass, count, found;
-  char title[80];
-
-    set_fe(dev, sensor, AFE_SET);
-
-    scanner_stop_action(*dev);
-
-    // set up for a gray scan at lowest dpi
-    const auto& resolution_settings = dev->model->get_resolution_settings(dev->settings.scan_method);
-    unsigned dpi = resolution_settings.get_min_resolution_x();
-  channels = 1;
-  /* 10 MM */
-  /* lines = (10 * dpi) / MM_PER_INCH; */
-  /* shading calibation is done with dev->motor.base_ydpi */
-    unsigned lines = static_cast<unsigned>(dev->model->y_size_calib_mm * dpi / MM_PER_INCH);
-
-    dev->set_head_pos_zero(ScanHeadId::PRIMARY);
-
-  local_reg = dev->reg;
-
-    ScanSession session;
-    session.params.xres = dpi;
-    session.params.yres = dpi;
-    session.params.startx = 0;
-    session.params.starty = 0;
-    session.params.pixels = dev->model->x_size_calib_mm * dpi / MM_PER_INCH;
-    session.params.lines = lines;
-    session.params.depth = 8;
-    session.params.channels = channels;
-    session.params.scan_mode = ScanColorMode::GRAY;
-    session.params.color_filter = ColorFilter::RED;
-    session.params.flags = ScanFlag::DISABLE_SHADING |
-                           ScanFlag::DISABLE_GAMMA;
-    if (!forward) {
-        session.params.flags |= ScanFlag::REVERSE;
-    }
-    compute_session(dev, session, sensor);
-
-    init_regs_for_scan_session(dev, sensor, &local_reg, session);
-
-    dev->interface->write_registers(local_reg);
-
-    begin_scan(dev, sensor, &local_reg, true);
-
-    if (is_testing_mode()) {
-        dev->interface->test_checkpoint("search_strip");
-        scanner_stop_action(*dev);
-        return;
-    }
-
-    wait_until_buffer_non_empty(dev);
-
-    // now we're on target, we can read data
-    auto image = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes);
-
-    scanner_stop_action(*dev);
-
-  pass = 0;
-  if (DBG_LEVEL >= DBG_data)
-    {
-        std::sprintf(title, "gl846_search_strip_%s_%s%02d.pnm",
-                     black ? "black" : "white", forward ? "fwd" : "bwd", pass);
-        sanei_genesys_write_pnm_file(title, image);
-    }
-
-  /* loop until strip is found or maximum pass number done */
-  found = 0;
-  while (pass < 20 && !found)
-    {
-        dev->interface->write_registers(local_reg);
-
-        // now start scan
-        begin_scan(dev, sensor, &local_reg, true);
-
-        wait_until_buffer_non_empty(dev);
-
-        // now we're on target, we can read data
-        image = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes);
-
-        scanner_stop_action(*dev);
-
-      if (DBG_LEVEL >= DBG_data)
-        {
-            std::sprintf(title, "gl846_search_strip_%s_%s%02d.pnm",
-                         black ? "black" : "white", forward ? "fwd" : "bwd", pass);
-            sanei_genesys_write_pnm_file(title, image);
-        }
-
-        unsigned white_level = 90;
-        unsigned black_level = 60;
-
-      /* search data to find black strip */
-      /* when searching forward, we only need one line of the searched color since we
-       * will scan forward. But when doing backward search, we need all the area of the
-       * same color */
-        if (forward) {
-
-            for (std::size_t y = 0; y < image.get_height() && !found; y++) {
-                count = 0;
-
-                // count of white/black pixels depending on the color searched
-                for (std::size_t x = 0; x < image.get_width(); x++) {
-
-                    // when searching for black, detect white pixels
-                    if (black && image.get_raw_channel(x, y, 0) > white_level) {
-                        count++;
-                    }
-
-                    // when searching for white, detect black pixels
-                    if (!black && image.get_raw_channel(x, y, 0) < black_level) {
-                        count++;
-                    }
-                }
-
-              /* at end of line, if count >= 3%, line is not fully of the desired color
-               * so we must go to next line of the buffer */
-                auto found_percentage = (count * 100 / image.get_width());
-                if (found_percentage < 3) {
-                    found = 1;
-                    DBG(DBG_data, "%s: strip found forward during pass %d at line %zu\n", __func__,
-                        pass, y);
-                }
-              else
-                {
-                    DBG(DBG_data, "%s: pixels=%zu, count=%d (%zu%%)\n", __func__, image.get_width(),
-                        count, found_percentage);
-                }
-            }
-        } else {
-            /* since calibration scans are done forward, we need the whole area
-               to be of the required color when searching backward
-            */
-
-            count = 0;
-            for (std::size_t y = 0; y < image.get_height(); y++) {
-                // count of white/black pixels depending on the color searched
-                for (std::size_t x = 0; x < image.get_width(); x++) {
-                    // when searching for black, detect white pixels
-                    if (black && image.get_raw_channel(x, y, 0) > white_level) {
-                        count++;
-                    }
-                    // when searching for white, detect black pixels
-                    if (!black && image.get_raw_channel(x, y, 0) < black_level) {
-                        count++;
-                    }
-                }
-            }
-
-          /* at end of area, if count >= 3%, area is not fully of the desired color
-           * so we must go to next buffer */
-            auto found_percentage = count * 100 / (image.get_width() * image.get_height());
-            if (found_percentage < 3) {
-                found = 1;
-                 DBG(DBG_data, "%s: strip found backward during pass %d \n", __func__, pass);
-            } else {
-                DBG(DBG_data, "%s: pixels=%zu, count=%d (%zu%%)\n", __func__, image.get_width(),
-                    count, found_percentage);
-            }
-        }
-        pass++;
-    }
-
-  if (found)
-    {
-      DBG(DBG_info, "%s: %s strip found\n", __func__, black ? "black" : "white");
-    }
-  else
-    {
-        throw SaneException(SANE_STATUS_UNSUPPORTED, "%s strip not found", black ? "black" : "white");
-    }
 }
 
 /**

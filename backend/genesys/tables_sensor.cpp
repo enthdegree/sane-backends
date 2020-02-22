@@ -47,7 +47,7 @@
 
 namespace genesys {
 
-inline unsigned default_get_logical_hwdpi(const Genesys_Sensor& sensor, unsigned xres)
+inline unsigned default_get_register_hwdpi(const Genesys_Sensor& sensor, unsigned xres)
 {
     if (sensor.logical_dpihw_override)
         return sensor.logical_dpihw_override;
@@ -106,7 +106,7 @@ inline unsigned get_ccd_size_divisor_gl124(const Genesys_Sensor& sensor, unsigne
 
 inline unsigned default_get_hwdpi_divisor_for_dpi(const Genesys_Sensor& sensor, unsigned xres)
 {
-    return sensor.optical_res / default_get_logical_hwdpi(sensor, xres);
+    return sensor.optical_res / default_get_register_hwdpi(sensor, xres);
 }
 
 StaticInit<std::vector<Genesys_Sensor>> s_sensors;
@@ -154,8 +154,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
@@ -198,8 +197,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
@@ -242,8 +240,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
@@ -288,8 +285,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x00 },
     };
     sensor.gamma = { 2.38f, 2.35f, 2.34f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
 
@@ -605,8 +601,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x00 },
     };
     sensor.gamma = { 2.1f, 2.1f, 2.1f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
 
@@ -836,8 +831,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x16 },
     };
     sensor.gamma = { 2.1f, 2.1f, 2.1f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
 
@@ -1013,8 +1007,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
@@ -1084,8 +1077,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x00 }
     };
     sensor.gamma = { 2.1f, 2.1f, 2.1f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
 
@@ -1159,8 +1151,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
 
@@ -1417,8 +1408,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x01 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
@@ -1461,8 +1451,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x01 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
@@ -1505,8 +1494,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x01 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
@@ -1549,8 +1537,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x01 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
@@ -1593,8 +1580,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x01 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
@@ -1610,8 +1596,7 @@ void genesys_init_sensor_tables()
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
     sensor.gamma = { 2.2f, 2.2f, 2.2f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
@@ -1712,8 +1697,7 @@ void genesys_init_sensor_tables()
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
@@ -1812,8 +1796,7 @@ void genesys_init_sensor_tables()
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x01c1, 0x0126, 0x00e5 };
     sensor.gamma = { 2.2f, 2.2f, 2.2f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
@@ -1929,8 +1912,7 @@ void genesys_init_sensor_tables()
         { 0x5a, 0xc0 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
@@ -1949,8 +1931,7 @@ void genesys_init_sensor_tables()
     sensor.stagger_config = StaggerConfig{ 2400, 4 }; // FIXME: may be incorrect
     sensor.custom_regs = {};
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
@@ -2129,8 +2110,7 @@ void genesys_init_sensor_tables()
     sensor.stagger_config = StaggerConfig{ 2400, 4 }; // FIXME: may be incorrect
     sensor.custom_regs = {};
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
@@ -2230,6 +2210,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_CANON_4400F;
     sensor.optical_res = 4800;
+    sensor.register_dpihw_override = 4800;
     sensor.ccd_size_divisor = 4;
     sensor.black_pixels = 50*8;
     // 31 at 600 dpi, 58 at 1200 dpi
@@ -2240,8 +2221,7 @@ void genesys_init_sensor_tables()
     sensor.exposure = { 0x9c40, 0x9c40, 0x9c40 };
     sensor.stagger_config = StaggerConfig{4800, 8};
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = get_sensor_optical_with_ccd_divisor;
-    sensor.get_register_hwdpi_fun = [](const Genesys_Sensor&, unsigned) { return 4800; };
+    sensor.get_register_hwdpi_fun = get_sensor_optical_with_ccd_divisor;
     sensor.get_hwdpi_divisor_fun = [](const Genesys_Sensor&, unsigned) { return 1; };
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
@@ -2338,8 +2318,7 @@ void genesys_init_sensor_tables()
     sensor.stagger_config = StaggerConfig{ 3200, 6 };
     sensor.custom_regs = {};
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = get_sensor_optical_with_ccd_divisor;
-    sensor.get_register_hwdpi_fun = [](const Genesys_Sensor&, unsigned) { return 4800; };
+    sensor.get_register_hwdpi_fun = get_sensor_optical_with_ccd_divisor;
     sensor.get_hwdpi_divisor_fun = [](const Genesys_Sensor&, unsigned) { return 1; };
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
@@ -2484,6 +2463,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_CANON_8600F;
     sensor.optical_res = 4800;
+    sensor.register_dpihw_override = 4800;
     sensor.ccd_size_divisor = 4;
     sensor.black_pixels = 31;
     sensor.dummy_pixel = 20;
@@ -2494,8 +2474,7 @@ void genesys_init_sensor_tables()
     sensor.stagger_config = StaggerConfig{4800, 8};
     sensor.custom_regs = {};
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = get_sensor_optical_with_ccd_divisor;
-    sensor.get_register_hwdpi_fun = [](const Genesys_Sensor&, unsigned) { return 4800; };
+    sensor.get_register_hwdpi_fun = get_sensor_optical_with_ccd_divisor;
     sensor.get_hwdpi_divisor_fun = [](const Genesys_Sensor&, unsigned) { return 1; };
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
@@ -2618,8 +2597,7 @@ void genesys_init_sensor_tables()
         { 0x5a, 0x40 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
@@ -2636,8 +2614,7 @@ void genesys_init_sensor_tables()
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
     sensor.gamma = { 2.2f, 2.2f, 2.2f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_gl124;
 
@@ -2759,8 +2736,7 @@ void genesys_init_sensor_tables()
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
     sensor.gamma = { 2.2f, 2.2f, 2.2f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_gl124;
 
@@ -2865,8 +2841,7 @@ void genesys_init_sensor_tables()
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
     sensor.gamma = { 2.2f, 2.2f, 2.2f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_gl124;
 
@@ -2975,8 +2950,7 @@ void genesys_init_sensor_tables()
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
     sensor.gamma = { 2.2f, 2.2f, 2.2f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_gl124;
 
@@ -3112,8 +3086,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x02 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
@@ -3161,8 +3134,7 @@ void genesys_init_sensor_tables()
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
     {
@@ -3252,8 +3224,7 @@ void genesys_init_sensor_tables()
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
     {
@@ -3326,8 +3297,7 @@ void genesys_init_sensor_tables()
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
     {
@@ -3389,8 +3359,7 @@ void genesys_init_sensor_tables()
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
     };
     sensor.gamma = { 1.7f, 1.7f, 1.7f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
@@ -3416,8 +3385,7 @@ void genesys_init_sensor_tables()
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
     };
     sensor.gamma = { 1.7f, 1.7f, 1.7f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
@@ -3463,8 +3431,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x41 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);

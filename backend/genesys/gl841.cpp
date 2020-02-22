@@ -1819,7 +1819,7 @@ void CommandSetGl841::set_powersaving(Genesys_Device* dev, int delay /* in minut
     dev->interface->write_registers(local_reg);
 }
 
-static void gl841_stop_action(Genesys_Device* dev)
+void gl841_stop_action(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
   Genesys_Register_Set local_reg;
@@ -2225,7 +2225,7 @@ void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 
     unsigned channels = 3;
 
-    unsigned resolution = sensor.get_logical_hwdpi(dev->settings.xres);
+    unsigned resolution = sensor.get_register_hwdpi(dev->settings.xres);
 
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                          dev->settings.scan_method);
@@ -2313,7 +2313,7 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
   /* offset calibration is always done in color mode */
     unsigned channels = 3;
 
-    unsigned resolution = sensor.get_logical_hwdpi(dev->settings.xres);
+    unsigned resolution = sensor.get_register_hwdpi(dev->settings.xres);
 
     const auto& calib_sensor_base = sanei_genesys_find_sensor(dev, resolution, channels,
                                                               dev->settings.scan_method);
@@ -2504,7 +2504,7 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
       return;
     }
 
-    unsigned resolution = sensor.get_logical_hwdpi(dev->settings.xres);
+    unsigned resolution = sensor.get_register_hwdpi(dev->settings.xres);
 
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, 3,
                                                               dev->settings.scan_method);
@@ -2626,7 +2626,7 @@ void CommandSetGl841::offset_calibration(Genesys_Device* dev, const Genesys_Sens
   /* offset calibration is always done in color mode */
     unsigned channels = 3;
 
-    unsigned resolution = sensor.get_logical_hwdpi(dev->settings.xres);
+    unsigned resolution = sensor.get_register_hwdpi(dev->settings.xres);
 
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                          dev->settings.scan_method);
@@ -2963,7 +2963,7 @@ void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys
   /* coarse gain calibration is allways done in color mode */
     unsigned channels = 3;
 
-    unsigned resolution = sensor.get_logical_hwdpi(dev->settings.xres);
+    unsigned resolution = sensor.get_register_hwdpi(dev->settings.xres);
 
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                          dev->settings.scan_method);
@@ -3139,22 +3139,6 @@ void CommandSetGl841::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
   *total_size = num_pixels * 3 * 2 * 1;	/* colors * bytes_per_color * scan lines */
 }
 
-
-/*
- * this function moves head without scanning, forward, then backward
- * so that the head goes to park position.
- * as a by-product, also check for lock
- */
-static void sanei_gl841_repark_head(Genesys_Device* dev)
-{
-    DBG_HELPER(dbg);
-
-    scanner_move(*dev, dev->model->default_method, 232, Direction::FORWARD);
-
-    // toggle motor flag, put an huge step number and redo move backward
-    dev->cmd_set->move_back_home(dev, true);
-}
-
 /*
  * initialize ASIC : registers, motor tables, and gamma tables
  * then ensure scanner's head is at home
@@ -3210,7 +3194,8 @@ void CommandSetGl841::init(Genesys_Device* dev) const
     if (has_flag(dev->model->flags, ModelFlag::REPARK)) {
         // FIXME: if repark fails, we should print an error message that the scanner is locked and
         // the user should unlock the lock. We should also rethrow with SANE_STATUS_JAMMED
-        sanei_gl841_repark_head(dev);
+        scanner_move(*dev, dev->model->default_method, 232, Direction::FORWARD);
+        dev->cmd_set->move_back_home(dev, true);
     }
 
     // send gamma tables
@@ -3220,7 +3205,7 @@ void CommandSetGl841::init(Genesys_Device* dev) const
     Genesys_Register_Set& regs = dev->initial_regs;
   regs = dev->reg;
 
-    unsigned resolution = sensor.get_logical_hwdpi(300);
+    unsigned resolution = sensor.get_register_hwdpi(300);
     unsigned factor = sensor.optical_res / resolution;
 
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, 3,
@@ -3305,204 +3290,6 @@ void CommandSetGl841::update_hardware_sensors(Genesys_Scanner* s) const
 
         s->buttons[BUTTON_PAGE_LOADED_SW].write((val & 0x01) == 0);
         s->buttons[BUTTON_SCAN_SW].write((val & 0x02) == 0);
-    }
-}
-
-/** @brief search for a full width black or white strip.
- * This function searches for a black or white stripe across the scanning area.
- * When searching backward, the searched area must completely be of the desired
- * color since this area will be used for calibration which scans forward.
- * @param dev scanner device
- * @param forward true if searching forward, false if searching backward
- * @param black true if searching for a black strip, false for a white strip
- */
-void CommandSetGl841::search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor, bool forward,
-                                   bool black) const
-{
-    DBG_HELPER_ARGS(dbg, "%s %s", black ? "black" : "white", forward ? "forward" : "reverse");
-    unsigned lines, channels;
-  Genesys_Register_Set local_reg;
-    unsigned int pass, count, found, length;
-  char title[80];
-  GenesysRegister *r;
-  uint8_t white_level=90;  /**< default white level to detect white dots */
-  uint8_t black_level=60;  /**< default black level to detect black dots */
-
-  /* use maximum gain when doing forward white strip detection
-   * since we don't have calibrated the sensor yet */
-  if(!black && forward)
-    {
-      dev->frontend.set_gain(0, 0xff);
-      dev->frontend.set_gain(1, 0xff);
-      dev->frontend.set_gain(2, 0xff);
-    }
-
-    dev->cmd_set->set_fe(dev, sensor, AFE_SET);
-    gl841_stop_action(dev);
-
-    // set up for a gray scan at lowest dpi
-    const auto& resolution_settings = dev->model->get_resolution_settings(dev->settings.scan_method);
-    unsigned dpi = resolution_settings.get_min_resolution_x();
-  channels = 1;
-
-    // shading calibation is done with dev->motor.base_ydpi
-    lines = 10; // TODO: use dev->model->search_lines
-    lines = static_cast<unsigned>((lines * dpi) / MM_PER_INCH);
-
-  /* 20 cm max length for calibration sheet */
-    length = static_cast<unsigned>(((200 * dpi) / MM_PER_INCH) / lines);
-
-    dev->set_head_pos_zero(ScanHeadId::PRIMARY);
-
-  local_reg = dev->reg;
-
-    ScanSession session;
-    session.params.xres = dpi;
-    session.params.yres = dpi;
-    session.params.startx = 0;
-    session.params.starty = 0;
-    session.params.pixels = dev->model->x_size_calib_mm * dpi / MM_PER_INCH;
-    session.params.lines = lines;
-    session.params.depth = 8;
-    session.params.channels = channels;
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = ScanColorMode::GRAY;
-    session.params.color_filter = ColorFilter::RED;
-    session.params.flags = ScanFlag::DISABLE_SHADING | ScanFlag::DISABLE_GAMMA;
-    compute_session(dev, session, sensor);
-
-    init_regs_for_scan_session(dev, sensor, &local_reg, session);
-
-  /* set up for reverse or forward */
-  r = sanei_genesys_get_address(&local_reg, 0x02);
-    if (forward) {
-        r->value &= ~4;
-    } else {
-        r->value |= 4;
-    }
-
-    dev->interface->write_registers(local_reg);
-
-    dev->cmd_set->begin_scan(dev, sensor, &local_reg, true);
-
-    if (is_testing_mode()) {
-        dev->interface->test_checkpoint("search_strip");
-        gl841_stop_action(dev);
-        return;
-    }
-
-    // waits for valid data
-    wait_until_buffer_non_empty(dev);
-
-    // now we're on target, we can read data
-    auto image = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes);
-
-    gl841_stop_action(dev);
-
-  pass = 0;
-    if (DBG_LEVEL >= DBG_data) {
-        std::sprintf(title, "gl841_search_strip_%s_%s%02u.pnm", black ? "black" : "white",
-                     forward ? "fwd" : "bwd", pass);
-        sanei_genesys_write_pnm_file(title, image);
-    }
-
-  /* loop until strip is found or maximum pass number done */
-  found = 0;
-  while (pass < length && !found)
-    {
-        dev->interface->write_registers(local_reg);
-
-        //now start scan
-        dev->cmd_set->begin_scan(dev, sensor, &local_reg, true);
-
-        // waits for valid data
-        wait_until_buffer_non_empty(dev);
-
-        // now we're on target, we can read data
-        image = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes);
-
-        gl841_stop_action (dev);
-
-        if (DBG_LEVEL >= DBG_data) {
-            std::sprintf(title, "gl841_search_strip_%s_%s%02u.pnm",
-                         black ? "black" : "white", forward ? "fwd" : "bwd", pass);
-            sanei_genesys_write_pnm_file(title, image);
-        }
-
-      /* search data to find black strip */
-      /* when searching forward, we only need one line of the searched color since we
-       * will scan forward. But when doing backward search, we need all the area of the
-       * same color */
-        if (forward) {
-            for (std::size_t y = 0; y < image.get_height() && !found; y++) {
-                count = 0;
-
-                // count of white/black pixels depending on the color searched
-                for (std::size_t x = 0; x < image.get_width(); x++) {
-
-                    // when searching for black, detect white pixels
-                    if (black && image.get_raw_channel(x, y, 0) > white_level) {
-                        count++;
-                    }
-
-                    // when searching for white, detect black pixels
-                    if (!black && image.get_raw_channel(x, y, 0) < black_level) {
-                        count++;
-                    }
-                }
-
-	      /* at end of line, if count >= 3%, line is not fully of the desired color
-	       * so we must go to next line of the buffer */
-                auto found_percentage = (count * 100 / image.get_width());
-                if (found_percentage < 3) {
-		  found = 1;
-                    DBG(DBG_data, "%s: strip found forward during pass %d at line %zu\n", __func__,
-                        pass, y);
-                } else {
-                    DBG(DBG_data, "%s: pixels=%zu, count=%d (%zu%%)\n", __func__, image.get_width(),
-                        count, found_percentage);
-                }
-            }
-        } else {
-            /*  since calibration scans are done forward, we need the whole area
-                to be of the required color when searching backward
-            */
-            count = 0;
-            for (std::size_t y = 0; y < image.get_height(); y++) {
-              /* count of white/black pixels depending on the color searched */
-                for (std::size_t x = 0; x < image.get_width(); x++) {
-                    // when searching for black, detect white pixels
-                    if (black && image.get_raw_channel(x, y, 0) > white_level) {
-                        count++;
-                    }
-                    // when searching for white, detect black pixels
-                    if (!black && image.get_raw_channel(x, y, 0) < black_level) {
-                        count++;
-                    }
-                }
-            }
-
-	  /* at end of area, if count >= 3%, area is not fully of the desired color
-	   * so we must go to next buffer */
-            auto found_percentage = count * 100 / (image.get_width() * image.get_height());
-            if (found_percentage < 3) {
-	      found = 1;
-	      DBG(DBG_data, "%s: strip found backward during pass %d \n", __func__, pass);
-            } else {
-                DBG(DBG_data, "%s: pixels=%zu, count=%d (%zu%%)\n", __func__, image.get_width(), count,
-                found_percentage);
-            }
-        }
-        pass++;
-    }
-
-  if (found)
-    {
-      DBG(DBG_info, "%s: %s strip found\n", __func__, black ? "black" : "white");
-    }
-  else
-    {
-        throw SaneException(SANE_STATUS_UNSUPPORTED, "%s strip not found", black ? "black" : "white");
     }
 }
 

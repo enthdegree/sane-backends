@@ -985,6 +985,8 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
         use_shdarea = session.params.xres <= 600;
     } else if (dev->model->model_id == ModelId::CANON_8400F) {
         use_shdarea = session.params.xres <= 400;
+    } else if (dev->model->model_id == ModelId::CANON_8600F) {
+        use_shdarea = true;
     }
     if (use_shdarea) {
         r->value |= REG_0x01_SHDAREA;
@@ -1422,8 +1424,7 @@ void CommandSetGl843::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
             break;
     }
 
-    // clear scan and feed count
-    dev->interface->write_register(REG_0x0D, REG_0x0D_CLRLNCNT | REG_0x0D_CLRMCNT);
+    scanner_clear_scan_and_feed_counts(*dev);
 
     // enable scan and motor
     uint8_t val = dev->interface->read_register(REG_0x01);
@@ -1513,7 +1514,7 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
         calib_size_mm = dev->model->y_size_calib_mm;
     }
 
-    unsigned resolution = sensor.get_logical_hwdpi(dev->settings.xres);
+    unsigned resolution = sensor.get_register_hwdpi(dev->settings.xres);
 
     unsigned channels = 3;
   const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
@@ -1828,7 +1829,7 @@ void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sens
   lines = 8;
 
     // compute divider factor to compute final pixels number
-    dpihw = sensor.get_logical_hwdpi(dev->settings.xres);
+    dpihw = sensor.get_register_hwdpi(dev->settings.xres);
   factor = sensor.optical_res / dpihw;
   resolution = dpihw;
 
@@ -2051,7 +2052,7 @@ void CommandSetGl843::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     if (dev->frontend.layout.type != FrontendType::WOLFSON)
         return;
 
-    dpihw = sensor.get_logical_hwdpi(dpi);
+    dpihw = sensor.get_register_hwdpi(dpi);
 
     // coarse gain calibration is always done in color mode
     unsigned channels = 3;
@@ -2192,7 +2193,7 @@ void CommandSetGl843::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
   /* setup scan */
   *channels=3;
   resolution=600;
-    dpihw = sensor.get_logical_hwdpi(resolution);
+    dpihw = sensor.get_register_hwdpi(resolution);
   resolution=dpihw;
 
   const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, *channels,
@@ -2404,198 +2405,6 @@ void CommandSetGl843::move_to_ta(Genesys_Device* dev) const
     scanner_move(*dev, dev->model->default_method, feed, Direction::FORWARD);
 }
 
-
-/** @brief search for a full width black or white strip.
- * This function searches for a black or white stripe across the scanning area.
- * When searching backward, the searched area must completely be of the desired
- * color since this area will be used for calibration which scans forward.
- * @param dev scanner device
- * @param forward true if searching forward, false if searching backward
- * @param black true if searching for a black strip, false for a white strip
- */
-void CommandSetGl843::search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                   bool forward, bool black) const
-{
-    DBG_HELPER_ARGS(dbg, "%s %s",  black ? "black" : "white", forward ? "forward" : "reverse");
-    unsigned channels;
-  Genesys_Register_Set local_reg;
-    int dpi;
-  unsigned int pass, count, found, x, y;
-
-    dev->cmd_set->set_fe(dev, sensor, AFE_SET);
-    scanner_stop_action(*dev);
-
-  /* set up for a gray scan at lowest dpi */
-  dpi = sanei_genesys_get_lowest_dpi(dev);
-  channels = 1;
-
-  const auto& calib_sensor = sanei_genesys_find_sensor(dev, dpi, channels,
-                                                       dev->settings.scan_method);
-
-  /* 10 MM */
-  /* lines = (10 * dpi) / MM_PER_INCH; */
-  /* shading calibation is done with dev->motor.base_ydpi */
-   unsigned lines = static_cast<unsigned>(dev->model->y_size_calib_mm * dpi / MM_PER_INCH);
-    unsigned pixels = dev->model->x_size_calib_mm * dpi / MM_PER_INCH;
-
-    dev->set_head_pos_zero(ScanHeadId::PRIMARY);
-
-  local_reg = dev->reg;
-
-    ScanSession session;
-    session.params.xres = dpi;
-    session.params.yres = dpi;
-    session.params.startx = 0;
-    session.params.starty = 0;
-    session.params.pixels = pixels;
-    session.params.lines = lines;
-    session.params.depth = 8;
-    session.params.channels = channels;
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = ScanColorMode::GRAY;
-    session.params.color_filter = ColorFilter::RED;
-    session.params.flags = ScanFlag::DISABLE_SHADING | ScanFlag::DISABLE_SHADING;
-    if (!forward) {
-        session.params.flags = ScanFlag::REVERSE;
-    }
-    compute_session(dev, session, calib_sensor);
-
-    init_regs_for_scan_session(dev, calib_sensor, &local_reg, session);
-
-    dev->interface->write_registers(local_reg);
-
-    dev->cmd_set->begin_scan(dev, calib_sensor, &local_reg, true);
-
-    if (is_testing_mode()) {
-        dev->interface->test_checkpoint("search_strip");
-        scanner_stop_action(*dev);
-        return;
-    }
-
-    wait_until_buffer_non_empty(dev);
-
-    // now we're on target, we can read data
-    auto data = read_unshuffled_image_from_scanner(dev, session,
-                                                   session.output_total_bytes_raw);
-
-    scanner_stop_action(*dev);
-
-  pass = 0;
-  if (DBG_LEVEL >= DBG_data)
-    {
-      char fn[40];
-        std::snprintf(fn, 40, "gl843_search_strip_%s_%s%02d.pnm",
-                      black ? "black" : "white", forward ? "fwd" : "bwd", pass);
-        sanei_genesys_write_pnm_file(fn, data);
-    }
-
-  /* loop until strip is found or maximum pass number done */
-  found = 0;
-  while (pass < 20 && !found)
-    {
-        dev->interface->write_registers(local_reg);
-
-        // now start scan
-        dev->cmd_set->begin_scan(dev, calib_sensor, &local_reg, true);
-
-        wait_until_buffer_non_empty(dev);
-
-        // now we're on target, we can read data
-        data = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes_raw);
-
-        scanner_stop_action(*dev);
-
-      if (DBG_LEVEL >= DBG_data)
-	{
-          char fn[40];
-            std::snprintf(fn, 40, "gl843_search_strip_%s_%s%02d.pnm",
-                          black ? "black" : "white", forward ? "fwd" : "bwd", pass);
-            sanei_genesys_write_pnm_file(fn, data);
-	}
-
-      /* search data to find black strip */
-      /* when searching forward, we only need one line of the searched color since we
-       * will scan forward. But when doing backward search, we need all the area of the
-       * same color */
-      if (forward)
-	{
-	  for (y = 0; y < lines && !found; y++)
-	    {
-	      count = 0;
-	      /* count of white/black pixels depending on the color searched */
-	      for (x = 0; x < pixels; x++)
-		{
-		  /* when searching for black, detect white pixels */
-                    if (black && data.get_raw_channel(x, y, 0) > 90) {
-		      count++;
-		    }
-		  /* when searching for white, detect black pixels */
-                    if (!black && data.get_raw_channel(x, y, 0) < 60) {
-		      count++;
-		    }
-		}
-
-	      /* at end of line, if count >= 3%, line is not fully of the desired color
-	       * so we must go to next line of the buffer */
-	      /* count*100/pixels < 3 */
-	      if ((count * 100) / pixels < 3)
-		{
-		  found = 1;
-		  DBG(DBG_data, "%s: strip found forward during pass %d at line %d\n", __func__,
-		      pass, y);
-		}
-	      else
-		{
-		  DBG(DBG_data, "%s: pixels=%d, count=%d (%d%%)\n", __func__, pixels, count,
-		      (100 * count) / pixels);
-		}
-	    }
-	}
-      else			/* since calibration scans are done forward, we need the whole area
-				   to be of the required color when searching backward */
-	{
-	  count = 0;
-	  for (y = 0; y < lines; y++)
-	    {
-	      /* count of white/black pixels depending on the color searched */
-	      for (x = 0; x < pixels; x++)
-		{
-                    // when searching for black, detect white pixels
-                    if (black && data.get_raw_channel(x, y, 0) > 90) {
-		      count++;
-		    }
-                    // when searching for white, detect black pixels
-                    if (!black && data.get_raw_channel(x, y, 0) < 60) {
-		      count++;
-		    }
-		}
-	    }
-
-	  /* at end of area, if count >= 3%, area is not fully of the desired color
-	   * so we must go to next buffer */
-	  if ((count * 100) / (pixels * lines) < 3)
-	    {
-	      found = 1;
-	      DBG(DBG_data, "%s: strip found backward during pass %d \n", __func__, pass);
-	    }
-	  else
-	    {
-	      DBG(DBG_data, "%s: pixels=%d, count=%d (%d%%)\n", __func__, pixels, count,
-		  (100 * count) / pixels);
-	    }
-	}
-      pass++;
-    }
-  if (found)
-    {
-      DBG(DBG_info, "%s: %s strip found\n", __func__, black ? "black" : "white");
-    }
-  else
-    {
-        throw SaneException(SANE_STATUS_UNSUPPORTED, "%s strip not found", black ? "black" : "white");
-    }
-}
-
 /**
  * Send shading calibration data. The buffer is considered to always hold values
  * for all the channels.
@@ -2631,7 +2440,7 @@ void CommandSetGl843::send_shading_data(Genesys_Device* dev, const Genesys_Senso
             dev->model->model_id == ModelId::CANON_8600F)
         {
             int half_ccd_factor = dev->session.optical_resolution /
-                                  sensor.get_logical_hwdpi(dev->session.output_resolution);
+                                  sensor.get_register_hwdpi(dev->session.output_resolution);
             strpixel /= half_ccd_factor * sensor.ccd_pixels_per_system_pixel();
             endpixel /= half_ccd_factor * sensor.ccd_pixels_per_system_pixel();
         }

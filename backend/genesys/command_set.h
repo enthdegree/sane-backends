@@ -132,11 +132,6 @@ public:
 
     /// eject document from scanner
     virtual void eject_document(Genesys_Device* dev) const = 0;
-    /**
-     * search for an black or white area in forward or reverse
-     * direction */
-    virtual void search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                              bool forward, bool black) const = 0;
 
     /// move scanning head to transparency adapter
     virtual void move_to_ta(Genesys_Device* dev) const = 0;

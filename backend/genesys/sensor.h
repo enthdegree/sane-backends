@@ -407,12 +407,10 @@ struct Genesys_Sensor {
     // red, green and blue gamma coefficient for default gamma tables
     AssignableArray<float, 3> gamma;
 
-    std::function<unsigned(const Genesys_Sensor&, unsigned)> get_logical_hwdpi_fun;
     std::function<unsigned(const Genesys_Sensor&, unsigned)> get_register_hwdpi_fun;
     std::function<unsigned(const Genesys_Sensor&, unsigned)> get_ccd_size_divisor_fun;
     std::function<unsigned(const Genesys_Sensor&, unsigned)> get_hwdpi_divisor_fun;
 
-    unsigned get_logical_hwdpi(unsigned xres) const { return get_logical_hwdpi_fun(*this, xres); }
     unsigned get_register_hwdpi(unsigned xres) const { return get_register_hwdpi_fun(*this, xres); }
     unsigned get_ccd_size_divisor_for_dpi(unsigned xres) const
     {

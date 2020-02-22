@@ -1488,7 +1488,7 @@ void genesys_init_usb_device_tables()
     model.y_size = 296.4;
 
     model.y_offset_calib_white = 0.00;
-    model.y_size_calib_mm = 3.0;
+    model.y_size_calib_mm = 2.0;
     model.x_offset_calib_black = 0.00;
 
     model.post_scan = 0.0;
@@ -1507,7 +1507,6 @@ void genesys_init_usb_device_tables()
     model.motor_id = MotorId::MD_5345;
     model.flags = ModelFlag::GAMMA_14BIT |
                   ModelFlag::DARK_CALIBRATION |
-                  ModelFlag::SHADING_NO_MOVE |
                   ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_COPY_SW |
                     GENESYS_HAS_EMAIL_SW |

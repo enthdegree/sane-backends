@@ -1163,20 +1163,14 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
 
   std::vector<uint16_t> calibration_data(size / 2);
 
-    bool motor = true;
-    if (has_flag(dev->model->flags, ModelFlag::SHADING_NO_MOVE)) {
-        motor = false;
-    }
-
     // turn off motor and lamp power for flatbed scanners, but not for sheetfed scanners
     // because they have a calibration sheet with a sufficient black strip
     if (is_dark && !dev->model->is_sheetfed) {
         sanei_genesys_set_lamp_power(dev, sensor, local_reg, false);
-        sanei_genesys_set_motor_power(local_reg, motor);
     } else {
         sanei_genesys_set_lamp_power(dev, sensor, local_reg, true);
-        sanei_genesys_set_motor_power(local_reg, motor);
     }
+    sanei_genesys_set_motor_power(local_reg, true);
 
     dev->interface->write_registers(local_reg);
 
@@ -1411,14 +1405,9 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
 
   std::vector<uint8_t> calibration_data(size);
 
-    bool motor = true;
-    if (has_flag(dev->model->flags, ModelFlag::SHADING_NO_MOVE)) {
-        motor = false;
-    }
-
     // turn on motor and lamp power
     sanei_genesys_set_lamp_power(dev, sensor, local_reg, true);
-    sanei_genesys_set_motor_power(local_reg, motor);
+    sanei_genesys_set_motor_power(local_reg, true);
 
     dev->interface->write_registers(local_reg);
 

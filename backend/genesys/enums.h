@@ -466,9 +466,6 @@ enum class ModelFlag : unsigned
     // the scanner uses multi-segment sensors that must be handled during calibration
     SIS_SENSOR = 1 << 16,
 
-    // the scanner does not move sensor during scanner calibration
-    SHADING_NO_MOVE = 1 << 17,
-
     // the head must be reparked between shading scans
     SHADING_REPARK = 1 << 18,
 

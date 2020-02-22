@@ -2216,78 +2216,6 @@ void CommandSetGl841::move_back_home(Genesys_Device* dev, bool wait_until_home) 
   DBG(DBG_info, "%s: scanhead is still moving\n", __func__);
 }
 
-// Automatically set top-left edge of the scan area by scanning a 200x200 pixels area at 600 dpi
-// from very top of scanner
-void CommandSetGl841::search_start_position(Genesys_Device* dev) const
-{
-    DBG_HELPER(dbg);
-  Genesys_Register_Set local_reg;
-
-  int pixels = 600;
-  int dpi = 300;
-
-  local_reg = dev->reg;
-
-  /* sets for a 200 lines * 600 pixels */
-  /* normal scan with no shading */
-
-    // FIXME: the current approach of doing search only for one resolution does not work on scanners
-    // whith employ different sensors with potentially different settings.
-    const auto& sensor = sanei_genesys_find_sensor(dev, dpi, 1, dev->model->default_method);
-
-    ScanSession session;
-    session.params.xres = dpi;
-    session.params.yres = dpi;
-    session.params.startx = 0;
-    session.params.starty = 0; /*we should give a small offset here~60 steps*/
-    session.params.pixels = 600;
-    session.params.lines = dev->model->search_lines;
-    session.params.depth = 8;
-    session.params.channels = 1;
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = ScanColorMode::GRAY;
-    session.params.color_filter = ColorFilter::GREEN;
-    session.params.flags = ScanFlag::DISABLE_SHADING |
-                           ScanFlag::DISABLE_GAMMA |
-                           ScanFlag::DISABLE_BUFFER_FULL_MOVE;
-    compute_session(dev, session, sensor);
-
-    init_regs_for_scan_session(dev, sensor, &local_reg, session);
-
-    // send to scanner
-    dev->interface->write_registers(local_reg);
-
-    dev->cmd_set->begin_scan(dev, sensor, &local_reg, true);
-
-    if (is_testing_mode()) {
-        dev->interface->test_checkpoint("search_start_position");
-        dev->cmd_set->end_scan(dev, &local_reg, true);
-        dev->reg = local_reg;
-        return;
-    }
-
-    wait_until_buffer_non_empty(dev);
-
-    // now we're on target, we can read data
-    auto image = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes);
-
-    if (DBG_LEVEL >= DBG_data) {
-        sanei_genesys_write_pnm_file("gl841_search_position.pnm", image);
-    }
-
-    dev->cmd_set->end_scan(dev, &local_reg, true);
-
-  /* update regs to copy ASIC internal state */
-  dev->reg = local_reg;
-
-    for (auto& sensor_update :
-            sanei_genesys_find_sensors_all_for_write(dev, dev->model->default_method))
-    {
-        sanei_genesys_search_reference_point(dev, sensor_update, image.get_row_ptr(0), 0, dpi,
-                                             pixels, dev->model->search_lines);
-    }
-}
-
 // init registers for shading calibration
 void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                             Genesys_Register_Set& regs) const
@@ -2683,8 +2611,6 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
 
 /* this function does the offset calibration by scanning one line of the calibration
    area below scanner's top. There is a black margin and the remaining is white.
-   sanei_genesys_search_start() must have been called so that the offsets and margins
-   are allready known.
 
 this function expects the slider to be where?
 */

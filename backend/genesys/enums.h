@@ -445,9 +445,6 @@ enum class ModelFlag : unsigned
     // skip lamp warmup (genesys_warmup())
     SKIP_WARMUP = 1 << 4,
 
-    // search start point befor scanning
-    SEARCH_START = 1 << 6,
-
     // repark head and check for lock by moving without scanning
     REPARK = 1 << 7,
 

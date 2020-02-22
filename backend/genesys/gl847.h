@@ -147,8 +147,6 @@ public:
 
     void send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor) const override;
 
-    void search_start_position(Genesys_Device* dev) const override;
-
     void offset_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
                             Genesys_Register_Set& regs) const override;
 

@@ -73,7 +73,7 @@ escl_free_device(ESCL_Device *current)
 }
 
 static SANE_Status
-escl_little_add_in_list(ESCL_Device *current)
+escl_check_and_add_device(ESCL_Device *current)
 {
     if(!current) {
       DBG (10, "ESCL_Device *current us null.\n");
@@ -118,7 +118,7 @@ escl_add_in_list(ESCL_Device *current)
     }
 
     if (SANE_STATUS_GOOD ==
-        escl_little_add_in_list(current)) {
+        escl_check_and_add_device(current)) {
         list_devices_primary = current;
         return (SANE_STATUS_GOOD);
     }
@@ -345,7 +345,7 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line)
             escl_device->type = strdup(type_space);
         }
     }
-    status = escl_little_add_in_list(escl_device);
+    status = escl_check_and_add_device(escl_device);
     if (status == SANE_STATUS_GOOD)
        escl_device = NULL;
     return status;

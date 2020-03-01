@@ -286,15 +286,22 @@ void sanei_genesys_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& s
 
 extern void sanei_genesys_stop_motor(Genesys_Device* dev);
 
-extern void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& sensor,
-                                                 const uint8_t* src_data, int start_pixel, int dpi,
-                                                 int width, int height);
-
 // moves the scan head by the specified steps at the motor base dpi
 void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, Direction direction);
 
 void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home);
 void scanner_move_back_home_ta(Genesys_Device& dev);
+
+/** Search for a full width black or white strip.
+    This function searches for a black or white stripe across the scanning area.
+    When searching backward, the searched area must completely be of the desired
+    color since this area will be used for calibration which scans forward.
+
+    @param dev scanner device
+    @param forward true if searching forward, false if searching backward
+    @param black true if searching for a black strip, false for a white strip
+ */
+void scanner_search_strip(Genesys_Device& dev, bool forward, bool black);
 
 void scanner_clear_scan_and_feed_counts(Genesys_Device& dev);
 

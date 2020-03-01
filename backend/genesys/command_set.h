@@ -97,7 +97,6 @@ public:
      */
     virtual void send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor) const = 0;
 
-    virtual void search_start_position(Genesys_Device* dev) const = 0;
     virtual void offset_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                     Genesys_Register_Set& regs) const = 0;
     virtual void coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
@@ -133,11 +132,6 @@ public:
 
     /// eject document from scanner
     virtual void eject_document(Genesys_Device* dev) const = 0;
-    /**
-     * search for an black or white area in forward or reverse
-     * direction */
-    virtual void search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                              bool forward, bool black) const = 0;
 
     /// move scanning head to transparency adapter
     virtual void move_to_ta(Genesys_Device* dev) const = 0;

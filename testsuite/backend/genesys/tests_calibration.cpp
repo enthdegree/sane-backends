@@ -70,7 +70,6 @@ Genesys_Calibration_Cache create_fake_calibration_entry()
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 64;
     sensor.ccd_start_xoffset = 0;
-    sensor.sensor_pixels = 10800;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 230;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };

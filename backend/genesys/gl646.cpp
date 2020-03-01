@@ -1575,76 +1575,6 @@ void CommandSetGl646::move_back_home(Genesys_Device* dev, bool wait_until_home) 
 }
 
 /**
- * Automatically set top-left edge of the scan area by scanning an
- * area at 300 dpi from very top of scanner
- * @param dev  device stucture describing the scanner
- */
-void CommandSetGl646::search_start_position(Genesys_Device* dev) const
-{
-    DBG_HELPER(dbg);
-  Genesys_Settings settings;
-  unsigned int resolution, x, y;
-
-  /* we scan at 300 dpi */
-  resolution = get_closest_resolution(dev->model->sensor_id, 300, 1);
-
-    // FIXME: the current approach of doing search only for one resolution does not work on scanners
-    // whith employ different sensors with potentially different settings.
-    const auto& sensor = sanei_genesys_find_sensor(dev, resolution, 1,
-                                                   dev->model->default_method);
-
-  /* fill settings for a gray level scan */
-  settings.scan_method = dev->model->default_method;
-  settings.scan_mode = ScanColorMode::GRAY;
-  settings.xres = resolution;
-  settings.yres = resolution;
-  settings.tl_x = 0;
-  settings.tl_y = 0;
-  settings.pixels = 600;
-    settings.requested_pixels = settings.pixels;
-  settings.lines = dev->model->search_lines;
-  settings.depth = 8;
-  settings.color_filter = ColorFilter::RED;
-
-  settings.disable_interpolation = 0;
-  settings.threshold = 0;
-
-    // scan the desired area
-    std::vector<uint8_t> data;
-    simple_scan(dev, sensor, settings, true, true, false, data, "search_start_position");
-
-    // handle stagger case : reorder gray data and thus loose some lines
-    auto staggered_lines = dev->session.num_staggered_lines;
-    if (staggered_lines > 0) {
-        DBG(DBG_proc, "%s: 'un-staggering'\n", __func__);
-        for (y = 0; y < settings.lines - staggered_lines; y++) {
-            /* one point out of 2 is 'unaligned' */
-            for (x = 0; x < settings.pixels; x += 2)
-        {
-                data[y * settings.pixels + x] = data[(y + staggered_lines) * settings.pixels + x];
-        }
-          }
-        /* correct line number */
-        settings.lines -= staggered_lines;
-    }
-
-    if (DBG_LEVEL >= DBG_data)
-      {
-        sanei_genesys_write_pnm_file("gl646_search_position.pnm", data.data(), settings.depth, 1,
-                                     settings.pixels, settings.lines);
-      }
-
-    // now search reference points on the data
-    for (auto& sensor_update :
-            sanei_genesys_find_sensors_all_for_write(dev, dev->model->default_method))
-    {
-        sanei_genesys_search_reference_point(dev, sensor_update, data.data(), 0,
-                                             resolution, settings.pixels, settings.lines);
-    }
-}
-
-
-/**
  * init registers for shading calibration
  * we assume that scanner's head is on an area suiting shading calibration.
  * We scan a full scan width area by the shading line number for the device
@@ -1679,7 +1609,7 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   settings.yres = settings.xres;
   settings.tl_x = 0;
   settings.tl_y = 0;
-    settings.pixels = (calib_sensor.sensor_pixels * settings.xres) / calib_sensor.optical_res;
+    settings.pixels = dev->model->x_size_calib_mm * settings.xres / MM_PER_INCH;
     settings.requested_pixels = settings.pixels;
 
     unsigned calib_lines =
@@ -1911,7 +1841,7 @@ SensorExposure CommandSetGl646::led_calibration(Genesys_Device* dev, const Genes
   settings.yres = resolution;
   settings.tl_x = 0;
   settings.tl_y = 0;
-    settings.pixels = (sensor.sensor_pixels * resolution) / sensor.optical_res;
+    settings.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
     settings.requested_pixels = settings.pixels;
   settings.lines = 1;
   settings.depth = 16;
@@ -2085,7 +2015,7 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   settings.yres = resolution;
   settings.tl_x = 0;
   settings.tl_y = 0;
-    settings.pixels = (calib_sensor.sensor_pixels * resolution) / calib_sensor.optical_res;
+    settings.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
     settings.requested_pixels = settings.pixels;
   settings.lines = CALIBRATION_LINES;
   settings.depth = 8;
@@ -2196,7 +2126,7 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
   settings.yres = resolution;
   settings.tl_x = 0;
   settings.tl_y = 0;
-    settings.pixels = (calib_sensor.sensor_pixels * resolution) / calib_sensor.optical_res;
+    settings.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
     settings.requested_pixels = settings.pixels;
   settings.lines = CALIBRATION_LINES;
   settings.depth = 8;
@@ -2332,7 +2262,7 @@ static void ad_fe_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
   settings.yres = resolution;
   settings.tl_x = 0;
   settings.tl_y = 0;
-    settings.pixels = (calib_sensor.sensor_pixels * resolution) / calib_sensor.optical_res;
+    settings.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
     settings.requested_pixels = settings.pixels;
   settings.lines = CALIBRATION_LINES;
   settings.depth = 8;
@@ -2439,7 +2369,7 @@ void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys
   if (settings.scan_method == ScanMethod::FLATBED)
     {
       settings.tl_x = 0;
-        settings.pixels = (calib_sensor.sensor_pixels * resolution) / calib_sensor.optical_res;
+        settings.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
     }
   else
     {
@@ -2588,7 +2518,7 @@ void CommandSetGl646::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
   settings.yres = resolution;
   settings.tl_x = 0;
   settings.tl_y = 0;
-    settings.pixels = (local_sensor.sensor_pixels * resolution) / local_sensor.optical_res;
+    settings.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
     settings.requested_pixels = settings.pixels;
   settings.lines = 2;
   settings.depth = 8;
@@ -2710,7 +2640,9 @@ void CommandSetGl646::init(Genesys_Device* dev) const
       gl646_init_regs (dev);
 
         // Init shading data
-        sanei_genesys_init_shading_data(dev, sensor, sensor.sensor_pixels);
+        sanei_genesys_init_shading_data(dev, sensor,
+                                        dev->model->x_size_calib_mm * sensor.optical_res /
+                                            MM_PER_INCH);
 
         dev->initial_regs = dev->reg;
     }
@@ -2990,7 +2922,7 @@ static void simple_move(Genesys_Device* dev, SANE_Int distance)
   settings.yres = resolution;
   settings.tl_y = 0;
   settings.tl_x = 0;
-  settings.pixels = (sensor.sensor_pixels * settings.xres) / sensor.optical_res;
+    settings.pixels = dev->model->x_size_calib_mm * settings.xres / MM_PER_INCH;
     settings.requested_pixels = settings.pixels;
     settings.lines = static_cast<unsigned>((distance * settings.xres) / MM_PER_INCH);
   settings.depth = 8;
@@ -3180,154 +3112,6 @@ static void write_control(Genesys_Device* dev, const Genesys_Sensor& sensor, int
   DBG(DBG_info, "%s: control write=0x%02x 0x%02x 0x%02x 0x%02x\n", __func__, control[0], control[1],
       control[2], control[3]);
     dev->interface->write_buffer(0x3c, addr, control, 4);
-}
-
-/**
- * search for a full width black or white strip.
- * @param dev scanner device
- * @param forward true if searching forward, false if searching backward
- * @param black true if searching for a black strip, false for a white strip
- */
-void CommandSetGl646::search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor, bool forward,
-                                   bool black) const
-{
-    DBG_HELPER(dbg);
-    (void) sensor;
-
-  Genesys_Settings settings;
-  int res = get_closest_resolution(dev->model->sensor_id, 75, 1);
-  unsigned int pass, count, found, x, y;
-  char title[80];
-
-    const auto& calib_sensor = sanei_genesys_find_sensor(dev, res, 1, ScanMethod::FLATBED);
-
-  /* we set up for a lowest available resolution color grey scan, full width */
-    settings.scan_method = dev->model->default_method;
-  settings.scan_mode = ScanColorMode::GRAY;
-  settings.xres = res;
-  settings.yres = res;
-  settings.tl_x = 0;
-  settings.tl_y = 0;
-    settings.pixels = static_cast<unsigned>((dev->model->x_size * res) / MM_PER_INCH);
-    settings.pixels /= calib_sensor.get_ccd_size_divisor_for_dpi(res);
-    settings.requested_pixels = settings.pixels;
-
-  /* 15 mm at at time */
-    settings.lines = static_cast<unsigned>((15 * settings.yres) / MM_PER_INCH);
-  settings.depth = 8;
-  settings.color_filter = ColorFilter::RED;
-
-  settings.disable_interpolation = 0;
-  settings.threshold = 0;
-
-  /* signals if a strip of the given color has been found */
-  found = 0;
-
-  /* detection pass done */
-  pass = 0;
-
-  std::vector<uint8_t> data;
-
-  /* loop until strip is found or maximum pass number done */
-  while (pass < 20 && !found)
-    {
-        // scan a full width strip
-        simple_scan(dev, calib_sensor, settings, true, forward, false, data, "search_strip");
-
-        if (is_testing_mode()) {
-            return;
-        }
-
-      if (DBG_LEVEL >= DBG_data)
-	{
-            std::sprintf(title, "gl646_search_strip_%s%02d.pnm", forward ? "fwd" : "bwd", pass);
-          sanei_genesys_write_pnm_file (title, data.data(), settings.depth, 1,
-					settings.pixels, settings.lines);
-	}
-
-      /* search data to find black strip */
-      /* when searching forward, we only need one line of the searched color since we
-       * will scan forward. But when doing backward search, we need all the area of the
-       * same color */
-      if (forward)
-	{
-	  for (y = 0; y < settings.lines && !found; y++)
-	    {
-	      count = 0;
-	      /* count of white/black pixels depending on the color searched */
-	      for (x = 0; x < settings.pixels; x++)
-		{
-		  /* when searching for black, detect white pixels */
-		  if (black && data[y * settings.pixels + x] > 90)
-		    {
-		      count++;
-		    }
-		  /* when searching for white, detect black pixels */
-		  if (!black && data[y * settings.pixels + x] < 60)
-		    {
-		      count++;
-		    }
-		}
-
-	      /* at end of line, if count >= 3%, line is not fully of the desired color
-	       * so we must go to next line of the buffer */
-	      /* count*100/pixels < 3 */
-	      if ((count * 100) / settings.pixels < 3)
-		{
-		  found = 1;
-		  DBG(DBG_data, "%s: strip found forward during pass %d at line %d\n", __func__,
-		      pass, y);
-		}
-	      else
-		{
-		  DBG(DBG_data, "%s: pixels=%d, count=%d\n", __func__, settings.pixels, count);
-		}
-	    }
-	}
-      else			/* since calibration scans are done forward, we need the whole area
-				   to be of the required color when searching backward */
-	{
-	  count = 0;
-	  for (y = 0; y < settings.lines; y++)
-	    {
-	      /* count of white/black pixels depending on the color searched */
-	      for (x = 0; x < settings.pixels; x++)
-		{
-		  /* when searching for black, detect white pixels */
-		  if (black && data[y * settings.pixels + x] > 60)
-		    {
-		      count++;
-		    }
-		  /* when searching for white, detect black pixels */
-		  if (!black && data[y * settings.pixels + x] < 60)
-		    {
-		      count++;
-		    }
-		}
-	    }
-
-	  /* at end of area, if count >= 3%, area is not fully of the desired color
-	   * so we must go to next buffer */
-	  if ((count * 100) / (settings.pixels * settings.lines) < 3)
-	    {
-	      found = 1;
-	      DBG(DBG_data, "%s: strip found backward during pass %d \n", __func__, pass);
-	    }
-	  else
-	    {
-	      DBG(DBG_data, "%s: pixels=%d, count=%d\n", __func__, settings.pixels, count);
-	    }
-	}
-      pass++;
-    }
-  if (found)
-    {
-      DBG(DBG_info, "%s: strip found\n", __func__);
-    }
-  else
-    {
-        throw SaneException(SANE_STATUS_UNSUPPORTED, "%s strip not found", black ? "black" : "white");
-    }
 }
 
 void CommandSetGl646::wait_for_motor_stop(Genesys_Device* dev) const

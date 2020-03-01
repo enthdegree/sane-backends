@@ -529,179 +529,6 @@ void sanei_genesys_init_shading_data(Genesys_Device* dev, const Genesys_Sensor& 
                                     pixels_per_line * 4 * channels);
 }
 
-
-// Find the position of the reference point: takes gray level 8 bits data and find
-// first CCD usable pixel and top of scanning area
-void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& sensor,
-                                          const uint8_t* src_data, int start_pixel, int dpi,
-                                          int width, int height)
-{
-    DBG_HELPER(dbg);
-  int x, y;
-  int current, left, top = 0;
-  int size, count;
-  int level = 80;		/* edge threshold level */
-
-    // sanity check
-    if ((width < 3) || (height < 3)) {
-        throw SaneException("invalid width or height");
-    }
-
-  /* transformed image data */
-  size = width * height;
-  std::vector<uint8_t> image2(size, 0);
-  std::vector<uint8_t> image(size, 0);
-
-  /* laplace filter to denoise picture */
-    std::memcpy(image2.data(), src_data, size);
-    std::memcpy(image.data(), src_data, size);	// to initialize unprocessed part of the image buffer
-
-    for (y = 1; y < height - 1; y++) {
-        for (x = 1; x < width - 1; x++) {
-            image[y * width + x] =
-                (image2[(y - 1) * width + x + 1] + 2 * image2[(y - 1) * width + x] +
-                image2[(y - 1) * width + x - 1] + 2 * image2[y * width + x + 1] +
-                4 * image2[y * width + x] + 2 * image2[y * width + x - 1] +
-                image2[(y + 1) * width + x + 1] + 2 * image2[(y + 1) * width + x] +
-                image2[(y + 1) * width + x - 1]) / 16;
-        }
-    }
-
-    image2 = image;
-  if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl_laplace.pnm", image.data(), 8, 1, width, height);
-
-  /* apply X direction sobel filter
-     -1  0  1
-     -2  0  2
-     -1  0  1
-     and finds threshold level
-   */
-  level = 0;
-    for (y = 2; y < height - 2; y++) {
-        for (x = 2; x < width - 2; x++) {
-            current = image2[(y - 1) * width + x + 1] - image2[(y - 1) * width + x - 1] +
-                      2 * image2[y * width + x + 1] - 2 * image2[y * width + x - 1] +
-                      image2[(y + 1) * width + x + 1] - image2[(y + 1) * width + x - 1];
-	if (current < 0)
-	  current = -current;
-	if (current > 255)
-	  current = 255;
-	image[y * width + x] = current;
-	if (current > level)
-	  level = current;
-        }
-    }
-  if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl_xsobel.pnm", image.data(), 8, 1, width, height);
-
-  /* set up detection level */
-  level = level / 3;
-
-  /* find left black margin first
-     todo: search top before left
-     we average the result of N searches */
-  left = 0;
-  count = 0;
-  for (y = 2; y < 11; y++)
-    {
-      x = 8;
-      while ((x < width / 2) && (image[y * width + x] < level))
-	{
-	  image[y * width + x] = 255;
-	  x++;
-	}
-      count++;
-      left += x;
-    }
-  if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl_detected-xsobel.pnm", image.data(), 8, 1, width, height);
-  left = left / count;
-
-    // turn it in CCD pixel at full sensor optical resolution
-    sensor.ccd_start_xoffset = start_pixel + (left * sensor.optical_res) / dpi;
-
-  /* find top edge by detecting black strip */
-  /* apply Y direction sobel filter
-     -1 -2 -1
-     0  0  0
-     1  2  1
-   */
-  level = 0;
-    for (y = 2; y < height - 2; y++) {
-        for (x = 2; x < width - 2; x++) {
-            current = -image2[(y - 1) * width + x + 1] - 2 * image2[(y - 1) * width + x] -
-                      image2[(y - 1) * width + x - 1] + image2[(y + 1) * width + x + 1] +
-                      2 * image2[(y + 1) * width + x] + image2[(y + 1) * width + x - 1];
-	if (current < 0)
-	  current = -current;
-	if (current > 255)
-	  current = 255;
-	image[y * width + x] = current;
-	if (current > level)
-	  level = current;
-      }
-    }
-  if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl_ysobel.pnm", image.data(), 8, 1, width, height);
-
-  /* set up detection level */
-  level = level / 3;
-
-  /* search top of horizontal black stripe : TODO yet another flag */
-    if (dev->model->sensor_id == SensorId::CCD_5345
-        && dev->model->motor_id == MotorId::MD_5345)
-    {
-      top = 0;
-      count = 0;
-      for (x = width / 2; x < width - 1; x++)
-	{
-	  y = 2;
-	  while ((y < height) && (image[x + y * width] < level))
-	    {
-	      image[y * width + x] = 255;
-	      y++;
-	    }
-	  count++;
-	  top += y;
-	}
-      if (DBG_LEVEL >= DBG_data)
-        sanei_genesys_write_pnm_file("gl_detected-ysobel.pnm", image.data(), 8, 1, width, height);
-      top = top / count;
-
-      /* bottom of black stripe is of fixed witdh, this hardcoded value
-       * will be moved into device struct if more such values are needed */
-      top += 10;
-        dev->model->y_offset_calib_white = (top * MM_PER_INCH) / dpi;
-        DBG(DBG_info, "%s: black stripe y_offset = %f mm \n", __func__,
-            dev->model->y_offset_calib_white);
-    }
-
-  /* find white corner in dark area : TODO yet another flag */
-    if ((dev->model->sensor_id == SensorId::CCD_HP2300 && dev->model->motor_id == MotorId::HP2300) ||
-        (dev->model->sensor_id == SensorId::CCD_HP2400 && dev->model->motor_id == MotorId::HP2400) ||
-        (dev->model->sensor_id == SensorId::CCD_HP3670 && dev->model->motor_id == MotorId::HP3670))
-    {
-      top = 0;
-      count = 0;
-      for (x = 10; x < 60; x++)
-	{
-	  y = 2;
-	  while ((y < height) && (image[x + y * width] < level))
-	    y++;
-	  top += y;
-	  count++;
-	}
-      top = top / count;
-        dev->model->y_offset_calib_white = (top * MM_PER_INCH) / dpi;
-        DBG(DBG_info, "%s: white corner y_offset = %f mm\n", __func__,
-            dev->model->y_offset_calib_white);
-    }
-
-    DBG(DBG_proc, "%s: ccd_start_xoffset = %d, left = %d, top = %d\n", __func__,
-        sensor.ccd_start_xoffset, left, top);
-}
-
 namespace gl124 {
     void gl124_setup_scan_gpio(Genesys_Device* dev, int resolution);
 } // namespace gl124
@@ -1244,6 +1071,208 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
     throw SaneException("Timeout waiting for XPA lamp to park");
 }
 
+namespace gl841 {
+    void gl841_stop_action(Genesys_Device* dev);
+} // namespace gl841
+
+void scanner_search_strip(Genesys_Device& dev, bool forward, bool black)
+{
+    DBG_HELPER_ARGS(dbg, "%s %s", black ? "black" : "white", forward ? "forward" : "reverse");
+
+    if (dev.model->asic_type == AsicType::GL841 && !black && forward) {
+        dev.frontend.set_gain(0, 0xff);
+        dev.frontend.set_gain(1, 0xff);
+        dev.frontend.set_gain(2, 0xff);
+    }
+
+    // set up for a gray scan at lowest dpi
+    const auto& resolution_settings = dev.model->get_resolution_settings(dev.settings.scan_method);
+    unsigned dpi = resolution_settings.get_min_resolution_x();
+    unsigned channels = 1;
+
+    auto& sensor = sanei_genesys_find_sensor(&dev, dpi, channels, dev.settings.scan_method);
+    dev.cmd_set->set_fe(&dev, sensor, AFE_SET);
+    scanner_stop_action(dev);
+
+
+    // shading calibration is done with dev.motor.base_ydpi
+    unsigned lines = static_cast<unsigned>(dev.model->y_size_calib_mm * dpi / MM_PER_INCH);
+    if (dev.model->asic_type == AsicType::GL841) {
+        lines = 10; // TODO: use dev.model->search_lines
+        lines = static_cast<unsigned>((lines * dpi) / MM_PER_INCH);
+    }
+
+    unsigned pixels = dev.model->x_size_calib_mm * dpi / MM_PER_INCH;
+
+    dev.set_head_pos_zero(ScanHeadId::PRIMARY);
+
+    unsigned length = 20;
+    if (dev.model->asic_type == AsicType::GL841) {
+        // 20 cm max length for calibration sheet
+        length = static_cast<unsigned>(((200 * dpi) / MM_PER_INCH) / lines);
+    }
+
+    auto local_reg = dev.reg;
+
+    ScanSession session;
+    session.params.xres = dpi;
+    session.params.yres = dpi;
+    session.params.startx = 0;
+    session.params.starty = 0;
+    session.params.pixels = pixels;
+    session.params.lines = lines;
+    session.params.depth = 8;
+    session.params.channels = channels;
+    session.params.scan_method = dev.settings.scan_method;
+    session.params.scan_mode = ScanColorMode::GRAY;
+    session.params.color_filter = ColorFilter::RED;
+    session.params.flags = ScanFlag::DISABLE_SHADING |
+                           ScanFlag::DISABLE_GAMMA;
+    if (dev.model->asic_type != AsicType::GL841 && !forward) {
+        session.params.flags |= ScanFlag::REVERSE;
+    }
+    compute_session(&dev, session, sensor);
+
+    dev.cmd_set->init_regs_for_scan_session(&dev, sensor, &local_reg, session);
+
+    dev.interface->write_registers(local_reg);
+
+    dev.cmd_set->begin_scan(&dev, sensor, &local_reg, true);
+
+    if (is_testing_mode()) {
+        dev.interface->test_checkpoint("search_strip");
+        if (dev.model->asic_type == AsicType::GL841) {
+            gl841::gl841_stop_action(&dev);
+        } else {
+            scanner_stop_action(dev);
+        }
+        return;
+    }
+
+    wait_until_buffer_non_empty(&dev);
+
+    // now we're on target, we can read data
+    auto image = read_unshuffled_image_from_scanner(&dev, session, session.output_total_bytes);
+
+    if (dev.model->asic_type == AsicType::GL841) {
+        gl841::gl841_stop_action(&dev);
+    } else {
+        scanner_stop_action(dev);
+    }
+
+    unsigned pass = 0;
+    if (DBG_LEVEL >= DBG_data) {
+        char title[80];
+        std::sprintf(title, "gl_search_strip_%s_%s%02d.pnm",
+                     black ? "black" : "white", forward ? "fwd" : "bwd", pass);
+        sanei_genesys_write_pnm_file(title, image);
+    }
+
+    // loop until strip is found or maximum pass number done
+    bool found = false;
+    while (pass < length && !found) {
+        dev.interface->write_registers(local_reg);
+
+        // now start scan
+        dev.cmd_set->begin_scan(&dev, sensor, &local_reg, true);
+
+        wait_until_buffer_non_empty(&dev);
+
+        // now we're on target, we can read data
+        image = read_unshuffled_image_from_scanner(&dev, session, session.output_total_bytes);
+
+        scanner_stop_action(dev);
+
+        if (DBG_LEVEL >= DBG_data) {
+            char title[80];
+            std::sprintf(title, "gl_search_strip_%s_%s%02d.pnm",
+                         black ? "black" : "white",
+                         forward ? "fwd" : "bwd", static_cast<int>(pass));
+            sanei_genesys_write_pnm_file(title, image);
+        }
+
+        unsigned white_level = 90;
+        unsigned black_level = 60;
+
+        std::size_t count = 0;
+        // Search data to find black strip
+        // When searching forward, we only need one line of the searched color since we
+        // will scan forward. But when doing backward search, we need all the area of the ame color
+        if (forward) {
+
+            for (std::size_t y = 0; y < image.get_height() && !found; y++) {
+                count = 0;
+
+                // count of white/black pixels depending on the color searched
+                for (std::size_t x = 0; x < image.get_width(); x++) {
+
+                    // when searching for black, detect white pixels
+                    if (black && image.get_raw_channel(x, y, 0) > white_level) {
+                        count++;
+                    }
+
+                    // when searching for white, detect black pixels
+                    if (!black && image.get_raw_channel(x, y, 0) < black_level) {
+                        count++;
+                    }
+                }
+
+                // at end of line, if count >= 3%, line is not fully of the desired color
+                // so we must go to next line of the buffer */
+                // count*100/pixels < 3
+
+                auto found_percentage = (count * 100 / image.get_width());
+                if (found_percentage < 3) {
+                    found = 1;
+                    DBG(DBG_data, "%s: strip found forward during pass %d at line %zu\n", __func__,
+                        pass, y);
+                } else {
+                    DBG(DBG_data, "%s: pixels=%zu, count=%zu (%zu%%)\n", __func__,
+                        image.get_width(), count, found_percentage);
+                }
+            }
+        } else {
+            /*  since calibration scans are done forward, we need the whole area
+                to be of the required color when searching backward
+            */
+            count = 0;
+            for (std::size_t y = 0; y < image.get_height(); y++) {
+                // count of white/black pixels depending on the color searched
+                for (std::size_t x = 0; x < image.get_width(); x++) {
+                    // when searching for black, detect white pixels
+                    if (black && image.get_raw_channel(x, y, 0) > white_level) {
+                        count++;
+                    }
+                    // when searching for white, detect black pixels
+                    if (!black && image.get_raw_channel(x, y, 0) < black_level) {
+                        count++;
+                    }
+                }
+            }
+
+            // at end of area, if count >= 3%, area is not fully of the desired color
+            // so we must go to next buffer
+            auto found_percentage = count * 100 / (image.get_width() * image.get_height());
+            if (found_percentage < 3) {
+                found = 1;
+                DBG(DBG_data, "%s: strip found backward during pass %d \n", __func__, pass);
+            } else {
+                DBG(DBG_data, "%s: pixels=%zu, count=%zu (%zu%%)\n", __func__, image.get_width(),
+                    count, found_percentage);
+            }
+        }
+        pass++;
+    }
+
+    if (found) {
+        DBG(DBG_info, "%s: %s strip found\n", __func__, black ? "black" : "white");
+    } else {
+        throw SaneException(SANE_STATUS_UNSUPPORTED, "%s strip not found",
+                            black ? "black" : "white");
+    }
+}
+
+
 void sanei_genesys_calculate_zmod(bool two_table,
                                   uint32_t exposure_time,
                                   const std::vector<uint16_t>& slope_table,
@@ -1336,20 +1365,14 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
 
   std::vector<uint16_t> calibration_data(size / 2);
 
-    bool motor = true;
-    if (has_flag(dev->model->flags, ModelFlag::SHADING_NO_MOVE)) {
-        motor = false;
-    }
-
     // turn off motor and lamp power for flatbed scanners, but not for sheetfed scanners
     // because they have a calibration sheet with a sufficient black strip
     if (is_dark && !dev->model->is_sheetfed) {
         sanei_genesys_set_lamp_power(dev, sensor, local_reg, false);
-        sanei_genesys_set_motor_power(local_reg, motor);
     } else {
         sanei_genesys_set_lamp_power(dev, sensor, local_reg, true);
-        sanei_genesys_set_motor_power(local_reg, motor);
     }
+    sanei_genesys_set_motor_power(local_reg, true);
 
     dev->interface->write_registers(local_reg);
 
@@ -1584,14 +1607,9 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
 
   std::vector<uint8_t> calibration_data(size);
 
-    bool motor = true;
-    if (has_flag(dev->model->flags, ModelFlag::SHADING_NO_MOVE)) {
-        motor = false;
-    }
-
     // turn on motor and lamp power
     sanei_genesys_set_lamp_power(dev, sensor, local_reg, true);
-    sanei_genesys_set_motor_power(local_reg, motor);
+    sanei_genesys_set_motor_power(local_reg, true);
 
     dev->interface->write_registers(local_reg);
 
@@ -2620,10 +2638,9 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
     if (!has_flag(dev->model->flags, ModelFlag::SIS_SENSOR)) {
         pixels_per_line = static_cast<std::uint32_t>((dev->model->x_size * dev->settings.xres) /
                                                      MM_PER_INCH);
-    }
-  else
-    {
-      pixels_per_line = sensor.sensor_pixels;
+    } else {
+        pixels_per_line = static_cast<std::uint32_t>((dev->model->x_size_calib_mm * dev->settings.xres)
+                                                      / MM_PER_INCH);
     }
 
     // send default shading data
@@ -2699,7 +2716,7 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
 
   /* go to a white area */
     try {
-        dev->cmd_set->search_strip(dev, sensor, forward, false);
+        scanner_search_strip(*dev, forward, false);
     } catch (...) {
         catch_all_exceptions(__func__, [&](){ dev->cmd_set->eject_document(dev); });
         throw;
@@ -2719,7 +2736,7 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
     if (has_flag(dev->model->flags, ModelFlag::DARK_CALIBRATION)) {
         // seek black/white reverse/forward
         try {
-            dev->cmd_set->search_strip(dev, sensor, forward, true);
+            scanner_search_strip(*dev, forward, true);
         } catch (...) {
             catch_all_exceptions(__func__, [&](){ dev->cmd_set->eject_document(dev); });
             throw;
@@ -2737,7 +2754,7 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
 
   /* go to a white area */
     try {
-        dev->cmd_set->search_strip(dev, sensor, forward, false);
+        scanner_search_strip(*dev, forward, false);
     } catch (...) {
         catch_all_exceptions(__func__, [&](){ dev->cmd_set->eject_document(dev); });
         throw;
@@ -2762,7 +2779,7 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
        * with black point in white shading, build an average black
        * pixel and use it to fill the dark_average
        * dev->calib_pixels
-       (sensor.sensor_pixels * dev->settings.xres) / sensor.optical_res,
+       (sensor.x_size_calib_mm * dev->settings.xres) / MM_PER_INCH,
        dev->calib_lines,
        */
     }
@@ -2945,23 +2962,9 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
 
   /* set top left x and y values by scanning the internals if flatbed scanners */
     if (!dev->model->is_sheetfed) {
-      /* do the geometry detection only once */
-        if (has_flag(dev->model->flags, ModelFlag::SEARCH_START) &&
-            (dev->model->y_offset_calib_white == 0))
-        {
-        dev->cmd_set->search_start_position (dev);
-
-            dev->parking = false;
-            dev->cmd_set->move_back_home(dev, true);
-	}
-      else
-	{
-	  /* Go home */
-	  /* TODO: check we can drop this since we cannot have the
-	     scanner's head wandering here */
-            dev->parking = false;
-            dev->cmd_set->move_back_home(dev, true);
-	}
+        // TODO: check we can drop this since we cannot have the scanner's head wandering here
+        dev->parking = false;
+        dev->cmd_set->move_back_home(dev, true);
     }
 
   /* move to calibration area for transparency adapter */
@@ -4318,7 +4321,7 @@ static void probe_genesys_devices()
    of Genesys_Calibration_Cache as is.
 */
 static const char* CALIBRATION_IDENT = "sane_genesys";
-static const int CALIBRATION_VERSION = 26;
+static const int CALIBRATION_VERSION = 27;
 
 bool read_calibration(std::istream& str, Genesys_Device::Calibration& calibration,
                       const std::string& path)

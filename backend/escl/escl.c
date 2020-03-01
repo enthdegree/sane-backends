@@ -117,13 +117,11 @@ escl_add_in_list(ESCL_Device *current)
       return (SANE_STATUS_NO_MEM);
     }
 
-    if (SANE_STATUS_GOOD !=
+    if (SANE_STATUS_GOOD ==
         escl_little_add_in_list(current)) {
-        goto free_device;
+        list_devices_primary = current;
+        return (SANE_STATUS_GOOD);
     }
-    list_devices_primary = current;
-    return (SANE_STATUS_GOOD);
-free_device:
     current = escl_free_device(current);
     return (SANE_STATUS_NO_MEM);
 }

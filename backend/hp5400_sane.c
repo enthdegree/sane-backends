@@ -262,7 +262,7 @@ static void _InitOptions(TScanner *s)
       pDesc->constraint_type  = SANE_CONSTRAINT_RANGE;
       pDesc->constraint.range = &rangeXmm;
       pDesc->cap    = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      pVal->w       = offsetX;
+      pVal->w       = rangeXmm.min;
       break;
 
     case optTLY:
@@ -273,7 +273,7 @@ static void _InitOptions(TScanner *s)
       pDesc->constraint_type  = SANE_CONSTRAINT_RANGE;
       pDesc->constraint.range = &rangeYmm;
       pDesc->cap    = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      pVal->w       = offsetY;
+      pVal->w       = rangeYmm.min;
       break;
 
     case optBRX:
@@ -774,7 +774,7 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
 
             info |= SANE_INFO_RELOAD_PARAMS;
             s->ScanParams.iLines = 0;	/* Forget actual image settings */
-            s->aValues[n].w = *(SANE_Word *) pVal;
+            s->aValues[n].w = value;
             break;
 	  }
 
@@ -793,7 +793,7 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
 
             info |= SANE_INFO_RELOAD_PARAMS;
             s->ScanParams.iLines = 0;	/* Forget actual image settings */
-            s->aValues[n].w = *(SANE_Word *) pVal;
+            s->aValues[n].w = value;
             break;
           }
 

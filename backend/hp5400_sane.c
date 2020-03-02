@@ -262,7 +262,7 @@ static void _InitOptions(TScanner *s)
       pDesc->constraint_type  = SANE_CONSTRAINT_RANGE;
       pDesc->constraint.range = &rangeXmm;
       pDesc->cap    = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      pVal->w       = rangeXmm.min + offsetX;
+      pVal->w       = offsetX;
       break;
 
     case optTLY:
@@ -273,7 +273,7 @@ static void _InitOptions(TScanner *s)
       pDesc->constraint_type  = SANE_CONSTRAINT_RANGE;
       pDesc->constraint.range = &rangeYmm;
       pDesc->cap    = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      pVal->w       = rangeYmm.min + offsetY;
+      pVal->w       = offsetY;
       break;
 
     case optBRX:
@@ -284,7 +284,7 @@ static void _InitOptions(TScanner *s)
       pDesc->constraint_type  = SANE_CONSTRAINT_RANGE;
       pDesc->constraint.range = &rangeXmm;
       pDesc->cap    = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      pVal->w       = rangeXmm.max + offsetX;
+      pVal->w       = rangeXmm.max;
       break;
 
     case optBRY:
@@ -295,7 +295,7 @@ static void _InitOptions(TScanner *s)
       pDesc->constraint_type  = SANE_CONSTRAINT_RANGE;
       pDesc->constraint.range = &rangeYmm;
       pDesc->cap    = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      pVal->w       = rangeYmm.max + offsetY;
+      pVal->w       = rangeYmm.max;
       break;
 
     case optDPI:
@@ -694,7 +694,7 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
 	  /* Get options of type SANE_Word */
 	case optBRX:
 	case optTLX:
-	  *(SANE_Word *) pVal = s->aValues[n].w;	/* Not needed anymore  - s->aValues[optOffsetX].w; */
+	  *(SANE_Word *) pVal = s->aValues[n].w;
 	  HP5400_DBG (DBG_MSG,
 	       "sane_control_option: SANE_ACTION_GET_VALUE %d = %d\n", n,
 	       *(SANE_Word *) pVal);
@@ -702,7 +702,7 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
 
 	case optBRY:
 	case optTLY:
-	  *(SANE_Word *) pVal = s->aValues[n].w;	/* Not needed anymore - - s->aValues[optOffsetY].w; */
+	  *(SANE_Word *) pVal = s->aValues[n].w;
 	  HP5400_DBG (DBG_MSG,
 	       "sane_control_option: SANE_ACTION_GET_VALUE %d = %d\n", n,
 	       *(SANE_Word *) pVal);
@@ -761,26 +761,74 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
 
 	case optBRX:
 	case optTLX:
-	  info |= SANE_INFO_RELOAD_PARAMS;
-	  s->ScanParams.iLines = 0;	/* Forget actual image settings */
-	  s->aValues[n].w = *(SANE_Word *) pVal;	/* Not needed anymore - + s->aValues[optOffsetX].w; */
-	  break;
+	  {
+            // Check against legal values.
+	    SANE_Word value = *(SANE_Word *) pVal;
+	    if ((value < s->aOptions[n].constraint.range->min) ||
+	        (value > s->aOptions[n].constraint.range->max))
+              {
+	        HP5400_DBG (DBG_ERR,
+	                   "sane_control_option: SANE_ACTION_SET_VALUE out of range X value\n");
+                return SANE_STATUS_INVAL;
+              }
 
-	case optBRY:
-	case optTLY:
-	  info |= SANE_INFO_RELOAD_PARAMS;
-	  s->ScanParams.iLines = 0;	/* Forget actual image settings */
-	  s->aValues[n].w = *(SANE_Word *) pVal;	/* Not needed anymore - + s->aValues[optOffsetY].w; */
-	  break;
-	case optDPI:
-	  info |= SANE_INFO_RELOAD_PARAMS;
-	  s->ScanParams.iLines = 0;	/* Forget actual image settings */
-#ifdef SUPPORT_2400_DPI
-	  (s->aValues[n].w) = *(SANE_Word *) pVal;
-#else
-	  (s->aValues[n].w) = min (1200, *(SANE_Word *) pVal);
-#endif
-	  break;
+            info |= SANE_INFO_RELOAD_PARAMS;
+            s->ScanParams.iLines = 0;	/* Forget actual image settings */
+            s->aValues[n].w = *(SANE_Word *) pVal;
+            break;
+	  }
+
+        case optBRY:
+        case optTLY:
+          {
+            // Check against legal values.
+            SANE_Word value = *(SANE_Word *) pVal;
+            if ((value < s->aOptions[n].constraint.range->min) ||
+                (value > s->aOptions[n].constraint.range->max))
+              {
+                HP5400_DBG (DBG_ERR,
+                           "sane_control_option: SANE_ACTION_SET_VALUE out of range Y value\n");
+                return SANE_STATUS_INVAL;
+              }
+
+            info |= SANE_INFO_RELOAD_PARAMS;
+            s->ScanParams.iLines = 0;	/* Forget actual image settings */
+            s->aValues[n].w = *(SANE_Word *) pVal;
+            break;
+          }
+
+        case optDPI:
+          {
+            // Check against legal values.
+            SANE_Word dpiValue = *(SANE_Word *) pVal;
+
+            // First check too large.
+            SANE_Word maxRes = setResolutions[setResolutions[0]];
+            if (dpiValue > maxRes)
+              {
+                dpiValue = maxRes;
+              }
+            else // Check smaller values: if not exact match, pick next higher available.
+              {
+                for (SANE_Int resIdx = 1; resIdx <= setResolutions[0]; resIdx++)
+                  {
+                    if (dpiValue == setResolutions[resIdx])
+                      {
+                        break;
+                      }
+                    else if (dpiValue < setResolutions[resIdx])
+                      {
+                        dpiValue = setResolutions[resIdx];
+                        break;
+                      }
+                  }
+              }
+
+            info |= SANE_INFO_RELOAD_PARAMS;
+            s->ScanParams.iLines = 0;	/* Forget actual image settings */
+            (s->aValues[n].w) = dpiValue;
+            break;
+          }
 
 	case optGammaTableRed:
 	case optGammaTableGreen:

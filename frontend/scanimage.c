@@ -446,13 +446,13 @@ print_option (SANE_Device * device, int opt_num, const SANE_Option_Descriptor *o
 		{
 		  printf ("%d..%d",
                           opt->constraint.range->min,
-                          opt->constraint.range->max - tl_x);
+                          opt->constraint.range->max);
 		}
 	      else if (!strcmp (opt->name, "y"))
 		{
 		  printf ("%d..%d",
                           opt->constraint.range->min,
-                          opt->constraint.range->max - tl_y);
+                          opt->constraint.range->max);
 		}
 	      else
 		{
@@ -472,13 +472,13 @@ print_option (SANE_Device * device, int opt_num, const SANE_Option_Descriptor *o
 		{
 		  printf ("%g..%g",
 			  SANE_UNFIX (opt->constraint.range->min),
-			  SANE_UNFIX (opt->constraint.range->max - tl_x));
+			  SANE_UNFIX (opt->constraint.range->max));
 		}
 	      else if (!strcmp (opt->name, "y"))
 		{
 		  printf ("%g..%g",
 			  SANE_UNFIX (opt->constraint.range->min),
-			  SANE_UNFIX (opt->constraint.range->max - tl_y));
+			  SANE_UNFIX (opt->constraint.range->max));
 		}
 	      else
 		{

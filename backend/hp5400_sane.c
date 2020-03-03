@@ -812,11 +812,7 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
               {
                 for (SANE_Int resIdx = 1; resIdx <= setResolutions[0]; resIdx++)
                   {
-                    if (dpiValue == setResolutions[resIdx])
-                      {
-                        break;
-                      }
-                    else if (dpiValue < setResolutions[resIdx])
+                    if (dpiValue <= setResolutions[resIdx])
                       {
                         dpiValue = setResolutions[resIdx];
                         break;

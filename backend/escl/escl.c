@@ -61,6 +61,46 @@ typedef struct Handled {
     SANE_Parameters ps;
 } escl_sane_t;
 
+static ESCL_Device *
+escl_free_device(ESCL_Device *current)
+{
+    if (!current) return NULL;
+    free((void*)current->ip_address);
+    free((void*)current->model_name);
+    free((void*)current->type);
+    free(current);
+    return NULL;
+}
+
+static SANE_Status
+escl_check_and_add_device(ESCL_Device *current)
+{
+    if(!current) {
+      DBG (10, "ESCL_Device *current us null.\n");
+      return (SANE_STATUS_NO_MEM);
+    }
+    if (!current->ip_address) {
+      DBG (10, "Ip Address allocation failure.\n");
+      return (SANE_STATUS_NO_MEM);
+    }
+    if (current->port_nb == 0) {
+      DBG (10, "No port defined.\n");
+      return (SANE_STATUS_NO_MEM);
+    }
+    if (!current->model_name) {
+      DBG (10, "Modele Name allocation failure.\n");
+      return (SANE_STATUS_NO_MEM);
+    }
+    if (!current->type) {
+      DBG (10, "Scanner Type allocation failure.\n");
+      return (SANE_STATUS_NO_MEM);
+    }
+    ++num_devices;
+    current->next = list_devices_primary;
+    list_devices_primary = current;
+    return (SANE_STATUS_GOOD);
+}
+
 /**
  * \fn static SANE_Status escl_add_in_list(ESCL_Device *current)
  * \brief Function that adds all the element needed to my list :
@@ -72,34 +112,17 @@ typedef struct Handled {
 static SANE_Status
 escl_add_in_list(ESCL_Device *current)
 {
-    if (!current->ip_address) {
-      DBG (10, "Ip Address allocation failure.\n");
-      goto free_device;
+    if(!current) {
+      DBG (10, "ESCL_Device *current us null.\n");
+      return (SANE_STATUS_NO_MEM);
     }
-    if (current->port_nb == 0) {
-      DBG (10, "No port defined.\n");
-      goto free_device;
+
+    if (SANE_STATUS_GOOD ==
+        escl_check_and_add_device(current)) {
+        list_devices_primary = current;
+        return (SANE_STATUS_GOOD);
     }
-    if (!current->model_name) {
-      DBG (10, "Modele Name allocation failure.\n");
-      goto free_device;
-    }
-    if (!current->type) {
-      DBG (10, "Scanner Type allocation failure.\n");
-      goto free_device;
-    }
-    ++num_devices;
-    current->next = list_devices_primary;
-    list_devices_primary = current;
-    return (SANE_STATUS_GOOD);
-free_device:
-    if(current->ip_address)
-       free((void*)current->ip_address);
-    if(current->model_name)
-       free((void*)current->model_name);
-    if(current->type)
-       free((void*)current->type);
-    free(current);
+    current = escl_free_device(current);
     return (SANE_STATUS_NO_MEM);
 }
 
@@ -280,40 +303,52 @@ static SANE_Status
 attach_one_config(SANEI_Config __sane_unused__ *config, const char *line)
 {
     int port = 0;
+    SANE_Status status;
     static ESCL_Device *escl_device = NULL;
 
     if (strncmp(line, "[device]", 8) == 0) {
+        escl_device = escl_free_device(escl_device);
         escl_device = (ESCL_Device*)calloc(1, sizeof(ESCL_Device));
         if (!escl_device) {
-           DBG (10, "New Escl_Device allocation failure.\n");
+           DBG (10, "New Escl_Device allocation failure.");
            return (SANE_STATUS_NO_MEM);
         }
     }
     if (strncmp(line, "ip", 2) == 0) {
         const char *ip_space = sanei_config_skip_whitespace(line + 2);
+        DBG (10, "New Escl_Device IP [%s].", (ip_space ? ip_space : "VIDE"));
         if (escl_device != NULL && ip_space != NULL) {
+            DBG (10, "New Escl_Device IP Affected.");
             escl_device->ip_address = strdup(ip_space);
         }
     }
     if (sscanf(line, "port %i", &port) == 1 && port != 0) {
-        const char *port_space = sanei_config_skip_whitespace(line + 4);
-        if (escl_device != NULL && port_space != NULL) {
+        DBG (10, "New Escl_Device PORT [%d].", port);
+        if (escl_device != NULL) {
+            DBG (10, "New Escl_Device PORT Affected.");
             escl_device->port_nb = port;
         }
     }
     if (strncmp(line, "model", 5) == 0) {
         const char *model_space = sanei_config_skip_whitespace(line + 5);
+        DBG (10, "New Escl_Device MODEL [%s].", (model_space ? model_space : "VIDE"));
         if (escl_device != NULL && model_space != NULL) {
+            DBG (10, "New Escl_Device MODEL Affected.");
             escl_device->model_name = strdup(model_space);
         }
     }
     if (strncmp(line, "type", 4) == 0) {
         const char *type_space = sanei_config_skip_whitespace(line + 4);
+        DBG (10, "New Escl_Device TYPE [%s].", (type_space ? type_space : "VIDE"));
         if (escl_device != NULL && type_space != NULL) {
+            DBG (10, "New Escl_Device TYPE Affected.");
             escl_device->type = strdup(type_space);
         }
     }
-    return (escl_add_in_list(escl_device));
+    status = escl_check_and_add_device(escl_device);
+    if (status == SANE_STATUS_GOOD)
+       escl_device = NULL;
+    return status;
 }
 
 /**
@@ -456,6 +491,7 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_TL_X].unit = SANE_UNIT_MM;
     s->opt[OPT_TL_X].constraint_type = SANE_CONSTRAINT_RANGE;
     s->opt[OPT_TL_X].constraint.range = &s->x_range;
+    s->val[OPT_TL_X].w = 0;
 
     s->opt[OPT_TL_Y].name = SANE_NAME_SCAN_TL_Y;
     s->opt[OPT_TL_Y].title = SANE_TITLE_SCAN_TL_Y;
@@ -466,6 +502,7 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_TL_Y].unit = SANE_UNIT_MM;
     s->opt[OPT_TL_Y].constraint_type = SANE_CONSTRAINT_RANGE;
     s->opt[OPT_TL_Y].constraint.range = &s->y_range;
+    s->val[OPT_TL_Y].w = 0;
 
     s->opt[OPT_BR_X].name = SANE_NAME_SCAN_BR_X;
     s->opt[OPT_BR_X].title = SANE_TITLE_SCAN_BR_X;
@@ -476,6 +513,7 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_BR_X].unit = SANE_UNIT_MM;
     s->opt[OPT_BR_X].constraint_type = SANE_CONSTRAINT_RANGE;
     s->opt[OPT_BR_X].constraint.range = &s->x_range;
+    s->val[OPT_BR_X].w = s->x_range.max;
 
     s->opt[OPT_BR_Y].name = SANE_NAME_SCAN_BR_Y;
     s->opt[OPT_BR_Y].title = SANE_TITLE_SCAN_BR_Y;
@@ -486,6 +524,7 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_BR_Y].unit = SANE_UNIT_MM;
     s->opt[OPT_BR_Y].constraint_type = SANE_CONSTRAINT_RANGE;
     s->opt[OPT_BR_Y].constraint.range = &s->y_range;
+    s->val[OPT_BR_Y].w = s->y_range.max;
     return (status);
 }
 

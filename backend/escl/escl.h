@@ -84,6 +84,7 @@ typedef struct ESCL_Device {
     char      *ip_address;
     char      *type;
     SANE_Bool https;
+    char      *unix_socket;
 } ESCL_Device;
 
 typedef struct capabilities

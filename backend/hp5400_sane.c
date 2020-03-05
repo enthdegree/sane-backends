@@ -415,8 +415,8 @@ static void _InitOptions(TScanner *s)
 
     case optSensorWeb:
       pDesc->name   = SANE_I18N("web");
-      pDesc->title  = SANE_I18N("Power Save button");
-      pDesc->desc   = SANE_I18N("Puts the scanner in an energy-conservation mode");
+      pDesc->title  = SANE_I18N("Share-To-Web button");
+      pDesc->desc   = SANE_I18N("Scan an image and send it on the web");
       pDesc->type   = SANE_TYPE_BOOL;
       pDesc->cap    = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
       break;
@@ -424,7 +424,7 @@ static void _InitOptions(TScanner *s)
     case optSensorReprint:
       pDesc->name   = SANE_I18N("reprint");
       pDesc->title  = SANE_I18N("Reprint Photos button");
-      pDesc->desc   = SANE_I18N("Button for duplicating photos");
+      pDesc->desc   = SANE_I18N("Button for reprinting photos");
       pDesc->type   = SANE_TYPE_BOOL;
       pDesc->cap    = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
       break;
@@ -448,7 +448,7 @@ static void _InitOptions(TScanner *s)
     case optSensorMoreOptions:
       pDesc->name   = SANE_I18N("more-options");
       pDesc->title  = SANE_I18N("More Options button");
-      pDesc->desc   = SANE_I18N("Additional options/configuration");
+      pDesc->desc   = SANE_I18N("Button for additional options/configuration");
       pDesc->type   = SANE_TYPE_BOOL;
       pDesc->cap    = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
       break;
@@ -488,7 +488,7 @@ static void _InitOptions(TScanner *s)
     case optSensorColourBW:
       pDesc->name   = SANE_I18N("color-bw");
       pDesc->title  = SANE_I18N("Select color/BW button");
-      pDesc->desc   = SANE_I18N("Alternates between color and black/white");
+      pDesc->desc   = SANE_I18N("Alternates between color and black/white scanning");
       pDesc->type   = SANE_TYPE_BOOL;
       pDesc->cap    = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
       break;

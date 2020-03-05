@@ -30,6 +30,9 @@ terms:
     to implement SANE interface conforming applications or libraries in
     any way he or she sees fit.
 
+    The standard is maintained at https://gitlab.com/sane-project/standard
+    and published at https://sane-project.gitlab.io/standard/.
+
 Frequently Asked Questions about the SANE licensing:
 
   * Why don't you use the GNU LPGL ?

@@ -1,4 +1,5 @@
 /* sane - Scanner Access Now Easy.
+   Copyright (C) 2020 Ralph Little <skelband@gmail.com>
    Copyright (C) 2003 Martijn van Oosterhout <kleptog@svana.org>
    Copyright (C) 2003 Thomas Soumarmon <thomas.soumarmon@cogitae.net>
 
@@ -115,29 +116,73 @@ typedef enum
 {
   optCount = 0,
 
-  optGroupGeometry,
-  optTLX, optTLY, optBRX, optBRY,
   optDPI,
 
-  optGroupImage,
+  optGroupGeometry,
+  optTLX, optTLY, optBRX, optBRY,
+
+  optGroupEnhancement,
 
   optGammaTableRed,		/* Gamma Tables */
   optGammaTableGreen,
   optGammaTableBlue,
 
+  optGroupSensors,
+
+  optSensorScanTo,
+  optSensorWeb,
+  optSensorReprint,
+  optSensorEmail,
+  optSensorCopy,
+  optSensorMoreOptions,
+  optSensorCancel,
+  optSensorPowerSave,
+  optSensorCopiesUp,
+  optSensorCopiesDown,
+  optSensorColourBW,
+
+  // Unsupported as yet.
+  //optGroupMisc,
+  //optLamp,
+  //optCalibrate,
+
   optLast,			/* Disable the offset code */
-
-  optGroupMisc,
-  optOffsetX, optOffsetY
-
-
-/* put temporarily disabled options here after optLast */
-/*
-  optLamp,
-*/
-
 }
 EOptionIndex;
+
+/*
+ * Array mapping (optSensor* - optGroupSensors - 1) to the bit mask of the
+ * corresponding sensor bit that we get from the scanner.
+ * All sensor bits are reported as a complete 16-bit word with individual bits set
+ * to indicate that the sensor has been activated.
+ * They seem to be latched so that they are picked up on next query and a number
+ * of bits can be set in any one query.
+ *
+ */
+uint16_t sensorMaskMap[] =
+{
+    0x0400,     // Scan To button
+    0x0200,     // Web (WWW) button
+    0x0002,     // Reprint button
+    0x0080,     // Email button
+    0x0040,     // Copy button
+    0x0004,     // More Options button
+    0x0100,     // Cancel button
+
+    // Special buttons.
+    // These affect local machine settings, but we can still detect them being pressed.
+    0x2000,     // Power Save button.
+    0x0008,     // Copies Up button
+    0x0020,     // Copies Down button
+    0x0010,     // Color/BW Selection button.
+
+    // Extra entries to make the array up to the 16 possible bits.
+    0x0000,     // Unused
+    0x0000,     // Unused
+    0x0000,     // Unused
+    0x0000,     // Unused
+    0x0000      // Unused
+};
 
 typedef union
 {
@@ -165,6 +210,8 @@ typedef struct
 
   int fScanning;		/* TRUE if actively scanning */
   int fCanceled;
+
+  uint16_t sensorMap;           /* Contains the current unreported sensor bits. */
 }
 TScanner;
 
@@ -198,11 +245,6 @@ static const SANE_Int   setResolutions[] = {5, 75, 150, 300, 600, 1200};
 #endif
 static const SANE_Range rangeXmm = {0, 216, 1};
 static const SANE_Range rangeYmm = {0, 297, 1};
-static const SANE_Range rangeXoffset = {0, 20, 1};
-static const SANE_Range rangeYoffset = {0, 70, 1};
-static const SANE_Int offsetX = 0;
-static const SANE_Int offsetY = 0;
-
 
 static void _InitOptions(TScanner *s)
 {
@@ -248,8 +290,22 @@ static void _InitOptions(TScanner *s)
       pVal->w       = (SANE_Word)optLast;
       break;
 
+    case optDPI:
+      pDesc->name   = SANE_NAME_SCAN_RESOLUTION;
+      pDesc->title  = SANE_TITLE_SCAN_RESOLUTION;
+      pDesc->desc   = SANE_DESC_SCAN_RESOLUTION;
+      pDesc->unit   = SANE_UNIT_DPI;
+      pDesc->constraint_type  = SANE_CONSTRAINT_WORD_LIST;
+      pDesc->constraint.word_list = setResolutions;
+      pDesc->cap    = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+      pVal->w       = setResolutions[1];
+      break;
+
+      //---------------------------------
     case optGroupGeometry:
-      pDesc->title  = "Geometry";
+      pDesc->name  = SANE_NAME_GEOMETRY;
+      pDesc->title  = SANE_TITLE_GEOMETRY;
+      pDesc->desc  = SANE_DESC_GEOMETRY;
       pDesc->type   = SANE_TYPE_GROUP;
       pDesc->size   = 0;
       break;
@@ -298,19 +354,11 @@ static void _InitOptions(TScanner *s)
       pVal->w       = rangeYmm.max;
       break;
 
-    case optDPI:
-      pDesc->name   = SANE_NAME_SCAN_RESOLUTION;
-      pDesc->title  = SANE_TITLE_SCAN_RESOLUTION;
-      pDesc->desc   = SANE_DESC_SCAN_RESOLUTION;
-      pDesc->unit   = SANE_UNIT_DPI;
-      pDesc->constraint_type  = SANE_CONSTRAINT_WORD_LIST;
-      pDesc->constraint.word_list = setResolutions;
-      pDesc->cap    = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-      pVal->w       = setResolutions[1];
-      break;
-
-    case optGroupImage:
-      pDesc->title  = SANE_I18N("Image");
+      //---------------------------------
+    case optGroupEnhancement:
+      pDesc->name  = SANE_NAME_ENHANCEMENT;
+      pDesc->title  = SANE_TITLE_ENHANCEMENT;
+      pDesc->desc  = SANE_DESC_ENHANCEMENT;
       pDesc->type   = SANE_TYPE_GROUP;
       pDesc->size   = 0;
       break;
@@ -348,34 +396,110 @@ static void _InitOptions(TScanner *s)
       pVal->wa      = s->aGammaTableB;
       break;
 
+      //---------------------------------
+    case optGroupSensors:
+      pDesc->name  = SANE_NAME_SENSORS;
+      pDesc->title  = SANE_TITLE_SENSORS;
+      pDesc->type   = SANE_TYPE_GROUP;
+      pDesc->desc   = SANE_DESC_SENSORS;
+      pDesc->size   = 0;
+      break;
+
+    case optSensorScanTo:
+      pDesc->name   = SANE_NAME_SCAN;
+      pDesc->title  = SANE_TITLE_SCAN;
+      pDesc->desc   = SANE_DESC_SCAN;
+      pDesc->type   = SANE_TYPE_BOOL;
+      pDesc->cap    = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+      break;
+
+    case optSensorWeb:
+      pDesc->name   = SANE_I18N("web");
+      pDesc->title  = SANE_I18N("Power Save button");
+      pDesc->desc   = SANE_I18N("Puts the scanner in an energy-conservation mode");
+      pDesc->type   = SANE_TYPE_BOOL;
+      pDesc->cap    = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+      break;
+
+    case optSensorReprint:
+      pDesc->name   = SANE_I18N("reprint");
+      pDesc->title  = SANE_I18N("Reprint Photos button");
+      pDesc->desc   = SANE_I18N("Button for duplicating photos");
+      pDesc->type   = SANE_TYPE_BOOL;
+      pDesc->cap    = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+      break;
+
+    case optSensorEmail:
+      pDesc->name   = SANE_NAME_EMAIL;
+      pDesc->title  = SANE_TITLE_EMAIL;
+      pDesc->desc   = SANE_DESC_EMAIL;
+      pDesc->type   = SANE_TYPE_BOOL;
+      pDesc->cap    = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+      break;
+
+    case optSensorCopy:
+      pDesc->name   = SANE_NAME_COPY;
+      pDesc->title  = SANE_TITLE_COPY;
+      pDesc->desc   = SANE_DESC_COPY;
+      pDesc->type   = SANE_TYPE_BOOL;
+      pDesc->cap    = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+      break;
+
+    case optSensorMoreOptions:
+      pDesc->name   = SANE_I18N("more-options");
+      pDesc->title  = SANE_I18N("More Options button");
+      pDesc->desc   = SANE_I18N("Additional options/configuration");
+      pDesc->type   = SANE_TYPE_BOOL;
+      pDesc->cap    = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+      break;
+
+    case optSensorCancel:
+      pDesc->name   = SANE_NAME_CANCEL;
+      pDesc->title  = SANE_TITLE_CANCEL;
+      pDesc->desc   = SANE_DESC_CANCEL;
+      pDesc->type   = SANE_TYPE_BOOL;
+      pDesc->cap    = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+      break;
+
+    case optSensorPowerSave:
+      pDesc->name   = SANE_I18N("power-save");
+      pDesc->title  = SANE_I18N("Power Save button");
+      pDesc->desc   = SANE_I18N("Puts the scanner in an energy-conservation mode");
+      pDesc->type   = SANE_TYPE_BOOL;
+      pDesc->cap    = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+      break;
+
+    case optSensorCopiesUp:
+      pDesc->name   = SANE_I18N("copies-up");
+      pDesc->title  = SANE_I18N("Increase Copies button");
+      pDesc->desc   = SANE_I18N("Increase the number of copies");
+      pDesc->type   = SANE_TYPE_BOOL;
+      pDesc->cap    = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+      break;
+
+    case optSensorCopiesDown:
+      pDesc->name   = SANE_I18N("copies-down");
+      pDesc->title  = SANE_I18N("Decrease Copies button");
+      pDesc->desc   = SANE_I18N("Decrease the number of copies");
+      pDesc->type   = SANE_TYPE_BOOL;
+      pDesc->cap    = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+      break;
+
+    case optSensorColourBW:
+      pDesc->name   = SANE_I18N("color-bw");
+      pDesc->title  = SANE_I18N("Select color/BW button");
+      pDesc->desc   = SANE_I18N("Alternates between color and black/white");
+      pDesc->type   = SANE_TYPE_BOOL;
+      pDesc->cap    = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+      break;
+
+#if 0
     case optGroupMisc:
       pDesc->title  = SANE_I18N("Miscellaneous");
       pDesc->type   = SANE_TYPE_GROUP;
       pDesc->size   = 0;
       break;
 
-    case optOffsetX:
-      pDesc->title  = SANE_I18N("offset X");
-      pDesc->desc   = SANE_I18N("Hardware internal X position of the scanning area.");
-      pDesc->unit   = SANE_UNIT_MM;
-      pDesc->constraint_type  = SANE_CONSTRAINT_RANGE;
-      pDesc->constraint.range = &rangeXoffset;
-      pDesc->cap    = SANE_CAP_SOFT_SELECT;
-      pVal->w       = offsetX;
-      break;
-
-    case optOffsetY:
-      pDesc->title  = SANE_I18N("offset Y");
-      pDesc->desc   = SANE_I18N("Hardware internal Y position of the scanning area.");
-      pDesc->unit   = SANE_UNIT_MM;
-      pDesc->constraint_type  = SANE_CONSTRAINT_RANGE;
-      pDesc->constraint.range = &rangeYoffset;
-      pDesc->cap    = SANE_CAP_SOFT_SELECT;
-      pVal->w       = offsetY;
-      break;
-
-
-#if 0
     case optLamp:
       pDesc->name   = "lamp";
       pDesc->title  = SANE_I18N("Lamp status");
@@ -385,8 +509,7 @@ static void _InitOptions(TScanner *s)
       /* switch the lamp on when starting for first the time */
       pVal->w       = SANE_TRUE;
       break;
-#endif
-#if 0
+
     case optCalibrate:
       pDesc->name   = "calibrate";
       pDesc->title  = SANE_I18N("Calibrate");
@@ -467,7 +590,7 @@ sane_init (SANE_Int * piVersion, SANE_Auth_Callback pfnAuth)
   SANE_String_Const proper_str;
   int nline = 0;
 
-  /* prevent compiler from complaing about unused parameters */
+  /* prevent compiler from complaining about unused parameters */
   pfnAuth = pfnAuth;
 
   strcpy(usb_devfile, "/dev/usb/scanner0");
@@ -530,7 +653,6 @@ sane_init (SANE_Int * piVersion, SANE_Auth_Callback pfnAuth)
     {
       *piVersion = SANE_VERSION_CODE (SANE_CURRENT_MAJOR, V_MINOR, BUILD);
     }
-
 
   return SANE_STATUS_GOOD;
 }
@@ -708,8 +830,6 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
 	       *(SANE_Word *) pVal);
 	  break;
 
-	case optOffsetX:
-	case optOffsetY:
 	case optCount:
 	case optDPI:
 	  HP5400_DBG (DBG_MSG,
@@ -726,14 +846,48 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
 	  memcpy (pVal, s->aValues[n].wa, s->aOptions[n].size);
 	  break;
 
+	case optSensorScanTo:
+	case optSensorWeb:
+	case optSensorReprint:
+	case optSensorEmail:
+	case optSensorCopy:
+	case optSensorMoreOptions:
+	case optSensorCancel:
+	case optSensorPowerSave:
+	case optSensorCopiesUp:
+	case optSensorCopiesDown:
+	case optSensorColourBW:
+	  {
+            HP5400_DBG (DBG_MSG, "Reading sensor state\n");
+
+            uint16_t sensorMap;
+            if (GetSensors(&s->HWParams, &sensorMap) != 0)
+              {
+                HP5400_DBG (DBG_ERR,
+                     "sane_control_option: SANE_ACTION_SET_VALUE could not retrieve sensors\n");
+                return SANE_STATUS_IO_ERROR;
+
+              }
+
+            HP5400_DBG (DBG_MSG, "Sensor state=%x\n", sensorMap);
+
+            // Add read flags to what we already have so that we can report them when requested.
+            s->sensorMap |= sensorMap;
+
+            // Look up the mask based on the option number.
+            uint16_t mask = sensorMaskMap[n - optGroupSensors - 1];
+            *(SANE_Word *) pVal = (s->sensorMap & mask)? 1:0;
+            s->sensorMap &= ~mask;
+            break;
+	  }
+
 #if 0
 	  /* Get options of type SANE_Bool */
 	case optLamp:
 	  GetLamp (&s->HWParams, &fLampIsOn);
 	  *(SANE_Bool *) pVal = fLampIsOn;
 	  break;
-#endif
-#if 0
+
 	case optCalibrate:
 	  /*  although this option has nothing to read,
 	     it's added here to avoid a warning when running scanimage --help */

@@ -1,4 +1,5 @@
 /* sane - Scanner Access Now Easy.
+   Copyright (C) 2020 Ralph Little <skelband@gmail.com>
    Copyright (C) 2003 Martijn van Oosterhout <kleptog@svana.org>
    Copyright (C) 2003 Thomas Soumarmon <thomas.soumarmon@cogitae.net>
    Copyright (c) 2003 Henning Meier-Geinitz, <henning@meier-geinitz.de>
@@ -149,10 +150,37 @@ SetLamp (THWParams * pHWParams, int fLampOn)
   if (fLampOn)
     {
       if (WriteByte (pHWParams->iXferHandle, 0x0000, 0x01) == 0)
-	return 0;
+        return 0;
     }
   return -1;
 }
+
+
+HP5400_SANE_STATIC
+int
+GetSensors(THWParams * pHWParams, uint16_t *sensorMap)
+{
+  /*
+   * Read until we get 0.
+   * Max 10 iterations for safety.
+   *
+   */
+  uint16_t thisSensorMap = 0;
+  size_t iterCount = 10;
+  do
+    {
+      if (hp5400_command_read
+          (pHWParams->iXferHandle, CMD_GETSENSORS, sizeof (uint16_t), &thisSensorMap) < 0)
+        {
+          HP5400_DBG (DBG_MSG, "failed to read sensors\n");
+          return -1;
+        }
+      *sensorMap |= thisSensorMap;
+    } while (iterCount-- && (thisSensorMap > 0));
+
+    return 0;
+}
+
 
 HP5400_SANE_STATIC
 int

@@ -2,6 +2,7 @@
 #define _HP5400_INTERNAL_H_
 
 /* sane - Scanner Access Now Easy.
+   Copyright (C) 2020 Ralph Little <skelband@gmail.com>
    (C) 2003 Thomas Soumarmon <thomas.soumarmon@cogitae.net>
    (c) 2003 Martijn van Oosterhout, kleptog@svana.org
    (c) 2002 Bertrik Sikken, bertrik@zonnet.nl
@@ -73,6 +74,7 @@
 #define CMD_SCANREQUEST  0x2505	/* This is for previews */
 #define CMD_SCANREQUEST2 0x2500	/* This is for real scans */
 #define CMD_SCANRESPONSE 0x3400
+#define CMD_GETSENSORS   0x2000
 
 /* Testing stuff to make it work */
 #define CMD_SETDPI       0x1500	/* ??? */
@@ -155,6 +157,10 @@ WriteByte (int iHandle, int cmd, char data);
 HP5400_SANE_STATIC
 int
 SetLamp (THWParams * pHWParams, int fLampOn);
+
+HP5400_SANE_STATIC
+int
+GetSensors (THWParams * pHWParams, uint16_t *sensorMap);
 
 HP5400_SANE_STATIC
 int

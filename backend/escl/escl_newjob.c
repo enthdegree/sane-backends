@@ -206,17 +206,23 @@ escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *statu
         }
         else {
             if (download->memory != NULL) {
-                if (strstr(download->memory, "Location:")) {
-                    temporary = strrchr(download->memory, '/');
+                char *tmp_location = strstr(download->memory, "Location:");
+                if (tmp_location) {
+                    temporary = strchr(tmp_location, '\r');
+                    if (temporary == NULL)
+                        temporary = strchr(tmp_location, '\n');
                     if (temporary != NULL) {
-                        location = strchr(temporary, '\r');
-                        if (location == NULL)
-                            location = strchr(temporary, '\n');
-                        else {
-                            *location = '\0';
-                            result = strdup(temporary);
-                        }
-                       DBG( 1, "Create NewJob : %s\n", result);
+                       *temporary = '\0';
+                       location = strrchr(tmp_location,'/');
+                       if (location) {
+                          result = strdup(location);
+                          DBG( 1, "Create NewJob : %s\n", result);
+                          *temporary = '\n';
+                       }
+                    }
+                    if (result == NULL) {
+                       DBG( 1, "Error : Create NewJob, no location\n");
+                       *status = SANE_STATUS_INVAL;
                     }
                     free(download->memory);
                 }

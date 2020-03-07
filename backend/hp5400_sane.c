@@ -141,6 +141,9 @@ typedef enum
   optSensorCopiesDown,
   optSensorColourBW,
 
+  optSensorColourBWState,
+  optSensorCopyCount,
+
   // Unsupported as yet.
   //optGroupMisc,
   //optLamp,
@@ -159,22 +162,36 @@ EOptionIndex;
  * of bits can be set in any one query.
  *
  */
+
+#define SENSOR_BIT_SCAN           0x0400
+#define SENSOR_BIT_WEB            0x0200
+#define SENSOR_BIT_REPRINT        0x0002
+#define SENSOR_BIT_EMAIL          0x0080
+#define SENSOR_BIT_COPY           0x0040
+#define SENSOR_BIT_MOREOPTIONS    0x0004
+#define SENSOR_BIT_CANCEL         0x0100
+#define SENSOR_BIT_POWERSAVE      0x2000
+#define SENSOR_BIT_COPIESUP       0x0008
+#define SENSOR_BIT_COPIESDOWN     0x0020
+#define SENSOR_BIT_COLOURBW       0x0010
+
+
 uint16_t sensorMaskMap[] =
 {
-    0x0400,     // Scan To button
-    0x0200,     // Web (WWW) button
-    0x0002,     // Reprint button
-    0x0080,     // Email button
-    0x0040,     // Copy button
-    0x0004,     // More Options button
-    0x0100,     // Cancel button
+    SENSOR_BIT_SCAN,
+    SENSOR_BIT_WEB,
+    SENSOR_BIT_REPRINT,
+    SENSOR_BIT_EMAIL,
+    SENSOR_BIT_COPY,
+    SENSOR_BIT_MOREOPTIONS,
+    SENSOR_BIT_CANCEL,
 
     // Special buttons.
     // These affect local machine settings, but we can still detect them being pressed.
-    0x2000,     // Power Save button.
-    0x0008,     // Copies Up button
-    0x0020,     // Copies Down button
-    0x0010,     // Color/BW Selection button.
+    SENSOR_BIT_POWERSAVE,
+    SENSOR_BIT_COPIESUP,
+    SENSOR_BIT_COPIESDOWN,
+    SENSOR_BIT_COLOURBW,
 
     // Extra entries to make the array up to the 16 possible bits.
     0x0000,     // Unused
@@ -238,6 +255,12 @@ static const SANE_Device **_pSaneDevList = 0;
 
 /* option constraints */
 static const SANE_Range rangeGammaTable = {0, 65535, 1};
+static const SANE_Range rangeCopyCountTable = {0, 99, 1};
+static SANE_String_Const modeSwitchList[] = {
+    COLOURBW_MODE_COLOUR,
+    COLOURBW_MODE_GREY,
+    NULL
+};
 #ifdef SUPPORT_2400_DPI
 static const SANE_Int   setResolutions[] = {6, 75, 150, 300, 600, 1200, 2400};
 #else
@@ -491,6 +514,26 @@ static void _InitOptions(TScanner *s)
       pDesc->desc   = SANE_I18N("Alternates between color and black/white scanning");
       pDesc->type   = SANE_TYPE_BOOL;
       pDesc->cap    = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+      break;
+
+    case optSensorColourBWState:
+      pDesc->name   = SANE_I18N("color-bw-state");
+      pDesc->title  = SANE_I18N("Read color/BW button state");
+      pDesc->desc   = SANE_I18N("Reads state of BW/colour panel setting");
+      pDesc->type   = SANE_TYPE_STRING;
+      pDesc->constraint_type  = SANE_CONSTRAINT_STRING_LIST;
+      pDesc->constraint.string_list = modeSwitchList;
+      pDesc->cap    = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED;
+      break;
+
+    case optSensorCopyCount:
+      pDesc->name   = SANE_I18N("copies-count");
+      pDesc->title  = SANE_I18N("Read copy count value");
+      pDesc->desc   = SANE_I18N("Reads state of copy count panel setting");
+      pDesc->type   = SANE_TYPE_INT;
+      pDesc->constraint_type = SANE_CONSTRAINT_RANGE;
+      pDesc->constraint.range = &rangeCopyCountTable;
+      pDesc->cap    = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED;
       break;
 
 #if 0
@@ -856,8 +899,8 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
 	case optSensorPowerSave:
 	case optSensorCopiesUp:
 	case optSensorCopiesDown:
-	case optSensorColourBW:
-	  {
+        case optSensorColourBW:
+          {
             HP5400_DBG (DBG_MSG, "Reading sensor state\n");
 
             uint16_t sensorMap;
@@ -879,7 +922,53 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
             *(SANE_Word *) pVal = (s->sensorMap & mask)? 1:0;
             s->sensorMap &= ~mask;
             break;
-	  }
+          }
+
+        case optSensorCopyCount:
+            {
+              HP5400_DBG (DBG_MSG, "Reading copy count\n");
+
+              TPanelInfo panelInfo;
+              if (GetPanelInfo(&s->HWParams, &panelInfo) != 0)
+                {
+                  HP5400_DBG (DBG_ERR,
+                       "sane_control_option: SANE_ACTION_SET_VALUE could not retrieve panel info\n");
+                  return SANE_STATUS_IO_ERROR;
+
+                }
+
+              HP5400_DBG (DBG_MSG, "Copy count setting=%u\n", panelInfo.copycount);
+              *(SANE_Word *) pVal = panelInfo.copycount;
+              break;
+            }
+
+        case optSensorColourBWState:
+            {
+              HP5400_DBG (DBG_MSG, "Reading BW/Colour setting\n");
+
+              TPanelInfo panelInfo;
+              if (GetPanelInfo(&s->HWParams, &panelInfo) != 0)
+                {
+                  HP5400_DBG (DBG_ERR,
+                       "sane_control_option: SANE_ACTION_SET_VALUE could not retrieve panel info\n");
+                  return SANE_STATUS_IO_ERROR;
+
+                }
+
+              HP5400_DBG (DBG_MSG, "BW/Colour setting=%u\n", panelInfo.bwcolour);
+
+              // Just for safety:
+              if (panelInfo.bwcolour < 1)
+                {
+                  panelInfo.bwcolour = 1;
+                }
+              else if (panelInfo.bwcolour > 2)
+                {
+                  panelInfo.bwcolour = 2;
+                }
+              (void)strcpy((SANE_String)pVal, modeSwitchList[panelInfo.bwcolour - 1]);
+              break;
+            }
 
 #if 0
 	  /* Get options of type SANE_Bool */
@@ -986,6 +1075,70 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
 	  HP5400_DBG (DBG_MSG, "Writing gamma table\n");
 	  memcpy (s->aValues[n].wa, pVal, s->aOptions[n].size);
 	  break;
+
+        case optSensorColourBWState:
+            {
+              SANE_String bwColour = (SANE_String)pVal;
+              SANE_Word bwColourValue;
+
+              if (strcmp(bwColour, COLOURBW_MODE_COLOUR) == 0)
+                {
+                  bwColourValue = 1;
+                }
+              else if (strcmp(bwColour, COLOURBW_MODE_GREY) == 0)
+                {
+                  bwColourValue = 2;
+                }
+              else
+                {
+                  HP5400_DBG (DBG_ERR,
+                       "sane_control_option: SANE_ACTION_SET_VALUE invalid colour/bw mode\n");
+                  return SANE_STATUS_INVAL;
+                }
+
+              HP5400_DBG (DBG_MSG, "Setting BW/Colour state=%d\n", bwColourValue);
+
+              /*
+               * Now write it with the other panel settings back to the scanner.
+               *
+               */
+              if (SetColourBW(&s->HWParams, bwColourValue) != 0)
+                {
+                  HP5400_DBG (DBG_ERR,
+                       "sane_control_option: SANE_ACTION_SET_VALUE could not set colour/BW mode\n");
+                  return SANE_STATUS_IO_ERROR;
+                }
+              break;
+            }
+
+        case optSensorCopyCount:
+            {
+              SANE_Word copyCount = *(SANE_Word *) pVal;
+              if (copyCount < 0)
+                {
+                  copyCount = 0;
+                }
+              else if (copyCount > 99)
+                {
+                  copyCount = 99;
+                }
+
+              HP5400_DBG (DBG_MSG, "Setting Copy Count=%d\n", copyCount);
+
+              /*
+               * Now write it with the other panel settings back to the scanner.
+               *
+               */
+              if (SetCopyCount(&s->HWParams, copyCount) != 0)
+                {
+                  HP5400_DBG (DBG_ERR,
+                       "sane_control_option: SANE_ACTION_SET_VALUE could not set copy count\n");
+                  return SANE_STATUS_IO_ERROR;
+
+                }
+              break;
+            }
+
 /*
     case optLamp:
       fVal = *(SANE_Bool *)pVal;

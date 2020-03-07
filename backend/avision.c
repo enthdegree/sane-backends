@@ -6221,7 +6221,12 @@ do_cancel (Avision_Scanner* s)
   s->prepared = s->scanning = SANE_FALSE;
   s->duplex_rear_valid = SANE_FALSE;
   s->page = 0;
-  s->cancelled = 1;
+  s->cancelled = SANE_TRUE;
+
+  if (s->read_fds >= 0) {
+    close(s->read_fds);
+    s->read_fds = -1;
+  }
 
   if (sanei_thread_is_valid (s->reader_pid)) {
     int exit_status;
@@ -6716,6 +6721,7 @@ reader_process (void *data)
   sigset_t sigterm_set;
   sigset_t ignore_set;
   struct SIGACTION act;
+  int old;
 
   FILE* fp;
   FILE* rear_fp = 0; /* used to store the deinterlaced rear data */
@@ -6757,21 +6763,30 @@ reader_process (void *data)
 
   DBG (3, "reader_process:\n");
 
-  if (sanei_thread_is_forked())
+  if (sanei_thread_is_forked()) {
     close (s->read_fds);
+    s->read_fds = -1;
 
-  sigfillset (&ignore_set);
-  sigdelset (&ignore_set, SIGTERM);
+    sigfillset (&ignore_set);
+    sigdelset (&ignore_set, SIGTERM);
 #if defined (__APPLE__) && defined (__MACH__)
-  sigdelset (&ignore_set, SIGUSR2);
+    sigdelset (&ignore_set, SIGUSR2);
 #endif
-  sigprocmask (SIG_SETMASK, &ignore_set, 0);
+    sigprocmask (SIG_SETMASK, &ignore_set, 0);
 
-  memset (&act, 0, sizeof (act));
-  sigaction (SIGTERM, &act, 0);
+    memset (&act, 0, sizeof (act));
+    sigaction (SIGTERM, &act, 0);
 
-  sigemptyset (&sigterm_set);
-  sigaddset (&sigterm_set, SIGTERM);
+    sigemptyset (&sigterm_set);
+    sigaddset (&sigterm_set, SIGTERM);
+  }
+#ifdef USE_PTHREAD
+  else {
+    int old;
+    pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, &old);
+    pthread_setcanceltype (PTHREAD_CANCEL_DEFERRED, &old);
+  }
+#endif
 
   gray_mode = color_mode_is_shaded (s->c_mode);
 
@@ -6958,9 +6973,22 @@ reader_process (void *data)
 	       (u_long) processed_bytes, (u_long) total_size);
 	  DBG (5, "reader_process: this_read: %lu\n", (u_long) this_read);
 
-	  sigprocmask (SIG_BLOCK, &sigterm_set, 0);
+	  if (sanei_thread_is_forked())
+	    sigprocmask (SIG_BLOCK, &sigterm_set, 0);
+#ifdef USE_PTHREAD
+	  else
+	    pthread_setcancelstate (PTHREAD_CANCEL_DISABLE, &old);
+#endif
+
 	  status = read_data (s, stripe_data + stripe_fill, &this_read);
-	  sigprocmask (SIG_UNBLOCK, &sigterm_set, 0);
+
+	  if (sanei_thread_is_forked())
+	    sigprocmask (SIG_UNBLOCK, &sigterm_set, 0);
+#ifdef USE_PTHREAD
+	  else
+	    pthread_setcancelstate (PTHREAD_CANCEL_ENABLE, &old);
+#endif
+
 
 	  /* only EOF on the second stripe, as otherwise the rear page
 	     is shorter */
@@ -8332,7 +8360,7 @@ sane_start (SANE_Handle handle)
     return SANE_STATUS_DEVICE_BUSY;
 
   /* Clear cancellation status */
-  s->cancelled = 0;
+  s->cancelled = SANE_FALSE;
 
   /* Make sure we have a current parameter set. Some of the
      parameters will be overwritten below, but that's OK. */
@@ -8560,8 +8588,10 @@ sane_start (SANE_Handle handle)
   DBG (3, "sane_start: starting thread\n");
   s->reader_pid = sanei_thread_begin (reader_process, (void *) s);
 
-  if (sanei_thread_is_forked())
-	close (s->write_fds);
+  if (sanei_thread_is_forked()) {
+    close (s->write_fds);
+    s->write_fds = -1;
+  }
 
   return SANE_STATUS_GOOD;
 

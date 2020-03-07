@@ -32,13 +32,13 @@ convenient lines to paste
 export SANE_DEBUG_KODAKAIO=20
 
 for ubuntu prior to 12.10
-./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-avahi --without-api-spec BACKENDS="kodakaio test"
+./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-avahi BACKENDS="kodakaio test"
 
 for ubuntu 12.10
-./configure --prefix=/usr --libdir=/usr/lib/i386-linux-gnu --sysconfdir=/etc --localstatedir=/var --enable-avahi --without-api-spec BACKENDS="kodakaio test"
+./configure --prefix=/usr --libdir=/usr/lib/i386-linux-gnu --sysconfdir=/etc --localstatedir=/var --enable-avahi BACKENDS="kodakaio test"
 
 for ubuntu 14.10 up to at least 17.04
-./configure --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu --sysconfdir=/etc --localstatedir=/var --enable-avahi --without-api-spec BACKENDS="kodakaio test"
+./configure --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu --sysconfdir=/etc --localstatedir=/var --enable-avahi BACKENDS="kodakaio test"
 
 If you want to use the test backend, for example with sane-troubleshoot, you should enable it in /etc/sane.d/dll.conf
 

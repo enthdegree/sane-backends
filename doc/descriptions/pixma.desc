@@ -1199,6 +1199,12 @@
 :status :untested
 :comment "Testers needed!"
 
+:model "i-SENSYS MF440 Series"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x2823"
+:status :complete
+:comment "Flatbed and ADF scan. All resolutions supported (up to 600DPI, ADF up to 300DPI)."
+
 :model "i-SENSYS MF510 Series"
 :interface "USB Ethernet WiFi"
 :usbid "0x04a9" "0x27c2"

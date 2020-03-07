@@ -72,28 +72,6 @@
 
 #include "hp5400.h"
 
-/* includes for data transfer methods */
-#include "hp5400.h"
-
-#ifdef STANDALONE
-#include "hp5400_scanner.h"
-#endif
-
-#if defined(LINUX_USB_SUPPORT)
-  #include "hp5400_linux.c"
-#endif
-#if defined(USCANNER_SUPPORT)
-  #include "hp5400_uscanner.c"
-#endif
-#if defined(LIBUSB_SUPPORT)
-  #include "hp5400_libusb.c"
-#endif
-#if defined(LIBIEEE1284_SUPPORT)
-  #include "hp5400_ieee1284.c"
-#endif
-
-
-
 /* other definitions */
 #ifndef min
 #define min(A,B) (((A)<(B)) ? (A) : (B))
@@ -1275,6 +1253,7 @@ sane_start (SANE_Handle h)
   s->ScanParams.iLinesRead = 0;
 
   s->fScanning = TRUE;
+  s->fCanceled = FALSE;
   return SANE_STATUS_GOOD;
 }
 
@@ -1295,6 +1274,11 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 
   /* nothing has been read for the moment */
   *len = 0;
+  if (!s->fScanning || s->fCanceled)
+    {
+      HP5400_DBG (DBG_MSG, "sane_read: we're not scanning.\n");
+      return SANE_STATUS_EOF;
+    }
 
 
   /* if we read all the lines return EOF */

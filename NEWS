@@ -1,6 +1,19 @@
 <!-- -*- Mode: markdown -*- -->
 
-## New with 1.0.29 (upcoming release)
+## New with the next release
+
+### Documentation
+
+- removes the SANE Standard.  This is now maintained as a separate
+  project at https://gitlab.com/sane-project/standard.  HTML and PDF
+  versions can be found at https://sane-project.gitlab.io/standard/.
+
+### Build
+
+- removes the `--with-api-spec` option from `configure`
+
+
+## New with 1.0.29 (released 2020-02-02)
 
 ### Backends
 
@@ -36,6 +49,7 @@
   irrespective of the `pthread_t` type (#153)
 - moves the `genesys` and `pixma` backends to a directory of their own
 
+
 ## New with 1.0.28 (released 2019-07-31)
 
 ### Backends

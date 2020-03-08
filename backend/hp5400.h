@@ -63,13 +63,6 @@
 #define HW_DPI      300		/* horizontal resolution of hardware */
 #define HW_LPI      300		/* vertical resolution of hardware */
 
-/*
- * Names for the Colour/BW switch modes.
- *
- */
-#define COLOURBW_MODE_COLOUR    SANE_I18N("Color")
-#define COLOURBW_MODE_GREY      SANE_I18N("Gray")
-
 enum ScanType
 {
   SCAN_TYPE_CALIBRATION,

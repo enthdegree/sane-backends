@@ -235,8 +235,8 @@ static const SANE_Device **_pSaneDevList = 0;
 static const SANE_Range rangeGammaTable = {0, 65535, 1};
 static const SANE_Range rangeCopyCountTable = {0, 99, 1};
 static SANE_String_Const modeSwitchList[] = {
-    COLOURBW_MODE_COLOUR,
-    COLOURBW_MODE_GREY,
+    SANE_VALUE_SCAN_MODE_COLOR,
+    SANE_VALUE_SCAN_MODE_GRAY,
     NULL
 };
 #ifdef SUPPORT_2400_DPI
@@ -1059,11 +1059,11 @@ sane_control_option (SANE_Handle h, SANE_Int n, SANE_Action Action,
               SANE_String bwColour = (SANE_String)pVal;
               SANE_Word bwColourValue;
 
-              if (strcmp(bwColour, COLOURBW_MODE_COLOUR) == 0)
+              if (strcmp(bwColour, SANE_VALUE_SCAN_MODE_COLOR) == 0)
                 {
                   bwColourValue = 1;
                 }
-              else if (strcmp(bwColour, COLOURBW_MODE_GREY) == 0)
+              else if (strcmp(bwColour, SANE_VALUE_SCAN_MODE_GRAY) == 0)
                 {
                   bwColourValue = 2;
                 }

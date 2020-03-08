@@ -31,8 +31,7 @@ check.local:
 	@for mode in ascii html-backends-split html-mfgs xml statistics usermap db udev udev+acl udev+hwdb hwdb plist hal hal-new; \
 	do \
 	  $(SANEDESC) -m $$mode -s $(srcdir)/data >$$mode.res ;\
-	  if diff -I "[ 012][0-9]:[0-5][0-9]:[0-6][0-9] 20[0-9][0-9]" \
-	          -I "sane-backends 1\.0\.[0-9]\+\([-0-9a-fgdirty]\+\)\?$$" \
+	  if diff -I "sane-backends 1\.0\.[0-9]\+\([-0-9a-fgdirty]\+\)\?$$" \
 	       $(srcdir)/data/$$mode.ref $$mode.res ; \
 	  then \
 		echo "PASS: sane-desc -m $$mode -s $(srcdir)/data"; \

@@ -1,5 +1,5 @@
-# This file was automatically created based on description files (*.desc)
-# by sane-desc 3.5 from sane-backends 1.0.24git on Thu Aug  1 18:50:15 2013
+# This file was generated from description files (*.desc)
+# by sane-desc 3.6 from sane-backends 1.0.29-241-g1f9590ab
 #
 # udev rules file for supported USB and SCSI devices
 #

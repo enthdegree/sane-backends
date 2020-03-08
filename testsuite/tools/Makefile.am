@@ -28,7 +28,8 @@ check: check.local
 
 check.local:
 	@echo "**** Testing $(SANEDESC) with $(TESTFILE)"
-	@for mode in ascii html-backends-split html-mfgs xml statistics usermap db udev udev+acl udev+hwdb hwdb plist hal hal-new; \
+	@pass=true; \
+	for mode in ascii html-backends-split html-mfgs xml statistics usermap db udev udev+acl udev+hwdb hwdb plist hal hal-new; \
 	do \
 	  $(SANEDESC) -m $$mode -s $(srcdir)/data >$$mode.res ;\
 	  if diff -I "sane-backends 1\.0\.[0-9]\+\([-0-9a-fgdirty]\+\)\?$$" \
@@ -37,9 +38,15 @@ check.local:
 		echo "PASS: sane-desc -m $$mode -s $(srcdir)/data"; \
 	  else \
 		echo "FAIL: sane-desc -m $$mode -s $(srcdir)/data"; \
-		exit 1 ;\
+		pass=false ; \
 	  fi; \
 	done ;\
-	echo "================" ;\
-	echo "All tests passed" ;\
-	echo "================"
+	if `$$pass`; then \
+	  echo "================" ; \
+	  echo "All tests passed" ; \
+	  echo "================" ; \
+	else \
+	  echo "========================" ; \
+	  echo "One or more tests failed" ; \
+	  echo "========================" ; \
+	fi

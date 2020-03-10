@@ -67,6 +67,7 @@
 # include "../include/sane/sanei_backend.h"
 # include "../include/sane/sanei_config.h"
 # include "../include/sane/sanei_jpeg.h"
+# include "../include/sane/sanei_usb.h"
 
 #ifdef NDEBUG
 # define PDBG(x)
@@ -1597,6 +1598,7 @@ sane_exit (void)
     sane_close (first_scanner);
   cleanup_device_list ();
   pixma_cleanup ();
+  sanei_usb_exit ();
 }
 
 SANE_Status

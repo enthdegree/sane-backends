@@ -55,6 +55,7 @@
 #include "register.h"
 #include "usb_device.h"
 #include "scanner_interface.h"
+#include "utilities.h"
 #include <vector>
 
 namespace genesys {
@@ -75,24 +76,6 @@ struct Genesys_Gpo
         - have the enable registers at 0x6e and 0x6f.
     */
     GenesysRegisterSettingSet regs;
-};
-
-/// Stores a SANE_Fixed value which is automatically converted from and to floating-point values
-class FixedFloat
-{
-public:
-    FixedFloat() = default;
-    FixedFloat(const FixedFloat&) = default;
-    FixedFloat(double number) : value_{SANE_FIX(number)} {}
-    FixedFloat& operator=(const FixedFloat&) = default;
-    FixedFloat& operator=(double number) { value_ = SANE_FIX(number); return *this; }
-
-    operator double() const { return value(); }
-
-    double value() const { return SANE_UNFIX(value_); }
-
-private:
-    SANE_Fixed value_ = 0;
 };
 
 struct MethodResolutions
@@ -143,49 +126,65 @@ struct Genesys_Model
     // All offsets below are with respect to the sensor home position
 
     // Start of scan area in mm
-    FixedFloat x_offset = 0;
+    float x_offset = 0;
 
     // Start of scan area in mm (Amount of feeding needed to get to the medium)
-    FixedFloat y_offset = 0;
+    float y_offset = 0;
 
     // Size of scan area in mm
-    FixedFloat x_size = 0;
+    float x_size = 0;
 
     // Size of scan area in mm
-    FixedFloat y_size = 0;
+    float y_size = 0;
 
-    // Start of white strip in mm
-    FixedFloat y_offset_calib_white = 0;
+    // Start of white strip in mm for scanners that use separate dark and white shading calibration.
+    float y_offset_calib_white = 0;
+
+    // The size of the scan area that is used to acquire shading data in mm
+    float y_size_calib_mm = 0;
+
+    // Start of the black/white strip in mm for scanners that use unified dark and white shading
+    // calibration.
+    float y_offset_calib_dark_white_mm = 0;
+
+    // The size of the scan area that is used to acquire dark/white shading data in mm
+    float y_size_calib_dark_white_mm = 0;
+
+    // The width of the scan area that is used to acquire shading data
+    float x_size_calib_mm = 0;
 
     // Start of black mark in mm
-    FixedFloat x_offset_calib_black = 0;
+    float x_offset_calib_black = 0;
 
     // Start of scan area in transparency mode in mm
-    FixedFloat x_offset_ta = 0;
+    float x_offset_ta = 0;
 
     // Start of scan area in transparency mode in mm
-    FixedFloat y_offset_ta = 0;
+    float y_offset_ta = 0;
 
     // Size of scan area in transparency mode in mm
-    FixedFloat x_size_ta = 0;
+    float x_size_ta = 0;
 
     // Size of scan area in transparency mode in mm
-    FixedFloat y_size_ta = 0;
+    float y_size_ta = 0;
 
     // The position of the sensor when it's aligned with the lamp for transparency scanning
-    FixedFloat y_offset_sensor_to_ta = 0;
+    float y_offset_sensor_to_ta = 0;
 
     // Start of white strip in transparency mode in mm
-    FixedFloat y_offset_calib_white_ta = 0;
+    float y_offset_calib_white_ta = 0;
 
     // Start of black strip in transparency mode in mm
-    FixedFloat y_offset_calib_black_ta = 0;
+    float y_offset_calib_black_ta = 0;
+
+    // The size of the scan area that is used to acquire shading data in transparency mode in mm
+    float y_size_calib_ta_mm = 0;
 
     // Size of scan area after paper sensor stop sensing document in mm
-    FixedFloat post_scan = 0;
+    float post_scan = 0;
 
     // Amount of feeding needed to eject document after finishing scanning in mm
-    FixedFloat eject_feed = 0;
+    float eject_feed = 0;
 
     // Line-distance correction (in pixel at optical_ydpi) for CCD scanners
     SANE_Int ld_shift_r = 0;
@@ -210,22 +209,24 @@ struct Genesys_Model
     // stepper motor type
     MotorId motor_id = MotorId::UNKNOWN;
 
-    // Which hacks are needed for this scanner?
-    SANE_Word flags = 0;
+    // Which customizations are needed for this scanner?
+    ModelFlag flags = ModelFlag::NONE;
 
     // Button flags, described existing buttons for the model
     SANE_Word buttons = 0;
 
-    // how many lines are used for shading calibration
-    SANE_Int shading_lines = 0;
-    // how many lines are used for shading calibration in TA mode
-    SANE_Int shading_ta_lines = 0;
     // how many lines are used to search start position
     SANE_Int search_lines = 0;
 
+    // returns nullptr if method is not supported
+    const MethodResolutions* get_resolution_settings_ptr(ScanMethod method) const;
+
+    // throws if method is not supported
     const MethodResolutions& get_resolution_settings(ScanMethod method) const;
 
     std::vector<unsigned> get_resolutions(ScanMethod method) const;
+
+    bool has_method(ScanMethod method) const;
 };
 
 /**
@@ -267,35 +268,17 @@ struct Genesys_Device
     std::unique_ptr<CommandSet> cmd_set;
 
     Genesys_Register_Set reg;
-    Genesys_Register_Set calib_reg;
+    Genesys_Register_Set initial_regs;
     Genesys_Settings settings;
     Genesys_Frontend frontend, frontend_initial;
-
-    // whether the frontend is initialized. This is currently used just to preserve historical
-    // behavior
-    bool frontend_is_init = false;
-
     Genesys_Gpo gpo;
     Genesys_Motor motor;
     std::uint8_t control[6] = {};
 
     size_t average_size = 0;
-    // number of pixels used during shading calibration
-    size_t calib_pixels = 0;
-    // number of lines used during shading calibration
-    size_t calib_lines = 0;
-    size_t calib_channels = 0;
-    size_t calib_resolution = 0;
-     // bytes to read from USB when calibrating. If 0, this is not set
-    size_t calib_total_bytes_to_read = 0;
 
     // the session that was configured for calibration
     ScanSession calib_session;
-
-    // certain scanners support much higher resolution when scanning transparency, but we can't
-    // read whole width of the scanner as a single line at that resolution. Thus for stuff like
-    // calibration we want to read only the possible calibration area.
-    size_t calib_pixels_offset = 0;
 
     // gamma overrides. If a respective array is not empty then it means that the gamma for that
     // color is overridden.
@@ -360,7 +343,7 @@ struct Genesys_Device
 
     bool is_head_pos_known(ScanHeadId scan_head) const;
     unsigned head_pos(ScanHeadId scan_head) const;
-    void set_head_pos_unknown();
+    void set_head_pos_unknown(ScanHeadId scan_head);
     void set_head_pos_zero(ScanHeadId scan_head);
     void advance_head_pos_by_session(ScanHeadId scan_head);
     void advance_head_pos_by_steps(ScanHeadId scan_head, Direction direction, unsigned steps);
@@ -381,6 +364,10 @@ private:
 std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev);
 
 void apply_reg_settings_to_device(Genesys_Device& dev, const GenesysRegisterSettingSet& regs);
+
+GenesysRegisterSettingSet
+    apply_reg_settings_to_device_with_backup(Genesys_Device& dev,
+                                             const GenesysRegisterSettingSet& regs);
 
 } // namespace genesys
 

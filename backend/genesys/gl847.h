@@ -45,7 +45,7 @@
 #define BACKEND_GENESYS_GL847_H
 
 #include "genesys.h"
-#include "command_set.h"
+#include "command_set_common.h"
 
 namespace genesys {
 namespace gl847 {
@@ -113,7 +113,7 @@ static Memory_layout layouts[]={
 	}
 };
 
-class CommandSetGl847 : public CommandSet
+class CommandSetGl847 : public CommandSetCommon
 {
 public:
     ~CommandSetGl847() override = default;
@@ -126,13 +126,11 @@ public:
                               Genesys_Register_Set* regs, int* channels,
                               int* total_size) const override;
 
-    void init_regs_for_coarse_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                          Genesys_Register_Set& regs) const override;
-
     void init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                Genesys_Register_Set& regs) const override;
 
-    void init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const override;
+    void init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                            Genesys_Register_Set& regs) const override;
 
     void init_regs_for_scan_session(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                     Genesys_Register_Set* reg,
@@ -148,8 +146,6 @@ public:
     void end_scan(Genesys_Device* dev, Genesys_Register_Set* regs, bool check_stop) const override;
 
     void send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor) const override;
-
-    void search_start_position(Genesys_Device* dev) const override;
 
     void offset_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
                             Genesys_Register_Set& regs) const override;
@@ -175,9 +171,6 @@ public:
     void detect_document_end(Genesys_Device* dev) const override;
 
     void eject_document(Genesys_Device* dev) const override;
-
-    void search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                      bool forward, bool black) const override;
 
     void move_to_ta(Genesys_Device* dev) const override;
 

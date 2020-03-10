@@ -56,7 +56,6 @@ struct Genesys_Calibration_Cache;
 class CommandSet;
 
 // device.h
-class FixedFloat;
 struct Genesys_Gpo;
 struct MethodResolutions;
 struct Genesys_Model;
@@ -75,7 +74,6 @@ class Image;
 
 // image_buffer.h
 class ImageBuffer;
-class FakeBufferModel;
 class ImageBufferGenesysUsb;
 
 // image_pipeline.h
@@ -89,11 +87,11 @@ struct RawPixel;
 
 // low.h
 struct Genesys_USB_Device_Entry;
-struct Motor_Profile;
 
 // motor.h
 struct Genesys_Motor;
 struct MotorSlope;
+struct MotorProfile;
 struct MotorSlopeTable;
 
 // register.h
@@ -113,6 +111,7 @@ class ScannerInterfaceUsb;
 class TestScannerInterface;
 
 // sensor.h
+class ScanMethodFilter;
 class ResolutionFilter;
 struct GenesysFrontendLayout;
 struct Genesys_Frontend;

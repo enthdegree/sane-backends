@@ -48,7 +48,7 @@
 #define BACKEND_GENESYS_GL646_H
 
 #include "genesys.h"
-#include "command_set.h"
+#include "command_set_common.h"
 #include "motor.h"
 
 namespace genesys {
@@ -68,14 +68,14 @@ static void gl646_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
  * @param ycorrection true if scanner's Y geometry must be taken into account to
  * 		     compute Y, ie add top margins
  */
-static void setup_for_scan(Genesys_Device* device,
-                           const Genesys_Sensor& sensor,
-                           Genesys_Register_Set*regs,
-                           Genesys_Settings settings,
-                           bool split,
-                           bool xcorrection,
-                           bool ycorrection,
-                           bool reverse);
+static ScanSession setup_for_scan(Genesys_Device* device,
+                                  const Genesys_Sensor& sensor,
+                                  Genesys_Register_Set*regs,
+                                  Genesys_Settings settings,
+                                  bool split,
+                                  bool xcorrection,
+                                  bool ycorrection,
+                                  bool reverse);
 
 /**
  * Does a simple move of the given distance by doing a scan at lowest resolution
@@ -144,6 +144,10 @@ typedef struct
  */
 static Motor_Master motor_master[] = {
     /* HP3670 motor settings */
+    {MotorId::HP3670, 50, 3, StepType::HALF, false, true, 1,
+     MotorSlope::create_from_steps(2329, 120, 229),
+     MotorSlope::create_from_steps(3399, 337, 192), 192},
+
     {MotorId::HP3670, 75, 3, StepType::FULL, false, true, 1,
      MotorSlope::create_from_steps(3429, 305, 200),
      MotorSlope::create_from_steps(3399, 337, 192), 192},
@@ -168,8 +172,8 @@ static Motor_Master motor_master[] = {
      MotorSlope::create_from_steps(15937, 6375, 3),
      MotorSlope::create_from_steps(3399, 337, 192), 192},
 
-    {MotorId::HP3670,2400, 3, StepType::HALF, false, true, 0,
-     MotorSlope::create_from_steps(15937, 12750, 3),
+    {MotorId::HP3670, 50, 1, StepType::HALF, false, true, 1,
+     MotorSlope::create_from_steps(2329, 120, 229),
      MotorSlope::create_from_steps(3399, 337, 192), 192},
 
     {MotorId::HP3670, 75, 1, StepType::FULL, false, true, 1,
@@ -194,10 +198,6 @@ static Motor_Master motor_master[] = {
 
     {MotorId::HP3670,1200, 1, StepType::HALF, false, true, 0,
      MotorSlope::create_from_steps(15937, 6375, 3),
-     MotorSlope::create_from_steps(3399, 337, 192), 192},
-
-    {MotorId::HP3670,2400, 3, StepType::HALF, false, true, 0,
-     MotorSlope::create_from_steps(15937, 12750, 3),
      MotorSlope::create_from_steps(3399, 337, 192), 192},
 
     /* HP2400/G2410 motor settings base motor dpi = 600 */
@@ -436,7 +436,7 @@ static Motor_Master motor_master[] = {
      MotorSlope::create_from_steps(2000, 300, 255), 146}, /* 5500 guessed */
 };
 
-class CommandSetGl646 : public CommandSet
+class CommandSetGl646 : public CommandSetCommon
 {
 public:
     ~CommandSetGl646() override = default;
@@ -449,13 +449,11 @@ public:
                               Genesys_Register_Set* regs, int* channels,
                               int* total_size) const override;
 
-    void init_regs_for_coarse_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                          Genesys_Register_Set& regs) const override;
-
     void init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                Genesys_Register_Set& regs) const override;
 
-    void init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const override;
+    void init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                            Genesys_Register_Set& regs) const override;
 
     void init_regs_for_scan_session(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                     Genesys_Register_Set* reg,
@@ -471,8 +469,6 @@ public:
     void end_scan(Genesys_Device* dev, Genesys_Register_Set* regs, bool check_stop) const override;
 
     void send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor) const override;
-
-    void search_start_position(Genesys_Device* dev) const override;
 
     void offset_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
                             Genesys_Register_Set& regs) const override;
@@ -494,9 +490,6 @@ public:
     void detect_document_end(Genesys_Device* dev) const override;
 
     void eject_document(Genesys_Device* dev) const override;
-
-    void search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                      bool forward, bool black) const override;
 
     void move_to_ta(Genesys_Device* dev) const override;
 

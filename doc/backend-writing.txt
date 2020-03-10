@@ -12,6 +12,7 @@ GETTING STARTED
   about it. You should mention that the code will be open-source, however.
 
 * Read the SANE standard.
+  See https://sane-project.gitlab.io/standard/
 
 * One approach is to write a stand-alone scanning program first. Debugging
   this program is usually easier than using the SANE libraries. However, keep
@@ -157,8 +158,6 @@ sane-backends/doc/
      Used by doxygen to create the documentation of the sanei code.
    * releases.txt:
      Explains how to make releases of sane-backends.
-   * sane.tex, net.tex:
-     Contains the LaTeX source of the SANE standard.
    * descriptions/ (directory)
      Contains the .desc files for every backend that is included into
      sane-backends.

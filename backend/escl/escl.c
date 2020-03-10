@@ -27,14 +27,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <jpeglib.h>
 #include <setjmp.h>
+
+#include <curl/curl.h>
 
 #include "../include/sane/saneopts.h"
 #include "../include/sane/sanei.h"
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
-#include "../include/sane/sanei_debug.h"
 
 #define min(A,B) (((A)<(B)) ? (A) : (B))
 #define max(A,B) (((A)>(B)) ? (A) : (B))
@@ -54,9 +54,6 @@ typedef struct Handled {
     capabilities_t *scanner;
     SANE_Range x_range;
     SANE_Range y_range;
-    unsigned char *img_data;
-    long img_size;
-    long img_read;
     SANE_Bool cancel;
     SANE_Bool write_scan_data;
     SANE_Bool decompress_scan_data;
@@ -64,18 +61,45 @@ typedef struct Handled {
     SANE_Parameters ps;
 } escl_sane_t;
 
-struct my_error_mgr
+static ESCL_Device *
+escl_free_device(ESCL_Device *current)
 {
-    struct jpeg_error_mgr errmgr;
-    jmp_buf escape;
-};
+    if (!current) return NULL;
+    free((void*)current->ip_address);
+    free((void*)current->model_name);
+    free((void*)current->type);
+    free(current);
+    return NULL;
+}
 
-typedef struct
+static SANE_Status
+escl_check_and_add_device(ESCL_Device *current)
 {
-    struct jpeg_source_mgr pub;
-    FILE *ctx;
-    unsigned char buffer[INPUT_BUFFER_SIZE];
-} my_source_mgr;
+    if(!current) {
+      DBG (10, "ESCL_Device *current us null.\n");
+      return (SANE_STATUS_NO_MEM);
+    }
+    if (!current->ip_address) {
+      DBG (10, "Ip Address allocation failure.\n");
+      return (SANE_STATUS_NO_MEM);
+    }
+    if (current->port_nb == 0) {
+      DBG (10, "No port defined.\n");
+      return (SANE_STATUS_NO_MEM);
+    }
+    if (!current->model_name) {
+      DBG (10, "Modele Name allocation failure.\n");
+      return (SANE_STATUS_NO_MEM);
+    }
+    if (!current->type) {
+      DBG (10, "Scanner Type allocation failure.\n");
+      return (SANE_STATUS_NO_MEM);
+    }
+    ++num_devices;
+    current->next = list_devices_primary;
+    list_devices_primary = current;
+    return (SANE_STATUS_GOOD);
+}
 
 /**
  * \fn static SANE_Status escl_add_in_list(ESCL_Device *current)
@@ -88,10 +112,18 @@ typedef struct
 static SANE_Status
 escl_add_in_list(ESCL_Device *current)
 {
-    ++num_devices;
-    current->next = list_devices_primary;
-    list_devices_primary = current;
-    return (SANE_STATUS_GOOD);
+    if(!current) {
+      DBG (10, "ESCL_Device *current us null.\n");
+      return (SANE_STATUS_NO_MEM);
+    }
+
+    if (SANE_STATUS_GOOD ==
+        escl_check_and_add_device(current)) {
+        list_devices_primary = current;
+        return (SANE_STATUS_GOOD);
+    }
+    current = escl_free_device(current);
+    return (SANE_STATUS_NO_MEM);
 }
 
 /**
@@ -105,6 +137,8 @@ escl_add_in_list(ESCL_Device *current)
 SANE_Status
 escl_device_add(int port_nb, const char *model_name, char *ip_address, char *type)
 {
+    char tmp[PATH_MAX] = { 0 };
+    char *model = NULL;
     ESCL_Device *current = NULL;
     DBG (10, "escl_device_add\n");
     for (current = list_devices_primary; current; current = current->next) {
@@ -112,12 +146,18 @@ escl_device_add(int port_nb, const char *model_name, char *ip_address, char *typ
             && strcmp(current->type, type) == 0)
             return (SANE_STATUS_GOOD);
     }
-    current = malloc(sizeof(*current));
-    if (current == NULL)
-        return (SANE_STATUS_NO_MEM);
-    memset(current, 0, sizeof(*current));
+    current = (ESCL_Device*)calloc(1, sizeof(*current));
+    if (current == NULL) {
+       DBG (10, "New device allocation failure.\n");
+       return (SANE_STATUS_NO_MEM);
+    }
     current->port_nb = port_nb;
-    current->model_name = strdup(model_name);
+
+    if (strcmp(type, "_uscan._tcp") != 0 && strcmp(type, "http") != 0) {
+        snprintf(tmp, sizeof(tmp), "%s SSL", model_name);
+    }
+    model = (char*)(tmp[0] != 0 ? tmp : model_name);
+    current->model_name = strdup(model);
     current->ip_address = strdup(ip_address);
     current->type = strdup(type);
     return escl_add_in_list(current);
@@ -158,18 +198,48 @@ max_string_size(const SANE_String_Const strings[])
 static SANE_Device *
 convertFromESCLDev(ESCL_Device *cdev)
 {
-    SANE_Device *sdev = (SANE_Device*) calloc(1, sizeof(SANE_Device));
     char tmp[PATH_MAX] = { 0 };
+    SANE_Device *sdev = (SANE_Device*) calloc(1, sizeof(SANE_Device));
+    if (!sdev) {
+       DBG (10, "Sane_Device allocation failure.\n");
+       return NULL;
+    }
 
     if (strcmp(cdev->type, "_uscan._tcp") == 0 || strcmp(cdev->type, "http") == 0)
         snprintf(tmp, sizeof(tmp), "http://%s:%d", cdev->ip_address, cdev->port_nb);
     else
         snprintf(tmp, sizeof(tmp), "https://%s:%d", cdev->ip_address, cdev->port_nb);
+    DBG( 1, "Escl add device : %s\n", tmp);
     sdev->name = strdup(tmp);
+    if (!sdev->name) {
+       DBG (10, "Name allocation failure.\n");
+       goto freedev;
+    }
     sdev->model = strdup(cdev->model_name);
+    if (!sdev->model) {
+       DBG (10, "Model allocation failure.\n");
+       goto freename;
+    }
     sdev->vendor = strdup("ESCL");
+    if (!sdev->vendor) {
+       DBG (10, "Vendor allocation failure.\n");
+       goto freemodel;
+    }
     sdev->type = strdup("flatbed scanner");
+    if (!sdev->type) {
+       DBG (10, "Scanner Type allocation failure.\n");
+       goto freevendor;
+    }
     return (sdev);
+freevendor:
+    free((void*)sdev->vendor);
+freemodel:
+    free((void*)sdev->model);
+freename:
+    free((void*)sdev->name);
+freedev:
+    free((void*)sdev);
+    return NULL;
 }
 
 /**
@@ -187,7 +257,7 @@ sane_init(SANE_Int *version_code, SANE_Auth_Callback __sane_unused__ authorize)
     DBG_INIT();
     DBG (10, "escl sane_init\n");
     SANE_Status status = SANE_STATUS_GOOD;
-
+    curl_global_init(CURL_GLOBAL_ALL);
     if (version_code != NULL)
         *version_code = SANE_VERSION_CODE(1, 0, 0);
     if (status != SANE_STATUS_GOOD)
@@ -217,6 +287,7 @@ sane_exit(void)
         free (devlist);
     list_devices_primary = NULL;
     devlist = NULL;
+    curl_global_cleanup();
 }
 
 /**
@@ -232,44 +303,52 @@ static SANE_Status
 attach_one_config(SANEI_Config __sane_unused__ *config, const char *line)
 {
     int port = 0;
-    static int count = 0;
+    SANE_Status status;
     static ESCL_Device *escl_device = NULL;
 
     if (strncmp(line, "[device]", 8) == 0) {
-        count = 0;
+        escl_device = escl_free_device(escl_device);
         escl_device = (ESCL_Device*)calloc(1, sizeof(ESCL_Device));
+        if (!escl_device) {
+           DBG (10, "New Escl_Device allocation failure.");
+           return (SANE_STATUS_NO_MEM);
+        }
     }
     if (strncmp(line, "ip", 2) == 0) {
         const char *ip_space = sanei_config_skip_whitespace(line + 2);
+        DBG (10, "New Escl_Device IP [%s].", (ip_space ? ip_space : "VIDE"));
         if (escl_device != NULL && ip_space != NULL) {
-            count++;
+            DBG (10, "New Escl_Device IP Affected.");
             escl_device->ip_address = strdup(ip_space);
         }
     }
     if (sscanf(line, "port %i", &port) == 1 && port != 0) {
-        const char *port_space = sanei_config_skip_whitespace(line + 4);
-        if (escl_device != NULL && port_space != NULL) {
-            count++;
+        DBG (10, "New Escl_Device PORT [%d].", port);
+        if (escl_device != NULL) {
+            DBG (10, "New Escl_Device PORT Affected.");
             escl_device->port_nb = port;
         }
     }
     if (strncmp(line, "model", 5) == 0) {
         const char *model_space = sanei_config_skip_whitespace(line + 5);
+        DBG (10, "New Escl_Device MODEL [%s].", (model_space ? model_space : "VIDE"));
         if (escl_device != NULL && model_space != NULL) {
-            count++;
+            DBG (10, "New Escl_Device MODEL Affected.");
             escl_device->model_name = strdup(model_space);
         }
     }
     if (strncmp(line, "type", 4) == 0) {
         const char *type_space = sanei_config_skip_whitespace(line + 4);
+        DBG (10, "New Escl_Device TYPE [%s].", (type_space ? type_space : "VIDE"));
         if (escl_device != NULL && type_space != NULL) {
-            count++;
+            DBG (10, "New Escl_Device TYPE Affected.");
             escl_device->type = strdup(type_space);
         }
     }
-    if (count == 4)
-        return (escl_add_in_list(escl_device));
-    return (SANE_STATUS_GOOD);
+    status = escl_check_and_add_device(escl_device);
+    if (status == SANE_STATUS_GOOD)
+       escl_device = NULL;
+    return status;
 }
 
 /**
@@ -337,19 +416,19 @@ init_options(SANE_String_Const name, escl_sane_t *s)
         s->opt[i].size = sizeof (SANE_Word);
         s->opt[i].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     }
-    s->x_range.min = 0;
-    s->x_range.max = s->scanner->MaxWidth - s->scanner->MinWidth;
-    s->x_range.quant = 1;
-    s->y_range.min = 0;
-    s->y_range.max = s->scanner->MaxHeight - s->scanner->MinHeight;
-    s->y_range.quant = 1;
+    s->x_range.min = PIXEL_TO_MM(s->scanner->MinWidth, 300.0);
+    s->x_range.max = PIXEL_TO_MM(s->scanner->MaxWidth, 300.0);
+    s->x_range.quant = 0;
+    s->y_range.min = PIXEL_TO_MM(s->scanner->MinHeight, 300.0);
+    s->y_range.max = PIXEL_TO_MM(s->scanner->MaxHeight, 300.0);
+    s->y_range.quant = 0;
     s->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
     s->opt[OPT_NUM_OPTS].desc = SANE_DESC_NUM_OPTIONS;
     s->opt[OPT_NUM_OPTS].type = SANE_TYPE_INT;
     s->opt[OPT_NUM_OPTS].cap = SANE_CAP_SOFT_DETECT;
     s->val[OPT_NUM_OPTS].w = NUM_OPTIONS;
 
-    s->opt[OPT_MODE_GROUP].title = "Scan Mode";
+    s->opt[OPT_MODE_GROUP].title = SANE_TITLE_SCAN_MODE;
     s->opt[OPT_MODE_GROUP].desc = "";
     s->opt[OPT_MODE_GROUP].type = SANE_TYPE_GROUP;
     s->opt[OPT_MODE_GROUP].cap = 0;
@@ -363,8 +442,16 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
     s->opt[OPT_MODE].constraint.string_list = s->scanner->ColorModes;
     s->val[OPT_MODE].s = (char *)strdup(s->scanner->ColorModes[0]);
+    if (!s->val[OPT_MODE].s) {
+       DBG (10, "Color Mode Default allocation failure.\n");
+       return (SANE_STATUS_NO_MEM);
+    }
     s->opt[OPT_MODE].size = max_string_size(s->scanner->ColorModes);
     s->scanner->default_color = (char *)strdup(s->scanner->ColorModes[0]);
+    if (!s->scanner->default_color) {
+       DBG (10, "Color Mode Default allocation failure.\n");
+       return (SANE_STATUS_NO_MEM);
+    }
 
     s->opt[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
     s->opt[OPT_RESOLUTION].title = SANE_TITLE_SCAN_RESOLUTION;
@@ -389,8 +476,8 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_GRAY_PREVIEW].type = SANE_TYPE_BOOL;
     s->val[OPT_GRAY_PREVIEW].w = SANE_FALSE;
 
-    s->opt[OPT_GEOMETRY_GROUP].title = "Geometry";
-    s->opt[OPT_GEOMETRY_GROUP].desc = "";
+    s->opt[OPT_GEOMETRY_GROUP].title = SANE_TITLE_GEOMETRY;
+    s->opt[OPT_GEOMETRY_GROUP].desc = SANE_DESC_GEOMETRY;
     s->opt[OPT_GEOMETRY_GROUP].type = SANE_TYPE_GROUP;
     s->opt[OPT_GEOMETRY_GROUP].cap = SANE_CAP_ADVANCED;
     s->opt[OPT_GEOMETRY_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
@@ -399,37 +486,45 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_TL_X].title = SANE_TITLE_SCAN_TL_X;
     s->opt[OPT_TL_X].desc = SANE_DESC_SCAN_TL_X;
     s->opt[OPT_TL_X].type = SANE_TYPE_FIXED;
-    s->opt[OPT_TL_X].unit = SANE_UNIT_PIXEL;
+    s->opt[OPT_TL_X].size = sizeof(SANE_Fixed);
+    s->opt[OPT_TL_X].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    s->opt[OPT_TL_X].unit = SANE_UNIT_MM;
     s->opt[OPT_TL_X].constraint_type = SANE_CONSTRAINT_RANGE;
     s->opt[OPT_TL_X].constraint.range = &s->x_range;
-    s->val[OPT_TL_X].w = s->scanner->RiskyLeftMargin;
+    s->val[OPT_TL_X].w = 0;
 
     s->opt[OPT_TL_Y].name = SANE_NAME_SCAN_TL_Y;
     s->opt[OPT_TL_Y].title = SANE_TITLE_SCAN_TL_Y;
     s->opt[OPT_TL_Y].desc = SANE_DESC_SCAN_TL_Y;
     s->opt[OPT_TL_Y].type = SANE_TYPE_FIXED;
-    s->opt[OPT_TL_Y].unit = SANE_UNIT_PIXEL;
+    s->opt[OPT_TL_Y].size = sizeof(SANE_Fixed);
+    s->opt[OPT_TL_Y].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    s->opt[OPT_TL_Y].unit = SANE_UNIT_MM;
     s->opt[OPT_TL_Y].constraint_type = SANE_CONSTRAINT_RANGE;
     s->opt[OPT_TL_Y].constraint.range = &s->y_range;
-    s->val[OPT_TL_Y].w = s->scanner->RiskyTopMargin;
+    s->val[OPT_TL_Y].w = 0;
 
     s->opt[OPT_BR_X].name = SANE_NAME_SCAN_BR_X;
     s->opt[OPT_BR_X].title = SANE_TITLE_SCAN_BR_X;
     s->opt[OPT_BR_X].desc = SANE_DESC_SCAN_BR_X;
     s->opt[OPT_BR_X].type = SANE_TYPE_FIXED;
-    s->opt[OPT_BR_X].unit = SANE_UNIT_PIXEL;
+    s->opt[OPT_BR_X].size = sizeof(SANE_Fixed);
+    s->opt[OPT_BR_X].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    s->opt[OPT_BR_X].unit = SANE_UNIT_MM;
     s->opt[OPT_BR_X].constraint_type = SANE_CONSTRAINT_RANGE;
     s->opt[OPT_BR_X].constraint.range = &s->x_range;
-    s->val[OPT_BR_X].w = s->scanner->MaxWidth;
+    s->val[OPT_BR_X].w = s->x_range.max;
 
     s->opt[OPT_BR_Y].name = SANE_NAME_SCAN_BR_Y;
     s->opt[OPT_BR_Y].title = SANE_TITLE_SCAN_BR_Y;
     s->opt[OPT_BR_Y].desc = SANE_DESC_SCAN_BR_Y;
     s->opt[OPT_BR_Y].type = SANE_TYPE_FIXED;
-    s->opt[OPT_BR_Y].unit = SANE_UNIT_PIXEL;
+    s->opt[OPT_BR_Y].size = sizeof(SANE_Fixed);
+    s->opt[OPT_BR_Y].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    s->opt[OPT_BR_Y].unit = SANE_UNIT_MM;
     s->opt[OPT_BR_Y].constraint_type = SANE_CONSTRAINT_RANGE;
     s->opt[OPT_BR_Y].constraint.range = &s->y_range;
-    s->val[OPT_BR_Y].w = s->scanner->MaxHeight;
+    s->val[OPT_BR_Y].w = s->y_range.max;
     return (status);
 }
 
@@ -458,6 +553,10 @@ sane_open(SANE_String_Const name, SANE_Handle *h)
     if (handler == NULL)
         return (SANE_STATUS_NO_MEM);
     handler->name = strdup(name);
+    if (!handler->name) {
+       DBG (10, "Handle Name allocation failure.\n");
+       return (SANE_STATUS_NO_MEM);
+    }
     handler->scanner = escl_capabilities(name, &status);
     if (status != SANE_STATUS_GOOD)
         return (status);
@@ -467,8 +566,8 @@ sane_open(SANE_String_Const name, SANE_Handle *h)
     handler->ps.depth = 8;
     handler->ps.last_frame = SANE_TRUE;
     handler->ps.format = SANE_FRAME_RGB;
-    handler->ps.pixels_per_line = handler->val[OPT_BR_X].w;
-    handler->ps.lines = handler->val[OPT_BR_Y].w;
+    handler->ps.pixels_per_line = MM_TO_PIXEL(handler->val[OPT_BR_X].w, 300.0);
+    handler->ps.lines = MM_TO_PIXEL(handler->val[OPT_BR_Y].w, 300.0);
     handler->ps.bytes_per_line = handler->ps.pixels_per_line * 3;
     status = sane_get_parameters(handler, 0);
     if (status != SANE_STATUS_GOOD)
@@ -492,7 +591,11 @@ sane_cancel(SANE_Handle h)
 {
     DBG (10, "escl sane_cancel\n");
     escl_sane_t *handler = h;
-
+    if (handler->scanner->tmp)
+    {
+      fclose(handler->scanner->tmp);
+      handler->scanner->tmp = NULL;
+    }
     handler->cancel = SANE_TRUE;
     escl_scanner(handler->name, handler->result);
 }
@@ -528,7 +631,7 @@ sane_get_option_descriptor(SANE_Handle h, SANE_Int n)
 
     if ((unsigned) n >= NUM_OPTIONS || n < 0)
         return (0);
-    return (s->opt + n);
+    return (&s->opt[n]);
 }
 
 /**
@@ -556,12 +659,12 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v, SANE_Int 
         return (SANE_STATUS_INVAL);
     if (a == SANE_ACTION_GET_VALUE) {
         switch (n) {
-        case OPT_NUM_OPTS:
-        case OPT_RESOLUTION:
         case OPT_TL_X:
         case OPT_TL_Y:
         case OPT_BR_X:
         case OPT_BR_Y:
+        case OPT_NUM_OPTS:
+        case OPT_RESOLUTION:
         case OPT_PREVIEW:
         case OPT_GRAY_PREVIEW:
             *(SANE_Word *) v = handler->val[n].w;
@@ -581,14 +684,10 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v, SANE_Int 
         case OPT_TL_Y:
         case OPT_BR_X:
         case OPT_BR_Y:
+        case OPT_NUM_OPTS:
+        case OPT_RESOLUTION:
         case OPT_PREVIEW:
         case OPT_GRAY_PREVIEW:
-            handler->val[n].w = *(SANE_Word *) v;
-            if (i && handler->val[n].w != *(SANE_Word *) v)
-                *i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS | SANE_INFO_INEXACT;
-            handler->val[n].w = *(SANE_Word *) v;
-            break;
-        case OPT_RESOLUTION:
             handler->val[n].w = *(SANE_Word *) v;
             if (i)
                 *i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS | SANE_INFO_INEXACT;
@@ -597,6 +696,10 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v, SANE_Int 
             if (handler->val[n].s)
                 free (handler->val[n].s);
             handler->val[n].s = strdup (v);
+            if (!handler->val[n].s) {
+              DBG (10, "OPT_MODE allocation failure.\n");
+              return (SANE_STATUS_NO_MEM);
+            }
             if (i)
                 *i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS | SANE_INFO_INEXACT;
             break;
@@ -606,43 +709,6 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v, SANE_Int 
     }
     return (SANE_STATUS_GOOD);
 }
-
-#if(defined HAVE_LIBJPEG)
-static void
-error_exit(j_common_ptr cinfo)
-{
-    longjmp(cinfo->client_data, 1);
-}
-
-/**
- * \fn static void get_JPEG_dimension(FILE *fp, int *w, int *h)
- * \brief Function that aims to get the dimensions of the jpeg image wich will be scanned.
- *        This function is called in the "sane_start" function.
- */
-static void
-get_JPEG_dimension(FILE *fp, int *w, int *h)
-{
-    struct jpeg_decompress_struct cinfo;
-    struct jpeg_error_mgr jerr;
-    jmp_buf env;
-
-    cinfo.err = jpeg_std_error(&jerr);
-    jerr.error_exit = error_exit;
-    cinfo.client_data = env;
-    if (setjmp(env))
-        return;
-    jpeg_create_decompress(&cinfo);
-    jpeg_stdio_src(&cinfo, fp);
-    jpeg_read_header(&cinfo, TRUE);
-    cinfo.out_color_space = JCS_RGB;
-    jpeg_start_decompress(&cinfo);
-    *w = cinfo.output_width;
-    *h = cinfo.output_height;
-    jpeg_finish_decompress(&cinfo);
-    jpeg_destroy_decompress(&cinfo);
-    fseek(fp, SEEK_SET, 0);
-}
-#endif
 
 /**
  * \fn SANE_Status sane_start(SANE_Handle h)
@@ -659,6 +725,7 @@ sane_start(SANE_Handle h)
     escl_sane_t *handler = h;
     int w = 0;
     int he = 0;
+    int bps = 0;
 
     if (handler->name == NULL)
         return (SANE_STATUS_INVAL);
@@ -666,10 +733,6 @@ sane_start(SANE_Handle h)
     handler->write_scan_data = SANE_FALSE;
     handler->decompress_scan_data = SANE_FALSE;
     handler->end_read = SANE_FALSE;
-    handler->scanner->height = handler->val[OPT_BR_Y].w;
-    handler->scanner->width = handler->val[OPT_BR_X].w;
-    handler->scanner->pos_x = handler->val[OPT_TL_X].w;
-    handler->scanner->pos_y = handler->val[OPT_TL_Y].w;
     if(handler->scanner->default_color)
        free(handler->scanner->default_color);
     if (handler->val[OPT_PREVIEW].w == SANE_TRUE)
@@ -680,6 +743,10 @@ sane_start(SANE_Handle h)
           handler->scanner->default_color = strdup("Grayscale8");
        else
           handler->scanner->default_color = strdup("RGB24");
+       if (!handler->scanner->default_color) {
+          DBG (10, "Default Color allocation failure.\n");
+          return (SANE_STATUS_NO_MEM);
+       }
        for (i = 1; i < handler->scanner->SupportedResolutionsSize; i++)
        {
           if (val > handler->scanner->SupportedResolutions[i])
@@ -695,18 +762,52 @@ sane_start(SANE_Handle h)
     else
        handler->scanner->default_color = strdup("RGB24");
     }
+    handler->scanner->height = MM_TO_PIXEL(handler->val[OPT_BR_Y].w, 300.0);
+    handler->scanner->width = MM_TO_PIXEL(handler->val[OPT_BR_X].w, 300.0);
+    handler->scanner->pos_x = MM_TO_PIXEL(handler->val[OPT_TL_X].w, 300.0);
+    handler->scanner->pos_y = MM_TO_PIXEL(handler->val[OPT_TL_Y].w, 300.0);
+    DBG(10, "Calculate Size Image [%dx%d|%dx%d]\n",
+             handler->scanner->pos_x,
+             handler->scanner->pos_y,
+             handler->scanner->height,
+             handler->scanner->width);
+    if (!handler->scanner->default_color) {
+       DBG (10, "Default Color allocation failure.\n");
+       return (SANE_STATUS_NO_MEM);
+    }
     handler->result = escl_newjob(handler->scanner, handler->name, &status);
     if (status != SANE_STATUS_GOOD)
         return (status);
     status = escl_scan(handler->scanner, handler->name, handler->result);
-    get_JPEG_dimension(handler->scanner->tmp, &w, &he);
-    fseek(handler->scanner->tmp, SEEK_SET, 0);
+    if (status != SANE_STATUS_GOOD)
+        return (status);
+    if (!strcmp(handler->scanner->default_format, "image/jpeg"))
+    {
+       status = get_JPEG_data(handler->scanner, &w, &he, &bps);
+    }
+    else if (!strcmp(handler->scanner->default_format, "image/png"))
+    {
+       status = get_PNG_data(handler->scanner, &w, &he, &bps);
+    }
+    else if (!strcmp(handler->scanner->default_format, "image/tiff"))
+    {
+       status = get_TIFF_data(handler->scanner, &w, &he, &bps);
+    }
+    else {
+      DBG(10, "Unknow image format\n");
+      return SANE_STATUS_INVAL;
+    }
+
+    DBG(10, "2-Size Image [%dx%d|%dx%d]\n", 0, 0, w, he);
+    if (status != SANE_STATUS_GOOD)
+        return (status);
     handler->ps.depth = 8;
     handler->ps.pixels_per_line = w;
     handler->ps.lines = he;
-    handler->ps.bytes_per_line = w * 3;
+    handler->ps.bytes_per_line = w * bps;
     handler->ps.last_frame = SANE_TRUE;
     handler->ps.format = SANE_FRAME_RGB;
+    DBG(10, "Real Size Image [%dx%d|%dx%d]\n", 0, 0, w, he);
     return (status);
 }
 
@@ -733,162 +834,11 @@ sane_get_parameters(SANE_Handle h, SANE_Parameters *p)
         p->format = SANE_FRAME_RGB;
         p->pixels_per_line = handler->ps.pixels_per_line;
         p->lines = handler->ps.lines;
-        p->bytes_per_line = handler->ps.pixels_per_line * 3;
+        p->bytes_per_line = handler->ps.bytes_per_line;
     }
     return (status);
 }
 
-#if(defined HAVE_LIBJPEG)
-/**
- * \fn static boolean fill_input_buffer(j_decompress_ptr cinfo)
- * \brief Called in the "skip_input_data" function.
- *
- * \return TRUE (everything is OK)
- */
-static boolean
-fill_input_buffer(j_decompress_ptr cinfo)
-{
-    my_source_mgr *src = (my_source_mgr *) cinfo->src;
-    int nbytes = 0;
-
-    nbytes = fread(src->buffer, 1, INPUT_BUFFER_SIZE, src->ctx);
-    if (nbytes <= 0) {
-        src->buffer[0] = (unsigned char) 0xFF;
-        src->buffer[1] = (unsigned char) JPEG_EOI;
-        nbytes = 2;
-    }
-    src->pub.next_input_byte = src->buffer;
-    src->pub.bytes_in_buffer = nbytes;
-    return (TRUE);
-}
-
-/**
- * \fn static void skip_input_data(j_decompress_ptr cinfo, long num_bytes)
- * \brief Called in the "jpeg_RW_src" function.
- */
-static void
-skip_input_data(j_decompress_ptr cinfo, long num_bytes)
-{
-    my_source_mgr *src = (my_source_mgr *) cinfo->src;
-
-    if (num_bytes > 0) {
-        while (num_bytes > (long) src->pub.bytes_in_buffer) {
-            num_bytes -= (long) src->pub.bytes_in_buffer;
-            (void) src->pub.fill_input_buffer(cinfo);
-        }
-        src->pub.next_input_byte += (size_t) num_bytes;
-        src->pub.bytes_in_buffer -= (size_t) num_bytes;
-    }
-}
-
-static void
-term_source(j_decompress_ptr __sane_unused__ cinfo)
-{
-    return;
-}
-
-static void
-init_source(j_decompress_ptr __sane_unused__ cinfo)
-{
-    return;
-}
-
-/**
- * \fn static void jpeg_RW_src(j_decompress_ptr cinfo, FILE *ctx)
- * \brief Called in the "escl_sane_decompressor" function.
- */
-static void
-jpeg_RW_src(j_decompress_ptr cinfo, FILE *ctx)
-{
-    my_source_mgr *src;
-
-    if (cinfo->src == NULL) {
-        cinfo->src = (struct jpeg_source_mgr *)(*cinfo->mem->alloc_small)
-            ((j_common_ptr) cinfo, JPOOL_PERMANENT, sizeof(my_source_mgr));
-        src = (my_source_mgr *) cinfo->src;
-    }
-    src = (my_source_mgr *) cinfo->src;
-    src->pub.init_source = init_source;
-    src->pub.fill_input_buffer = fill_input_buffer;
-    src->pub.skip_input_data = skip_input_data;
-    src->pub.resync_to_restart = jpeg_resync_to_restart;
-    src->pub.term_source = term_source;
-    src->ctx = ctx;
-    src->pub.bytes_in_buffer = 0;
-    src->pub.next_input_byte = NULL;
-}
-
-static void
-my_error_exit(j_common_ptr cinfo)
-{
-    struct my_error_mgr *err = (struct my_error_mgr *)cinfo->err;
-
-    longjmp(err->escape, 1);
-}
-
-static void
-output_no_message(j_common_ptr __sane_unused__ cinfo)
-{
-}
-
-/**
- * \fn SANE_Status escl_sane_decompressor(escl_sane_t *handler)
- * \brief Function that aims to decompress the jpeg image to SANE be able to read the image.
- *        This function is called in the "sane_read" function.
- *
- * \return SANE_STATUS_GOOD (if everything is OK, otherwise, SANE_STATUS_NO_MEM/SANE_STATUS_INVAL)
- */
-SANE_Status
-escl_sane_decompressor(escl_sane_t *handler)
-{
-    int start = 0;
-    struct jpeg_decompress_struct cinfo;
-    JSAMPROW rowptr[1];
-    unsigned char *surface = NULL;
-    struct my_error_mgr jerr;
-    int lineSize = 0;
-
-    if (handler->scanner->tmp == NULL)
-        return (SANE_STATUS_INVAL);
-    fseek(handler->scanner->tmp, SEEK_SET, 0);
-    start = ftell(handler->scanner->tmp);
-    cinfo.err = jpeg_std_error(&jerr.errmgr);
-    jerr.errmgr.error_exit = my_error_exit;
-    jerr.errmgr.output_message = output_no_message;
-    if (setjmp(jerr.escape)) {
-        jpeg_destroy_decompress(&cinfo);
-        if (surface != NULL)
-            free(surface);
-        return (SANE_STATUS_INVAL);
-    }
-    jpeg_create_decompress(&cinfo);
-    jpeg_RW_src(&cinfo, handler->scanner->tmp);
-    jpeg_read_header(&cinfo, TRUE);
-    cinfo.out_color_space = JCS_RGB;
-    cinfo.quantize_colors = FALSE;
-    jpeg_calc_output_dimensions(&cinfo);
-    surface = malloc(cinfo.output_width * cinfo.output_height * cinfo.output_components);
-    if (surface == NULL) {
-        jpeg_destroy_decompress(&cinfo);
-        fseek(handler->scanner->tmp, start, SEEK_SET);
-        return (SANE_STATUS_NO_MEM);
-    }
-    lineSize = cinfo.output_width * cinfo.output_components;
-    jpeg_start_decompress(&cinfo);
-    while (cinfo.output_scanline < cinfo.output_height) {
-        rowptr[0] = (JSAMPROW)surface + (lineSize * cinfo.output_scanline);
-        jpeg_read_scanlines(&cinfo, rowptr, (JDIMENSION) 1);
-    }
-    handler->img_data = surface;
-    handler->img_size = lineSize * cinfo.output_height;
-    handler->img_read = 0;
-    jpeg_finish_decompress(&cinfo);
-    jpeg_destroy_decompress(&cinfo);
-    fclose(handler->scanner->tmp);
-    handler->scanner->tmp = NULL;
-    return (SANE_STATUS_GOOD);
-}
-#endif
 
 /**
  * \fn SANE_Status sane_read(SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *len)
@@ -914,34 +864,31 @@ sane_read(SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *len)
     if (!handler->write_scan_data)
         handler->write_scan_data = SANE_TRUE;
     if (!handler->decompress_scan_data) {
-        if (handler->scanner->tmp == NULL)
-            return (SANE_STATUS_INVAL);
-        status = escl_sane_decompressor(handler);
         if (status != SANE_STATUS_GOOD)
             return (status);
         handler->decompress_scan_data = SANE_TRUE;
     }
-    if (handler->img_data == NULL)
+    if (handler->scanner->img_data == NULL)
         return (SANE_STATUS_INVAL);
     if (!handler->end_read) {
-        readbyte = min((handler->img_size - handler->img_read), maxlen);
-        memcpy(buf, handler->img_data + handler->img_read, readbyte);
-        handler->img_read = handler->img_read + readbyte;
+        readbyte = min((handler->scanner->img_size - handler->scanner->img_read), maxlen);
+        memcpy(buf, handler->scanner->img_data + handler->scanner->img_read, readbyte);
+        handler->scanner->img_read = handler->scanner->img_read + readbyte;
         *len = readbyte;
-        if (handler->img_read == handler->img_size)
+        if (handler->scanner->img_read == handler->scanner->img_size)
             handler->end_read = SANE_TRUE;
-        else if (handler->img_read > handler->img_size) {
+        else if (handler->scanner->img_read > handler->scanner->img_size) {
             *len = 0;
             handler->end_read = SANE_TRUE;
-            free(handler->img_data);
-            handler->img_data = NULL;
+            free(handler->scanner->img_data);
+            handler->scanner->img_data = NULL;
             return (SANE_STATUS_INVAL);
         }
     }
     else {
         *len = 0;
-        free(handler->img_data);
-        handler->img_data = NULL;
+        free(handler->scanner->img_data);
+        handler->scanner->img_data = NULL;
         return (SANE_STATUS_EOF);
     }
     return (SANE_STATUS_GOOD);

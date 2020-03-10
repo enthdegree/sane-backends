@@ -30,7 +30,7 @@
 #include "../../../backend/genesys/test_settings.h"
 #include "../../../backend/genesys/test_scanner_interface.h"
 #include "../../../backend/genesys/utilities.h"
-#include "../../include/sane/saneopts.h"
+#include "../../../include/sane/saneopts.h"
 #include "sys/stat.h"
 #include <cstdio>
 #include <cstring>
@@ -143,7 +143,7 @@ public:
         auto i = find_option(name, SANE_TYPE_FIXED);
         int value = 0;
         TIE(sane_control_option(handle_, i, SANE_ACTION_GET_VALUE, &value, nullptr));
-        return static_cast<float>(SANE_UNFIX(value));
+        return genesys::fixed_to_float(value);
     }
 
     void set_value_float(const std::string& name, float value)
@@ -389,12 +389,13 @@ TestResult perform_single_test(const TestConfig& config, const std::string& chec
 std::vector<TestConfig> get_all_test_configs()
 {
     genesys::genesys_init_usb_device_tables();
+    genesys::verify_usb_device_tables();
 
     std::vector<TestConfig> configs;
     std::unordered_set<std::string> model_names;
 
     for (const auto& usb_dev : *genesys::s_usb_devices) {
-        if (usb_dev.model.flags & GENESYS_FLAG_UNTESTED) {
+        if (genesys::has_flag(usb_dev.model.flags, genesys::ModelFlag::UNTESTED)) {
             continue;
         }
         if (model_names.find(usb_dev.model.name) != model_names.end()) {

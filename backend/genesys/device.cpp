@@ -62,15 +62,24 @@ std::vector<unsigned> MethodResolutions::get_resolutions() const
     return ret;
 }
 
-const MethodResolutions& Genesys_Model::get_resolution_settings(ScanMethod method) const
+const MethodResolutions* Genesys_Model::get_resolution_settings_ptr(ScanMethod method) const
 {
     for (const auto& res_for_method : resolutions) {
         for (auto res_method : res_for_method.methods) {
             if (res_method == method) {
-                return res_for_method;
+                return &res_for_method;
             }
         }
     }
+    return nullptr;
+
+}
+const MethodResolutions& Genesys_Model::get_resolution_settings(ScanMethod method) const
+{
+    const auto* ptr = get_resolution_settings_ptr(method);
+    if (ptr)
+        return *ptr;
+
     throw SaneException("Could not find resolution settings for method %d",
                         static_cast<unsigned>(method));
 }
@@ -79,6 +88,12 @@ std::vector<unsigned> Genesys_Model::get_resolutions(ScanMethod method) const
 {
     return get_resolution_settings(method).get_resolutions();
 }
+
+bool Genesys_Model::has_method(ScanMethod method) const
+{
+    return get_resolution_settings_ptr(method) != nullptr;
+}
+
 
 Genesys_Device::~Genesys_Device()
 {
@@ -124,10 +139,14 @@ unsigned Genesys_Device::head_pos(ScanHeadId scan_head) const
     }
 }
 
-void Genesys_Device::set_head_pos_unknown()
+void Genesys_Device::set_head_pos_unknown(ScanHeadId scan_head)
 {
-    is_head_pos_primary_known_ = false;
-    is_head_pos_secondary_known_ = false;
+    if ((scan_head & ScanHeadId::PRIMARY) != ScanHeadId::NONE) {
+        is_head_pos_primary_known_ = false;
+    }
+    if ((scan_head & ScanHeadId::SECONDARY) != ScanHeadId::NONE) {
+        is_head_pos_secondary_known_ = false;
+    }
 }
 
 void Genesys_Device::set_head_pos_zero(ScanHeadId scan_head)
@@ -205,11 +224,10 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev)
         << "    ignore_offsets: " << dev.ignore_offsets << '\n'
         << "    model: (not printed)\n"
         << "    reg: " << format_indent_braced_list(4, dev.reg) << '\n'
-        << "    calib_reg: " << format_indent_braced_list(4, dev.calib_reg) << '\n'
+        << "    initial_regs: " << format_indent_braced_list(4, dev.initial_regs) << '\n'
         << "    settings: " << format_indent_braced_list(4, dev.settings) << '\n'
         << "    frontend: " << format_indent_braced_list(4, dev.frontend) << '\n'
         << "    frontend_initial: " << format_indent_braced_list(4, dev.frontend_initial) << '\n'
-        << "    frontend_is_init: " << dev.frontend_is_init << '\n'
         << "    gpo.regs: " << format_indent_braced_list(4, dev.gpo.regs) << '\n'
         << "    motor: " << format_indent_braced_list(4, dev.motor) << '\n'
         << "    control[0..6]: " << std::hex
@@ -220,13 +238,7 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev)
         << static_cast<unsigned>(dev.control[4]) << ' '
         << static_cast<unsigned>(dev.control[5]) << '\n' << std::dec
         << "    average_size: " << dev.average_size << '\n'
-        << "    calib_pixels: " << dev.calib_pixels << '\n'
-        << "    calib_lines: " << dev.calib_lines << '\n'
-        << "    calib_channels: " << dev.calib_channels << '\n'
-        << "    calib_resolution: " << dev.calib_resolution << '\n'
-        << "    calib_total_bytes_to_read: " << dev.calib_total_bytes_to_read << '\n'
         << "    calib_session: " << format_indent_braced_list(4, dev.calib_session) << '\n'
-        << "    calib_pixels_offset: " << dev.calib_pixels_offset << '\n'
         << "    gamma_override_tables[0].size(): " << dev.gamma_override_tables[0].size() << '\n'
         << "    gamma_override_tables[1].size(): " << dev.gamma_override_tables[1].size() << '\n'
         << "    gamma_override_tables[2].size(): " << dev.gamma_override_tables[2].size() << '\n'
@@ -262,11 +274,25 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev)
 
 void apply_reg_settings_to_device(Genesys_Device& dev, const GenesysRegisterSettingSet& regs)
 {
+    apply_reg_settings_to_device_with_backup(dev, regs);
+}
+
+GenesysRegisterSettingSet
+    apply_reg_settings_to_device_with_backup(Genesys_Device& dev,
+                                             const GenesysRegisterSettingSet& regs)
+{
+    GenesysRegisterSettingSet backup;
     for (const auto& reg : regs) {
-        uint8_t val = dev.interface->read_register(reg.address);
-        val = (val & ~reg.mask) | (reg.value & reg.mask);
-        dev.interface->write_register(reg.address, val);
+        std::uint8_t old_val = dev.interface->read_register(reg.address);
+        std::uint8_t new_val = (old_val & ~reg.mask) | (reg.value & reg.mask);
+        dev.interface->write_register(reg.address, new_val);
+
+        using SettingType = GenesysRegisterSettingSet::SettingType;
+        backup.push_back(SettingType{reg.address,
+                                     static_cast<std::uint8_t>(old_val & reg.mask),
+                                     reg.mask});
     }
+    return backup;
 }
 
 } // namespace genesys

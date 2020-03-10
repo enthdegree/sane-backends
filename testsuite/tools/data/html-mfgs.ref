@@ -12078,7 +12078,7 @@ hpljm1005<br>(0)
 </td>
 <td align=center><a href="man/sane-hp3500.5.html">sane-hp3500</a></td>
 </tr>
-<tr><td align=center>ScanJet 3670C</td>
+<tr><td align=center>ScanJet 3670</td>
 <td align=center>USB</td>
 <td align=center>0x03f0/0x1405</td>
 <td align=center><font color="#007000">Complete</font></td>
@@ -12093,7 +12093,7 @@ hpljm1005<br>(0)
 <td align=center>USB</td>
 <td align=center>0x03f0/0x1405</td>
 <td align=center><font color="#007000">Complete</font></td>
-<td>1200x1200 dpi max, same as HP 3670C</td>
+<td>1200x1200 dpi max, same as HP 3670</td>
 <td align=center>
 <a href="http://www.meier-geinitz.de/sane/genesys-backend/">genesys</a>
 <br>(1.0-63)
@@ -23910,7 +23910,6 @@ qcam<br>(unmaintained)
 >Contact</a>
 </address>
 <font size=-1>
-This page was last updated on Wed Jul 31 07:52:48 2013
- by sane-desc 3.5 from sane-backends 1.0.24git
+This page was created by sane-desc 3.6 from sane-backends 1.0.29-241-g1f9590ab
 </font>
 </body> </html>

@@ -192,7 +192,7 @@ enum class ModelId : unsigned
     DCT_DOCKETPORT_487,
     HP_SCANJET_2300C,
     HP_SCANJET_2400C,
-    HP_SCANJET_3670C,
+    HP_SCANJET_3670,
     HP_SCANJET_4850C,
     HP_SCANJET_G4010,
     HP_SCANJET_G4050,
@@ -431,6 +431,76 @@ enum class AsicType : unsigned
 };
 
 
+enum class ModelFlag : unsigned
+{
+    // no flags
+    NONE = 0,
+
+    // scanner is not tested, print a warning as it's likely it won't work
+    UNTESTED = 1 << 0,
+
+    // use 14-bit gamma table instead of 12-bit
+    GAMMA_14BIT = 1 << 1,
+
+    // skip lamp warmup (genesys_warmup())
+    SKIP_WARMUP = 1 << 4,
+
+    // repark head and check for lock by moving without scanning
+    REPARK = 1 << 7,
+
+    // do dark calibration
+    DARK_CALIBRATION = 1 << 8,
+
+    // whether scanner must wait for the head while parking
+    MUST_WAIT = 1 << 10,
+
+    // do dark and white calibration in one run
+    DARK_WHITE_CALIBRATION = 1 << 12,
+
+    // allow custom gamma tables
+    CUSTOM_GAMMA = 1 << 13,
+
+    // skip calibration completely, this is needed for sheet-fed scanners
+    NO_CALIBRATION = 1 << 14,
+
+    // the scanner uses multi-segment sensors that must be handled during calibration
+    SIS_SENSOR = 1 << 16,
+
+    // the head must be reparked between shading scans
+    SHADING_REPARK = 1 << 18,
+
+    // the scanner always uses maximum hwdpi to setup the sensor
+    FULL_HWDPI_MODE = 1 << 19,
+
+    // the scanner outputs 16-bit data that is byte-inverted
+    INVERTED_16BIT_DATA = 1 << 20,
+
+    // the scanner has transparency, but it's implemented using only one motor
+    UTA_NO_SECONDARY_MOTOR = 1 << 21
+};
+
+inline ModelFlag operator|(ModelFlag left, ModelFlag right)
+{
+    return static_cast<ModelFlag>(static_cast<unsigned>(left) | static_cast<unsigned>(right));
+}
+
+inline ModelFlag& operator|=(ModelFlag& left, ModelFlag right)
+{
+    left = left | right;
+    return left;
+}
+
+inline ModelFlag operator&(ModelFlag left, ModelFlag right)
+{
+    return static_cast<ModelFlag>(static_cast<unsigned>(left) & static_cast<unsigned>(right));
+}
+
+inline bool has_flag(ModelFlag flags, ModelFlag which)
+{
+    return (flags & which) == which;
+}
+
+
 enum class ScanFlag : unsigned
 {
     NONE = 0,
@@ -438,14 +508,22 @@ enum class ScanFlag : unsigned
     DISABLE_SHADING = 1 << 1,
     DISABLE_GAMMA = 1 << 2,
     DISABLE_BUFFER_FULL_MOVE = 1 << 3,
-    IGNORE_LINE_DISTANCE = 1 << 4,
-    DISABLE_LAMP = 1 << 5,
-    CALIBRATION = 1 << 6,
-    FEEDING = 1 << 7,
-    USE_XPA = 1 << 8,
-    ENABLE_LEDADD = 1 << 9,
-    USE_XCORRECTION = 1 << 10,
-    REVERSE = 1 << 11,
+
+    // if this flag is set the sensor will always be handled ignoring staggering of multiple
+    // sensors to achieve high resolution.
+    IGNORE_STAGGER_OFFSET = 1 << 4,
+
+    // if this flag is set the sensor will always be handled as if the components that scan
+    // different colors are at the same position.
+    IGNORE_COLOR_OFFSET = 1 << 5,
+
+    DISABLE_LAMP = 1 << 6,
+    CALIBRATION = 1 << 7,
+    FEEDING = 1 << 8,
+    USE_XPA = 1 << 9,
+    ENABLE_LEDADD = 1 << 10,
+    USE_XCORRECTION = 1 << 11,
+    REVERSE = 1 << 12,
 };
 
 inline ScanFlag operator|(ScanFlag left, ScanFlag right)
@@ -524,6 +602,12 @@ enum class Direction : unsigned
     BACKWARD = 1
 };
 
+enum class MotorMode : unsigned
+{
+    PRIMARY = 0,
+    PRIMARY_AND_SECONDARY,
+    SECONDARY,
+};
 
 } // namespace genesys
 

@@ -21,6 +21,9 @@
 
    This file implements a SANE backend for eSCL scanners.  */
 
+#define DEBUG_DECLARE_ONLY
+#include "../include/sane/config.h"
+
 #include "escl.h"
 
 #include <stdlib.h>
@@ -45,7 +48,6 @@ escl_scanner(SANE_String_Const name, char *result)
 
     if (name == NULL || result == NULL)
         return;
-    curl_global_init(CURL_GLOBAL_ALL);
 CURL_CALL:
     curl_handle = curl_easy_init();
     if (curl_handle != NULL) {
@@ -54,7 +56,9 @@ CURL_CALL:
         strcat(scan_cmd, result);
         strcat(scan_cmd, scanner_start);
         curl_easy_setopt(curl_handle, CURLOPT_URL, scan_cmd);
+        DBG( 1, "Reset Job : %s.\n", scan_cmd);
         if (strncmp(name, "https", 5) == 0) {
+            DBG( 1, "Ignoring safety certificates, use https\n");
             curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 0L);
             curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYHOST, 0L);
         }
@@ -68,5 +72,4 @@ CURL_CALL:
         }
         curl_easy_cleanup(curl_handle);
     }
-    curl_global_cleanup();
 }

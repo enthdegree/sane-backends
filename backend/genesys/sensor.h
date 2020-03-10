@@ -290,6 +290,46 @@ void serialize(Stream& str, ResolutionFilter& x)
 }
 
 
+class ScanMethodFilter
+{
+public:
+    struct Any {};
+    static constexpr Any ANY{};
+
+    ScanMethodFilter() : matches_any_{false} {}
+    ScanMethodFilter(Any) : matches_any_{true} {}
+    ScanMethodFilter(std::initializer_list<ScanMethod> methods) :
+        matches_any_{false},
+        methods_{methods}
+    {}
+
+    bool matches(ScanMethod method) const
+    {
+        if (matches_any_)
+            return true;
+        auto it = std::find(methods_.begin(), methods_.end(), method);
+        return it != methods_.end();
+    }
+
+    bool operator==(const ScanMethodFilter& other) const
+    {
+        return  matches_any_ == other.matches_any_ && methods_ == other.methods_;
+    }
+
+    bool matches_any() const { return matches_any_; }
+    const std::vector<ScanMethod>& methods() const { return methods_; }
+
+private:
+    bool matches_any_ = false;
+    std::vector<ScanMethod> methods_;
+
+    template<class Stream>
+    friend void serialize(Stream& str, ResolutionFilter& x);
+};
+
+std::ostream& operator<<(std::ostream& out, const ScanMethodFilter& methods);
+
+
 struct Genesys_Sensor {
 
     Genesys_Sensor() = default;
@@ -334,8 +374,6 @@ struct Genesys_Sensor {
     int dummy_pixel = 0;
     // last pixel of CCD margin at optical resolution
     int ccd_start_xoffset = 0;
-    // total pixels used by the sensor
-    int sensor_pixels = 0;
     // TA CCD target code (reference gain)
     int fau_gain_white_ref = 0;
     // CCD target code (reference gain)
@@ -359,6 +397,9 @@ struct Genesys_Sensor {
     // high-enough resolution, every other pixel column is shifted
     StaggerConfig stagger_config;
 
+    // True if calibration should be performed on host-side
+    bool use_host_side_calib = false;
+
     GenesysRegisterSettingSet custom_base_regs; // gl646-specific
     GenesysRegisterSettingSet custom_regs;
     GenesysRegisterSettingSet custom_fe_regs;
@@ -366,12 +407,10 @@ struct Genesys_Sensor {
     // red, green and blue gamma coefficient for default gamma tables
     AssignableArray<float, 3> gamma;
 
-    std::function<unsigned(const Genesys_Sensor&, unsigned)> get_logical_hwdpi_fun;
     std::function<unsigned(const Genesys_Sensor&, unsigned)> get_register_hwdpi_fun;
     std::function<unsigned(const Genesys_Sensor&, unsigned)> get_ccd_size_divisor_fun;
     std::function<unsigned(const Genesys_Sensor&, unsigned)> get_hwdpi_divisor_fun;
 
-    unsigned get_logical_hwdpi(unsigned xres) const { return get_logical_hwdpi_fun(*this, xres); }
     unsigned get_register_hwdpi(unsigned xres) const { return get_register_hwdpi_fun(*this, xres); }
     unsigned get_ccd_size_divisor_for_dpi(unsigned xres) const
     {
@@ -412,7 +451,6 @@ struct Genesys_Sensor {
             black_pixels == other.black_pixels &&
             dummy_pixel == other.dummy_pixel &&
             ccd_start_xoffset == other.ccd_start_xoffset &&
-            sensor_pixels == other.sensor_pixels &&
             fau_gain_white_ref == other.fau_gain_white_ref &&
             gain_white_ref == other.gain_white_ref &&
             exposure == other.exposure &&
@@ -420,6 +458,7 @@ struct Genesys_Sensor {
             segment_size == other.segment_size &&
             segment_order == other.segment_order &&
             stagger_config == other.stagger_config &&
+            use_host_side_calib == other.use_host_side_calib &&
             custom_base_regs == other.custom_base_regs &&
             custom_regs == other.custom_regs &&
             custom_fe_regs == other.custom_fe_regs &&
@@ -438,7 +477,6 @@ void serialize(Stream& str, Genesys_Sensor& x)
     serialize(str, x.black_pixels);
     serialize(str, x.dummy_pixel);
     serialize(str, x.ccd_start_xoffset);
-    serialize(str, x.sensor_pixels);
     serialize(str, x.fau_gain_white_ref);
     serialize(str, x.gain_white_ref);
     serialize_newline(str);
@@ -452,6 +490,8 @@ void serialize(Stream& str, Genesys_Sensor& x)
     serialize(str, x.segment_order);
     serialize_newline(str);
     serialize(str, x.stagger_config);
+    serialize_newline(str);
+    serialize(str, x.use_host_side_calib);
     serialize_newline(str);
     serialize(str, x.custom_base_regs);
     serialize_newline(str);

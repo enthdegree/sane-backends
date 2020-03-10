@@ -1,4 +1,5 @@
 /* sane - Scanner Access Now Easy.
+   Copyright (C) 20020 Ralph Little <skelband@gmail.com>
    Copyright (C) 2003 Martijn van Oosterhout <kleptog@svana.org>
    Copyright (C) 2003 Thomas Soumarmon <thomas.soumarmon@cogitae.net>
 
@@ -138,6 +139,16 @@ typedef struct
 }
 TScanParams;
 
+/*
+ * Panel settings. We can read and set these.
+ *
+ */
+typedef struct
+{
+  SANE_Word copycount;  // 0..99 LCD display value
+  SANE_Word bwcolour;   // 1=Colour or 2=Black/White from scan type LEDs
+}
+TPanelInfo;
 
 
 #endif /* NO _HP5400_H_ */

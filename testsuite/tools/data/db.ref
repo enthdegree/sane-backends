@@ -1,5 +1,5 @@
-# This file was automatically created based on description files (*.desc)
-# by sane-desc 3.5 from sane-backends 1.0.24git on Wed Jul 31 07:52:48 2013
+# This file was generated from description files (*.desc)
+# by sane-desc 3.6 from sane-backends 1.0.29-241-g1f9590ab
 #
 # The entries below are used to detect a USB device when it's plugged in
 # and then run a script to change the ownership and
@@ -66,7 +66,7 @@
 0x03f0	0x1205	root:scanner	0664
 # Hewlett-Packard ScanJet 4570C | Hewlett-Packard ScanJet 5500C
 0x03f0	0x1305	root:scanner	0664
-# Hewlett-Packard ScanJet 3670C | Hewlett-Packard ScanJet 3690C
+# Hewlett-Packard ScanJet 3670 | Hewlett-Packard ScanJet 3690C
 0x03f0	0x1405	root:scanner	0664
 # Hewlett-Packard ScanJet 5590
 0x03f0	0x1705	root:scanner	0664

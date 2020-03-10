@@ -60,9 +60,9 @@ struct Genesys_Settings
     unsigned yres = 0;
 
     //x start on scan table in mm
-    double tl_x = 0;
+    float tl_x = 0;
     // y start on scan table in mm
-    double tl_y = 0;
+    float tl_y = 0;
 
     // number of lines at scan resolution
     unsigned int lines = 0;
@@ -116,7 +116,7 @@ struct SetupParams {
     unsigned xres = NOT_SET;
     // resolution in y direction
     unsigned yres = NOT_SET;
-    // start pixel in X direction, from dummy_pixel + 1
+    // start pixel in X direction, from dummy_pixel + 1. Counted in terms of xres.
     unsigned startx = NOT_SET;
     // start pixel in Y direction, counted according to base_ydpi
     unsigned starty = NOT_SET;
@@ -228,6 +228,9 @@ struct ScanSession {
     // only on gl846, g847
     unsigned optical_pixels_raw = 0;
 
+    // the number of optical scan lines. Equal to output_line_count on CCD scanners.
+    unsigned optical_line_count = 0;
+
     // the resolution of the output data.
     // gl843-only
     unsigned output_resolution = 0;
@@ -297,14 +300,14 @@ struct ScanSession {
     // Currently it's always zero.
     unsigned output_segment_start_offset = 0;
 
-    // the sizes of the corresponding buffers
+    // the size of the read buffer.
     size_t buffer_size_read = 0;
-    size_t buffer_size_lines = 0;
-    size_t buffer_size_shrink = 0;
-    size_t buffer_size_out = 0;
 
     // whether to enable ledadd functionality
     bool enable_ledadd = false;
+
+    // whether calibration should be performed host-side
+    bool use_host_side_calib = false;
 
     // what pipeline modifications are needed
     bool pipeline_needs_reorder = false;
@@ -317,9 +320,52 @@ struct ScanSession {
             throw std::runtime_error("ScanSession is not computed");
         }
     }
+
+    bool operator==(const ScanSession& other) const;
 };
 
 std::ostream& operator<<(std::ostream& out, const ScanSession& session);
+
+template<class Stream>
+void serialize(Stream& str, ScanSession& x)
+{
+    serialize(str, x.params);
+    serialize_newline(str);
+    serialize(str, x.computed);
+    serialize(str, x.hwdpi_divisor);
+    serialize(str, x.ccd_size_divisor);
+    serialize(str, x.optical_resolution);
+    serialize(str, x.optical_pixels);
+    serialize(str, x.optical_pixels_raw);
+    serialize(str, x.optical_line_count);
+    serialize(str, x.output_resolution);
+    serialize(str, x.output_pixels);
+    serialize(str, x.output_channel_bytes);
+    serialize(str, x.output_line_bytes);
+    serialize(str, x.output_line_bytes_raw);
+    serialize(str, x.output_line_bytes_requested);
+    serialize(str, x.output_line_count);
+    serialize(str, x.output_total_bytes_raw);
+    serialize(str, x.output_total_bytes);
+    serialize(str, x.num_staggered_lines);
+    serialize(str, x.max_color_shift_lines);
+    serialize(str, x.color_shift_lines_r);
+    serialize(str, x.color_shift_lines_g);
+    serialize(str, x.color_shift_lines_b);
+    serialize(str, x.segment_count);
+    serialize(str, x.pixel_startx);
+    serialize(str, x.pixel_endx);
+    serialize(str, x.pixel_count_multiplier);
+    serialize(str, x.conseq_pixel_dist);
+    serialize(str, x.output_segment_pixel_group_count);
+    serialize(str, x.output_segment_start_offset);
+    serialize(str, x.buffer_size_read);
+    serialize(str, x.enable_ledadd);
+    serialize(str, x.use_host_side_calib);
+    serialize(str, x.pipeline_needs_reorder);
+    serialize(str, x.pipeline_needs_ccd);
+    serialize(str, x.pipeline_needs_shrink);
+}
 
 std::ostream& operator<<(std::ostream& out, const SANE_Parameters& params);
 

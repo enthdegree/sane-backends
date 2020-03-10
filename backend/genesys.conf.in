@@ -11,7 +11,7 @@
 # Hewlett Packard ScanJet 2400c
 usb 0x03f0 0x0a01
 
-# Hewlett Packard ScanJet 3670c/3690c
+# Hewlett Packard ScanJet 3670/3690c
 usb 0x03f0 0x1405
 
 # Plustek OpticPro ST24

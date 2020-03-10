@@ -1,5 +1,5 @@
-# This file was automatically created based on description files (*.desc)
-# by sane-desc 3.5 from sane-backends 1.0.25git on Tue Dec  3 15:24:46 2013
+# This file was generated from description files (*.desc)
+# by sane-desc 3.6 from sane-backends 1.0.29-241-g1f9590ab
 #
 # hwdb file for supported USB devices
 #
@@ -97,7 +97,7 @@ usb:v03F0p1205*
 usb:v03F0p1305*
  libsane_matched=yes
 
-# Hewlett-Packard ScanJet 3670C | Hewlett-Packard ScanJet 3690C
+# Hewlett-Packard ScanJet 3670 | Hewlett-Packard ScanJet 3690C
 usb:v03F0p1405*
  libsane_matched=yes
 

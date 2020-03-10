@@ -42,29 +42,17 @@ void test_image_buffer_genesys_usb()
         requests.push_back(x);
     };
 
-    FakeBufferModel model;
-    model.push_step(453120, 1);
-    model.push_step(56640, 3540);
-    ImageBufferGenesysUsb buffer{1086780, model, on_read_usb};
+    ImageBufferGenesysUsb buffer{1086780, 453120, on_read_usb};
 
     std::vector<std::uint8_t> dummy;
     dummy.resize(1086780);
 
     ASSERT_TRUE(buffer.get_data(453120, dummy.data()));
-    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
-    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
-    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
-    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
-    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
-    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
-    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
-    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
-    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
-    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
-    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(453120, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(180550, dummy.data()));
 
     std::vector<std::size_t> expected = {
-        453120, 56576, 56576, 56576, 56832, 56576, 56576, 56576, 56832, 56576, 56576, 56576, 11008
+        453120, 453120, 180736
     };
     ASSERT_EQ(requests, expected);
 }
@@ -79,25 +67,19 @@ void test_image_buffer_genesys_usb_capped_remaining_bytes()
         requests.push_back(x);
     };
 
-    FakeBufferModel model;
-    model.push_step(453120, 1);
-    model.push_step(56640, 3540);
-    ImageBufferGenesysUsb buffer{1086780, model, on_read_usb};
+    ImageBufferGenesysUsb buffer{1086780, 453120, on_read_usb};
 
     std::vector<std::uint8_t> dummy;
     dummy.resize(1086780);
 
     ASSERT_TRUE(buffer.get_data(453120, dummy.data()));
-    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
-    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
-    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
-    ASSERT_TRUE(buffer.get_data(56640, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(453120, dummy.data()));
     buffer.set_remaining_size(10000);
     ASSERT_FALSE(buffer.get_data(56640, dummy.data()));
 
     std::vector<std::size_t> expected = {
         // note that the sizes are rounded-up to 256 bytes
-        453120, 56576, 56576, 56576, 56832, 10240
+        453120, 453120, 10240
     };
     ASSERT_EQ(requests, expected);
 }
@@ -445,7 +427,7 @@ void test_node_calibrate_8bit()
     ImagePipelineStack stack;
     stack.push_first_node<ImagePipelineNodeArraySource>(1, 1, PixelFormat::RGB888,
                                                         std::move(in_data));
-    stack.push_node<ImagePipelineNodeCalibrate>(bottom, top);
+    stack.push_node<ImagePipelineNodeCalibrate>(bottom, top, 0);
 
     ASSERT_EQ(stack.get_output_width(), 1u);
     ASSERT_EQ(stack.get_output_height(), 1u);
@@ -481,7 +463,7 @@ void test_node_calibrate_16bit()
     ImagePipelineStack stack;
     stack.push_first_node<ImagePipelineNodeArraySource>(1, 1, PixelFormat::RGB161616,
                                                         std::move(in_data));
-    stack.push_node<ImagePipelineNodeCalibrate>(bottom, top);
+    stack.push_node<ImagePipelineNodeCalibrate>(bottom, top, 0);
 
     ASSERT_EQ(stack.get_output_width(), 1u);
     ASSERT_EQ(stack.get_output_height(), 1u);

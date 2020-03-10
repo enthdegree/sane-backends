@@ -1,5 +1,55 @@
 <!-- -*- Mode: markdown -*- -->
 
+## New with the next release
+
+### Documentation
+
+- removes the SANE Standard.  This is now maintained as a separate
+  project at https://gitlab.com/sane-project/standard.  HTML and PDF
+  versions can be found at https://sane-project.gitlab.io/standard/.
+
+### Build
+
+- removes the `--with-api-spec` option from `configure`
+
+
+## New with 1.0.29 (released 2020-02-02)
+
+### Backends
+
+- adds an `escl` backend (theoretically supporting *all* AirPrint
+  devices with a scan unit)
+- adds support for 23 new scanner models via existing backends
+- significantly changes `genesys` and `pixma` backends
+- fixes bugs in `canon_dr`, `fujitsu`, `hp3900`, `mustek_usb2`,
+  `plustek` and `xerox_mfp` backends
+- fixes *all* compiler warnings on Debian 10 (#120)
+- fixes portability issues for uClibc-ng and MacOS builds
+- adds support to record and replay USB I/O traffic
+- adds timestamps to debug logs
+
+### Frontends
+
+- fixes a 32-bit arithmetic overflow issue in `scanimage`
+
+### Documentation
+
+- updates translations for British English, Catalan, German,
+  Ukrainian, Valencian
+- adds `scangearmp2` external backend descriptions
+- updates `hpaio` and `utsushi` external backend descriptions
+- adds the `ChangeLogs/` directory to the source tarball (#103)
+
+### Build
+
+- additionally requires `libcurl` and `libxml2` to build the `escl`
+  backend
+- requires `libxml2` for USB I/O recording and replay functionality
+- re-enables pthread support for backends that use its API directly,
+  irrespective of the `pthread_t` type (#153)
+- moves the `genesys` and `pixma` backends to a directory of their own
+
+
 ## New with 1.0.28 (released 2019-07-31)
 
 ### Backends

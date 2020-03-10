@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "28 Dec 2019" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "13 Feb 2020" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 sane\-pixma \- SANE backend for Canon Multi-Function Printers and CanoScan Scanners
@@ -71,9 +71,9 @@ imageCLASS D420, D480, D530, D570
 .br
 i-SENSYS MF210, MF230, MF240, MF620, MF630, MF640, MF645C, MF730
 .br
-i-SENSYS MF731/733, MF3010MF4320d, MF4330d, MF4500, MF4700
+i-SENSYS MF731/733, MF741/743, MF3010, MF4320d, MF4330d, MF4500
 .br
-i-SENSYS MF4800, MF6100, MF8030, MF8200C, MF8300
+i-SENSYS MF4700, MF4800, MF6100, MF8030, MF8200C, MF8300
 .br
 imageRUNNER 1020/1024/1025, 1133
 .br
@@ -81,7 +81,7 @@ CanoScan 8800F, 9000F, 9000F Mark II
 .br
 CanoScan LiDE 300, 400
 .br
-MAXIFY MB2000, MB2100, MB2300, MB2700, MB5000, MB5400
+MAXIFY MB2000, MB2100, MB2300, MB2700, MB5000, MB5100, MB5400
 .RE
 .PP
 The following models are not well tested and/or the scanner sometimes hangs
@@ -129,7 +129,7 @@ i-SENSYS MF110, MF220, MF260, MF410, MF420, MF510, MF520, MF740
 .br
 i-SENSYS MF5880dn, MF5900, MF6680dn, MF8500C
 .br
-MAXIFY MB5100, MB5300
+MAXIFY MB5300
 .RE
 .PP
 The following models may use partly the same Pixma protocol as other devices

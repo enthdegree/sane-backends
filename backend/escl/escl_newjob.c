@@ -21,6 +21,9 @@
 
    This file implements a SANE backend for eSCL scanners.  */
 
+#define DEBUG_DECLARE_ONLY
+#include "../include/sane/config.h"
+
 #include "escl.h"
 
 #include <stdio.h>
@@ -28,6 +31,12 @@
 #include <string.h>
 
 #include <curl/curl.h>
+
+#ifdef PATH_MAX
+# undef PATH_MAX
+#endif
+
+#define PATH_MAX 4096
 
 struct uploading
 {
@@ -54,7 +63,7 @@ static const char settings[] =
     "          <pwg:YOffset>%d</pwg:YOffset>" \
     "      </pwg:ScanRegion>" \
     "   </pwg:ScanRegions>" \
-    "   <pwg:DocumentFormat>image/jpeg</pwg:DocumentFormat>" \
+    "   <pwg:DocumentFormat>%s</pwg:DocumentFormat>" \
     "%s" \
     "   <scan:ColorMode>%s</scan:ColorMode>" \
     "   <scan:XResolution>%d</scan:XResolution>" \
@@ -62,8 +71,14 @@ static const char settings[] =
     "   <pwg:InputSource>Platen</pwg:InputSource>" \
     "</scan:ScanSettings>";
 
-static const char formatExt[] =
+static char formatExtJPEG[] =
     "   <scan:DocumentFormatExt>image/jpeg</scan:DocumentFormatExt>";
+
+static char formatExtPNG[] =
+    "   <scan:DocumentFormatExt>image/png</scan:DocumentFormatExt>";
+
+static char formatExtTIFF[] =
+    "   <scan:DocumentFormatExt>image/tiff</scan:DocumentFormatExt>";
 
 /**
  * \fn static size_t download_callback(void *str, size_t size, size_t nmemb, void *userp)
@@ -96,7 +111,7 @@ download_callback(void *str, size_t size, size_t nmemb, void *userp)
     char *content = realloc(download->memory, download->size + realsize + 1);
 
     if (content == NULL) {
-        fprintf(stderr, "not enough memory (realloc returned NULL)\n");
+        DBG( 1, "Not enough memory (realloc returned NULL)\n");
         return (0);
     }
     download->memory = content;
@@ -127,30 +142,48 @@ escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *statu
     char *location = NULL;
     char *result = NULL;
     char *temporary = NULL;
+    char *f_ext = "";
+    char *format_ext = NULL;
 
     *status = SANE_STATUS_GOOD;
     if (name == NULL || scanner == NULL) {
         *status = SANE_STATUS_NO_MEM;
+        DBG( 1, "Create NewJob : the name or the scan are invalid.\n");
         return (NULL);
     }
     upload = (struct uploading *)calloc(1, sizeof(struct uploading));
     if (upload == NULL) {
         *status = SANE_STATUS_NO_MEM;
+        DBG( 1, "Create NewJob : memory allocation failure\n");
         return (NULL);
     }
     download = (struct downloading *)calloc(1, sizeof(struct downloading));
     if (download == NULL) {
         free(upload);
+        DBG( 1, "Create NewJob : memory allocation failure\n");
         *status = SANE_STATUS_NO_MEM;
         return (NULL);
     }
-    curl_global_init(CURL_GLOBAL_ALL);
     curl_handle = curl_easy_init();
+    if (scanner->format_ext == 1)
+    {
+       if (!strcmp(scanner->default_format, "image/jpeg"))
+          format_ext = formatExtJPEG;
+       else if (!strcmp(scanner->default_format, "image/png"))
+          format_ext = formatExtPNG;
+       else if (!strcmp(scanner->default_format, "image/tiff"))
+          format_ext = formatExtTIFF;
+       else
+          format_ext = f_ext;
+    }
+    else
+      format_ext = f_ext;
+    DBG( 1, "Create NewJob : %s\n", scanner->default_format);
     if (curl_handle != NULL) {
-        snprintf(cap_data, sizeof(cap_data), settings, scanner->height, scanner->width, 0, 0,
-                 (scanner->format_ext == 1 ? formatExt : ""),
+        snprintf(cap_data, sizeof(cap_data), settings, scanner->height, scanner->width, 0, 0, scanner->default_format,
+                 format_ext,
                  scanner->default_color, scanner->default_resolution, scanner->default_resolution);
-        //fprintf(stderr, "CAP_DATA = %s\n", cap_data);
+        DBG( 1, "Create NewJob : %s\n", cap_data);
         upload->read_data = strdup(cap_data);
         upload->size = strlen(cap_data);
         download->memory = malloc(1);
@@ -168,37 +201,44 @@ escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *statu
         curl_easy_setopt(curl_handle, CURLOPT_HEADERFUNCTION, download_callback);
         curl_easy_setopt(curl_handle, CURLOPT_HEADERDATA, (void *)download);
         if (curl_easy_perform(curl_handle) != CURLE_OK) {
-            fprintf(stderr, "THERE IS NO SCANNER\n");
+            DBG( 1, "Create NewJob : the scanner responded incorrectly.\n");
             *status = SANE_STATUS_INVAL;
         }
         else {
             if (download->memory != NULL) {
-                if (strstr(download->memory, "Location:")) {
-                    temporary = strrchr(download->memory, '/');
+                char *tmp_location = strstr(download->memory, "Location:");
+                if (tmp_location) {
+                    temporary = strchr(tmp_location, '\r');
+                    if (temporary == NULL)
+                        temporary = strchr(tmp_location, '\n');
                     if (temporary != NULL) {
-                        location = strchr(temporary, '\r');
-                        if (location == NULL)
-                            location = strchr(temporary, '\n');
-                        else {
-                            *location = '\0';
-                            result = strdup(temporary);
-                        }
+                       *temporary = '\0';
+                       location = strrchr(tmp_location,'/');
+                       if (location) {
+                          result = strdup(location);
+                          DBG( 1, "Create NewJob : %s\n", result);
+                          *temporary = '\n';
+                       }
+                    }
+                    if (result == NULL) {
+                       DBG( 1, "Error : Create NewJob, no location\n");
+                       *status = SANE_STATUS_INVAL;
                     }
                     free(download->memory);
                 }
                 else {
-                    fprintf(stderr, "THERE IS NO LOCATION\n");
+                    DBG( 1, "Create NewJob : The creation of the failed job\n");
                     *status = SANE_STATUS_INVAL;
                 }
             }
             else {
                 *status = SANE_STATUS_NO_MEM;
+                DBG( 1, "Create NewJob : The creation of the failed job\n");
                 return (NULL);
             }
         }
         curl_easy_cleanup(curl_handle);
     }
-    curl_global_cleanup();
     if (upload != NULL)
         free(upload);
     if (download != NULL)

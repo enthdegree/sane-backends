@@ -1,4 +1,5 @@
 /* sane - Scanner Access Now Easy.
+   Copyright (C) 2020 Ralph Little <skelband@gmail.com>
    Copyright (C) 2003 Martijn van Oosterhout <kleptog@svana.org>
    Copyright (C) 2003 Thomas Soumarmon <thomas.soumarmon@cogitae.net>
    Copyright (c) 2003 Henning Meier-Geinitz, <henning@meier-geinitz.de>
@@ -149,10 +150,136 @@ SetLamp (THWParams * pHWParams, int fLampOn)
   if (fLampOn)
     {
       if (WriteByte (pHWParams->iXferHandle, 0x0000, 0x01) == 0)
-	return 0;
+        return 0;
     }
   return -1;
 }
+
+
+HP5400_SANE_STATIC
+int
+GetSensors(THWParams * pHWParams, uint16_t *sensorMap)
+{
+  /*
+   * Read until we get 0.
+   * Max 10 iterations for safety.
+   *
+   */
+  uint16_t thisSensorMap = 0;
+  size_t iterCount = 10;
+  do
+    {
+      if (hp5400_command_read
+          (pHWParams->iXferHandle, CMD_GETSENSORS, sizeof (uint16_t), &thisSensorMap) < 0)
+        {
+          HP5400_DBG (DBG_MSG, "failed to read sensors\n");
+          return -1;
+        }
+      *sensorMap |= thisSensorMap;
+    } while (iterCount-- && (thisSensorMap > 0));
+
+    return 0;
+}
+
+HP5400_SANE_STATIC
+int
+GetPanelInfo (THWParams * pHWParams, TPanelInfo *panelInfo)
+{
+  struct PanelInfo info;
+  if (hp5400_command_read (pHWParams->iXferHandle, CMD_READPANEL,
+                           sizeof(info), &info) < 0)
+    {
+      HP5400_DBG (DBG_MSG, "failed to read panel info\n");
+      return -1;
+    }
+
+  panelInfo->copycount = (SANE_Word)info.copycount;
+  panelInfo->bwcolour = (SANE_Word)info.bwcolour;
+
+  return 0;
+}
+
+HP5400_SANE_STATIC
+int
+SetCopyCount(THWParams * pHWParams, SANE_Word copyCount)
+{
+
+  /*
+   * I don't know what most of these things are but it is
+   * necessary to send something sane otherwise we get an error from the scanner.
+   * I got these settings from a USB trace.
+   * Hopefully, we will learn what it is all about at some point
+   * and hopefully it doesn't screw with other settings.
+   *
+   */
+  uint8_t packetImage[] = {0x02, 0x06, 0x32, 0x01,
+                          0xf2, 0x40, 0x16, 0x01,
+                          0x7b, 0x41, 0x16, 0x01,
+                          0xdc, 0x06, 0x32, 0x01,
+                          0xd7, 0x5b, 0x16, 0x01,
+                          0xac, 0x06, 0x32, 0x01,
+                          0xf8, 0xd7, 0x18, 0x01,
+                          0xd8, 0x06, 0x32, 0x01,
+                          0x2c, 0xf3, 0x12, 0x00,
+                          0x70, 0x8d, 0x18, 0x01,
+                          0x7b, 0x00, 0x00, 0x00};
+
+  struct PanelInfo workingInfo;
+  (void)memcpy(&workingInfo, packetImage, sizeof(workingInfo));
+
+  workingInfo.copycount = (uint8_t)copyCount;
+
+  if (hp5400_command_write (pHWParams->iXferHandle, CMD_WRITEPANEL,
+                           sizeof(workingInfo), &workingInfo) < 0)
+    {
+      HP5400_DBG (DBG_MSG, "failed to write panel info\n");
+      return -1;
+    }
+
+  return 0;
+}
+
+HP5400_SANE_STATIC
+int
+SetColourBW(THWParams * pHWParams, SANE_Word colourBW)
+{
+
+  /*
+   * I don't know what most of these things are but it is
+   * necessary to send something sane otherwise we get an error from the scanner.
+   * I got these settings from a USB trace.
+   * Hopefully, we will learn what it is all about at some point
+   * and hopefully it doesn't screw with other settings.
+   *
+   */
+  uint8_t packetImage[] = {0x03, 0x06, 0x32, 0x01,
+                          0xf2, 0x40, 0x16, 0x01,
+                          0x7b, 0x41, 0x16, 0x01,
+                          0xdc, 0x06, 0x32, 0x01,
+                          0xd7, 0x5b, 0x16, 0x01,
+                          0xac, 0x06, 0x32, 0x01,
+                          0xf8, 0xd7, 0x18, 0x01,
+                          0xd8, 0x06, 0x32, 0x01,
+                          0x68, 0xf5, 0x12, 0x00,
+                          0x70, 0x8d, 0x18, 0x01,
+                          0x7b, 0x00, 0x00, 0x00};
+
+  struct PanelInfo workingInfo;
+  (void)memcpy(&workingInfo, packetImage, sizeof(workingInfo));
+
+  workingInfo.bwcolour = (uint8_t)colourBW;
+
+  if (hp5400_command_write (pHWParams->iXferHandle, CMD_WRITEPANEL,
+                           sizeof(workingInfo), &workingInfo) < 0)
+    {
+      HP5400_DBG (DBG_MSG, "failed to write panel info\n");
+      return -1;
+    }
+
+  return 0;
+}
+
+
 
 HP5400_SANE_STATIC
 int

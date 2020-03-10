@@ -383,6 +383,9 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 
 #define get_IN_op_halt(in)            getbitfield(in+0x7a, 1, 7)
 
+#define get_IN_return_path(in)        getbitfield(in+0x7c, 1, 7)
+#define get_IN_energy_star3(in)       getbitfield(in+0x7c, 1, 6)
+
 /* ==================================================================== */
 /* page codes used by mode_sense and mode_select */
 #define MS_pc_unk     0x2c /* Used by iX500 */
@@ -763,6 +766,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define get_GHS_fb_open(in)         getbitfield(in+0x03, 1, 3)
 #define get_GHS_paper_end(in)       getbitfield(in+0x03, 1, 2)
 #define get_GHS_fb_on(in)           getbitfield(in+0x03, 1, 1)
+#define get_GHS_exit(in)            getbitfield(in+0x03, 1, 0)
 
 #define get_GHS_sleep(in)           getbitfield(in+0x04, 1, 7)
 #define get_GHS_clean(in)           getbitfield(in+0x04, 1, 6)
@@ -823,7 +827,8 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define SCANNER_CONTROL_len     10
 
 #define set_SC_ric(icb, val)                   setbitfield(icb + 1, 1, 4, val)
-#define set_SC_function(icb, val)              setbitfield(icb + 1, 0xf, 0, val)
+#define set_SC_function_1(icb, val)            setbitfield(icb + 1, 0xf, 0, val)
+#define set_SC_function_2(icb, val)            icb[2] = (val >> 4)
 #define SC_function_adf                        0x00
 #define SC_function_fb                         0x01
 #define SC_function_fb_hs                      0x02
@@ -836,6 +841,9 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define SC_function_scan_complete              0x09
 #define SC_function_eject_complete             0x0a
 #define SC_function_manual_feed                0x0c
+#define SC_function_mfeed                      0x0f
+#define SC_function_continuous                 0x1f
+#define SC_function_rpath                      0x2f
 
 /* used with SC_function_panel */
 #define set_SC_led_eb(icb, val)                setbitfield(icb + 5, 1, 7, val)

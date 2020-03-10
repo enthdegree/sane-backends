@@ -119,8 +119,8 @@ typedef uint32_t uint32_t;
 /** \name Version of the driver */
 /**@{*/
 #define PIXMA_VERSION_MAJOR 0
-#define PIXMA_VERSION_MINOR 26
-#define PIXMA_VERSION_BUILD 0
+#define PIXMA_VERSION_MINOR 27
+#define PIXMA_VERSION_BUILD 2
 /**@}*/
 
 /** \name Error codes */

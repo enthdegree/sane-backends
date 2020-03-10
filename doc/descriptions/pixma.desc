@@ -11,7 +11,7 @@
 ; See doc/descriptions.txt for details.
 
 :backend "pixma"                  ; name of backend
-:version "0.26.0"                 ; version of backend (or "unmaintained")
+:version "0.27.2"                 ; version of backend (or "unmaintained")
 :manpage "sane-pixma"             ; name of manpage (if it exists)
 ;:comment "Devices marked as experimantal are disabled by default. See the manual page for how to enable them."
 
@@ -1265,6 +1265,12 @@
 :status :untested
 :comment "Testers needed!"
 
+:model "i-SENSYS MF741/743"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x27fc"
+:status :complete
+:comment "Flatbed and ADF scan. All resolutions supported (up to 600DPI)."
+
 :model "i-SENSYS MF810/820"
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x27a6"
@@ -1562,8 +1568,8 @@
 :model "MAXIFY MB5100 Series"
 :interface "USB Ethernet WiFi"
 :usbid "0x04a9" "0x1790"
-:status :untested
-:comment "Testers needed!"
+:status :complete
+:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI)."
 
 :model "MAXIFY MB5300 Series"
 :interface "USB Ethernet"

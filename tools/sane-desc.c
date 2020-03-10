@@ -45,7 +45,7 @@
 #include "../include/sane/sanei.h"
 #include "../include/sane/sanei_config.h"
 
-#define SANE_DESC_VERSION "3.5"
+#define SANE_DESC_VERSION "3.6"
 
 #define MAN_PAGE_LINK "man/%s.5.html"
 #define COLOR_MINIMAL      "\"#B00000\""
@@ -2808,16 +2808,14 @@ html_print_header (void)
 static void
 html_print_footer (void)
 {
-  time_t current_time = time (0);
-
   printf
     ("<hr>\n"
      "<a href=\"./\">SANE homepage</a>\n"
      "<address>\n"
      "<a href=\"imprint.html\"\n"
      ">Contact</a>\n" "</address>\n" "<font size=-1>\n");
-  printf ("This page was last updated on %s by sane-desc %s from %s\n",
-	  asctime (localtime (&current_time)), SANE_DESC_VERSION, PACKAGE_STRING);
+  printf ("This page was created by sane-desc %s from %s\n",
+	  SANE_DESC_VERSION, PACKAGE_STRING);
   printf ("</font>\n");
   printf ("</body> </html>\n");
 }
@@ -3318,21 +3316,22 @@ create_scsiids_table (void)
   return first_scsiid;
 }
 
+static void
+print_header_comment (void)
+{
+  printf ("# This file was generated from description files (*.desc)\n"
+          "# by sane-desc %s from %s\n",
+          SANE_DESC_VERSION, PACKAGE_STRING);
+}
+
 /* print USB usermap file to be used by the hotplug tools */
 static void
 print_usermap_header (void)
 {
-  time_t current_time = time (0);
-
+  print_header_comment ();
   printf
-    ("# This file was automatically created based on description files (*.desc)\n"
-    "# by sane-desc %s from %s on %s"
-    "#\n"
-    ,
-    SANE_DESC_VERSION, PACKAGE_STRING, asctime (localtime (&current_time)));
-
-  printf
-     ("# The entries below are used to detect a USB device and change owner\n"
+    ("#\n"
+     "# The entries below are used to detect a USB device and change owner\n"
      "# and permissions on the \"device node\" used by libusb.\n"
      "#\n"
      "# The 0x0003 match flag means the device is matched by its vendor and\n"
@@ -3396,10 +3395,7 @@ print_usermap (void)
 static void
 print_db_header (void)
 {
-  time_t current_time = time (0);
-  printf ("# This file was automatically created based on description files (*.desc)\n"
-	  "# by sane-desc %s from %s on %s",
-	  SANE_DESC_VERSION, PACKAGE_STRING, asctime (localtime (&current_time)));
+  print_header_comment ();
   printf
     ("#\n"
      "# The entries below are used to detect a USB device when it's plugged in\n"
@@ -3461,11 +3457,7 @@ print_db (void)
 static void
 print_udev_header (void)
 {
-  time_t current_time = time (0);
-  printf ("# This file was automatically created based on description files (*.desc)\n"
-	  "# by sane-desc %s from %s on %s",
-	  SANE_DESC_VERSION, PACKAGE_STRING, asctime (localtime (&current_time)));
-
+  print_header_comment ();
   printf
     ("#\n"
      "# udev rules file for supported USB and SCSI devices\n"
@@ -3654,11 +3646,7 @@ print_udev (void)
 static void
 print_udevhwdb_header (void)
 {
-  time_t current_time = time (0);
-  printf ("# This file was automatically created based on description files (*.desc)\n"
-	  "# by sane-desc %s from %s on %s",
-	  SANE_DESC_VERSION, PACKAGE_STRING, asctime (localtime (&current_time)));
-
+  print_header_comment ();
   printf
     ("#\n"
      "# udev rules file for supported USB and SCSI devices\n"
@@ -3764,11 +3752,7 @@ print_udevhwdb (void)
 static void
 print_hwdb_header (void)
 {
-  time_t current_time = time (0);
-  printf ("# This file was automatically created based on description files (*.desc)\n"
-	  "# by sane-desc %s from %s on %s",
-	  SANE_DESC_VERSION, PACKAGE_STRING, asctime (localtime (&current_time)));
-
+  print_header_comment ();
   printf
     ("#\n"
      "# hwdb file for supported USB devices\n"

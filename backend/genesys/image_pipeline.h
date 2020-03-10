@@ -157,8 +157,7 @@ public:
 
     ImagePipelineNodeBufferedGenesysUsb(std::size_t width, std::size_t height,
                                         PixelFormat format, std::size_t total_size,
-                                        const FakeBufferModel& buffer_model,
-                                        ProducerCallback producer);
+                                        std::size_t buffer_size, ProducerCallback producer);
 
     std::size_t get_width() const override { return width_; }
     std::size_t get_height() const override { return height_; }
@@ -476,7 +475,7 @@ class ImagePipelineNodeCalibrate : public ImagePipelineNode
 public:
 
     ImagePipelineNodeCalibrate(ImagePipelineNode& source, const std::vector<std::uint16_t>& bottom,
-                               const std::vector<std::uint16_t>& top);
+                               const std::vector<std::uint16_t>& top, std::size_t x_start);
 
     std::size_t get_width() const override { return source_.get_width(); }
     std::size_t get_height() const override { return source_.get_height(); }

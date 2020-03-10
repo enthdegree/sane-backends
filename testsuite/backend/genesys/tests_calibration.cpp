@@ -70,7 +70,6 @@ Genesys_Calibration_Cache create_fake_calibration_entry()
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 64;
     sensor.ccd_start_xoffset = 0;
-    sensor.sensor_pixels = 10800;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 230;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -104,8 +103,6 @@ Genesys_Calibration_Cache create_fake_calibration_entry()
     sensor.gamma = {1.0, 1.0, 1.0};
     calib.sensor = sensor;
 
-    calib.calib_pixels = 12345;
-    calib.calib_channels = 3;
     calib.average_size = 7;
     calib.white_average_data = { 8, 7, 6, 5, 4, 3, 2 };
     calib.dark_average_data = { 6, 5, 4, 3, 2, 18, 12 };

@@ -43,9 +43,23 @@
 #include "../include/sane/sane.h"
 
 #include <stdio.h>
+#include <math.h>
 
 #ifndef BACKEND_NAME
 #define BACKEND_NAME escl
+#endif
+
+#define DEBUG_NOT_STATIC
+#include "../include/sane/sanei_debug.h"
+
+#ifndef DBG_LEVEL
+#define DBG_LEVEL       PASTE(sanei_debug_, BACKEND_NAME)
+#endif
+#ifndef NDEBUG
+# define DBGDUMP(level, buf, size) \
+    do { if (DBG_LEVEL >= (level)) sanei_escl_dbgdump(buf, size); } while (0)
+#else
+# define DBGDUMP(level, buf, size)
 #endif
 
 #define ESCL_CONFIG_FILE "escl.conf"
@@ -78,7 +92,7 @@ typedef struct capabilities
     int pos_x;
     int pos_y;
     SANE_String default_color;
-    SANE_String_Const default_format;
+    SANE_String default_format;
     SANE_Int default_resolution;
     int MinWidth;
     int MaxWidth;
@@ -102,6 +116,9 @@ typedef struct capabilities
     int RiskyTopMargin;
     int RiskyBottomMargin;
     FILE *tmp;
+    unsigned char *img_data;
+    long img_size;
+    long img_read;
     int format_ext;
 } capabilities_t;
 
@@ -135,12 +152,30 @@ enum
     NUM_OPTIONS
 };
 
+#define PIXEL_TO_MM(pixels, dpi) SANE_FIX((double)pixels * 25.4 / (dpi))
+#define MM_TO_PIXEL(millimeters, dpi) (SANE_Word)round(SANE_UNFIX(millimeters) * (dpi) / 25.4)
+
 ESCL_Device *escl_devices(SANE_Status *status);
-SANE_Status escl_device_add(int port_nb, const char *model_name, char *ip_address, char *type);
+SANE_Status escl_device_add(int port_nb, const char *model_name,
+		            char *ip_address, char *type);
 SANE_Status escl_status(SANE_String_Const name);
 capabilities_t *escl_capabilities(SANE_String_Const name, SANE_Status *status);
-char *escl_newjob(capabilities_t *scanner, SANE_String_Const name, SANE_Status *status);
-SANE_Status escl_scan(capabilities_t *scanner, SANE_String_Const name, char *result);
+char *escl_newjob(capabilities_t *scanner, SANE_String_Const name,
+		  SANE_Status *status);
+SANE_Status escl_scan(capabilities_t *scanner, SANE_String_Const name,
+	              char *result);
 void escl_scanner(SANE_String_Const name, char *result);
+
+unsigned char *escl_crop_surface(capabilities_t *scanner, unsigned char *surface,
+	                      int w, int h, int bps, int *width, int *height);
+
+// JPEG
+SANE_Status get_JPEG_data(capabilities_t *scanner, int *width, int *height, int *bps);
+
+// PNG
+SANE_Status get_PNG_data(capabilities_t *scanner, int *width, int *height, int *bps);
+
+// TIFF
+SANE_Status get_TIFF_data(capabilities_t *scanner, int *width, int *height, int *bps);
 
 #endif

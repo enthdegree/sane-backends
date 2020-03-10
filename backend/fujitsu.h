@@ -112,6 +112,7 @@ enum fujitsu_Option
   OPT_HOPPER,
   OPT_OMR,
   OPT_ADF_OPEN,
+  OPT_CARD_LOADED,
   OPT_SLEEP,
   OPT_SEND_SW,
   OPT_MANUAL_FEED,
@@ -277,6 +278,7 @@ struct fujitsu
   int has_comp_JPG2;
   int has_comp_JPG3;
   int has_op_halt;
+  int has_return_path;
 
   /*FIXME: more endorser data? */
   int endorser_type_f;
@@ -361,7 +363,7 @@ struct fujitsu
 
   /*mode group*/
   SANE_String_Const mode_list[7];
-  SANE_String_Const source_list[5];
+  SANE_String_Const source_list[8];
 
   SANE_Int res_list[17];
   SANE_Range res_range;
@@ -599,6 +601,7 @@ struct fujitsu
   int hw_hopper;
   int hw_omr;
   int hw_adf_open;
+  int hw_card_loaded;
 
   int hw_sleep;
   int hw_send_sw;
@@ -618,7 +621,7 @@ struct fujitsu
   int hw_density_sw;
 
   /* values which are used to track the frontend's access to sensors  */
-  char hw_read[NUM_OPTIONS-OPT_TOP];
+  char hw_data_avail[NUM_OPTIONS-OPT_TOP];
 };
 
 #define CONNECTION_SCSI   0 /* SCSI interface */
@@ -631,6 +634,9 @@ struct fujitsu
 #define SOURCE_ADF_FRONT 1
 #define SOURCE_ADF_BACK 2
 #define SOURCE_ADF_DUPLEX 3
+#define SOURCE_CARD_FRONT 4
+#define SOURCE_CARD_BACK 5
+#define SOURCE_CARD_DUPLEX 6
 
 #define COMP_NONE WD_cmp_NONE
 #define COMP_JPEG WD_cmp_JPG1

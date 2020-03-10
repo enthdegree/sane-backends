@@ -47,7 +47,7 @@
 
 namespace genesys {
 
-inline unsigned default_get_logical_hwdpi(const Genesys_Sensor& sensor, unsigned xres)
+inline unsigned default_get_register_hwdpi(const Genesys_Sensor& sensor, unsigned xres)
 {
     if (sensor.logical_dpihw_override)
         return sensor.logical_dpihw_override;
@@ -106,7 +106,7 @@ inline unsigned get_ccd_size_divisor_gl124(const Genesys_Sensor& sensor, unsigne
 
 inline unsigned default_get_hwdpi_divisor_for_dpi(const Genesys_Sensor& sensor, unsigned xres)
 {
-    return sensor.optical_res / default_get_logical_hwdpi(sensor, xres);
+    return sensor.optical_res / default_get_register_hwdpi(sensor, xres);
 }
 
 StaticInit<std::vector<Genesys_Sensor>> s_sensors;
@@ -123,7 +123,6 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 64;
     sensor.ccd_start_xoffset = 0;
-    sensor.sensor_pixels = 10800;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 230;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -155,8 +154,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
@@ -168,7 +166,6 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 85;
     sensor.ccd_start_xoffset = 152;
-    sensor.sensor_pixels = 5416;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 230;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -200,8 +197,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
@@ -213,7 +209,6 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 64;
     sensor.ccd_start_xoffset = 0;
-    sensor.sensor_pixels = 10800;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 230;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -245,8 +240,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
@@ -259,7 +253,6 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 16;
     sensor.ccd_start_xoffset = 0;
-    sensor.sensor_pixels = 10872;
     sensor.fau_gain_white_ref = 190;
     sensor.gain_white_ref = 190;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -292,8 +285,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x00 },
     };
     sensor.gamma = { 2.38f, 2.35f, 2.34f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
 
@@ -577,7 +569,6 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 15;
     sensor.ccd_start_xoffset = 0;
-    sensor.sensor_pixels = 10872;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -610,8 +601,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x00 },
     };
     sensor.gamma = { 2.1f, 2.1f, 2.1f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
 
@@ -810,7 +800,6 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 20;
     sensor.ccd_start_xoffset = 0;
-    sensor.sensor_pixels = 5368;
     sensor.fau_gain_white_ref = 180;
     sensor.gain_white_ref = 180;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -842,8 +831,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x16 },
     };
     sensor.gamma = { 2.1f, 2.1f, 2.1f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
 
@@ -988,7 +976,6 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 87;
     sensor.ccd_start_xoffset = 0;
-    sensor.sensor_pixels = 10400;
     sensor.fau_gain_white_ref = 0;
     sensor.gain_white_ref = 0;
     sensor.exposure = { 0x0400, 0x0400, 0x0400 };
@@ -1020,8 +1007,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
@@ -1033,7 +1019,6 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 5;
     sensor.dummy_pixel = 38;
     sensor.ccd_start_xoffset = 0;
-    sensor.sensor_pixels = 5200;
     sensor.fau_gain_white_ref = 200;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x1450, 0x0c80, 0x0a28 };
@@ -1092,8 +1077,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x00 }
     };
     sensor.gamma = { 2.1f, 2.1f, 2.1f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
 
@@ -1135,7 +1119,6 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 16;
     sensor.ccd_start_xoffset = 0;
-    sensor.sensor_pixels = 10872;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0, 0, 0 };
@@ -1168,8 +1151,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
 
@@ -1181,6 +1163,34 @@ void genesys_init_sensor_tables()
         };
 
         CustomSensorSettings custom_settings[] = {
+            { { 50 }, 5758, {
+                    { 0x08, 0x00 },
+                    { 0x09, 0x0a },
+                    { 0x0a, 0x0b },
+                    { 0x0b, 0x0d },
+                    { 0x16, 0x33 },
+                    { 0x17, 0x07 },
+                    { 0x18, 0x33 },
+                    { 0x19, 0x2a },
+                    { 0x1a, 0x02 },
+                    { 0x1b, 0x13 },
+                    { 0x1c, 0xc0 },
+                    { 0x1d, 0x43 },
+                    { 0x52, 0x0f },
+                    { 0x53, 0x13 },
+                    { 0x54, 0x17 },
+                    { 0x55, 0x03 },
+                    { 0x56, 0x07 },
+                    { 0x57, 0x0b },
+                    { 0x58, 0x83 },
+                    { 0x59, 0x15 },
+                    { 0x5a, 0xc1 },
+                    { 0x5b, 0x05 },
+                    { 0x5c, 0x0a },
+                    { 0x5d, 0x0f },
+                    { 0x5e, 0x00 }
+                }
+            },
             { { 75 }, 4879, {
                     { 0x08, 0x00 },
                     { 0x09, 0x0a },
@@ -1367,7 +1377,6 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 27;
     sensor.dummy_pixel = 27;
     sensor.ccd_start_xoffset = 0;
-    sensor.sensor_pixels = 2496;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x1100, 0x1100, 0x1100 };
@@ -1399,8 +1408,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x01 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
@@ -1412,7 +1420,6 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 27;
     sensor.dummy_pixel = 27;
     sensor.ccd_start_xoffset = 0;
-    sensor.sensor_pixels = 5200;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x1100, 0x1100, 0x1100 };
@@ -1444,8 +1451,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x01 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
@@ -1457,7 +1463,6 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 28;
     sensor.dummy_pixel = 28;
     sensor.ccd_start_xoffset = 0;
-    sensor.sensor_pixels = 5200;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x1544, 0x1544, 0x1544 };
@@ -1489,8 +1494,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x01 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
@@ -1502,7 +1506,6 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 27;
     sensor.dummy_pixel = 27;
     sensor.ccd_start_xoffset = 0;
-    sensor.sensor_pixels = 10240;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x1100, 0x1100, 0x1100 };
@@ -1534,8 +1537,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x01 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
@@ -1547,7 +1549,6 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 27;
     sensor.dummy_pixel = 27;
     sensor.ccd_start_xoffset = 0;
-    sensor.sensor_pixels = 5020;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x1100, 0x1100, 0x1100 };
@@ -1579,8 +1580,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x01 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
@@ -1592,13 +1592,11 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 87*4;
     sensor.dummy_pixel = 16*4;
     sensor.ccd_start_xoffset = 320*8;
-    sensor.sensor_pixels = 5136*8;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
     sensor.gamma = { 2.2f, 2.2f, 2.2f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
@@ -1696,13 +1694,10 @@ void genesys_init_sensor_tables()
     sensor.dummy_pixel = 16*8;
     // 384 at 600 dpi
     sensor.ccd_start_xoffset = 384*8;
-    // 8x5570 segments, 5187+1 for rounding
-    sensor.sensor_pixels = 5188*8;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
@@ -1797,13 +1792,11 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 87*4;
     sensor.dummy_pixel = 16*4;
     sensor.ccd_start_xoffset = 320*4;
-    sensor.sensor_pixels = 5136*4;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x01c1, 0x0126, 0x00e5 };
     sensor.gamma = { 2.2f, 2.2f, 2.2f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
@@ -1887,7 +1880,6 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 38;
     sensor.dummy_pixel = 38;
     sensor.ccd_start_xoffset = 152;
-    sensor.sensor_pixels = 5376;
     sensor.fau_gain_white_ref = 160;
     sensor.gain_white_ref = 160;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -1920,8 +1912,7 @@ void genesys_init_sensor_tables()
         { 0x5a, 0xc0 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
@@ -1934,15 +1925,13 @@ void genesys_init_sensor_tables()
     // 31 at 600 dpi dummy_pixels 58 at 1200
     sensor.dummy_pixel = 58;
     sensor.ccd_start_xoffset = 152;
-    sensor.sensor_pixels = 5360*8;
     sensor.fau_gain_white_ref = 160;
     sensor.gain_white_ref = 160;
     sensor.exposure = { 0x2c09, 0x22b8, 0x10f0 };
     sensor.stagger_config = StaggerConfig{ 2400, 4 }; // FIXME: may be incorrect
     sensor.custom_regs = {};
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
@@ -2115,15 +2104,13 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 100;
     sensor.dummy_pixel = 58;
     sensor.ccd_start_xoffset = 152;
-    sensor.sensor_pixels = 5360*8;
     sensor.fau_gain_white_ref = 160;
     sensor.gain_white_ref = 160;
     sensor.exposure = { 0x2c09, 0x22b8, 0x10f0 };
     sensor.stagger_config = StaggerConfig{ 2400, 4 }; // FIXME: may be incorrect
     sensor.custom_regs = {};
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
@@ -2223,19 +2210,18 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_CANON_4400F;
     sensor.optical_res = 4800;
+    sensor.register_dpihw_override = 4800;
     sensor.ccd_size_divisor = 4;
     sensor.black_pixels = 50*8;
     // 31 at 600 dpi, 58 at 1200 dpi
     sensor.dummy_pixel = 20;
     sensor.ccd_start_xoffset = 152;
-    // 5360 max at 600 dpi
-    sensor.sensor_pixels = 5700 * 8;
     sensor.fau_gain_white_ref = 160;
     sensor.gain_white_ref = 160;
     sensor.exposure = { 0x9c40, 0x9c40, 0x9c40 };
+    sensor.stagger_config = StaggerConfig{4800, 8};
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = get_sensor_optical_with_ccd_divisor;
-    sensor.get_register_hwdpi_fun = [](const Genesys_Sensor&, unsigned) { return 4800; };
+    sensor.get_register_hwdpi_fun = get_sensor_optical_with_ccd_divisor;
     sensor.get_hwdpi_divisor_fun = [](const Genesys_Sensor&, unsigned) { return 1; };
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
@@ -2243,110 +2229,62 @@ void genesys_init_sensor_tables()
         struct CustomSensorSettings {
             ResolutionFilter resolutions;
             int exposure_lperiod;
+            bool use_host_side_calib;
             std::vector<ScanMethod> methods;
             GenesysRegisterSettingSet extra_custom_regs;
+            GenesysRegisterSettingSet extra_custom_fe_regs;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 300, 600, 1200 }, 11640, { ScanMethod::FLATBED }, {
-                    { 0x16, 0x13 },
-                    { 0x17, 0x0a },
-                    { 0x18, 0x10 },
-                    { 0x19, 0x2a },
-                    { 0x1a, 0x30 },
-                    { 0x1b, 0x00 },
-                    { 0x1c, 0x00 },
-                    { 0x1d, 0x6b },
-                    { 0x52, 0x0a },
-                    { 0x53, 0x0d },
-                    { 0x54, 0x00 },
-                    { 0x55, 0x03 },
-                    { 0x56, 0x06 },
-                    { 0x57, 0x08 },
-                    { 0x58, 0x5b },
-                    { 0x59, 0x00 },
-                    { 0x5a, 0x40 },
+            {   { 300, 600, 1200 }, 11640, false, { ScanMethod::FLATBED }, {
+                    { 0x16, 0x13 }, { 0x17, 0x0a }, { 0x18, 0x10 }, { 0x19, 0x2a },
+                    { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x6b },
+                    { 0x52, 0x0a }, { 0x53, 0x0d }, { 0x54, 0x00 }, { 0x55, 0x03 },
+                    { 0x56, 0x06 }, { 0x57, 0x08 }, { 0x58, 0x5b }, { 0x59, 0x00 }, { 0x5a, 0x40 },
                     { 0x70, 0x00 }, { 0x71, 0x02 }, { 0x72, 0x01 }, { 0x73, 0x03 },
                     { 0x74, 0x00 }, { 0x75, 0xf8 }, { 0x76, 0x38 },
                     { 0x77, 0x00 }, { 0x78, 0xfc }, { 0x79, 0x00 },
                     { 0x7a, 0x00 }, { 0x7b, 0x92 }, { 0x7c, 0xa4 },
                     { 0x9e, 0x2d },
-                }
+                }, {}
             },
-            { { 300, 600, 1200 }, 33300, { ScanMethod::TRANSPARENCY }, {
-                    { 0x16, 0x13 },
-                    { 0x17, 0x0a },
-                    { 0x18, 0x10 },
-                    { 0x19, 0x2a },
-                    { 0x1a, 0x30 },
-                    { 0x1b, 0x00 },
-                    { 0x1c, 0x00 },
-                    { 0x1d, 0x6b },
-                    { 0x52, 0x0a },
-                    { 0x53, 0x0d },
-                    { 0x54, 0x00 },
-                    { 0x55, 0x03 },
-                    { 0x56, 0x06 },
-                    { 0x57, 0x08 },
-                    { 0x58, 0x5b },
-                    { 0x59, 0x00 },
-                    { 0x5a, 0x40 },
+            {   { 1200 }, 33300, true, { ScanMethod::TRANSPARENCY }, {
+                    { 0x16, 0x13 }, { 0x17, 0x0a }, { 0x18, 0x10 }, { 0x19, 0x2a },
+                    { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x6b },
+                    { 0x52, 0x0a }, { 0x53, 0x0d }, { 0x54, 0x00 }, { 0x55, 0x03 },
+                    { 0x56, 0x06 }, { 0x57, 0x08 }, { 0x58, 0x5b }, { 0x59, 0x00 }, { 0x5a, 0x40 },
                     { 0x70, 0x00 }, { 0x71, 0x02 }, { 0x72, 0x00 }, { 0x73, 0x02 },
                     { 0x74, 0x00 }, { 0x75, 0xf8 }, { 0x76, 0x38 },
                     { 0x77, 0x00 }, { 0x78, 0xfc }, { 0x79, 0x00 },
                     { 0x7a, 0x00 }, { 0x7b, 0x92 }, { 0x7c, 0xa4 },
                     { 0x9e, 0x2d },
-                }
+                }, {}
             },
-            { { 2400 }, 33300, { ScanMethod::TRANSPARENCY }, {
-                    { 0x16, 0x13 },
-                    { 0x17, 0x0a },
-                    { 0x18, 0x10 },
-                    { 0x19, 0x2a },
-                    { 0x1a, 0x30 },
-                    { 0x1b, 0x00 },
-                    { 0x1c, 0x01 },
-                    { 0x1d, 0x75 },
-                    { 0x52, 0x0b },
-                    { 0x53, 0x0d },
-                    { 0x54, 0x00 },
-                    { 0x55, 0x03 },
-                    { 0x56, 0x06 },
-                    { 0x57, 0x09 },
-                    { 0x58, 0x53 },
-                    { 0x59, 0x00 },
-                    { 0x5a, 0x40 },
+            {   { 2400 }, 33300, true, { ScanMethod::TRANSPARENCY }, {
+                    { 0x16, 0x13 }, { 0x17, 0x15 }, { 0x18, 0x10 }, { 0x19, 0x2a },
+                    { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x01 }, { 0x1d, 0x75 },
+                    { 0x52, 0x0b }, { 0x53, 0x0d }, { 0x54, 0x00 }, { 0x55, 0x03 },
+                    { 0x56, 0x06 }, { 0x57, 0x09 }, { 0x58, 0x53 }, { 0x59, 0x00 }, { 0x5a, 0x40 },
                     { 0x70, 0x00 }, { 0x71, 0x02 }, { 0x72, 0x02 }, { 0x73, 0x04 },
                     { 0x74, 0x00 }, { 0x75, 0xff }, { 0x76, 0x00 },
                     { 0x77, 0x00 }, { 0x78, 0xff }, { 0x79, 0x00 },
                     { 0x7a, 0x00 }, { 0x7b, 0x54 }, { 0x7c, 0x92 },
                     { 0x9e, 0x2d },
+                }, {
+                    { 0x03, 0x1f },
                 }
             },
-            { { 4800 }, 33300, { ScanMethod::TRANSPARENCY }, {
-                    { 0x16, 0x13 },
-                    { 0x17, 0x0a },
-                    { 0x18, 0x10 },
-                    { 0x19, 0x2a },
-                    { 0x1a, 0x30 },
-                    { 0x1b, 0x00 },
-                    { 0x1c, 0x61 },
-                    { 0x1d, 0x75 },
-                    { 0x52, 0x02 },
-                    { 0x53, 0x05 },
-                    { 0x54, 0x08 },
-                    { 0x55, 0x0b },
-                    { 0x56, 0x0d },
-                    { 0x57, 0x0f },
-                    { 0x58, 0x1b },
-                    { 0x59, 0x00 },
-                    { 0x5a, 0x40 },
+            {   { 4800 }, 33300, true, { ScanMethod::TRANSPARENCY }, {
+                    { 0x16, 0x13 }, { 0x17, 0x15 }, { 0x18, 0x10 }, { 0x19, 0x2a },
+                    { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x61 }, { 0x1d, 0x75 },
+                    { 0x52, 0x02 }, { 0x53, 0x05 }, { 0x54, 0x08 }, { 0x55, 0x0b },
+                    { 0x56, 0x0d }, { 0x57, 0x0f }, { 0x58, 0x1b }, { 0x59, 0x00 }, { 0x5a, 0x40 },
                     { 0x70, 0x08 }, { 0x71, 0x0a }, { 0x72, 0x0a }, { 0x73, 0x0c },
                     { 0x74, 0x00 }, { 0x75, 0xff }, { 0x76, 0xff },
                     { 0x77, 0x00 }, { 0x78, 0xff }, { 0x79, 0xff },
                     { 0x7a, 0x00 }, { 0x7b, 0x54 }, { 0x7c, 0x92 },
                     { 0x9e, 0x2d },
-                }
+                }, {}
             }
         };
 
@@ -2355,8 +2293,10 @@ void genesys_init_sensor_tables()
             for (auto method : setting.methods) {
                 sensor.resolutions = setting.resolutions;
                 sensor.exposure_lperiod = setting.exposure_lperiod;
+                sensor.use_host_side_calib = setting.use_host_side_calib;
                 sensor.method = method;
                 sensor.custom_regs = setting.extra_custom_regs;
+                sensor.custom_fe_regs = setting.extra_custom_fe_regs;
                 s_sensors->push_back(sensor);
             }
         }
@@ -2372,15 +2312,13 @@ void genesys_init_sensor_tables()
     // 31 at 600 dpi, 58 at 1200 dpi
     sensor.dummy_pixel = 20;
     sensor.ccd_start_xoffset = 152;
-    sensor.sensor_pixels = 27200;
     sensor.fau_gain_white_ref = 160;
     sensor.gain_white_ref = 160;
     sensor.exposure = { 0x9c40, 0x9c40, 0x9c40 };
     sensor.stagger_config = StaggerConfig{ 3200, 6 };
     sensor.custom_regs = {};
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = get_sensor_optical_with_ccd_divisor;
-    sensor.get_register_hwdpi_fun = [](const Genesys_Sensor&, unsigned) { return 4800; };
+    sensor.get_register_hwdpi_fun = get_sensor_optical_with_ccd_divisor;
     sensor.get_hwdpi_divisor_fun = [](const Genesys_Sensor&, unsigned) { return 1; };
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
@@ -2396,25 +2334,11 @@ void genesys_init_sensor_tables()
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 400 }, 2400, 1, 7200, { ScanMethod::FLATBED }, {
-                    { 0x16, 0x33 },
-                    { 0x17, 0x0c },
-                    { 0x18, 0x13 },
-                    { 0x19, 0x2a },
-                    { 0x1a, 0x30 },
-                    { 0x1b, 0x00 },
-                    { 0x1c, 0x00 },
-                    { 0x1d, 0x84 },
-                    { 0x1e, 0xa0 },
-                    { 0x52, 0x0d },
-                    { 0x53, 0x10 },
-                    { 0x54, 0x01 },
-                    { 0x55, 0x04 },
-                    { 0x56, 0x07 },
-                    { 0x57, 0x0a },
-                    { 0x58, 0x6b },
-                    { 0x59, 0x00 },
-                    { 0x5a, 0x40 },
+            {   { 400 }, 2400, 1, 7200, { ScanMethod::FLATBED }, {
+                    { 0x16, 0x33 }, { 0x17, 0x0c }, { 0x18, 0x13 }, { 0x19, 0x2a },
+                    { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x84 }, { 0x1e, 0xa0 },
+                    { 0x52, 0x0d }, { 0x53, 0x10 }, { 0x54, 0x01 }, { 0x55, 0x04 },
+                    { 0x56, 0x07 }, { 0x57, 0x0a }, { 0x58, 0x6b }, { 0x59, 0x00 }, { 0x5a, 0x40 },
                     { 0x70, 0x01 }, { 0x71, 0x02 }, { 0x72, 0x03 }, { 0x73, 0x04 },
                     { 0x74, 0x00 }, { 0x75, 0x0e }, { 0x76, 0x3f },
                     { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
@@ -2422,25 +2346,11 @@ void genesys_init_sensor_tables()
                     { 0x80, 0x2a },
                 }, {}
             },
-            { { 800 }, 4800, 1, 7200, { ScanMethod::FLATBED }, {
-                    { 0x16, 0x33 },
-                    { 0x17, 0x0c },
-                    { 0x18, 0x13 },
-                    { 0x19, 0x2a },
-                    { 0x1a, 0x30 },
-                    { 0x1b, 0x00 },
-                    { 0x1c, 0x00 },
-                    { 0x1d, 0x84 },
-                    { 0x1e, 0xa0 },
-                    { 0x52, 0x0d },
-                    { 0x53, 0x10 },
-                    { 0x54, 0x01 },
-                    { 0x55, 0x04 },
-                    { 0x56, 0x07 },
-                    { 0x57, 0x0a },
-                    { 0x58, 0x6b },
-                    { 0x59, 0x00 },
-                    { 0x5a, 0x40 },
+            {   { 800 }, 4800, 1, 7200, { ScanMethod::FLATBED }, {
+                    { 0x16, 0x33 }, { 0x17, 0x0c }, { 0x18, 0x13 }, { 0x19, 0x2a },
+                    { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x84 }, { 0x1e, 0xa0 },
+                    { 0x52, 0x0d }, { 0x53, 0x10 }, { 0x54, 0x01 }, { 0x55, 0x04 },
+                    { 0x56, 0x07 }, { 0x57, 0x0a }, { 0x58, 0x6b }, { 0x59, 0x00 }, { 0x5a, 0x40 },
                     { 0x70, 0x01 }, { 0x71, 0x02 }, { 0x72, 0x03 }, { 0x73, 0x04 },
                     { 0x74, 0x00 }, { 0x75, 0x0e }, { 0x76, 0x3f },
                     { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
@@ -2448,26 +2358,12 @@ void genesys_init_sensor_tables()
                     { 0x80, 0x20 },
                 }, {}
             },
-            { { 1600 }, 4800, 1, 14400, { ScanMethod::FLATBED }, {
-                    { 0x16, 0x33 },
-                    { 0x17, 0x0c },
-                    { 0x18, 0x11 },
-                    { 0x19, 0x2a },
-                    { 0x1a, 0x30 },
-                    { 0x1b, 0x00 },
-                    { 0x1c, 0x00 },
-                    { 0x1d, 0x84 },
-                    { 0x1e, 0xa1 },
-                    { 0x52, 0x0b },
-                    { 0x53, 0x0e },
-                    { 0x54, 0x11 },
-                    { 0x55, 0x02 },
-                    { 0x56, 0x05 },
-                    { 0x57, 0x08 },
-                    { 0x58, 0x63 },
-                    { 0x59, 0x00 },
-                    { 0x5a, 0x40 },
-                    { 0x70, 0x01 }, { 0x71, 0x02 }, { 0x72, 0x02 }, { 0x73, 0x03 },
+            {   { 1600 }, 4800, 1, 14400, { ScanMethod::FLATBED }, {
+                    { 0x16, 0x33 }, { 0x17, 0x0c }, { 0x18, 0x11 }, { 0x19, 0x2a },
+                    { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x84 }, { 0x1e, 0xa1 },
+                    { 0x52, 0x0b }, { 0x53, 0x0e }, { 0x54, 0x11 }, { 0x55, 0x02 },
+                    { 0x56, 0x05 }, { 0x57, 0x08 }, { 0x58, 0x63 }, { 0x59, 0x00 }, { 0x5a, 0x40 },
+                    { 0x70, 0x00 }, { 0x71, 0x01 }, { 0x72, 0x02 }, { 0x73, 0x03 },
                     { 0x74, 0x00 }, { 0x75, 0x01 }, { 0x76, 0xff },
                     { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
                     { 0x7a, 0x02 }, { 0x7b, 0x49 }, { 0x7c, 0x24 },
@@ -2476,25 +2372,11 @@ void genesys_init_sensor_tables()
                     { 0x03, 0x1f },
                 }
             },
-            { { 3200 }, 4800, 1, 28800, { ScanMethod::FLATBED }, {
-                    { 0x16, 0x33 },
-                    { 0x17, 0x0c },
-                    { 0x18, 0x10 },
-                    { 0x19, 0x2a },
-                    { 0x1a, 0x30 },
-                    { 0x1b, 0x00 },
-                    { 0x1c, 0x20 },
-                    { 0x1d, 0x84 },
-                    { 0x1e, 0xa1 },
-                    { 0x52, 0x02 },
-                    { 0x53, 0x05 },
-                    { 0x54, 0x08 },
-                    { 0x55, 0x0b },
-                    { 0x56, 0x0e },
-                    { 0x57, 0x11 },
-                    { 0x58, 0x1b },
-                    { 0x59, 0x00 },
-                    { 0x5a, 0x40 },
+            {   { 3200 }, 4800, 1, 28800, { ScanMethod::FLATBED }, {
+                    { 0x16, 0x33 }, { 0x17, 0x0c }, { 0x18, 0x10 }, { 0x19, 0x2a },
+                    { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x20 }, { 0x1d, 0x84 }, { 0x1e, 0xa1 },
+                    { 0x52, 0x02 }, { 0x53, 0x05 }, { 0x54, 0x08 }, { 0x55, 0x0b },
+                    { 0x56, 0x0e }, { 0x57, 0x11 }, { 0x58, 0x1b }, { 0x59, 0x00 }, { 0x5a, 0x40 },
                     { 0x70, 0x09 }, { 0x71, 0x0a }, { 0x72, 0x0b }, { 0x73, 0x0c },
                     { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x00 },
                     { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
@@ -2504,26 +2386,12 @@ void genesys_init_sensor_tables()
                     { 0x03, 0x1f },
                 },
             },
-            { { 400 }, 2400, 1, 14400, { ScanMethod::TRANSPARENCY,
-                                         ScanMethod::TRANSPARENCY_INFRARED }, {
-                    { 0x16, 0x33 },
-                    { 0x17, 0x0c },
-                    { 0x18, 0x13 },
-                    { 0x19, 0x2a },
-                    { 0x1a, 0x30 },
-                    { 0x1b, 0x00 },
-                    { 0x1c, 0x00 },
-                    { 0x1d, 0x84 },
-                    { 0x1e, 0xa0 },
-                    { 0x52, 0x0d },
-                    { 0x53, 0x10 },
-                    { 0x54, 0x01 },
-                    { 0x55, 0x04 },
-                    { 0x56, 0x07 },
-                    { 0x57, 0x0a },
-                    { 0x58, 0x6b },
-                    { 0x59, 0x00 },
-                    { 0x5a, 0x40 },
+            {   { 400 }, 2400, 1, 14400, { ScanMethod::TRANSPARENCY,
+                                           ScanMethod::TRANSPARENCY_INFRARED }, {
+                    { 0x16, 0x33 }, { 0x17, 0x0c }, { 0x18, 0x13 }, { 0x19, 0x2a },
+                    { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x84 }, { 0x1e, 0xa0 },
+                    { 0x52, 0x0d }, { 0x53, 0x10 }, { 0x54, 0x01 }, { 0x55, 0x04 },
+                    { 0x56, 0x07 }, { 0x57, 0x0a }, { 0x58, 0x6b }, { 0x59, 0x00 }, { 0x5a, 0x40 },
                     { 0x70, 0x01 }, { 0x71, 0x02 }, { 0x72, 0x03 }, { 0x73, 0x04 },
                     { 0x74, 0x00 }, { 0x75, 0x0e }, { 0x76, 0x3f },
                     { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
@@ -2531,53 +2399,25 @@ void genesys_init_sensor_tables()
                     { 0x80, 0x20 },
                 }, {}
             },
-            { { 800 }, 4800, 1, 14400, { ScanMethod::TRANSPARENCY,
-                                         ScanMethod::TRANSPARENCY_INFRARED }, {
-                    { 0x16, 0x33 },
-                    { 0x17, 0x0c },
-                    { 0x18, 0x13 },
-                    { 0x19, 0x2a },
-                    { 0x1a, 0x30 },
-                    { 0x1b, 0x00 },
-                    { 0x1c, 0x00 },
-                    { 0x1d, 0x84 },
-                    { 0x1e, 0xa0 },
-                    { 0x52, 0x0d },
-                    { 0x53, 0x10 },
-                    { 0x54, 0x01 },
-                    { 0x55, 0x04 },
-                    { 0x56, 0x07 },
-                    { 0x57, 0x0a },
-                    { 0x58, 0x6b },
-                    { 0x59, 0x00 },
-                    { 0x5a, 0x40 },
-                    { 0x70, 0x01 }, { 0x71, 0x02 }, { 0x72, 0x03 }, { 0x73, 0x04 },
+            {   { 800 }, 4800, 1, 14400, { ScanMethod::TRANSPARENCY,
+                                           ScanMethod::TRANSPARENCY_INFRARED }, {
+                    { 0x16, 0x33 }, { 0x17, 0x0c }, { 0x18, 0x13 }, { 0x19, 0x2a },
+                    { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x84 }, { 0x1e, 0xa0 },
+                    { 0x52, 0x0d }, { 0x53, 0x10 }, { 0x54, 0x01 }, { 0x55, 0x04 },
+                    { 0x56, 0x07 }, { 0x57, 0x0a }, { 0x58, 0x6b }, { 0x59, 0x00 }, { 0x5a, 0x40 },
+                    { 0x70, 0x00 }, { 0x71, 0x01 }, { 0x72, 0x02 }, { 0x73, 0x03 },
                     { 0x74, 0x00 }, { 0x75, 0x0e }, { 0x76, 0x3f },
                     { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
                     { 0x7a, 0x01 }, { 0x7b, 0xb6 }, { 0x7c, 0xdb },
                     { 0x80, 0x20 },
                 }, {}
             },
-            { { 1600 }, 4800, 1, 28800, { ScanMethod::TRANSPARENCY,
-                                          ScanMethod::TRANSPARENCY_INFRARED }, {
-                    { 0x16, 0x33 },
-                    { 0x17, 0x0c },
-                    { 0x18, 0x11 },
-                    { 0x19, 0x2a },
-                    { 0x1a, 0x30 },
-                    { 0x1b, 0x00 },
-                    { 0x1c, 0x00 },
-                    { 0x1d, 0x84 },
-                    { 0x1e, 0xa0 },
-                    { 0x52, 0x0b },
-                    { 0x53, 0x0e },
-                    { 0x54, 0x11 },
-                    { 0x55, 0x02 },
-                    { 0x56, 0x05 },
-                    { 0x57, 0x08 },
-                    { 0x58, 0x63 },
-                    { 0x59, 0x00 },
-                    { 0x5a, 0x40 },
+            {   { 1600 }, 4800, 1, 28800, { ScanMethod::TRANSPARENCY,
+                                            ScanMethod::TRANSPARENCY_INFRARED }, {
+                    { 0x16, 0x33 }, { 0x17, 0x0c }, { 0x18, 0x11 }, { 0x19, 0x2a },
+                    { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x84 }, { 0x1e, 0xa0 },
+                    { 0x52, 0x0b }, { 0x53, 0x0e }, { 0x54, 0x11 }, { 0x55, 0x02 },
+                    { 0x56, 0x05 }, { 0x57, 0x08 }, { 0x58, 0x63 }, { 0x59, 0x00 }, { 0x5a, 0x40 },
                     { 0x70, 0x00 }, { 0x71, 0x01 }, { 0x72, 0x02 }, { 0x73, 0x03 },
                     { 0x74, 0x00 }, { 0x75, 0x01 }, { 0x76, 0xff },
                     { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
@@ -2587,26 +2427,12 @@ void genesys_init_sensor_tables()
                     { 0x03, 0x1f },
                 },
             },
-            { { 3200 }, 4800, 1, 28800, { ScanMethod::TRANSPARENCY,
-                                          ScanMethod::TRANSPARENCY_INFRARED }, {
-                    { 0x16, 0x33 },
-                    { 0x17, 0x0c },
-                    { 0x18, 0x10 },
-                    { 0x19, 0x2a },
-                    { 0x1a, 0x30 },
-                    { 0x1b, 0x00 },
-                    { 0x1c, 0x20 },
-                    { 0x1d, 0x84 },
-                    { 0x1e, 0xa0 },
-                    { 0x52, 0x02 },
-                    { 0x53, 0x05 },
-                    { 0x54, 0x08 },
-                    { 0x55, 0x0b },
-                    { 0x56, 0x0e },
-                    { 0x57, 0x11 },
-                    { 0x58, 0x1b },
-                    { 0x59, 0x00 },
-                    { 0x5a, 0x40 },
+            {   { 3200 }, 4800, 1, 28800, { ScanMethod::TRANSPARENCY,
+                                            ScanMethod::TRANSPARENCY_INFRARED }, {
+                    { 0x16, 0x33 }, { 0x17, 0x0c }, { 0x18, 0x10 }, { 0x19, 0x2a },
+                    { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x20 }, { 0x1d, 0x84 }, { 0x1e, 0xa0 },
+                    { 0x52, 0x02 }, { 0x53, 0x05 }, { 0x54, 0x08 }, { 0x55, 0x0b },
+                    { 0x56, 0x0e }, { 0x57, 0x11 }, { 0x58, 0x1b }, { 0x59, 0x00 }, { 0x5a, 0x40 },
                     { 0x70, 0x09 }, { 0x71, 0x0a }, { 0x72, 0x0b }, { 0x73, 0x0c },
                     { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x00 },
                     { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
@@ -2637,20 +2463,18 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_CANON_8600F;
     sensor.optical_res = 4800;
+    sensor.register_dpihw_override = 4800;
     sensor.ccd_size_divisor = 4;
     sensor.black_pixels = 31;
     sensor.dummy_pixel = 20;
     sensor.ccd_start_xoffset = 0; // not used at the moment
-    // 11372 pixels at 1200 dpi
-    sensor.sensor_pixels = 11372*4;
     sensor.fau_gain_white_ref = 160;
     sensor.gain_white_ref = 160;
     sensor.exposure = { 0x9c40, 0x9c40, 0x9c40 };
     sensor.stagger_config = StaggerConfig{4800, 8};
     sensor.custom_regs = {};
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = get_sensor_optical_with_ccd_divisor;
-    sensor.get_register_hwdpi_fun = [](const Genesys_Sensor&, unsigned) { return 4800; };
+    sensor.get_register_hwdpi_fun = get_sensor_optical_with_ccd_divisor;
     sensor.get_hwdpi_divisor_fun = [](const Genesys_Sensor&, unsigned) { return 1; };
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
@@ -2750,7 +2574,6 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 96;
     sensor.dummy_pixel = 26;
     sensor.ccd_start_xoffset = 128;
-    sensor.sensor_pixels = 42720;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 230;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -2774,8 +2597,7 @@ void genesys_init_sensor_tables()
         { 0x5a, 0x40 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
@@ -2788,13 +2610,11 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 16;
     sensor.ccd_start_xoffset = 303;
-    sensor.sensor_pixels = 5168*4;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
     sensor.gamma = { 2.2f, 2.2f, 2.2f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_gl124;
 
@@ -2912,14 +2732,11 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 16;
     sensor.ccd_start_xoffset = 303;
-    // SEGCNT at 600 DPI by number of segments
-    sensor.sensor_pixels = 5104*4;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
     sensor.gamma = { 2.2f, 2.2f, 2.2f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_gl124;
 
@@ -3020,13 +2837,11 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 16;
     sensor.ccd_start_xoffset = 303;
-    sensor.sensor_pixels = 5168*4;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
     sensor.gamma = { 2.2f, 2.2f, 2.2f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_gl124;
 
@@ -3131,13 +2946,11 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 16;
     sensor.ccd_start_xoffset = 303;
-    sensor.sensor_pixels = 5168*4;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
     sensor.gamma = { 2.2f, 2.2f, 2.2f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_gl124;
 
@@ -3242,7 +3055,6 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 87;
     sensor.ccd_start_xoffset = 0;
-    sensor.sensor_pixels = 10100;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 230;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -3274,8 +3086,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x02 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
@@ -3288,11 +3099,11 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 88; // TODO
     sensor.dummy_pixel = 20;
     sensor.ccd_start_xoffset = 0;
-    sensor.sensor_pixels = 10200; // TODO
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 230;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
     sensor.stagger_config = StaggerConfig{7200, 4};
+    sensor.use_host_side_calib = true;
     sensor.custom_regs = {
         { 0x08, 0x00 },
         { 0x09, 0x00 },
@@ -3323,8 +3134,7 @@ void genesys_init_sensor_tables()
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
     {
@@ -3378,12 +3188,12 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 88; // TODO
     sensor.dummy_pixel = 20;
     sensor.ccd_start_xoffset = 0;
-    sensor.sensor_pixels = 10200; // TODO
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 230;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
     sensor.exposure_lperiod = 0x2f44;
     sensor.stagger_config = StaggerConfig{7200, 4};
+    sensor.use_host_side_calib = true;
     sensor.custom_regs = {
         { 0x08, 0x00 },
         { 0x09, 0x00 },
@@ -3414,8 +3224,7 @@ void genesys_init_sensor_tables()
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
     {
@@ -3453,11 +3262,11 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 88; // TODO
     sensor.dummy_pixel = 20;
     sensor.ccd_start_xoffset = 0;
-    sensor.sensor_pixels = 10200; // TODO
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 230;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
     sensor.stagger_config = StaggerConfig{7200, 4};
+    sensor.use_host_side_calib = true;
     sensor.custom_regs = {
         { 0x08, 0x00 },
         { 0x09, 0x00 },
@@ -3488,8 +3297,7 @@ void genesys_init_sensor_tables()
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
     {
@@ -3538,7 +3346,6 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 31;
     sensor.dummy_pixel = 31;
     sensor.ccd_start_xoffset = 0;
-    sensor.sensor_pixels = 10800;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -3552,8 +3359,7 @@ void genesys_init_sensor_tables()
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
     };
     sensor.gamma = { 1.7f, 1.7f, 1.7f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
@@ -3566,7 +3372,6 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 31;
     sensor.dummy_pixel = 31;
     sensor.ccd_start_xoffset = 0;
-    sensor.sensor_pixels = 10200;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0, 0, 0 };
@@ -3580,8 +3385,7 @@ void genesys_init_sensor_tables()
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
     };
     sensor.gamma = { 1.7f, 1.7f, 1.7f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);
@@ -3595,9 +3399,6 @@ void genesys_init_sensor_tables()
     sensor.dummy_pixel = 6;
     // tuned to give 3*8 multiple startx coordinate during shading calibration
     sensor.ccd_start_xoffset = 34; // 14=>3, 20=>2
-    // 10400, too wide=>10288 in shading data 10240~
-    // 10208 too short for shading, max shading data = 10240 pixels, endpix-startpix=10208
-    sensor.sensor_pixels = 10240;
     sensor.fau_gain_white_ref = 150;
     sensor.gain_white_ref = 150;
     // maps to 0x70-0x73 for GL841
@@ -3630,8 +3431,7 @@ void genesys_init_sensor_tables()
         { 0x5e, 0x41 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_logical_hwdpi_fun = default_get_logical_hwdpi;
-    sensor.get_register_hwdpi_fun = default_get_logical_hwdpi;
+    sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     s_sensors->push_back(sensor);

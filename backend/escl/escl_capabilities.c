@@ -21,6 +21,8 @@
 
    This file implements a SANE backend for eSCL scanners.  */
 
+#define DEBUG_DECLARE_ONLY
+#include "../include/sane/config.h"
 
 #include "escl.h"
 
@@ -181,7 +183,34 @@ find_valor_of_array_variables(xmlNode *node, capabilities_t *scanner)
     else if (strcmp(name, "ContentType") == 0)
         scanner->ContentTypes = char_to_array(scanner->ContentTypes, &scanner->ContentTypesSize, (SANE_String_Const)xmlNodeGetContent(node), 0);
     else if (strcmp(name, "DocumentFormat") == 0)
+     {
+        int i = 0;
         scanner->DocumentFormats = char_to_array(scanner->DocumentFormats, &scanner->DocumentFormatsSize, (SANE_String_Const)xmlNodeGetContent(node), 0);
+        for(; i < scanner->DocumentFormatsSize; i++)
+         {
+            if (scanner->default_format == NULL && !strcmp(scanner->DocumentFormats[i], "image/jpeg"))
+            {
+               scanner->default_format = strdup("image/jpeg");
+            }
+#if(defined HAVE_LIBPNG)
+            else if(!strcmp(scanner->DocumentFormats[i], "image/png") && (scanner->default_format == NULL || strcmp(scanner->default_format, "image/tiff")))
+            {
+               if (scanner->default_format)
+                  free(scanner->default_format);
+               scanner->default_format = strdup("image/png");
+            }
+#endif
+#if(defined HAVE_TIFFIO_H)
+            else if(!strcmp(scanner->DocumentFormats[i], "image/tiff"))
+            {
+               if (scanner->default_format)
+                  free(scanner->default_format);
+               scanner->default_format = strdup("image/tiff");
+            }
+#endif
+         }
+         fprintf(stderr, "Capability : [%s]\n", scanner->default_format);
+     }
     else if (strcmp(name, "DocumentFormatExt") == 0)
         scanner->format_ext = 1;
     else if (strcmp(name, "Intent") == 0)
@@ -316,19 +345,20 @@ escl_capabilities(SANE_String_Const name, SANE_Status *status)
         *status = SANE_STATUS_NO_MEM;
     var->memory = malloc(1);
     var->size = 0;
-    curl_global_init(CURL_GLOBAL_ALL);
     curl_handle = curl_easy_init();
     strcpy(tmp, name);
     strcat(tmp, scanner_capabilities);
+    DBG( 1, "Get Capabilities : %s\n", tmp);
     curl_easy_setopt(curl_handle, CURLOPT_URL, tmp);
     if (strncmp(name, "https", 5) == 0) {
+        DBG( 1, "Ignoring safety certificates, use https\n");
         curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 0L);
         curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYHOST, 0L);
     }
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, memory_callback_c);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)var);
     if (curl_easy_perform(curl_handle) != CURLE_OK) {
-        fprintf(stderr, "THERE IS NO SCANNER\n");
+        DBG( 1, "The scanner didn't respond.\n");
         *status = SANE_STATUS_INVAL;
     }
     data = xmlReadMemory(var->memory, var->size, "file.xml", NULL, 0);
@@ -343,6 +373,5 @@ escl_capabilities(SANE_String_Const name, SANE_Status *status)
     xmlMemoryDump();
     curl_easy_cleanup(curl_handle);
     free(var->memory);
-    curl_global_cleanup();
     return (scanner);
 }

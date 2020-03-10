@@ -5709,7 +5709,7 @@ backend `genesys'
     status basic
     url *none*
     comment `clone of the HP 2400C'
-   model `ScanJet 3670C'
+   model `ScanJet 3670'
     interface `USB'
     usb-vendor-id `0x03f0'
     usb-product-id `0x1405'
@@ -5722,7 +5722,7 @@ backend `genesys'
     usb-product-id `0x1405'
     status complete
     url *none*
-    comment `1200x1200 dpi max, same as HP 3670C'
+    comment `1200x1200 dpi max, same as HP 3670'
    model `ScanJet 4850C'
     interface `USB'
     usb-vendor-id `0x03f0'

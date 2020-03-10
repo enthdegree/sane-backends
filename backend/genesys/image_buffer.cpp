@@ -89,47 +89,11 @@ bool ImageBuffer::get_data(std::size_t size, std::uint8_t* out_data)
     return got_data;
 }
 
-void FakeBufferModel::push_step(std::size_t buffer_size, std::size_t row_bytes)
-{
-    sizes_.push_back(buffer_size);
-    available_sizes_.push_back(0);
-    row_bytes_.push_back(row_bytes);
-}
-
-std::size_t FakeBufferModel::available_space() const
-{
-    if (sizes_.empty())
-        throw SaneException("Model has not been setup");
-    return sizes_.front() - available_sizes_.front();
-}
-
-void FakeBufferModel::simulate_read(std::size_t size)
-{
-    if (sizes_.empty()) {
-        throw SaneException("Model has not been setup");
-    }
-    if (available_space() < size) {
-        throw SaneException("Attempted to simulate read of too much memory");
-    }
-
-    available_sizes_.front() += size;
-
-    for (unsigned i = 1; i < sizes_.size(); ++i) {
-        auto avail_src = available_sizes_[i - 1];
-        auto avail_dst = sizes_[i] - available_sizes_[i];
-
-        auto avail = (std::min(avail_src, avail_dst) / row_bytes_[i]) * row_bytes_[i];
-        available_sizes_[i - 1] -= avail;
-        available_sizes_[i] += avail;
-    }
-    available_sizes_.back() = 0;
-}
-
 ImageBufferGenesysUsb::ImageBufferGenesysUsb(std::size_t total_size,
-                                             const FakeBufferModel& buffer_model,
+                                             std::size_t buffer_size,
                                              ProducerCallback producer) :
     remaining_size_{total_size},
-    buffer_model_{buffer_model},
+    buffer_size_{buffer_size},
     producer_{producer}
 {}
 
@@ -179,7 +143,7 @@ bool ImageBufferGenesysUsb::get_data(std::size_t size, std::uint8_t* out_data)
 
 std::size_t ImageBufferGenesysUsb::get_read_size()
 {
-    std::size_t size = buffer_model_.available_space();
+    std::size_t size = buffer_size_;
 
     // never read an odd number. exception: last read
     // the chip internal counter does not count half words.
@@ -194,8 +158,6 @@ std::size_t ImageBufferGenesysUsb::get_read_size()
         size += (size & 0xff) ? 0x100 : 0x00;
         size &= ~0xff;
     }
-
-    buffer_model_.simulate_read(size);
 
     return size;
 }

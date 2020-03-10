@@ -234,12 +234,12 @@ cp2155_read (int fd, byte * data, size_t size)
 
   count = size;
   status = sanei_usb_read_bulk (fd, data, &count);
-
+/*
   if (status != SANE_STATUS_GOOD)
     {
       DBG (1, "cp2155_read: sanei_usb_read_bulk error %lu\n", (u_long) count);
     }
-
+*/
   return status;
 }
 
@@ -257,10 +257,10 @@ cp2155_block1 (int fd, byte v001, unsigned int addr, byte * data, size_t size)
 
   byte pgLO = (count) & 0xff;
   byte pgHI = (count >> 8) & 0xff;
-
+/*
   DBG (1, "cp2155_block1 %06x %02x %04lx %04lx\n", addr, v001, (u_long) size,
        (u_long) count);
-
+*/
   cp2155_set (fd, 0x71, 0x01);
   cp2155_set (fd, 0x0230, 0x11);
   cp2155_set (fd, 0x71, v001);
@@ -441,7 +441,9 @@ cp2155_block3 (int fd, unsigned int addr)
 static void
 cp2155_set_slope (int fd, unsigned int addr, byte * data, size_t size)
 {
+/*
   DBG (1, "cp2155_set_slope %06x %04lx\n", addr, (u_long) size);
+*/
   cp2155_block1 (fd, 0x14, addr, data, size);
 }
 
@@ -2500,7 +2502,8 @@ preread (CANON_Handle * chndl, SANE_Byte * data, FILE * fp)
   byte *endptr = linebuf + 3 * width;	/* Red line + Green line + Blue line */
   long datasize = 0;
   static long line = 0;
-  long offset = 0;
+  size_t offset = 0;
+  size_t bytes_written;
   static byte slot = 0;
 
   /* Data coming back is "width" bytes Red data, width bytes Green,
@@ -2618,11 +2621,15 @@ preread (CANON_Handle * chndl, SANE_Byte * data, FILE * fp)
 	    }
 	}
     }				/* one readbuf processed */
-  fwrite (data, 1, offset, fp);
+  bytes_written = fwrite (data, 1, offset, fp);
+  DBG (6, "%ld bytes written\n", bytes_written);
+  if (bytes_written != offset)
+    {
+      status = SANE_STATUS_IO_ERROR;  
+    }
   DBG (6, "%ld lines from readbuf\n", line - startline);
   return status;		/*  to escape from this loop
 				   after processing only one data buffer */
-  return status;
 }
 
 /* Scan and save the resulting image as r,g,b non-interleaved PPM file */
@@ -2867,7 +2874,11 @@ CANON_open_device (CANON_Handle * scan, const char *dev)
     {
       scan->product = "Canon";
 
-      if (product == 0x2225)
+      if (product == 0x2224)
+        {
+          scan->product = "CanoScan LiDE 600F";
+        }
+      else if (product == 0x2225)
 	{
 	  scan->product = "CanoScan LiDE 70";
 	}

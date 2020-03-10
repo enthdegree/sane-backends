@@ -2625,7 +2625,7 @@ preread (CANON_Handle * chndl, SANE_Byte * data, FILE * fp)
   DBG (6, "%ld bytes written\n", bytes_written);
   if (bytes_written != offset)
     {
-      status = SANE_STATUS_IO_ERROR;  
+      status = SANE_STATUS_IO_ERROR;
     }
   DBG (6, "%ld lines from readbuf\n", line - startline);
   return status;		/*  to escape from this loop

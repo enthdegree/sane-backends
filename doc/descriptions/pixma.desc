@@ -154,6 +154,18 @@
 :status :untested
 :comment "Testers needed!"
 
+:model "PIXMA G7000 Series"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x1863"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA GM4000 Series"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x1869"
+:status :untested
+:comment "Testers needed!"
+
 :model "PIXMA MG2100 Series"
 :interface "USB"
 :usbid "0x04a9" "0x1751"

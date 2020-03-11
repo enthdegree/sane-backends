@@ -1,6 +1,6 @@
 /* SANE - Scanner Access Now Easy.
 
-   Copyright (C) 2011-2019 Rolf Bensch <rolf at bensch hyphen online dot de>
+   Copyright (C) 2011-2020 Rolf Bensch <rolf at bensch hyphen online dot de>
    Copyright (C) 2007-2008 Nicolas Martin, <nicols-guest at alioth dot debian dot org>
    Copyright (C) 2006-2007 Wittawat Yamwong <wittawat@web.de>
 

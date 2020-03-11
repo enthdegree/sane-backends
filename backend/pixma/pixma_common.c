@@ -48,6 +48,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <ctype.h>
 #include <math.h>		/* pow(C90) */
 
 #include <sys/time.h>		/* gettimeofday(4.3BSD) */
@@ -137,6 +138,24 @@ pixma_hexdump (int level, const void *d_, unsigned len)
           u8tohex (d[ofs + c], p);
           p[2] = ' ';
           p += 3;
+          if (c == 7)
+            {
+              p[0] = ' ';
+              p++;
+            }
+        }
+      for (c = 0; c < 4; c++)
+        {
+          p[0] = ' ';
+          p++;
+        }
+      for (c = 0; c != 16 && (ofs + c) < plen; c++)
+        {
+          if (isprint(d[ofs + c]))
+            p[0] = d[ofs + c];
+          else
+            p[0] = '.';
+          p++;
           if (c == 7)
             {
               p[0] = ' ';

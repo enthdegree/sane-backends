@@ -105,6 +105,7 @@
 #define MF220_PID  0x27a8
 #define MF210_PID  0x27a9
 #define MF620_PID  0x27b4
+#define MF720_PID  0x27b5
 #define MF410_PID  0x27c0
 #define MF510_PID  0x27c2
 #define MF230_PID  0x27d1
@@ -961,6 +962,7 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon i-SENSYS MF220 Series", "MF220", MF220_PID, 600, 0, 637, 1050, PIXMA_CAP_ADFDUP),              /* max. w = 216mm */
   DEV ("Canon i-SENSYS MF210 Series", "MF210", MF210_PID, 600, 0, 637, 1050, PIXMA_CAP_ADF),                 /* max. w = 216mm */
   DEV ("Canon i-SENSYS MF620 Series", "MF620", MF620_PID, 600, 0, 637, 1050, PIXMA_CAP_ADF),
+  DEV ("Canon i-SENSYS MF720 Series", "MF720", MF720_PID, 600, 300, 637, 877, PIXMA_CAP_ADFDUP),
   DEV ("Canon i-SENSYS MF410 Series", "MF410", MF410_PID, 600, 0, 637, 1050, PIXMA_CAP_ADFDUP),              /* max. w = 216mm */
   DEV ("Canon i-SENSYS MF510 Series", "MF510", MF510_PID, 600, 0, 640, 1050, PIXMA_CAP_ADFDUP),
   DEV ("Canon i-SENSYS MF230 Series", "MF230", MF230_PID, 600, 0, 637, 1050, PIXMA_CAP_ADF),                 /* max. w = 216mm */

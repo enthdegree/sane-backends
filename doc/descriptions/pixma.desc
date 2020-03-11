@@ -1241,6 +1241,12 @@
 :status :complete
 :comment "Flatbed and ADF scan. All resolutions supported (up to 600DPI)."
 
+:model "i-SENSYS MF720 Series"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x27b5"
+:status :untested
+:comment "Testers needed!"
+
 :model "i-SENSYS MF730 Series"
 :interface "USB Ethernet WiFi"
 :usbid "0x04a9" "0x27e4"

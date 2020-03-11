@@ -982,6 +982,6 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon i-SENSYS MF741C/743C", "MF741C/743C", MF743_PID, 600, 300, 640, 1050, PIXMA_CAP_ADFDUP),       /* ADFDUP restricted to 300dpi */
   DEV ("Canon i-SENSYS MF640 Series", "MF642C/643C/644C", MF640_PID, 600, 0, 640, 1050, PIXMA_CAP_ADFDUP),
   DEV ("Canon i-SENSYS MF645C", "MF645C", MF645_PID, 600, 0, 637, 877, PIXMA_CAP_ADFDUP),                    /* max. w = 216mm */
-  DEV ("Canon i-SENSYS MF440 Series", "MF440", MF440_PID, 600, 0, 637, 877, PIXMA_CAP_ADFDUP),
+  DEV ("Canon i-SENSYS MF440 Series", "MF440", MF440_PID, 600, 300, 637, 877, PIXMA_CAP_ADFDUP),
   DEV (NULL, NULL, 0, 0, 0, 0, 0, 0)
 };

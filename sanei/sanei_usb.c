@@ -1848,6 +1848,11 @@ static void libusb_scan_devices(void)
 	  continue;
 	}
 
+/* macOS won't configure several USB scanners (i.e. ScanSnap 300M) because their
+ * descriptors are vendor specific.  As a result the device will get configured
+ * later during sanei_usb_open making it safe to ignore the configuration check
+ * here on these platforms. */
+#if !defined(__APPLE__)
       if (config == 0)
 	{
 	  DBG (1,
@@ -1855,6 +1860,7 @@ static void libusb_scan_devices(void)
 	       vid, pid, busno, address);
 	  continue;
 	}
+#endif
 
       ret = libusb_get_config_descriptor (dev, 0, &config0);
       if (ret < 0)
@@ -2574,11 +2580,17 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 	  return SANE_STATUS_INVAL;
 	}
 
+/* macOS won't configure several USB scanners (i.e. ScanSnap 300M) because their
+ * descriptors are vendor specific.  As a result the device will get configured
+ * later during sanei_usb_open making it safe to ignore the configuration check
+ * here on these platforms. */
+#if !defined(__APPLE__)
       if (config == 0)
 	{
 	  DBG (1, "sanei_usb_open: device `%s' not configured?\n", devname);
 	  return SANE_STATUS_INVAL;
 	}
+#endif
 
       result = libusb_get_device_descriptor (dev, &desc);
       if (result < 0)

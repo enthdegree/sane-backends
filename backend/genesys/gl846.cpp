@@ -1204,12 +1204,6 @@ void CommandSetGl846::asic_boot(Genesys_Device* dev, bool cold) const
     // Write initial registers
     dev->interface->write_registers(dev->reg);
 
-  /* Enable DRAM by setting a rising edge on bit 3 of reg 0x0b */
-    val = dev->reg.find_reg(0x0b).value & REG_0x0B_DRAMSEL;
-    val = (val | REG_0x0B_ENBDRAM);
-    dev->interface->write_register(REG_0x0B, val);
-  dev->reg.find_reg(0x0b).value = val;
-
   /* CIS_LINE */
   if (dev->model->is_cis)
     {

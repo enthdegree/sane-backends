@@ -2950,7 +2950,6 @@ void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys
                                               Genesys_Register_Set& regs, int dpi) const
 {
     DBG_HELPER_ARGS(dbg, "dpi=%d", dpi);
-  float gain[3];
   int lines=1;
 
     // feed to white strip if needed
@@ -3022,45 +3021,27 @@ void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys
             }
         }
 
-        gain[ch] = 65535.0f / max;
+        float curr_output = max;
+        float target_value = 65535.0f;
 
-      uint8_t out_gain = 0;
+        std::uint8_t out_gain = compute_frontend_gain(curr_output, target_value,
+                                                      dev->frontend.layout.type);
 
-        if (dev->model->adc_id == AdcId::CANON_LIDE_35 ||
-            dev->model->adc_id == AdcId::WOLFSON_XP300 ||
-            dev->model->adc_id == AdcId::WOLFSON_DSM600)
-        {
-            gain[ch] *= 0.69f; // seems we don't get the real maximum. empirically derived
-            if (283 - 208 / gain[ch] > 255) {
-                out_gain = 255;
-            } else if (283 - 208 / gain[ch] < 0) {
-                out_gain = 0;
-            } else {
-                out_gain = static_cast<std::uint8_t>(283 - 208 / gain[ch]);
-            }
-        } else if (dev->model->adc_id == AdcId::CANON_LIDE_80) {
-              out_gain = static_cast<std::uint8_t>(gain[ch] * 12);
-        }
         dev->frontend.set_gain(ch, out_gain);
 
-        DBG(DBG_proc, "%s: channel %d, max=%d, gain = %f, setting:%d\n", __func__, ch, max,
-            gain[ch], out_gain);
-    }
+        DBG(DBG_proc, "%s: channel %d, curr=%f, target=%f, out_gain:%d\n", __func__, ch,
+            curr_output, target_value, out_gain);
 
-    for (unsigned j = 0; j < channels; j++) {
-        if (gain[j] > 30) {
-	  DBG (DBG_error0, "**********************************************\n");
-	  DBG (DBG_error0, "**********************************************\n");
-	  DBG (DBG_error0, "****                                      ****\n");
-	  DBG (DBG_error0, "****  Extremely low Brightness detected.  ****\n");
-	  DBG (DBG_error0, "****  Check the scanning head is          ****\n");
-	  DBG (DBG_error0, "****  unlocked and moving.                ****\n");
-	  DBG (DBG_error0, "****                                      ****\n");
-	  DBG (DBG_error0, "**********************************************\n");
-	  DBG (DBG_error0, "**********************************************\n");
+        if (target_value / curr_output > 30) {
+            DBG(DBG_error0, "****************************************\n");
+            DBG(DBG_error0, "*                                      *\n");
+            DBG(DBG_error0, "*  Extremely low Brightness detected.  *\n");
+            DBG(DBG_error0, "*  Check the scanning head is          *\n");
+            DBG(DBG_error0, "*  unlocked and moving.                *\n");
+            DBG(DBG_error0, "*                                      *\n");
+            DBG(DBG_error0, "****************************************\n");
             throw SaneException(SANE_STATUS_JAMMED, "scanning head is locked");
         }
-
     }
 
     if (dev->model->is_cis) {

@@ -114,9 +114,14 @@ std::ostream& operator<<(std::ostream& out, const StaggerConfig& config);
 
 enum class FrontendType : unsigned
 {
-    UNKNOWN,
+    UNKNOWN = 0,
     WOLFSON,
-    ANALOG_DEVICES
+    ANALOG_DEVICES,
+    CANON_LIDE_80,
+    WOLFSON_GL841, // old code path, likely wrong calculation
+    WOLFSON_GL846, // old code path, likely wrong calculation
+    WOLFSON_GL847, // old code path, likely wrong calculation
+    WOLFSON_GL124, // old code path, likely wrong calculation
 };
 
 inline void serialize(std::istream& str, FrontendType& x)

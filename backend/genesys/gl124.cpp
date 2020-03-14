@@ -1559,18 +1559,15 @@ void CommandSetGl124::coarse_gain_calibration(Genesys_Device* dev, const Genesys
             total += image.get_raw_channel(x, 0, ch);
         }
 
-        total /= width / 2;
+        float target_value = sensor.gain_white_ref * coeff;
+        float curr_output = total / (width / 2);
 
-        gain[ch] = (static_cast<float>(sensor.gain_white_ref) * coeff) / total;
+        std::uint8_t out_gain = compute_frontend_gain(curr_output, target_value,
+                                                      dev->frontend.layout.type);
+        dev->frontend.set_gain(ch, out_gain);
 
-      /* turn logical gain value into gain code, checking for overflow */
-        code = static_cast<int>(283 - 208 / gain[ch]);
-        code = clamp(code, 0, 255);
-        dev->frontend.set_gain(ch, code);
-
-        DBG(DBG_proc, "%s: channel %d, total=%d, gain = %f, setting:%d\n", __func__, ch,
-            static_cast<unsigned>(total),
-            gain[ch], dev->frontend.get_gain(ch));
+        DBG(DBG_proc, "%s: channel %d, curr=%f, target=%f, out_gain:%d\n", __func__, ch,
+            curr_output, target_value, out_gain);
     }
 
     if (dev->model->is_cis) {

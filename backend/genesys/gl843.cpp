@@ -755,39 +755,33 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
                     exposure, scan_yres, static_cast<unsigned>(motor_profile.step_type),
                     scan_lines, scan_dummy, feed_steps, static_cast<unsigned>(flags));
 
-  int use_fast_fed, coeff;
-  unsigned int lincnt;
     unsigned feedl, dist;
-  GenesysRegister *r;
-  uint32_t z1, z2;
 
   /* get step multiplier */
     unsigned step_multiplier = gl843_get_step_multiplier (reg);
 
-  use_fast_fed = 0;
+    bool use_fast_fed = false;
 
     if ((scan_yres >= 300 && feed_steps > 900) || (has_flag(flags, MotorFlag::FEED))) {
-        use_fast_fed = 1;
+        use_fast_fed = true;
     }
 
-  lincnt=scan_lines;
-    reg->set24(REG_LINCNT, lincnt);
-  DBG(DBG_io, "%s: lincnt=%d\n", __func__, lincnt);
+    reg->set24(REG_LINCNT, scan_lines);
+    DBG(DBG_io, "%s: lincnt=%d\n", __func__, scan_lines);
 
-  /* compute register 02 value */
-    r = sanei_genesys_get_address(reg, REG_0x02);
-  r->value = 0x00;
-  sanei_genesys_set_motor_power(*reg, true);
+    reg->set8(REG_0x02, 0);
+    sanei_genesys_set_motor_power(*reg, true);
 
+    std::uint8_t reg02 = reg->get8(REG_0x02);
     if (use_fast_fed) {
-        r->value |= REG_0x02_FASTFED;
+        reg02 |= REG_0x02_FASTFED;
     } else {
-        r->value &= ~REG_0x02_FASTFED;
+        reg02 &= ~REG_0x02_FASTFED;
     }
 
-  /* in case of automatic go home, move until home sensor */
+    // in case of automatic go home, move until home sensor
     if (has_flag(flags, MotorFlag::AUTO_GO_HOME)) {
-        r->value |= REG_0x02_AGOHOME | REG_0x02_NOTHOME;
+        reg02 |= REG_0x02_AGOHOME | REG_0x02_NOTHOME;
     }
 
   /* disable backtracking */
@@ -795,16 +789,15 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
       ||(scan_yres>=2400 && dev->model->model_id != ModelId::CANON_4400F)
       ||(scan_yres>=sensor.optical_res))
     {
-        r->value |= REG_0x02_ACDCDIS;
+        reg02 |= REG_0x02_ACDCDIS;
     }
 
     if (has_flag(flags, MotorFlag::REVERSE)) {
-        r->value |= REG_0x02_MTRREV;
+        reg02 |= REG_0x02_MTRREV;
     } else {
-        r->value &= ~REG_0x02_MTRREV;
+        reg02 &= ~REG_0x02_MTRREV;
     }
-
-
+    reg->set8(REG_0x02, reg02);
 
     // scan and backtracking slope table
     auto scan_table = sanei_genesys_slope_table(dev->model->asic_type, scan_yres, exposure,
@@ -847,11 +840,11 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     feedl <<= static_cast<unsigned>(motor_profile.step_type);
 
     dist = scan_table.steps_count / step_multiplier;
-  if (use_fast_fed)
-    {
+
+    if (use_fast_fed) {
         dist += (fast_table.steps_count / step_multiplier) * 2;
     }
-  DBG(DBG_io2, "%s: acceleration distance=%d\n", __func__, dist);
+    DBG(DBG_io2, "%s: acceleration distance=%d\n", __func__, dist);
 
   /* get sure when don't insane value : XXX STEF XXX in this case we should
    * fall back to single table move */
@@ -864,12 +857,13 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     reg->set24(REG_FEEDL, feedl);
   DBG(DBG_io, "%s: feedl=%d\n", __func__, feedl);
 
-  /* doesn't seem to matter that much */
+    // doesn't seem to matter that much
+    std::uint32_t z1, z2;
     sanei_genesys_calculate_zmod(use_fast_fed,
-				  exposure,
+                                 exposure,
                                  scan_table.table,
                                  scan_table.steps_count / step_multiplier,
-				  feedl,
+                                 feedl,
                                  scan_table.steps_count / step_multiplier,
                                   &z1,
                                   &z2);
@@ -885,9 +879,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     reg->set24(REG_Z2MOD, z2);
   DBG(DBG_info, "%s: z2 = %d\n", __func__, z2);
 
-    r = sanei_genesys_get_address(reg, REG_0x1E);
-  r->value &= 0xf0;		/* 0 dummy lines */
-  r->value |= scan_dummy;	/* dummy lines */
+    reg->set8_mask(REG_0x1E, scan_dummy, 0x0f);
 
     reg->set8_mask(REG_0x67, static_cast<unsigned>(motor_profile.step_type) << REG_0x67S_STEPSEL, 0xc0);
     reg->set8_mask(REG_0x68, static_cast<unsigned>(fast_profile->step_type) << REG_0x68S_FSTPSEL, 0xc0);
@@ -895,32 +887,29 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     // steps for STOP table
     reg->set8(REG_FMOVDEC, fast_table.steps_count / step_multiplier);
 
-  /* Vref XXX STEF XXX : optical divider or step type ? */
-  r = sanei_genesys_get_address (reg, 0x80);
-  if (!has_flag(dev->model->flags, ModelFlag::FULL_HWDPI_MODE))
-    {
-      r->value = 0x50;
-        coeff = sensor.get_hwdpi_divisor_for_dpi(scan_yres);
+    if (!has_flag(dev->model->flags, ModelFlag::FULL_HWDPI_MODE)) {
+        // FIXME: take this information from motor struct
+        std::uint8_t reg_vref = reg->get8(0x80);
+        reg_vref = 0x50;
+        unsigned coeff = sensor.get_hwdpi_divisor_for_dpi(scan_yres);
         if (dev->model->motor_id == MotorId::KVSS080) {
-          if(coeff>=1)
-            {
-              r->value |= 0x05;
+            if (coeff >= 1) {
+                reg_vref |= 0x05;
+            }
+        } else {
+            switch (coeff) {
+                case 4:
+                    reg_vref |= 0x0a;
+                    break;
+                case 2:
+                    reg_vref |= 0x0f;
+                    break;
+                case 1:
+                    reg_vref |= 0x0f;
+                    break;
             }
         }
-      else {
-        switch(coeff)
-          {
-          case 4:
-              r->value |= 0x0a;
-              break;
-          case 2:
-              r->value |= 0x0f;
-              break;
-          case 1:
-              r->value |= 0x0f;
-              break;
-          }
-        }
+        reg->set8(REG_0x80, reg_vref);
     }
 }
 

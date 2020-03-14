@@ -682,10 +682,10 @@ libsane_kodak_la_LIBADD = $(COMMON_LIBS) libkodak.la ../sanei/sanei_init_debug.l
 EXTRA_DIST += kodak.conf.in
 
 libkodakaio_la_SOURCES = kodakaio.c kodakaio.h
-libkodakaio_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=kodakaio
+libkodakaio_la_CPPFLAGS = $(AM_CPPFLAGS) $(AVAHI_CFLAGS) -DBACKEND_NAME=kodakaio
 
 nodist_libsane_kodakaio_la_SOURCES = kodakaio-s.c
-libsane_kodakaio_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=kodakaio
+libsane_kodakaio_la_CPPFLAGS = $(AM_CPPFLAGS) $(AVAHI_CFLAGS) -DBACKEND_NAME=kodakaio
 libsane_kodakaio_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_kodakaio_la_LIBADD = $(COMMON_LIBS) libkodakaio.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo  ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_tcp.lo ../sanei/sanei_udp.lo  $(USB_LIBS) $(SOCKET_LIBS) $(AVAHI_LIBS) $(MATH_LIB) $(RESMGR_LIBS)
 EXTRA_DIST += kodakaio.conf.in

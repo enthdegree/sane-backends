@@ -287,7 +287,7 @@ void genesys_init_motor_tables()
     profile.step_type = StepType::QUARTER;
     profile.motor_vref = 2;
     profile.resolutions = VALUE_FILTER_ANY;
-    profile.scan_methods = ScanMethodFilter::ANY;
+    profile.scan_methods = VALUE_FILTER_ANY;
     motor.fast_profiles.push_back(std::move(profile));
 
     s_motors->push_back(std::move(motor));

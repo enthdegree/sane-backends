@@ -154,7 +154,7 @@ struct MotorProfile
     // the resolutions this profile is good for
     ValueFilterAny<unsigned> resolutions = VALUE_FILTER_ANY;
     // the scan method this profile is good for. If the list is empty, good for any method.
-    ScanMethodFilter scan_methods = ScanMethodFilter::ANY;
+    ValueFilterAny<ScanMethod> scan_methods = VALUE_FILTER_ANY;
 
     unsigned max_exposure = 0; // 0 - any exposure
 };

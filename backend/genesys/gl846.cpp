@@ -117,6 +117,9 @@ gl846_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x09, 0x00);
     dev->reg.init_reg(0x0a, 0x00);
     dev->reg.init_reg(0x0b, 0x8b);
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICBOOK_3800) {
+        dev->reg.init_reg(0x0b, 0x2a);
+    }
     dev->reg.init_reg(0x0c, 0x00);
     dev->reg.init_reg(0x0d, 0x00);
     dev->reg.init_reg(0x10, 0x00);
@@ -1140,32 +1143,11 @@ static void gl846_init_gpio(Genesys_Device* dev)
 static void gl846_init_memory_layout(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  int idx = 0, i;
-  uint8_t val;
 
-  /* point to per model memory layout */
-  idx = 0;
-    while (layouts[idx].model != nullptr && strcmp(dev->model->name,layouts[idx].model)!=0) {
-      if(strcmp(dev->model->name,layouts[idx].model)!=0)
-        idx++;
-    }
-    if (layouts[idx].model == nullptr) {
-        throw SaneException("failed to find memory layout for model %s", dev->model->name);
-    }
+    // prevent further writings by bulk write register
+    dev->reg.remove_reg(0x0b);
 
-  /* CLKSET and DRAMSEL */
-  val = layouts[idx].dramsel;
-    dev->interface->write_register(REG_0x0B, val);
-  dev->reg.find_reg(0x0b).value = val;
-
-  /* prevent further writings by bulk write register */
-  dev->reg.remove_reg(0x0b);
-
-  /* setup base address for shading and scanned data. */
-  for(i=0;i<10;i++)
-    {
-      dev->interface->write_register(0xe0+i, layouts[idx].rx[i]);
-    }
+    apply_reg_settings_to_device_write_only(*dev, dev->memory_layout.regs);
 }
 
 /* *

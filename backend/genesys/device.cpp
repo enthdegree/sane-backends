@@ -227,8 +227,12 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev)
         << "    initial_regs: " << format_indent_braced_list(4, dev.initial_regs) << '\n'
         << "    settings: " << format_indent_braced_list(4, dev.settings) << '\n'
         << "    frontend: " << format_indent_braced_list(4, dev.frontend) << '\n'
-        << "    frontend_initial: " << format_indent_braced_list(4, dev.frontend_initial) << '\n'
-        << "    gpo.regs: " << format_indent_braced_list(4, dev.gpo.regs) << '\n'
+        << "    frontend_initial: " << format_indent_braced_list(4, dev.frontend_initial) << '\n';
+    if (!dev.memory_layout.regs.empty()) {
+        out << "    memory_layout.regs: "
+            << format_indent_braced_list(4, dev.memory_layout.regs) << '\n';
+    }
+    out << "    gpo.regs: " << format_indent_braced_list(4, dev.gpo.regs) << '\n'
         << "    motor: " << format_indent_braced_list(4, dev.motor) << '\n'
         << "    control[0..6]: " << std::hex
         << static_cast<unsigned>(dev.control[0]) << ' '

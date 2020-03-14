@@ -1548,64 +1548,8 @@ static void gl124_init_gpio(Genesys_Device* dev)
 static void gl124_init_memory_layout(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  int idx = 0;
 
-  /* point to per model memory layout */
-    if (dev->model->model_id == ModelId::CANON_LIDE_110 ||
-        dev->model->model_id == ModelId::CANON_LIDE_120)
-    {
-      idx = 0;
-    }
-  else
-    {                                /* canon LiDE 210 and 220 case */
-      idx = 1;
-    }
-
-  /* setup base address for shading data. */
-  /* values must be multiplied by 8192=0x4000 to give address on AHB */
-  /* R-Channel shading bank0 address setting for CIS */
-    dev->interface->write_register(0xd0, layouts[idx].rd0);
-  /* G-Channel shading bank0 address setting for CIS */
-    dev->interface->write_register(0xd1, layouts[idx].rd1);
-  /* B-Channel shading bank0 address setting for CIS */
-    dev->interface->write_register(0xd2, layouts[idx].rd2);
-
-  /* setup base address for scanned data. */
-  /* values must be multiplied by 1024*2=0x0800 to give address on AHB */
-  /* R-Channel ODD image buffer 0x0124->0x92000 */
-  /* size for each buffer is 0x16d*1k word */
-    dev->interface->write_register(0xe0, layouts[idx].re0);
-    dev->interface->write_register(0xe1, layouts[idx].re1);
-  /* R-Channel ODD image buffer end-address 0x0291->0x148800 => size=0xB6800*/
-    dev->interface->write_register(0xe2, layouts[idx].re2);
-    dev->interface->write_register(0xe3, layouts[idx].re3);
-
-  /* R-Channel EVEN image buffer 0x0292 */
-    dev->interface->write_register(0xe4, layouts[idx].re4);
-    dev->interface->write_register(0xe5, layouts[idx].re5);
-  /* R-Channel EVEN image buffer end-address 0x03ff*/
-    dev->interface->write_register(0xe6, layouts[idx].re6);
-    dev->interface->write_register(0xe7, layouts[idx].re7);
-
-  /* same for green, since CIS, same addresses */
-    dev->interface->write_register(0xe8, layouts[idx].re0);
-    dev->interface->write_register(0xe9, layouts[idx].re1);
-    dev->interface->write_register(0xea, layouts[idx].re2);
-    dev->interface->write_register(0xeb, layouts[idx].re3);
-    dev->interface->write_register(0xec, layouts[idx].re4);
-    dev->interface->write_register(0xed, layouts[idx].re5);
-    dev->interface->write_register(0xee, layouts[idx].re6);
-    dev->interface->write_register(0xef, layouts[idx].re7);
-
-/* same for blue, since CIS, same addresses */
-    dev->interface->write_register(0xf0, layouts[idx].re0);
-    dev->interface->write_register(0xf1, layouts[idx].re1);
-    dev->interface->write_register(0xf2, layouts[idx].re2);
-    dev->interface->write_register(0xf3, layouts[idx].re3);
-    dev->interface->write_register(0xf4, layouts[idx].re4);
-    dev->interface->write_register(0xf5, layouts[idx].re5);
-    dev->interface->write_register(0xf6, layouts[idx].re6);
-    dev->interface->write_register(0xf7, layouts[idx].re7);
+    apply_reg_settings_to_device_write_only(*dev, dev->memory_layout.regs);
 }
 
 /**

@@ -80,35 +80,6 @@ static Gpio_layout gpios[]={
 	},
 };
 
-typedef struct
-{
-  uint8_t rd0;
-  uint8_t rd1;
-  uint8_t rd2;
-  uint8_t re0;
-  uint8_t re1;
-  uint8_t re2;
-  uint8_t re3;
-  uint8_t re4;
-  uint8_t re5;
-  uint8_t re6;
-  uint8_t re7;
-} Memory_layout;
-
-static Memory_layout layouts[]={
-	/* LIDE 110, 120 */
-	{    /* 0xd0 0xd1 0xd2 */
-		0x0a, 0x15, 0x20,
-	     /* 0xe0  0xe1  0xe2  0xe3  0xe4  0xe5  0xe6  0xe7 */
-		0x00, 0xac, 0x08, 0x55, 0x08, 0x56, 0x0f, 0xff
-	},
-	/* LIDE 210, 220 */
-	{
-		0x0a, 0x1f, 0x34,
-		0x01, 0x24, 0x08, 0x91, 0x08, 0x92, 0x0f, 0xff
-	}
-};
-
 static void gl124_send_slope_table(Genesys_Device* dev, int table_nr,
                                    const std::vector<uint16_t>& slope_table, int steps);
 

@@ -88,6 +88,53 @@ void serialize(Stream& str, ValueFilterAny<T>& x)
 }
 
 
+template<class T>
+class ValueFilter
+{
+public:
+    ValueFilter() = default;
+    ValueFilter(std::initializer_list<T> values) :
+        values_{values}
+    {}
+
+    bool matches(T value) const
+    {
+        auto it = std::find(values_.begin(), values_.end(), value);
+        return it != values_.end();
+    }
+
+    bool operator==(const ValueFilter& other) const
+    {
+        return values_ == other.values_;
+    }
+
+    const std::vector<T>& values() const { return values_; }
+
+private:
+    std::vector<T> values_;
+
+    template<class Stream, class U>
+    friend void serialize(Stream& str, ValueFilter<U>& x);
+};
+
+template<class T>
+std::ostream& operator<<(std::ostream& out, const ValueFilter<T>& values)
+{
+    if (values.values().empty()) {
+        out << "(none)";
+        return out;
+    }
+    out << format_vector_indent_braced(4, "", values.values());
+    return out;
+}
+
+template<class Stream, class T>
+void serialize(Stream& str, ValueFilter<T>& x)
+{
+    serialize_newline(str);
+    serialize(str, x.values_);
+}
+
 } // namespace genesys
 
 #endif // BACKEND_GENESYS_VALUE_FILTER_H

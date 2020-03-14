@@ -50,61 +50,6 @@
 namespace genesys {
 namespace gl846 {
 
-typedef struct
-{
-  const char *model;
-  uint8_t dramsel;
-  /* shading data address */
-  uint8_t rd0;
-  uint8_t rd1;
-  uint8_t rd2;
-  /* scanned data address */
-  uint8_t rx[24];
-} Memory_layout;
-
-static Memory_layout layouts[]={
-	/* Image formula 101 */
-	{
-          "canon-image-formula-101",
-          0x8b,
-          0x0a, 0x1b, 0x00,
-          {                         /* RED ODD START / RED ODD END */
-            0x00, 0xb0, 0x05, 0xe7, /* [0x00b0, 0x05e7] 1336*4000w */
-                                    /* RED EVEN START / RED EVEN END */
-            0x05, 0xe8, 0x0b, 0x1f, /* [0x05e8, 0x0b1f] */
-                                    /* GREEN ODD START / GREEN ODD END */
-            0x0b, 0x20, 0x10, 0x57, /* [0x0b20, 0x1057] */
-                                    /* GREEN EVEN START / GREEN EVEN END */
-            0x10, 0x58, 0x15, 0x8f, /* [0x1058, 0x158f] */
-                                    /* BLUE ODD START / BLUE ODD END */
-            0x15, 0x90, 0x1a, 0xc7, /* [0x1590,0x1ac7] */
-                                    /* BLUE EVEN START / BLUE EVEN END */
-            0x1a, 0xc8, 0x1f, 0xff  /* [0x1ac8,0x1fff] */
-          }
-	},
-        /* OpticBook 3800 */
-	{
-          "plustek-opticbook-3800",
-          0x2a,
-          0x0a, 0x0a, 0x0a,
-          { /* RED ODD START / RED ODD END */
-            0x00, 0x68, 0x03, 0x00,
-            /* RED EVEN START / RED EVEN END */
-            0x03, 0x01, 0x05, 0x99,
-            /* GREEN ODD START / GREEN ODD END */
-            0x05, 0x9a, 0x08, 0x32,
-            /* GREEN EVEN START / GREEN EVEN END */
-            0x08, 0x33, 0x0a, 0xcb,
-            /* BLUE ODD START / BLUE ODD END */
-            0x0a, 0xcc, 0x0d, 0x64,
-            /* BLUE EVEN START / BLUE EVEN END */
-            0x0d, 0x65, 0x0f, 0xfd
-          }
-	},
-        /* list terminating entry */
-        { nullptr, 0, 0, 0, 0, {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} }
-};
-
 class CommandSetGl846 : public CommandSetCommon
 {
 public:

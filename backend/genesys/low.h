@@ -466,12 +466,14 @@ inline T clamp(const T& value, const T& lo, const T& hi)
 extern StaticInit<std::vector<Genesys_Sensor>> s_sensors;
 extern StaticInit<std::vector<Genesys_Frontend>> s_frontends;
 extern StaticInit<std::vector<Genesys_Gpo>> s_gpo;
+extern StaticInit<std::vector<MemoryLayout>> s_memory_layout;
 extern StaticInit<std::vector<Genesys_Motor>> s_motors;
 extern StaticInit<std::vector<Genesys_USB_Device_Entry>> s_usb_devices;
 
 void genesys_init_sensor_tables();
 void genesys_init_frontend_tables();
 void genesys_init_gpo_tables();
+void genesys_init_memory_layout_tables();
 void genesys_init_motor_tables();
 void genesys_init_usb_device_tables();
 void verify_usb_device_tables();

@@ -308,6 +308,24 @@ void sanei_genesys_init_structs (Genesys_Device * dev)
         }
     }
 
+    if (dev->model->asic_type == AsicType::GL845 ||
+        dev->model->asic_type == AsicType::GL846 ||
+        dev->model->asic_type == AsicType::GL847 ||
+        dev->model->asic_type == AsicType::GL124)
+    {
+        bool memory_layout_found = false;
+        for (const auto& memory_layout : *s_memory_layout) {
+            if (memory_layout.models.matches(dev->model->model_id)) {
+                dev->memory_layout = memory_layout;
+                memory_layout_found = true;
+                break;
+            }
+        }
+        if (!memory_layout_found) {
+            throw SaneException("Could not find memory layout");
+        }
+    }
+
     if (!motor_ok || !gpo_ok || !fe_ok) {
         throw SaneException("bad description(s) for fe/gpo/motor=%d/%d/%d\n",
                             static_cast<unsigned>(dev->model->sensor_id),
@@ -5105,6 +5123,7 @@ void sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
   genesys_init_sensor_tables();
   genesys_init_frontend_tables();
     genesys_init_gpo_tables();
+    genesys_init_memory_layout_tables();
     genesys_init_motor_tables();
     genesys_init_usb_device_tables();
 

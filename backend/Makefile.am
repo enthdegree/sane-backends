@@ -546,6 +546,7 @@ libgenesys_la_SOURCES = genesys/genesys.cpp genesys/genesys.h \
     genesys/status.h genesys/status.cpp \
     genesys/tables_frontend.cpp \
     genesys/tables_gpo.cpp \
+    genesys/tables_memory_layout.cpp \
     genesys/tables_model.cpp \
     genesys/tables_motor.cpp \
     genesys/tables_sensor.cpp \

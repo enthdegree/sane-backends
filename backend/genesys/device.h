@@ -365,6 +365,8 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev);
 
 void apply_reg_settings_to_device(Genesys_Device& dev, const GenesysRegisterSettingSet& regs);
 
+void apply_reg_settings_to_device_write_only(Genesys_Device& dev,
+                                             const GenesysRegisterSettingSet& regs);
 GenesysRegisterSettingSet
     apply_reg_settings_to_device_with_backup(Genesys_Device& dev,
                                              const GenesysRegisterSettingSet& regs);

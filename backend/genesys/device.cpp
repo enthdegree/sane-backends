@@ -272,6 +272,15 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev)
     return out;
 }
 
+void apply_reg_settings_to_device_write_only(Genesys_Device& dev,
+                                             const GenesysRegisterSettingSet& regs)
+{
+    GenesysRegisterSettingSet backup;
+    for (const auto& reg : regs) {
+        dev.interface->write_register(reg.address, reg.value);
+    }
+}
+
 void apply_reg_settings_to_device(Genesys_Device& dev, const GenesysRegisterSettingSet& regs)
 {
     apply_reg_settings_to_device_with_backup(dev, regs);

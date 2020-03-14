@@ -1821,6 +1821,8 @@ void CommandSetGl841::set_powersaving(Genesys_Device* dev, int delay /* in minut
 
 void gl841_stop_action(Genesys_Device* dev)
 {
+    // FIXME: figure out a way to merge this to scanner_stop_action()
+
     DBG_HELPER(dbg);
   Genesys_Register_Set local_reg;
   unsigned int loop;
@@ -2949,127 +2951,7 @@ void CommandSetGl841::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                               Genesys_Register_Set& regs, int dpi) const
 {
-    DBG_HELPER_ARGS(dbg, "dpi=%d", dpi);
-  int lines=1;
-
-    // feed to white strip if needed
-    if (dev->model->y_offset_calib_white > 0) {
-        unsigned move = static_cast<unsigned>(
-                (dev->model->y_offset_calib_white * (dev->motor.base_ydpi)) / MM_PER_INCH);
-        scanner_move(*dev, dev->model->default_method, move, Direction::FORWARD);
-    }
-
-  /* coarse gain calibration is allways done in color mode */
-    unsigned channels = 3;
-
-    unsigned resolution = sensor.get_register_hwdpi(dev->settings.xres);
-
-    const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
-                                                         dev->settings.scan_method);
-
-    unsigned num_pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
-
-    ScanSession session;
-    session.params.xres = resolution;
-    session.params.yres = dev->settings.yres;
-    session.params.startx = 0;
-    session.params.starty = 0;
-    session.params.pixels = num_pixels;
-    session.params.lines = lines;
-    session.params.depth = 16;
-    session.params.channels = channels;
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-    session.params.color_filter = dev->settings.color_filter;
-    session.params.flags = ScanFlag::DISABLE_SHADING |
-                           ScanFlag::DISABLE_GAMMA |
-                           ScanFlag::SINGLE_LINE |
-                           ScanFlag::IGNORE_STAGGER_OFFSET |
-                           ScanFlag::IGNORE_COLOR_OFFSET;
-    compute_session(dev, session, calib_sensor);
-
-    init_regs_for_scan_session(dev, calib_sensor, &regs, session);
-
-    dev->interface->write_registers(regs);
-
-    std::vector<uint8_t> line(session.output_total_bytes);
-
-    dev->cmd_set->begin_scan(dev, calib_sensor, &regs, true);
-
-    if (is_testing_mode()) {
-        dev->interface->test_checkpoint("coarse_gain_calibration");
-        gl841_stop_action(dev);
-        move_back_home(dev, true);
-        return;
-    }
-
-    auto image = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes);
-
-  if (DBG_LEVEL >= DBG_data)
-    sanei_genesys_write_pnm_file("gl841_gain.pnm", line.data(), 16, channels, num_pixels, lines);
-
-  /* average high level for each channel and compute gain
-     to reach the target code
-     we only use the central half of the CCD data         */
-
-    for (unsigned ch = 0; ch < channels; ch++) {
-        unsigned max = 0;
-        for (std::size_t x = 0; x < image.get_width(); x++) {
-            auto value = image.get_raw_channel(x, 0, ch);
-            if (value > max) {
-                max = value;
-            }
-        }
-
-        float curr_output = max;
-        float target_value = 65535.0f;
-
-        std::uint8_t out_gain = compute_frontend_gain(curr_output, target_value,
-                                                      dev->frontend.layout.type);
-
-        dev->frontend.set_gain(ch, out_gain);
-
-        DBG(DBG_proc, "%s: channel %d, curr=%f, target=%f, out_gain:%d\n", __func__, ch,
-            curr_output, target_value, out_gain);
-
-        if (target_value / curr_output > 30) {
-            DBG(DBG_error0, "****************************************\n");
-            DBG(DBG_error0, "*                                      *\n");
-            DBG(DBG_error0, "*  Extremely low Brightness detected.  *\n");
-            DBG(DBG_error0, "*  Check the scanning head is          *\n");
-            DBG(DBG_error0, "*  unlocked and moving.                *\n");
-            DBG(DBG_error0, "*                                      *\n");
-            DBG(DBG_error0, "****************************************\n");
-            throw SaneException(SANE_STATUS_JAMMED, "scanning head is locked");
-        }
-    }
-
-    if (dev->model->is_cis) {
-        uint8_t gain0 = dev->frontend.get_gain(0);
-        if (gain0 > dev->frontend.get_gain(1)) {
-            gain0 = dev->frontend.get_gain(1);
-        }
-        if (gain0 > dev->frontend.get_gain(2)) {
-            gain0 = dev->frontend.get_gain(2);
-        }
-        dev->frontend.set_gain(0, gain0);
-        dev->frontend.set_gain(1, gain0);
-        dev->frontend.set_gain(2, gain0);
-    }
-
-    if (channels == 1) {
-        dev->frontend.set_gain(0, dev->frontend.get_gain(1));
-        dev->frontend.set_gain(2, dev->frontend.get_gain(1));
-    }
-
-  DBG(DBG_info, "%s: gain=(%d,%d,%d)\n", __func__,
-      dev->frontend.get_gain(0),
-      dev->frontend.get_gain(1),
-      dev->frontend.get_gain(2));
-
-    gl841_stop_action(dev);
-
-    dev->cmd_set->move_back_home(dev, true);
+    scanner_coarse_gain_calibration(*dev, sensor, regs, dpi);
 }
 
 // wait for lamp warmup by scanning the same line until difference

@@ -1746,165 +1746,16 @@ SensorExposure CommandSetGl843::led_calibration(Genesys_Device* dev, const Genes
     return calib_sensor.exposure;
 }
 
-/** @brief calibrate AFE offset
- * Iterate doing scans at target dpi until AFE offset if correct. One
- * color line is scanned at a time. Scanning head doesn't move.
- * @param dev device to calibrate
- */
 void CommandSetGl843::offset_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                          Genesys_Register_Set& regs) const
 {
     scanner_offset_calibration(*dev, sensor, regs);
 }
 
-
-/* alternative coarse gain calibration
-   this on uses the settings from offset_calibration and
-   uses only one scanline
- */
-/*
-  with offset and coarse calibration we only want to get our input range into
-  a reasonable shape. the fine calibration of the upper and lower bounds will
-  be done with shading.
- */
 void CommandSetGl843::coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                               Genesys_Register_Set& regs, int dpi) const
 {
-    DBG_HELPER_ARGS(dbg, "dpi = %d", dpi);
-    int dpihw;
-  float coeff;
-    int lines;
-  int resolution;
-
-    if (dev->frontend.layout.type != FrontendType::WOLFSON)
-        return;
-
-    dpihw = sensor.get_register_hwdpi(dpi);
-
-    // coarse gain calibration is always done in color mode
-    unsigned channels = 3;
-
-  /* follow CKSEL */
-    if (dev->model->sensor_id == SensorId::CCD_KVSS080) {
-      if(dev->settings.xres<sensor.optical_res)
-        {
-            coeff = 0.9f;
-        }
-      else
-        {
-          coeff=1.0;
-        }
-    }
-  else
-    {
-      coeff=1.0;
-    }
-  resolution=dpihw;
-  lines=10;
-
-    ScanFlag flags = ScanFlag::DISABLE_SHADING |
-                     ScanFlag::DISABLE_GAMMA |
-                     ScanFlag::SINGLE_LINE |
-                     ScanFlag::IGNORE_STAGGER_OFFSET |
-                     ScanFlag::IGNORE_COLOR_OFFSET;
-
-    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
-        dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
-    {
-        flags |= ScanFlag::USE_XPA;
-    }
-
-    const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
-                                                         dev->settings.scan_method);
-
-    ScanSession session;
-    session.params.xres = resolution;
-    session.params.yres = resolution;
-    session.params.startx = 0;
-    session.params.starty = 0;
-    session.params.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
-    session.params.lines = lines;
-    session.params.depth = 8;
-    session.params.channels = channels;
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-    session.params.color_filter = dev->settings.color_filter;
-    session.params.flags = flags;
-    compute_session(dev, session, calib_sensor);
-    std::size_t pixels = session.output_pixels;
-
-    try {
-        init_regs_for_scan_session(dev, calib_sensor, &regs, session);
-    } catch (...) {
-        catch_all_exceptions(__func__, [&](){ sanei_genesys_set_motor_power(regs, false); });
-        throw;
-    }
-
-    sanei_genesys_set_motor_power(regs, false);
-
-    dev->interface->write_registers(regs);
-
-    dev->cmd_set->set_fe(dev, calib_sensor, AFE_SET);
-    dev->cmd_set->begin_scan(dev, calib_sensor, &regs, true);
-
-    if (is_testing_mode()) {
-        dev->interface->test_checkpoint("coarse_gain_calibration");
-        scanner_stop_action(*dev);
-        move_back_home(dev, true);
-        return;
-    }
-
-    auto line = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes_raw);
-    scanner_stop_action_no_move(*dev, regs);
-
-    if (DBG_LEVEL >= DBG_data) {
-        sanei_genesys_write_pnm_file("gl843_gain.pnm", line);
-    }
-
-    // average value on each channel
-    for (unsigned ch = 0; ch < channels; ch++) {
-
-        std::vector<uint16_t> values;
-        // FIXME: start from the second line because the first line often has artifacts. Probably
-        // caused by unclean cleanup of previous scan
-        for (std::size_t x = pixels / 4; x < (pixels * 3 / 4); x++) {
-            values.push_back(line.get_raw_channel(x, 1, ch));
-        }
-
-        // pick target value at 95th percentile of all values. There may be a lot of black values
-        // in transparency scans for example
-        std::sort(values.begin(), values.end());
-        uint16_t curr_output = values[unsigned((values.size() - 1) * 0.95)];
-        float target_value = calib_sensor.gain_white_ref * coeff;
-
-        int code = compute_frontend_gain(curr_output, target_value, dev->frontend.layout.type);
-      dev->frontend.set_gain(ch, code);
-
-        DBG(DBG_proc, "%s: channel %d, max=%d, target=%d, setting:%d\n", __func__, ch, curr_output,
-            static_cast<int>(target_value), code);
-    }
-
-    if (dev->model->is_cis) {
-        uint8_t gain0 = dev->frontend.get_gain(0);
-        if (gain0 > dev->frontend.get_gain(1)) {
-            gain0 = dev->frontend.get_gain(1);
-        }
-        if (gain0 > dev->frontend.get_gain(2)) {
-            gain0 = dev->frontend.get_gain(2);
-        }
-        dev->frontend.set_gain(0, gain0);
-        dev->frontend.set_gain(1, gain0);
-        dev->frontend.set_gain(2, gain0);
-    }
-
-    if (channels == 1) {
-        dev->frontend.set_gain(0, dev->frontend.get_gain(1));
-        dev->frontend.set_gain(2, dev->frontend.get_gain(1));
-    }
-
-    scanner_stop_action(*dev);
-
-    move_back_home(dev, true);
+    scanner_coarse_gain_calibration(*dev, sensor, regs, dpi);
 }
 
 // wait for lamp warmup by scanning the same line until difference

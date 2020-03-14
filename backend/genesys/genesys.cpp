@@ -1590,6 +1590,259 @@ void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& senso
         dev.frontend.get_offset(2));
 }
 
+/*  With offset and coarse calibration we only want to get our input range into
+    a reasonable shape. the fine calibration of the upper and lower bounds will
+    be done with shading.
+*/
+void scanner_coarse_gain_calibration(Genesys_Device& dev, const Genesys_Sensor& sensor,
+                                     Genesys_Register_Set& regs, unsigned dpi)
+{
+    DBG_HELPER_ARGS(dbg, "dpi = %d", dpi);
+
+    if (dev.model->asic_type == AsicType::GL843 &&
+        dev.frontend.layout.type != FrontendType::WOLFSON)
+    {
+        return;
+    }
+
+    if (dev.model->asic_type == AsicType::GL845 ||
+        dev.model->asic_type == AsicType::GL846)
+    {
+        // no gain nor offset for AKM AFE
+        std::uint8_t reg04 = dev.interface->read_register(gl846::REG_0x04);
+        if ((reg04 & gl846::REG_0x04_FESET) == 0x02) {
+            return;
+        }
+    }
+
+    if (dev.model->asic_type == AsicType::GL847) {
+        // no gain nor offset for AKM AFE
+        std::uint8_t reg04 = dev.interface->read_register(gl847::REG_0x04);
+        if ((reg04 & gl847::REG_0x04_FESET) == 0x02) {
+            return;
+        }
+    }
+
+    if (dev.model->asic_type == AsicType::GL124) {
+        // no gain nor offset for TI AFE
+        std::uint8_t reg0a = dev.interface->read_register(gl124::REG_0x0A);
+        if (((reg0a & gl124::REG_0x0A_SIFSEL) >> gl124::REG_0x0AS_SIFSEL) == 3) {
+            return;
+        }
+    }
+
+    if (dev.model->asic_type == AsicType::GL841) {
+        // feed to white strip if needed
+        if (dev.model->y_offset_calib_white > 0) {
+            unsigned move = static_cast<unsigned>(
+                    (dev.model->y_offset_calib_white * (dev.motor.base_ydpi)) / MM_PER_INCH);
+            scanner_move(dev, dev.model->default_method, move, Direction::FORWARD);
+        }
+    }
+
+    unsigned resolution = sensor.optical_res;
+    if (dev.model->asic_type == AsicType::GL841) {
+        resolution = sensor.get_register_hwdpi(dev.settings.xres);
+    }
+    if (dev.model->asic_type == AsicType::GL843) {
+        resolution = sensor.get_register_hwdpi(dpi);
+    }
+
+    // coarse gain calibration is always done in color mode
+    unsigned channels = 3;
+
+    float coeff = 1;
+
+    // Follow CKSEL
+    if (dev.model->sensor_id == SensorId::CCD_KVSS080 ||
+        dev.model->asic_type == AsicType::GL845 ||
+        dev.model->asic_type == AsicType::GL846 ||
+        dev.model->asic_type == AsicType::GL847 ||
+        dev.model->asic_type == AsicType::GL124)
+    {
+        if (dev.settings.xres < sensor.optical_res) {
+            coeff = 0.9f;
+        }
+    }
+
+    unsigned lines = 10;
+    if (dev.model->asic_type == AsicType::GL841) {
+        lines = 1;
+    }
+
+    const Genesys_Sensor* calib_sensor = &sensor;
+    if (dev.model->asic_type == AsicType::GL841 ||
+        dev.model->asic_type == AsicType::GL843)
+    {
+        calib_sensor = &sanei_genesys_find_sensor(&dev, resolution, channels,
+                                                  dev.settings.scan_method);
+    }
+
+    ScanFlag flags = ScanFlag::DISABLE_SHADING |
+                     ScanFlag::DISABLE_GAMMA |
+                     ScanFlag::SINGLE_LINE |
+                     ScanFlag::IGNORE_STAGGER_OFFSET |
+                     ScanFlag::IGNORE_COLOR_OFFSET;
+
+    if (dev.settings.scan_method == ScanMethod::TRANSPARENCY ||
+        dev.settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+    {
+        flags |= ScanFlag::USE_XPA;
+    }
+
+    ScanSession session;
+    session.params.xres = resolution;
+    session.params.yres = dev.model->asic_type == AsicType::GL841 ? dev.settings.yres : resolution;
+    session.params.startx = 0;
+    session.params.starty = 0;
+    session.params.pixels = dev.model->x_size_calib_mm * resolution / MM_PER_INCH;
+    session.params.lines = lines;
+    session.params.depth = dev.model->asic_type == AsicType::GL841 ? 16 : 8;
+    session.params.channels = channels;
+    session.params.scan_method = dev.settings.scan_method;
+    session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    session.params.color_filter = dev.settings.color_filter;
+    session.params.flags = flags;
+    compute_session(&dev, session, *calib_sensor);
+
+    std::size_t pixels = session.output_pixels;
+
+    try {
+        dev.cmd_set->init_regs_for_scan_session(&dev, *calib_sensor, &regs, session);
+    } catch (...) {
+        if (dev.model->asic_type != AsicType::GL841) {
+            catch_all_exceptions(__func__, [&](){ sanei_genesys_set_motor_power(regs, false); });
+        }
+        throw;
+    }
+
+    if (dev.model->asic_type != AsicType::GL841) {
+        sanei_genesys_set_motor_power(regs, false);
+    }
+
+    dev.interface->write_registers(regs);
+
+    if (dev.model->asic_type != AsicType::GL841) {
+        dev.cmd_set->set_fe(&dev, *calib_sensor, AFE_SET);
+    }
+    dev.cmd_set->begin_scan(&dev, *calib_sensor, &regs, true);
+
+    if (is_testing_mode()) {
+        dev.interface->test_checkpoint("coarse_gain_calibration");
+        if (dev.model->asic_type == AsicType::GL841) {
+            gl841::gl841_stop_action(&dev);
+        } else {
+            scanner_stop_action(dev);
+        }
+        dev.cmd_set->move_back_home(&dev, true);
+        return;
+    }
+
+    Image image;
+    if (dev.model->asic_type == AsicType::GL843) {
+        image = read_unshuffled_image_from_scanner(&dev, session, session.output_total_bytes_raw);
+    } else if (dev.model->asic_type == AsicType::GL124) {
+        // BUG: we probably want to read whole image, not just first line
+        image = read_unshuffled_image_from_scanner(&dev, session, session.output_line_bytes);
+    } else {
+        image = read_unshuffled_image_from_scanner(&dev, session, session.output_total_bytes);
+    }
+
+    if (dev.model->asic_type == AsicType::GL843) {
+        scanner_stop_action_no_move(dev, regs);
+    }
+
+    if (DBG_LEVEL >= DBG_data) {
+        sanei_genesys_write_pnm_file("gl_coarse_gain.pnm", image);
+    }
+
+    for (unsigned ch = 0; ch < channels; ch++) {
+        float curr_output = 0;
+        float target_value = 0;
+
+        if (dev.model->asic_type == AsicType::GL843) {
+            std::vector<uint16_t> values;
+            // FIXME: start from the second line because the first line often has artifacts. Probably
+            // caused by unclean cleanup of previous scan
+            for (std::size_t x = pixels / 4; x < (pixels * 3 / 4); x++) {
+                values.push_back(image.get_raw_channel(x, 1, ch));
+            }
+
+            // pick target value at 95th percentile of all values. There may be a lot of black values
+            // in transparency scans for example
+            std::sort(values.begin(), values.end());
+            curr_output = static_cast<float>(values[unsigned((values.size() - 1) * 0.95)]);
+            target_value = calib_sensor->gain_white_ref * coeff;
+
+        } else if (dev.model->asic_type == AsicType::GL841) {
+            // FIXME: use the GL843 approach
+            unsigned max = 0;
+            for (std::size_t x = 0; x < image.get_width(); x++) {
+                auto value = image.get_raw_channel(x, 0, ch);
+                if (value > max) {
+                    max = value;
+                }
+            }
+
+            curr_output = max;
+            target_value = 65535.0f;
+        } else {
+            // FIXME: use the GL843 approach
+            auto width = image.get_width();
+
+            std::uint64_t total = 0;
+            for (std::size_t x = width / 4; x < (width * 3 / 4); x++) {
+                total += image.get_raw_channel(x, 0, ch);
+            }
+
+            curr_output = total / (width / 2);
+            target_value = calib_sensor->gain_white_ref * coeff;
+        }
+
+        std::uint8_t out_gain = compute_frontend_gain(curr_output, target_value,
+                                                      dev.frontend.layout.type);
+        dev.frontend.set_gain(ch, out_gain);
+
+        DBG(DBG_proc, "%s: channel %d, curr=%f, target=%f, out_gain:%d\n", __func__, ch,
+            curr_output, target_value, out_gain);
+
+        if (dev.model->asic_type == AsicType::GL841 &&
+            target_value / curr_output > 30)
+        {
+            DBG(DBG_error0, "****************************************\n");
+            DBG(DBG_error0, "*                                      *\n");
+            DBG(DBG_error0, "*  Extremely low Brightness detected.  *\n");
+            DBG(DBG_error0, "*  Check the scanning head is          *\n");
+            DBG(DBG_error0, "*  unlocked and moving.                *\n");
+            DBG(DBG_error0, "*                                      *\n");
+            DBG(DBG_error0, "****************************************\n");
+            throw SaneException(SANE_STATUS_JAMMED, "scanning head is locked");
+        }
+    }
+
+    if (dev.model->is_cis) {
+        std::uint8_t min_gain = std::min({dev.frontend.get_gain(0),
+                                          dev.frontend.get_gain(1),
+                                          dev.frontend.get_gain(2)});
+
+        dev.frontend.set_gain(0, min_gain);
+        dev.frontend.set_gain(1, min_gain);
+        dev.frontend.set_gain(2, min_gain);
+    }
+
+    DBG(DBG_info, "%s: gain=(%d,%d,%d)\n", __func__,
+        dev.frontend.get_gain(0),
+        dev.frontend.get_gain(1),
+        dev.frontend.get_gain(2));
+
+    if (dev.model->asic_type == AsicType::GL841) {
+        gl841::gl841_stop_action(&dev);
+    } else {
+        scanner_stop_action(dev);
+    }
+
+    dev.cmd_set->move_back_home(&dev, true);
+}
 
 void sanei_genesys_calculate_zmod(bool two_table,
                                   uint32_t exposure_time,

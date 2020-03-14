@@ -311,6 +311,9 @@ float get_model_x_offset_ta(const Genesys_Device& dev, const Genesys_Settings& s
 void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& sensor,
                                 Genesys_Register_Set& regs);
 
+void scanner_coarse_gain_calibration(Genesys_Device& dev, const Genesys_Sensor& sensor,
+                                     Genesys_Register_Set& regs, unsigned dpi);
+
 void scanner_clear_scan_and_feed_counts(Genesys_Device& dev);
 
 extern void sanei_genesys_write_file(const char* filename, const std::uint8_t* data,

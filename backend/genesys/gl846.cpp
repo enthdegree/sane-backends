@@ -1128,29 +1128,10 @@ SensorExposure CommandSetGl846::led_calibration(Genesys_Device* dev, const Genes
 static void gl846_init_gpio(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  int idx=0;
-
-  /* search GPIO profile */
-    while (gpios[idx].gpio_id != GpioId::UNKNOWN && dev->model->gpio_id != gpios[idx].gpio_id) {
-      idx++;
-    }
-    if (gpios[idx].gpio_id == GpioId::UNKNOWN)
+    apply_registers_ordered(dev->gpo.regs, { 0x6e, 0x6f }, [&](const GenesysRegisterSetting& reg)
     {
-        throw SaneException("failed to find GPIO profile for sensor_id=%d",
-                            static_cast<unsigned>(dev->model->sensor_id));
-    }
-
-    dev->interface->write_register(REG_0xA7, gpios[idx].ra7);
-    dev->interface->write_register(REG_0xA6, gpios[idx].ra6);
-
-    dev->interface->write_register(REG_0x6B, gpios[idx].r6b);
-    dev->interface->write_register(REG_0x6C, gpios[idx].r6c);
-    dev->interface->write_register(REG_0x6D, gpios[idx].r6d);
-    dev->interface->write_register(REG_0x6E, gpios[idx].r6e);
-    dev->interface->write_register(REG_0x6F, gpios[idx].r6f);
-
-    dev->interface->write_register(REG_0xA8, gpios[idx].ra8);
-    dev->interface->write_register(REG_0xA9, gpios[idx].ra9);
+        dev->interface->write_register(reg.address, reg.value);
+    });
 }
 
 /**
@@ -1218,8 +1199,7 @@ void CommandSetGl846::asic_boot(Genesys_Device* dev, bool cold) const
         DBG(DBG_info, "%s: reported version for genesys chip is 0x%02x\n", __func__, val);
     }
 
-  /* Set default values for registers */
-  gl846_init_registers (dev);
+    gl846_init_registers (dev);
 
     // Write initial registers
     dev->interface->write_registers(dev->reg);

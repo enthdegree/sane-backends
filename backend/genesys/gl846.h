@@ -52,26 +52,6 @@ namespace gl846 {
 
 typedef struct
 {
-    GpioId gpio_id;
-  uint8_t r6b;
-  uint8_t r6c;
-  uint8_t r6d;
-  uint8_t r6e;
-  uint8_t r6f;
-  uint8_t ra6;
-  uint8_t ra7;
-  uint8_t ra8;
-  uint8_t ra9;
-} Gpio_Profile;
-
-static Gpio_Profile gpios[]={
-    { GpioId::IMG101, 0x72, 0x1f, 0xa4, 0x13, 0xa7, 0x11, 0xff, 0x19, 0x05},
-    { GpioId::PLUSTEK_OPTICBOOK_3800, 0x30, 0x01, 0x80, 0x2d, 0x80, 0x0c, 0x8f, 0x08, 0x04},
-    { GpioId::UNKNOWN, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-};
-
-typedef struct
-{
   const char *model;
   uint8_t dramsel;
   /* shading data address */

@@ -155,7 +155,7 @@ poll (struct pollfd *ufds, unsigned int nfds, int timeout)
 }
 #endif /* HAVE_SYS_POLL_H && HAVE_POLL */
 
-#ifdef WITH_AVAHI
+#if WITH_AVAHI
 # include <avahi-client/client.h>
 # include <avahi-client/publish.h>
 
@@ -2286,7 +2286,7 @@ wait_child (pid_t pid, int *status, int options)
   if (ret <= 0)
     return ret;
 
-#ifdef WITH_AVAHI
+#if WITH_AVAHI
   if ((avahi_pid > 0) && (ret == avahi_pid))
     {
       avahi_pid = -1;
@@ -2428,7 +2428,7 @@ bail_out (int error)
 {
   DBG (DBG_ERR, "%sbailing out, waiting for children...\n", (error) ? "FATAL ERROR; " : "");
 
-#ifdef WITH_AVAHI
+#if WITH_AVAHI
   if (avahi_pid > 0)
     kill (avahi_pid, SIGTERM);
 #endif /* WITH_AVAHI */
@@ -2457,7 +2457,7 @@ sig_int_term_handler (int signum)
 }
 
 
-#ifdef WITH_AVAHI
+#if WITH_AVAHI
 static void
 saned_avahi (struct pollfd *fds, int nfds);
 
@@ -3221,7 +3221,7 @@ run_standalone (char *user)
   if (user)
     runas_user(user);
 
-#ifdef WITH_AVAHI
+#if WITH_AVAHI
   DBG (DBG_INFO, "run_standalone: spawning Avahi process\n");
   saned_avahi (fds, nfds);
 

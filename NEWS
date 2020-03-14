@@ -11,6 +11,10 @@
 ### Build
 
 - removes the `--with-api-spec` option from `configure`
+- replaces the `--enable-avahi` option with an `--with-avahi` that
+  defaults to enabling if possible.  If the option is given and the
+  required support is not available, `configure` will exit with an
+  error.
 
 
 ## New with 1.0.29 (released 2020-02-02)

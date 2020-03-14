@@ -132,14 +132,23 @@ if test "$with_v4l" != "no" ; then
   PKG_CHECK_MODULES(LIBV4L, libv4l1, have_libv4l1=yes, have_libv4l1=no)
 fi
 
-AC_ARG_ENABLE(avahi,
-	AS_HELP_STRING([--enable-avahi], [enable Avahi support for saned and the net backend]),
-	[enable_avahi=$enableval], [enable_avahi=no])
-
-if test "$enable_avahi" = "yes"; then
-  PKG_CHECK_MODULES(AVAHI, [ avahi-client >= 0.6.24 ],
-                    [AC_DEFINE(WITH_AVAHI, 1, [define if Avahi support is enabled for saned and the net backend])], enable_avahi=no)
-fi
+AC_ARG_WITH(avahi,
+  AS_HELP_STRING([--with-avahi],
+    [enable Avahi support @<:@default=check@:>@]),
+  [],
+  [with_avahi=check])
+AC_DEFINE(WITH_AVAHI,
+  [0], [Define to 1 if Avahi support is available])
+AS_IF([test xno != "x$with_avahi"],
+  [PKG_CHECK_MODULES(AVAHI, [avahi-client >= 0.6.24],
+    [AC_DEFINE([WITH_AVAHI], [1])
+     with_avahi=yes
+    ],
+    [AS_IF([test xcheck != "x$with_avahi"],
+       [AC_MSG_ERROR([Avahi support requested but not found])])
+     with_avahi=no
+    ])
+  ])
 AM_CONDITIONAL([have_libavahi], [test x != "x$AVAHI_LIBS"])
 
 dnl check sane to make sure we don't have two installations
@@ -839,7 +848,7 @@ else
   echo "Build saned:   no"
 fi
 echo "IPv6 support:  `eval eval echo ${ipv6}`"
-echo "Avahi support: `eval eval echo ${enable_avahi}`"
+echo "Avahi support: `eval eval echo ${with_avahi}`"
 echo "cURL support:  `eval eval echo ${with_libcurl}`"
 echo "POPPLER_GLIB support:  `eval eval echo ${with_poppler_glib}`"
 echo "SNMP support:  `eval eval echo ${with_snmp}`"

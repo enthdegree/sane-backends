@@ -352,64 +352,52 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
                          "scan_dummy=%d, feed_steps=%d, flags=%x",
                     scan_exposure_time, scan_yres, static_cast<unsigned>(motor_profile.step_type),
                     scan_lines, scan_dummy, feed_steps, static_cast<unsigned>(flags));
-  int use_fast_fed;
-  unsigned int fast_dpi;
-  unsigned int feedl, dist;
-  GenesysRegister *r;
-  uint32_t z1, z2;
-  unsigned int min_restep = 0x20;
-    uint8_t val;
-  unsigned int ccdlmt,tgtime;
 
     unsigned step_multiplier = gl847_get_step_multiplier (reg);
 
-  use_fast_fed=0;
-  /* no fast fed since feed works well */
-    if (dev->settings.yres==4444 && feed_steps > 100 && (!has_flag(flags, MotorFlag::FEED)))
-    {
-      use_fast_fed=1;
+    bool use_fast_fed = false;
+    if (dev->settings.yres == 4444 && feed_steps > 100 && !has_flag(flags, MotorFlag::FEED)) {
+        use_fast_fed = true;
     }
-  DBG(DBG_io, "%s: use_fast_fed=%d\n", __func__, use_fast_fed);
 
     reg->set24(REG_LINCNT, scan_lines);
-  DBG(DBG_io, "%s: lincnt=%d\n", __func__, scan_lines);
+    DBG(DBG_io, "%s: lincnt=%d\n", __func__, scan_lines);
 
-  /* compute register 02 value */
-    r = sanei_genesys_get_address(reg, REG_0x02);
-  r->value = 0x00;
-  sanei_genesys_set_motor_power(*reg, true);
+    reg->set8(REG_0x02, 0);
+    sanei_genesys_set_motor_power(*reg, true);
 
+    std::uint8_t reg02 = reg->get8(REG_0x02);
     if (use_fast_fed) {
-        r->value |= REG_0x02_FASTFED;
+        reg02 |= REG_0x02_FASTFED;
     } else {
-        r->value &= ~REG_0x02_FASTFED;
+        reg02 &= ~REG_0x02_FASTFED;
     }
 
     if (has_flag(flags, MotorFlag::AUTO_GO_HOME)) {
-        r->value |= REG_0x02_AGOHOME | REG_0x02_NOTHOME;
+        reg02 |= REG_0x02_AGOHOME | REG_0x02_NOTHOME;
     }
 
-  if (has_flag(flags, MotorFlag::DISABLE_BUFFER_FULL_MOVE)
-      ||(scan_yres>=sensor.optical_res))
-    {
-        r->value |= REG_0x02_ACDCDIS;
+    if (has_flag(flags, MotorFlag::DISABLE_BUFFER_FULL_MOVE) ||(scan_yres>=sensor.optical_res)) {
+        reg02 |= REG_0x02_ACDCDIS;
     }
-
     if (has_flag(flags, MotorFlag::REVERSE)) {
-        r->value |= REG_0x02_MTRREV;
+        reg02 |= REG_0x02_MTRREV;
     } else {
-        r->value &= ~REG_0x02_MTRREV;
+        reg02 &= ~REG_0x02_MTRREV;
     }
+    reg->set8(REG_0x02, reg02);
 
-  /* scan and backtracking slope table */
+    // scan and backtracking slope table
     auto scan_table = sanei_genesys_slope_table(dev->model->asic_type, scan_yres,
                                                 scan_exposure_time, dev->motor.base_ydpi,
                                                 step_multiplier, motor_profile);
     gl847_send_slope_table(dev, SCAN_TABLE, scan_table.table, scan_table.steps_count);
     gl847_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table, scan_table.steps_count);
 
-  /* fast table */
-  fast_dpi=sanei_genesys_get_lowest_ydpi(dev);
+    // fast table
+    unsigned fast_dpi = sanei_genesys_get_lowest_ydpi(dev);
+
+    // BUG: looks like for fast moves we use inconsistent step type
     StepType fast_step_type = motor_profile.step_type;
     if (static_cast<unsigned>(motor_profile.step_type) >= static_cast<unsigned>(StepType::QUARTER)) {
         fast_step_type = StepType::QUARTER;
@@ -426,30 +414,26 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
     gl847_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.steps_count);
     gl847_send_slope_table(dev, HOME_TABLE, fast_table.table, fast_table.steps_count);
 
-  /* correct move distance by acceleration and deceleration amounts */
-  feedl=feed_steps;
-  if (use_fast_fed)
+    // correct move distance by acceleration and deceleration amounts
+    unsigned feedl = feed_steps;
+    unsigned dist = 0;
+    if (use_fast_fed)
     {
         feedl <<= static_cast<unsigned>(fast_step_type);
         dist = (scan_table.steps_count + 2 * fast_table.steps_count);
-        /* TODO read and decode REG_0xAB */
-        r = sanei_genesys_get_address (reg, 0x5e);
-        dist += (r->value & 31);
-        /* FEDCNT */
-        r = sanei_genesys_get_address (reg, REG_FEDCNT);
-        dist += r->value;
-    }
-  else
-    {
+        // TODO read and decode REG_0xAB
+        dist += (reg->get8(0x5e) & 31);
+        dist += reg->get8(REG_FEDCNT);
+    } else {
         feedl <<= static_cast<unsigned>(motor_profile.step_type);
         dist = scan_table.steps_count;
         if (has_flag(flags, MotorFlag::FEED)) {
             dist *= 2;
         }
     }
-  DBG(DBG_io2, "%s: acceleration distance=%d\n", __func__, dist);
+    DBG(DBG_io2, "%s: acceleration distance=%d\n", __func__, dist);
 
-  /* check for overflow */
+    // check for overflow
     if (dist < feedl) {
         feedl -= dist;
     } else {
@@ -457,25 +441,21 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
     }
 
     reg->set24(REG_FEEDL, feedl);
-  DBG(DBG_io ,"%s: feedl=%d\n", __func__, feedl);
+    DBG(DBG_io ,"%s: feedl=%d\n", __func__, feedl);
 
-    r = sanei_genesys_get_address(reg, REG_0x0C);
-    ccdlmt = (r->value & REG_0x0C_CCDLMT) + 1;
-
-    r = sanei_genesys_get_address(reg, REG_0x1C);
-    tgtime = 1<<(r->value & REG_0x1C_TGTIME);
+    unsigned ccdlmt = (reg->get8(REG_0x0C) & REG_0x0C_CCDLMT) + 1;
+    unsigned tgtime = 1 << (reg->get8(REG_0x1C) & REG_0x1C_TGTIME);
 
     // hi res motor speed GPIO
     uint8_t effective = dev->interface->read_register(REG_0x6C);
 
     // if quarter step, bipolar Vref2
 
+    std::uint8_t val = effective;
     if (motor_profile.step_type == StepType::QUARTER) {
         val = effective & ~REG_0x6C_GPIO13;
     } else if (static_cast<unsigned>(motor_profile.step_type) > static_cast<unsigned>(StepType::QUARTER)) {
         val = effective | REG_0x6C_GPIO13;
-    } else {
-        val = effective;
     }
     dev->interface->write_register(REG_0x6C, val);
 
@@ -484,39 +464,34 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
     val = effective | REG_0x6C_GPIO10;
     dev->interface->write_register(REG_0x6C, val);
 
-    min_restep = scan_table.steps_count / (2 * step_multiplier) - 1;
+    unsigned min_restep = scan_table.steps_count / (2 * step_multiplier) - 1;
     if (min_restep < 1) {
         min_restep = 1;
     }
-    r = sanei_genesys_get_address(reg, REG_FWDSTEP);
-  r->value = min_restep;
-    r = sanei_genesys_get_address(reg, REG_BWDSTEP);
-  r->value = min_restep;
 
+    reg->set8(REG_FWDSTEP, min_restep);
+    reg->set8(REG_BWDSTEP, min_restep);
+
+    std::uint32_t z1, z2;
     sanei_genesys_calculate_zmod(use_fast_fed,
-			         scan_exposure_time*ccdlmt*tgtime,
+                                 scan_exposure_time * ccdlmt * tgtime,
                                  scan_table.table,
                                  scan_table.steps_count,
-				 feedl,
+                                 feedl,
                                  min_restep * step_multiplier,
                                  &z1,
                                  &z2);
 
-  DBG(DBG_info, "%s: z1 = %d\n", __func__, z1);
+    DBG(DBG_info, "%s: z1 = %d\n", __func__, z1);
     reg->set24(REG_0x60, z1 | (static_cast<unsigned>(motor_profile.step_type) << (16+REG_0x60S_STEPSEL)));
 
-  DBG(DBG_info, "%s: z2 = %d\n", __func__, z2);
+    DBG(DBG_info, "%s: z2 = %d\n", __func__, z2);
     reg->set24(REG_0x63, z2 | (static_cast<unsigned>(motor_profile.step_type) << (16+REG_0x63S_FSTPSEL)));
 
-  r = sanei_genesys_get_address (reg, 0x1e);
-  r->value &= 0xf0;		/* 0 dummy lines */
-  r->value |= scan_dummy;	/* dummy lines */
+    reg->set8_mask(REG_0x1E, scan_dummy, 0x0f);
 
-    r = sanei_genesys_get_address(reg, REG_0x67);
-    r->value = REG_0x67_MTRPWM;
-
-    r = sanei_genesys_get_address(reg, REG_0x68);
-    r->value = REG_0x68_FASTPWM;
+    reg->set8(REG_0x67, REG_0x67_MTRPWM);
+    reg->set8(REG_0x68, REG_0x68_FASTPWM);
 
     reg->set8(REG_STEPNO, scan_table.steps_count / step_multiplier);
     reg->set8(REG_FASTNO, scan_table.steps_count / step_multiplier);

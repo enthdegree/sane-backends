@@ -109,6 +109,63 @@ std::ostream& operator<<(std::ostream& out, ColorFilter mode)
     return out;
 }
 
+std::ostream& operator<<(std::ostream& out, ModelId id)
+{
+    switch (id) {
+        case ModelId::UNKNOWN: out << "UNKNOWN"; break;
+        case ModelId::CANON_4400F: out << "CANON_4400F"; break;
+        case ModelId::CANON_5600F: out << "CANON_5600F"; break;
+        case ModelId::CANON_8400F: out << "CANON_8400F"; break;
+        case ModelId::CANON_8600F: out << "CANON_8600F"; break;
+        case ModelId::CANON_IMAGE_FORMULA_101: out << "CANON_IMAGE_FORMULA_101"; break;
+        case ModelId::CANON_LIDE_50: out << "CANON_LIDE_50"; break;
+        case ModelId::CANON_LIDE_60: out << "CANON_LIDE_60"; break;
+        case ModelId::CANON_LIDE_80: out << "CANON_LIDE_80"; break;
+        case ModelId::CANON_LIDE_100: out << "CANON_LIDE_100"; break;
+        case ModelId::CANON_LIDE_110: out << "CANON_LIDE_110"; break;
+        case ModelId::CANON_LIDE_120: out << "CANON_LIDE_120"; break;
+        case ModelId::CANON_LIDE_200: out << "CANON_LIDE_200"; break;
+        case ModelId::CANON_LIDE_210: out << "CANON_LIDE_210"; break;
+        case ModelId::CANON_LIDE_220: out << "CANON_LIDE_220"; break;
+        case ModelId::CANON_LIDE_700F: out << "CANON_LIDE_700F"; break;
+        case ModelId::DCT_DOCKETPORT_487: out << "DCT_DOCKETPORT_487"; break;
+        case ModelId::HP_SCANJET_2300C: out << "HP_SCANJET_2300C"; break;
+        case ModelId::HP_SCANJET_2400C: out << "HP_SCANJET_2400C"; break;
+        case ModelId::HP_SCANJET_3670: out << "HP_SCANJET_3670"; break;
+        case ModelId::HP_SCANJET_4850C: out << "HP_SCANJET_4850C"; break;
+        case ModelId::HP_SCANJET_G4010: out << "HP_SCANJET_G4010"; break;
+        case ModelId::HP_SCANJET_G4050: out << "HP_SCANJET_G4050"; break;
+        case ModelId::HP_SCANJET_N6310: out << "HP_SCANJET_N6310"; break;
+        case ModelId::MEDION_MD5345: out << "MEDION_MD5345"; break;
+        case ModelId::PANASONIC_KV_SS080: out << "PANASONIC_KV_SS080"; break;
+        case ModelId::PENTAX_DSMOBILE_600: out << "PENTAX_DSMOBILE_600"; break;
+        case ModelId::PLUSTEK_OPTICBOOK_3800: out << "PLUSTEK_OPTICBOOK_3800"; break;
+        case ModelId::PLUSTEK_OPTICFILM_7200I: out << "PLUSTEK_OPTICFILM_7200I"; break;
+        case ModelId::PLUSTEK_OPTICFILM_7300: out << "PLUSTEK_OPTICFILM_7300"; break;
+        case ModelId::PLUSTEK_OPTICFILM_7500I: out << "PLUSTEK_OPTICFILM_7500I"; break;
+        case ModelId::PLUSTEK_OPTICPRO_3600: out << "PLUSTEK_OPTICPRO_3600"; break;
+        case ModelId::PLUSTEK_OPTICPRO_ST12: out << "PLUSTEK_OPTICPRO_ST12"; break;
+        case ModelId::PLUSTEK_OPTICPRO_ST24: out << "PLUSTEK_OPTICPRO_ST24"; break;
+        case ModelId::SYSCAN_DOCKETPORT_465: out << "SYSCAN_DOCKETPORT_465"; break;
+        case ModelId::SYSCAN_DOCKETPORT_467: out << "SYSCAN_DOCKETPORT_467"; break;
+        case ModelId::SYSCAN_DOCKETPORT_485: out << "SYSCAN_DOCKETPORT_485"; break;
+        case ModelId::SYSCAN_DOCKETPORT_665: out << "SYSCAN_DOCKETPORT_665"; break;
+        case ModelId::SYSCAN_DOCKETPORT_685: out << "SYSCAN_DOCKETPORT_685"; break;
+        case ModelId::UMAX_ASTRA_4500: out << "UMAX_ASTRA_4500"; break;
+        case ModelId::VISIONEER_7100: out << "VISIONEER_7100"; break;
+        case ModelId::VISIONEER_ROADWARRIOR: out << "VISIONEER_ROADWARRIOR"; break;
+        case ModelId::VISIONEER_STROBE_XP100_REVISION3:
+            out << "VISIONEER_STROBE_XP100_REVISION3"; break;
+        case ModelId::VISIONEER_STROBE_XP200: out << "VISIONEER_STROBE_XP200"; break;
+        case ModelId::VISIONEER_STROBE_XP300: out << "VISIONEER_STROBE_XP300"; break;
+        case ModelId::XEROX_2400: out << "XEROX_2400"; break;
+        case ModelId::XEROX_TRAVELSCANNER_100: out << "XEROX_TRAVELSCANNER_100"; break;
+        default:
+            out << static_cast<unsigned>(id); break;
+    }
+    return out;
+}
+
 std::ostream& operator<<(std::ostream& out, StepType type)
 {
     switch (type) {

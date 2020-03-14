@@ -67,7 +67,7 @@
 #include <netinet/in.h>
 #include <netdb.h> /* OS/2 needs this _after_ <netinet/in.h>, grrr... */
 
-#ifdef WITH_AVAHI
+#if WITH_AVAHI
 # include <avahi-client/client.h>
 # include <avahi-client/lookup.h>
 
@@ -695,7 +695,7 @@ do_authorization (Net_Device * dev, SANE_String resource)
 }
 
 
-#ifdef WITH_AVAHI
+#if WITH_AVAHI
 static void
 net_avahi_resolve_callback (AvahiServiceResolver *r, AvahiIfIndex interface, AvahiProtocol protocol,
 			    AvahiResolverEvent event, const char *name, const char *type,
@@ -964,7 +964,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   first_device = NULL;
   first_handle = NULL;
 
-#ifdef WITH_AVAHI
+#if WITH_AVAHI
   net_avahi_init ();
 #endif /* WITH_AVAHI */
 
@@ -1044,12 +1044,12 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 
 	      continue;
 	    }
-#ifdef WITH_AVAHI
+#if WITH_AVAHI
 	  avahi_threaded_poll_lock (avahi_thread);
 #endif /* WITH_AVAHI */
 	  DBG (2, "sane_init: trying to add %s\n", device_name);
 	  add_device (device_name, 0);
-#ifdef WITH_AVAHI
+#if WITH_AVAHI
 	  avahi_threaded_poll_unlock (avahi_thread);
 #endif /* WITH_AVAHI */
 	}
@@ -1095,12 +1095,12 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
 	      if (host[0] == '\0')
 		  continue;
 #endif /* ENABLE_IPV6 */
-#ifdef WITH_AVAHI
+#if WITH_AVAHI
 	      avahi_threaded_poll_lock (avahi_thread);
 #endif /* WITH_AVAHI */
 	      DBG (2, "sane_init: trying to add %s\n", host);
 	      add_device (host, 0);
-#ifdef WITH_AVAHI
+#if WITH_AVAHI
 	      avahi_threaded_poll_unlock (avahi_thread);
 #endif /* WITH_AVAHI */
 	    }
@@ -1132,7 +1132,7 @@ sane_exit (void)
 
   DBG (1, "sane_exit: exiting\n");
 
-#ifdef WITH_AVAHI
+#if WITH_AVAHI
   net_avahi_cleanup ();
 #endif /* WITH_AVAHI */
 
@@ -1518,11 +1518,11 @@ sane_open (SANE_String_Const full_name, SANE_Handle * meta_handle)
       DBG (1,
 	   "sane_open: device %s not found, trying to register it anyway\n",
 	   nd_name);
-#ifdef WITH_AVAHI
+#if WITH_AVAHI
       avahi_threaded_poll_lock (avahi_thread);
 #endif /* WITH_AVAHI */
       status = add_device (nd_name, &dev);
-#ifdef WITH_AVAHI
+#if WITH_AVAHI
       avahi_threaded_poll_unlock (avahi_thread);
 #endif /* WITH_AVAHI */
       if (status != SANE_STATUS_GOOD)

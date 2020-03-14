@@ -194,7 +194,7 @@ static constexpr RegMask REG_0x1D_CK1LOW = 0x20;
 static constexpr RegMask REG_0x1D_TGSHLD = 0x1f;
 static constexpr RegShift REG_0x1DS_TGSHLD = 0;
 
-
+static constexpr RegAddr REG_0x1E = 0x1e;
 static constexpr RegMask REG_0x1E_WDTIME = 0xf0;
 static constexpr RegShift REG_0x1ES_WDTIME = 4;
 static constexpr RegMask REG_0x1E_LINESEL = 0x0f;

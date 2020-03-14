@@ -454,6 +454,28 @@ AS_IF([test xno != "x$with_libcurl"],
 AM_CONDITIONAL([have_libcurl], [test x != "x$libcurl_LIBS"])
 
 dnl ******************************************************************
+dnl Check for poppler-glib availability
+dnl ******************************************************************
+AC_ARG_WITH(poppler-glib,
+  AS_HELP_STRING([--with-poppler-glib],
+    [enable functionality that needs poppler-glib @<:@default=check@:>@]),
+  [],
+  [with_poppler_glib=check])
+AC_DEFINE(HAVE_POPPLER_GLIB,
+  [0], [Define to 1 if libpoppler-glib is available])
+AS_IF([test xno != "x$with_poppler_glib"],
+  [PKG_CHECK_MODULES(POPPLER_GLIB, [poppler-glib],
+     [AC_DEFINE([HAVE_POPPLER_GLIB], [1])
+      with_poppler_glib=yes
+     ],
+     [AS_IF([test xcheck != "x$with_poppler_glib"],
+        [AC_MSG_ERROR([poppler-glib requested but not found])])
+      with_poppler_glib=no
+     ])
+  ])
+AM_CONDITIONAL([have_poppler_glib], [test x != "x$POPPLER_GLIB_LIBS"])
+
+dnl ******************************************************************
 dnl Check for USB record/replay support
 dnl ******************************************************************
 AC_ARG_WITH(usb_record_replay,
@@ -819,6 +841,7 @@ fi
 echo "IPv6 support:  `eval eval echo ${ipv6}`"
 echo "Avahi support: `eval eval echo ${enable_avahi}`"
 echo "cURL support:  `eval eval echo ${with_libcurl}`"
+echo "POPPLER_GLIB support:  `eval eval echo ${with_poppler_glib}`"
 echo "SNMP support:  `eval eval echo ${with_snmp}`"
 echo "-> The following backends will be built:"
 for backend in ${BACKENDS} ; do

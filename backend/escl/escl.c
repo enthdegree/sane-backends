@@ -739,7 +739,7 @@ sane_start(SANE_Handle h)
     {
        int i = 0, val = 9999;;
        if (handler->val[OPT_GRAY_PREVIEW].w == SANE_TRUE ||
-           !strncasecmp(handler->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY, 3))
+           !strcasecmp(handler->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY))
           handler->scanner->default_color = strdup("Grayscale8");
        else
           handler->scanner->default_color = strdup("RGB24");
@@ -757,8 +757,10 @@ sane_start(SANE_Handle h)
     else
     {
     handler->scanner->default_resolution = handler->val[OPT_RESOLUTION].w;
-    if (!strncasecmp(handler->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY, 3))
+    if (!strcasecmp(handler->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY))
        handler->scanner->default_color = strdup("Grayscale8");
+    else if (!strcasecmp(handler->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART))
+       handler->scanner->default_color = strdup("BlackAndWhite1");
     else
        handler->scanner->default_color = strdup("RGB24");
     }
@@ -792,6 +794,10 @@ sane_start(SANE_Handle h)
     else if (!strcmp(handler->scanner->default_format, "image/tiff"))
     {
        status = get_TIFF_data(handler->scanner, &w, &he, &bps);
+    }
+    else if (!strcmp(handler->scanner->default_format, "application/pdf"))
+    {
+       status = get_PDF_data(handler->scanner, &w, &he, &bps);
     }
     else {
       DBG(10, "Unknow image format\n");

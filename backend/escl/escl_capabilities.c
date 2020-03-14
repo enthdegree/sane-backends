@@ -45,7 +45,7 @@ struct cap
  * \fn static SANE_String_Const convert_elements(SANE_String_Const str)
  * \brief Function that converts the 'color modes' of the scanner (color/gray) to be understood by SANE.
  *
- * \return SANE_VALUE_SCAN_MODE_GRAY / SANE_VALUE_SCAN_MODE_COLOR ; NULL otherwise
+ * \return SANE_VALUE_SCAN_MODE_GRAY / SANE_VALUE_SCAN_MODE_COLOR / SANE_VALUE_SCAN_MODE_LINEART; NULL otherwise
  */
 static SANE_String_Const
 convert_elements(SANE_String_Const str)
@@ -54,6 +54,10 @@ convert_elements(SANE_String_Const str)
         return (SANE_VALUE_SCAN_MODE_GRAY);
     else if (strcmp(str, "RGB24") == 0)
         return (SANE_VALUE_SCAN_MODE_COLOR);
+#if(defined HAVE_POPPLER_GLIB)
+    else if (strcmp(str, "BlackAndWhite1") == 0)
+        return (SANE_VALUE_SCAN_MODE_LINEART);
+#endif
     return (NULL);
 }
 
@@ -206,6 +210,14 @@ find_valor_of_array_variables(xmlNode *node, capabilities_t *scanner)
                if (scanner->default_format)
                   free(scanner->default_format);
                scanner->default_format = strdup("image/tiff");
+            }
+#endif
+#if(defined HAVE_POPPLER_GLIB)
+            else if(!strcmp(scanner->DocumentFormats[i], "application/pdf"))
+            {
+               if (scanner->default_format)
+                  free(scanner->default_format);
+               scanner->default_format = strdup("application/pdf");
             }
 #endif
          }

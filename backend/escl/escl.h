@@ -178,4 +178,7 @@ SANE_Status get_PNG_data(capabilities_t *scanner, int *width, int *height, int *
 // TIFF
 SANE_Status get_TIFF_data(capabilities_t *scanner, int *width, int *height, int *bps);
 
+// PDF
+SANE_Status get_PDF_data(capabilities_t *scanner, int *width, int *height, int *bps);
+
 #endif

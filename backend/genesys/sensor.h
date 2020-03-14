@@ -47,6 +47,7 @@
 #include "enums.h"
 #include "register.h"
 #include "serialize.h"
+#include "value_filter.h"
 #include <array>
 #include <functional>
 
@@ -247,54 +248,6 @@ struct SensorExposure {
 std::ostream& operator<<(std::ostream& out, const SensorExposure& exposure);
 
 
-class ResolutionFilter
-{
-public:
-    struct Any {};
-    static constexpr Any ANY{};
-
-    ResolutionFilter() : matches_any_{false} {}
-    ResolutionFilter(Any) : matches_any_{true} {}
-    ResolutionFilter(std::initializer_list<unsigned> resolutions) :
-        matches_any_{false},
-        resolutions_{resolutions}
-    {}
-
-    bool matches(unsigned resolution) const
-    {
-        if (matches_any_)
-            return true;
-        auto it = std::find(resolutions_.begin(), resolutions_.end(), resolution);
-        return it != resolutions_.end();
-    }
-
-    bool operator==(const ResolutionFilter& other) const
-    {
-        return  matches_any_ == other.matches_any_ && resolutions_ == other.resolutions_;
-    }
-
-    bool matches_any() const { return matches_any_; }
-    const std::vector<unsigned>& resolutions() const { return resolutions_; }
-
-private:
-    bool matches_any_ = false;
-    std::vector<unsigned> resolutions_;
-
-    template<class Stream>
-    friend void serialize(Stream& str, ResolutionFilter& x);
-};
-
-std::ostream& operator<<(std::ostream& out, const ResolutionFilter& resolutions);
-
-template<class Stream>
-void serialize(Stream& str, ResolutionFilter& x)
-{
-    serialize(str, x.matches_any_);
-    serialize_newline(str);
-    serialize(str, x.resolutions_);
-}
-
-
 class ScanMethodFilter
 {
 public:
@@ -329,7 +282,7 @@ private:
     std::vector<ScanMethod> methods_;
 
     template<class Stream>
-    friend void serialize(Stream& str, ResolutionFilter& x);
+    friend void serialize(Stream& str, ScanMethodFilter& x);
 };
 
 std::ostream& operator<<(std::ostream& out, const ScanMethodFilter& methods);
@@ -348,7 +301,7 @@ struct Genesys_Sensor {
     unsigned optical_res = 0;
 
     // the resolution list that the sensor is usable at.
-    ResolutionFilter resolutions = ResolutionFilter::ANY;
+    ValueFilterAny<unsigned> resolutions = VALUE_FILTER_ANY;
 
     // the channel list that the sensor is usable at
     std::vector<unsigned> channels = { 1, 3 };

@@ -117,16 +117,6 @@ std::ostream& operator<<(std::ostream& out, const SensorExposure& exposure)
     return out;
 }
 
-std::ostream& operator<<(std::ostream& out, const ResolutionFilter& resolutions)
-{
-    if (resolutions.matches_any()) {
-        out << "ANY";
-        return out;
-    }
-    out << format_vector_unsigned(4, resolutions.resolutions());
-    return out;
-}
-
 std::ostream& operator<<(std::ostream& out, const ScanMethodFilter& methods)
 {
     if (methods.matches_any()) {

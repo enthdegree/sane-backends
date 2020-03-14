@@ -554,6 +554,7 @@ libgenesys_la_SOURCES = genesys/genesys.cpp genesys/genesys.h \
     genesys/test_usb_device.h genesys/test_usb_device.cpp \
     genesys/usb_device.h genesys/usb_device.cpp \
     genesys/low.cpp genesys/low.h \
+    genesys/value_filter.h \
     genesys/utilities.h
 
 libgenesys_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=genesys

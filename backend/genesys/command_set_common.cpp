@@ -24,6 +24,7 @@
 
 #include "command_set_common.h"
 #include "low.h"
+#include "value_filter.h"
 
 namespace genesys {
 
@@ -150,7 +151,7 @@ void CommandSetCommon::set_motor_mode(Genesys_Device& dev, Genesys_Register_Set&
 
     struct MotorSettings {
         ModelId model_id;
-        ResolutionFilter resolutions;
+        ValueFilterAny<unsigned> resolutions;
         GenesysRegisterSettingSet regs_primary_and_secondary;
         GenesysRegisterSettingSet regs_primary;
         GenesysRegisterSettingSet regs_secondary;
@@ -187,7 +188,7 @@ void CommandSetCommon::set_motor_mode(Genesys_Device& dev, Genesys_Register_Set&
                 { 0xa6, 0x01, 0x41 },
             }
         },
-        {   ModelId::HP_SCANJET_G4050, ResolutionFilter::ANY, {
+        {   ModelId::HP_SCANJET_G4050, VALUE_FILTER_ANY, {
                 { 0x6b, 0x81, 0x81 }, // set MULTFILM and GPOADF
                 { 0x6c, 0x00, 0x40 }, // note that reverse change is not applied on off
                 // 0xa6 register 0x08 bit likely sets motor power. No move at all without that one
@@ -200,9 +201,9 @@ void CommandSetCommon::set_motor_mode(Genesys_Device& dev, Genesys_Register_Set&
                 { 0xa9, 0x00, 0x10 }, // note that 0x20 bit is not reset
             }, {}
         },
-        {   ModelId::PLUSTEK_OPTICFILM_7200I, ResolutionFilter::ANY, {}, {}, {} },
-        {   ModelId::PLUSTEK_OPTICFILM_7300, ResolutionFilter::ANY, {}, {}, {} },
-        {   ModelId::PLUSTEK_OPTICFILM_7500I, ResolutionFilter::ANY, {}, {}, {} },
+        {   ModelId::PLUSTEK_OPTICFILM_7200I, VALUE_FILTER_ANY, {}, {}, {} },
+        {   ModelId::PLUSTEK_OPTICFILM_7300, VALUE_FILTER_ANY, {}, {}, {} },
+        {   ModelId::PLUSTEK_OPTICFILM_7500I, VALUE_FILTER_ANY, {}, {}, {} },
     };
 
     for (const auto& setting : settings) {

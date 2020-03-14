@@ -215,7 +215,7 @@ void genesys_init_sensor_tables()
 
     {
         struct CustomSensorSettings {
-            ResolutionFilter resolutions;
+            ValueFilterAny<unsigned> resolutions;
             unsigned exposure_lperiod;
             unsigned ccd_size_divisor;
             GenesysRegisterSettingSet custom_regs;
@@ -341,7 +341,7 @@ void genesys_init_sensor_tables()
 
     {
         struct CustomSensorSettings {
-            ResolutionFilter resolutions;
+            ValueFilterAny<unsigned> resolutions;
             unsigned exposure_lperiod;
             GenesysRegisterSettingSet custom_regs;
         };
@@ -438,7 +438,7 @@ void genesys_init_sensor_tables()
 
     {
         struct CustomSensorSettings {
-            ResolutionFilter resolutions;
+            ValueFilterAny<unsigned> resolutions;
             unsigned exposure_lperiod;
             unsigned ccd_size_divisor;
             GenesysRegisterSettingSet custom_regs;
@@ -570,7 +570,7 @@ void genesys_init_sensor_tables()
 
     {
         struct CustomSensorSettings {
-            ResolutionFilter resolutions;
+            ValueFilterAny<unsigned> resolutions;
             std::vector<unsigned> channels;
             unsigned exposure_lperiod;
             SensorExposure exposure;
@@ -625,7 +625,7 @@ void genesys_init_sensor_tables()
 
     {
         struct CustomSensorSettings {
-            ResolutionFilter resolutions;
+            ValueFilterAny<unsigned> resolutions;
             unsigned exposure_lperiod;
             GenesysRegisterSettingSet custom_regs;
         };
@@ -937,7 +937,7 @@ void genesys_init_sensor_tables()
 
     {
         struct CustomSensorSettings {
-            ResolutionFilter resolutions;
+            ValueFilterAny<unsigned> resolutions;
             int exposure_lperiod;
             SensorExposure exposure;
             unsigned segment_size;
@@ -1038,7 +1038,7 @@ void genesys_init_sensor_tables()
 
     {
         struct CustomSensorSettings {
-            ResolutionFilter resolutions;
+            ValueFilterAny<unsigned> resolutions;
             int exposure_lperiod;
             SensorExposure exposure;
             unsigned segment_size;
@@ -1137,7 +1137,7 @@ void genesys_init_sensor_tables()
 
     {
         struct CustomSensorSettings {
-            ResolutionFilter resolutions;
+            ValueFilterAny<unsigned> resolutions;
             int exposure_lperiod;
             SensorExposure exposure;
             unsigned segment_size;
@@ -1272,7 +1272,7 @@ void genesys_init_sensor_tables()
 
     {
         struct CustomSensorSettings {
-            ResolutionFilter resolutions;
+            ValueFilterAny<unsigned> resolutions;
             int exposure_lperiod;
             ScanMethod method;
             GenesysRegisterSettingSet extra_custom_regs;
@@ -1391,7 +1391,7 @@ void genesys_init_sensor_tables()
                     { 0x5a, 0x40 },
                 }
             },
-            { ResolutionFilter::ANY, 15624, ScanMethod::TRANSPARENCY, {
+            { VALUE_FILTER_ANY, 15624, ScanMethod::TRANSPARENCY, {
                     { 0x74, 0x00 }, { 0x75, 0x1c }, { 0x76, 0x7f },
                     { 0x77, 0x03 }, { 0x78, 0xff }, { 0x79, 0xff },
                     { 0x7a, 0x03 }, { 0x7b, 0xff }, { 0x7c, 0xff },
@@ -1451,7 +1451,7 @@ void genesys_init_sensor_tables()
 
     {
         struct CustomSensorSettings {
-            ResolutionFilter resolutions;
+            ValueFilterAny<unsigned> resolutions;
             int exposure_lperiod;
             ScanMethod method;
             GenesysRegisterSettingSet extra_custom_regs;
@@ -1514,7 +1514,7 @@ void genesys_init_sensor_tables()
                     { 0xaa, 0x07 },
                 }
             },
-            {   ResolutionFilter::ANY, 15624, ScanMethod::TRANSPARENCY, {
+            { VALUE_FILTER_ANY, 15624, ScanMethod::TRANSPARENCY, {
                     { 0x0c, 0x00 },
                     { 0x16, 0x33 }, { 0x17, 0x4c }, { 0x18, 0x01 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x08 },
@@ -1562,7 +1562,7 @@ void genesys_init_sensor_tables()
 
     {
         struct CustomSensorSettings {
-            ResolutionFilter resolutions;
+            ValueFilterAny<unsigned> resolutions;
             int exposure_lperiod;
             bool use_host_side_calib;
             std::vector<ScanMethod> methods;
@@ -1659,7 +1659,7 @@ void genesys_init_sensor_tables()
 
     {
         struct CustomSensorSettings {
-            ResolutionFilter resolutions;
+            ValueFilterAny<unsigned> resolutions;
             unsigned dpiset_override;
             unsigned pixel_count_multiplier;
             int exposure_lperiod;
@@ -1815,7 +1815,7 @@ void genesys_init_sensor_tables()
 
     {
         struct CustomSensorSettings {
-            ResolutionFilter resolutions;
+            ValueFilterAny<unsigned> resolutions;
             int exposure_lperiod;
             std::vector<ScanMethod> methods;
             GenesysRegisterSettingSet extra_custom_regs;
@@ -1955,7 +1955,7 @@ void genesys_init_sensor_tables()
 
     {
         struct CustomSensorSettings {
-            ResolutionFilter resolutions;
+            ValueFilterAny<unsigned> resolutions;
             int exposure_lperiod;
             SensorExposure exposure;
             std::vector<unsigned> segment_order;
@@ -2077,7 +2077,7 @@ void genesys_init_sensor_tables()
 
     {
         struct CustomSensorSettings {
-            ResolutionFilter resolutions;
+            ValueFilterAny<unsigned> resolutions;
             int exposure_lperiod;
             SensorExposure exposure;
             std::vector<unsigned> segment_order;
@@ -2182,7 +2182,7 @@ void genesys_init_sensor_tables()
 
     {
         struct CustomSensorSettings {
-            ResolutionFilter resolutions;
+            ValueFilterAny<unsigned> resolutions;
             int exposure_lperiod;
             SensorExposure exposure;
             std::vector<unsigned> segment_order;
@@ -2291,7 +2291,7 @@ void genesys_init_sensor_tables()
 
     {
         struct CustomSensorSettings {
-            ResolutionFilter resolutions;
+            ValueFilterAny<unsigned> resolutions;
             int exposure_lperiod;
             SensorExposure exposure;
             std::vector<unsigned> segment_order;
@@ -2475,7 +2475,7 @@ void genesys_init_sensor_tables()
     {
         struct CustomSensorSettings
         {
-            ResolutionFilter resolutions;
+            ValueFilterAny<unsigned> resolutions;
             ScanMethod method;
             unsigned ccd_size_divisor;
             unsigned logical_dpihw_override;
@@ -2565,7 +2565,7 @@ void genesys_init_sensor_tables()
     {
         struct CustomSensorSettings
         {
-            ResolutionFilter resolutions;
+            ValueFilterAny<unsigned> resolutions;
             unsigned ccd_size_divisor;
             unsigned logical_dpihw_override;
             unsigned pixel_count_multiplier;
@@ -2638,7 +2638,7 @@ void genesys_init_sensor_tables()
     {
         struct CustomSensorSettings
         {
-            ResolutionFilter resolutions;
+            ValueFilterAny<unsigned> resolutions;
             ScanMethod method;
             unsigned ccd_size_divisor;
             unsigned logical_dpihw_override;

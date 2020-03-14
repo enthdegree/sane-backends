@@ -64,6 +64,14 @@
 
 #define ESCL_CONFIG_FILE "escl.conf"
 
+
+enum {
+   PLATEN,
+   ADFSIMPLEX,
+   ADFDUPLEX
+};
+
+
 typedef struct {
     int             p1_0;
     int             p2_0;
@@ -85,7 +93,7 @@ typedef struct ESCL_Device {
     char *type;
 } ESCL_Device;
 
-typedef struct capabilities
+typedef struct capst
 {
     int height;
     int width;
@@ -105,6 +113,7 @@ typedef struct capabilities
     int ContentTypesSize;
     SANE_String_Const *DocumentFormats;
     int DocumentFormatsSize;
+    int format_ext;
     SANE_Int *SupportedResolutions;
     int SupportedResolutionsSize;
     SANE_String_Const *SupportedIntents;
@@ -115,11 +124,18 @@ typedef struct capabilities
     int RiskyRightMargin;
     int RiskyTopMargin;
     int RiskyBottomMargin;
+} caps_t;
+
+typedef struct capabilities
+{
+    caps_t caps[3];
+    int source;
+    SANE_String_Const *Sources;
+    int SourcesSize;
     FILE *tmp;
     unsigned char *img_data;
     long img_size;
     long img_read;
-    int format_ext;
 } capabilities_t;
 
 typedef struct {
@@ -149,6 +165,9 @@ enum
     OPT_TL_Y,
     OPT_BR_X,
     OPT_BR_Y,
+
+    OPT_SCAN_SOURCE,
+
     NUM_OPTIONS
 };
 

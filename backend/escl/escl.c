@@ -833,7 +833,7 @@ escl_add_in_list(ESCL_Device *current)
 	    }
 	    else if (!strcmp(handler->scanner->caps[handler->scanner->source].default_format, "application/pdf"))
 	    {
-	       status = get_PDF_data(handler->caps[handler->scanner->source].scanner, &w, &he, &bps);
+	       status = get_PDF_data(handler->scanner, &w, &he, &bps);
 	    }
 	    else {
 	      DBG(10, "Unknow image format\n");

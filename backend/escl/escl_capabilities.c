@@ -213,11 +213,11 @@ find_valor_of_array_variables(xmlNode *node, capabilities_t *scanner, int type)
             }
 #endif
 #if(defined HAVE_POPPLER_GLIB)
-            else if(!strcmp(scanner->DocumentFormats[i], "application/pdf"))
+            else if(!strcmp(scanner->caps[scanner->source].DocumentFormats[i], "application/pdf"))
             {
-               if (scanner->default_format)
-                  free(scanner->default_format);
-               scanner->default_format = strdup("application/pdf");
+               if (scanner->caps[scanner->source].default_format)
+                  free(scanner->caps[scanner->source].default_format);
+               scanner->caps[scanner->source].default_format = strdup("application/pdf");
             }
 #endif
          }

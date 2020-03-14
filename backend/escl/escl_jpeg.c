@@ -193,20 +193,20 @@ get_JPEG_data(capabilities_t *scanner, int *width, int *height, int *bps)
     cinfo.out_color_space = JCS_RGB;
     cinfo.quantize_colors = FALSE;
     jpeg_calc_output_dimensions(&cinfo);
-    if (cinfo.output_width < (unsigned int)scanner->caps[s->scanner->source].width)
-          scanner->caps[s->scanner->source].width = cinfo.output_width;
-    if (scanner->caps[s->scanner->source].pos_x < 0)
-          scanner->caps[s->scanner->source].pos_x = 0;
+    if (cinfo.output_width < (unsigned int)scanner->caps[scanner->source].width)
+          scanner->caps[scanner->source].width = cinfo.output_width;
+    if (scanner->caps[scanner->source].pos_x < 0)
+          scanner->caps[scanner->source].pos_x = 0;
 
-    if (cinfo.output_height < (unsigned int)scanner->caps[s->scanner->source].height)
-           scanner->caps[s->scanner->source].height = cinfo.output_height;
-    if (scanner->caps[s->scanner->source].pos_y < 0)
-          scanner->caps[s->scanner->source].pos_y = 0;
+    if (cinfo.output_height < (unsigned int)scanner->caps[scanner->source].height)
+           scanner->caps[scanner->source].height = cinfo.output_height;
+    if (scanner->caps[scanner->source].pos_y < 0)
+          scanner->caps[scanner->source].pos_y = 0;
 
-    x_off = scanner->caps[s->scanner->source].pos_x;
-    w = scanner->caps[s->scanner->source].width - x_off;
-    y_off = scanner->caps[s->scanner->source].pos_y;
-    h = scanner->caps[s->scanner->source].height - y_off;
+    x_off = scanner->caps[scanner->source].pos_x;
+    w = scanner->caps[scanner->source].width - x_off;
+    y_off = scanner->caps[scanner->source].pos_y;
+    h = scanner->caps[scanner->source].height - y_off;
     surface = malloc(w * h * cinfo.output_components);
     if (surface == NULL) {
         jpeg_destroy_decompress(&cinfo);
@@ -224,7 +224,7 @@ get_JPEG_data(capabilities_t *scanner, int *width, int *height, int *bps)
     if (y_off > 0)
         jpeg_skip_scanlines(&cinfo, y_off);
     pos = 0;
-    while (cinfo.output_scanline < (unsigned int)scanner->caps[s->scanner->source].height) {
+    while (cinfo.output_scanline < (unsigned int)scanner->caps[scanner->source].height) {
         rowptr[0] = (JSAMPROW)surface + (lineSize * pos); // ..cinfo.output_scanline);
         jpeg_read_scanlines(&cinfo, rowptr, (JDIMENSION) 1);
        pos++;

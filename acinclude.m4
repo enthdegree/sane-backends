@@ -613,7 +613,7 @@ for be in ${BACKENDS}; do
     ;;
 
     escl)
-    if test "x${enable_avahi}" != "xyes"; then
+    if test "x${with_avahi}" != "xyes"; then
       echo "*** $be backend requires AVAHI library - $DISABLE_MSG"
       backend_supported="no"
     fi

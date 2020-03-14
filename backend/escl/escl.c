@@ -790,13 +790,13 @@ sane_start(SANE_Handle h)
        if (!strcasecmp(handler->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY))
 	  handler->scanner->caps[handler->scanner->source].default_color = strdup("Grayscale8");
        else if (!strcasecmp(handler->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART))
-	  handler->scanner->caps[handler->scanner->source].default_color = 
+	  handler->scanner->caps[handler->scanner->source].default_color =
 	       strdup("BlackAndWhite1");
        else
 	  handler->scanner->caps[handler->scanner->source].default_color =
 	       strdup("RGB24");
     }
-    handler->scanner->caps[handler->scanner->source].height = 
+    handler->scanner->caps[handler->scanner->source].height =
 	 MM_TO_PIXEL(handler->val[OPT_BR_Y].w, 300.0);
     handler->scanner->caps[handler->scanner->source].width =
 	 MM_TO_PIXEL(handler->val[OPT_BR_X].w, 300.0);;

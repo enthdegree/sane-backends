@@ -567,7 +567,7 @@ sane_open(SANE_String_Const name, SANE_Handle *h)
 
     if (name == NULL)
 	return (SANE_STATUS_INVAL);
-    status = escl_status(name);
+    status = escl_status(name, PLATEN);
     if (status != SANE_STATUS_GOOD)
 	return (status);
     handler = (escl_sane_t *)calloc(1, sizeof(escl_sane_t));
@@ -852,7 +852,10 @@ sane_start(SANE_Handle h)
     handler->ps.lines = he;
     handler->ps.bytes_per_line = w * bps;
     if (handler->scanner->source != PLATEN) {
-		SANE_Bool next_page = (SANE_STATUS_GOOD == escl_status(handler->name) ? SANE_TRUE : SANE_FALSE);
+		SANE_Bool next_page =
+			(SANE_STATUS_GOOD == escl_status(handler->name, handler->scanner->source) ?
+				SANE_TRUE :
+				SANE_FALSE);
         handler->scanner->work == next_page;
         handler->ps.last_frame = next_page;
     }

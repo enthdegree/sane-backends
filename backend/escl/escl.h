@@ -179,7 +179,7 @@ enum
 ESCL_Device *escl_devices(SANE_Status *status);
 SANE_Status escl_device_add(int port_nb, const char *model_name,
 		            char *ip_address, char *type);
-SANE_Status escl_status(SANE_String_Const name);
+SANE_Status escl_status(SANE_String_Const name, int source);
 capabilities_t *escl_capabilities(SANE_String_Const name, SANE_Status *status);
 char *escl_newjob(capabilities_t *scanner, SANE_String_Const name,
 		  SANE_Status *status);

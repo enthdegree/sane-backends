@@ -133,7 +133,7 @@ print_xml_s(xmlNode *node, SANE_Status *status)
     if (platen_status != SANE_STATUS_GOOD &&
         platen_status != SANE_STATUS_UNSUPPORTED) {
         *status = platen_status;
-    } else if (dev->opt.src == OPT_SOURCE_PLATEN) {
+    } else if (source == PLATEN) {
         *status = platen_status;
     } else {
         *status = adf_status;
@@ -149,7 +149,7 @@ print_xml_s(xmlNode *node, SANE_Status *status)
  * \return status (if everything is OK, status = SANE_STATUS_GOOD, otherwise, SANE_STATUS_NO_MEM/SANE_STATUS_INVAL)
  */
 SANE_Status
-escl_status(SANE_String_Const name)
+escl_status(SANE_String_Const name, int source)
 {
     SANE_Status status;
     CURL *curl_handle = NULL;
@@ -194,7 +194,7 @@ escl_status(SANE_String_Const name)
         goto clean;
     }
     status = SANE_STATUS_DEVICE_BUSY;
-    print_xml_s(node, &status);
+    print_xml_s(node, &status, source);
 clean:
     xmlFreeDoc(data);
 clean_data:

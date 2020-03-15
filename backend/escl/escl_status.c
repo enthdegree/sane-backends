@@ -101,7 +101,7 @@ print_xml_s(xmlNode *node, SANE_Status *status)
         if (node->type == XML_ELEMENT_NODE) {
             if (find_nodes_s(node)) {
                 if (strcmp((const char *)node->name, "State") == 0) {
-					const char state = (const char *)xmlNodeGetContent(node);
+                    const char *state = (const char *)xmlNodeGetContent(node);
                     if (!strcmp(state, "Idle")) {
                         platen_status = SANE_STATUS_GOOD;
                     } else if (!strcmp(state, "Processing")) {
@@ -111,7 +111,7 @@ print_xml_s(xmlNode *node, SANE_Status *status)
                     }
                 }
                 else if (strcmp((const char *)node->name, "AdfState") == 0) {
-					const char state = (const char *)xmlNodeGetContent(node);
+                    const char *state = (const char *)xmlNodeGetContent(node);
                     if (!strcmp(state, "ScannerAdfLoaded")) {
                         adf_status = SANE_STATUS_GOOD;
                     } else if (!strcmp(state, "ScannerAdfJam")) {

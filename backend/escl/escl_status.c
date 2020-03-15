@@ -94,18 +94,49 @@ static void
 print_xml_s(xmlNode *node, SANE_Status *status)
 {
     int x = 0;
+    SANE_Status platen_status;
+    SANE_Status adf_status;
 
     while (node) {
         if (node->type == XML_ELEMENT_NODE) {
             if (find_nodes_s(node)) {
-                if (strcmp((const char *)node->name, "State") == 0)
-                    x = 1;
+                if (strcmp((const char *)node->name, "State") == 0) {
+                    if (!strcmp(state, "Idle")) {
+                        platen_status = SANE_STATUS_GOOD;
+                    } else if (!strcmp(state, "Processing")) {
+                        platen_status = SANE_STATUS_DEVICE_BUSY;
+                    } else {
+                        platen_status = SANE_STATUS_UNSUPPORTED;
+                    }
+                }
+                else if (strcmp((const char *)node->name, "AdfState") == 0) {
+                    if (!strcmp(state, "ScannerAdfLoaded")) {
+                        adf_status = SANE_STATUS_GOOD;
+                    } else if (!strcmp(state, "ScannerAdfJam")) {
+                        adf_status = SANE_STATUS_JAMMED;
+                    } else if (!strcmp(state, "ScannerAdfDoorOpen")) {
+                        adf_status = SANE_STATUS_COVER_OPEN;
+                    } else if (!strcmp(state, "ScannerAdfProcessing")) {
+                        adf_status = SANE_STATUS_NO_DOCS;
+                    } else if (!strcmp(state, "ScannerAdfEmpty")) {
+                        adf_status = SANE_STATUS_NO_DOCS;
+                    } else {
+                        adf_status = SANE_STATUS_UNSUPPORTED;
+                    }
+                }
             }
-            if (x == 1 && strcmp((const char *)xmlNodeGetContent(node), "Idle") == 0)
-                *status = SANE_STATUS_GOOD;
         }
         print_xml_s(node->children, status);
         node = node->next;
+    }
+    /* Decode Job status */
+    if (platen_status != SANE_STATUS_GOOD &&
+        platen_status != SANE_STATUS_UNSUPPORTED) {
+        *status = platen_status;
+    } else if (dev->opt.src == OPT_SOURCE_PLATEN) {
+        *status = platen_status;
+    } else {
+        *status = adf_status;
     }
 }
 

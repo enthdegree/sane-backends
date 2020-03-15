@@ -137,6 +137,7 @@ typedef struct capabilities
     unsigned char *img_data;
     long img_size;
     long img_read;
+    SANE_Bool work;
 } capabilities_t;
 
 typedef struct {

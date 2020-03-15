@@ -617,6 +617,7 @@ sane_cancel(SANE_Handle h)
       fclose(handler->scanner->tmp);
       handler->scanner->tmp = NULL;
     }
+    handler->scanner- = SANE_FALSE;
     handler->cancel = SANE_TRUE;
     escl_scanner(handler->name, handler->result);
 }
@@ -755,70 +756,72 @@ sane_start(SANE_Handle h)
     int bps = 0;
 
     if (handler->name == NULL)
-	return (SANE_STATUS_INVAL);
+	    return (SANE_STATUS_INVAL);
     handler->cancel = SANE_FALSE;
     handler->write_scan_data = SANE_FALSE;
     handler->decompress_scan_data = SANE_FALSE;
     handler->end_read = SANE_FALSE;
-    if(handler->scanner->caps[handler->scanner->source].default_color)
-       free(handler->scanner->caps[handler->scanner->source].default_color);
-    if (handler->val[OPT_PREVIEW].w == SANE_TRUE)
-    {
-       int i = 0, val = 9999;;
-       if (handler->val[OPT_GRAY_PREVIEW].w == SANE_TRUE ||
-	   !strcasecmp(handler->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY))
-	  handler->scanner->caps[handler->scanner->source].default_color =
-	     strdup("Grayscale8");
-       else
-	  handler->scanner->caps[handler->scanner->source].default_color =
-	     strdup("RGB24");
-       if (!handler->scanner->caps[handler->scanner->source].default_color) {
-	  DBG (10, "Default Color allocation failure.\n");
-	  return (SANE_STATUS_NO_MEM);
-	}
-       for (i = 1; i < handler->scanner->caps[handler->scanner->source].SupportedResolutionsSize; i++)
+    if (handler->scanner->work == SANE_FALSE) {
+       if(handler->scanner->caps[handler->scanner->source].default_color)
+          free(handler->scanner->caps[handler->scanner->source].default_color);
+       if (handler->val[OPT_PREVIEW].w == SANE_TRUE)
        {
-	  if (val > handler->scanner->caps[handler->scanner->source].SupportedResolutions[i])
-	      val = handler->scanner->caps[handler->scanner->source].SupportedResolutions[i];
+          int i = 0, val = 9999;;
+          if (handler->val[OPT_GRAY_PREVIEW].w == SANE_TRUE ||
+	      !strcasecmp(handler->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY))
+	     handler->scanner->caps[handler->scanner->source].default_color =
+	          strdup("Grayscale8");
+          else
+	     handler->scanner->caps[handler->scanner->source].default_color =
+	          strdup("RGB24");
+          if (!handler->scanner->caps[handler->scanner->source].default_color) {
+	     DBG (10, "Default Color allocation failure.\n");
+	     return (SANE_STATUS_NO_MEM);
+	  }
+          for (i = 1; i < handler->scanner->caps[handler->scanner->source].SupportedResolutionsSize; i++)
+          {
+	     if (val > handler->scanner->caps[handler->scanner->source].SupportedResolutions[i])
+	         val = handler->scanner->caps[handler->scanner->source].SupportedResolutions[i];
+          }
+          handler->scanner->caps[handler->scanner->source].default_resolution = val;
        }
-       handler->scanner->caps[handler->scanner->source].default_resolution = val;
-    }
-    else
-    {
-       handler->scanner->caps[handler->scanner->source].default_resolution =
-	  handler->val[OPT_RESOLUTION].w;
-       if (!strcasecmp(handler->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY))
-	  handler->scanner->caps[handler->scanner->source].default_color = strdup("Grayscale8");
-       else if (!strcasecmp(handler->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART))
-	  handler->scanner->caps[handler->scanner->source].default_color =
-	       strdup("BlackAndWhite1");
        else
-	  handler->scanner->caps[handler->scanner->source].default_color =
-	       strdup("RGB24");
+       {
+          handler->scanner->caps[handler->scanner->source].default_resolution =
+	     handler->val[OPT_RESOLUTION].w;
+          if (!strcasecmp(handler->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY))
+	     handler->scanner->caps[handler->scanner->source].default_color = strdup("Grayscale8");
+          else if (!strcasecmp(handler->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART))
+	     handler->scanner->caps[handler->scanner->source].default_color =
+	         strdup("BlackAndWhite1");
+          else
+	     handler->scanner->caps[handler->scanner->source].default_color =
+	         strdup("RGB24");
+       }
+       handler->scanner->caps[handler->scanner->source].height =
+            MM_TO_PIXEL(handler->val[OPT_BR_Y].w, 300.0);
+       handler->scanner->caps[handler->scanner->source].width =
+            MM_TO_PIXEL(handler->val[OPT_BR_X].w, 300.0);;
+       handler->scanner->caps[handler->scanner->source].pos_x =
+            MM_TO_PIXEL(handler->val[OPT_TL_X].w, 300.0);
+       handler->scanner->caps[handler->scanner->source].pos_y =
+            MM_TO_PIXEL(handler->val[OPT_TL_Y].w, 300.0);
+       DBG(10, "Calculate Size Image [%dx%d|%dx%d]\n",
+	        handler->scanner->caps[handler->scanner->source].pos_x,
+	        handler->scanner->caps[handler->scanner->source].pos_y,
+	        handler->scanner->caps[handler->scanner->source].height,
+	        handler->scanner->caps[handler->scanner->source].width);
+       if (!handler->scanner->caps[handler->scanner->source].default_color) {
+          DBG (10, "Default Color allocation failure.\n");
+          return (SANE_STATUS_NO_MEM);
+       }
+       handler->result = escl_newjob(handler->scanner, handler->name, &status);
+       if (status != SANE_STATUS_GOOD)
+          return (status);
     }
-    handler->scanner->caps[handler->scanner->source].height =
-	 MM_TO_PIXEL(handler->val[OPT_BR_Y].w, 300.0);
-    handler->scanner->caps[handler->scanner->source].width =
-	 MM_TO_PIXEL(handler->val[OPT_BR_X].w, 300.0);;
-    handler->scanner->caps[handler->scanner->source].pos_x =
-	 MM_TO_PIXEL(handler->val[OPT_TL_X].w, 300.0);
-    handler->scanner->caps[handler->scanner->source].pos_y =
-	 MM_TO_PIXEL(handler->val[OPT_TL_Y].w, 300.0);
-    DBG(10, "Calculate Size Image [%dx%d|%dx%d]\n",
-	     handler->scanner->caps[handler->scanner->source].pos_x,
-	     handler->scanner->caps[handler->scanner->source].pos_y,
-	     handler->scanner->caps[handler->scanner->source].height,
-	     handler->scanner->caps[handler->scanner->source].width);
-    if (!handler->scanner->caps[handler->scanner->source].default_color) {
-       DBG (10, "Default Color allocation failure.\n");
-       return (SANE_STATUS_NO_MEM);
-    }
-    handler->result = escl_newjob(handler->scanner, handler->name, &status);
-    if (status != SANE_STATUS_GOOD)
-	return (status);
     status = escl_scan(handler->scanner, handler->name, handler->result);
     if (status != SANE_STATUS_GOOD)
-	return (status);
+       return (status);
     if (!strcmp(handler->scanner->caps[handler->scanner->source].default_format, "image/jpeg"))
     {
        status = get_JPEG_data(handler->scanner, &w, &he, &bps);
@@ -836,21 +839,27 @@ sane_start(SANE_Handle h)
        status = get_PDF_data(handler->scanner, &w, &he, &bps);
     }
     else {
-      DBG(10, "Unknow image format\n");
-      return SANE_STATUS_INVAL;
+       DBG(10, "Unknow image format\n");
+       return SANE_STATUS_INVAL;
     }
 
     DBG(10, "2-Size Image [%dx%d|%dx%d]\n", 0, 0, w, he);
-    if (handler->scanner->source > 0)
-      escl_scanner(handler->name, handler->result);
 
     if (status != SANE_STATUS_GOOD)
-        return (status);
+       return (status);
     handler->ps.depth = 8;
     handler->ps.pixels_per_line = w;
     handler->ps.lines = he;
     handler->ps.bytes_per_line = w * bps;
-    handler->ps.last_frame = SANE_TRUE;
+    if (handler->scanner->source != PLATEN) {
+		SANE_Bool next_page = (SANE_STATUS_GOOD == escl_status(handler->name) ? SANE_TRUE : SANE_FALSE);
+        handler->scanner->work == next_page;
+        handler->ps.last_frame = next_page;
+    }
+    else {
+        handler->scanner->work == SANE_FALSE;
+        handler->ps.last_frame = SANE_FALSE;
+    }
     handler->ps.format = SANE_FRAME_RGB;
     DBG(10, "Real Size Image [%dx%d|%dx%d]\n", 0, 0, w, he);
     return (status);
@@ -875,7 +884,7 @@ sane_get_parameters(SANE_Handle h, SANE_Parameters *p)
         return (status);
     if (p != NULL) {
         p->depth = 8;
-        p->last_frame = SANE_TRUE;
+        p->last_frame = handler->ps.last_frame;
         p->format = SANE_FRAME_RGB;
         p->pixels_per_line = handler->ps.pixels_per_line;
         p->lines = handler->ps.lines;

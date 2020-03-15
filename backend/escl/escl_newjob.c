@@ -161,11 +161,11 @@ escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *statu
     curl_handle = curl_easy_init();
     if (scanner->caps[scanner->source].format_ext == 1)
     {
-	char f_ext_tmp[1024];
-	snprintf(f_ext_tmp, sizeof(f_ext_tmp),
+        char f_ext_tmp[1024];
+        snprintf(f_ext_tmp, sizeof(f_ext_tmp),
 			"   <scan:DocumentFormatExt>%s</scan:DocumentFormatExt>",
     			scanner->caps[scanner->source].default_format);
-        format_ext = f_exti_tmp;
+        format_ext = f_ext_tmp;
     }
     else
       format_ext = f_ext;
@@ -188,7 +188,7 @@ escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *statu
 			scanner->caps[scanner->source].default_resolution,
 			scanner->Sources[scanner->source],
 			scanner->Sources[scanner->source],
-			duplex_mode[0] == 0 ? "" : duplex_mode);
+			duplex_mode[0] == 0 ? "" : duplex_mode);
         DBG( 1, "Create NewJob : %s\n", cap_data);
         upload->read_data = strdup(cap_data);
         upload->size = strlen(cap_data);

@@ -617,7 +617,7 @@ sane_cancel(SANE_Handle h)
       fclose(handler->scanner->tmp);
       handler->scanner->tmp = NULL;
     }
-    handler->scanner- = SANE_FALSE;
+    handler->scanner->work = SANE_FALSE;
     handler->cancel = SANE_TRUE;
     escl_scanner(handler->name, handler->result);
 }
@@ -856,7 +856,7 @@ sane_start(SANE_Handle h)
 			(SANE_STATUS_GOOD == escl_status(handler->name, handler->scanner->source) ?
 				SANE_TRUE :
 				SANE_FALSE);
-        handler->scanner->work == next_page;
+        handler->scanner->work = next_page;
         handler->ps.last_frame = next_page;
     }
     else {

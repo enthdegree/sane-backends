@@ -341,7 +341,6 @@ print_xml_c(xmlNode *node, capabilities_t *scanner, int type)
            print_xml_c(node->children, scanner, ADFDUPLEX);
 	   scanner->caps[scanner->source].duplex = 1;
 	}
-	AdfDuplexInputCap
 	else
            print_xml_c(node->children, scanner, type);
         node = node->next;

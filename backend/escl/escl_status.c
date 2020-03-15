@@ -84,7 +84,7 @@ find_nodes_s(xmlNode *node)
 }
 
 /**
- * \fn static void print_xml_s(xmlNode *node, SANE_Status *status)
+ * \fn static void print_xml_s(xmlNode *node, SANE_Status *status, int source)
  * \brief Function that browses the xml file, node by node.
  *        If the node 'State' is found, we are expecting to found in this node the 'Idle'
  *        content (if the scanner is ready to use) and then 'status' = SANE_STATUS_GOOD.
@@ -127,7 +127,7 @@ print_xml_s(xmlNode *node, SANE_Status *status, int source)
                 }
             }
         }
-        print_xml_s(node->children, status);
+        print_xml_s(node->children, status, source);
         node = node->next;
     }
     /* Decode Job status */

@@ -91,9 +91,8 @@ find_nodes_s(xmlNode *node)
  *        Otherwise, this means that the scanner isn't ready to use.
  */
 static void
-print_xml_s(xmlNode *node, SANE_Status *status)
+print_xml_s(xmlNode *node, SANE_Status *status, int source)
 {
-    int x = 0;
     SANE_Status platen_status;
     SANE_Status adf_status;
 

@@ -860,7 +860,7 @@ sane_start(SANE_Handle h)
         handler->ps.last_frame = next_page;
     }
     else {
-        handler->scanner->work == SANE_FALSE;
+        handler->scanner->work = SANE_FALSE;
         handler->ps.last_frame = SANE_FALSE;
     }
     handler->ps.format = SANE_FRAME_RGB;

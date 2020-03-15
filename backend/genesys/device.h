@@ -78,6 +78,17 @@ struct Genesys_Gpo
     GenesysRegisterSettingSet regs;
 };
 
+struct MemoryLayout
+{
+    // This is used on GL845, GL846, GL847 and GL124 which have special registers to define the
+    // memory layout
+    MemoryLayout() = default;
+
+    ValueFilter<ModelId> models;
+
+    GenesysRegisterSettingSet regs;
+};
+
 struct MethodResolutions
 {
     std::vector<ScanMethod> methods;
@@ -272,6 +283,7 @@ struct Genesys_Device
     Genesys_Settings settings;
     Genesys_Frontend frontend, frontend_initial;
     Genesys_Gpo gpo;
+    MemoryLayout memory_layout;
     Genesys_Motor motor;
     std::uint8_t control[6] = {};
 
@@ -365,6 +377,8 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev);
 
 void apply_reg_settings_to_device(Genesys_Device& dev, const GenesysRegisterSettingSet& regs);
 
+void apply_reg_settings_to_device_write_only(Genesys_Device& dev,
+                                             const GenesysRegisterSettingSet& regs);
 GenesysRegisterSettingSet
     apply_reg_settings_to_device_with_backup(Genesys_Device& dev,
                                              const GenesysRegisterSettingSet& regs);

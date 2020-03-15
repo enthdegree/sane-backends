@@ -1335,6 +1335,32 @@ std::uint8_t compute_frontend_gain_wolfson(float value, float target_value)
     return clamp(code, 0, 255);
 }
 
+std::uint8_t compute_frontend_gain_lide_80(float value, float target_value)
+{
+    int code = static_cast<int>((target_value / value) * 12);
+    return clamp(code, 0, 255);
+}
+
+std::uint8_t compute_frontend_gain_wolfson_gl841(float value, float target_value)
+{
+    // this code path is similar to what generic wolfson code path uses and uses similar constants,
+    // but is likely incorrect.
+    float inv_gain = target_value / value;
+    inv_gain *= 0.69f;
+    int code = static_cast<int>(283 - 208 / inv_gain);
+    return clamp(code, 0, 255);
+}
+
+std::uint8_t compute_frontend_gain_wolfson_gl846_gl847_gl124(float value, float target_value)
+{
+    // this code path is similar to what generic wolfson code path uses and uses similar constants,
+    // but is likely incorrect.
+    float inv_gain = target_value / value;
+    int code = static_cast<int>(283 - 208 / inv_gain);
+    return clamp(code, 0, 255);
+}
+
+
 std::uint8_t compute_frontend_gain_analog_devices(float value, float target_value)
 {
     /*  The flow of data through the frontend ADC is as follows (see e.g. AD9826 datasheet)
@@ -1359,13 +1385,22 @@ std::uint8_t compute_frontend_gain_analog_devices(float value, float target_valu
 std::uint8_t compute_frontend_gain(float value, float target_value,
                                    FrontendType frontend_type)
 {
-    if (frontend_type == FrontendType::WOLFSON) {
-        return compute_frontend_gain_wolfson(value, target_value);
+    switch (frontend_type) {
+        case FrontendType::WOLFSON:
+            return compute_frontend_gain_wolfson(value, target_value);
+        case FrontendType::ANALOG_DEVICES:
+            return compute_frontend_gain_analog_devices(value, target_value);
+        case FrontendType::CANON_LIDE_80:
+            return compute_frontend_gain_lide_80(value, target_value);
+        case FrontendType::WOLFSON_GL841:
+            return compute_frontend_gain_wolfson_gl841(value, target_value);
+        case FrontendType::WOLFSON_GL846:
+        case FrontendType::WOLFSON_GL847:
+        case FrontendType::WOLFSON_GL124:
+            return compute_frontend_gain_wolfson_gl846_gl847_gl124(value, target_value);
+        default:
+            throw SaneException("Unknown frontend to compute gain for");
     }
-    if (frontend_type == FrontendType::ANALOG_DEVICES) {
-        return compute_frontend_gain_analog_devices(value, target_value);
-    }
-    throw SaneException("Unknown frontend to compute gain for");
 }
 
 /** @brief initialize device

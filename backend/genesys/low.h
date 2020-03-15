@@ -303,6 +303,17 @@ void scanner_move_back_home_ta(Genesys_Device& dev);
  */
 void scanner_search_strip(Genesys_Device& dev, bool forward, bool black);
 
+bool should_calibrate_only_active_area(const Genesys_Device& dev,
+                                       const Genesys_Settings& settings);
+
+float get_model_x_offset_ta(const Genesys_Device& dev, const Genesys_Settings& settings);
+
+void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& sensor,
+                                Genesys_Register_Set& regs);
+
+void scanner_coarse_gain_calibration(Genesys_Device& dev, const Genesys_Sensor& sensor,
+                                     Genesys_Register_Set& regs, unsigned dpi);
+
 void scanner_clear_scan_and_feed_counts(Genesys_Device& dev);
 
 extern void sanei_genesys_write_file(const char* filename, const std::uint8_t* data,
@@ -455,12 +466,14 @@ inline T clamp(const T& value, const T& lo, const T& hi)
 extern StaticInit<std::vector<Genesys_Sensor>> s_sensors;
 extern StaticInit<std::vector<Genesys_Frontend>> s_frontends;
 extern StaticInit<std::vector<Genesys_Gpo>> s_gpo;
+extern StaticInit<std::vector<MemoryLayout>> s_memory_layout;
 extern StaticInit<std::vector<Genesys_Motor>> s_motors;
 extern StaticInit<std::vector<Genesys_USB_Device_Entry>> s_usb_devices;
 
 void genesys_init_sensor_tables();
 void genesys_init_frontend_tables();
 void genesys_init_gpo_tables();
+void genesys_init_memory_layout_tables();
 void genesys_init_motor_tables();
 void genesys_init_usb_device_tables();
 void verify_usb_device_tables();

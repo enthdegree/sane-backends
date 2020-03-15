@@ -64,6 +64,11 @@ std::ostream& operator<<(std::ostream& out, const FrontendType& type)
         case FrontendType::UNKNOWN: out << "UNKNOWN"; break;
         case FrontendType::WOLFSON: out << "WOLFSON"; break;
         case FrontendType::ANALOG_DEVICES: out << "ANALOG_DEVICES"; break;
+        case FrontendType::CANON_LIDE_80: out << "CANON_LIDE_80"; break;
+        case FrontendType::WOLFSON_GL841: out << "WOLFSON_GL841"; break;
+        case FrontendType::WOLFSON_GL846: out << "WOLFSON_GL846"; break;
+        case FrontendType::WOLFSON_GL847: out << "WOLFSON_GL847"; break;
+        case FrontendType::WOLFSON_GL124: out << "WOLFSON_GL124"; break;
         default: out << "(unknown value)";
     }
     return out;
@@ -109,26 +114,6 @@ std::ostream& operator<<(std::ostream& out, const SensorExposure& exposure)
         << "    green: " << exposure.green << '\n'
         << "    blue: " << exposure.blue << '\n'
         << '}';
-    return out;
-}
-
-std::ostream& operator<<(std::ostream& out, const ResolutionFilter& resolutions)
-{
-    if (resolutions.matches_any()) {
-        out << "ANY";
-        return out;
-    }
-    out << format_vector_unsigned(4, resolutions.resolutions());
-    return out;
-}
-
-std::ostream& operator<<(std::ostream& out, const ScanMethodFilter& methods)
-{
-    if (methods.matches_any()) {
-        out << "ANY";
-        return out;
-    }
-    out << format_vector_unsigned(4, methods.methods());
     return out;
 }
 

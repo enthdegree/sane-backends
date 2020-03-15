@@ -546,6 +546,7 @@ libgenesys_la_SOURCES = genesys/genesys.cpp genesys/genesys.h \
     genesys/status.h genesys/status.cpp \
     genesys/tables_frontend.cpp \
     genesys/tables_gpo.cpp \
+    genesys/tables_memory_layout.cpp \
     genesys/tables_model.cpp \
     genesys/tables_motor.cpp \
     genesys/tables_sensor.cpp \
@@ -554,6 +555,7 @@ libgenesys_la_SOURCES = genesys/genesys.cpp genesys/genesys.h \
     genesys/test_usb_device.h genesys/test_usb_device.cpp \
     genesys/usb_device.h genesys/usb_device.cpp \
     genesys/low.cpp genesys/low.h \
+    genesys/value_filter.h \
     genesys/utilities.h
 
 libgenesys_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=genesys

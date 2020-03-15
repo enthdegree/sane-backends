@@ -222,6 +222,21 @@ enum class ModelId : unsigned
     XEROX_TRAVELSCANNER_100,
 };
 
+inline void serialize(std::istream& str, ModelId& x)
+{
+    unsigned value;
+    serialize(str, value);
+    x = static_cast<ModelId>(value);
+}
+
+inline void serialize(std::ostream& str, ModelId& x)
+{
+    unsigned value = static_cast<unsigned>(x);
+    serialize(str, value);
+}
+
+std::ostream& operator<<(std::ostream& out, ModelId id);
+
 enum class SensorId : unsigned
 {
     UNKNOWN = 0,

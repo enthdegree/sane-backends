@@ -47,6 +47,7 @@
 #include "enums.h"
 #include "register.h"
 #include "serialize.h"
+#include "value_filter.h"
 #include <array>
 #include <functional>
 
@@ -114,9 +115,14 @@ std::ostream& operator<<(std::ostream& out, const StaggerConfig& config);
 
 enum class FrontendType : unsigned
 {
-    UNKNOWN,
+    UNKNOWN = 0,
     WOLFSON,
-    ANALOG_DEVICES
+    ANALOG_DEVICES,
+    CANON_LIDE_80,
+    WOLFSON_GL841, // old code path, likely wrong calculation
+    WOLFSON_GL846, // old code path, likely wrong calculation
+    WOLFSON_GL847, // old code path, likely wrong calculation
+    WOLFSON_GL124, // old code path, likely wrong calculation
 };
 
 inline void serialize(std::istream& str, FrontendType& x)
@@ -242,94 +248,6 @@ struct SensorExposure {
 std::ostream& operator<<(std::ostream& out, const SensorExposure& exposure);
 
 
-class ResolutionFilter
-{
-public:
-    struct Any {};
-    static constexpr Any ANY{};
-
-    ResolutionFilter() : matches_any_{false} {}
-    ResolutionFilter(Any) : matches_any_{true} {}
-    ResolutionFilter(std::initializer_list<unsigned> resolutions) :
-        matches_any_{false},
-        resolutions_{resolutions}
-    {}
-
-    bool matches(unsigned resolution) const
-    {
-        if (matches_any_)
-            return true;
-        auto it = std::find(resolutions_.begin(), resolutions_.end(), resolution);
-        return it != resolutions_.end();
-    }
-
-    bool operator==(const ResolutionFilter& other) const
-    {
-        return  matches_any_ == other.matches_any_ && resolutions_ == other.resolutions_;
-    }
-
-    bool matches_any() const { return matches_any_; }
-    const std::vector<unsigned>& resolutions() const { return resolutions_; }
-
-private:
-    bool matches_any_ = false;
-    std::vector<unsigned> resolutions_;
-
-    template<class Stream>
-    friend void serialize(Stream& str, ResolutionFilter& x);
-};
-
-std::ostream& operator<<(std::ostream& out, const ResolutionFilter& resolutions);
-
-template<class Stream>
-void serialize(Stream& str, ResolutionFilter& x)
-{
-    serialize(str, x.matches_any_);
-    serialize_newline(str);
-    serialize(str, x.resolutions_);
-}
-
-
-class ScanMethodFilter
-{
-public:
-    struct Any {};
-    static constexpr Any ANY{};
-
-    ScanMethodFilter() : matches_any_{false} {}
-    ScanMethodFilter(Any) : matches_any_{true} {}
-    ScanMethodFilter(std::initializer_list<ScanMethod> methods) :
-        matches_any_{false},
-        methods_{methods}
-    {}
-
-    bool matches(ScanMethod method) const
-    {
-        if (matches_any_)
-            return true;
-        auto it = std::find(methods_.begin(), methods_.end(), method);
-        return it != methods_.end();
-    }
-
-    bool operator==(const ScanMethodFilter& other) const
-    {
-        return  matches_any_ == other.matches_any_ && methods_ == other.methods_;
-    }
-
-    bool matches_any() const { return matches_any_; }
-    const std::vector<ScanMethod>& methods() const { return methods_; }
-
-private:
-    bool matches_any_ = false;
-    std::vector<ScanMethod> methods_;
-
-    template<class Stream>
-    friend void serialize(Stream& str, ResolutionFilter& x);
-};
-
-std::ostream& operator<<(std::ostream& out, const ScanMethodFilter& methods);
-
-
 struct Genesys_Sensor {
 
     Genesys_Sensor() = default;
@@ -343,7 +261,7 @@ struct Genesys_Sensor {
     unsigned optical_res = 0;
 
     // the resolution list that the sensor is usable at.
-    ResolutionFilter resolutions = ResolutionFilter::ANY;
+    ValueFilterAny<unsigned> resolutions = VALUE_FILTER_ANY;
 
     // the channel list that the sensor is usable at
     std::vector<unsigned> channels = { 1, 3 };

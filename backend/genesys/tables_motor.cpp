@@ -270,7 +270,7 @@ void genesys_init_motor_tables()
     profile.slope = MotorSlope::create_from_steps(20202 * 4, 333 * 4, 100);
     profile.step_type = StepType::QUARTER;
     profile.motor_vref = 0;
-    profile.resolutions = ResolutionFilter::ANY;
+    profile.resolutions = VALUE_FILTER_ANY;
     profile.scan_methods = { ScanMethod::FLATBED };
     motor.profiles.push_back(std::move(profile));
 
@@ -278,7 +278,7 @@ void genesys_init_motor_tables()
     profile.slope = MotorSlope::create_from_steps(65535 * 4, 333 * 4, 100);
     profile.step_type = StepType::QUARTER;
     profile.motor_vref = 2;
-    profile.resolutions = ResolutionFilter::ANY;
+    profile.resolutions = VALUE_FILTER_ANY;
     profile.scan_methods = { ScanMethod::TRANSPARENCY, ScanMethod::TRANSPARENCY_INFRARED };
     motor.profiles.push_back(std::move(profile));
 
@@ -286,8 +286,8 @@ void genesys_init_motor_tables()
     profile.slope = MotorSlope::create_from_steps(65535 * 4, 333 * 4, 200);
     profile.step_type = StepType::QUARTER;
     profile.motor_vref = 2;
-    profile.resolutions = ResolutionFilter::ANY;
-    profile.scan_methods = ScanMethodFilter::ANY;
+    profile.resolutions = VALUE_FILTER_ANY;
+    profile.scan_methods = VALUE_FILTER_ANY;
     motor.fast_profiles.push_back(std::move(profile));
 
     s_motors->push_back(std::move(motor));

@@ -69,16 +69,9 @@ static const char settings[] =
     "   <scan:XResolution>%d</scan:XResolution>" \
     "   <scan:YResolution>%d</scan:YResolution>" \
     "   <pwg:InputSource>%s</pwg:InputSource>" \
+    "   <scan:InputSource>i%s</scan:InputSource>" \
+    "%s" \
     "</scan:ScanSettings>";
-
-static char formatExtJPEG[] =
-    "   <scan:DocumentFormatExt>image/jpeg</scan:DocumentFormatExt>";
-
-static char formatExtPNG[] =
-    "   <scan:DocumentFormatExt>image/png</scan:DocumentFormatExt>";
-
-static char formatExtTIFF[] =
-    "   <scan:DocumentFormatExt>image/tiff</scan:DocumentFormatExt>";
 
 /**
  * \fn static size_t download_callback(void *str, size_t size, size_t nmemb, void *userp)
@@ -144,6 +137,7 @@ escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *statu
     char *temporary = NULL;
     char *f_ext = "";
     char *format_ext = NULL;
+    char duplex_mode[1024] = { 0 };
 
     *status = SANE_STATUS_GOOD;
     if (name == NULL || scanner == NULL) {
@@ -167,17 +161,19 @@ escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *statu
     curl_handle = curl_easy_init();
     if (scanner->caps[scanner->source].format_ext == 1)
     {
-       if (!strcmp(scanner->caps[scanner->source].default_format, "image/jpeg"))
-          format_ext = formatExtJPEG;
-       else if (!strcmp(scanner->caps[scanner->source].default_format, "image/png"))
-          format_ext = formatExtPNG;
-       else if (!strcmp(scanner->caps[scanner->source].default_format, "image/tiff"))
-          format_ext = formatExtTIFF;
-       else
-          format_ext = f_ext;
+	char f_ext_tmp[1024];
+	snprintf(f_ext_tmp, sizeof(f_ext_tmp),
+			"   <scan:DocumentFormatExt>%s</scan:DocumentFormatExt>",
+    			scanner->caps[scanner->source].default_format);
+        format_ext = f_exti_tmp;
     }
     else
       format_ext = f_ext;
+    if(!strcmp(scanner->Sources[scanner->source], "Feeder")) {
+       snprintf(duplex_mode, sizeof(duplex_mode),
+		       "   <scan:Duplex>%s</scan:Duplex>",
+		       scanner->caps[scanner->source].duplex ? "true" : "false");
+    }
     DBG( 1, "Create NewJob : %s\n", scanner->caps[scanner->source].default_format);
     if (curl_handle != NULL) {
         snprintf(cap_data, sizeof(cap_data), settings,
@@ -190,7 +186,9 @@ escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *statu
 			scanner->caps[scanner->source].default_color,
 			scanner->caps[scanner->source].default_resolution,
 			scanner->caps[scanner->source].default_resolution,
-			scanner->Sources[scanner->source]);
+			scanner->Sources[scanner->source],
+			scanner->Sources[scanner->source],
+			duplex_mode[0] == 0 ? "" : duplex_mode);
         DBG( 1, "Create NewJob : %s\n", cap_data);
         upload->read_data = strdup(cap_data);
         upload->size = strlen(cap_data);

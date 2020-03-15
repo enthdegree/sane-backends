@@ -327,12 +327,21 @@ print_xml_c(xmlNode *node, capabilities_t *scanner, int type)
            scanner->Sources = char_to_array(scanner->Sources, &scanner->SourcesSize, (SANE_String_Const)"Platen", 0);
 	   scanner->source = PLATEN;
            print_xml_c(node->children, scanner, PLATEN);
+	   scanner->caps[scanner->source].duplex = 0;
 	}
 	else if (!strcmp((const char *)node->name, "AdfSimplexInputCaps")) {
            scanner->Sources = char_to_array(scanner->Sources, &scanner->SourcesSize, (SANE_String_Const)"Feeder", 0);
 	   if (scanner->source == -1) scanner->source = ADFSIMPLEX;
            print_xml_c(node->children, scanner, ADFSIMPLEX);
+	   scanner->caps[scanner->source].duplex = 0;
 	}
+	else if (!strcmp((const char *)node->name, "AdfDuplexInputCaps")) {
+           scanner->Sources = char_to_array(scanner->Sources, &scanner->SourcesSize, (SANE_String_Const)"Feeder", 0);
+	   if (scanner->source == -1) scanner->source = ADFDUPLEX;
+           print_xml_c(node->children, scanner, ADFDUPLEX);
+	   scanner->caps[scanner->source].duplex = 1;
+	}
+	AdfDuplexInputCap
 	else
            print_xml_c(node->children, scanner, type);
         node = node->next;

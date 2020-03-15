@@ -124,6 +124,7 @@ typedef struct capst
     int RiskyRightMargin;
     int RiskyTopMargin;
     int RiskyBottomMargin;
+    int duplex;
 } caps_t;
 
 typedef struct capabilities

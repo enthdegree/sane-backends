@@ -69,7 +69,7 @@ static const char settings[] =
     "   <scan:XResolution>%d</scan:XResolution>" \
     "   <scan:YResolution>%d</scan:YResolution>" \
     "   <pwg:InputSource>%s</pwg:InputSource>" \
-    "   <scan:InputSource>i%s</scan:InputSource>" \
+    "   <scan:InputSource>%s</scan:InputSource>" \
     "%s" \
     "</scan:ScanSettings>";
 

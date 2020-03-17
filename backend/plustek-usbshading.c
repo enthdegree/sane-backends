@@ -882,7 +882,7 @@ TOGAIN:
 		if( m_ScanParam.bDataType == SCANDATATYPE_Color ) {
 
 			RGBULongDef rgb, rgbSum;
-			u_long      dwLoop = len / 20 * 20;
+			u_long      dwLoop = (len - start) / 20 * 20;
 			u_long      dw10, dwGray, dwGrayMax;
 
 			rgb.Red = rgb.Green = rgb.Blue = dwGrayMax = 0;
@@ -923,7 +923,7 @@ TOGAIN:
 		} else {
 
 			u_long dwMax  = 0, dwSum;
-			u_long dwLoop = len / 20 * 20;
+			u_long dwLoop = (len - start) / 20 * 20;
 			u_long dw10;
 
 			for( dw = start; dwLoop; dwLoop-- ) {
@@ -951,7 +951,7 @@ TOGAIN:
 			RGBUShortDef max_rgb, min_rgb, tmp_rgb;
 			u_long       dwR, dwG, dwB;
 			u_long       dwDiv   = 10;
-			u_long       dwLoop1 = len / dwDiv, dwLoop2;
+			u_long       dwLoop1 = (len - start) / dwDiv, dwLoop2;
 
 			max_rgb.Red = max_rgb.Green = max_rgb.Blue = 0;
 			min_rgb.Red = min_rgb.Green = min_rgb.Blue = 0xffff;

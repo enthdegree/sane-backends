@@ -854,11 +854,11 @@ sane_start(SANE_Handle h)
 				SANE_TRUE :
 				SANE_FALSE);
         handler->scanner->work = next_page;
-        handler->ps.last_frame = next_page;
+        handler->ps.last_frame = !next_page;
     }
     else {
         handler->scanner->work = SANE_FALSE;
-        handler->ps.last_frame = SANE_FALSE;
+        handler->ps.last_frame = SANE_TRUE;
     }
     handler->ps.format = SANE_FRAME_RGB;
     DBG(10, "Real Size Image [%dx%d|%dx%d]\n", 0, 0, w, he);

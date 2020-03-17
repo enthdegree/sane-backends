@@ -66,7 +66,7 @@
 
 
 enum {
-   PLATEN,
+   PLATEN = 0,
    ADFSIMPLEX,
    ADFDUPLEX
 };

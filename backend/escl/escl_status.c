@@ -84,60 +84,48 @@ find_nodes_s(xmlNode *node)
 }
 
 /**
- * \fn static void print_xml_s(xmlNode *node, SANE_Status *status, int source)
+ * \fn static void print_xml_s(xmlNode *node, SANE_Status *platen_status, SANE_Status *adf_status, int source)
  * \brief Function that browses the xml file, node by node.
  *        If the node 'State' is found, we are expecting to found in this node the 'Idle'
  *        content (if the scanner is ready to use) and then 'status' = SANE_STATUS_GOOD.
  *        Otherwise, this means that the scanner isn't ready to use.
  */
 static void
-print_xml_s(xmlNode *node, SANE_Status *status, int source)
+print_xml_s(xmlNode *node, SANE_Status *platen_status, SANE_Status* adf_status, int source)
 {
-    SANE_Status platen_status;
-    SANE_Status adf_status;
-
     while (node) {
         if (node->type == XML_ELEMENT_NODE) {
             if (find_nodes_s(node)) {
                 if (strcmp((const char *)node->name, "State") == 0) {
                     const char *state = (const char *)xmlNodeGetContent(node);
                     if (!strcmp(state, "Idle")) {
-                        platen_status = SANE_STATUS_GOOD;
+                        *platen_status = SANE_STATUS_GOOD;
                     } else if (!strcmp(state, "Processing")) {
-                        platen_status = SANE_STATUS_DEVICE_BUSY;
+                        *platen_status = SANE_STATUS_DEVICE_BUSY;
                     } else {
-                        platen_status = SANE_STATUS_UNSUPPORTED;
+                        *platen_status = SANE_STATUS_UNSUPPORTED;
                     }
                 }
                 else if (strcmp((const char *)node->name, "AdfState") == 0) {
                     const char *state = (const char *)xmlNodeGetContent(node);
                     if (!strcmp(state, "ScannerAdfLoaded")) {
-                        adf_status = SANE_STATUS_GOOD;
+                        *adf_status = SANE_STATUS_GOOD;
                     } else if (!strcmp(state, "ScannerAdfJam")) {
-                        adf_status = SANE_STATUS_JAMMED;
+                        *adf_status = SANE_STATUS_JAMMED;
                     } else if (!strcmp(state, "ScannerAdfDoorOpen")) {
-                        adf_status = SANE_STATUS_COVER_OPEN;
+                        *adf_status = SANE_STATUS_COVER_OPEN;
                     } else if (!strcmp(state, "ScannerAdfProcessing")) {
-                        adf_status = SANE_STATUS_NO_DOCS;
+                        *adf_status = SANE_STATUS_NO_DOCS;
                     } else if (!strcmp(state, "ScannerAdfEmpty")) {
-                        adf_status = SANE_STATUS_NO_DOCS;
+                        *adf_status = SANE_STATUS_NO_DOCS;
                     } else {
-                        adf_status = SANE_STATUS_UNSUPPORTED;
+                        *adf_status = SANE_STATUS_UNSUPPORTED;
                     }
                 }
             }
         }
-        print_xml_s(node->children, status, source);
+        print_xml_s(node->children, platen_status, adf_status, source);
         node = node->next;
-    }
-    /* Decode Job status */
-    if (platen_status != SANE_STATUS_GOOD &&
-        platen_status != SANE_STATUS_UNSUPPORTED) {
-        *status = platen_status;
-    } else if (source == PLATEN) {
-        *status = platen_status;
-    } else {
-        *status = adf_status;
     }
 }
 
@@ -153,6 +141,8 @@ SANE_Status
 escl_status(SANE_String_Const name, int source)
 {
     SANE_Status status;
+    SANE_Status adf_status;
+    SANE_Status platen_status;
     CURL *curl_handle = NULL;
     struct idle *var = NULL;
     xmlDoc *data = NULL;
@@ -195,7 +185,16 @@ escl_status(SANE_String_Const name, int source)
         goto clean;
     }
     status = SANE_STATUS_DEVICE_BUSY;
-    print_xml_s(node, &status, source);
+    print_xml_s(node, &platen_status, &adf_status, source);
+    /* Decode Job status */
+    if (platen_status != SANE_STATUS_GOOD &&
+        platen_status != SANE_STATUS_UNSUPPORTED) {
+        status = platen_status;
+    } else if (source == PLATEN) {
+        status = platen_status;
+    } else {
+        status = adf_status;
+    }
 clean:
     xmlFreeDoc(data);
 clean_data:

@@ -567,9 +567,6 @@ sane_open(SANE_String_Const name, SANE_Handle *h)
 
     if (name == NULL)
 	return (SANE_STATUS_INVAL);
-    status = escl_status(name, PLATEN);
-    if (status != SANE_STATUS_GOOD)
-	return (status);
     handler = (escl_sane_t *)calloc(1, sizeof(escl_sane_t));
     if (handler == NULL)
 	return (SANE_STATUS_NO_MEM);

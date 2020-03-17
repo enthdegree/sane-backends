@@ -695,13 +695,14 @@ else
   fi
 fi
 
-SANE_CHECK_BACKENDS
-
 if test "${sane_cv_use_libjpeg}" = "yes"; then
   SANEI_SANEI_JPEG_LO="../sanei/sanei_jpeg.lo"
+  AC_CHECK_FUNCS(jpeg_crop_scanline jpeg_skip_scanlines)
 fi
 AM_CONDITIONAL(HAVE_JPEG, test x$sane_cv_use_libjpeg = xyes)
 AC_SUBST(SANEI_SANEI_JPEG_LO)
+
+SANE_CHECK_BACKENDS
 
 AC_ARG_ENABLE(pnm-backend,
   AS_HELP_STRING([--enable-pnm-backend],

@@ -895,7 +895,14 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     // steps for STOP table
     reg->set8(REG_FMOVDEC, fast_table.steps_count / step_multiplier);
 
-    if (!has_flag(dev->model->flags, ModelFlag::FULL_HWDPI_MODE)) {
+    if (dev->model->model_id == ModelId::PANASONIC_KV_SS080 ||
+        dev->model->model_id == ModelId::HP_SCANJET_4850C ||
+        dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
+        dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I)
+    {
         // FIXME: take this information from motor struct
         std::uint8_t reg_vref = reg->get8(0x80);
         reg_vref = 0x50;

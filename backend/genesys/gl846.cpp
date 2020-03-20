@@ -454,14 +454,6 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
     dev->interface->write_register(REG_0x6C, val);
   */
 
-    if (dev->model->gpio_id == GpioId::IMG101) {
-        if (scan_yres == sensor.get_register_hwdpi(scan_yres)) {
-            dev->interface->write_register(REG_0x7E, 1);
-        } else {
-            dev->interface->write_register(REG_0x7E, 0);
-        }
-    }
-
     unsigned min_restep = (scan_table.steps_count / step_multiplier) / 2 - 1;
     if (min_restep < 1) {
         min_restep = 1;

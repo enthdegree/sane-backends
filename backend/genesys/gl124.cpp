@@ -768,7 +768,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
         reg->find_reg(REG_0x05).value &= ~REG_0x05_GMMENB;
     }
 
-    reg->set16(REG_DPISET, sensor.dpiset_override);
+    reg->set16(REG_DPISET, sensor.register_dpiset);
 
     r = sanei_genesys_get_address(reg, REG_0x06);
     r->value |= REG_0x06_GAIN4;

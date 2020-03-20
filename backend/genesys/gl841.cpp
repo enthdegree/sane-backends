@@ -1253,7 +1253,7 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     r = sanei_genesys_get_address (reg, 0x29);
     r->value = 255; /*<<<"magic" number, only suitable for cis*/
 
-    reg->set16(REG_DPISET, sensor.dpiset_override);
+    reg->set16(REG_DPISET, sensor.register_dpiset);
     reg->set16(REG_STRPIXEL, session.pixel_startx);
     reg->set16(REG_ENDPIXEL, session.pixel_endx);
 

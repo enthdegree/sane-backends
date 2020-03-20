@@ -1074,7 +1074,7 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
         reg->find_reg(REG_0x05).value &= ~REG_0x05_GMMENB;
     }
 
-    reg->set16(REG_DPISET, sensor.dpiset_override);
+    reg->set16(REG_DPISET, sensor.register_dpiset);
 
     reg->set16(REG_STRPIXEL, session.pixel_startx);
     reg->set16(REG_ENDPIXEL, session.pixel_endx);

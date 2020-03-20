@@ -906,8 +906,7 @@ void CommandSetGl847::send_shading_data(Genesys_Device* dev, const Genesys_Senso
                                         uint8_t* data, int size) const
 {
     DBG_HELPER_ARGS(dbg, "writing %d bytes of shading data", size);
-  uint32_t addr, length, i, x, factor, pixels;
-    uint32_t dpiset, dpihw;
+    std::uint32_t addr, length, i, pixels;
   uint8_t val,*ptr,*src;
 
   /* shading data is plit in 3 (up to 5 with IR) areas
@@ -919,12 +918,6 @@ void CommandSetGl847::send_shading_data(Genesys_Device* dev, const Genesys_Senso
     length = static_cast<std::uint32_t>(size / 3);
     std::uint32_t strpixel = dev->session.pixel_startx;
     std::uint32_t endpixel = dev->session.pixel_endx;
-
-  /* compute deletion factor */
-    dpiset = dev->reg.get16(REG_DPISET);
-    dpihw = sensor.get_register_hwdpi(dpiset);
-  factor=dpihw/dpiset;
-  DBG(DBG_io2, "%s: factor=%d\n", __func__, factor);
 
   pixels=endpixel-strpixel;
 
@@ -938,7 +931,7 @@ void CommandSetGl847::send_shading_data(Genesys_Device* dev, const Genesys_Senso
     dev->interface->record_key_value("shading_offset", std::to_string(strpixel));
     dev->interface->record_key_value("shading_pixels", std::to_string(pixels));
     dev->interface->record_key_value("shading_length", std::to_string(length));
-    dev->interface->record_key_value("shading_factor", std::to_string(factor));
+    dev->interface->record_key_value("shading_factor", std::to_string(sensor.shading_factor));
 
   std::vector<uint8_t> buffer(pixels, 0);
 
@@ -954,9 +947,8 @@ void CommandSetGl847::send_shading_data(Genesys_Device* dev, const Genesys_Senso
        * to the one corresponding to SHDAREA */
       ptr = buffer.data();
 
-      /* iterate on both sensor segment */
-      for(x=0;x<pixels;x+=4*factor)
-        {
+        // iterate on both sensor segment
+        for (unsigned x = 0; x < pixels; x += 4 * sensor.shading_factor) {
           /* coefficient source */
           src=(data+strpixel+i*length)+x;
 

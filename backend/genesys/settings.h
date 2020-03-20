@@ -46,6 +46,7 @@
 
 #include "enums.h"
 #include "serialize.h"
+#include "utilities.h"
 
 namespace genesys {
 
@@ -294,8 +295,7 @@ struct ScanSession {
         - The scanner will automatically average the pixels that come from the sensor using a
           certain ratio.
     */
-    unsigned pixel_count_multiplier = 1;
-    unsigned pixel_count_divisor = 1;
+    Ratio pixel_count_ratio = Ratio{1, 1};
 
     // Distance in pixels between consecutive pixels, e.g. between odd and even pixels. Note that
     // the number of segments can be large.
@@ -366,8 +366,7 @@ void serialize(Stream& str, ScanSession& x)
     serialize(str, x.segment_count);
     serialize(str, x.pixel_startx);
     serialize(str, x.pixel_endx);
-    serialize(str, x.pixel_count_multiplier);
-    serialize(str, x.pixel_count_divisor);
+    serialize(str, x.pixel_count_ratio);
     serialize(str, x.conseq_pixel_dist);
     serialize(str, x.output_segment_pixel_group_count);
     serialize(str, x.output_segment_start_offset);

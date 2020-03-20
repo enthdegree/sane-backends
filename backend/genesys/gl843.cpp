@@ -1997,7 +1997,7 @@ void CommandSetGl843::send_shading_data(Genesys_Device* dev, const Genesys_Senso
         // FIXME: the following is likely incorrect
         // start coordinate in optical dpi coordinates
         startx = (sensor.dummy_pixel / sensor.ccd_pixels_per_system_pixel()) / dev->session.hwdpi_divisor;
-        startx *= dev->session.pixel_count_multiplier;
+        startx = dev->session.pixel_count_ratio.apply(startx);
 
       /* current scan coordinates */
         strpixel = dev->session.pixel_startx;

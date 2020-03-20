@@ -286,8 +286,7 @@ struct Genesys_Sensor {
 
     // This defines the ratio between logical pixel coordinates and the pixel coordinates sent to
     // the scanner.
-    int pixel_count_multiplier = 1;
-    int pixel_count_divisor = 1;
+    Ratio pixel_count_ratio = Ratio{1, 1};
 
     int black_pixels = 0;
     // value of the dummy register
@@ -368,6 +367,7 @@ struct Genesys_Sensor {
             resolutions == other.resolutions &&
             method == other.method &&
             ccd_size_divisor == other.ccd_size_divisor &&
+            pixel_count_ratio == other.pixel_count_ratio &&
             black_pixels == other.black_pixels &&
             dummy_pixel == other.dummy_pixel &&
             ccd_start_xoffset == other.ccd_start_xoffset &&
@@ -394,6 +394,7 @@ void serialize(Stream& str, Genesys_Sensor& x)
     serialize(str, x.resolutions);
     serialize(str, x.method);
     serialize(str, x.ccd_size_divisor);
+    serialize(str, x.pixel_count_ratio);
     serialize(str, x.black_pixels);
     serialize(str, x.dummy_pixel);
     serialize(str, x.ccd_start_xoffset);

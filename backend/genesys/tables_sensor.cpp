@@ -3009,16 +3009,22 @@ void genesys_init_sensor_tables()
         {
             ValueFilterAny<unsigned> resolutions;
             Ratio pixel_count_ratio;
+            unsigned shading_factor;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 75, 100, 150, 300, 600 }, Ratio{1, 4} },
-            { { 1200 }, Ratio{1, 2} },
+            { { 75 }, Ratio{1, 4}, 8 },
+            { { 100 }, Ratio{1, 4}, 6 },
+            { { 150 }, Ratio{1, 4}, 4 },
+            { { 300 }, Ratio{1, 4}, 2 },
+            { { 600 }, Ratio{1, 4}, 1 },
+            { { 1200 }, Ratio{1, 2}, 1 },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;
+            sensor.shading_factor = setting.shading_factor;
             s_sensors->push_back(sensor);
         }
     }
@@ -3052,16 +3058,22 @@ void genesys_init_sensor_tables()
         {
             ValueFilterAny<unsigned> resolutions;
             Ratio pixel_count_ratio;
+            unsigned shading_factor;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 75, 100, 150, 300, 600 }, Ratio{1, 2} },
-            { { 1200 }, Ratio{1, 1} },
+            { { 75 }, Ratio{1, 2}, 8 },
+            { { 100 }, Ratio{1, 2}, 6 },
+            { { 150 }, Ratio{1, 2}, 4 },
+            { { 300 }, Ratio{1, 2}, 2 },
+            { { 600 }, Ratio{1, 2}, 1 },
+            { { 1200 }, Ratio{1, 1}, 1 },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;
+            sensor.shading_factor = setting.shading_factor;
             s_sensors->push_back(sensor);
         }
     }

@@ -3206,6 +3206,7 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
         dev->interface->record_progress_message("led_calibration");
         switch (dev->model->asic_type) {
             case AsicType::GL124:
+            case AsicType::GL841:
             case AsicType::GL845:
             case AsicType::GL846:
             case AsicType::GL847: {

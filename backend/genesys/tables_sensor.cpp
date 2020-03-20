@@ -3077,6 +3077,7 @@ void genesys_init_sensor_tables()
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.register_dpihw_override = setting.register_dpihw_override;
+            sensor.shading_resolution = setting.register_dpihw_override;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;
             sensor.shading_factor = setting.shading_factor;
             sensor.custom_regs = base_custom_regs;
@@ -3130,6 +3131,7 @@ void genesys_init_sensor_tables()
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.register_dpihw_override = setting.register_dpihw_override;
+            sensor.shading_resolution = setting.register_dpihw_override;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;
             sensor.shading_factor = setting.shading_factor;
             s_sensors->push_back(sensor);

@@ -821,7 +821,7 @@ void CommandSetGl846::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   float move;
 
     unsigned channels = 3;
-    unsigned resolution = sensor.get_register_hwdpi(dev->settings.xres);
+    unsigned resolution = sensor.shading_resolution;
 
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                          dev->settings.scan_method);
@@ -967,7 +967,6 @@ SensorExposure CommandSetGl846::led_calibration(Genesys_Device* dev, const Genes
                                                 Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
-  int used_res;
     int i;
   int avg[3], top[3], bottom[3];
   int turn;
@@ -984,19 +983,19 @@ SensorExposure CommandSetGl846::led_calibration(Genesys_Device* dev, const Genes
 
   /* offset calibration is always done in color mode */
     unsigned channels = 3;
-    used_res = sensor.get_register_hwdpi(dev->settings.xres);
-    const auto& calib_sensor = sanei_genesys_find_sensor(dev, used_res, channels,
+    unsigned resolution = sensor.shading_resolution;
+    const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                          dev->settings.scan_method);
 
   /* initial calibration reg values */
   regs = dev->reg;
 
     ScanSession session;
-    session.params.xres = used_res;
-    session.params.yres = used_res;
+    session.params.xres = resolution;
+    session.params.yres = resolution;
     session.params.startx = 0;
     session.params.starty = 0;
-    session.params.pixels = dev->model->x_size_calib_mm * used_res / MM_PER_INCH;
+    session.params.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
     session.params.lines = 1;
     session.params.depth = 16;
     session.params.channels = channels;

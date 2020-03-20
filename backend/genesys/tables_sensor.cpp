@@ -44,6 +44,7 @@
 #define DEBUG_DECLARE_ONLY
 
 #include "low.h"
+#include <map>
 
 namespace genesys {
 
@@ -3242,5 +3243,29 @@ void genesys_init_sensor_tables()
         }
     }
 }
+
+void verify_sensor_tables()
+{
+    std::map<SensorId, AsicType> sensor_to_asic;
+    for (const auto& device : *s_usb_devices) {
+        sensor_to_asic[device.model.sensor_id] = device.model.asic_type;
+    }
+    for (const auto& sensor : *s_sensors) {
+        if (sensor_to_asic.count(sensor.sensor_id) == 0) {
+            throw SaneException("Unknown asic for sensor");
+        }
+        auto asic_type = sensor_to_asic[sensor.sensor_id];
+
+        if (asic_type != AsicType::GL646) {
+            if (sensor.register_dpihw == 0) {
+                throw SaneException("register_dpihw is not defined");
+            }
+            if (sensor.shading_resolution == 0) {
+                throw SaneException("shading_resolution is not defined");
+            }
+        }
+    }
+}
+
 
 } // namespace genesys

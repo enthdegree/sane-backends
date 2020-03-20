@@ -475,6 +475,7 @@ void genesys_init_gpo_tables();
 void genesys_init_memory_layout_tables();
 void genesys_init_motor_tables();
 void genesys_init_usb_device_tables();
+void verify_sensor_tables();
 void verify_usb_device_tables();
 
 template<class T>

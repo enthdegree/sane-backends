@@ -2039,6 +2039,7 @@ void genesys_init_sensor_tables()
     // sensor.ccd_size_divisor = 2; Possibly half CCD, needs checking
     sensor.black_pixels = 96;
     sensor.dummy_pixel = 26;
+    sensor.pixel_count_ratio = Ratio{1, 4};
     sensor.ccd_start_xoffset = 128;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 230;
@@ -2064,8 +2065,34 @@ void genesys_init_sensor_tables()
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
-    s_sensors->push_back(sensor);
+    {
+        struct CustomSensorSettings
+        {
+            ValueFilterAny<unsigned> resolutions;
+            unsigned register_dpihw;
+            unsigned shading_factor;
+        };
 
+        CustomSensorSettings custom_settings[] = {
+            { { 75 }, 600, 8 },
+            { { 100 }, 600, 6 },
+            { { 150 }, 600, 4 },
+            { { 200 }, 600, 3 },
+            { { 300 }, 600, 2 },
+            { { 600 }, 600, 1 },
+            { { 1200 }, 1200, 1, },
+            { { 2400 }, 2400, 1, },
+        };
+
+        auto base_custom_regs = sensor.custom_regs;
+        for (const CustomSensorSettings& setting : custom_settings) {
+            sensor.resolutions = setting.resolutions;
+            sensor.register_dpihw = setting.register_dpihw;
+            sensor.shading_resolution = setting.register_dpihw;
+            sensor.shading_factor = setting.shading_factor;
+            s_sensors->push_back(sensor);
+        }
+    }
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_CANON_LIDE_110;

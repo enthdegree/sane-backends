@@ -1072,12 +1072,8 @@ void CommandSetGl124::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     DBG_HELPER(dbg);
 
     unsigned channels = 3;
-    unsigned dpihw = sensor.get_register_hwdpi(dev->settings.xres);
-    unsigned resolution = dpihw;
+    unsigned resolution = sensor.shading_resolution;
 
-    unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
-
-    resolution /= ccd_size_divisor;
     unsigned calib_lines =
             static_cast<unsigned>(dev->model->y_size_calib_mm * resolution / MM_PER_INCH);
 
@@ -1328,8 +1324,6 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
                                                 Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
-  int resolution;
-  int dpihw;
     int i;
   int avg[3];
   int turn;
@@ -1340,10 +1334,7 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
 
   /* offset calibration is always done in 16 bit depth color mode */
     unsigned channels = 3;
-    dpihw = sensor.get_register_hwdpi(dev->settings.xres);
-    resolution = dpihw;
-    unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
-    resolution /= ccd_size_divisor;
+    unsigned resolution = sensor.shading_resolution;
 
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                          dev->settings.scan_method);

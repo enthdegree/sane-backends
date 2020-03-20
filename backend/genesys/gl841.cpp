@@ -1270,7 +1270,7 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     r = sanei_genesys_get_address (reg, 0x29);
     r->value = 255; /*<<<"magic" number, only suitable for cis*/
 
-    reg->set16(REG_DPISET, gl841_get_dpihw(dev) * session.output_resolution / session.optical_resolution);
+    reg->set16(REG_DPISET, sensor.dpiset_override);
     reg->set16(REG_STRPIXEL, session.pixel_startx);
     reg->set16(REG_ENDPIXEL, session.pixel_endx);
 
@@ -3058,8 +3058,8 @@ void CommandSetGl841::send_shading_data(Genesys_Device* dev, const Genesys_Senso
                                         uint8_t* data, int size) const
 {
     DBG_HELPER_ARGS(dbg, "writing %d bytes of shading data", size);
-  uint32_t length, x, factor, pixels, i;
-    uint16_t dpiset, dpihw, beginpixel;
+  uint32_t length, x, pixels, i;
+    uint16_t dpihw, beginpixel;
   uint8_t *ptr,*src;
 
   /* old method if no SHDAREA */
@@ -3074,12 +3074,11 @@ void CommandSetGl841::send_shading_data(Genesys_Device* dev, const Genesys_Senso
     unsigned endpixel = dev->session.pixel_endx;
 
   /* compute deletion/average factor */
-    dpiset = dev->reg.get16(REG_DPISET);
   dpihw = gl841_get_dpihw(dev);
     unsigned ccd_size_divisor = dev->session.ccd_size_divisor;
-  factor=dpihw/dpiset;
-  DBG(DBG_io2, "%s: dpihw=%d, dpiset=%d, ccd_size_divisor=%d, factor=%d\n", __func__, dpihw, dpiset,
-      ccd_size_divisor, factor);
+    unsigned factor = dpihw / sensor.dpiset_override;
+    DBG(DBG_io2, "%s: dpihw=%d, ccd_size_divisor=%d, factor=%d\n", __func__, dpihw,
+        ccd_size_divisor, factor);
 
   /* turn pixel value into bytes 2x16 bits words */
   strpixel*=2*2; /* 2 words of 2 bytes */

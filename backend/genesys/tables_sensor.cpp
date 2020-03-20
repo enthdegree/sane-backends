@@ -497,17 +497,24 @@ void genesys_init_sensor_tables()
         {
             ValueFilterAny<unsigned> resolutions;
             unsigned register_dpihw;
+            unsigned dpiset_override;
             unsigned shading_resolution;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 75, 100, 150, 200, 300, 600 }, 1200, 600 },
-            { { 1200 }, 1200, 1200 },
+            { { 75 }, 1200, 150, 600 },
+            { { 100 }, 1200, 200, 600 },
+            { { 150 }, 1200, 300, 600 },
+            { { 200 }, 1200, 400, 600 },
+            { { 300 }, 1200, 600, 600 },
+            { { 600 }, 1200, 1200, 600 },
+            { { 1200 }, 1200, 1200, 1200 },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.register_dpihw = setting.register_dpihw;
+            sensor.dpiset_override = setting.dpiset_override;
             sensor.shading_resolution = setting.shading_resolution;
             s_sensors->push_back(sensor);
         }
@@ -710,8 +717,27 @@ void genesys_init_sensor_tables()
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
-    s_sensors->push_back(sensor);
+    {
+        struct CustomSensorSettings
+        {
+            ValueFilterAny<unsigned> resolutions;
+            unsigned dpiset_override;
+        };
 
+        CustomSensorSettings custom_settings[] = {
+            { { 75 }, 75 },
+            { { 150 }, 150 },
+            { { 300 }, 300 },
+            { { 600 }, 600 },
+            { { 1200 }, 1200 },
+        };
+
+        for (const CustomSensorSettings& setting : custom_settings) {
+            sensor.resolutions = setting.resolutions;
+            sensor.dpiset_override = setting.dpiset_override;
+            s_sensors->push_back(sensor);
+        }
+    }
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_ROADWARRIOR; // gl841
@@ -746,7 +772,27 @@ void genesys_init_sensor_tables()
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
-    s_sensors->push_back(sensor);
+    {
+        struct CustomSensorSettings
+        {
+            ValueFilterAny<unsigned> resolutions;
+            unsigned dpiset_override;
+        };
+
+        CustomSensorSettings custom_settings[] = {
+            { { 75 }, 75 },
+            { { 150 }, 150 },
+            { { 300 }, 300 },
+            { { 600 }, 600 },
+            { { 1200 }, 1200 },
+        };
+
+        for (const CustomSensorSettings& setting : custom_settings) {
+            sensor.resolutions = setting.resolutions;
+            sensor.dpiset_override = setting.dpiset_override;
+            s_sensors->push_back(sensor);
+        }
+    }
 
 
     sensor = Genesys_Sensor();
@@ -782,7 +828,26 @@ void genesys_init_sensor_tables()
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
-    s_sensors->push_back(sensor);
+    {
+        struct CustomSensorSettings
+        {
+            ValueFilterAny<unsigned> resolutions;
+            unsigned dpiset_override;
+        };
+
+        CustomSensorSettings custom_settings[] = {
+            { { 75 }, 75 },
+            { { 150 }, 150 },
+            { { 300 }, 300 },
+            { { 600 }, 600 },
+        };
+
+        for (const CustomSensorSettings& setting : custom_settings) {
+            sensor.resolutions = setting.resolutions;
+            sensor.dpiset_override = setting.dpiset_override;
+            s_sensors->push_back(sensor);
+        }
+    }
 
 
     sensor = Genesys_Sensor();
@@ -818,7 +883,26 @@ void genesys_init_sensor_tables()
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
-    s_sensors->push_back(sensor);
+    {
+        struct CustomSensorSettings
+        {
+            ValueFilterAny<unsigned> resolutions;
+            unsigned dpiset_override;
+        };
+
+        CustomSensorSettings custom_settings[] = {
+            { { 75 }, 150 },
+            { { 150 }, 300 },
+            { { 300 }, 600 },
+            { { 600 }, 1200 },
+        };
+
+        for (const CustomSensorSettings& setting : custom_settings) {
+            sensor.resolutions = setting.resolutions;
+            sensor.dpiset_override = setting.dpiset_override;
+            s_sensors->push_back(sensor);
+        }
+    }
 
 
     sensor = Genesys_Sensor();
@@ -854,7 +938,26 @@ void genesys_init_sensor_tables()
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
-    s_sensors->push_back(sensor);
+    {
+        struct CustomSensorSettings
+        {
+            ValueFilterAny<unsigned> resolutions;
+            unsigned dpiset_override;
+        };
+
+        CustomSensorSettings custom_settings[] = {
+            { { 75 }, 150 },
+            { { 150 }, 300 },
+            { { 300 }, 600 },
+            { { 600 }, 600 },
+        };
+
+        for (const CustomSensorSettings& setting : custom_settings) {
+            sensor.resolutions = setting.resolutions;
+            sensor.dpiset_override = setting.dpiset_override;
+            s_sensors->push_back(sensor);
+        }
+    }
 
 
     sensor = Genesys_Sensor();
@@ -891,7 +994,26 @@ void genesys_init_sensor_tables()
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
-    s_sensors->push_back(sensor);
+    {
+        struct CustomSensorSettings
+        {
+            ValueFilterAny<unsigned> resolutions;
+            unsigned dpiset_override;
+        };
+
+        CustomSensorSettings custom_settings[] = {
+            { { 75 }, 75 },
+            { { 150 }, 150 },
+            { { 300 }, 300 },
+            { { 600 }, 600 },
+        };
+
+        for (const CustomSensorSettings& setting : custom_settings) {
+            sensor.resolutions = setting.resolutions;
+            sensor.dpiset_override = setting.dpiset_override;
+            s_sensors->push_back(sensor);
+        }
+    }
 
 
     sensor = Genesys_Sensor();
@@ -2822,16 +2944,23 @@ void genesys_init_sensor_tables()
         {
             ValueFilterAny<unsigned> resolutions;
             unsigned register_dpihw;
+            unsigned dpiset_override;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 75, 100, 150, 200, 300, 400, 600 }, 600 },
-            { { 1200 }, 1200 },
+            { { 75 }, 600, 150 },
+            { { 100 }, 600, 200 },
+            { { 150 }, 600, 300 },
+            { { 200 }, 600, 400 },
+            { { 300 }, 600, 600 },
+            { { 600 }, 600, 1200 },
+            { { 1200 }, 1200, 1200 },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.register_dpihw = setting.register_dpihw;
+            sensor.dpiset_override = setting.dpiset_override;
             sensor.shading_resolution = setting.register_dpihw;
             s_sensors->push_back(sensor);
         }
@@ -3221,16 +3350,23 @@ void genesys_init_sensor_tables()
         struct CustomSensorSettings
         {
             ValueFilterAny<unsigned> resolutions;
+            unsigned dpiset_override;
             unsigned shading_resolution;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 75, 100, 150, 200, 300, 600 }, 600 },
-            { { 1200 }, 1200 },
+            { { 75 }, 150, 600 },
+            { { 100 }, 200, 600 },
+            { { 150 }, 300, 600 },
+            { { 200 }, 400, 600 },
+            { { 300 }, 600, 600 },
+            { { 600 }, 1200, 600 },
+            { { 1200 }, 1200, 1200 },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
+            sensor.dpiset_override = setting.dpiset_override;
             sensor.shading_resolution = setting.shading_resolution;
             s_sensors->push_back(sensor);
         }

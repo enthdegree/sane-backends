@@ -876,11 +876,11 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
     } else if (dev->model->asic_type == AsicType::GL843) {
         unsigned startx = s.params.startx * sensor.optical_res / s.params.xres;
 
-        s.pixel_startx = (startx + sensor.dummy_pixel) / ccd_pixels_per_system_pixel;
-        s.pixel_endx = s.pixel_startx + s.optical_pixels / ccd_pixels_per_system_pixel;
+        s.pixel_startx = (startx + sensor.dummy_pixel);
+        s.pixel_endx = s.pixel_startx + s.optical_pixels;
 
-        s.pixel_startx /= s.hwdpi_divisor;
-        s.pixel_endx /= s.hwdpi_divisor;
+        s.pixel_startx /= s.hwdpi_divisor * ccd_pixels_per_system_pixel;
+        s.pixel_endx /= s.hwdpi_divisor * ccd_pixels_per_system_pixel;
 
         // in case of stagger we have to start at an odd coordinate
         bool stagger_starts_even = false;
@@ -926,13 +926,11 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
         if (s.num_staggered_lines > 0) {
             s.pixel_startx |= 1;
         }
-
-        s.pixel_startx /= ccd_pixels_per_system_pixel;
         // FIXME: should we add sensor.dummy_pxel to pixel_startx at this point?
-        s.pixel_endx = s.pixel_startx + s.optical_pixels / ccd_pixels_per_system_pixel;
+        s.pixel_endx = s.pixel_startx + s.optical_pixels;
 
-        s.pixel_startx /= s.hwdpi_divisor * s.segment_count;
-        s.pixel_endx /= s.hwdpi_divisor * s.segment_count;
+        s.pixel_startx /= s.hwdpi_divisor * s.segment_count * ccd_pixels_per_system_pixel;
+        s.pixel_endx /= s.hwdpi_divisor * s.segment_count * ccd_pixels_per_system_pixel;
 
         std::uint32_t segcnt = (sensor.custom_regs.get_value(gl124::REG_SEGCNT) << 16) +
                                (sensor.custom_regs.get_value(gl124::REG_SEGCNT + 1) << 8) +

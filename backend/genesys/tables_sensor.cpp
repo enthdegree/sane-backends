@@ -3300,6 +3300,7 @@ void genesys_init_sensor_tables()
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.register_dpihw = setting.register_dpihw;
+            sensor.dpiset_override = setting.resolutions.values()[0];
             sensor.shading_resolution = setting.register_dpihw;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;
             sensor.shading_factor = setting.shading_factor;
@@ -3353,6 +3354,7 @@ void genesys_init_sensor_tables()
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.register_dpihw = setting.register_dpihw;
+            sensor.dpiset_override = setting.resolutions.values()[0];
             sensor.shading_resolution = setting.register_dpihw;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;
             sensor.shading_factor = setting.shading_factor;
@@ -3446,7 +3448,9 @@ void verify_sensor_tables()
         }
         if (asic_type == AsicType::GL124 ||
             asic_type == AsicType::GL841 ||
-            asic_type == AsicType::GL843)
+            asic_type == AsicType::GL843 ||
+            asic_type == AsicType::GL845 ||
+            asic_type == AsicType::GL846)
         {
             if (sensor.dpiset_override == 0) {
                 throw SaneException("dpiset_override is not defined");

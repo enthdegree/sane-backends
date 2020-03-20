@@ -518,10 +518,6 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     DBG_HELPER_ARGS(dbg, "exposure_time=%d", exposure_time);
   GenesysRegister *r;
 
-    // resolution is divided according to ccd_pixels_per_system_pixel()
-    unsigned ccd_pixels_per_system_pixel = sensor.ccd_pixels_per_system_pixel();
-    DBG(DBG_io2, "%s: ccd_pixels_per_system_pixel=%d\n", __func__, ccd_pixels_per_system_pixel);
-
     gl846_setup_sensor(dev, sensor, reg);
 
     dev->cmd_set->set_fe(dev, sensor, AFE_SET);
@@ -613,10 +609,7 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
         }*/
     }
 
-    unsigned dpiset = session.params.xres * ccd_pixels_per_system_pixel;
-    reg->set16(REG_DPISET, dpiset);
-    DBG(DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset);
-
+    reg->set16(REG_DPISET, sensor.dpiset_override);
     reg->set16(REG_STRPIXEL, session.pixel_startx);
     reg->set16(REG_ENDPIXEL, session.pixel_endx);
 

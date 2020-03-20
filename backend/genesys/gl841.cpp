@@ -101,9 +101,7 @@ other register settings depending on this:
   RHI(0x52),RLOW(0x53),GHI(0x54),GLOW(0x55),BHI(0x56),BLOW(0x57),
 
 */
-static void sanei_gl841_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                                     Genesys_Register_Set * regs,
-                                     bool extended, unsigned ccd_size_divisor)
+static void sanei_gl841_setup_sensor(const Genesys_Sensor& sensor, Genesys_Register_Set* regs)
 {
     DBG(DBG_proc, "%s\n", __func__);
 
@@ -120,80 +118,6 @@ static void sanei_gl841_setup_sensor(Genesys_Device * dev, const Genesys_Sensor&
     // ignore registers in range [0x5b..0x5e]
     for (uint16_t addr = 0x52; addr < 0x52 + 9; ++addr) {
         regs->set8(addr, sensor.custom_regs.get_value(addr));
-    }
-
-  /* don't go any further if no extended setup */
-  if (!extended)
-    return;
-
-  /* todo : add more CCD types if needed */
-  /* we might want to expand the Sensor struct to have these
-     2 kind of settings */
-    if (dev->model->sensor_id == SensorId::CCD_5345) {
-        if (ccd_size_divisor > 1) {
-          GenesysRegister* r;
-	  /* settings for CCD used at half is max resolution */
-	  r = sanei_genesys_get_address (regs, 0x70);
-	  r->value = 0x00;
-	  r = sanei_genesys_get_address (regs, 0x71);
-	  r->value = 0x05;
-	  r = sanei_genesys_get_address (regs, 0x72);
-	  r->value = 0x06;
-	  r = sanei_genesys_get_address (regs, 0x73);
-	  r->value = 0x08;
-	  r = sanei_genesys_get_address (regs, 0x18);
-	  r->value = 0x28;
-	  r = sanei_genesys_get_address (regs, 0x58);
-	  r->value = 0x80 | (r->value & 0x03);	/* VSMP=16 */
-	}
-      else
-	{
-          GenesysRegister* r;
-	  /* swap latch times */
-	  r = sanei_genesys_get_address (regs, 0x18);
-	  r->value = 0x30;
-          regs->set8(0x52, sensor.custom_regs.get_value(0x55));
-          regs->set8(0x53, sensor.custom_regs.get_value(0x56));
-          regs->set8(0x54, sensor.custom_regs.get_value(0x57));
-          regs->set8(0x55, sensor.custom_regs.get_value(0x52));
-          regs->set8(0x56, sensor.custom_regs.get_value(0x53));
-          regs->set8(0x57, sensor.custom_regs.get_value(0x54));
-	  r = sanei_genesys_get_address (regs, 0x58);
-	  r->value = 0x20 | (r->value & 0x03);	/* VSMP=4 */
-	}
-      return;
-    }
-
-    if (dev->model->sensor_id == SensorId::CCD_HP2300) {
-      /* settings for CCD used at half is max resolution */
-      GenesysRegister* r;
-        if (ccd_size_divisor > 1) {
-	  r = sanei_genesys_get_address (regs, 0x70);
-	  r->value = 0x16;
-	  r = sanei_genesys_get_address (regs, 0x71);
-	  r->value = 0x00;
-	  r = sanei_genesys_get_address (regs, 0x72);
-	  r->value = 0x01;
-	  r = sanei_genesys_get_address (regs, 0x73);
-	  r->value = 0x03;
-	  /* manual clock programming */
-	  r = sanei_genesys_get_address (regs, 0x1d);
-	  r->value |= 0x80;
-	}
-      else
-	{
-	  r = sanei_genesys_get_address (regs, 0x70);
-	  r->value = 1;
-	  r = sanei_genesys_get_address (regs, 0x71);
-	  r->value = 3;
-	  r = sanei_genesys_get_address (regs, 0x72);
-	  r->value = 4;
-	  r = sanei_genesys_get_address (regs, 0x73);
-	  r->value = 6;
-	}
-      r = sanei_genesys_get_address (regs, 0x58);
-      r->value = 0x80 | (r->value & 0x03);	/* VSMP=16 */
-      return;
     }
 }
 
@@ -344,7 +268,7 @@ gl841_init_lide80 (Genesys_Device * dev)
     dev->reg.find_reg(0x6c).value |= REG_0x6B_GPO18;
     dev->reg.find_reg(0x6c).value &= ~REG_0x6B_GPO17;
 
-    sanei_gl841_setup_sensor(dev, sensor, &dev->reg, 0, 1);
+    sanei_gl841_setup_sensor(sensor, &dev->reg);
 }
 
 /*
@@ -480,7 +404,7 @@ gl841_init_registers (Genesys_Device * dev)
 /*STOPTIM*/
     dev->reg.find_reg(0x5e).value |= 0x2 << REG_0x5ES_STOPTIM;
 
-    sanei_gl841_setup_sensor(dev, sensor, &dev->reg, 0, 1);
+    sanei_gl841_setup_sensor(sensor, &dev->reg);
 
     // set up GPIO
     for (const auto& reg : dev->gpo.regs) {
@@ -1370,7 +1294,7 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     }
 
     /* sensor parameters */
-    sanei_gl841_setup_sensor(dev, sensor, &dev->reg, 1, session.ccd_size_divisor);
+    sanei_gl841_setup_sensor(sensor, &dev->reg);
 
     r = sanei_genesys_get_address (reg, 0x29);
     r->value = 255; /*<<<"magic" number, only suitable for cis*/

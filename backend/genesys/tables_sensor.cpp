@@ -1050,6 +1050,7 @@ void genesys_init_sensor_tables()
         for (const auto& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.register_dpihw_override = setting.register_dpihw_override;
+            sensor.shading_resolution = setting.register_dpihw_override;
             sensor.exposure_lperiod = setting.exposure_lperiod;
             sensor.exposure = setting.exposure;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;
@@ -1185,6 +1186,7 @@ void genesys_init_sensor_tables()
         for (const auto& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.register_dpihw_override = setting.register_dpihw_override;
+            sensor.shading_resolution = setting.register_dpihw_override;
             sensor.exposure_lperiod = setting.exposure_lperiod;
             sensor.exposure = setting.exposure;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;
@@ -1309,6 +1311,7 @@ void genesys_init_sensor_tables()
         for (const auto& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.register_dpihw_override = setting.register_dpihw_override;
+            sensor.shading_resolution = setting.register_dpihw_override;
             sensor.exposure_lperiod = setting.exposure_lperiod;
             sensor.exposure = setting.exposure;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;

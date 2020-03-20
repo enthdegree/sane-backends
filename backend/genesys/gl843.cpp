@@ -149,8 +149,16 @@ gl843_init_registers (Genesys_Device * dev)
       dev->reg.init_reg(0x05, 0x08);
     }
 
+    auto initial_scan_method = dev->model->default_method;
+    if (dev->model->model_id == ModelId::CANON_4400F ||
+        dev->model->model_id == ModelId::CANON_8600F)
+    {
+        initial_scan_method = ScanMethod::TRANSPARENCY;
+    }
     const auto& sensor = sanei_genesys_find_sensor_any(dev);
-    sanei_genesys_set_dpihw(dev->reg, sensor, sensor.optical_res);
+    const auto& dpihw_sensor = sanei_genesys_find_sensor(dev, sensor.optical_res,
+                                                         3, initial_scan_method);
+    sanei_genesys_set_dpihw(dev->reg, dpihw_sensor, 0);
 
     // TODO: on 8600F the windows driver turns off GAIN4 which is recommended
     dev->reg.init_reg(0x06, 0xd8); /* SCANMOD=110, PWRBIT and GAIN4 */
@@ -935,18 +943,12 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
                                          const ScanSession& session)
 {
     DBG_HELPER_ARGS(dbg, "exposure=%d", exposure);
-    unsigned int dpihw;
   unsigned int tgtime;          /**> exposure time multiplier */
   GenesysRegister *r;
 
   /* tgtime */
   tgtime = exposure / 65536 + 1;
   DBG(DBG_io2, "%s: tgtime=%d\n", __func__, tgtime);
-
-    // to manage high resolution device while keeping good low resolution scanning speed, we make
-    // hardware dpi vary
-    dpihw = sensor.get_register_hwdpi(session.output_resolution);
-    DBG(DBG_io2, "%s: dpihw=%d\n", __func__, dpihw);
 
   /* sensor parameters */
     gl843_setup_sensor(dev, sensor, reg);
@@ -1058,7 +1060,10 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
         }
     }
 
-    sanei_genesys_set_dpihw(*reg, sensor, dpihw);
+    const auto& dpihw_sensor = sanei_genesys_find_sensor(dev, session.output_resolution,
+                                                         session.params.channels,
+                                                         session.params.scan_method);
+    sanei_genesys_set_dpihw(*reg, dpihw_sensor, 0);
 
     if (should_enable_gamma(session, sensor)) {
         reg->find_reg(REG_0x05).value |= REG_0x05_GMMENB;

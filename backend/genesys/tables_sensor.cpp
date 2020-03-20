@@ -1326,6 +1326,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_KVSS080;
     sensor.optical_res = 600;
+    sensor.register_dpihw_override = 600;
     sensor.shading_resolution = 600;
     sensor.black_pixels = 38;
     sensor.dummy_pixel = 38;
@@ -1401,7 +1402,7 @@ void genesys_init_sensor_tables()
     {
         struct CustomSensorSettings {
             ValueFilterAny<unsigned> resolutions;
-            unsigned shading_resolution;
+            unsigned register_dpihw_override;
             int exposure_lperiod;
             ScanMethod method;
             Ratio pixel_count_ratio;
@@ -1555,7 +1556,8 @@ void genesys_init_sensor_tables()
         for (const CustomSensorSettings& setting : custom_settings)
         {
             sensor.resolutions = setting.resolutions;
-            sensor.shading_resolution = setting.shading_resolution;
+            sensor.register_dpihw_override = setting.register_dpihw_override;
+            sensor.shading_resolution = setting.register_dpihw_override;
             sensor.exposure_lperiod = setting.exposure_lperiod;
             sensor.method = setting.method;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;
@@ -1583,7 +1585,7 @@ void genesys_init_sensor_tables()
     {
         struct CustomSensorSettings {
             ValueFilterAny<unsigned> resolutions;
-            unsigned shading_resolution;
+            unsigned register_dpihw_override;
             int exposure_lperiod;
             ScanMethod method;
             Ratio pixel_count_ratio;
@@ -1667,7 +1669,8 @@ void genesys_init_sensor_tables()
         for (const CustomSensorSettings& setting : custom_settings)
         {
             sensor.resolutions = setting.resolutions;
-            sensor.shading_resolution = setting.shading_resolution;
+            sensor.register_dpihw_override = setting.register_dpihw_override;
+            sensor.shading_resolution = setting.register_dpihw_override;
             sensor.exposure_lperiod = setting.exposure_lperiod;
             sensor.method = setting.method;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;

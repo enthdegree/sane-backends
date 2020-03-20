@@ -211,10 +211,6 @@ struct ScanSession {
     // whether the session setup has been computed via compute_session()
     bool computed = false;
 
-    // specifies the reduction (if any) of hardware dpi on the Genesys chip side.
-    // except gl646
-    unsigned hwdpi_divisor = 1;
-
     // specifies the reduction (if any) of CCD effective dpi which is performed by latching the
     // data coming from CCD in such a way that 1/2 or 3/4 of pixel data is ignored.
     unsigned ccd_size_divisor = 1;
@@ -343,7 +339,6 @@ void serialize(Stream& str, ScanSession& x)
     serialize(str, x.params);
     serialize_newline(str);
     serialize(str, x.computed);
-    serialize(str, x.hwdpi_divisor);
     serialize(str, x.ccd_size_divisor);
     serialize(str, x.optical_resolution);
     serialize(str, x.optical_pixels);

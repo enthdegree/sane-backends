@@ -967,16 +967,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
         throw SaneException("Unsupported depth setting %d", s.params.depth);
     }
 
-    unsigned ccd_pixels_per_system_pixel = sensor.ccd_pixels_per_system_pixel();
-
     // compute optical and output resolutions
-
-    if (dev->model->asic_type == AsicType::GL843) {
-        // FIXME: this may be incorrect, but need more scanners to test
-        s.hwdpi_divisor = sensor.get_hwdpi_divisor_for_dpi(s.params.xres);
-    } else {
-        s.hwdpi_divisor = sensor.get_hwdpi_divisor_for_dpi(s.params.xres * ccd_pixels_per_system_pixel);
-    }
 
     s.ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(s.params.xres);
     s.pixel_count_ratio = sensor.pixel_count_ratio;

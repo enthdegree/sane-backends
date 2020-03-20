@@ -328,16 +328,11 @@ struct Genesys_Sensor {
 
     std::function<unsigned(const Genesys_Sensor&, unsigned)> get_register_hwdpi_fun;
     std::function<unsigned(const Genesys_Sensor&, unsigned)> get_ccd_size_divisor_fun;
-    std::function<unsigned(const Genesys_Sensor&, unsigned)> get_hwdpi_divisor_fun;
 
     unsigned get_register_hwdpi(unsigned xres) const { return get_register_hwdpi_fun(*this, xres); }
     unsigned get_ccd_size_divisor_for_dpi(unsigned xres) const
     {
         return get_ccd_size_divisor_fun(*this, xres);
-    }
-    unsigned get_hwdpi_divisor_for_dpi(unsigned xres) const
-    {
-        return get_hwdpi_divisor_fun(*this, xres);
     }
 
     // how many CCD pixels are processed per system pixel time. This corresponds to CKSEL + 1

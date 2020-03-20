@@ -362,8 +362,11 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
 
     regs->set24(REG_MAXWD, session.output_line_bytes);
 
-    regs->set16(REG_DPISET, session.output_resolution * session.ccd_size_divisor *
-                            sensor.ccd_pixels_per_system_pixel());
+    // FIXME: the incoming sensor is selected for incorrect resolution
+    const auto& dpiset_sensor = sanei_genesys_find_sensor(dev, session.params.xres,
+                                                          session.params.channels,
+                                                          session.params.scan_method);
+    regs->set16(REG_DPISET, dpiset_sensor.dpiset_override);
     regs->set16(REG_LPERIOD, sensor.exposure_lperiod);
 
   /* move distance must be adjusted to take into account the extra lines

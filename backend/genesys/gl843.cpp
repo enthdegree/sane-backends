@@ -1996,7 +1996,7 @@ void CommandSetGl843::send_shading_data(Genesys_Device* dev, const Genesys_Senso
 
         // FIXME: the following is likely incorrect
         // start coordinate in optical dpi coordinates
-        startx = (sensor.dummy_pixel / sensor.ccd_pixels_per_system_pixel()) / dev->session.hwdpi_divisor;
+        startx = sensor.dummy_pixel;
         startx = dev->session.pixel_count_ratio.apply(startx);
 
       /* current scan coordinates */
@@ -2008,8 +2008,8 @@ void CommandSetGl843::send_shading_data(Genesys_Device* dev, const Genesys_Senso
         {
             int half_ccd_factor = dev->session.optical_resolution /
                                   sensor.get_register_hwdpi(dev->session.output_resolution);
-            strpixel /= half_ccd_factor * sensor.ccd_pixels_per_system_pixel();
-            endpixel /= half_ccd_factor * sensor.ccd_pixels_per_system_pixel();
+            strpixel = dev->session.pixel_count_ratio.apply(strpixel / half_ccd_factor);
+            endpixel = dev->session.pixel_count_ratio.apply(endpixel / half_ccd_factor);
         }
 
       /* 16 bit words, 2 words per color, 3 color channels */

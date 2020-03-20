@@ -871,9 +871,6 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
         s.pixel_startx = (startx + sensor.dummy_pixel);
         s.pixel_endx = s.pixel_startx + s.optical_pixels;
 
-        s.pixel_startx /= s.hwdpi_divisor * ccd_pixels_per_system_pixel;
-        s.pixel_endx /= s.hwdpi_divisor * ccd_pixels_per_system_pixel;
-
     } else if (dev->model->asic_type == AsicType::GL845 ||
                dev->model->asic_type == AsicType::GL846 ||
                dev->model->asic_type == AsicType::GL847)
@@ -898,6 +895,14 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
 
     s.pixel_startx = sensor.pixel_count_ratio.apply(s.pixel_startx);
     s.pixel_endx = sensor.pixel_count_ratio.apply(s.pixel_endx);
+
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I)
+    {
+        s.pixel_startx = align_multiple_floor(s.pixel_startx, sensor.pixel_count_ratio.divisor());
+        s.pixel_endx = align_multiple_floor(s.pixel_endx, sensor.pixel_count_ratio.divisor());
+    }
 
     if (dev->model->asic_type == AsicType::GL646) {
         if (sensor.stagger_config.stagger_at_resolution(s.params.xres, s.params.yres) > 0 &&

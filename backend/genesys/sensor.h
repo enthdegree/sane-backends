@@ -284,8 +284,10 @@ struct Genesys_Sensor {
     // CCD may present itself as half or quarter-size CCD on certain resolutions
     int ccd_size_divisor = 1;
 
-    // Some scanners need an additional multiplier over the scan coordinates
+    // This defines the ratio between logical pixel coordinates and the pixel coordinates sent to
+    // the scanner.
     int pixel_count_multiplier = 1;
+    int pixel_count_divisor = 1;
 
     int black_pixels = 0;
     // value of the dummy register

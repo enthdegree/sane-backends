@@ -121,6 +121,7 @@ bool ScanSession::operator==(const ScanSession& other) const
         pixel_startx == other.pixel_startx &&
         pixel_endx == other.pixel_endx &&
         pixel_count_multiplier == other.pixel_count_multiplier &&
+        pixel_count_divisor == other.pixel_count_divisor &&
         conseq_pixel_dist == other.conseq_pixel_dist &&
         output_segment_pixel_group_count == other.output_segment_pixel_group_count &&
         output_segment_start_offset == other.output_segment_start_offset &&

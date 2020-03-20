@@ -130,6 +130,7 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Sensor& sensor)
         << "    dpiset_override: " << sensor.dpiset_override << '\n'
         << "    ccd_size_divisor: " << sensor.ccd_size_divisor << '\n'
         << "    pixel_count_multiplier: " << sensor.pixel_count_multiplier << '\n'
+        << "    pixel_count_divisor: " << sensor.pixel_count_divisor << '\n'
         << "    black_pixels: " << sensor.black_pixels << '\n'
         << "    dummy_pixel: " << sensor.dummy_pixel << '\n'
         << "    ccd_start_xoffset: " << sensor.ccd_start_xoffset << '\n'

@@ -87,10 +87,10 @@ static void gl843_setup_sensor(Genesys_Device* dev, const Genesys_Sensor& sensor
     for (const auto& custom_reg : sensor.custom_regs) {
         regs->set8(custom_reg.address, custom_reg.value);
     }
-    if (!has_flag(dev->model->flags, ModelFlag::FULL_HWDPI_MODE) &&
-        dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7200I &&
-        dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7300 &&
-        dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7500I)
+    if (dev->model->model_id == ModelId::PANASONIC_KV_SS080 ||
+        dev->model->model_id == ModelId::HP_SCANJET_4850C ||
+        dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
+        dev->model->model_id == ModelId::HP_SCANJET_G4050)
     {
         regs->set8(0x7d, 0x90);
     }

@@ -100,6 +100,16 @@ struct MethodResolutions
         return *std::min_element(resolutions_x.begin(), resolutions_x.end());
     }
 
+    unsigned get_nearest_resolution_x(unsigned resolution) const
+    {
+        return *std::min_element(resolutions_x.begin(), resolutions_x.end(),
+                                 [&](unsigned lhs, unsigned rhs)
+        {
+            return std::abs(static_cast<int>(lhs) - static_cast<int>(resolution)) <
+                     std::abs(static_cast<int>(rhs) - static_cast<int>(resolution));
+        });
+    }
+
     unsigned get_min_resolution_y() const
     {
         return *std::min_element(resolutions_y.begin(), resolutions_y.end());

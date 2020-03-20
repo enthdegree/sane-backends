@@ -1752,14 +1752,11 @@ void CommandSetGl843::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
                                            int* total_size) const
 {
     DBG_HELPER(dbg);
-  int dpihw;
-  int resolution;
+    (void) sensor;
 
-  /* setup scan */
-  *channels=3;
-  resolution=600;
-    dpihw = sensor.get_register_hwdpi(resolution);
-  resolution=dpihw;
+    *channels=3;
+    unsigned resolution = dev->model->get_resolution_settings(dev->settings.scan_method)
+                                     .get_nearest_resolution_x(600);
 
   const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, *channels,
                                                        dev->settings.scan_method);

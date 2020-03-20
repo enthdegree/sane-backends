@@ -895,9 +895,6 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
 
         // FIXME: should we add sensor.dummy_pxel to pixel_startx at this point?
         s.pixel_endx = s.pixel_startx + s.optical_pixels;
-
-        s.pixel_startx /= s.hwdpi_divisor * s.segment_count * ccd_pixels_per_system_pixel;
-        s.pixel_endx /= s.hwdpi_divisor * s.segment_count * ccd_pixels_per_system_pixel;
     }
 
     s.pixel_count_ratio = sensor.pixel_count_ratio;

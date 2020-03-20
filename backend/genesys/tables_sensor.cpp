@@ -523,8 +523,25 @@ void genesys_init_sensor_tables()
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
     sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
-    s_sensors->push_back(sensor);
+    {
+        struct CustomSensorSettings
+        {
+            ValueFilterAny<unsigned> resolutions;
+            unsigned register_dpihw_override;
+        };
 
+        CustomSensorSettings custom_settings[] = {
+            { { 75, 100, 150, 200, 300, 600 }, 600 },
+            { { 1200 }, 1200 },
+        };
+
+        for (const CustomSensorSettings& setting : custom_settings) {
+            sensor.resolutions = setting.resolutions;
+            sensor.register_dpihw_override = setting.register_dpihw_override;
+            sensor.shading_resolution = setting.register_dpihw_override;
+            s_sensors->push_back(sensor);
+        }
+    }
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_XP200;
@@ -695,6 +712,8 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_DP665;
     sensor.optical_res = 600;
+    sensor.register_dpihw_override = 600;
+    sensor.shading_resolution = 600;
     sensor.black_pixels = 27;
     sensor.dummy_pixel = 27;
     sensor.ccd_start_xoffset = 0;
@@ -737,6 +756,8 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_ROADWARRIOR;
     sensor.optical_res = 600;
+    sensor.register_dpihw_override = 600;
+    sensor.shading_resolution = 600;
     sensor.black_pixels = 27;
     sensor.dummy_pixel = 27;
     sensor.ccd_start_xoffset = 0;
@@ -779,6 +800,8 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_DSMOBILE600;
     sensor.optical_res = 600;
+    sensor.register_dpihw_override = 600;
+    sensor.shading_resolution = 600;
     sensor.black_pixels = 28;
     sensor.dummy_pixel = 28;
     sensor.ccd_start_xoffset = 0;
@@ -821,6 +844,8 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_XP300;
     sensor.optical_res = 600;
+    sensor.register_dpihw_override = 600;
+    sensor.shading_resolution = 600;
     sensor.black_pixels = 27;
     sensor.dummy_pixel = 27;
     sensor.ccd_start_xoffset = 0;
@@ -862,6 +887,9 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_DP685;
+    sensor.optical_res = 600;
+    sensor.register_dpihw_override = 600;
+    sensor.shading_resolution = 600;
     sensor.optical_res = 600;
     sensor.black_pixels = 27;
     sensor.dummy_pixel = 27;
@@ -2805,8 +2833,25 @@ void genesys_init_sensor_tables()
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
     sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
-    s_sensors->push_back(sensor);
+    {
+        struct CustomSensorSettings
+        {
+            ValueFilterAny<unsigned> resolutions;
+            unsigned register_dpihw_override;
+        };
 
+        CustomSensorSettings custom_settings[] = {
+            { { 75, 100, 150, 200, 300, 400, 600 }, 600 },
+            { { 1200 }, 1200 },
+        };
+
+        for (const CustomSensorSettings& setting : custom_settings) {
+            sensor.resolutions = setting.resolutions;
+            sensor.register_dpihw_override = setting.register_dpihw_override;
+            sensor.shading_resolution = setting.register_dpihw_override;
+            s_sensors->push_back(sensor);
+        }
+    }
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_PLUSTEK_OPTICFILM_7200I;
@@ -3203,7 +3248,25 @@ void genesys_init_sensor_tables()
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
     sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
-    s_sensors->push_back(sensor);
+    {
+        struct CustomSensorSettings
+        {
+            ValueFilterAny<unsigned> resolutions;
+            unsigned register_dpihw_override;
+        };
+
+        CustomSensorSettings custom_settings[] = {
+            { { 75, 100, 150, 200, 300, 600 }, 600 },
+            { { 1200 }, 1200 },
+        };
+
+        for (const CustomSensorSettings& setting : custom_settings) {
+            sensor.resolutions = setting.resolutions;
+            sensor.register_dpihw_override = setting.register_dpihw_override;
+            sensor.shading_resolution = setting.register_dpihw_override;
+            s_sensors->push_back(sensor);
+        }
+    }
 }
 
 } // namespace genesys

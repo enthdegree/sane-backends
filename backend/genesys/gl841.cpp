@@ -2227,8 +2227,7 @@ void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 
     unsigned channels = 3;
 
-    unsigned resolution = sensor.get_register_hwdpi(dev->settings.xres);
-
+    unsigned resolution = sensor.shading_resolution;
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                          dev->settings.scan_method);
 
@@ -2315,7 +2314,7 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
   /* offset calibration is always done in color mode */
     unsigned channels = 3;
 
-    unsigned resolution = sensor.get_register_hwdpi(dev->settings.xres);
+    unsigned resolution = sensor.shading_resolution;
 
     const auto& calib_sensor_base = sanei_genesys_find_sensor(dev, resolution, channels,
                                                               dev->settings.scan_method);
@@ -2506,7 +2505,7 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
       return;
     }
 
-    unsigned resolution = sensor.get_register_hwdpi(dev->settings.xres);
+    unsigned resolution = sensor.shading_resolution;
 
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, 3,
                                                               dev->settings.scan_method);
@@ -2628,7 +2627,7 @@ void CommandSetGl841::offset_calibration(Genesys_Device* dev, const Genesys_Sens
   /* offset calibration is always done in color mode */
     unsigned channels = 3;
 
-    unsigned resolution = sensor.get_register_hwdpi(dev->settings.xres);
+    unsigned resolution = sensor.shading_resolution;
 
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                          dev->settings.scan_method);
@@ -3068,7 +3067,7 @@ void CommandSetGl841::init(Genesys_Device* dev) const
     Genesys_Register_Set& regs = dev->initial_regs;
   regs = dev->reg;
 
-    unsigned resolution = sensor.get_register_hwdpi(300);
+    unsigned resolution = 600;
     unsigned factor = sensor.optical_res / resolution;
 
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, 3,

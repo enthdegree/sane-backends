@@ -158,7 +158,7 @@ gl843_init_registers (Genesys_Device * dev)
     const auto& sensor = sanei_genesys_find_sensor_any(dev);
     const auto& dpihw_sensor = sanei_genesys_find_sensor(dev, sensor.optical_res,
                                                          3, initial_scan_method);
-    sanei_genesys_set_dpihw(dev->reg, dpihw_sensor.register_dpihw_override);
+    sanei_genesys_set_dpihw(dev->reg, dpihw_sensor.register_dpihw);
 
     // TODO: on 8600F the windows driver turns off GAIN4 which is recommended
     dev->reg.init_reg(0x06, 0xd8); /* SCANMOD=110, PWRBIT and GAIN4 */
@@ -1070,7 +1070,7 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     const auto& dpihw_sensor = sanei_genesys_find_sensor(dev, session.output_resolution,
                                                          session.params.channels,
                                                          session.params.scan_method);
-    sanei_genesys_set_dpihw(*reg, dpihw_sensor.register_dpihw_override);
+    sanei_genesys_set_dpihw(*reg, dpihw_sensor.register_dpihw);
 
     if (should_enable_gamma(session, sensor)) {
         reg->find_reg(REG_0x05).value |= REG_0x05_GMMENB;

@@ -271,7 +271,7 @@ struct Genesys_Sensor {
 
     // The scanner may be setup to use a custom dpihw that does not correspond to any actual
     // resolution. The value zero does not set the override.
-    unsigned register_dpihw_override = 0;
+    unsigned register_dpihw = 0;
 
     // The scanner may be setup to use a custom logical dpihw that does not correspond to any actual
     // resolution. The value zero does not set the override.

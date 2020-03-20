@@ -125,7 +125,7 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Sensor& sensor)
         << "    resolutions: " << format_indent_braced_list(4, sensor.resolutions) << '\n'
         << "    channels: " << format_vector_unsigned(4, sensor.channels) << '\n'
         << "    method: " << sensor.method << '\n'
-        << "    register_dpihw_override: " << sensor.register_dpihw_override << '\n'
+        << "    register_dpihw: " << sensor.register_dpihw << '\n'
         << "    logical_dpihw_override: " << sensor.logical_dpihw_override << '\n'
         << "    dpiset_override: " << sensor.dpiset_override << '\n'
         << "    ccd_size_divisor: " << sensor.ccd_size_divisor << '\n'

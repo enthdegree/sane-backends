@@ -103,21 +103,10 @@ other register settings depending on this:
 */
 static void sanei_gl841_setup_sensor(const Genesys_Sensor& sensor, Genesys_Register_Set* regs)
 {
-    DBG(DBG_proc, "%s\n", __func__);
+    DBG_HELPER(dbg);
 
-    // that one is tricky at least
-    for (uint16_t addr = 0x08; addr <= 0x0b; ++addr) {
-        regs->set8(0x70 + addr - 0x08, sensor.custom_regs.get_value(addr));
-    }
-
-    // ignore registers in range [0x10..0x16)
-    for (uint16_t addr = 0x16; addr < 0x1e; ++addr) {
-        regs->set8(addr, sensor.custom_regs.get_value(addr));
-    }
-
-    // ignore registers in range [0x5b..0x5e]
-    for (uint16_t addr = 0x52; addr < 0x52 + 9; ++addr) {
-        regs->set8(addr, sensor.custom_regs.get_value(addr));
+    for (const auto& custom_reg : sensor.custom_regs) {
+        regs->set8(custom_reg.address, custom_reg.value);
     }
 }
 

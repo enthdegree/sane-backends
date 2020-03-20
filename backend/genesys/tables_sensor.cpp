@@ -471,10 +471,6 @@ void genesys_init_sensor_tables()
     sensor.gain_white_ref = 0;
     sensor.exposure = { 0x0400, 0x0400, 0x0400 };
     sensor.custom_regs = {
-        { 0x08, 0x00 },
-        { 0x09, 0x00 },
-        { 0x0a, 0x00 },
-        { 0x0b, 0x00 },
         { 0x16, 0x00 },
         { 0x17, 0x02 },
         { 0x18, 0x00 },
@@ -492,10 +488,7 @@ void genesys_init_sensor_tables()
         { 0x58, 0x3a },
         { 0x59, 0x03 },
         { 0x5a, 0x40 },
-        { 0x5b, 0x00 }, // TODO: 5b-5e
-        { 0x5c, 0x00 },
-        { 0x5d, 0x00 },
-        { 0x5e, 0x00 },
+        { 0x70, 0x00 }, { 0x71, 0x00 }, { 0x72, 0x00 }, { 0x73, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
@@ -695,10 +688,6 @@ void genesys_init_sensor_tables()
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x1100, 0x1100, 0x1100 };
     sensor.custom_regs = {
-        { 0x08, 0x00 },
-        { 0x09, 0x00 },
-        { 0x0a, 0x00 },
-        { 0x0b, 0x00 },
         { 0x16, 0x00 },
         { 0x17, 0x02 },
         { 0x18, 0x04 },
@@ -716,10 +705,7 @@ void genesys_init_sensor_tables()
         { 0x58, 0x54 },
         { 0x59, 0x03 },
         { 0x5a, 0x00 },
-        { 0x5b, 0x00 }, // TODO: 5b-5e
-        { 0x5c, 0x00 },
-        { 0x5d, 0x00 },
-        { 0x5e, 0x01 },
+        { 0x70, 0x00 }, { 0x71, 0x00 }, { 0x72, 0x00 }, { 0x73, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
@@ -738,10 +724,6 @@ void genesys_init_sensor_tables()
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x1100, 0x1100, 0x1100 };
     sensor.custom_regs = {
-        { 0x08, 0x00 },
-        { 0x09, 0x00 },
-        { 0x0a, 0x00 },
-        { 0x0b, 0x00 },
         { 0x16, 0x00 },
         { 0x17, 0x02 },
         { 0x18, 0x04 },
@@ -759,10 +741,7 @@ void genesys_init_sensor_tables()
         { 0x58, 0x54 },
         { 0x59, 0x03 },
         { 0x5a, 0x00 },
-        { 0x5b, 0x00 }, // TODO: 5b-5e
-        { 0x5c, 0x00 },
-        { 0x5d, 0x00 },
-        { 0x5e, 0x01 },
+        { 0x70, 0x00 }, { 0x71, 0x00 }, { 0x72, 0x00 }, { 0x73, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
@@ -781,10 +760,6 @@ void genesys_init_sensor_tables()
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x1544, 0x1544, 0x1544 };
     sensor.custom_regs = {
-        { 0x08, 0x00 },
-        { 0x09, 0x00 },
-        { 0x0a, 0x00 },
-        { 0x0b, 0x00 },
         { 0x16, 0x00 },
         { 0x17, 0x02 },
         { 0x18, 0x04 },
@@ -802,10 +777,7 @@ void genesys_init_sensor_tables()
         { 0x58, 0x54 },
         { 0x59, 0x03 },
         { 0x5a, 0x00 },
-        { 0x5b, 0x00 }, // TODO: 5b-5e
-        { 0x5c, 0x00 },
-        { 0x5d, 0x00 },
-        { 0x5e, 0x01 },
+        { 0x70, 0x00 }, { 0x71, 0x00 }, { 0x72, 0x00 }, { 0x73, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
@@ -824,10 +796,6 @@ void genesys_init_sensor_tables()
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x1100, 0x1100, 0x1100 };
     sensor.custom_regs = {
-        { 0x08, 0x00 },
-        { 0x09, 0x00 },
-        { 0x0a, 0x00 },
-        { 0x0b, 0x00 },
         { 0x16, 0x00 },
         { 0x17, 0x02 },
         { 0x18, 0x04 },
@@ -845,10 +813,7 @@ void genesys_init_sensor_tables()
         { 0x58, 0x54 },
         { 0x59, 0x03 },
         { 0x5a, 0x00 },
-        { 0x5b, 0x00 }, // TODO: 5b-5e
-        { 0x5c, 0x00 },
-        { 0x5d, 0x00 },
-        { 0x5e, 0x01 },
+        { 0x70, 0x00 }, { 0x71, 0x00 }, { 0x72, 0x00 }, { 0x73, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
@@ -868,10 +833,6 @@ void genesys_init_sensor_tables()
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x1100, 0x1100, 0x1100 };
     sensor.custom_regs = {
-        { 0x08, 0x00 },
-        { 0x09, 0x00 },
-        { 0x0a, 0x00 },
-        { 0x0b, 0x00 },
         { 0x16, 0x00 },
         { 0x17, 0x02 },
         { 0x18, 0x04 },
@@ -889,10 +850,7 @@ void genesys_init_sensor_tables()
         { 0x58, 0x54 },
         { 0x59, 0x03 },
         { 0x5a, 0x00 },
-        { 0x5b, 0x00 }, // TODO: 5b-5e
-        { 0x5c, 0x00 },
-        { 0x5d, 0x00 },
-        { 0x5e, 0x01 },
+        { 0x70, 0x00 }, { 0x71, 0x00 }, { 0x72, 0x00 }, { 0x73, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
@@ -2786,10 +2744,6 @@ void genesys_init_sensor_tables()
     sensor.gain_white_ref = 230;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
     sensor.custom_regs = {
-        { 0x08, 0x00 },
-        { 0x09, 0x00 },
-        { 0x0a, 0x00 },
-        { 0x0b, 0x00 },
         { 0x16, 0x33 },
         { 0x17, 0x0b },
         { 0x18, 0x11 },
@@ -2807,10 +2761,7 @@ void genesys_init_sensor_tables()
         { 0x58, 0x22 },
         { 0x59, 0x69 },
         { 0x5a, 0x40 },
-        { 0x5b, 0x00 }, // TODO: 5b-5e
-        { 0x5c, 0x00 },
-        { 0x5d, 0x00 },
-        { 0x5e, 0x02 },
+        { 0x70, 0x00 }, { 0x71, 0x00 }, { 0x72, 0x00 }, { 0x73, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
@@ -3192,10 +3143,6 @@ void genesys_init_sensor_tables()
     // maps to 0x70-0x73 for GL841
     sensor.exposure = { 0x1000, 0x1000, 0x0500 };
     sensor.custom_regs = {
-        { 0x08, 0x00 },
-        { 0x09, 0x05 },
-        { 0x0a, 0x07 },
-        { 0x0b, 0x09 },
         { 0x16, 0x00 },
         { 0x17, 0x01 },
         { 0x18, 0x00 },
@@ -3213,10 +3160,7 @@ void genesys_init_sensor_tables()
         { 0x58, 0x29 },
         { 0x59, 0x69 },
         { 0x5a, 0x55 },
-        { 0x5b, 0x00 },
-        { 0x5c, 0x00 },
-        { 0x5d, 0x20 },
-        { 0x5e, 0x41 },
+        { 0x70, 0x00 }, { 0x71, 0x05 }, { 0x72, 0x07 }, { 0x73, 0x09 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;

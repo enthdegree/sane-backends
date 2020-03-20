@@ -129,6 +129,7 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Sensor& sensor)
         << "    logical_dpihw_override: " << sensor.logical_dpihw_override << '\n'
         << "    dpiset_override: " << sensor.dpiset_override << '\n'
         << "    ccd_size_divisor: " << sensor.ccd_size_divisor << '\n'
+        << "    shading_factor: " << sensor.shading_factor << '\n'
         << "    pixel_count_ratio: " << sensor.pixel_count_ratio << '\n'
         << "    black_pixels: " << sensor.black_pixels << '\n'
         << "    dummy_pixel: " << sensor.dummy_pixel << '\n'

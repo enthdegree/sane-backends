@@ -1167,8 +1167,7 @@ void CommandSetGl124::send_shading_data(Genesys_Device* dev, const Genesys_Senso
                                         std::uint8_t* data, int size) const
 {
     DBG_HELPER_ARGS(dbg, "writing %d bytes of shading data", size);
-    uint32_t addr, length, x, factor, segcnt, pixels, i;
-  uint16_t dpiset,dpihw;
+    std::uint32_t addr, length, segcnt, pixels, i;
     uint8_t *ptr, *src;
 
   /* logical size of a color as seen by generic code of the frontend */
@@ -1181,12 +1180,6 @@ void CommandSetGl124::send_shading_data(Genesys_Device* dev, const Genesys_Senso
       endpixel=segcnt;
     }
 
-  /* compute deletion factor */
-    dpiset = dev->reg.get16(REG_DPISET);
-    dpihw = sensor.get_register_hwdpi(dpiset);
-  factor=dpihw/dpiset;
-  DBG( DBG_io2, "%s: factor=%d\n",__func__,factor);
-
   /* turn pixel value into bytes 2x16 bits words */
   strpixel*=2*2; /* 2 words of 2 bytes */
   endpixel*=2*2;
@@ -1196,7 +1189,7 @@ void CommandSetGl124::send_shading_data(Genesys_Device* dev, const Genesys_Senso
     dev->interface->record_key_value("shading_start_pixel", std::to_string(strpixel));
     dev->interface->record_key_value("shading_pixels", std::to_string(pixels));
     dev->interface->record_key_value("shading_length", std::to_string(length));
-    dev->interface->record_key_value("shading_factor", std::to_string(factor));
+    dev->interface->record_key_value("shading_factor", std::to_string(sensor.shading_factor));
     dev->interface->record_key_value("shading_segcnt", std::to_string(segcnt));
     dev->interface->record_key_value("shading_segment_count",
                                      std::to_string(dev->session.segment_count));
@@ -1212,8 +1205,7 @@ void CommandSetGl124::send_shading_data(Genesys_Device* dev, const Genesys_Senso
       ptr = buffer.data();
 
       /* iterate on both sensor segment */
-      for(x=0;x<pixels;x+=4*factor)
-        {
+        for (unsigned x = 0; x < pixels; x += 4 * sensor.shading_factor) {
           /* coefficient source */
           src=data+x+strpixel+i*length;
 

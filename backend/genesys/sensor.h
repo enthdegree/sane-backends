@@ -284,6 +284,9 @@ struct Genesys_Sensor {
     // CCD may present itself as half or quarter-size CCD on certain resolutions
     int ccd_size_divisor = 1;
 
+    // How many real pixels correspond to one shading pixel that is sent to the scanner
+    unsigned shading_factor = 1;
+
     // This defines the ratio between logical pixel coordinates and the pixel coordinates sent to
     // the scanner.
     Ratio pixel_count_ratio = Ratio{1, 1};
@@ -362,6 +365,7 @@ struct Genesys_Sensor {
             resolutions == other.resolutions &&
             method == other.method &&
             ccd_size_divisor == other.ccd_size_divisor &&
+            shading_factor == other.shading_factor &&
             pixel_count_ratio == other.pixel_count_ratio &&
             black_pixels == other.black_pixels &&
             dummy_pixel == other.dummy_pixel &&
@@ -389,6 +393,7 @@ void serialize(Stream& str, Genesys_Sensor& x)
     serialize(str, x.resolutions);
     serialize(str, x.method);
     serialize(str, x.ccd_size_divisor);
+    serialize(str, x.shading_factor);
     serialize(str, x.pixel_count_ratio);
     serialize(str, x.black_pixels);
     serialize(str, x.dummy_pixel);

@@ -1394,7 +1394,9 @@ void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& senso
         lines = 8;
 
         // compute divider factor to compute final pixels number
-        resolution = sensor.get_register_hwdpi(dev.settings.xres);
+        const auto& dpihw_sensor = sanei_genesys_find_sensor(&dev, dev.settings.xres, channels,
+                                                             dev.settings.scan_method);
+        resolution = dpihw_sensor.shading_resolution;
         unsigned factor = sensor.optical_res / resolution;
 
         calib_sensor = &sanei_genesys_find_sensor(&dev, resolution, channels,
@@ -1658,16 +1660,20 @@ void scanner_coarse_gain_calibration(Genesys_Device& dev, const Genesys_Sensor& 
         }
     }
 
-    unsigned resolution = sensor.optical_res;
-    if (dev.model->asic_type == AsicType::GL841) {
-        resolution = sensor.get_register_hwdpi(dev.settings.xres);
-    }
-    if (dev.model->asic_type == AsicType::GL843) {
-        resolution = sensor.get_register_hwdpi(dpi);
-    }
-
     // coarse gain calibration is always done in color mode
     unsigned channels = 3;
+
+    unsigned resolution = sensor.optical_res;
+    if (dev.model->asic_type == AsicType::GL841) {
+        const auto& dpihw_sensor = sanei_genesys_find_sensor(&dev, dev.settings.xres, channels,
+                                                             dev.settings.scan_method);
+        resolution = dpihw_sensor.shading_resolution;
+    }
+    if (dev.model->asic_type == AsicType::GL843) {
+        const auto& dpihw_sensor = sanei_genesys_find_sensor(&dev, dpi, channels,
+                                                             dev.settings.scan_method);
+        resolution = dpihw_sensor.shading_resolution;
+    }
 
     float coeff = 1;
 

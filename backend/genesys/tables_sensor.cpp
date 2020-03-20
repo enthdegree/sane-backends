@@ -1326,6 +1326,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_KVSS080;
     sensor.optical_res = 600;
+    sensor.shading_resolution = 600;
     sensor.black_pixels = 38;
     sensor.dummy_pixel = 38;
     sensor.ccd_start_xoffset = 152;
@@ -1400,6 +1401,7 @@ void genesys_init_sensor_tables()
     {
         struct CustomSensorSettings {
             ValueFilterAny<unsigned> resolutions;
+            unsigned shading_resolution;
             int exposure_lperiod;
             ScanMethod method;
             Ratio pixel_count_ratio;
@@ -1407,7 +1409,7 @@ void genesys_init_sensor_tables()
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 100, 150, 200, 300, 400, 600 }, 8016, ScanMethod::FLATBED, Ratio{1, 8}, {
+            { { 100, 150, 200, 300, 400, 600 }, 600, 8016, ScanMethod::FLATBED, Ratio{1, 8}, {
                     { 0x74, 0x00 }, { 0x75, 0x01 }, { 0x76, 0xff },
                     { 0x77, 0x03 }, { 0x78, 0xff }, { 0x79, 0xff },
                     { 0x7a, 0x03 }, { 0x7b, 0xff }, { 0x7c, 0xff },
@@ -1435,7 +1437,7 @@ void genesys_init_sensor_tables()
                     { 0x5a, 0x40 },
                 }
             },
-            { { 1200 }, 56064, ScanMethod::FLATBED, Ratio{1, 4}, {
+            { { 1200 }, 1200, 56064, ScanMethod::FLATBED, Ratio{1, 4}, {
                     { 0x74, 0x0f }, { 0x75, 0xff }, { 0x76, 0xff },
                     { 0x77, 0x00 }, { 0x78, 0x01 }, { 0x79, 0xff },
                     { 0x7a, 0x00 }, { 0x7b, 0x01 }, { 0x7c, 0xff },
@@ -1463,7 +1465,7 @@ void genesys_init_sensor_tables()
                     { 0x5a, 0x40 },
                 }
             },
-            { { 2400 }, 56064, ScanMethod::FLATBED, Ratio{1, 2}, {
+            { { 2400 }, 2400, 56064, ScanMethod::FLATBED, Ratio{1, 2}, {
                     { 0x74, 0x0f }, { 0x75, 0xff }, { 0x76, 0xff },
                     { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
                     { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x00 },
@@ -1491,7 +1493,7 @@ void genesys_init_sensor_tables()
                     { 0x5a, 0x40 },
                 }
             },
-            { { 4800 }, 42752, ScanMethod::FLATBED, Ratio{1, 1}, {
+            { { 4800 }, 4800, 42752, ScanMethod::FLATBED, Ratio{1, 1}, {
                     { 0x74, 0x0f }, { 0x75, 0xff }, { 0x76, 0xff },
                     { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
                     { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x00 },
@@ -1519,7 +1521,7 @@ void genesys_init_sensor_tables()
                     { 0x5a, 0x40 },
                 }
             },
-            { VALUE_FILTER_ANY, 15624, ScanMethod::TRANSPARENCY, Ratio{1, 1}, {
+            { VALUE_FILTER_ANY, 600, 15624, ScanMethod::TRANSPARENCY, Ratio{1, 1}, {
                     { 0x74, 0x00 }, { 0x75, 0x1c }, { 0x76, 0x7f },
                     { 0x77, 0x03 }, { 0x78, 0xff }, { 0x79, 0xff },
                     { 0x7a, 0x03 }, { 0x7b, 0xff }, { 0x7c, 0xff },
@@ -1553,6 +1555,7 @@ void genesys_init_sensor_tables()
         for (const CustomSensorSettings& setting : custom_settings)
         {
             sensor.resolutions = setting.resolutions;
+            sensor.shading_resolution = setting.shading_resolution;
             sensor.exposure_lperiod = setting.exposure_lperiod;
             sensor.method = setting.method;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;
@@ -1580,6 +1583,7 @@ void genesys_init_sensor_tables()
     {
         struct CustomSensorSettings {
             ValueFilterAny<unsigned> resolutions;
+            unsigned shading_resolution;
             int exposure_lperiod;
             ScanMethod method;
             Ratio pixel_count_ratio;
@@ -1587,7 +1591,7 @@ void genesys_init_sensor_tables()
         };
 
         CustomSensorSettings custom_settings[] = {
-            {   { 100, 150, 200, 300, 400, 600 }, 8016, ScanMethod::FLATBED, Ratio{1, 8}, {
+            {   { 100, 150, 200, 300, 400, 600 }, 600, 8016, ScanMethod::FLATBED, Ratio{1, 8}, {
                     { 0x0c, 0x00 },
                     { 0x16, 0x33 }, { 0x17, 0x0c }, { 0x18, 0x00 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x08 },
@@ -1601,7 +1605,7 @@ void genesys_init_sensor_tables()
                     { 0xaa, 0x00 },
                 }
             },
-            {   { 1200 }, 56064, ScanMethod::FLATBED, Ratio{1, 4}, {
+            {   { 1200 }, 1200, 56064, ScanMethod::FLATBED, Ratio{1, 4}, {
                     { 0x0c, 0x20 },
                     { 0x16, 0x3b }, { 0x17, 0x0c }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x38 }, { 0x1b, 0x10 }, { 0x1c, 0x00 }, { 0x1d, 0x08 },
@@ -1615,7 +1619,7 @@ void genesys_init_sensor_tables()
                     { 0xaa, 0x05 },
                 }
             },
-            {   { 2400 }, 56064, ScanMethod::FLATBED, Ratio{1, 2}, {
+            {   { 2400 }, 2400, 56064, ScanMethod::FLATBED, Ratio{1, 2}, {
                     { 0x0c, 0x20 },
                     { 0x16, 0x3b }, { 0x17, 0x0c }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x38 }, { 0x1b, 0x10 }, { 0x1c, 0xc0 }, { 0x1d, 0x08 },
@@ -1629,7 +1633,7 @@ void genesys_init_sensor_tables()
                     { 0xaa, 0x05 },
                 }
             },
-            {   { 4800 }, 42752, ScanMethod::FLATBED, Ratio{1, 1}, {
+            {   { 4800 }, 4800, 42752, ScanMethod::FLATBED, Ratio{1, 1}, {
                     { 0x0c, 0x21 },
                     { 0x16, 0x3b }, { 0x17, 0x0c }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x38 }, { 0x1b, 0x10 }, { 0x1c, 0xc1 }, { 0x1d, 0x08 },
@@ -1643,7 +1647,7 @@ void genesys_init_sensor_tables()
                     { 0xaa, 0x07 },
                 }
             },
-            { VALUE_FILTER_ANY, 15624, ScanMethod::TRANSPARENCY, Ratio{1, 1}, {
+            { VALUE_FILTER_ANY, 600, 15624, ScanMethod::TRANSPARENCY, Ratio{1, 1}, {
                     { 0x0c, 0x00 },
                     { 0x16, 0x33 }, { 0x17, 0x4c }, { 0x18, 0x01 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x08 },
@@ -1663,6 +1667,7 @@ void genesys_init_sensor_tables()
         for (const CustomSensorSettings& setting : custom_settings)
         {
             sensor.resolutions = setting.resolutions;
+            sensor.shading_resolution = setting.shading_resolution;
             sensor.exposure_lperiod = setting.exposure_lperiod;
             sensor.method = setting.method;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;
@@ -1755,13 +1760,16 @@ void genesys_init_sensor_tables()
         for (const CustomSensorSettings& setting : custom_settings)
         {
             for (auto method : setting.methods) {
-                sensor.resolutions = setting.resolutions;
-                sensor.exposure_lperiod = setting.exposure_lperiod;
-                sensor.use_host_side_calib = setting.use_host_side_calib;
-                sensor.method = method;
-                sensor.custom_regs = setting.extra_custom_regs;
-                sensor.custom_fe_regs = setting.extra_custom_fe_regs;
-                s_sensors->push_back(sensor);
+                for (auto resolution : setting.resolutions.values()) {
+                    sensor.resolutions = { resolution };
+                    sensor.shading_resolution = resolution;
+                    sensor.exposure_lperiod = setting.exposure_lperiod;
+                    sensor.use_host_side_calib = setting.use_host_side_calib;
+                    sensor.method = method;
+                    sensor.custom_regs = setting.extra_custom_regs;
+                    sensor.custom_fe_regs = setting.extra_custom_fe_regs;
+                    s_sensors->push_back(sensor);
+                }
             }
         }
     }
@@ -1909,15 +1917,18 @@ void genesys_init_sensor_tables()
 
         for (const CustomSensorSettings& setting : custom_settings)
         {
-            for (auto method : setting.methods) {
-                sensor.resolutions = setting.resolutions;
-                sensor.dpiset_override = setting.dpiset_override;
-                sensor.pixel_count_ratio = setting.pixel_count_ratio;
-                sensor.exposure_lperiod = setting.exposure_lperiod;
-                sensor.method = method;
-                sensor.custom_regs = setting.extra_custom_regs;
-                sensor.custom_fe_regs = setting.custom_fe_regs;
-                s_sensors->push_back(sensor);
+            for (auto method : setting.methods)
+                {for (auto resolution : setting.resolutions.values()) {
+                    sensor.resolutions = { resolution };
+                    sensor.shading_resolution = std::max(800u, resolution);
+                    sensor.dpiset_override = setting.dpiset_override;
+                    sensor.pixel_count_ratio = setting.pixel_count_ratio;
+                    sensor.exposure_lperiod = setting.exposure_lperiod;
+                    sensor.method = method;
+                    sensor.custom_regs = setting.extra_custom_regs;
+                    sensor.custom_fe_regs = setting.custom_fe_regs;
+                    s_sensors->push_back(sensor);
+                }
             }
         }
     }
@@ -2018,12 +2029,15 @@ void genesys_init_sensor_tables()
 
         for (const CustomSensorSettings& setting : custom_settings) {
             for (auto method : setting.methods) {
-                sensor.resolutions = setting.resolutions;
-                sensor.method = method;
-                sensor.exposure_lperiod = setting.exposure_lperiod;
-                sensor.custom_regs = setting.extra_custom_regs;
-                sensor.custom_fe_regs = setting.custom_fe_regs;
-                s_sensors->push_back(sensor);
+                for (auto resolution : setting.resolutions.values()) {
+                    sensor.resolutions = { resolution };
+                    sensor.shading_resolution = resolution;
+                    sensor.method = method;
+                    sensor.exposure_lperiod = setting.exposure_lperiod;
+                    sensor.custom_regs = setting.extra_custom_regs;
+                    sensor.custom_fe_regs = setting.custom_fe_regs;
+                    s_sensors->push_back(sensor);
+                }
             }
         }
     }
@@ -2867,6 +2881,7 @@ void genesys_init_sensor_tables()
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.method = setting.method;
+            sensor.shading_resolution = setting.logical_dpihw_override;
             sensor.ccd_size_divisor = setting.ccd_size_divisor;
             sensor.logical_dpihw_override = setting.logical_dpihw_override;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;
@@ -2944,6 +2959,7 @@ void genesys_init_sensor_tables()
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.ccd_size_divisor = setting.ccd_size_divisor;
+            sensor.shading_resolution = setting.logical_dpihw_override;
             sensor.logical_dpihw_override = setting.logical_dpihw_override;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;
             sensor.dpiset_override = setting.dpiset_override;
@@ -3023,6 +3039,7 @@ void genesys_init_sensor_tables()
             sensor.resolutions = setting.resolutions;
             sensor.method = setting.method;
             sensor.ccd_size_divisor = setting.ccd_size_divisor;
+            sensor.shading_resolution = setting.logical_dpihw_override;
             sensor.logical_dpihw_override = setting.logical_dpihw_override;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;
             sensor.exposure_lperiod = setting.exposure_lperiod;

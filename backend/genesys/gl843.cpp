@@ -1475,7 +1475,7 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
         calib_size_mm = dev->model->y_size_calib_mm;
     }
 
-    unsigned resolution = sensor.get_register_hwdpi(dev->settings.xres);
+    unsigned resolution = sensor.shading_resolution;
 
     unsigned channels = 3;
   const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
@@ -1486,6 +1486,7 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 
     if (should_calibrate_only_active_area(*dev, dev->settings)) {
         float offset = get_model_x_offset_ta(*dev, dev->settings);
+        // FIXME: we should use resolution here
         offset = static_cast<float>((offset * dev->settings.xres) / MM_PER_INCH);
 
         float size = dev->model->x_size_ta;
@@ -2001,8 +2002,7 @@ void CommandSetGl843::send_shading_data(Genesys_Device* dev, const Genesys_Senso
         if (dev->model->model_id == ModelId::CANON_4400F ||
             dev->model->model_id == ModelId::CANON_8600F)
         {
-            int half_ccd_factor = dev->session.optical_resolution /
-                                  sensor.get_register_hwdpi(dev->session.output_resolution);
+            int half_ccd_factor = dev->session.optical_resolution / sensor.shading_resolution;
             strpixel = dev->session.pixel_count_ratio.apply(strpixel / half_ccd_factor);
             endpixel = dev->session.pixel_count_ratio.apply(endpixel / half_ccd_factor);
         }

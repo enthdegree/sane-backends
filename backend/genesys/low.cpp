@@ -885,9 +885,7 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
         s.pixel_startx += sensor.ccd_start_xoffset * ccd_pixels_per_system_pixel;
         s.pixel_endx = s.pixel_startx + s.optical_pixels_raw;
 
-        if (dev->model->asic_type == AsicType::GL845 ||
-            dev->model->asic_type == AsicType::GL846)
-        {
+        if (dev->model->asic_type == AsicType::GL845) {
             s.pixel_startx /= s.hwdpi_divisor * s.segment_count * ccd_pixels_per_system_pixel;
             s.pixel_endx /= s.hwdpi_divisor * s.segment_count * ccd_pixels_per_system_pixel;
         }

@@ -420,7 +420,7 @@ gl841_init_registers (Genesys_Device * dev)
     } else {
         throw SaneException("Cannot handle sensor pixel count %d", sensor_pixels);
     }
-    sanei_genesys_set_dpihw(dev->reg, sensor, dpihw);
+    sanei_genesys_set_dpihw(dev->reg, dpihw);
 
     dev->reg.find_reg(0x06).value |= REG_0x06_PWRBIT;
     dev->reg.find_reg(0x06).value |= REG_0x06_GAIN4;

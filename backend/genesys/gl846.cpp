@@ -221,7 +221,7 @@ gl846_init_registers (Genesys_Device * dev)
     const auto& sensor = sanei_genesys_find_sensor_any(dev);
     const auto& dpihw_sensor = sanei_genesys_find_sensor(dev, sensor.optical_res,
                                                          3, ScanMethod::FLATBED);
-    sanei_genesys_set_dpihw(dev->reg, dpihw_sensor, 0);
+    sanei_genesys_set_dpihw(dev->reg, dpihw_sensor.register_dpihw_override);
 }
 
 /**@brief send slope table for motor movement
@@ -588,7 +588,7 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     const auto& dpihw_sensor = sanei_genesys_find_sensor(dev, session.output_resolution,
                                                          session.params.channels,
                                                          session.params.scan_method);
-    sanei_genesys_set_dpihw(*reg, dpihw_sensor, 0);
+    sanei_genesys_set_dpihw(*reg, dpihw_sensor.register_dpihw_override);
 
     if (should_enable_gamma(session, sensor)) {
         reg->find_reg(REG_0x05).value |= REG_0x05_GMMENB;

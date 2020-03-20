@@ -1552,15 +1552,18 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     DBG_HELPER(dbg);
     (void) regs;
   Genesys_Settings settings;
-  int cksel = 1;
 
   /* fill settings for scan : always a color scan */
   int channels = 3;
 
+    unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
+    unsigned cksel = get_cksel(dev->model->sensor_id, dev->settings.xres, channels);
+
+    unsigned resolution = sensor.optical_res / ccd_size_divisor / cksel;
+    // FIXME: we select wrong calibration sensor
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, dev->settings.xres, channels,
                                                          dev->settings.scan_method);
 
-    unsigned ccd_size_divisor = calib_sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
 
   settings.scan_method = dev->settings.scan_method;
   settings.scan_mode = dev->settings.scan_mode;
@@ -1568,9 +1571,7 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
       // FIXME: always a color scan, but why don't we set scan_mode to COLOR_SINGLE_PASS always?
       settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     }
-  settings.xres = sensor.optical_res / ccd_size_divisor;
-  cksel = get_cksel(dev->model->sensor_id, dev->settings.xres, channels);
-  settings.xres = settings.xres / cksel;
+    settings.xres = resolution;
   settings.yres = settings.xres;
   settings.tl_x = 0;
   settings.tl_y = 0;

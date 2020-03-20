@@ -3444,6 +3444,14 @@ void verify_sensor_tables()
                 throw SaneException("shading_resolution is not defined");
             }
         }
+        if (asic_type == AsicType::GL124 ||
+            asic_type == AsicType::GL841 ||
+            asic_type == AsicType::GL843)
+        {
+            if (sensor.dpiset_override == 0) {
+                throw SaneException("dpiset_override is not defined");
+            }
+        }
     }
 }
 

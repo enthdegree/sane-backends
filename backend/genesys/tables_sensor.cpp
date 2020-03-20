@@ -2883,7 +2883,7 @@ void genesys_init_sensor_tables()
             ValueFilterAny<unsigned> resolutions;
             ScanMethod method;
             unsigned ccd_size_divisor;
-            unsigned logical_dpihw_override;
+            unsigned shading_resolution;
             Ratio pixel_count_ratio;
             unsigned exposure_lperiod;
             unsigned dpiset_override;
@@ -2909,9 +2909,8 @@ void genesys_init_sensor_tables()
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.method = setting.method;
-            sensor.shading_resolution = setting.logical_dpihw_override;
+            sensor.shading_resolution = setting.shading_resolution;
             sensor.ccd_size_divisor = setting.ccd_size_divisor;
-            sensor.logical_dpihw_override = setting.logical_dpihw_override;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;
             sensor.exposure_lperiod = setting.exposure_lperiod;
             sensor.dpiset_override = setting.dpiset_override;
@@ -2971,7 +2970,7 @@ void genesys_init_sensor_tables()
         {
             ValueFilterAny<unsigned> resolutions;
             unsigned ccd_size_divisor;
-            unsigned logical_dpihw_override;
+            unsigned shading_resolution;
             Ratio pixel_count_ratio;
             unsigned dpiset_override;
         };
@@ -2986,8 +2985,7 @@ void genesys_init_sensor_tables()
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.ccd_size_divisor = setting.ccd_size_divisor;
-            sensor.shading_resolution = setting.logical_dpihw_override;
-            sensor.logical_dpihw_override = setting.logical_dpihw_override;
+            sensor.shading_resolution = setting.shading_resolution;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;
             sensor.dpiset_override = setting.dpiset_override;
             s_sensors->push_back(sensor);
@@ -3044,7 +3042,7 @@ void genesys_init_sensor_tables()
             ValueFilterAny<unsigned> resolutions;
             ScanMethod method;
             unsigned ccd_size_divisor;
-            unsigned logical_dpihw_override;
+            unsigned shading_resolution;
             Ratio pixel_count_ratio;
             unsigned exposure_lperiod;
             unsigned dpiset_override;
@@ -3065,8 +3063,7 @@ void genesys_init_sensor_tables()
             sensor.resolutions = setting.resolutions;
             sensor.method = setting.method;
             sensor.ccd_size_divisor = setting.ccd_size_divisor;
-            sensor.shading_resolution = setting.logical_dpihw_override;
-            sensor.logical_dpihw_override = setting.logical_dpihw_override;
+            sensor.shading_resolution = setting.shading_resolution;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;
             sensor.exposure_lperiod = setting.exposure_lperiod;
             sensor.dpiset_override = setting.dpiset_override;

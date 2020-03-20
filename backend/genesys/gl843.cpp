@@ -891,7 +891,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
         // FIXME: take this information from motor struct
         std::uint8_t reg_vref = reg->get8(0x80);
         reg_vref = 0x50;
-        unsigned coeff = sensor.get_hwdpi_divisor_for_dpi(scan_yres);
+        unsigned coeff = sensor.optical_res / scan_yres;
         if (dev->model->motor_id == MotorId::KVSS080) {
             if (coeff >= 1) {
                 reg_vref |= 0x05;

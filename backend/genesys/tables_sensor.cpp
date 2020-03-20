@@ -3058,23 +3058,25 @@ void genesys_init_sensor_tables()
         struct CustomSensorSettings
         {
             ValueFilterAny<unsigned> resolutions;
+            unsigned register_dpihw_override;
             Ratio pixel_count_ratio;
             unsigned shading_factor;
             GenesysRegisterSettingSet extra_custom_regs;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 75 }, Ratio{1, 4}, 8, { { 0x7e, 0x00 } } },
-            { { 100 }, Ratio{1, 4}, 6, { { 0x7e, 0x00 } } },
-            { { 150 }, Ratio{1, 4}, 4, { { 0x7e, 0x00 } } },
-            { { 300 }, Ratio{1, 4}, 2, { { 0x7e, 0x00 } } },
-            { { 600 }, Ratio{1, 4}, 1, { { 0x7e, 0x01 } } },
-            { { 1200 }, Ratio{1, 2}, 1, { { 0x7e, 0x01 } } },
+            { { 75 }, 600, Ratio{1, 4}, 8, { { 0x7e, 0x00 } } },
+            { { 100 }, 600, Ratio{1, 4}, 6, { { 0x7e, 0x00 } } },
+            { { 150 }, 600, Ratio{1, 4}, 4, { { 0x7e, 0x00 } } },
+            { { 300 }, 600, Ratio{1, 4}, 2, { { 0x7e, 0x00 } } },
+            { { 600 }, 600, Ratio{1, 4}, 1, { { 0x7e, 0x01 } } },
+            { { 1200 }, 1200, Ratio{1, 2}, 1, { { 0x7e, 0x01 } } },
         };
 
         auto base_custom_regs = sensor.custom_regs;
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
+            sensor.register_dpihw_override = setting.register_dpihw_override;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;
             sensor.shading_factor = setting.shading_factor;
             sensor.custom_regs = base_custom_regs;
@@ -3111,21 +3113,23 @@ void genesys_init_sensor_tables()
         struct CustomSensorSettings
         {
             ValueFilterAny<unsigned> resolutions;
+            unsigned register_dpihw_override;
             Ratio pixel_count_ratio;
             unsigned shading_factor;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 75 }, Ratio{1, 2}, 8 },
-            { { 100 }, Ratio{1, 2}, 6 },
-            { { 150 }, Ratio{1, 2}, 4 },
-            { { 300 }, Ratio{1, 2}, 2 },
-            { { 600 }, Ratio{1, 2}, 1 },
-            { { 1200 }, Ratio{1, 1}, 1 },
+            { { 75 }, 600, Ratio{1, 2}, 8 },
+            { { 100 }, 600, Ratio{1, 2}, 6 },
+            { { 150 }, 600, Ratio{1, 2}, 4 },
+            { { 300 }, 600, Ratio{1, 2}, 2 },
+            { { 600 }, 600, Ratio{1, 2}, 1 },
+            { { 1200 }, 1200, Ratio{1, 1}, 1 },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
+            sensor.register_dpihw_override = setting.register_dpihw_override;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;
             sensor.shading_factor = setting.shading_factor;
             s_sensors->push_back(sensor);

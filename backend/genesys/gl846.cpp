@@ -219,7 +219,9 @@ gl846_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0xf8, 0x05);
 
     const auto& sensor = sanei_genesys_find_sensor_any(dev);
-    sanei_genesys_set_dpihw(dev->reg, sensor, sensor.optical_res);
+    const auto& dpihw_sensor = sanei_genesys_find_sensor(dev, sensor.optical_res,
+                                                         3, ScanMethod::FLATBED);
+    sanei_genesys_set_dpihw(dev->reg, dpihw_sensor, 0);
 }
 
 /**@brief send slope table for motor movement
@@ -514,17 +516,11 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
                                          const ScanSession& session)
 {
     DBG_HELPER_ARGS(dbg, "exposure_time=%d", exposure_time);
-    unsigned int dpihw;
   GenesysRegister *r;
 
     // resolution is divided according to ccd_pixels_per_system_pixel()
     unsigned ccd_pixels_per_system_pixel = sensor.ccd_pixels_per_system_pixel();
     DBG(DBG_io2, "%s: ccd_pixels_per_system_pixel=%d\n", __func__, ccd_pixels_per_system_pixel);
-
-    // to manage high resolution device while keeping good low resolution scanning speed,
-    // we make hardware dpi vary
-    dpihw = sensor.get_register_hwdpi(session.params.xres * ccd_pixels_per_system_pixel);
-    DBG(DBG_io2, "%s: dpihw=%d\n", __func__, dpihw);
 
     gl846_setup_sensor(dev, sensor, reg);
 
@@ -589,7 +585,10 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
         r->value |= 0x20; // mono
     }
 
-    sanei_genesys_set_dpihw(*reg, sensor, dpihw);
+    const auto& dpihw_sensor = sanei_genesys_find_sensor(dev, session.output_resolution,
+                                                         session.params.channels,
+                                                         session.params.scan_method);
+    sanei_genesys_set_dpihw(*reg, dpihw_sensor, 0);
 
     if (should_enable_gamma(session, sensor)) {
         reg->find_reg(REG_0x05).value |= REG_0x05_GMMENB;

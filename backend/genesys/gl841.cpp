@@ -1117,23 +1117,6 @@ HOME_FREE: 3
     r->value = (fast_table.steps_count >> 1) + (fast_table.steps_count & 1);
 }
 
-static int
-gl841_get_dpihw(Genesys_Device * dev)
-{
-  GenesysRegister* r;
-  r = sanei_genesys_get_address(&dev->reg, 0x05);
-    if ((r->value & REG_0x05_DPIHW) == REG_0x05_DPIHW_600) {
-        return 600;
-    }
-    if ((r->value & REG_0x05_DPIHW) == REG_0x05_DPIHW_1200) {
-        return 1200;
-    }
-    if ((r->value & REG_0x05_DPIHW) == REG_0x05_DPIHW_2400) {
-        return 2400;
-    }
-  return 0;
-}
-
 static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                          Genesys_Register_Set* reg, unsigned int exposure_time,
                                          const ScanSession& session)
@@ -3059,7 +3042,7 @@ void CommandSetGl841::send_shading_data(Genesys_Device* dev, const Genesys_Senso
 {
     DBG_HELPER_ARGS(dbg, "writing %d bytes of shading data", size);
   uint32_t length, x, pixels, i;
-    uint16_t dpihw, beginpixel;
+    std::uint16_t beginpixel;
   uint8_t *ptr,*src;
 
   /* old method if no SHDAREA */
@@ -3073,13 +3056,6 @@ void CommandSetGl841::send_shading_data(Genesys_Device* dev, const Genesys_Senso
     unsigned strpixel = dev->session.pixel_startx;
     unsigned endpixel = dev->session.pixel_endx;
 
-  /* compute deletion/average factor */
-  dpihw = gl841_get_dpihw(dev);
-    unsigned ccd_size_divisor = dev->session.ccd_size_divisor;
-    unsigned factor = dpihw / sensor.dpiset_override;
-    DBG(DBG_io2, "%s: dpihw=%d, ccd_size_divisor=%d, factor=%d\n", __func__, dpihw,
-        ccd_size_divisor, factor);
-
   /* turn pixel value into bytes 2x16 bits words */
   strpixel*=2*2; /* 2 words of 2 bytes */
   endpixel*=2*2;
@@ -3088,10 +3064,10 @@ void CommandSetGl841::send_shading_data(Genesys_Device* dev, const Genesys_Senso
   /* shading pixel begin is start pixel minus start pixel during shading
    * calibration. Currently only cases handled are full and half ccd resolution.
    */
-    beginpixel = sensor.ccd_start_xoffset / ccd_size_divisor;
+    beginpixel = sensor.ccd_start_xoffset / dev->session.ccd_size_divisor;
   beginpixel += sensor.dummy_pixel + 1;
   DBG(DBG_io2, "%s: ORIGIN PIXEL=%d\n", __func__, beginpixel);
-  beginpixel = (strpixel-beginpixel*2*2)/factor;
+    beginpixel = (strpixel - beginpixel * 2 * 2) / sensor.shading_factor;
   DBG(DBG_io2, "%s: BEGIN PIXEL=%d\n", __func__, beginpixel/4);
 
     dev->interface->record_key_value("shading_offset", std::to_string(beginpixel));

@@ -3352,22 +3352,24 @@ void genesys_init_sensor_tables()
             ValueFilterAny<unsigned> resolutions;
             unsigned dpiset_override;
             unsigned shading_resolution;
+            unsigned shading_factor;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 75 }, 150, 600 },
-            { { 100 }, 200, 600 },
-            { { 150 }, 300, 600 },
-            { { 200 }, 400, 600 },
-            { { 300 }, 600, 600 },
-            { { 600 }, 1200, 600 },
-            { { 1200 }, 1200, 1200 },
+            { { 75 }, 150, 600, 8 },
+            { { 100 }, 200, 600, 6 },
+            { { 150 }, 300, 600, 4 },
+            { { 200 }, 400, 600, 3 },
+            { { 300 }, 600, 600, 2 },
+            { { 600 }, 1200, 600, 1 },
+            { { 1200 }, 1200, 1200, 1 },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.dpiset_override = setting.dpiset_override;
             sensor.shading_resolution = setting.shading_resolution;
+            sensor.shading_factor = setting.shading_factor;
             s_sensors->push_back(sensor);
         }
     }

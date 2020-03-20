@@ -1163,6 +1163,7 @@ void genesys_init_sensor_tables()
         for (const auto& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.register_dpihw = setting.register_dpihw;
+            sensor.dpiset_override = setting.resolutions.values()[0];
             sensor.shading_resolution = setting.register_dpihw;
             sensor.exposure_lperiod = setting.exposure_lperiod;
             sensor.exposure = setting.exposure;
@@ -1298,6 +1299,7 @@ void genesys_init_sensor_tables()
         for (const auto& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.register_dpihw = setting.register_dpihw;
+            sensor.dpiset_override = setting.resolutions.values()[0];
             sensor.shading_resolution = setting.register_dpihw;
             sensor.exposure_lperiod = setting.exposure_lperiod;
             sensor.exposure = setting.exposure;
@@ -1422,6 +1424,7 @@ void genesys_init_sensor_tables()
         for (const auto& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.register_dpihw = setting.register_dpihw;
+            sensor.dpiset_override = setting.resolutions.values()[0];
             sensor.shading_resolution = setting.register_dpihw;
             sensor.exposure_lperiod = setting.exposure_lperiod;
             sensor.exposure = setting.exposure;
@@ -2254,6 +2257,7 @@ void genesys_init_sensor_tables()
         auto base_custom_regs = sensor.custom_regs;
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
+            sensor.dpiset_override = setting.resolutions.values()[0];
             sensor.register_dpihw = setting.register_dpihw;
             sensor.shading_resolution = setting.register_dpihw;
             sensor.shading_factor = setting.shading_factor;
@@ -3442,18 +3446,11 @@ void verify_sensor_tables()
             if (sensor.register_dpihw == 0) {
                 throw SaneException("register_dpihw is not defined");
             }
-            if (sensor.shading_resolution == 0) {
-                throw SaneException("shading_resolution is not defined");
-            }
-        }
-        if (asic_type == AsicType::GL124 ||
-            asic_type == AsicType::GL841 ||
-            asic_type == AsicType::GL843 ||
-            asic_type == AsicType::GL845 ||
-            asic_type == AsicType::GL846)
-        {
             if (sensor.dpiset_override == 0) {
                 throw SaneException("dpiset_override is not defined");
+            }
+            if (sensor.shading_resolution == 0) {
+                throw SaneException("shading_resolution is not defined");
             }
         }
     }

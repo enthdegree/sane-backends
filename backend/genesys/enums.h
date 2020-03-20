@@ -484,9 +484,6 @@ enum class ModelFlag : unsigned
     // the head must be reparked between shading scans
     SHADING_REPARK = 1 << 18,
 
-    // the scanner always uses maximum hwdpi to setup the sensor
-    FULL_HWDPI_MODE = 1 << 19,
-
     // the scanner outputs 16-bit data that is byte-inverted
     INVERTED_16BIT_DATA = 1 << 20,
 

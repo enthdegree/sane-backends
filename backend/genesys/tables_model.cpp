@@ -467,7 +467,6 @@ void genesys_init_usb_device_tables()
     model.motor_id = MotorId::CANON_4400F;
     model.flags = ModelFlag::SKIP_WARMUP |
                   ModelFlag::DARK_CALIBRATION |
-                  ModelFlag::FULL_HWDPI_MODE |
                   ModelFlag::CUSTOM_GAMMA |
                   ModelFlag::SHADING_REPARK |
                   ModelFlag::UTA_NO_SECONDARY_MOTOR;
@@ -540,7 +539,6 @@ void genesys_init_usb_device_tables()
     model.motor_id = MotorId::CANON_8400F;
     model.flags = ModelFlag::SKIP_WARMUP |
                   ModelFlag::DARK_CALIBRATION |
-                  ModelFlag::FULL_HWDPI_MODE |
                   ModelFlag::CUSTOM_GAMMA |
                   ModelFlag::SHADING_REPARK;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;
@@ -607,7 +605,6 @@ void genesys_init_usb_device_tables()
     model.motor_id = MotorId::CANON_8600F;
     model.flags = ModelFlag::SKIP_WARMUP |
                   ModelFlag::DARK_CALIBRATION |
-                  ModelFlag::FULL_HWDPI_MODE |
                   ModelFlag::CUSTOM_GAMMA |
                   ModelFlag::SHADING_REPARK;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;

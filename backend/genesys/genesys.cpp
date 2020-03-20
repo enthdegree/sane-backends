@@ -492,6 +492,7 @@ static void genesys_send_offset_and_shading(Genesys_Device* dev, const Genesys_S
         && dev->model->sensor_id != SensorId::CCD_CANON_8600F
         && dev->model->sensor_id != SensorId::CCD_DSMOBILE600
         && dev->model->sensor_id != SensorId::CCD_XP300
+        && dev->model->sensor_id != SensorId::CCD_DOCKETPORT_487
         && dev->model->sensor_id != SensorId::CCD_DP665
         && dev->model->sensor_id != SensorId::CCD_DP685
         && dev->model->sensor_id != SensorId::CIS_CANON_LIDE_80
@@ -2879,6 +2880,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
   switch (dev->model->sensor_id)
     {
     case SensorId::CCD_XP300:
+        case SensorId::CCD_DOCKETPORT_487:
     case SensorId::CCD_ROADWARRIOR:
     case SensorId::CCD_DP665:
     case SensorId::CCD_DP685:
@@ -4916,7 +4918,7 @@ static void probe_genesys_devices()
    of Genesys_Calibration_Cache as is.
 */
 static const char* CALIBRATION_IDENT = "sane_genesys";
-static const int CALIBRATION_VERSION = 28;
+static const int CALIBRATION_VERSION = 29;
 
 bool read_calibration(std::istream& str, Genesys_Device::Calibration& calibration,
                       const std::string& path)

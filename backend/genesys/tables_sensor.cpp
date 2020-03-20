@@ -497,17 +497,18 @@ void genesys_init_sensor_tables()
         {
             ValueFilterAny<unsigned> resolutions;
             unsigned register_dpihw;
+            unsigned shading_resolution;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 75, 100, 150, 200, 300, 600 }, 600 },
-            { { 1200 }, 1200 },
+            { { 75, 100, 150, 200, 300, 600 }, 1200, 600 },
+            { { 1200 }, 1200, 1200 },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.register_dpihw = setting.register_dpihw;
-            sensor.shading_resolution = setting.register_dpihw;
+            sensor.shading_resolution = setting.shading_resolution;
             s_sensors->push_back(sensor);
         }
     }
@@ -786,6 +787,42 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_XP300; // gl841
+    sensor.optical_res = 600;
+    sensor.register_dpihw = 1200; // FIXME: could be incorrect, but previous code used this value
+    sensor.shading_resolution = 600;
+    sensor.black_pixels = 27;
+    sensor.dummy_pixel = 27;
+    sensor.ccd_start_xoffset = 0;
+    sensor.fau_gain_white_ref = 210;
+    sensor.gain_white_ref = 200;
+    sensor.exposure = { 0x1100, 0x1100, 0x1100 };
+    sensor.custom_regs = {
+        { 0x16, 0x00 },
+        { 0x17, 0x02 },
+        { 0x18, 0x04 },
+        { 0x19, 0x50 },
+        { 0x1a, 0x10 },
+        { 0x1b, 0x00 },
+        { 0x1c, 0x20 },
+        { 0x1d, 0x02 },
+        { 0x52, 0x04 }, // [GB](HI|LOW) not needed for cis
+        { 0x53, 0x05 },
+        { 0x54, 0x00 },
+        { 0x55, 0x00 },
+        { 0x56, 0x00 },
+        { 0x57, 0x00 },
+        { 0x58, 0x54 },
+        { 0x59, 0x03 },
+        { 0x5a, 0x00 },
+        { 0x70, 0x00 }, { 0x71, 0x00 }, { 0x72, 0x00 }, { 0x73, 0x00 },
+    };
+    sensor.gamma = { 1.0f, 1.0f, 1.0f };
+    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
+    s_sensors->push_back(sensor);
+
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = SensorId::CCD_DOCKETPORT_487; // gl841
     sensor.optical_res = 600;
     sensor.register_dpihw = 600;
     sensor.shading_resolution = 600;
@@ -3148,6 +3185,7 @@ void genesys_init_sensor_tables()
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_CANON_LIDE_80; // gl841
     sensor.optical_res = 1200; // real hardware limit is 2400
+    sensor.register_dpihw = 1200;
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 20;
     sensor.dummy_pixel = 6;
@@ -3183,7 +3221,7 @@ void genesys_init_sensor_tables()
         struct CustomSensorSettings
         {
             ValueFilterAny<unsigned> resolutions;
-            unsigned register_dpihw;
+            unsigned shading_resolution;
         };
 
         CustomSensorSettings custom_settings[] = {
@@ -3193,8 +3231,7 @@ void genesys_init_sensor_tables()
 
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
-            sensor.register_dpihw = setting.register_dpihw;
-            sensor.shading_resolution = setting.register_dpihw;
+            sensor.shading_resolution = setting.shading_resolution;
             s_sensors->push_back(sensor);
         }
     }

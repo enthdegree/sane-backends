@@ -322,24 +322,14 @@ gl841_init_registers (Genesys_Device * dev)
 
   dev->reg.find_reg(0x05).value = 0x00;	/* disable gamma, 24 clocks/pixel */
 
-    unsigned dpihw = 0;
-    unsigned sensor_pixels = dev->model->x_size_calib_mm * sensor.optical_res / MM_PER_INCH;
-    if (sensor_pixels < 0x1500) {
-        dpihw = 600;
-    } else if (sensor_pixels < 0x2a80) {
-        dpihw = 1200;
-    } else if (sensor_pixels < 0x5400) {
-        dpihw = 2400;
-    } else {
-        throw SaneException("Cannot handle sensor pixel count %d", sensor_pixels);
-    }
-    sanei_genesys_set_dpihw(dev->reg, dpihw);
+    sanei_genesys_set_dpihw(dev->reg, sensor.register_dpihw);
 
     dev->reg.find_reg(0x06).value |= REG_0x06_PWRBIT;
     dev->reg.find_reg(0x06).value |= REG_0x06_GAIN4;
 
   /* XP300 CCD needs different clock and clock/pixels values */
     if (dev->model->sensor_id != SensorId::CCD_XP300 &&
+        dev->model->sensor_id != SensorId::CCD_DOCKETPORT_487 &&
         dev->model->sensor_id != SensorId::CCD_DP685 &&
         dev->model->sensor_id != SensorId::CCD_PLUSTEK_OPTICPRO_3600)
     {
@@ -419,27 +409,21 @@ gl841_init_registers (Genesys_Device * dev)
 }
 
 // Send slope table for motor movement slope_table in machine byte order
-static void gl841_send_slope_table(Genesys_Device* dev, int table_nr,
-                                   const std::vector<uint16_t>& slope_table,
+static void gl841_send_slope_table(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                   int table_nr, const std::vector<uint16_t>& slope_table,
                                    int steps)
 {
     DBG_HELPER_ARGS(dbg, "table_nr = %d, steps = %d", table_nr, steps);
-  int dpihw;
   int start_address;
 /*#ifdef WORDS_BIGENDIAN*/
   int i;
 /*#endif*/
 
-  dpihw = dev->reg.find_reg(0x05).value >> 6;
-
-  if (dpihw == 0)		/* 600 dpi */
-    start_address = 0x08000;
-  else if (dpihw == 1)		/* 1200 dpi */
-    start_address = 0x10000;
-  else if (dpihw == 2)		/* 2400 dpi */
-    start_address = 0x20000;
-    else {
-        throw SaneException("Unexpected dpihw");
+    switch (sensor.register_dpihw) {
+        case 600: start_address = 0x08000; break;
+        case 1200: start_address = 0x10000; break;
+        case 2400: start_address = 0x20000; break;
+        default: throw SaneException("Unexpected dpihw");
     }
 
   std::vector<uint8_t> table(steps * 2);
@@ -717,11 +701,11 @@ static void gl841_init_motor_regs(Genesys_Device* dev, const Genesys_Sensor& sen
         std::vector<uint16_t> table;
         table.resize(256, 0xffff);
 
-        gl841_send_slope_table(dev, 0, table, 256);
-        gl841_send_slope_table(dev, 1, table, 256);
-        gl841_send_slope_table(dev, 2, table, 256);
-        gl841_send_slope_table(dev, 3, table, 256);
-        gl841_send_slope_table(dev, 4, table, 256);
+        gl841_send_slope_table(dev, sensor, 0, table, 256);
+        gl841_send_slope_table(dev, sensor, 1, table, 256);
+        gl841_send_slope_table(dev, sensor, 2, table, 256);
+        gl841_send_slope_table(dev, sensor, 3, table, 256);
+        gl841_send_slope_table(dev, sensor, 4, table, 256);
     }
 
     gl841_write_freq(dev, dev->motor.base_ydpi / 4);
@@ -822,7 +806,7 @@ HOME_FREE: 3
         r->value |= REG_0x02_MTRREV;
     }
 
-    gl841_send_slope_table(dev, 3, fast_table.table, 256);
+    gl841_send_slope_table(dev, sensor, 3, fast_table.table, 256);
 
     r = sanei_genesys_get_address(reg, 0x67);
     r->value = 0x3f;
@@ -883,11 +867,11 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
         std::vector<uint16_t> table;
         table.resize(256, 0xffff);
 
-        gl841_send_slope_table(dev, 0, table, 256);
-        gl841_send_slope_table(dev, 1, table, 256);
-        gl841_send_slope_table(dev, 2, table, 256);
-        gl841_send_slope_table(dev, 3, table, 256);
-        gl841_send_slope_table(dev, 4, table, 256);
+        gl841_send_slope_table(dev, sensor, 0, table, 256);
+        gl841_send_slope_table(dev, sensor, 1, table, 256);
+        gl841_send_slope_table(dev, sensor, 2, table, 256);
+        gl841_send_slope_table(dev, sensor, 3, table, 256);
+        gl841_send_slope_table(dev, sensor, 4, table, 256);
     }
 
 
@@ -1043,18 +1027,16 @@ HOME_FREE: 3
         r->value &= ~0x40;
     }
 
-    gl841_send_slope_table(dev, 0, slow_table.table, 256);
-
-    gl841_send_slope_table(dev, 1, back_table.table, 256);
-
-    gl841_send_slope_table(dev, 2, slow_table.table, 256);
+    gl841_send_slope_table(dev, sensor, 0, slow_table.table, 256);
+    gl841_send_slope_table(dev, sensor, 1, back_table.table, 256);
+    gl841_send_slope_table(dev, sensor, 2, slow_table.table, 256);
 
     if (use_fast_fed) {
-        gl841_send_slope_table(dev, 3, fast_table.table, 256);
+        gl841_send_slope_table(dev, sensor, 3, fast_table.table, 256);
     }
 
     if (has_flag(flags, MotorFlag::AUTO_GO_HOME)) {
-        gl841_send_slope_table(dev, 4, fast_table.table, 256);
+        gl841_send_slope_table(dev, sensor, 4, fast_table.table, 256);
     }
 
 /* now reg 0x21 and 0x24 are available, we can calculate reg 0x22 and 0x23,

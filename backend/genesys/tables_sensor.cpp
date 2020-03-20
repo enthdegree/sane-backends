@@ -2761,8 +2761,24 @@ void genesys_init_sensor_tables()
     sensor.get_register_hwdpi_fun = default_get_register_hwdpi;
     sensor.get_hwdpi_divisor_fun = default_get_hwdpi_divisor_for_dpi;
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
-    s_sensors->push_back(sensor);
+    {
+        struct CustomSensorSettings
+        {
+            ValueFilterAny<unsigned> resolutions;
+            Ratio pixel_count_ratio;
+        };
 
+        CustomSensorSettings custom_settings[] = {
+            { { 75, 100, 150, 300, 600 }, Ratio{1, 2} },
+            { { 1200 }, Ratio{1, 1} },
+        };
+
+        for (const CustomSensorSettings& setting : custom_settings) {
+            sensor.resolutions = setting.resolutions;
+            sensor.pixel_count_ratio = setting.pixel_count_ratio;
+            s_sensors->push_back(sensor);
+        }
+    }
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_CANON_LIDE_80;

@@ -891,8 +891,6 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
         s.pixel_endx = s.pixel_startx + s.optical_pixels;
     }
 
-    s.pixel_count_ratio = sensor.pixel_count_ratio;
-
     s.pixel_startx = sensor.pixel_count_ratio.apply(s.pixel_startx);
     s.pixel_endx = sensor.pixel_count_ratio.apply(s.pixel_endx);
 
@@ -981,6 +979,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     }
 
     s.ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(s.params.xres);
+    s.pixel_count_ratio = sensor.pixel_count_ratio;
 
     if (dev->model->asic_type == AsicType::GL646) {
         s.optical_resolution = sensor.optical_res;
@@ -1077,8 +1076,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
             // the scan area
             unsigned extra_segment_scan_area = align_multiple_ceil(s.conseq_pixel_dist, 2);
             extra_segment_scan_area *= s.segment_count - 1;
-            extra_segment_scan_area *= s.hwdpi_divisor * s.segment_count;
-            extra_segment_scan_area *= ccd_pixels_per_system_pixel;
+            extra_segment_scan_area = s.pixel_count_ratio.apply_inverse(extra_segment_scan_area);
 
             s.optical_pixels_raw += extra_segment_scan_area;
         }
@@ -1116,8 +1114,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
         dev->model->asic_type == AsicType::GL846 ||
         dev->model->asic_type == AsicType::GL847)
     {
-        s.output_segment_pixel_group_count = s.optical_pixels /
-                (s.hwdpi_divisor * s.segment_count * ccd_pixels_per_system_pixel);
+        s.output_segment_pixel_group_count = s.pixel_count_ratio.apply(s.optical_pixels);
     }
 
     s.output_line_bytes_requested = multiply_by_depth_ceil(

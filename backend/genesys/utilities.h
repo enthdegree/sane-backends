@@ -138,6 +138,21 @@ public:
         return arg * multiplier_ / divisor_;
     }
 
+    unsigned apply_inverse(unsigned arg) const
+    {
+        return static_cast<std::uint64_t>(arg) * divisor_ / multiplier_;
+    }
+
+    int apply_inverse(int arg) const
+    {
+        return static_cast<std::int64_t>(arg) * divisor_ / multiplier_;
+    }
+
+    float apply_inverse(float arg) const
+    {
+        return arg * divisor_ / multiplier_;
+    }
+
     bool operator==(const Ratio& other) const
     {
         return multiplier_ == other.multiplier_ && divisor_ == other.divisor_;

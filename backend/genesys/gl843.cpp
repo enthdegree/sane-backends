@@ -1486,12 +1486,10 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 
     if (should_calibrate_only_active_area(*dev, dev->settings)) {
         float offset = get_model_x_offset_ta(*dev, dev->settings);
-        offset /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
-        offset = static_cast<float>((offset * resolution) / MM_PER_INCH);
+        offset = static_cast<float>((offset * dev->settings.xres) / MM_PER_INCH);
 
         float size = dev->model->x_size_ta;
-        size /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
-        size = static_cast<float>((size * resolution) / MM_PER_INCH);
+        size = static_cast<float>((size * dev->settings.xres) / MM_PER_INCH);
 
         calib_pixels_offset = static_cast<std::size_t>(offset);
         calib_pixels = static_cast<std::size_t>(size);

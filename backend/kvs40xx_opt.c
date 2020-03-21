@@ -1344,9 +1344,9 @@ kvs40xx_init_window (struct scanner *s, struct window *wnd, int wnd_id)
     str_index (lamp_list, s->val[LAMP].s) << 4 |
     str_index (dfeed_sence_list, s->val[DFEED_SENCE].s);
 
-  wnd->document_size = (paper != 0) << 7
-    | s->val[LENGTHCTL].b << 6
-    | s->val[LONG_PAPER].b << 5 | s->val[LANDSCAPE].b << 4 | paper_val[paper];
+  wnd->document_size = ((paper != 0) << 7) | (s->val[LENGTHCTL].b << 6)
+      | (s->val[LONG_PAPER].b << 5) | (s->val[LANDSCAPE].b << 4)
+      | paper_val[paper];
 
   wnd->ahead_deskew_dfeed_scan_area_fspeed_rshad =
     (s->val[DESKEW].b || s->val[CROP].b ? 2 : 0) << 5 | /*XXX*/

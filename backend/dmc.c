@@ -512,59 +512,65 @@ DMCInitOptions(DMC_Camera *c)
 static SANE_Status
 DMCSetMode(DMC_Camera *c, int mode)
 {
-    switch(mode) {
+  switch (mode)
+    {
     case IMAGE_MFI:
-	c->tl_x_range.min = 0;
-	c->tl_x_range.max = c->tl_x_range.max;
-	c->tl_y_range.min = 0;
-	c->tl_y_range.max = c->tl_y_range.max;
-	c->br_x_range.min = 800;
-	c->br_x_range.max = c->br_x_range.max;
-	c->br_y_range.min = 599;
-	c->br_y_range.max = c->br_y_range.max;
-	break;
+      c->tl_x_range.min = 0;
+      c->tl_x_range.max = 800;
+      c->tl_y_range.min = 0;
+      c->tl_y_range.max = 599;
+      c->br_x_range.min = c->tl_x_range.min;
+      c->br_x_range.max = c->tl_x_range.max;
+      c->br_y_range.min = c->tl_y_range.min;
+      c->br_y_range.max = c->tl_y_range.max;
+      break;
+
     case IMAGE_VIEWFINDER:
-	c->tl_x_range.min = 0;
-	c->tl_x_range.max = c->tl_x_range.max;
-	c->tl_y_range.min = 0;
-	c->tl_y_range.max = c->tl_y_range.max;
-	c->br_x_range.min = 269;
-	c->br_x_range.max = c->br_x_range.max;
-	c->br_y_range.min = 200;
-	c->br_y_range.max = c->br_y_range.max;
-	break;
+      c->tl_x_range.min = 0;
+      c->tl_x_range.max = 269;
+      c->tl_y_range.min = 0;
+      c->tl_y_range.max = 200;
+      c->br_x_range.min = c->tl_x_range.min;
+      c->br_x_range.max = c->tl_x_range.max;
+      c->br_y_range.min = c->tl_y_range.min;
+      c->br_y_range.max = c->tl_y_range.max;
+      break;
+
     case IMAGE_RAW:
-	c->tl_x_range.min = 0;
-	c->tl_x_range.max = c->tl_x_range.max;
-	c->tl_y_range.min = 0;
-	c->tl_y_range.max = c->tl_y_range.max;
-	c->br_x_range.min = 1598;
-	c->br_x_range.max = c->br_x_range.max;
-	c->br_y_range.min = 599;
-	c->br_y_range.max = c->br_y_range.max;
-	break;
+      c->tl_x_range.min = 0;
+      c->tl_x_range.max = 1598;
+      c->tl_y_range.min = 0;
+      c->tl_y_range.max = 599;
+      c->br_x_range.min = c->tl_x_range.min;
+      c->br_x_range.max = c->tl_x_range.max;
+      c->br_y_range.min = c->tl_y_range.min;
+      c->br_y_range.max = c->tl_y_range.max;
+      break;
+
     case IMAGE_THUMB:
-	c->tl_x_range.min = 0;
-	c->tl_x_range.max = c->tl_x_range.max;
-	c->tl_y_range.min = 0;
-	c->tl_y_range.max = c->tl_y_range.max;
-	c->br_x_range.min = 79;
-	c->br_x_range.max = c->br_x_range.max;
-	c->br_y_range.min = 59;
-	c->br_y_range.max = c->br_y_range.max;
-	break;
+      c->tl_x_range.min = 0;
+      c->tl_x_range.max = 79;
+      c->tl_y_range.min = 0;
+      c->tl_y_range.max = 59;
+      c->br_x_range.min = c->tl_x_range.min;
+      c->br_x_range.max = c->tl_x_range.max;
+      c->br_y_range.min = c->tl_y_range.min;
+      c->br_y_range.max = c->tl_y_range.max;
+      break;
+
     case IMAGE_SUPER_RES:
-	c->tl_x_range.min = 0;
-	c->tl_x_range.max = c->tl_x_range.max;
-	c->tl_y_range.min = 0;
-	c->tl_y_range.max = c->tl_y_range.max;
-	c->br_x_range.min = 1598;
-	c->br_x_range.max = c->br_x_range.max;
-	c->br_y_range.min = 1199;
-	c->br_y_range.max = c->br_y_range.max;
-	break;
+      c->tl_x_range.min = 0;
+      c->tl_x_range.max = 1598;
+      c->tl_y_range.min = 0;
+      c->tl_y_range.max = 1199;
+      c->br_x_range.min = c->tl_x_range.min;
+      c->br_x_range.max = c->tl_x_range.max;
+      c->br_y_range.min = c->tl_y_range.min;
+      c->br_y_range.max = c->tl_y_range.max;
+      break;
+
     default:
-	return SANE_STATUS_INVAL;
+      return SANE_STATUS_INVAL;
     }
     c->imageMode = mode;
     c->val[OPT_TL_X].w = c->tl_x_range.min;

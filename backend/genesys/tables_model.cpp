@@ -2045,7 +2045,7 @@ void genesys_init_usb_device_tables()
 
     model.is_cis = true;
     model.is_sheetfed = true;
-    model.sensor_id = SensorId::CCD_XP300;
+    model.sensor_id = SensorId::CCD_DOCKETPORT_487;
     model.adc_id = AdcId::WOLFSON_XP300;
     model.gpio_id = GpioId::XP300;
     model.motor_id = MotorId::XP300;

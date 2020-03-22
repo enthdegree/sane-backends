@@ -693,10 +693,6 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   GenesysRegister *r;
   uint32_t expmax;
 
-    // resolution is divided according to ccd_pixels_per_system_pixel
-    unsigned ccd_pixels_per_system_pixel = sensor.ccd_pixels_per_system_pixel();
-    DBG(DBG_io2, "%s: ccd_pixels_per_system_pixel=%d\n", __func__, ccd_pixels_per_system_pixel);
-
     gl124_setup_sensor(dev, sensor, reg);
 
     dev->cmd_set->set_fe(dev, sensor, AFE_SET);
@@ -772,14 +768,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
         reg->find_reg(REG_0x05).value &= ~REG_0x05_GMMENB;
     }
 
-    unsigned dpiset_reg = session.output_resolution * ccd_pixels_per_system_pixel *
-            session.ccd_size_divisor;
-    if (sensor.dpiset_override != 0) {
-        dpiset_reg = sensor.dpiset_override;
-    }
-
-    reg->set16(REG_DPISET, dpiset_reg);
-    DBG (DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset_reg);
+    reg->set16(REG_DPISET, sensor.register_dpiset);
 
     r = sanei_genesys_get_address(reg, REG_0x06);
     r->value |= REG_0x06_GAIN4;

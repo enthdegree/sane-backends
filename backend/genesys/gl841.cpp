@@ -101,99 +101,12 @@ other register settings depending on this:
   RHI(0x52),RLOW(0x53),GHI(0x54),GLOW(0x55),BHI(0x56),BLOW(0x57),
 
 */
-static void sanei_gl841_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                                     Genesys_Register_Set * regs,
-                                     bool extended, unsigned ccd_size_divisor)
+static void sanei_gl841_setup_sensor(const Genesys_Sensor& sensor, Genesys_Register_Set* regs)
 {
-    DBG(DBG_proc, "%s\n", __func__);
+    DBG_HELPER(dbg);
 
-    // that one is tricky at least
-    for (uint16_t addr = 0x08; addr <= 0x0b; ++addr) {
-        regs->set8(0x70 + addr - 0x08, sensor.custom_regs.get_value(addr));
-    }
-
-    // ignore registers in range [0x10..0x16)
-    for (uint16_t addr = 0x16; addr < 0x1e; ++addr) {
-        regs->set8(addr, sensor.custom_regs.get_value(addr));
-    }
-
-    // ignore registers in range [0x5b..0x5e]
-    for (uint16_t addr = 0x52; addr < 0x52 + 9; ++addr) {
-        regs->set8(addr, sensor.custom_regs.get_value(addr));
-    }
-
-  /* don't go any further if no extended setup */
-  if (!extended)
-    return;
-
-  /* todo : add more CCD types if needed */
-  /* we might want to expand the Sensor struct to have these
-     2 kind of settings */
-    if (dev->model->sensor_id == SensorId::CCD_5345) {
-        if (ccd_size_divisor > 1) {
-          GenesysRegister* r;
-	  /* settings for CCD used at half is max resolution */
-	  r = sanei_genesys_get_address (regs, 0x70);
-	  r->value = 0x00;
-	  r = sanei_genesys_get_address (regs, 0x71);
-	  r->value = 0x05;
-	  r = sanei_genesys_get_address (regs, 0x72);
-	  r->value = 0x06;
-	  r = sanei_genesys_get_address (regs, 0x73);
-	  r->value = 0x08;
-	  r = sanei_genesys_get_address (regs, 0x18);
-	  r->value = 0x28;
-	  r = sanei_genesys_get_address (regs, 0x58);
-	  r->value = 0x80 | (r->value & 0x03);	/* VSMP=16 */
-	}
-      else
-	{
-          GenesysRegister* r;
-	  /* swap latch times */
-	  r = sanei_genesys_get_address (regs, 0x18);
-	  r->value = 0x30;
-          regs->set8(0x52, sensor.custom_regs.get_value(0x55));
-          regs->set8(0x53, sensor.custom_regs.get_value(0x56));
-          regs->set8(0x54, sensor.custom_regs.get_value(0x57));
-          regs->set8(0x55, sensor.custom_regs.get_value(0x52));
-          regs->set8(0x56, sensor.custom_regs.get_value(0x53));
-          regs->set8(0x57, sensor.custom_regs.get_value(0x54));
-	  r = sanei_genesys_get_address (regs, 0x58);
-	  r->value = 0x20 | (r->value & 0x03);	/* VSMP=4 */
-	}
-      return;
-    }
-
-    if (dev->model->sensor_id == SensorId::CCD_HP2300) {
-      /* settings for CCD used at half is max resolution */
-      GenesysRegister* r;
-        if (ccd_size_divisor > 1) {
-	  r = sanei_genesys_get_address (regs, 0x70);
-	  r->value = 0x16;
-	  r = sanei_genesys_get_address (regs, 0x71);
-	  r->value = 0x00;
-	  r = sanei_genesys_get_address (regs, 0x72);
-	  r->value = 0x01;
-	  r = sanei_genesys_get_address (regs, 0x73);
-	  r->value = 0x03;
-	  /* manual clock programming */
-	  r = sanei_genesys_get_address (regs, 0x1d);
-	  r->value |= 0x80;
-	}
-      else
-	{
-	  r = sanei_genesys_get_address (regs, 0x70);
-	  r->value = 1;
-	  r = sanei_genesys_get_address (regs, 0x71);
-	  r->value = 3;
-	  r = sanei_genesys_get_address (regs, 0x72);
-	  r->value = 4;
-	  r = sanei_genesys_get_address (regs, 0x73);
-	  r->value = 6;
-	}
-      r = sanei_genesys_get_address (regs, 0x58);
-      r->value = 0x80 | (r->value & 0x03);	/* VSMP=16 */
-      return;
+    for (const auto& custom_reg : sensor.custom_regs) {
+        regs->set8(custom_reg.address, custom_reg.value);
     }
 }
 
@@ -344,7 +257,7 @@ gl841_init_lide80 (Genesys_Device * dev)
     dev->reg.find_reg(0x6c).value |= REG_0x6B_GPO18;
     dev->reg.find_reg(0x6c).value &= ~REG_0x6B_GPO17;
 
-    sanei_gl841_setup_sensor(dev, sensor, &dev->reg, 0, 1);
+    sanei_gl841_setup_sensor(sensor, &dev->reg);
 }
 
 /*
@@ -409,24 +322,14 @@ gl841_init_registers (Genesys_Device * dev)
 
   dev->reg.find_reg(0x05).value = 0x00;	/* disable gamma, 24 clocks/pixel */
 
-    unsigned dpihw = 0;
-    unsigned sensor_pixels = dev->model->x_size_calib_mm * sensor.optical_res / MM_PER_INCH;
-    if (sensor_pixels < 0x1500) {
-        dpihw = 600;
-    } else if (sensor_pixels < 0x2a80) {
-        dpihw = 1200;
-    } else if (sensor_pixels < 0x5400) {
-        dpihw = 2400;
-    } else {
-        throw SaneException("Cannot handle sensor pixel count %d", sensor_pixels);
-    }
-    sanei_genesys_set_dpihw(dev->reg, dpihw);
+    sanei_genesys_set_dpihw(dev->reg, sensor.register_dpihw);
 
     dev->reg.find_reg(0x06).value |= REG_0x06_PWRBIT;
     dev->reg.find_reg(0x06).value |= REG_0x06_GAIN4;
 
   /* XP300 CCD needs different clock and clock/pixels values */
     if (dev->model->sensor_id != SensorId::CCD_XP300 &&
+        dev->model->sensor_id != SensorId::CCD_DOCKETPORT_487 &&
         dev->model->sensor_id != SensorId::CCD_DP685 &&
         dev->model->sensor_id != SensorId::CCD_PLUSTEK_OPTICPRO_3600)
     {
@@ -480,7 +383,7 @@ gl841_init_registers (Genesys_Device * dev)
 /*STOPTIM*/
     dev->reg.find_reg(0x5e).value |= 0x2 << REG_0x5ES_STOPTIM;
 
-    sanei_gl841_setup_sensor(dev, sensor, &dev->reg, 0, 1);
+    sanei_gl841_setup_sensor(sensor, &dev->reg);
 
     // set up GPIO
     for (const auto& reg : dev->gpo.regs) {
@@ -506,27 +409,21 @@ gl841_init_registers (Genesys_Device * dev)
 }
 
 // Send slope table for motor movement slope_table in machine byte order
-static void gl841_send_slope_table(Genesys_Device* dev, int table_nr,
-                                   const std::vector<uint16_t>& slope_table,
+static void gl841_send_slope_table(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                   int table_nr, const std::vector<uint16_t>& slope_table,
                                    int steps)
 {
     DBG_HELPER_ARGS(dbg, "table_nr = %d, steps = %d", table_nr, steps);
-  int dpihw;
   int start_address;
 /*#ifdef WORDS_BIGENDIAN*/
   int i;
 /*#endif*/
 
-  dpihw = dev->reg.find_reg(0x05).value >> 6;
-
-  if (dpihw == 0)		/* 600 dpi */
-    start_address = 0x08000;
-  else if (dpihw == 1)		/* 1200 dpi */
-    start_address = 0x10000;
-  else if (dpihw == 2)		/* 2400 dpi */
-    start_address = 0x20000;
-    else {
-        throw SaneException("Unexpected dpihw");
+    switch (sensor.register_dpihw) {
+        case 600: start_address = 0x08000; break;
+        case 1200: start_address = 0x10000; break;
+        case 2400: start_address = 0x20000; break;
+        default: throw SaneException("Unexpected dpihw");
     }
 
   std::vector<uint8_t> table(steps * 2);
@@ -804,11 +701,11 @@ static void gl841_init_motor_regs(Genesys_Device* dev, const Genesys_Sensor& sen
         std::vector<uint16_t> table;
         table.resize(256, 0xffff);
 
-        gl841_send_slope_table(dev, 0, table, 256);
-        gl841_send_slope_table(dev, 1, table, 256);
-        gl841_send_slope_table(dev, 2, table, 256);
-        gl841_send_slope_table(dev, 3, table, 256);
-        gl841_send_slope_table(dev, 4, table, 256);
+        gl841_send_slope_table(dev, sensor, 0, table, 256);
+        gl841_send_slope_table(dev, sensor, 1, table, 256);
+        gl841_send_slope_table(dev, sensor, 2, table, 256);
+        gl841_send_slope_table(dev, sensor, 3, table, 256);
+        gl841_send_slope_table(dev, sensor, 4, table, 256);
     }
 
     gl841_write_freq(dev, dev->motor.base_ydpi / 4);
@@ -909,7 +806,7 @@ HOME_FREE: 3
         r->value |= REG_0x02_MTRREV;
     }
 
-    gl841_send_slope_table(dev, 3, fast_table.table, 256);
+    gl841_send_slope_table(dev, sensor, 3, fast_table.table, 256);
 
     r = sanei_genesys_get_address(reg, 0x67);
     r->value = 0x3f;
@@ -970,11 +867,11 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
         std::vector<uint16_t> table;
         table.resize(256, 0xffff);
 
-        gl841_send_slope_table(dev, 0, table, 256);
-        gl841_send_slope_table(dev, 1, table, 256);
-        gl841_send_slope_table(dev, 2, table, 256);
-        gl841_send_slope_table(dev, 3, table, 256);
-        gl841_send_slope_table(dev, 4, table, 256);
+        gl841_send_slope_table(dev, sensor, 0, table, 256);
+        gl841_send_slope_table(dev, sensor, 1, table, 256);
+        gl841_send_slope_table(dev, sensor, 2, table, 256);
+        gl841_send_slope_table(dev, sensor, 3, table, 256);
+        gl841_send_slope_table(dev, sensor, 4, table, 256);
     }
 
 
@@ -1130,18 +1027,16 @@ HOME_FREE: 3
         r->value &= ~0x40;
     }
 
-    gl841_send_slope_table(dev, 0, slow_table.table, 256);
-
-    gl841_send_slope_table(dev, 1, back_table.table, 256);
-
-    gl841_send_slope_table(dev, 2, slow_table.table, 256);
+    gl841_send_slope_table(dev, sensor, 0, slow_table.table, 256);
+    gl841_send_slope_table(dev, sensor, 1, back_table.table, 256);
+    gl841_send_slope_table(dev, sensor, 2, slow_table.table, 256);
 
     if (use_fast_fed) {
-        gl841_send_slope_table(dev, 3, fast_table.table, 256);
+        gl841_send_slope_table(dev, sensor, 3, fast_table.table, 256);
     }
 
     if (has_flag(flags, MotorFlag::AUTO_GO_HOME)) {
-        gl841_send_slope_table(dev, 4, fast_table.table, 256);
+        gl841_send_slope_table(dev, sensor, 4, fast_table.table, 256);
     }
 
 /* now reg 0x21 and 0x24 are available, we can calculate reg 0x22 and 0x23,
@@ -1220,23 +1115,6 @@ HOME_FREE: 3
 
     r = sanei_genesys_get_address (reg, 0x5f);
     r->value = (fast_table.steps_count >> 1) + (fast_table.steps_count & 1);
-}
-
-static int
-gl841_get_dpihw(Genesys_Device * dev)
-{
-  GenesysRegister* r;
-  r = sanei_genesys_get_address(&dev->reg, 0x05);
-    if ((r->value & REG_0x05_DPIHW) == REG_0x05_DPIHW_600) {
-        return 600;
-    }
-    if ((r->value & REG_0x05_DPIHW) == REG_0x05_DPIHW_1200) {
-        return 1200;
-    }
-    if ((r->value & REG_0x05_DPIHW) == REG_0x05_DPIHW_2400) {
-        return 2400;
-    }
-  return 0;
 }
 
 static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
@@ -1370,12 +1248,12 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     }
 
     /* sensor parameters */
-    sanei_gl841_setup_sensor(dev, sensor, &dev->reg, 1, session.ccd_size_divisor);
+    sanei_gl841_setup_sensor(sensor, &dev->reg);
 
     r = sanei_genesys_get_address (reg, 0x29);
     r->value = 255; /*<<<"magic" number, only suitable for cis*/
 
-    reg->set16(REG_DPISET, gl841_get_dpihw(dev) * session.output_resolution / session.optical_resolution);
+    reg->set16(REG_DPISET, sensor.register_dpiset);
     reg->set16(REG_STRPIXEL, session.pixel_startx);
     reg->set16(REG_ENDPIXEL, session.pixel_endx);
 
@@ -3163,8 +3041,8 @@ void CommandSetGl841::send_shading_data(Genesys_Device* dev, const Genesys_Senso
                                         uint8_t* data, int size) const
 {
     DBG_HELPER_ARGS(dbg, "writing %d bytes of shading data", size);
-  uint32_t length, x, factor, pixels, i;
-    uint16_t dpiset, dpihw, beginpixel;
+  uint32_t length, x, pixels, i;
+    std::uint16_t beginpixel;
   uint8_t *ptr,*src;
 
   /* old method if no SHDAREA */
@@ -3178,14 +3056,6 @@ void CommandSetGl841::send_shading_data(Genesys_Device* dev, const Genesys_Senso
     unsigned strpixel = dev->session.pixel_startx;
     unsigned endpixel = dev->session.pixel_endx;
 
-  /* compute deletion/average factor */
-    dpiset = dev->reg.get16(REG_DPISET);
-  dpihw = gl841_get_dpihw(dev);
-    unsigned ccd_size_divisor = dev->session.ccd_size_divisor;
-  factor=dpihw/dpiset;
-  DBG(DBG_io2, "%s: dpihw=%d, dpiset=%d, ccd_size_divisor=%d, factor=%d\n", __func__, dpihw, dpiset,
-      ccd_size_divisor, factor);
-
   /* turn pixel value into bytes 2x16 bits words */
   strpixel*=2*2; /* 2 words of 2 bytes */
   endpixel*=2*2;
@@ -3194,10 +3064,10 @@ void CommandSetGl841::send_shading_data(Genesys_Device* dev, const Genesys_Senso
   /* shading pixel begin is start pixel minus start pixel during shading
    * calibration. Currently only cases handled are full and half ccd resolution.
    */
-    beginpixel = sensor.ccd_start_xoffset / ccd_size_divisor;
+    beginpixel = sensor.ccd_start_xoffset / dev->session.ccd_size_divisor;
   beginpixel += sensor.dummy_pixel + 1;
   DBG(DBG_io2, "%s: ORIGIN PIXEL=%d\n", __func__, beginpixel);
-  beginpixel = (strpixel-beginpixel*2*2)/factor;
+    beginpixel = (strpixel - beginpixel * 2 * 2) / sensor.shading_factor;
   DBG(DBG_io2, "%s: BEGIN PIXEL=%d\n", __func__, beginpixel/4);
 
     dev->interface->record_key_value("shading_offset", std::to_string(beginpixel));

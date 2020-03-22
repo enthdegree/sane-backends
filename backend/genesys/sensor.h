@@ -273,13 +273,9 @@ struct Genesys_Sensor {
     // resolution. The value zero does not set the override.
     unsigned register_dpihw = 0;
 
-    // The scanner may be setup to use a custom logical dpihw that does not correspond to any actual
-    // resolution. The value zero does not set the override.
-    unsigned logical_dpihw_override = 0;
-
     // The scanner may be setup to use a custom dpiset value that does not correspond to any actual
     // resolution. The value zero does not set the override.
-    unsigned dpiset_override = 0;
+    unsigned register_dpiset = 0;
 
     // CCD may present itself as half or quarter-size CCD on certain resolutions
     int ccd_size_divisor = 1;

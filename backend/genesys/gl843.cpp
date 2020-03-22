@@ -960,10 +960,6 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   /* sensor parameters */
     gl843_setup_sensor(dev, sensor, reg);
 
-    // resolution is divided according to CKSEL
-    unsigned ccd_pixels_per_system_pixel = sensor.ccd_pixels_per_system_pixel();
-    DBG(DBG_io2, "%s: ccd_pixels_per_system_pixel=%d\n", __func__, ccd_pixels_per_system_pixel);
-
     dev->cmd_set->set_fe(dev, sensor, AFE_SET);
 
   /* enable shading */
@@ -1078,14 +1074,7 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
         reg->find_reg(REG_0x05).value &= ~REG_0x05_GMMENB;
     }
 
-    unsigned dpiset = session.output_resolution * session.ccd_size_divisor *
-            ccd_pixels_per_system_pixel;
-
-    if (sensor.dpiset_override != 0) {
-        dpiset = sensor.dpiset_override;
-    }
-    reg->set16(REG_DPISET, dpiset);
-    DBG(DBG_io2, "%s: dpiset used=%d\n", __func__, dpiset);
+    reg->set16(REG_DPISET, sensor.register_dpiset);
 
     reg->set16(REG_STRPIXEL, session.pixel_startx);
     reg->set16(REG_ENDPIXEL, session.pixel_endx);

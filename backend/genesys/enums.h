@@ -247,6 +247,7 @@ enum class SensorId : unsigned
     CCD_DP665,
     CCD_DP685,
     CCD_DSMOBILE600,
+    CCD_DOCKETPORT_487,
     CCD_G4050,
     CCD_HP2300,
     CCD_HP2400,

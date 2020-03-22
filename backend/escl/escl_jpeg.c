@@ -208,14 +208,14 @@ get_JPEG_data(capabilities_t *scanner, int *width, int *height, int *bps)
 	        scanner->caps[scanner->source].width,
 	        scanner->caps[scanner->source].height);
     x_off = scanner->caps[scanner->source].pos_x;
-    if (x_off > scanner->caps[scanner->source].width) {
+    if (x_off > (unsigned int)scanner->caps[scanner->source].width) {
        w = scanner->caps[scanner->source].width;
        x_off = 0;
     }
     else
        w = scanner->caps[scanner->source].width - x_off;
     y_off = scanner->caps[scanner->source].pos_y;
-    if(y_off > scanner->caps[scanner->source].height) {
+    if(y_off > (unsigned int)scanner->caps[scanner->source].height) {
        h = scanner->caps[scanner->source].height;
        y_off = 0;
     }

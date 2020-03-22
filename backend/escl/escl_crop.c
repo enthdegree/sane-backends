@@ -37,11 +37,13 @@ escl_crop_surface(capabilities_t *scanner,
 	       int *width,
 	       int *height)
 {
+	/*
     int x_off = 0, x = 0;
     int real_w = 0;
     int y_off = 0, y = 0;
     int real_h = 0;
     unsigned char *surface_crop = NULL;
+    */
 /*
     DBG( 1, "Escl Image Crop\n");
     if (w < (int)scanner->caps[scanner->source].width)

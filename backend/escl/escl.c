@@ -404,7 +404,6 @@ sane_get_devices(const SANE_Device ***device_list, SANE_Bool local_only)
 static SANE_Status
 init_options(SANE_String_Const name, escl_sane_t *s)
 {
-    SANE_Range xrange, yrange;
     DBG (10, "escl init_options\n");
 
     SANE_Status status = SANE_STATUS_GOOD;
@@ -846,7 +845,7 @@ sane_start(SANE_Handle h)
        return SANE_STATUS_INVAL;
     }
 
-    DBG(10, "2-Size Image (%d)[%dx%d|%dx%d]\n", handler->scanner->img_size, 0, 0, w, he);
+    DBG(10, "2-Size Image (%ld)[%dx%d|%dx%d]\n", handler->scanner->img_size, 0, 0, w, he);
 
     if (status != SANE_STATUS_GOOD)
        return (status);

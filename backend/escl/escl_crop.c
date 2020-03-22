@@ -103,6 +103,6 @@ escl_crop_surface(capabilities_t *scanner,
     scanner->img_size = (int)(w * h * bps);
     // scanner->img_size = (int)(real_w * real_h * bps);
     scanner->img_read = 0;
-finish:
+//finish:
     return surface;
 }

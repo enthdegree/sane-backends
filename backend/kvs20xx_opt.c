@@ -736,8 +736,8 @@ kvs20xx_init_window (struct scanner *s, struct window *wnd, int wnd_id)
 					       s->val[GAMMA_CORRECTION].s)];
   wnd->mcd_lamp_dfeed_sens = str_index (lamp_list, s->val[LAMP].s) << 4 | 2;
 
-  wnd->document_size = (paper != 0) << 7
-    | s->val[LENGTHCTL].b << 6 | s->val[LANDSCAPE].b << 4 | paper_val[paper];
+  wnd->document_size = ((paper != 0) << 7) | (s->val[LENGTHCTL].b << 6)
+      | (s->val[LANDSCAPE].b << 4) | paper_val[paper];
 
   wnd->ahead_deskew_dfeed_scan_area_fspeed_rshad = s->val[DBLFEED].b << 4
     | s->val[FIT_TO_PAGE].b << 2;

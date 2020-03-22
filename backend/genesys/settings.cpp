@@ -97,7 +97,6 @@ bool ScanSession::operator==(const ScanSession& other) const
 {
     return params == other.params &&
         computed == other.computed &&
-        hwdpi_divisor == other.hwdpi_divisor &&
         ccd_size_divisor == other.ccd_size_divisor &&
         optical_resolution == other.optical_resolution &&
         optical_pixels == other.optical_pixels &&
@@ -120,7 +119,7 @@ bool ScanSession::operator==(const ScanSession& other) const
         segment_count == other.segment_count &&
         pixel_startx == other.pixel_startx &&
         pixel_endx == other.pixel_endx &&
-        pixel_count_multiplier == other.pixel_count_multiplier &&
+        pixel_count_ratio == other.pixel_count_ratio &&
         conseq_pixel_dist == other.conseq_pixel_dist &&
         output_segment_pixel_group_count == other.output_segment_pixel_group_count &&
         output_segment_start_offset == other.output_segment_start_offset &&
@@ -136,7 +135,6 @@ std::ostream& operator<<(std::ostream& out, const ScanSession& session)
 {
     out << "ScanSession{\n"
         << "    computed: " << session.computed << '\n'
-        << "    hwdpi_divisor: " << session.hwdpi_divisor << '\n'
         << "    ccd_size_divisor: " << session.ccd_size_divisor << '\n'
         << "    optical_resolution: " << session.optical_resolution << '\n'
         << "    optical_pixels: " << session.optical_pixels << '\n'

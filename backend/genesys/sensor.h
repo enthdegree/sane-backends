@@ -284,8 +284,9 @@ struct Genesys_Sensor {
     // CCD may present itself as half or quarter-size CCD on certain resolutions
     int ccd_size_divisor = 1;
 
-    // Some scanners need an additional multiplier over the scan coordinates
-    int pixel_count_multiplier = 1;
+    // This defines the ratio between logical pixel coordinates and the pixel coordinates sent to
+    // the scanner.
+    Ratio pixel_count_ratio = Ratio{1, 1};
 
     int black_pixels = 0;
     // value of the dummy register
@@ -327,16 +328,11 @@ struct Genesys_Sensor {
 
     std::function<unsigned(const Genesys_Sensor&, unsigned)> get_register_hwdpi_fun;
     std::function<unsigned(const Genesys_Sensor&, unsigned)> get_ccd_size_divisor_fun;
-    std::function<unsigned(const Genesys_Sensor&, unsigned)> get_hwdpi_divisor_fun;
 
     unsigned get_register_hwdpi(unsigned xres) const { return get_register_hwdpi_fun(*this, xres); }
     unsigned get_ccd_size_divisor_for_dpi(unsigned xres) const
     {
         return get_ccd_size_divisor_fun(*this, xres);
-    }
-    unsigned get_hwdpi_divisor_for_dpi(unsigned xres) const
-    {
-        return get_hwdpi_divisor_fun(*this, xres);
     }
 
     // how many CCD pixels are processed per system pixel time. This corresponds to CKSEL + 1
@@ -366,6 +362,7 @@ struct Genesys_Sensor {
             resolutions == other.resolutions &&
             method == other.method &&
             ccd_size_divisor == other.ccd_size_divisor &&
+            pixel_count_ratio == other.pixel_count_ratio &&
             black_pixels == other.black_pixels &&
             dummy_pixel == other.dummy_pixel &&
             ccd_start_xoffset == other.ccd_start_xoffset &&
@@ -392,6 +389,7 @@ void serialize(Stream& str, Genesys_Sensor& x)
     serialize(str, x.resolutions);
     serialize(str, x.method);
     serialize(str, x.ccd_size_divisor);
+    serialize(str, x.pixel_count_ratio);
     serialize(str, x.black_pixels);
     serialize(str, x.dummy_pixel);
     serialize(str, x.ccd_start_xoffset);

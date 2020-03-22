@@ -837,10 +837,6 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
         }
         s.pixel_startx += s.params.startx * sensor.optical_res / s.params.xres;
 
-        if (sensor.stagger_config.stagger_at_resolution(s.params.xres, s.params.yres) > 0) {
-            s.pixel_startx |= 1;
-        }
-
         s.pixel_endx = s.pixel_startx + s.optical_pixels;
 
         s.pixel_startx /= sensor.ccd_pixels_per_system_pixel() * s.ccd_size_divisor;
@@ -853,10 +849,6 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
                                 / sensor.optical_res;
 
         s.pixel_startx += sensor.dummy_pixel + 1;
-
-        if (s.num_staggered_lines > 0 && (s.pixel_startx & 1) == 0) {
-            s.pixel_startx++;
-        }
 
         /*  In case of SHDAREA, we need to align start on pixel average factor, startx is
             different than 0 only when calling for function to setup for scan, where shading data
@@ -876,13 +868,55 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
     } else if (dev->model->asic_type == AsicType::GL843) {
         unsigned startx = s.params.startx * sensor.optical_res / s.params.xres;
 
-        s.pixel_startx = (startx + sensor.dummy_pixel) / ccd_pixels_per_system_pixel;
-        s.pixel_endx = s.pixel_startx + s.optical_pixels / ccd_pixels_per_system_pixel;
+        s.pixel_startx = (startx + sensor.dummy_pixel);
+        s.pixel_endx = s.pixel_startx + s.optical_pixels;
 
-        s.pixel_startx /= s.hwdpi_divisor;
-        s.pixel_endx /= s.hwdpi_divisor;
+    } else if (dev->model->asic_type == AsicType::GL845 ||
+               dev->model->asic_type == AsicType::GL846 ||
+               dev->model->asic_type == AsicType::GL847)
+    {
+        unsigned startx = s.params.startx * sensor.optical_res / s.params.xres;
 
+        s.pixel_startx = startx;
+
+        s.pixel_startx += sensor.ccd_start_xoffset * ccd_pixels_per_system_pixel;
+        s.pixel_endx = s.pixel_startx + s.optical_pixels_raw;
+
+    } else if (dev->model->asic_type == AsicType::GL124) {
+        unsigned startx = s.params.startx * sensor.optical_res / s.params.xres;
+
+        s.pixel_startx = startx;
+
+        // FIXME: should we add sensor.dummy_pxel to pixel_startx at this point?
+        s.pixel_endx = s.pixel_startx + s.optical_pixels;
+    }
+
+    s.pixel_startx = sensor.pixel_count_ratio.apply(s.pixel_startx);
+    s.pixel_endx = sensor.pixel_count_ratio.apply(s.pixel_endx);
+
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I)
+    {
+        s.pixel_startx = align_multiple_floor(s.pixel_startx, sensor.pixel_count_ratio.divisor());
+        s.pixel_endx = align_multiple_floor(s.pixel_endx, sensor.pixel_count_ratio.divisor());
+    }
+
+    if (dev->model->asic_type == AsicType::GL646) {
+        if (sensor.stagger_config.stagger_at_resolution(s.params.xres, s.params.yres) > 0 &&
+            (s.pixel_startx & 1) == 0)
+        {
+            s.pixel_startx++;
+            s.pixel_endx++;
+        }
+    } else if (dev->model->asic_type == AsicType::GL841) {
+        if (s.num_staggered_lines > 0 && (s.pixel_startx & 1) == 0) {
+            s.pixel_startx++;
+            s.pixel_endx++;
+        }
+    } else if (dev->model->asic_type == AsicType::GL843) {
         // in case of stagger we have to start at an odd coordinate
+        // FIXME: we should probably just configure the image pipeline accordingly
         bool stagger_starts_even = false;
         if (dev->model->model_id == ModelId::CANON_4400F ||
             dev->model->model_id == ModelId::CANON_8400F)
@@ -899,40 +933,19 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
                 s.pixel_endx++;
             }
         }
-
     } else if (dev->model->asic_type == AsicType::GL845 ||
                dev->model->asic_type == AsicType::GL846 ||
                dev->model->asic_type == AsicType::GL847)
     {
-        unsigned startx = s.params.startx * sensor.optical_res / s.params.xres;
-
-        s.pixel_startx = startx;
-
-        if (s.num_staggered_lines > 0) {
-            s.pixel_startx |= 1;
+        if (s.num_staggered_lines > 0 && (s.pixel_startx & 1) == 0) {
+            s.pixel_startx++;
+            s.pixel_endx++;
         }
-
-        s.pixel_startx += sensor.ccd_start_xoffset * ccd_pixels_per_system_pixel;
-        s.pixel_endx = s.pixel_startx + s.optical_pixels_raw;
-
-        s.pixel_startx /= s.hwdpi_divisor * s.segment_count * ccd_pixels_per_system_pixel;
-        s.pixel_endx /= s.hwdpi_divisor * s.segment_count * ccd_pixels_per_system_pixel;
-
     } else if (dev->model->asic_type == AsicType::GL124) {
-        unsigned startx = s.params.startx * sensor.optical_res / s.params.xres;
-
-        s.pixel_startx = startx;
-
-        if (s.num_staggered_lines > 0) {
-            s.pixel_startx |= 1;
+        if (s.num_staggered_lines > 0 && (s.pixel_startx & 1) == 0) {
+            s.pixel_startx++;
+            s.pixel_endx++;
         }
-
-        s.pixel_startx /= ccd_pixels_per_system_pixel;
-        // FIXME: should we add sensor.dummy_pxel to pixel_startx at this point?
-        s.pixel_endx = s.pixel_startx + s.optical_pixels / ccd_pixels_per_system_pixel;
-
-        s.pixel_startx /= s.hwdpi_divisor * s.segment_count;
-        s.pixel_endx /= s.hwdpi_divisor * s.segment_count;
 
         std::uint32_t segcnt = (sensor.custom_regs.get_value(gl124::REG_SEGCNT) << 16) +
                                (sensor.custom_regs.get_value(gl124::REG_SEGCNT + 1) << 8) +
@@ -941,11 +954,6 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
             s.pixel_endx = 0;
         }
     }
-
-    s.pixel_count_multiplier = sensor.pixel_count_multiplier;
-
-    s.pixel_startx *= sensor.pixel_count_multiplier;
-    s.pixel_endx *= sensor.pixel_count_multiplier;
 }
 
 void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& sensor)
@@ -959,18 +967,10 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
         throw SaneException("Unsupported depth setting %d", s.params.depth);
     }
 
-    unsigned ccd_pixels_per_system_pixel = sensor.ccd_pixels_per_system_pixel();
-
     // compute optical and output resolutions
 
-    if (dev->model->asic_type == AsicType::GL843) {
-        // FIXME: this may be incorrect, but need more scanners to test
-        s.hwdpi_divisor = sensor.get_hwdpi_divisor_for_dpi(s.params.xres);
-    } else {
-        s.hwdpi_divisor = sensor.get_hwdpi_divisor_for_dpi(s.params.xres * ccd_pixels_per_system_pixel);
-    }
-
     s.ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(s.params.xres);
+    s.pixel_count_ratio = sensor.pixel_count_ratio;
 
     if (dev->model->asic_type == AsicType::GL646) {
         s.optical_resolution = sensor.optical_res;
@@ -1067,8 +1067,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
             // the scan area
             unsigned extra_segment_scan_area = align_multiple_ceil(s.conseq_pixel_dist, 2);
             extra_segment_scan_area *= s.segment_count - 1;
-            extra_segment_scan_area *= s.hwdpi_divisor * s.segment_count;
-            extra_segment_scan_area *= ccd_pixels_per_system_pixel;
+            extra_segment_scan_area = s.pixel_count_ratio.apply_inverse(extra_segment_scan_area);
 
             s.optical_pixels_raw += extra_segment_scan_area;
         }
@@ -1106,8 +1105,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
         dev->model->asic_type == AsicType::GL846 ||
         dev->model->asic_type == AsicType::GL847)
     {
-        s.output_segment_pixel_group_count = s.optical_pixels /
-                (s.hwdpi_divisor * s.segment_count * ccd_pixels_per_system_pixel);
+        s.output_segment_pixel_group_count = s.pixel_count_ratio.apply(s.optical_pixels);
     }
 
     s.output_line_bytes_requested = multiply_by_depth_ceil(

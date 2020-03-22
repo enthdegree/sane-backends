@@ -271,7 +271,7 @@ struct Genesys_Sensor {
 
     // The scanner may be setup to use a custom dpihw that does not correspond to any actual
     // resolution. The value zero does not set the override.
-    unsigned register_dpihw_override = 0;
+    unsigned register_dpihw = 0;
 
     // The scanner may be setup to use a custom logical dpihw that does not correspond to any actual
     // resolution. The value zero does not set the override.
@@ -283,6 +283,12 @@ struct Genesys_Sensor {
 
     // CCD may present itself as half or quarter-size CCD on certain resolutions
     int ccd_size_divisor = 1;
+
+    // The resolution to use for shading calibration
+    unsigned shading_resolution = 0;
+
+    // How many real pixels correspond to one shading pixel that is sent to the scanner
+    unsigned shading_factor = 1;
 
     // This defines the ratio between logical pixel coordinates and the pixel coordinates sent to
     // the scanner.
@@ -326,10 +332,8 @@ struct Genesys_Sensor {
     // red, green and blue gamma coefficient for default gamma tables
     AssignableArray<float, 3> gamma;
 
-    std::function<unsigned(const Genesys_Sensor&, unsigned)> get_register_hwdpi_fun;
     std::function<unsigned(const Genesys_Sensor&, unsigned)> get_ccd_size_divisor_fun;
 
-    unsigned get_register_hwdpi(unsigned xres) const { return get_register_hwdpi_fun(*this, xres); }
     unsigned get_ccd_size_divisor_for_dpi(unsigned xres) const
     {
         return get_ccd_size_divisor_fun(*this, xres);
@@ -361,7 +365,9 @@ struct Genesys_Sensor {
             optical_res == other.optical_res &&
             resolutions == other.resolutions &&
             method == other.method &&
+            shading_resolution == other.shading_resolution &&
             ccd_size_divisor == other.ccd_size_divisor &&
+            shading_factor == other.shading_factor &&
             pixel_count_ratio == other.pixel_count_ratio &&
             black_pixels == other.black_pixels &&
             dummy_pixel == other.dummy_pixel &&
@@ -388,7 +394,9 @@ void serialize(Stream& str, Genesys_Sensor& x)
     serialize(str, x.optical_res);
     serialize(str, x.resolutions);
     serialize(str, x.method);
+    serialize(str, x.shading_resolution);
     serialize(str, x.ccd_size_divisor);
+    serialize(str, x.shading_factor);
     serialize(str, x.pixel_count_ratio);
     serialize(str, x.black_pixels);
     serialize(str, x.dummy_pixel);

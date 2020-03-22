@@ -1507,8 +1507,7 @@ void scanner_start_action(Genesys_Device& dev, bool start_motor)
     }
 }
 
-void sanei_genesys_set_dpihw(Genesys_Register_Set& regs, const Genesys_Sensor& sensor,
-                             unsigned dpihw)
+void sanei_genesys_set_dpihw(Genesys_Register_Set& regs, unsigned dpihw)
 {
     // same across GL646, GL841, GL843, GL846, GL847, GL124
     const uint8_t REG_0x05_DPIHW_MASK = 0xc0;
@@ -1516,10 +1515,6 @@ void sanei_genesys_set_dpihw(Genesys_Register_Set& regs, const Genesys_Sensor& s
     const uint8_t REG_0x05_DPIHW_1200 = 0x40;
     const uint8_t REG_0x05_DPIHW_2400 = 0x80;
     const uint8_t REG_0x05_DPIHW_4800 = 0xc0;
-
-    if (sensor.register_dpihw_override != 0) {
-        dpihw = sensor.register_dpihw_override;
-    }
 
     uint8_t dpihw_setting;
     switch (dpihw) {

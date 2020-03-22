@@ -336,7 +336,9 @@ gl124_init_registers (Genesys_Device * dev)
 
     // fine tune upon device description
     const auto& sensor = sanei_genesys_find_sensor_any(dev);
-    sanei_genesys_set_dpihw(dev->reg, sensor, sensor.optical_res);
+    const auto& dpihw_sensor = sanei_genesys_find_sensor(dev, sensor.optical_res,
+                                                         3, ScanMethod::FLATBED);
+    sanei_genesys_set_dpihw(dev->reg, dpihw_sensor.register_dpihw);
 }
 
 /**@brief send slope table for motor movement
@@ -688,18 +690,12 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
                                          const ScanSession& session)
 {
     DBG_HELPER_ARGS(dbg, "exposure_time=%d", exposure_time);
-    unsigned int dpihw;
   GenesysRegister *r;
   uint32_t expmax;
 
     // resolution is divided according to ccd_pixels_per_system_pixel
     unsigned ccd_pixels_per_system_pixel = sensor.ccd_pixels_per_system_pixel();
     DBG(DBG_io2, "%s: ccd_pixels_per_system_pixel=%d\n", __func__, ccd_pixels_per_system_pixel);
-
-    // to manage high resolution device while keeping good low resolution scanning speed, we
-    // make hardware dpi vary
-    dpihw = sensor.get_register_hwdpi(session.output_resolution * ccd_pixels_per_system_pixel);
-    DBG(DBG_io2, "%s: dpihw=%d\n", __func__, dpihw);
 
     gl124_setup_sensor(dev, sensor, reg);
 
@@ -765,7 +761,10 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 	}
     }
 
-    sanei_genesys_set_dpihw(*reg, sensor, dpihw);
+    const auto& dpihw_sensor = sanei_genesys_find_sensor(dev, session.output_resolution,
+                                                         session.params.channels,
+                                                         session.params.scan_method);
+    sanei_genesys_set_dpihw(*reg, dpihw_sensor.register_dpihw);
 
     if (should_enable_gamma(session, sensor)) {
         reg->find_reg(REG_0x05).value |= REG_0x05_GMMENB;
@@ -1073,12 +1072,8 @@ void CommandSetGl124::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     DBG_HELPER(dbg);
 
     unsigned channels = 3;
-    unsigned dpihw = sensor.get_register_hwdpi(dev->settings.xres);
-    unsigned resolution = dpihw;
+    unsigned resolution = sensor.shading_resolution;
 
-    unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
-
-    resolution /= ccd_size_divisor;
     unsigned calib_lines =
             static_cast<unsigned>(dev->model->y_size_calib_mm * resolution / MM_PER_INCH);
 
@@ -1167,8 +1162,7 @@ void CommandSetGl124::send_shading_data(Genesys_Device* dev, const Genesys_Senso
                                         std::uint8_t* data, int size) const
 {
     DBG_HELPER_ARGS(dbg, "writing %d bytes of shading data", size);
-    uint32_t addr, length, x, factor, segcnt, pixels, i;
-  uint16_t dpiset,dpihw;
+    std::uint32_t addr, length, segcnt, pixels, i;
     uint8_t *ptr, *src;
 
   /* logical size of a color as seen by generic code of the frontend */
@@ -1181,12 +1175,6 @@ void CommandSetGl124::send_shading_data(Genesys_Device* dev, const Genesys_Senso
       endpixel=segcnt;
     }
 
-  /* compute deletion factor */
-    dpiset = dev->reg.get16(REG_DPISET);
-    dpihw = sensor.get_register_hwdpi(dpiset);
-  factor=dpihw/dpiset;
-  DBG( DBG_io2, "%s: factor=%d\n",__func__,factor);
-
   /* turn pixel value into bytes 2x16 bits words */
   strpixel*=2*2; /* 2 words of 2 bytes */
   endpixel*=2*2;
@@ -1196,7 +1184,7 @@ void CommandSetGl124::send_shading_data(Genesys_Device* dev, const Genesys_Senso
     dev->interface->record_key_value("shading_start_pixel", std::to_string(strpixel));
     dev->interface->record_key_value("shading_pixels", std::to_string(pixels));
     dev->interface->record_key_value("shading_length", std::to_string(length));
-    dev->interface->record_key_value("shading_factor", std::to_string(factor));
+    dev->interface->record_key_value("shading_factor", std::to_string(sensor.shading_factor));
     dev->interface->record_key_value("shading_segcnt", std::to_string(segcnt));
     dev->interface->record_key_value("shading_segment_count",
                                      std::to_string(dev->session.segment_count));
@@ -1212,8 +1200,7 @@ void CommandSetGl124::send_shading_data(Genesys_Device* dev, const Genesys_Senso
       ptr = buffer.data();
 
       /* iterate on both sensor segment */
-      for(x=0;x<pixels;x+=4*factor)
-        {
+        for (unsigned x = 0; x < pixels; x += 4 * sensor.shading_factor) {
           /* coefficient source */
           src=data+x+strpixel+i*length;
 
@@ -1337,8 +1324,6 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
                                                 Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
-  int resolution;
-  int dpihw;
     int i;
   int avg[3];
   int turn;
@@ -1349,10 +1334,7 @@ SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genes
 
   /* offset calibration is always done in 16 bit depth color mode */
     unsigned channels = 3;
-    dpihw = sensor.get_register_hwdpi(dev->settings.xres);
-    resolution = dpihw;
-    unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
-    resolution /= ccd_size_divisor;
+    unsigned resolution = sensor.shading_resolution;
 
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                          dev->settings.scan_method);

@@ -339,8 +339,7 @@ void regs_set_exposure(AsicType asic_type, Genesys_Register_Set& regs,
 
 void regs_set_optical_off(AsicType asic_type, Genesys_Register_Set& regs);
 
-void sanei_genesys_set_dpihw(Genesys_Register_Set& regs, const Genesys_Sensor& sensor,
-                             unsigned dpihw);
+void sanei_genesys_set_dpihw(Genesys_Register_Set& regs, unsigned dpihw);
 
 inline SensorExposure sanei_genesys_fixup_exposure(SensorExposure exposure)
 {
@@ -476,6 +475,7 @@ void genesys_init_gpo_tables();
 void genesys_init_memory_layout_tables();
 void genesys_init_motor_tables();
 void genesys_init_usb_device_tables();
+void verify_sensor_tables();
 void verify_usb_device_tables();
 
 template<class T>

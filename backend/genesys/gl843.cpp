@@ -87,10 +87,10 @@ static void gl843_setup_sensor(Genesys_Device* dev, const Genesys_Sensor& sensor
     for (const auto& custom_reg : sensor.custom_regs) {
         regs->set8(custom_reg.address, custom_reg.value);
     }
-    if (!has_flag(dev->model->flags, ModelFlag::FULL_HWDPI_MODE) &&
-        dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7200I &&
-        dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7300 &&
-        dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7500I)
+    if (dev->model->model_id == ModelId::PANASONIC_KV_SS080 ||
+        dev->model->model_id == ModelId::HP_SCANJET_4850C ||
+        dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
+        dev->model->model_id == ModelId::HP_SCANJET_G4050)
     {
         regs->set8(0x7d, 0x90);
     }
@@ -149,8 +149,16 @@ gl843_init_registers (Genesys_Device * dev)
       dev->reg.init_reg(0x05, 0x08);
     }
 
+    auto initial_scan_method = dev->model->default_method;
+    if (dev->model->model_id == ModelId::CANON_4400F ||
+        dev->model->model_id == ModelId::CANON_8600F)
+    {
+        initial_scan_method = ScanMethod::TRANSPARENCY;
+    }
     const auto& sensor = sanei_genesys_find_sensor_any(dev);
-    sanei_genesys_set_dpihw(dev->reg, sensor, sensor.optical_res);
+    const auto& dpihw_sensor = sanei_genesys_find_sensor(dev, sensor.optical_res,
+                                                         3, initial_scan_method);
+    sanei_genesys_set_dpihw(dev->reg, dpihw_sensor.register_dpihw);
 
     // TODO: on 8600F the windows driver turns off GAIN4 which is recommended
     dev->reg.init_reg(0x06, 0xd8); /* SCANMOD=110, PWRBIT and GAIN4 */
@@ -887,7 +895,14 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     // steps for STOP table
     reg->set8(REG_FMOVDEC, fast_table.steps_count / step_multiplier);
 
-    if (!has_flag(dev->model->flags, ModelFlag::FULL_HWDPI_MODE)) {
+    if (dev->model->model_id == ModelId::PANASONIC_KV_SS080 ||
+        dev->model->model_id == ModelId::HP_SCANJET_4850C ||
+        dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
+        dev->model->model_id == ModelId::HP_SCANJET_G4050 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I)
+    {
         // FIXME: take this information from motor struct
         std::uint8_t reg_vref = reg->get8(0x80);
         reg_vref = 0x50;
@@ -935,18 +950,12 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
                                          const ScanSession& session)
 {
     DBG_HELPER_ARGS(dbg, "exposure=%d", exposure);
-    unsigned int dpihw;
   unsigned int tgtime;          /**> exposure time multiplier */
   GenesysRegister *r;
 
   /* tgtime */
   tgtime = exposure / 65536 + 1;
   DBG(DBG_io2, "%s: tgtime=%d\n", __func__, tgtime);
-
-    // to manage high resolution device while keeping good low resolution scanning speed, we make
-    // hardware dpi vary
-    dpihw = sensor.get_register_hwdpi(session.output_resolution);
-    DBG(DBG_io2, "%s: dpihw=%d\n", __func__, dpihw);
 
   /* sensor parameters */
     gl843_setup_sensor(dev, sensor, reg);
@@ -969,14 +978,21 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
         r->value |= REG_0x01_DVDSET;
     }
 
-    bool use_shdarea = dpihw > 600;
+    bool use_shdarea = false;
     if (dev->model->model_id == ModelId::CANON_4400F) {
         use_shdarea = session.params.xres <= 600;
     } else if (dev->model->model_id == ModelId::CANON_8400F) {
         use_shdarea = session.params.xres <= 400;
-    } else if (dev->model->model_id == ModelId::CANON_8600F) {
+    } else if (dev->model->model_id == ModelId::CANON_8600F ||
+               dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I ||
+               dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
+               dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I)
+    {
         use_shdarea = true;
+    } else {
+        use_shdarea = session.params.xres > 600;
     }
+
     if (use_shdarea) {
         r->value |= REG_0x01_SHDAREA;
     } else {
@@ -1051,7 +1067,10 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
         }
     }
 
-    sanei_genesys_set_dpihw(*reg, sensor, dpihw);
+    const auto& dpihw_sensor = sanei_genesys_find_sensor(dev, session.output_resolution,
+                                                         session.params.channels,
+                                                         session.params.scan_method);
+    sanei_genesys_set_dpihw(*reg, dpihw_sensor.register_dpihw);
 
     if (should_enable_gamma(session, sensor)) {
         reg->find_reg(REG_0x05).value |= REG_0x05_GMMENB;
@@ -1475,7 +1494,7 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
         calib_size_mm = dev->model->y_size_calib_mm;
     }
 
-    unsigned resolution = sensor.get_register_hwdpi(dev->settings.xres);
+    unsigned resolution = sensor.shading_resolution;
 
     unsigned channels = 3;
   const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
@@ -1486,12 +1505,11 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 
     if (should_calibrate_only_active_area(*dev, dev->settings)) {
         float offset = get_model_x_offset_ta(*dev, dev->settings);
-        offset /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
-        offset = static_cast<float>((offset * resolution) / MM_PER_INCH);
+        // FIXME: we should use resolution here
+        offset = static_cast<float>((offset * dev->settings.xres) / MM_PER_INCH);
 
         float size = dev->model->x_size_ta;
-        size /= calib_sensor.get_ccd_size_divisor_for_dpi(resolution);
-        size = static_cast<float>((size * resolution) / MM_PER_INCH);
+        size = static_cast<float>((size * dev->settings.xres) / MM_PER_INCH);
 
         calib_pixels_offset = static_cast<std::size_t>(offset);
         calib_pixels = static_cast<std::size_t>(size);
@@ -1754,14 +1772,11 @@ void CommandSetGl843::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
                                            int* total_size) const
 {
     DBG_HELPER(dbg);
-  int dpihw;
-  int resolution;
+    (void) sensor;
 
-  /* setup scan */
-  *channels=3;
-  resolution=600;
-    dpihw = sensor.get_register_hwdpi(resolution);
-  resolution=dpihw;
+    *channels=3;
+    unsigned resolution = dev->model->get_resolution_settings(dev->settings.scan_method)
+                                     .get_nearest_resolution_x(600);
 
   const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, *channels,
                                                        dev->settings.scan_method);
@@ -2006,8 +2021,7 @@ void CommandSetGl843::send_shading_data(Genesys_Device* dev, const Genesys_Senso
         if (dev->model->model_id == ModelId::CANON_4400F ||
             dev->model->model_id == ModelId::CANON_8600F)
         {
-            int half_ccd_factor = dev->session.optical_resolution /
-                                  sensor.get_register_hwdpi(dev->session.output_resolution);
+            int half_ccd_factor = dev->session.optical_resolution / sensor.shading_resolution;
             strpixel = dev->session.pixel_count_ratio.apply(strpixel / half_ccd_factor);
             endpixel = dev->session.pixel_count_ratio.apply(endpixel / half_ccd_factor);
         }

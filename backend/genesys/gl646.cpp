@@ -275,7 +275,7 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
             break;
     }
 
-    sanei_genesys_set_dpihw(*regs, sensor, sensor.optical_res);
+    sanei_genesys_set_dpihw(*regs, sensor.optical_res);
 
   /* gamma enable for scans */
     if (has_flag(dev->model->flags, ModelFlag::GAMMA_14BIT)) {
@@ -625,7 +625,7 @@ gl646_init_regs (Genesys_Device * dev)
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
 
   dev->reg.find_reg(0x05).value = 0x00;	/* 12 bits gamma, disable gamma, 24 clocks/pixel */
-    sanei_genesys_set_dpihw(dev->reg, sensor, sensor.optical_res);
+    sanei_genesys_set_dpihw(dev->reg, sensor.optical_res);
 
     if (has_flag(dev->model->flags, ModelFlag::GAMMA_14BIT)) {
         dev->reg.find_reg(0x05).value |= REG_0x05_GMM14BIT;

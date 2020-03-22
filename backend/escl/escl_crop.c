@@ -42,7 +42,7 @@ escl_crop_surface(capabilities_t *scanner,
     int y_off = 0, y = 0;
     int real_h = 0;
     unsigned char *surface_crop = NULL;
-
+/*
     DBG( 1, "Escl Image Crop\n");
     if (w < (int)scanner->caps[scanner->source].width)
            scanner->caps[scanner->source].width = w;
@@ -54,12 +54,27 @@ escl_crop_surface(capabilities_t *scanner,
     if (scanner->caps[scanner->source].pos_x < 0)
            scanner->caps[scanner->source].pos_x = 0;
 
+    DBG( 1, "Escl Image Crop [%dx%d|%dx%d]\n", scanner->caps[scanner->source].pos_x, scanner->caps[scanner->source].pos_y,
+		    scanner->caps[scanner->source].width, scanner->caps[scanner->source].height);
     x_off = scanner->caps[scanner->source].pos_x;
-    real_w = scanner->caps[scanner->source].width - x_off;
+    if (x_off >= scanner->caps[scanner->source].width) {
+       real_w = scanner->caps[scanner->source].width;
+       x_off = 0;
+    }
+    else
+       real_w = scanner->caps[scanner->source].width - x_off;
     y_off = scanner->caps[scanner->source].pos_y;
-    real_h = scanner->caps[scanner->source].height - y_off;
-    *width = real_w;
-    *height = real_h;
+    if(y_off >= scanner->caps[scanner->source].height) {
+       real_h = scanner->caps[scanner->source].height;
+       y_off = 0;
+    }
+    else
+       real_h = scanner->caps[scanner->source].height - y_off;
+  */
+    *width = w; //real_w;
+    *height = h; //real_h;
+    DBG( 1, "Escl Image Crop [%dx%d]\n", *width, *height);
+    /*
     if (x_off > 0 || real_w < scanner->caps[scanner->source].width ||
         y_off > 0 || real_h < scanner->caps[scanner->source].height) {
           surface_crop = (unsigned char *)malloc (sizeof (unsigned char) * real_w
@@ -80,9 +95,11 @@ escl_crop_surface(capabilities_t *scanner,
           free(surface);
 	  surface = surface_crop;
     }
+    */
     // we don't need row pointers anymore
     scanner->img_data = surface;
-    scanner->img_size = (int)(real_w * real_h * bps);
+    scanner->img_size = (int)(w * h * bps);
+    // scanner->img_size = (int)(real_w * real_h * bps);
     scanner->img_read = 0;
 finish:
     return surface;

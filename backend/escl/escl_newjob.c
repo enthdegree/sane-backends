@@ -127,6 +127,7 @@ char *
 escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *status)
 {
     CURL *curl_handle = NULL;
+    int off_x = 0, off_y = 0;
     struct uploading *upload = NULL;
     struct downloading *download = NULL;
     const char *scan_jobs = "/eSCL/ScanJobs";
@@ -169,25 +170,30 @@ escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *statu
     }
     else
       format_ext = f_ext;
-    if(!strcmp(scanner->Sources[scanner->source], "Feeder")) {
+    if(scanner->source > PLATEN) {
        snprintf(duplex_mode, sizeof(duplex_mode),
 		       "   <scan:Duplex>%s</scan:Duplex>",
-		       scanner->caps[scanner->source].duplex ? "true" : "false");
+		       scanner->source == ADFDUPLEX ? "true" : "false");
     }
     DBG( 1, "Create NewJob : %s\n", scanner->caps[scanner->source].default_format);
+    if (scanner->caps[scanner->source].pos_x > scanner->caps[scanner->source].width)
+         off_x = (scanner->caps[scanner->source].pos_x > scanner->caps[scanner->source].width) / 2;
+    if (scanner->caps[scanner->source].pos_y > scanner->caps[scanner->source].height)
+         off_y = (scanner->caps[scanner->source].pos_y > scanner->caps[scanner->source].height) / 2;
     if (curl_handle != NULL) {
+		char *source = (scanner->source == PLATEN ? "Platen" : "Feeder");
         snprintf(cap_data, sizeof(cap_data), settings,
 			scanner->caps[scanner->source].height,
 			scanner->caps[scanner->source].width,
-			0,
-			0,
+			off_x,
+			off_y,
 			scanner->caps[scanner->source].default_format,
 			format_ext,
 			scanner->caps[scanner->source].default_color,
 			scanner->caps[scanner->source].default_resolution,
 			scanner->caps[scanner->source].default_resolution,
-			scanner->Sources[scanner->source],
-			scanner->Sources[scanner->source],
+			source,
+			source,
 			duplex_mode[0] == 0 ? "" : duplex_mode);
         DBG( 1, "Create NewJob : %s\n", cap_data);
         upload->read_data = strdup(cap_data);

@@ -182,45 +182,51 @@ static int
 find_valor_of_array_variables(xmlNode *node, capabilities_t *scanner, int type)
 {
     const char *name = (const char *)node->name;
-    if (strcmp(name, "ColorMode") == 0)
-        scanner->caps[type].ColorModes = char_to_array(scanner->caps[type].ColorModes, &scanner->caps[type].ColorModesSize, (SANE_String_Const)xmlNodeGetContent(node), 1);
+    if (strcmp(name, "ColorMode") == 0) {
+		const char *color = (SANE_String_Const)xmlNodeGetContent(node);
+		if (type == PLATEN || strcmp(color, "BlackAndWhite1"))
+          scanner->caps[type].ColorModes = char_to_array(scanner->caps[type].ColorModes, &scanner->caps[type].ColorModesSize, (SANE_String_Const)xmlNodeGetContent(node), 1);
+	}
     else if (strcmp(name, "ContentType") == 0)
         scanner->caps[type].ContentTypes = char_to_array(scanner->caps[type].ContentTypes, &scanner->caps[type].ContentTypesSize, (SANE_String_Const)xmlNodeGetContent(node), 0);
     else if (strcmp(name, "DocumentFormat") == 0)
      {
         int i = 0;
+        SANE_Bool have_jpeg = SANE_FALSE, have_png = SANE_FALSE, have_tiff = SANE_FALSE, have_pdf = SANE_FALSE;
         scanner->caps[type].DocumentFormats = char_to_array(scanner->caps[type].DocumentFormats, &scanner->caps[type].DocumentFormatsSize, (SANE_String_Const)xmlNodeGetContent(node), 0);
         for(; i < scanner->caps[type].DocumentFormatsSize; i++)
          {
-            if (scanner->caps[type].default_format == NULL && !strcmp(scanner->caps[type].DocumentFormats[i], "image/jpeg"))
+            if (!strcmp(scanner->caps[type].DocumentFormats[i], "image/jpeg"))
             {
-               scanner->caps[type].default_format = strdup("image/jpeg");
+			   have_jpeg = SANE_TRUE;
             }
 #if(defined HAVE_LIBPNG)
-            else if(!strcmp(scanner->caps[type].DocumentFormats[i], "image/png") && (scanner->caps[type].default_format == NULL || strcmp(scanner->caps[type].default_format, "image/tiff")))
+            else if(!strcmp(scanner->caps[type].DocumentFormats[i], "image/png"))
             {
-               if (scanner->caps[type].default_format)
-                  free(scanner->caps[type].default_format);
-               scanner->caps[type].default_format = strdup("image/png");
+               have_png = SANE_TRUE;
             }
 #endif
 #if(defined HAVE_TIFFIO_H)
-            else if(!strcmp(scanner->caps[type].DocumentFormats[i], "image/tiff"))
+            else if(type == PLATEN && !strcmp(scanner->caps[type].DocumentFormats[i], "image/tiff"))
             {
-               if (scanner->caps[type].default_format)
-                  free(scanner->caps[type].default_format);
-               scanner->caps[type].default_format = strdup("image/tiff");
+               have_tiff = SANE_TRUE;
             }
 #endif
 #if(defined HAVE_POPPLER_GLIB)
-            else if(!strcmp(scanner->caps[scanner->source].DocumentFormats[i], "application/pdf"))
+            else if(type == PLATEN && !strcmp(scanner->caps[type].DocumentFormats[i], "application/pdf"))
             {
-               if (scanner->caps[scanner->source].default_format)
-                  free(scanner->caps[scanner->source].default_format);
-               scanner->caps[scanner->source].default_format = strdup("application/pdf");
+               have_pdf = SANE_TRUE;
             }
 #endif
          }
+         if (have_pdf)
+             scanner->caps[type].default_format = strdup("application/pdf");
+         else if (have_tiff)
+             scanner->caps[type].default_format = strdup("image/tiff");
+         else if (have_png)
+             scanner->caps[type].default_format = strdup("image/png");
+         else if (have_jpeg)
+             scanner->caps[type].default_format = strdup("image/jpeg");
      }
     else if (strcmp(name, "DocumentFormatExt") == 0)
         scanner->caps[type].format_ext = 1;
@@ -324,22 +330,34 @@ print_xml_c(xmlNode *node, capabilities_t *scanner, int type)
                 find_true_variables(node, scanner, type);
         }
 	if (!strcmp((const char *)node->name, "PlatenInputCaps")) {
-           scanner->Sources = char_to_array(scanner->Sources, &scanner->SourcesSize, (SANE_String_Const)"Platen", 0);
+           scanner->Sources =
+                 char_to_array(scanner->Sources,
+                               &scanner->SourcesSize,
+                               (SANE_String_Const)SANE_I18N ("Flatbed"),
+                               0);
 	   scanner->source = PLATEN;
            print_xml_c(node->children, scanner, PLATEN);
-	   scanner->caps[scanner->source].duplex = 0;
+	   scanner->caps[PLATEN].duplex = 0;
 	}
 	else if (!strcmp((const char *)node->name, "AdfSimplexInputCaps")) {
-           scanner->Sources = char_to_array(scanner->Sources, &scanner->SourcesSize, (SANE_String_Const)"Feeder", 0);
+           scanner->Sources =
+                 char_to_array(scanner->Sources,
+                               &scanner->SourcesSize,
+                               (SANE_String_Const)SANE_I18N("ADF"),
+                               0);
 	   if (scanner->source == -1) scanner->source = ADFSIMPLEX;
            print_xml_c(node->children, scanner, ADFSIMPLEX);
-	   scanner->caps[scanner->source].duplex = 0;
+	   scanner->caps[ADFSIMPLEX].duplex = 0;
 	}
 	else if (!strcmp((const char *)node->name, "AdfDuplexInputCaps")) {
-           scanner->Sources = char_to_array(scanner->Sources, &scanner->SourcesSize, (SANE_String_Const)"Feeder", 0);
+           scanner->Sources =
+                 char_to_array(scanner->Sources,
+                               &scanner->SourcesSize,
+                               (SANE_String_Const)SANE_I18N ("ADF Duplex"),
+                               0);
 	   if (scanner->source == -1) scanner->source = ADFDUPLEX;
            print_xml_c(node->children, scanner, ADFDUPLEX);
-	   scanner->caps[scanner->source].duplex = 1;
+	   scanner->caps[ADFDUPLEX].duplex = 1;
 	}
 	else
            print_xml_c(node->children, scanner, type);

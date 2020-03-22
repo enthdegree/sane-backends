@@ -115,7 +115,7 @@ print_xml_s(xmlNode *node, SANE_Status *platen_status, SANE_Status* adf_status, 
                     } else if (!strcmp(state, "ScannerAdfDoorOpen")) {
                         *adf_status = SANE_STATUS_COVER_OPEN;
                     } else if (!strcmp(state, "ScannerAdfProcessing")) {
-                        *adf_status = SANE_STATUS_NO_DOCS;
+                        *adf_status = SANE_STATUS_GOOD;
                     } else if (!strcmp(state, "ScannerAdfEmpty")) {
                         *adf_status = SANE_STATUS_NO_DOCS;
                     } else {
@@ -174,6 +174,7 @@ escl_status(SANE_String_Const name, int source)
         status = SANE_STATUS_INVAL;
         goto clean_data;
     }
+    DBG( 10, "eSCL : Status : %s.\n", var->memory);
     data = xmlReadMemory(var->memory, var->size, "file.xml", NULL, 0);
     if (data == NULL) {
         status = SANE_STATUS_NO_MEM;
@@ -187,14 +188,16 @@ escl_status(SANE_String_Const name, int source)
     status = SANE_STATUS_DEVICE_BUSY;
     print_xml_s(node, &platen_status, &adf_status, source);
     /* Decode Job status */
-    if (platen_status != SANE_STATUS_GOOD &&
-        platen_status != SANE_STATUS_UNSUPPORTED) {
+    /* Decode Job status */
+    if (source == PLATEN) {
         status = platen_status;
-    } else if (source == PLATEN) {
-        status = platen_status;
-    } else {
+    } else if (platen_status != SANE_STATUS_UNSUPPORTED) {
         status = adf_status;
     }
+    else
+        status = platen_status;
+
+    printf ("STATUS AA : %s\n", sane_strstatus(status));
 clean:
     xmlFreeDoc(data);
 clean_data:

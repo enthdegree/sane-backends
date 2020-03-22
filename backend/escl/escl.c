@@ -404,22 +404,31 @@ sane_get_devices(const SANE_Device ***device_list, SANE_Bool local_only)
 static SANE_Status
 init_options(SANE_String_Const name, escl_sane_t *s)
 {
+    SANE_Range xrange, yrange;
     DBG (10, "escl init_options\n");
+
     SANE_Status status = SANE_STATUS_GOOD;
     int i = 0;
     if (!s->scanner) return SANE_STATUS_INVAL;
     if (name) {
-	for (i = 0; i < s->scanner->SourcesSize; i++)
-	{
-	    if (!strcmp(s->scanner->Sources[i], name))
-		s->scanner->source = i;
-	}
+	   int source = s->scanner->source;
+	   DBG (10, "escl init_options name [%s]\n", name);
+	   if (!strcmp(name, SANE_I18N ("ADF Duplex")))
+	       s->scanner->source = ADFSIMPLEX;
+	   else if (!strncmp(name, "AD", 2) ||
+	            !strcmp(name, SANE_I18N ("ADF Duplex")))
+	       s->scanner->source = ADFSIMPLEX;
+	   else
+	       s->scanner->source = PLATEN;
+	   if (source == s->scanner->source) return status;
     }
+    else
+	   s->scanner->source = PLATEN;
     memset (s->opt, 0, sizeof (s->opt));
     memset (s->val, 0, sizeof (s->val));
     for (i = 0; i < NUM_OPTIONS; ++i) {
-	s->opt[i].size = sizeof (SANE_Word);
-	s->opt[i].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+	   s->opt[i].size = sizeof (SANE_Word);
+	   s->opt[i].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     }
     s->x_range.min = PIXEL_TO_MM(s->scanner->caps[s->scanner->source].MinWidth, 300.0);
     s->x_range.max = PIXEL_TO_MM(s->scanner->caps[s->scanner->source].MaxWidth, 300.0);
@@ -496,7 +505,7 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_TL_X].unit = SANE_UNIT_MM;
     s->opt[OPT_TL_X].constraint_type = SANE_CONSTRAINT_RANGE;
     s->opt[OPT_TL_X].constraint.range = &s->x_range;
-    s->val[OPT_TL_X].w = 0;
+    s->val[OPT_TL_X].w = s->x_range.min;
 
     s->opt[OPT_TL_Y].name = SANE_NAME_SCAN_TL_Y;
     s->opt[OPT_TL_Y].title = SANE_TITLE_SCAN_TL_Y;
@@ -507,7 +516,7 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_TL_Y].unit = SANE_UNIT_MM;
     s->opt[OPT_TL_Y].constraint_type = SANE_CONSTRAINT_RANGE;
     s->opt[OPT_TL_Y].constraint.range = &s->y_range;
-    s->val[OPT_TL_Y].w = 0;
+    s->val[OPT_TL_Y].w = s->y_range.min;
 
     s->opt[OPT_BR_X].name = SANE_NAME_SCAN_BR_X;
     s->opt[OPT_BR_X].title = SANE_TITLE_SCAN_BR_X;
@@ -542,10 +551,7 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_SCAN_SOURCE].constraint.string_list = s->scanner->Sources;
     if (s->val[OPT_SCAN_SOURCE].s)
        free (s->val[OPT_SCAN_SOURCE].s);
-    if (name)
-       s->val[OPT_SCAN_SOURCE].s = strdup (name);
-    else
-       s->val[OPT_SCAN_SOURCE].s = strdup (s->scanner->Sources[0]);
+    s->val[OPT_SCAN_SOURCE].s = strdup (s->scanner->Sources[s->scanner->source]);
     return (status);
 }
 
@@ -580,7 +586,7 @@ sane_open(SANE_String_Const name, SANE_Handle *h)
 	return (status);
     status = init_options(NULL, handler);
     if (status != SANE_STATUS_GOOD)
-	return (status);
+	   return (status);
     handler->ps.depth = 8;
     handler->ps.last_frame = SANE_TRUE;
     handler->ps.format = SANE_FRAME_RGB;
@@ -589,7 +595,7 @@ sane_open(SANE_String_Const name, SANE_Handle *h)
     handler->ps.bytes_per_line = handler->ps.pixels_per_line * 3;
     status = sane_get_parameters(handler, 0);
     if (status != SANE_STATUS_GOOD)
-	return (status);
+	   return (status);
     handler->cancel = SANE_FALSE;
     handler->write_scan_data = SANE_FALSE;
     handler->decompress_scan_data = SANE_FALSE;
@@ -806,8 +812,8 @@ sane_start(SANE_Handle h)
        DBG(10, "Calculate Size Image [%dx%d|%dx%d]\n",
 	        handler->scanner->caps[handler->scanner->source].pos_x,
 	        handler->scanner->caps[handler->scanner->source].pos_y,
-	        handler->scanner->caps[handler->scanner->source].height,
-	        handler->scanner->caps[handler->scanner->source].width);
+	        handler->scanner->caps[handler->scanner->source].width,
+	        handler->scanner->caps[handler->scanner->source].height);
        if (!handler->scanner->caps[handler->scanner->source].default_color) {
           DBG (10, "Default Color allocation failure.\n");
           return (SANE_STATUS_NO_MEM);
@@ -840,7 +846,7 @@ sane_start(SANE_Handle h)
        return SANE_STATUS_INVAL;
     }
 
-    DBG(10, "2-Size Image [%dx%d|%dx%d]\n", 0, 0, w, he);
+    DBG(10, "2-Size Image (%d)[%dx%d|%dx%d]\n", handler->scanner->img_size, 0, 0, w, he);
 
     if (status != SANE_STATUS_GOOD)
        return (status);
@@ -849,8 +855,10 @@ sane_start(SANE_Handle h)
     handler->ps.lines = he;
     handler->ps.bytes_per_line = w * bps;
     if (handler->scanner->source != PLATEN) {
+		SANE_Status st = escl_status(handler->name, handler->scanner->source);
+		DBG(10, "eSCL : command returned status %s\n", sane_strstatus(st));
 		SANE_Bool next_page =
-			(SANE_STATUS_GOOD == escl_status(handler->name, handler->scanner->source) ?
+			(SANE_STATUS_GOOD == st ?
 				SANE_TRUE :
 				SANE_FALSE);
         handler->scanner->work = next_page;
@@ -860,7 +868,9 @@ sane_start(SANE_Handle h)
         handler->scanner->work = SANE_FALSE;
         handler->ps.last_frame = SANE_TRUE;
     }
+
     handler->ps.format = SANE_FRAME_RGB;
+    DBG(10, "NEXT Frame [%s]\n", (handler->ps.last_frame ? "Non" : "Oui"));
     DBG(10, "Real Size Image [%dx%d|%dx%d]\n", 0, 0, w, he);
     return (status);
 }
@@ -913,6 +923,7 @@ sane_read(SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *len)
 
     if (!handler | !buf | !len)
         return (SANE_STATUS_INVAL);
+
     if (handler->cancel)
         return (SANE_STATUS_CANCELLED);
     if (!handler->write_scan_data)

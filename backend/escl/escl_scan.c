@@ -76,7 +76,7 @@ escl_scan(capabilities_t __sane_unused__ *scanner, SANE_String_Const name, char 
         strcat(scan_cmd, scanner_start);
         curl_easy_setopt(curl_handle, CURLOPT_URL, scan_cmd);
         DBG( 1, "Scan : %s.\n", scan_cmd);
-	if (strncmp(name, "https", 5) == 0) {
+	    if (strncmp(name, "https", 5) == 0) {
             DBG( 1, "Ignoring safety certificates, use https\n");
             curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 0L);
             curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYHOST, 0L);
@@ -88,12 +88,12 @@ escl_scan(capabilities_t __sane_unused__ *scanner, SANE_String_Const name, char 
             if (curl_easy_perform(curl_handle) != CURLE_OK) {
                 status = SANE_STATUS_INVAL;
             }
-            else
-                curl_easy_cleanup(curl_handle);
             fseek(scanner->tmp, 0, SEEK_SET);
         }
         else
             status = SANE_STATUS_NO_MEM;
+        curl_easy_cleanup(curl_handle);
     }
+    printf ("eSCL scan : %s\n", sane_strstatus(status));
     return (status);
 }

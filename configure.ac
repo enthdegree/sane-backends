@@ -697,7 +697,10 @@ fi
 
 if test "${sane_cv_use_libjpeg}" = "yes"; then
   SANEI_SANEI_JPEG_LO="../sanei/sanei_jpeg.lo"
+  saved_LIBS="${LIBS}"
+  LIBS="${JPEG_LIBS}"
   AC_CHECK_FUNCS(jpeg_crop_scanline jpeg_skip_scanlines)
+  LIBS="${saved_LIBS}"
 fi
 AM_CONDITIONAL(HAVE_JPEG, test x$sane_cv_use_libjpeg = xyes)
 AC_SUBST(SANEI_SANEI_JPEG_LO)

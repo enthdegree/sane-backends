@@ -630,8 +630,8 @@ for be in ${BACKENDS}; do
       echo "*** $be backend currently requires JPEG library - $DISABLE_MSG"
       backend_supported="no"
     else
-      if test "x${have_jpeg_crop_scanline}" != "xyes" \
-      || test "x${have_jpeg_skip_scanline}" != "xyes"; then
+      if test "x${ac_cv_func_jpeg_crop_scanline}"  != "xyes" \
+      || test "x${ac_cv_func_jpeg_skip_scanlines}" != "xyes"; then
         echo "*** $be backend requires a newer JPEG library - $DISABLE_MSG"
         backend_supported="no"
       fi

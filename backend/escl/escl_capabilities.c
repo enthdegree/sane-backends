@@ -331,7 +331,7 @@ print_xml_c(xmlNode *node, capabilities_t *scanner)
 }
 
 /**
- * \fn capabilities_t *escl_capabilities(SANE_String_Const name, SANE_Status *status)
+ * \fn capabilities_t *escl_capabilities(const ESCL_Device *device, SANE_Status *status)
  * \brief Function that finally recovers all the capabilities of the scanner, using curl.
  *        This function is called in the 'sane_open' function and it's the equivalent of
  *        the following curl command : "curl http(s)://'ip':'port'/eSCL/ScannerCapabilities".
@@ -339,7 +339,7 @@ print_xml_c(xmlNode *node, capabilities_t *scanner)
  * \return scanner (the structure that stocks all the capabilities elements)
  */
 capabilities_t *
-escl_capabilities(SANE_String_Const name, SANE_Status *status)
+escl_capabilities(const ESCL_Device *device, SANE_Status *status)
 {
     capabilities_t *scanner = (capabilities_t*)calloc(1, sizeof(capabilities_t));
     CURL *curl_handle = NULL;
@@ -347,10 +347,9 @@ escl_capabilities(SANE_String_Const name, SANE_Status *status)
     xmlDoc *data = NULL;
     xmlNode *node = NULL;
     const char *scanner_capabilities = "/eSCL/ScannerCapabilities";
-    char tmp[PATH_MAX] = { 0 };
 
     *status = SANE_STATUS_GOOD;
-    if (name == NULL)
+    if (device == NULL)
         *status = SANE_STATUS_NO_MEM;
     var = (struct cap *)calloc(1, sizeof(struct cap));
     if (var == NULL)
@@ -358,15 +357,7 @@ escl_capabilities(SANE_String_Const name, SANE_Status *status)
     var->memory = malloc(1);
     var->size = 0;
     curl_handle = curl_easy_init();
-    strcpy(tmp, name);
-    strcat(tmp, scanner_capabilities);
-    DBG( 1, "Get Capabilities : %s\n", tmp);
-    curl_easy_setopt(curl_handle, CURLOPT_URL, tmp);
-    if (strncmp(name, "https", 5) == 0) {
-        DBG( 1, "Ignoring safety certificates, use https\n");
-        curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 0L);
-        curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYHOST, 0L);
-    }
+    escl_curl_url(curl_handle, device, scanner_capabilities);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, memory_callback_c);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)var);
     if (curl_easy_perform(curl_handle) != CURLE_OK) {

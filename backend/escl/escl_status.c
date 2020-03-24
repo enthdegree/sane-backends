@@ -110,7 +110,7 @@ print_xml_s(xmlNode *node, SANE_Status *status)
 }
 
 /**
- * \fn SANE_Status escl_status(SANE_String_Const name)
+ * \fn SANE_Status escl_status(const ESCL_Device *device)
  * \brief Function that finally recovers the scanner status ('Idle', or not), using curl.
  *        This function is called in the 'sane_open' function and it's the equivalent of
  *        the following curl command : "curl http(s)://'ip':'port'/eSCL/ScannerStatus".
@@ -118,7 +118,7 @@ print_xml_s(xmlNode *node, SANE_Status *status)
  * \return status (if everything is OK, status = SANE_STATUS_GOOD, otherwise, SANE_STATUS_NO_MEM/SANE_STATUS_INVAL)
  */
 SANE_Status
-escl_status(SANE_String_Const name)
+escl_status(const ESCL_Device *device)
 {
     SANE_Status status;
     CURL *curl_handle = NULL;
@@ -126,9 +126,8 @@ escl_status(SANE_String_Const name)
     xmlDoc *data = NULL;
     xmlNode *node = NULL;
     const char *scanner_status = "/eSCL/ScannerStatus";
-    char tmp[PATH_MAX] = { 0 };
 
-    if (name == NULL)
+    if (device == NULL)
         return (SANE_STATUS_NO_MEM);
     var = (struct idle*)calloc(1, sizeof(struct idle));
     if (var == NULL)
@@ -136,15 +135,8 @@ escl_status(SANE_String_Const name)
     var->memory = malloc(1);
     var->size = 0;
     curl_handle = curl_easy_init();
-    strcpy(tmp, name);
-    strcat(tmp, scanner_status);
-    curl_easy_setopt(curl_handle, CURLOPT_URL, tmp);
-    DBG( 1, "Get Status : %s.\n", tmp);
-    if (strncmp(name, "https", 5) == 0) {
-        DBG( 1, "Ignoring safety certificates, use https\n");
-        curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 0L);
-        curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYHOST, 0L);
-    }
+
+    escl_curl_url(curl_handle, device, scanner_status);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, memory_callback_s);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)var);
     if (curl_easy_perform(curl_handle) != CURLE_OK) {

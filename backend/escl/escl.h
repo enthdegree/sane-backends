@@ -79,10 +79,12 @@ typedef struct {
 typedef struct ESCL_Device {
     struct ESCL_Device *next;
 
-    char    *model_name;
-    int             port_nb;
+    char      *model_name;
+    int       port_nb;
     char      *ip_address;
-    char *type;
+    char      *type;
+    SANE_Bool https;
+    char      *unix_socket;
 } ESCL_Device;
 
 typedef struct capabilities
@@ -158,13 +160,16 @@ enum
 ESCL_Device *escl_devices(SANE_Status *status);
 SANE_Status escl_device_add(int port_nb, const char *model_name,
 		            char *ip_address, char *type);
-SANE_Status escl_status(SANE_String_Const name);
-capabilities_t *escl_capabilities(SANE_String_Const name, SANE_Status *status);
-char *escl_newjob(capabilities_t *scanner, SANE_String_Const name,
+SANE_Status escl_status(const ESCL_Device *device);
+capabilities_t *escl_capabilities(const ESCL_Device *device, SANE_Status *status);
+char *escl_newjob(capabilities_t *scanner, const ESCL_Device *device,
 		  SANE_Status *status);
-SANE_Status escl_scan(capabilities_t *scanner, SANE_String_Const name,
+SANE_Status escl_scan(capabilities_t *scanner, const ESCL_Device *device,
 	              char *result);
-void escl_scanner(SANE_String_Const name, char *result);
+void escl_scanner(const ESCL_Device *device, char *result);
+
+typedef void CURL;
+void escl_curl_url(CURL *handle, const ESCL_Device *device, SANE_String_Const path);
 
 unsigned char *escl_crop_surface(capabilities_t *scanner, unsigned char *surface,
 	                      int w, int h, int bps, int *width, int *height);

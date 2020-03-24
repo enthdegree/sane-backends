@@ -46,7 +46,7 @@ static int num_devices = 0;
 
 typedef struct Handled {
     struct Handled *next;
-    SANE_String_Const name;
+    ESCL_Device *device;
     char *result;
     ESCL_ScanParam param;
     SANE_Option_Descriptor opt[NUM_OPTIONS];
@@ -68,9 +68,22 @@ escl_free_device(ESCL_Device *current)
     free((void*)current->ip_address);
     free((void*)current->model_name);
     free((void*)current->type);
+    free(current->unix_socket);
     free(current);
     return NULL;
 }
+
+void
+escl_free_handler(escl_sane_t *handler)
+{
+    if (handler == NULL)
+        return;
+
+    escl_free_device(handler->device);
+    free(handler);
+}
+
+SANE_Status escl_parse_name(SANE_String_Const name, ESCL_Device *device);
 
 static SANE_Status
 escl_check_and_add_device(ESCL_Device *current)
@@ -155,6 +168,9 @@ escl_device_add(int port_nb, const char *model_name, char *ip_address, char *typ
 
     if (strcmp(type, "_uscan._tcp") != 0 && strcmp(type, "http") != 0) {
         snprintf(tmp, sizeof(tmp), "%s SSL", model_name);
+        current->https = SANE_TRUE;
+    } else {
+        current->https = SANE_FALSE;
     }
     model = (char*)(tmp[0] != 0 ? tmp : model_name);
     current->model_name = strdup(model);
@@ -198,23 +214,31 @@ max_string_size(const SANE_String_Const strings[])
 static SANE_Device *
 convertFromESCLDev(ESCL_Device *cdev)
 {
-    char tmp[PATH_MAX] = { 0 };
+    char *tmp;
+    int len;
+    char unix_path[PATH_MAX+7] = { 0 };
     SANE_Device *sdev = (SANE_Device*) calloc(1, sizeof(SANE_Device));
     if (!sdev) {
        DBG (10, "Sane_Device allocation failure.\n");
        return NULL;
     }
 
-    if (strcmp(cdev->type, "_uscan._tcp") == 0 || strcmp(cdev->type, "http") == 0)
-        snprintf(tmp, sizeof(tmp), "http://%s:%d", cdev->ip_address, cdev->port_nb);
-    else
-        snprintf(tmp, sizeof(tmp), "https://%s:%d", cdev->ip_address, cdev->port_nb);
-    DBG( 1, "Escl add device : %s\n", tmp);
-    sdev->name = strdup(tmp);
-    if (!sdev->name) {
-       DBG (10, "Name allocation failure.\n");
-       goto freedev;
+    if (cdev->unix_socket && strlen(cdev->unix_socket)) {
+        snprintf(unix_path, sizeof(unix_path), "unix:%s:", cdev->unix_socket);
     }
+    len = snprintf(NULL, 0, "%shttp%s://%s:%d",
+             unix_path, cdev->https ? "s" : "", cdev->ip_address, cdev->port_nb);
+    len++;
+    tmp = (char *)malloc(len);
+    if (!tmp) {
+        DBG (10, "Name allocation failure.\n");
+        goto freedev;
+    }
+    snprintf(tmp, len, "%shttp%s://%s:%d",
+             unix_path, cdev->https ? "s" : "", cdev->ip_address, cdev->port_nb);
+    sdev->name = tmp;
+
+    DBG( 1, "Escl add device : %s\n", tmp);
     sdev->model = strdup(cdev->model_name);
     if (!sdev->model) {
        DBG (10, "Model allocation failure.\n");
@@ -306,42 +330,75 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line)
     SANE_Status status;
     static ESCL_Device *escl_device = NULL;
 
+    if (strncmp(line, "device", 6) == 0) {
+        char *name_str = NULL;
+        char *opt_model = NULL;
+
+        line = sanei_config_get_string(line + 6, &name_str);
+        DBG (10, "New Escl_Device URL [%s].\n", (name_str ? name_str : "VIDE"));
+        if (!name_str || !*name_str) {
+            DBG (1, "Escl_Device URL missing.\n");
+            return SANE_STATUS_INVAL;
+        }
+        if (*line) {
+            line = sanei_config_get_string(line, &opt_model);
+            DBG (10, "New Escl_Device model [%s].\n", opt_model);
+        }
+
+        escl_free_device(escl_device);
+        escl_device = (ESCL_Device*)calloc(1, sizeof(ESCL_Device));
+        if (!escl_device) {
+           DBG (10, "New Escl_Device allocation failure.\n");
+           free(name_str);
+           return (SANE_STATUS_NO_MEM);
+        }
+        status = escl_parse_name(name_str, escl_device);
+        free(name_str);
+        if (status != SANE_STATUS_GOOD) {
+            escl_free_device(escl_device);
+            escl_device = NULL;
+            return status;
+        }
+        escl_device->model_name = opt_model ? opt_model : strdup("Unknown model");
+        escl_device->type = strdup("flatbed scanner");
+    }
+
     if (strncmp(line, "[device]", 8) == 0) {
         escl_device = escl_free_device(escl_device);
         escl_device = (ESCL_Device*)calloc(1, sizeof(ESCL_Device));
         if (!escl_device) {
-           DBG (10, "New Escl_Device allocation failure.");
+           DBG (10, "New Escl_Device allocation failure.\n");
            return (SANE_STATUS_NO_MEM);
         }
     }
     if (strncmp(line, "ip", 2) == 0) {
         const char *ip_space = sanei_config_skip_whitespace(line + 2);
-        DBG (10, "New Escl_Device IP [%s].", (ip_space ? ip_space : "VIDE"));
+        DBG (10, "New Escl_Device IP [%s].\n", (ip_space ? ip_space : "VIDE"));
         if (escl_device != NULL && ip_space != NULL) {
-            DBG (10, "New Escl_Device IP Affected.");
+            DBG (10, "New Escl_Device IP Affected.\n");
             escl_device->ip_address = strdup(ip_space);
         }
     }
     if (sscanf(line, "port %i", &port) == 1 && port != 0) {
-        DBG (10, "New Escl_Device PORT [%d].", port);
+        DBG (10, "New Escl_Device PORT [%d].\n", port);
         if (escl_device != NULL) {
-            DBG (10, "New Escl_Device PORT Affected.");
+            DBG (10, "New Escl_Device PORT Affected.\n");
             escl_device->port_nb = port;
         }
     }
     if (strncmp(line, "model", 5) == 0) {
         const char *model_space = sanei_config_skip_whitespace(line + 5);
-        DBG (10, "New Escl_Device MODEL [%s].", (model_space ? model_space : "VIDE"));
+        DBG (10, "New Escl_Device MODEL [%s].\n", (model_space ? model_space : "VIDE"));
         if (escl_device != NULL && model_space != NULL) {
-            DBG (10, "New Escl_Device MODEL Affected.");
+            DBG (10, "New Escl_Device MODEL Affected.\n");
             escl_device->model_name = strdup(model_space);
         }
     }
     if (strncmp(line, "type", 4) == 0) {
         const char *type_space = sanei_config_skip_whitespace(line + 4);
-        DBG (10, "New Escl_Device TYPE [%s].", (type_space ? type_space : "VIDE"));
+        DBG (10, "New Escl_Device TYPE [%s].\n", (type_space ? type_space : "VIDE"));
         if (escl_device != NULL && type_space != NULL) {
-            DBG (10, "New Escl_Device TYPE Affected.");
+            DBG (10, "New Escl_Device TYPE Affected.\n");
             escl_device->type = strdup(type_space);
         }
     }
@@ -402,13 +459,13 @@ sane_get_devices(const SANE_Device ***device_list, SANE_Bool local_only)
  * \return status (if everything is OK, status = SANE_STATUS_GOOD)
  */
 static SANE_Status
-init_options(SANE_String_Const name, escl_sane_t *s)
+init_options(const ESCL_Device *device, escl_sane_t *s)
 {
     DBG (10, "escl init_options\n");
     SANE_Status status = SANE_STATUS_GOOD;
     int i = 0;
 
-    if (name == NULL)
+    if (device == NULL)
         return (SANE_STATUS_INVAL);
     memset (s->opt, 0, sizeof (s->opt));
     memset (s->val, 0, sizeof (s->val));
@@ -528,6 +585,52 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     return (status);
 }
 
+SANE_Status
+escl_parse_name(SANE_String_Const name, ESCL_Device *device)
+{
+    SANE_String_Const host = NULL;
+    SANE_String_Const port_str = NULL;
+    DBG(10, "escl_parse_name\n");
+    if (name == NULL || device == NULL) {
+        return SANE_STATUS_INVAL;
+    }
+
+    if (strncmp(name, "unix:", 5) == 0) {
+        SANE_String_Const socket = name + 5;
+        name = strchr(socket, ':');
+        if (name == NULL)
+            return SANE_STATUS_INVAL;
+        device->unix_socket = strndup(socket, name - socket);
+        name++;
+    }
+
+    if (strncmp(name, "https://", 8) == 0) {
+        device->https = SANE_TRUE;
+        host = name + 8;
+    } else if (strncmp(name, "http://", 7) == 0) {
+        device->https = SANE_FALSE;
+        host = name + 7;
+    } else {
+        DBG(1, "Unknown URL scheme in %s", name);
+        return SANE_STATUS_INVAL;
+    }
+
+    port_str = strchr(host, ':');
+    if (port_str == NULL) {
+        DBG(1, "Port missing from URL: %s", name);
+        return SANE_STATUS_INVAL;
+    }
+    port_str++;
+    device->port_nb = atoi(port_str);
+    if (device->port_nb < 1 || device->port_nb > 65535) {
+        DBG(1, "Invalid port number in URL: %s", name);
+        return SANE_STATUS_INVAL;
+    }
+
+    device->ip_address = strndup(host, port_str - host - 1);
+    return SANE_STATUS_GOOD;
+}
+
 /**
  * \fn SANE_Status sane_open(SANE_String_Const name, SANE_Handle *h)
  * \brief Function that establishes a connection with the device named by 'name',
@@ -546,23 +649,39 @@ sane_open(SANE_String_Const name, SANE_Handle *h)
 
     if (name == NULL)
         return (SANE_STATUS_INVAL);
-    status = escl_status(name);
-    if (status != SANE_STATUS_GOOD)
-        return (status);
-    handler = (escl_sane_t *)calloc(1, sizeof(escl_sane_t));
-    if (handler == NULL)
-        return (SANE_STATUS_NO_MEM);
-    handler->name = strdup(name);
-    if (!handler->name) {
-       DBG (10, "Handle Name allocation failure.\n");
-       return (SANE_STATUS_NO_MEM);
+
+    ESCL_Device *device = calloc(1, sizeof(ESCL_Device));
+    if (device == NULL) {
+        DBG (10, "Handle device allocation failure.\n");
+        return SANE_STATUS_NO_MEM;
     }
-    handler->scanner = escl_capabilities(name, &status);
-    if (status != SANE_STATUS_GOOD)
+    status = escl_parse_name(name, device);
+    if (status != SANE_STATUS_GOOD) {
+        escl_free_device(device);
+        return status;
+    }
+
+    status = escl_status(device);
+    if (status != SANE_STATUS_GOOD) {
+        escl_free_device(device);
         return (status);
-    status = init_options(name, handler);
-    if (status != SANE_STATUS_GOOD)
+    }
+    handler = (escl_sane_t *)calloc(1, sizeof(escl_sane_t));
+    if (handler == NULL) {
+        escl_free_device(device);
+        return (SANE_STATUS_NO_MEM);
+    }
+    handler->device = device;  // Handler owns device now.
+    handler->scanner = escl_capabilities(device, &status);
+    if (status != SANE_STATUS_GOOD) {
+        escl_free_handler(handler);
         return (status);
+    }
+    status = init_options(device, handler);
+    if (status != SANE_STATUS_GOOD) {
+        escl_free_handler(handler);
+        return (status);
+    }
     handler->ps.depth = 8;
     handler->ps.last_frame = SANE_TRUE;
     handler->ps.format = SANE_FRAME_RGB;
@@ -570,8 +689,10 @@ sane_open(SANE_String_Const name, SANE_Handle *h)
     handler->ps.lines = MM_TO_PIXEL(handler->val[OPT_BR_Y].w, 300.0);
     handler->ps.bytes_per_line = handler->ps.pixels_per_line * 3;
     status = sane_get_parameters(handler, 0);
-    if (status != SANE_STATUS_GOOD)
+    if (status != SANE_STATUS_GOOD) {
+        escl_free_handler(handler);
         return (status);
+    }
     handler->cancel = SANE_FALSE;
     handler->write_scan_data = SANE_FALSE;
     handler->decompress_scan_data = SANE_FALSE;
@@ -597,7 +718,7 @@ sane_cancel(SANE_Handle h)
       handler->scanner->tmp = NULL;
     }
     handler->cancel = SANE_TRUE;
-    escl_scanner(handler->name, handler->result);
+    escl_scanner(handler->device, handler->result);
 }
 
 /**
@@ -610,7 +731,7 @@ sane_close(SANE_Handle h)
 {
     DBG (10, "escl sane_close\n");
     if (h != NULL) {
-        free(h);
+        escl_free_handler(h);
         h = NULL;
     }
 }
@@ -727,8 +848,10 @@ sane_start(SANE_Handle h)
     int he = 0;
     int bps = 0;
 
-    if (handler->name == NULL)
+    if (handler->device == NULL) {
+        DBG(1, "Missing handler device.\n");
         return (SANE_STATUS_INVAL);
+    }
     handler->cancel = SANE_FALSE;
     handler->write_scan_data = SANE_FALSE;
     handler->decompress_scan_data = SANE_FALSE;
@@ -777,10 +900,10 @@ sane_start(SANE_Handle h)
        DBG (10, "Default Color allocation failure.\n");
        return (SANE_STATUS_NO_MEM);
     }
-    handler->result = escl_newjob(handler->scanner, handler->name, &status);
+    handler->result = escl_newjob(handler->scanner, handler->device, &status);
     if (status != SANE_STATUS_GOOD)
         return (status);
-    status = escl_scan(handler->scanner, handler->name, handler->result);
+    status = escl_scan(handler->scanner, handler->device, handler->result);
     if (status != SANE_STATUS_GOOD)
         return (status);
     if (!strcmp(handler->scanner->default_format, "image/jpeg"))
@@ -910,4 +1033,40 @@ SANE_Status
 sane_set_io_mode(SANE_Handle __sane_unused__ handle, SANE_Bool __sane_unused__ non_blocking)
 {
     return (SANE_STATUS_UNSUPPORTED);
+}
+
+/**
+ * \fn void escl_curl_url(CURL *handle, const ESCL_Device *device, SANE_String_Const path)
+ * \brief Uses the device info in 'device' and the path from 'path' to construct
+ *        a full URL.  Sets this URL and any necessary connection options into
+ *        'handle'.
+ */
+void
+escl_curl_url(CURL *handle, const ESCL_Device *device, SANE_String_Const path)
+{
+    int url_len;
+    char *url;
+
+    url_len = snprintf(NULL, 0, "%s://%s:%d%s",
+                       (device->https ? "https" : "http"), device->ip_address,
+                       device->port_nb, path);
+    url_len++;
+    url = (char *)malloc(url_len);
+    snprintf(url, url_len, "%s://%s:%d%s",
+             (device->https ? "https" : "http"), device->ip_address,
+             device->port_nb, path);
+
+    DBG( 1, "escl_curl_url: URL: %s\n", url );
+    curl_easy_setopt(handle, CURLOPT_URL, url);
+    free(url);
+    if (device->https) {
+        DBG( 1, "Ignoring safety certificates, use https\n");
+        curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, 0L);
+        curl_easy_setopt(handle, CURLOPT_SSL_VERIFYHOST, 0L);
+    }
+    if (device->unix_socket != NULL) {
+        DBG( 1, "Using local socket %s\n", device->unix_socket );
+        curl_easy_setopt(handle, CURLOPT_UNIX_SOCKET_PATH,
+                         device->unix_socket);
+    }
 }

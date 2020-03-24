@@ -49,7 +49,7 @@ write_callback(void *str, size_t size, size_t nmemb, void *userp)
 }
 
 /**
- * \fn SANE_Status escl_scan(capabilities_t *scanner, SANE_String_Const name, char *result)
+ * \fn SANE_Status escl_scan(capabilities_t *scanner, const ESCL_Device *device, char *result)
  * \brief Function that, after recovering the 'new job', scans the image writed in the
  *        temporary file, using curl.
  *        This function is called in the 'sane_start' function and it's the equivalent of
@@ -58,7 +58,7 @@ write_callback(void *str, size_t size, size_t nmemb, void *userp)
  * \return status (if everything is OK, status = SANE_STATUS_GOOD, otherwise, SANE_STATUS_NO_MEM/SANE_STATUS_INVAL)
  */
 SANE_Status
-escl_scan(capabilities_t __sane_unused__ *scanner, SANE_String_Const name, char *result)
+escl_scan(capabilities_t *scanner, const ESCL_Device *device, char *result)
 {
     CURL *curl_handle = NULL;
     const char *scan_jobs = "/eSCL/ScanJobs";
@@ -66,21 +66,13 @@ escl_scan(capabilities_t __sane_unused__ *scanner, SANE_String_Const name, char 
     char scan_cmd[PATH_MAX] = { 0 };
     SANE_Status status = SANE_STATUS_GOOD;
 
-    if (name == NULL)
+    if (device == NULL)
         return (SANE_STATUS_NO_MEM);
     curl_handle = curl_easy_init();
     if (curl_handle != NULL) {
-        strcpy(scan_cmd, name);
-        strcat(scan_cmd, scan_jobs);
-        strcat(scan_cmd, result);
-        strcat(scan_cmd, scanner_start);
-        curl_easy_setopt(curl_handle, CURLOPT_URL, scan_cmd);
-        DBG( 1, "Scan : %s.\n", scan_cmd);
-	if (strncmp(name, "https", 5) == 0) {
-            DBG( 1, "Ignoring safety certificates, use https\n");
-            curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 0L);
-            curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYHOST, 0L);
-        }
+        snprintf(scan_cmd, sizeof(scan_cmd), "%s%s%s",
+                 scan_jobs, result, scanner_start);
+        escl_curl_url(curl_handle, device, scan_cmd);
         curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_callback);
         scanner->tmp = tmpfile();
         if (scanner->tmp != NULL) {

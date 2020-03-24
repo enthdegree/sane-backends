@@ -1229,6 +1229,40 @@ void CommandSetGl124::send_shading_data(Genesys_Device* dev, const Genesys_Senso
               ptr[2+pixels*3]=src[2+segcnt*3];
               ptr[3+pixels*3]=src[3+segcnt*3];
               break;
+            case 8:
+              ptr[0+pixels*0]=src[0+segcnt*0];
+              ptr[1+pixels*0]=src[1+segcnt*0];
+              ptr[2+pixels*0]=src[2+segcnt*0];
+              ptr[3+pixels*0]=src[3+segcnt*0];
+              ptr[0+pixels*1]=src[0+segcnt*2];
+              ptr[1+pixels*1]=src[1+segcnt*2];
+              ptr[2+pixels*1]=src[2+segcnt*2];
+              ptr[3+pixels*1]=src[3+segcnt*2];
+              ptr[0+pixels*2]=src[0+segcnt*4];
+              ptr[1+pixels*2]=src[1+segcnt*4];
+              ptr[2+pixels*2]=src[2+segcnt*4];
+              ptr[3+pixels*2]=src[3+segcnt*4];
+              ptr[0+pixels*3]=src[0+segcnt*6];
+              ptr[1+pixels*3]=src[1+segcnt*6];
+              ptr[2+pixels*3]=src[2+segcnt*6];
+              ptr[3+pixels*3]=src[3+segcnt*6];
+              ptr[0+pixels*4]=src[0+segcnt*1];
+              ptr[1+pixels*4]=src[1+segcnt*1];
+              ptr[2+pixels*4]=src[2+segcnt*1];
+              ptr[3+pixels*4]=src[3+segcnt*1];
+              ptr[0+pixels*5]=src[0+segcnt*3];
+              ptr[1+pixels*5]=src[1+segcnt*3];
+              ptr[2+pixels*5]=src[2+segcnt*3];
+              ptr[3+pixels*5]=src[3+segcnt*3];
+              ptr[0+pixels*6]=src[0+segcnt*5];
+              ptr[1+pixels*6]=src[1+segcnt*5];
+              ptr[2+pixels*6]=src[2+segcnt*5];
+              ptr[3+pixels*6]=src[3+segcnt*5];
+              ptr[0+pixels*7]=src[0+segcnt*7];
+              ptr[1+pixels*7]=src[1+segcnt*7];
+              ptr[2+pixels*7]=src[2+segcnt*7];
+              ptr[3+pixels*7]=src[3+segcnt*7];
+              break;
             }
 
           /* next shading coefficient */

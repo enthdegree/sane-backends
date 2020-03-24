@@ -2675,7 +2675,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_CANON_LIDE_210; // gl124
-    sensor.optical_res = 2400;
+    sensor.optical_res = 4800;
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 16;
@@ -2701,7 +2701,7 @@ void genesys_init_sensor_tables()
         };
 
         CustomSensorSettings custom_settings[] = {
-            {   { 75 }, 600, 150, 300, 2768, { 388, 574, 393 }, Ratio{1, 4}, 4,
+            {   { 75 }, 600, 150, 300, 2768, { 388, 574, 393 }, Ratio{1, 8}, 4,
                 std::vector<unsigned>{}, {
                     // { 0x16, 0x00 }, // FIXME: check if default value is different
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
@@ -2720,7 +2720,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x21 },
                 }
             },
-            {   { 100 }, 600, 200, 300, 2768, { 388, 574, 393 }, Ratio{1, 4}, 3,
+            {   { 100 }, 600, 200, 300, 2768, { 388, 574, 393 }, Ratio{1, 8}, 3,
                 std::vector<unsigned>{}, {
                     // { 0x16, 0x00 }, // FIXME: check if default value is different
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
@@ -2739,7 +2739,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x21 },
                 }
             },
-            {   { 150 }, 600, 300, 300, 2768, { 388, 574, 393 }, Ratio{1, 4}, 2,
+            {   { 150 }, 600, 300, 300, 2768, { 388, 574, 393 }, Ratio{1, 8}, 2,
                 std::vector<unsigned>{}, {
                     // { 0x16, 0x00 }, // FIXME: check if default value is different
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
@@ -2758,7 +2758,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x21 },
                 }
             },
-            {   { 300 }, 600, 600, 300, 2768, { 388, 574, 393 }, Ratio{1, 4}, 1,
+            {   { 300 }, 600, 600, 300, 2768, { 388, 574, 393 }, Ratio{1, 8}, 1,
                 std::vector<unsigned>{}, {
                     // { 0x16, 0x00 }, // FIXME: check if default value is different
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
@@ -2777,7 +2777,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x21 },
                 }
             },
-            {   { 600 }, 600, 600, 600, 5360, { 388, 574, 393 }, Ratio{1, 4}, 1,
+            {   { 600 }, 600, 600, 600, 5360, { 388, 574, 393 }, Ratio{1, 8}, 1,
                 std::vector<unsigned>{}, {
                     // { 0x16, 0x00 }, // FIXME: check if default value is different
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
@@ -2796,7 +2796,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x21 },
                 }
             },
-            {   { 1200 }, 1200, 1200, 1200, 10528, { 388, 574, 393 }, Ratio{1, 4}, 1, {0, 1}, {
+            {   { 1200 }, 1200, 1200, 1200, 10528, { 388, 574, 393 }, Ratio{1, 8}, 1, {0, 1}, {
                     // { 0x16, 0x00 }, // FIXME: check if default value is different
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x01 }, { 0x20, 0x08 },
@@ -2814,7 +2814,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x22 },
                 },
             },
-            {   { 2400 }, 2400, 2400, 2400, 20864, { 6839, 8401, 6859 }, Ratio{1, 4}, 1,
+            {   { 2400 }, 2400, 2400, 2400, 20864, { 6839, 8401, 6859 }, Ratio{1, 8}, 1,
                 {0, 2, 1, 3}, {
                     // { 0x16, 0x00 }, // FIXME: check if default value is different
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
@@ -2831,6 +2831,25 @@ void genesys_init_sensor_tables()
                     { 0x93, 0x00 }, { 0x94, 0x14 }, { 0x95, 0x30 },
                     { 0x96, 0x00 }, { 0x97, 0xa3 },
                     { 0x98, 0x24 },
+                },
+            },
+            {   { 4800 }, 4800, 4800, 4800, 41536, { 9735, 14661, 11345 }, Ratio{1, 8}, 1,
+                { 0, 2, 4, 6, 1, 3, 5, 7 }, {
+                    // { 0x16, 0x00 }, // FIXME: check if default value is different
+                    { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
+                    { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x01 }, { 0x20, 0x04 },
+                    { 0x52, 0x00 }, { 0x53, 0x02 }, { 0x54, 0x04 }, { 0x55, 0x06 },
+                    { 0x56, 0x04 }, { 0x57, 0x04 }, { 0x58, 0x04 }, { 0x59, 0x04 },
+                    { 0x5a, 0x1a }, { 0x5b, 0x00 }, { 0x5c, 0xc0 },
+                    { 0x61, 0x20 },
+                    // { 0x70, 0x00 }, // FIXME: check if default value is different
+                    { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x1e },
+                    { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+                    { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+                    { 0x88, 0x12 }, { 0x89, 0x47 },
+                    { 0x93, 0x00 }, { 0x94, 0x14 }, { 0x95, 0x30 },
+                    { 0x96, 0x00 }, { 0x97, 0xa5 },
+                    { 0x98, 0x28 },
                 },
             }
         };

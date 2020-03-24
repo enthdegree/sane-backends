@@ -789,16 +789,15 @@ void genesys_init_usb_device_tables()
     model.resolutions = {
         {
             { ScanMethod::FLATBED },
-            // BUG: 4800 resolution crashes
-            { /*4800,*/ 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 },
-            { /*4800,*/ 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 },
+            { 4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 },
+            { 4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 },
         }
     };
 
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = 2.2;
+    model.x_offset = 2.1;
     model.y_offset = 8.7;
     model.x_size = 216.70;
     model.y_size = 297.5;

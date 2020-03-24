@@ -335,7 +335,7 @@ pixma_r_to_ir (uint8_t * gptr, uint8_t * sptr, unsigned w, unsigned c)
 
 /* convert 24/48 bit RGB to 8/16 bit grayscale
  *
- * Formular: g = (R + G + B) / 3
+ * Formular: Y' = 0,2126 R' + 0,7152 G' + 0,0722 B'
  *
  * sptr: source color scale buffer
  * gptr: destination gray scale buffer
@@ -345,19 +345,28 @@ pixma_r_to_ir (uint8_t * gptr, uint8_t * sptr, unsigned w, unsigned c)
 uint8_t *
 pixma_rgb_to_gray (uint8_t * gptr, uint8_t * sptr, unsigned w, unsigned c)
 {
-  unsigned i, j, g;
+  unsigned i, g;
 
   /* PDBG (pixma_dbg (4, "*pixma_rgb_to_gray*****\n")); */
 
   for (i = 0; i < w; i++)
     {
-      for (j = 0, g = 0; j < 3; j++)
-        {
-          g += *sptr++;
-          if (c == 6) g += (*sptr++ << 8);      /* 48 bit RGB: high byte */
-        }
+      if (c == 6)
+        { /* 48 bit RGB */
+          unsigned r = sptr[0] + (sptr[1] << 8);
+          unsigned y = sptr[2] + (sptr[3] << 8);
+          unsigned b = sptr[4] + (sptr[5] << 8);
 
-      g /= 3;                                   /* 8 or 16 bit gray */
+          g = (r * 2126) + (y * 7152) + (b * 722);
+          sptr += 6;
+        }
+      else
+        { /* 24 bit RGB */
+          g = (sptr[0] * 2126) + (sptr[1] * 7152) + (sptr[2] * 722);
+          sptr += 3;
+        }
+      g /= 10000;                               /* 8 and 16 bit gray */
+
       *gptr++ = g;
       if (c == 6) *gptr++ = (g >> 8);           /* 16 bit gray: high byte */
     }

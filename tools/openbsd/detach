@@ -9,7 +9,7 @@ case $DEVCLASS in
 	ugen*)
 		BUSNAME=$(cat /var/run/${DEVNAME}.bus)
 		rm -f /var/run/${DEVNAME}.bus
-		chgrp wheel /dev/"$DEVNAME".*
+		chown root:wheel /dev/"$DEVNAME".*
 		chmod 600 /dev/"$DEVNAME".*
 		test -n "$BUSNAME" &&
 			chown root:wheel /dev/"$BUSNAME"

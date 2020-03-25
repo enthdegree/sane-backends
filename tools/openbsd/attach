@@ -12,7 +12,7 @@ case $DEVCLASS in
 		chown _cups:_saned /dev/"$DEVNAME".* &&
 			chmod 660 /dev/"$DEVNAME".*
 		chown _cups:_saned /dev/"$BUSNAME" &&
-			chown 660 /dev/"$BUSNAME"
+			chmod 660 /dev/"$BUSNAME"
 		;;
 	esac
 	;;

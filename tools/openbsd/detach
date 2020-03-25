@@ -12,9 +12,8 @@ case $DEVCLASS in
 		rm -f /var/run/${DEVNAME}.bus
 		# probably our scanner
 		chgrp wheel /dev/"$DEVNAME".*
-		if [ x$BUSNAME != x ] ; then
+		test -n "$BUSNAME" &&
 			chown root:wheel /dev/"$BUSNAME"
-		fi
 		;;
 	esac
 	;;

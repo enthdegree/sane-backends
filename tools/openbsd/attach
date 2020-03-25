@@ -9,10 +9,10 @@ case $DEVCLASS in
 	ugen*)
 		BUSNAME=$(usbdevs -vv | egrep "Controller|$DEVNAME\$" | grep -B 1 "$DEVNAME\$" | awk -F'[ :]' '/^Controller/ { print $2 }')
 		echo $BUSNAME > /var/run/${DEVNAME}.bus
-		chown _cups:_saned /dev/"$DEVNAME".* &&
-			chmod 660 /dev/"$DEVNAME".*
-		chown _cups:_saned /dev/"$BUSNAME" &&
-			chmod 660 /dev/"$BUSNAME"
+		chown _cups:_saned /dev/${DEVNAME}.* &&
+			chmod 660 /dev/${DEVNAME}.*
+		chown _cups:_saned /dev/$BUSNAME &&
+			chmod 660 /dev/$BUSNAME
 		;;
 	esac
 	;;

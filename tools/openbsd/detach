@@ -8,15 +8,14 @@ case $DEVCLASS in
 	# generic devices
 	case "$DEVNAME" in
 	ugen*)
-		BUSNAME=`cat /var/run/${DEVNAME}.bus`
+		BUSNAME=$(cat /var/run/${DEVNAME}.bus)
 		rm -f /var/run/${DEVNAME}.bus
 		# probably our scanner
 		chgrp wheel /dev/"$DEVNAME".*
 		if [ x$BUSNAME != x ] ; then
-			chgrp wheel /dev/"$BUSNAME"
+			chown root:wheel /dev/"$BUSNAME"
 		fi
 		;;
 	esac
-
-        ;;
+	;;
 esac

@@ -11,8 +11,8 @@ case $DEVCLASS in
 		BUSNAME=$(usbdevs -vv | egrep "Controller|$DEVNAME\$" | grep -B 1 "$DEVNAME\$" | awk -F'[ :]' '/^Controller/ { print $2 }')
 		echo $BUSNAME > /var/run/${DEVNAME}.bus
 		# probably our scanner
-		chgrp usb /dev/"$DEVNAME".*
-		chgrp usb /dev/"$BUSNAME"
+		chown _cups:_saned /dev/"$DEVNAME".*
+		chown _cups:_saned /dev/"$BUSNAME"
 		;;
 	esac
 	;;

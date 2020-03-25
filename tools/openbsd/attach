@@ -11,8 +11,8 @@ case $DEVCLASS in
 		echo $BUSNAME > /var/run/${DEVNAME}.bus
 		chown _cups:_saned /dev/${DEVNAME}.* &&
 			chmod 660 /dev/${DEVNAME}.*
-		chown _cups:_saned /dev/$BUSNAME &&
-			chmod 660 /dev/$BUSNAME
+		chown _cups:_saned $BUSNAME &&
+			chmod 660 $BUSNAME
 		;;
 	esac
 	;;

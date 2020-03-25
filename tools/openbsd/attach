@@ -5,12 +5,10 @@ DEVNAME=$2
 
 case $DEVCLASS in
 0)
-	# generic devices
 	case "$DEVNAME" in
 	ugen*)
 		BUSNAME=$(usbdevs -vv | egrep "Controller|$DEVNAME\$" | grep -B 1 "$DEVNAME\$" | awk -F'[ :]' '/^Controller/ { print $2 }')
 		echo $BUSNAME > /var/run/${DEVNAME}.bus
-		# probably our scanner
 		chown _cups:_saned /dev/"$DEVNAME".*
 		chown _cups:_saned /dev/"$BUSNAME"
 		;;

@@ -96,7 +96,7 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Frontend& frontend)
     StreamStateSaver state_saver{out};
 
     out << "Genesys_Frontend{\n"
-        << "    id: " << static_cast<unsigned>(frontend.id) << '\n'
+        << "    id: " << frontend.id << '\n'
         << "    regs: " << format_indent_braced_list(4, frontend.regs) << '\n'
         << std::hex
         << "    reg2[0]: " << frontend.reg2[0] << '\n'

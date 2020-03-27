@@ -166,6 +166,43 @@ std::ostream& operator<<(std::ostream& out, ModelId id)
     return out;
 }
 
+std::ostream& operator<<(std::ostream& out, AdcId id)
+{
+    switch (id) {
+        case AdcId::UNKNOWN: out << "UNKNOWN"; break;
+        case AdcId::AD_XP200: out << "AD_XP200"; break;
+        case AdcId::CANON_LIDE_35: out << "CANON_LIDE_35"; break;
+        case AdcId::CANON_LIDE_80: out << "CANON_LIDE_80"; break;
+        case AdcId::CANON_LIDE_110: out << "CANON_LIDE_110"; break;
+        case AdcId::CANON_LIDE_120: out << "CANON_LIDE_120"; break;
+        case AdcId::CANON_LIDE_200: out << "CANON_LIDE_200"; break;
+        case AdcId::CANON_LIDE_700F: out << "CANON_LIDE_700F"; break;
+        case AdcId::CANON_4400F: out << "CANON_4400F"; break;
+        case AdcId::CANON_8400F: out << "CANON_8400F"; break;
+        case AdcId::CANON_8600F: out << "CANON_8600F"; break;
+        case AdcId::G4050: out << "G4050"; break;
+        case AdcId::IMG101: out << "IMG101"; break;
+        case AdcId::KVSS080: out << "KVSS080"; break;
+        case AdcId::PLUSTEK_OPTICBOOK_3800: out << "PLUSTEK_OPTICBOOK_3800"; break;
+        case AdcId::PLUSTEK_OPTICFILM_7200I: out << "PLUSTEK_OPTICFILM_7200I"; break;
+        case AdcId::PLUSTEK_OPTICFILM_7300: out << "PLUSTEK_OPTICFILM_7300"; break;
+        case AdcId::PLUSTEK_OPTICFILM_7500I: out << "PLUSTEK_OPTICFILM_7500I"; break;
+        case AdcId::PLUSTEK_OPTICPRO_3600: out << "PLUSTEK_OPTICPRO_3600"; break;
+        case AdcId::WOLFSON_5345: out << "WOLFSON_5345"; break;
+        case AdcId::WOLFSON_DSM600: out << "WOLFSON_DSM600"; break;
+        case AdcId::WOLFSON_HP2300: out << "WOLFSON_HP2300"; break;
+        case AdcId::WOLFSON_HP2400: out << "WOLFSON_HP2400"; break;
+        case AdcId::WOLFSON_HP3670: out << "WOLFSON_HP3670"; break;
+        case AdcId::WOLFSON_ST12: out << "WOLFSON_ST12"; break;
+        case AdcId::WOLFSON_ST24: out << "WOLFSON_ST24"; break;
+        case AdcId::WOLFSON_UMAX: out << "WOLFSON_UMAX"; break;
+        case AdcId::WOLFSON_XP300: out << "WOLFSON_XP300"; break;
+        default:
+            out << static_cast<unsigned>(id); break;
+    }
+    return out;
+}
+
 std::ostream& operator<<(std::ostream& out, StepType type)
 {
     switch (type) {

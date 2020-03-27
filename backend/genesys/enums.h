@@ -337,6 +337,8 @@ inline void serialize(std::ostream& str, AdcId& x)
     serialize(str, value);
 }
 
+std::ostream& operator<<(std::ostream& out, AdcId id);
+
 enum class GpioId : unsigned
 {
     UNKNOWN = 0,

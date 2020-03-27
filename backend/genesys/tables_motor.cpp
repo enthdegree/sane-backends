@@ -400,6 +400,8 @@ void genesys_init_motor_tables()
                               StepType::HALF, 10528});
     motor.profiles.push_back({MotorSlope::create_from_steps(62496, 10432, 4),
                               StepType::QUARTER, 20864});
+    motor.profiles.push_back({MotorSlope::create_from_steps(62496, 10432, 4),
+                              StepType::EIGHTH, 41536});
     s_motors->push_back(std::move(motor));
 
 

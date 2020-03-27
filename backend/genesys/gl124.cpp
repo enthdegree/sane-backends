@@ -1194,41 +1194,13 @@ void CommandSetGl124::send_shading_data(Genesys_Device* dev, const Genesys_Senso
           src=data+x+strpixel+i*length;
 
           /* iterate over all the segments */
-            switch (dev->session.segment_count) {
-            case 1:
-              ptr[0+pixels*0]=src[0+segcnt*0];
-              ptr[1+pixels*0]=src[1+segcnt*0];
-              ptr[2+pixels*0]=src[2+segcnt*0];
-              ptr[3+pixels*0]=src[3+segcnt*0];
-              break;
-            case 2:
-              ptr[0+pixels*0]=src[0+segcnt*0];
-              ptr[1+pixels*0]=src[1+segcnt*0];
-              ptr[2+pixels*0]=src[2+segcnt*0];
-              ptr[3+pixels*0]=src[3+segcnt*0];
-              ptr[0+pixels*1]=src[0+segcnt*1];
-              ptr[1+pixels*1]=src[1+segcnt*1];
-              ptr[2+pixels*1]=src[2+segcnt*1];
-              ptr[3+pixels*1]=src[3+segcnt*1];
-              break;
-            case 4:
-              ptr[0+pixels*0]=src[0+segcnt*0];
-              ptr[1+pixels*0]=src[1+segcnt*0];
-              ptr[2+pixels*0]=src[2+segcnt*0];
-              ptr[3+pixels*0]=src[3+segcnt*0];
-              ptr[0+pixels*1]=src[0+segcnt*2];
-              ptr[1+pixels*1]=src[1+segcnt*2];
-              ptr[2+pixels*1]=src[2+segcnt*2];
-              ptr[3+pixels*1]=src[3+segcnt*2];
-              ptr[0+pixels*2]=src[0+segcnt*1];
-              ptr[1+pixels*2]=src[1+segcnt*1];
-              ptr[2+pixels*2]=src[2+segcnt*1];
-              ptr[3+pixels*2]=src[3+segcnt*1];
-              ptr[0+pixels*3]=src[0+segcnt*3];
-              ptr[1+pixels*3]=src[1+segcnt*3];
-              ptr[2+pixels*3]=src[2+segcnt*3];
-              ptr[3+pixels*3]=src[3+segcnt*3];
-              break;
+          for (unsigned s = 0; s < dev->session.segment_count; s++)
+            {
+              unsigned segnum = dev->session.segment_count > 1 ? sensor.segment_order[s] : 0;
+              ptr[0+pixels*s]=src[0+segcnt*segnum];
+              ptr[1+pixels*s]=src[1+segcnt*segnum];
+              ptr[2+pixels*s]=src[2+segcnt*segnum];
+              ptr[3+pixels*s]=src[3+segcnt*segnum];
             }
 
           /* next shading coefficient */

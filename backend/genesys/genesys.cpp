@@ -4807,7 +4807,7 @@ static Genesys_Device* attach_usb_device(const char* devname,
     }
 
     if (found_usb_dev == nullptr) {
-        throw SaneException("vendor 0x%xd product 0x%xd is not supported by this backend",
+        throw SaneException("vendor 0x%x product 0x%x is not supported by this backend",
                             vendor_id, product_id);
     }
 

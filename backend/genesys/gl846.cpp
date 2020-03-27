@@ -500,6 +500,15 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
     reg->set8(REG_FMOVNO, fast_table.steps_count / step_multiplier);
     reg->set8(REG_FMOVDEC, fast_table.steps_count / step_multiplier);
 
+    if (motor_profile.motor_vref != -1 && fast_profile->motor_vref != 1) {
+        std::uint8_t vref = 0;
+        vref |= (motor_profile.motor_vref << REG_0x80S_TABLE1_NORMAL) & REG_0x80_TABLE1_NORMAL;
+        vref |= (motor_profile.motor_vref << REG_0x80S_TABLE2_BACK) & REG_0x80_TABLE2_BACK;
+        vref |= (fast_profile->motor_vref << REG_0x80S_TABLE4_FAST) & REG_0x80_TABLE4_FAST;
+        vref |= (fast_profile->motor_vref << REG_0x80S_TABLE5_GO_HOME) & REG_0x80_TABLE5_GO_HOME;
+        reg->set8(REG_0x80, vref);
+    }
+
     unsigned feedl = feed_steps;
     unsigned dist = 0;
     if (use_fast_fed) {

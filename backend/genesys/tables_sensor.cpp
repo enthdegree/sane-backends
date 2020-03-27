@@ -3246,6 +3246,58 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
+    sensor.sensor_id = SensorId::CCD_PLUSTEK_OPTICFILM_7400; // gl845
+    sensor.optical_res = 7200;
+    sensor.method = ScanMethod::TRANSPARENCY;
+    sensor.register_dpihw = 1200;
+    sensor.ccd_size_divisor = 1;
+    sensor.black_pixels = 88; // TODO
+    sensor.dummy_pixel = 20;
+    sensor.ccd_start_xoffset = 120;
+    sensor.fau_gain_white_ref = 210;
+    sensor.gain_white_ref = 230;
+    sensor.exposure = { 0x0000, 0x0000, 0x0000 };
+    sensor.exposure_lperiod = 14000;
+    sensor.stagger_config = StaggerConfig{7200, 4};
+    sensor.use_host_side_calib = true;
+    sensor.custom_regs = {
+        { 0x08, 0x00 }, { 0x09, 0x00 }, { 0x0a, 0x00 },
+        { 0x16, 0x27 }, { 0x17, 0x0c }, { 0x18, 0x10 }, { 0x19, 0x2a },
+        { 0x1a, 0x00 }, { 0x1b, 0x00 }, { 0x1c, 0x20 }, { 0x1d, 0x84 },
+        { 0x52, 0x09 }, { 0x53, 0x0d }, { 0x54, 0x0f }, { 0x55, 0x01 },
+        { 0x56, 0x04 }, { 0x57, 0x07 }, { 0x58, 0x31 }, { 0x59, 0x79 }, { 0x5a, 0xc0 },
+        { 0x70, 0x0a }, { 0x71, 0x0b }, { 0x72, 0x0c }, { 0x73, 0x0d },
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x00 },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x00 }, { 0x7d, 0x00 },
+        { 0x87, 0x00 },
+    };
+    sensor.gamma = { 1.0f, 1.0f, 1.0f };
+    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
+    {
+        struct CustomSensorSettings
+        {
+            ValueFilterAny<unsigned> resolutions;
+            unsigned register_dpiset;
+        };
+
+        CustomSensorSettings custom_settings[] = {
+            { { 600 }, 100 },
+            { { 1200 }, 200 },
+            { { 2400 }, 400 },
+            { { 3600 }, 600 },
+            { { 7200 }, 1200 },
+        };
+
+        for (const CustomSensorSettings& setting : custom_settings) {
+            sensor.resolutions = setting.resolutions;
+            sensor.shading_resolution = setting.resolutions.values()[0];
+            sensor.register_dpiset = setting.register_dpiset;
+            s_sensors->push_back(sensor);
+        }
+    }
+
+    sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_PLUSTEK_OPTICFILM_7500I; // gl843
     sensor.optical_res = 7200;
     sensor.register_dpihw = 1200;
@@ -3398,9 +3450,11 @@ void genesys_init_sensor_tables()
         { 0x1a, 0x34 }, { 0x1b, 0x00 }, { 0x1c, 0x20 }, { 0x1d, 0x06 },
         { 0x52, 0x02 }, { 0x53, 0x04 }, { 0x54, 0x06 }, { 0x55, 0x08 },
         { 0x56, 0x0a }, { 0x57, 0x00 }, { 0x58, 0x59 }, { 0x59, 0x31 }, { 0x5a, 0x40 },
+        { 0x70, 0x01 }, { 0x71, 0x00 }, { 0x72, 0x02 }, { 0x73, 0x01 },
         { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x3c },
         { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
-        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 }, { 0x7d, 0x20 },
+        { 0x87, 0x02 },
     };
     sensor.gamma = { 1.7f, 1.7f, 1.7f };
     sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;

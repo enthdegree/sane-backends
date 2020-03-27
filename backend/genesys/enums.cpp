@@ -142,6 +142,7 @@ std::ostream& operator<<(std::ostream& out, ModelId id)
         case ModelId::PLUSTEK_OPTICBOOK_3800: out << "PLUSTEK_OPTICBOOK_3800"; break;
         case ModelId::PLUSTEK_OPTICFILM_7200I: out << "PLUSTEK_OPTICFILM_7200I"; break;
         case ModelId::PLUSTEK_OPTICFILM_7300: out << "PLUSTEK_OPTICFILM_7300"; break;
+        case ModelId::PLUSTEK_OPTICFILM_7400: out << "PLUSTEK_OPTICFILM_7400"; break;
         case ModelId::PLUSTEK_OPTICFILM_7500I: out << "PLUSTEK_OPTICFILM_7500I"; break;
         case ModelId::PLUSTEK_OPTICPRO_3600: out << "PLUSTEK_OPTICPRO_3600"; break;
         case ModelId::PLUSTEK_OPTICPRO_ST12: out << "PLUSTEK_OPTICPRO_ST12"; break;
@@ -186,6 +187,7 @@ std::ostream& operator<<(std::ostream& out, AdcId id)
         case AdcId::PLUSTEK_OPTICBOOK_3800: out << "PLUSTEK_OPTICBOOK_3800"; break;
         case AdcId::PLUSTEK_OPTICFILM_7200I: out << "PLUSTEK_OPTICFILM_7200I"; break;
         case AdcId::PLUSTEK_OPTICFILM_7300: out << "PLUSTEK_OPTICFILM_7300"; break;
+        case AdcId::PLUSTEK_OPTICFILM_7400: out << "PLUSTEK_OPTICFILM_7400"; break;
         case AdcId::PLUSTEK_OPTICFILM_7500I: out << "PLUSTEK_OPTICFILM_7500I"; break;
         case AdcId::PLUSTEK_OPTICPRO_3600: out << "PLUSTEK_OPTICPRO_3600"; break;
         case AdcId::WOLFSON_5345: out << "WOLFSON_5345"; break;
@@ -230,6 +232,7 @@ std::ostream& operator<<(std::ostream& out, GpioId id)
         case GpioId::PLUSTEK_OPTICBOOK_3800: out << "PLUSTEK_OPTICBOOK_3800"; break;
         case GpioId::PLUSTEK_OPTICFILM_7200I: out << "PLUSTEK_OPTICFILM_7200I"; break;
         case GpioId::PLUSTEK_OPTICFILM_7300: out << "PLUSTEK_OPTICFILM_7300"; break;
+        case GpioId::PLUSTEK_OPTICFILM_7400: out << "PLUSTEK_OPTICFILM_7400"; break;
         case GpioId::PLUSTEK_OPTICFILM_7500I: out << "PLUSTEK_OPTICFILM_7500I"; break;
         case GpioId::PLUSTEK_OPTICPRO_3600: out << "PLUSTEK_OPTICPRO_3600"; break;
         case GpioId::ST12: out << "ST12"; break;
@@ -269,6 +272,7 @@ std::ostream& operator<<(std::ostream& out, MotorId id)
         case MotorId::PLUSTEK_OPTICBOOK_3800: out << "PLUSTEK_OPTICBOOK_3800"; break;
         case MotorId::PLUSTEK_OPTICFILM_7200I: out << "PLUSTEK_OPTICFILM_7200I"; break;
         case MotorId::PLUSTEK_OPTICFILM_7300: out << "PLUSTEK_OPTICFILM_7300"; break;
+        case MotorId::PLUSTEK_OPTICFILM_7400: out << "PLUSTEK_OPTICFILM_7400"; break;
         case MotorId::PLUSTEK_OPTICFILM_7500I: out << "PLUSTEK_OPTICFILM_7500I"; break;
         case MotorId::PLUSTEK_OPTICPRO_3600: out << "PLUSTEK_OPTICPRO_3600"; break;
         case MotorId::ROADWARRIOR: out << "ROADWARRIOR"; break;

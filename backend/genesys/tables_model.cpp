@@ -2406,6 +2406,71 @@ void genesys_init_usb_device_tables()
 
 
     model = Genesys_Model();
+    model.name = "plustek-opticfilm-7400";
+    model.vendor = "PLUSTEK";
+    model.model = "OpticFilm 7400";
+    model.model_id = ModelId::PLUSTEK_OPTICFILM_7400;
+    model.asic_type = AsicType::GL845;
+
+    model.resolutions = {
+        {
+            { ScanMethod::TRANSPARENCY },
+            { 7200, 3600, 2400, 1200, 600 },
+            { 7200, 3600, 2400, 1200, 600 },
+        }
+    };
+
+    model.bpp_gray_values = { 16 };
+    model.bpp_color_values = { 16 };
+    model.default_method = ScanMethod::TRANSPARENCY;
+
+    model.x_offset = 0.0;
+    model.y_offset = 0.0;
+    model.x_size = 36.0;
+    model.y_size = 44.0;
+
+    model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 0.0;
+    model.x_offset_calib_black = 6.5;
+    model.x_size_calib_mm = 37.0;
+
+    model.x_offset_ta = 1.0;
+    model.y_offset_ta = 29.0;
+    model.x_size_ta = 37.0;
+    model.y_size_ta = 25.0;
+
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_black_ta = 6.5;
+    model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 2.0;
+
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 12;
+    model.ld_shift_b = 24;
+
+    model.line_mode_color_order = ColorOrder::RGB;
+
+    model.is_cis = false;
+    model.is_sheetfed = false;
+
+    model.sensor_id = SensorId::CCD_PLUSTEK_OPTICFILM_7400;
+    model.adc_id = AdcId::PLUSTEK_OPTICFILM_7400;
+    model.gpio_id = GpioId::PLUSTEK_OPTICFILM_7400;
+    model.motor_id = MotorId::PLUSTEK_OPTICFILM_7400;
+
+    model.flags = ModelFlag::CUSTOM_GAMMA |
+                  ModelFlag::SKIP_WARMUP |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::SHADING_REPARK;
+
+    model.search_lines = 200;
+    s_usb_devices->emplace_back(0x07b3, 0x0c3a, model);
+
+
+    model = Genesys_Model();
     model.name = "plustek-opticfilm-7500i";
     model.vendor = "PLUSTEK";
     model.model = "OpticFilm 7500i";

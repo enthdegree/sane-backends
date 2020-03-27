@@ -997,6 +997,7 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
 
     switch (dev.model->asic_type) {
         case AsicType::GL843:
+        case AsicType::GL845:
             break;
         default:
             throw SaneException("Unsupported asic type");
@@ -2980,6 +2981,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
     case SensorId::CCD_CANON_8600F:
     case SensorId::CCD_PLUSTEK_OPTICFILM_7200I:
     case SensorId::CCD_PLUSTEK_OPTICFILM_7300:
+        case SensorId::CCD_PLUSTEK_OPTICFILM_7400:
     case SensorId::CCD_PLUSTEK_OPTICFILM_7500I:
       target_code = 0xe000;
       o = 0;

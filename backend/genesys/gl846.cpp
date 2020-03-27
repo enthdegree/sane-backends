@@ -108,26 +108,44 @@ gl846_init_registers (Genesys_Device * dev)
     dev->reg.clear();
 
     dev->reg.init_reg(0x01, 0x60);
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400) {
+        dev->reg.init_reg(0x01, 0x22);
+    }
     dev->reg.init_reg(0x02, 0x38);
     dev->reg.init_reg(0x03, 0x03);
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400) {
+        dev->reg.init_reg(0x03, 0xbf);
+    }
     dev->reg.init_reg(0x04, 0x22);
     dev->reg.init_reg(0x05, 0x60);
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400) {
+        dev->reg.init_reg(0x05, 0x48);
+    }
     dev->reg.init_reg(0x06, 0x10);
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400) {
+        dev->reg.init_reg(0x06, 0xf0);
+    }
     dev->reg.init_reg(0x08, 0x60);
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400) {
+        dev->reg.init_reg(0x08, 0x00);
+    }
     dev->reg.init_reg(0x09, 0x00);
     dev->reg.init_reg(0x0a, 0x00);
     dev->reg.init_reg(0x0b, 0x8b);
     if (dev->model->model_id == ModelId::PLUSTEK_OPTICBOOK_3800) {
         dev->reg.init_reg(0x0b, 0x2a);
     }
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400) {
+        dev->reg.init_reg(0x0b, 0x4a);
+    }
     dev->reg.init_reg(0x0c, 0x00);
     dev->reg.init_reg(0x0d, 0x00);
-    dev->reg.init_reg(0x10, 0x00);
-    dev->reg.init_reg(0x11, 0x00);
-    dev->reg.init_reg(0x12, 0x00);
-    dev->reg.init_reg(0x13, 0x00);
-    dev->reg.init_reg(0x14, 0x00);
-    dev->reg.init_reg(0x15, 0x00);
+    dev->reg.init_reg(0x10, 0x00); // exposure, set during sensor setup
+    dev->reg.init_reg(0x11, 0x00); // exposure, set during sensor setup
+    dev->reg.init_reg(0x12, 0x00); // exposure, set during sensor setup
+    dev->reg.init_reg(0x13, 0x00); // exposure, set during sensor setup
+    dev->reg.init_reg(0x14, 0x00); // exposure, set during sensor setup
+    dev->reg.init_reg(0x15, 0x00); // exposure, set during sensor setup
     dev->reg.init_reg(0x16, 0xbb); // SENSOR_DEF
     dev->reg.init_reg(0x17, 0x13); // SENSOR_DEF
     dev->reg.init_reg(0x18, 0x10); // SENSOR_DEF
@@ -136,33 +154,48 @@ gl846_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x1b, 0x00); // SENSOR_DEF
     dev->reg.init_reg(0x1c, 0x20); // SENSOR_DEF
     dev->reg.init_reg(0x1d, 0x06); // SENSOR_DEF
-    dev->reg.init_reg(0x1e, 0xf0);
+    dev->reg.init_reg(0x1e, 0xf0); // WDTIME, LINESEL: set during sensor and motor setup
+
+     // SCANFED
     dev->reg.init_reg(0x1f, 0x01);
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400) {
+        dev->reg.init_reg(0x1f, 0x00);
+    }
+
     dev->reg.init_reg(0x20, 0x03);
-    dev->reg.init_reg(0x21, 0x10);
-    dev->reg.init_reg(0x22, 0x60);
-    dev->reg.init_reg(0x23, 0x60);
-    dev->reg.init_reg(0x24, 0x60);
-    dev->reg.init_reg(0x25, 0x00);
-    dev->reg.init_reg(0x26, 0x00);
-    dev->reg.init_reg(0x27, 0x00);
-    dev->reg.init_reg(0x2c, 0x00);
-    dev->reg.init_reg(0x2d, 0x00);
-    dev->reg.init_reg(0x2e, 0x80);
-    dev->reg.init_reg(0x2f, 0x80);
-    dev->reg.init_reg(0x30, 0x00);
-    dev->reg.init_reg(0x31, 0x00);
-    dev->reg.init_reg(0x32, 0x00);
-    dev->reg.init_reg(0x33, 0x00);
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400) {
+        dev->reg.init_reg(0x20, 0x55);
+    }
+    dev->reg.init_reg(0x21, 0x10); // STEPNO: set during motor setup
+    dev->reg.init_reg(0x22, 0x60); // FWDSTEP: set during motor setup
+    dev->reg.init_reg(0x23, 0x60); // BWDSTEP: set during motor setup
+    dev->reg.init_reg(0x24, 0x60); // FASTNO: set during motor setup
+    dev->reg.init_reg(0x25, 0x00); // LINCNT: set during motor setup
+    dev->reg.init_reg(0x26, 0x00); // LINCNT: set during motor setup
+    dev->reg.init_reg(0x27, 0x00); // LINCNT: set during motor setup
+    dev->reg.init_reg(0x2c, 0x00); // DPISET: set during sensor setup
+    dev->reg.init_reg(0x2d, 0x00); // DPISET: set during sensor setup
+    dev->reg.init_reg(0x2e, 0x80); // BWHI: set during sensor setup
+    dev->reg.init_reg(0x2f, 0x80); // BWLOW: set during sensor setup
+    dev->reg.init_reg(0x30, 0x00); // STRPIXEL: set during sensor setup
+    dev->reg.init_reg(0x31, 0x00); // STRPIXEL: set during sensor setup
+    dev->reg.init_reg(0x32, 0x00); // ENDPIXEL: set during sensor setup
+    dev->reg.init_reg(0x33, 0x00); // ENDPIXEL: set during sensor setup
+
+    // DUMMY: the number of CCD dummy pixels
     dev->reg.init_reg(0x34, 0x1f);
-    dev->reg.init_reg(0x35, 0x00);
-    dev->reg.init_reg(0x36, 0x40);
-    dev->reg.init_reg(0x37, 0x00);
-    dev->reg.init_reg(0x38, 0x2a);
-    dev->reg.init_reg(0x39, 0xf8);
-    dev->reg.init_reg(0x3d, 0x00);
-    dev->reg.init_reg(0x3e, 0x00);
-    dev->reg.init_reg(0x3f, 0x01);
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400) {
+        dev->reg.init_reg(0x34, 0x14);
+    }
+
+    dev->reg.init_reg(0x35, 0x00); // MAXWD: set during scan setup
+    dev->reg.init_reg(0x36, 0x40); // MAXWD: set during scan setup
+    dev->reg.init_reg(0x37, 0x00); // MAXWD: set during scan setup
+    dev->reg.init_reg(0x38, 0x2a); // LPERIOD: set during sensor setup
+    dev->reg.init_reg(0x39, 0xf8); // LPERIOD: set during sensor setup
+    dev->reg.init_reg(0x3d, 0x00); // FEEDL: set during motor setup
+    dev->reg.init_reg(0x3e, 0x00); // FEEDL: set during motor setup
+    dev->reg.init_reg(0x3f, 0x01); // FEEDL: set during motor setup
     dev->reg.init_reg(0x52, 0x02); // SENSOR_DEF
     dev->reg.init_reg(0x53, 0x04); // SENSOR_DEF
     dev->reg.init_reg(0x54, 0x06); // SENSOR_DEF
@@ -172,22 +205,28 @@ gl846_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x58, 0x59); // SENSOR_DEF
     dev->reg.init_reg(0x59, 0x31); // SENSOR_DEF
     dev->reg.init_reg(0x5a, 0x40); // SENSOR_DEF
+
+    // DECSEL, STEPTIM
     dev->reg.init_reg(0x5e, 0x1f);
-    dev->reg.init_reg(0x5f, 0x01);
-    dev->reg.init_reg(0x60, 0x00);
-    dev->reg.init_reg(0x61, 0x00);
-    dev->reg.init_reg(0x62, 0x00);
-    dev->reg.init_reg(0x63, 0x00);
-    dev->reg.init_reg(0x64, 0x00);
-    dev->reg.init_reg(0x65, 0x00);
-    dev->reg.init_reg(0x67, 0x7f);
-    dev->reg.init_reg(0x68, 0x7f);
-    dev->reg.init_reg(0x69, 0x01);
-    dev->reg.init_reg(0x6a, 0x01);
-    dev->reg.init_reg(0x70, 0x01);
-    dev->reg.init_reg(0x71, 0x00);
-    dev->reg.init_reg(0x72, 0x02);
-    dev->reg.init_reg(0x73, 0x01);
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400) {
+        dev->reg.init_reg(0x5e, 0x01);
+    }
+    dev->reg.init_reg(0x5f, 0x01); // FMOVDEC: overwritten during motor setup
+    dev->reg.init_reg(0x60, 0x00); // STEPSEL, Z1MOD: overwritten during motor setup
+    dev->reg.init_reg(0x61, 0x00); // Z1MOD: overwritten during motor setup
+    dev->reg.init_reg(0x62, 0x00); // Z1MOD: overwritten during motor setup
+    dev->reg.init_reg(0x63, 0x00); // FSTPSEL, Z2MOD: overwritten during motor setup
+    dev->reg.init_reg(0x64, 0x00); // Z2MOD: overwritten during motor setup
+    dev->reg.init_reg(0x65, 0x00); // Z2MOD: overwritten during motor setup
+    dev->reg.init_reg(0x67, 0x7f); // MTRPWM: overwritten during motor setup
+    dev->reg.init_reg(0x68, 0x7f); // FASTPWM: overwritten during motor setup
+    dev->reg.init_reg(0x69, 0x01); // FSHDEC: overwritten during motor setup
+    dev->reg.init_reg(0x6a, 0x01); // FMOVNO: overwritten during motor setup
+    // 0x6b, 0x6c, 0x6d, 0x6e, 0x6f - gpio
+    dev->reg.init_reg(0x70, 0x01); // SENSOR_DEF
+    dev->reg.init_reg(0x71, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x72, 0x02); // SENSOR_DEF
+    dev->reg.init_reg(0x73, 0x01); // SENSOR_DEF
     dev->reg.init_reg(0x74, 0x00); // SENSOR_DEF
     dev->reg.init_reg(0x75, 0x00); // SENSOR_DEF
     dev->reg.init_reg(0x76, 0x00); // SENSOR_DEF
@@ -197,26 +236,69 @@ gl846_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x7a, 0x00); // SENSOR_DEF
     dev->reg.init_reg(0x7b, 0x09); // SENSOR_DEF
     dev->reg.init_reg(0x7c, 0x99); // SENSOR_DEF
-    dev->reg.init_reg(0x7d, 0x20);
+    dev->reg.init_reg(0x7d, 0x20); // SENSOR_DEF
     dev->reg.init_reg(0x7f, 0x05);
-    dev->reg.init_reg(0x80, 0x4f);
-    dev->reg.init_reg(0x87, 0x02);
-    dev->reg.init_reg(0x94, 0xff);
-    dev->reg.init_reg(0x9d, 0x04);
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400) {
+        dev->reg.init_reg(0x7f, 0x00);
+    }
+    dev->reg.init_reg(0x80, 0x4f); // overwritten during motor setup
+    dev->reg.init_reg(0x87, 0x02); // SENSOR_DEF
+
+    // MTRPLS: pulse width of ADF motor trigger signal
+    dev->reg.init_reg(0x94, 0x00);
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICBOOK_3800) {
+        dev->reg.init_reg(0x94, 0xff);
+    }
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICBOOK_3800) {
+        dev->reg.init_reg(0x98, 0x20); // ONDUR
+        dev->reg.init_reg(0x99, 0x00); // ONDUR
+        dev->reg.init_reg(0x9a, 0x90); // OFFDUR
+        dev->reg.init_reg(0x9b, 0x00); // OFFDUR
+    }
+
+    dev->reg.init_reg(0x9d, 0x00); // contains STEPTIM
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICBOOK_3800) {
+        dev->reg.init_reg(0x9d, 0x04);
+    }
     dev->reg.init_reg(0x9e, 0x00);
-    dev->reg.init_reg(0xa1, 0xe0);
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICBOOK_3800) {
+        dev->reg.init_reg(0xa1, 0xe0);
+    }
+
+    // RFHSET (SDRAM refresh time)
     dev->reg.init_reg(0xa2, 0x1f);
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400) {
+        dev->reg.init_reg(0xa2, 0x0f);
+    }
+
+    // 0xa6, 0xa7 0xa8, 0xa9 - gpio
+
+    // Various important settings: GPOM9, MULSTOP, NODECEL, TB3TB1, TB5TB2, FIX16CLK
     dev->reg.init_reg(0xab, 0xc0);
-    dev->reg.init_reg(0xbb, 0x00);
-    dev->reg.init_reg(0xbc, 0x0f);
-    dev->reg.init_reg(0xdb, 0xff);
-    dev->reg.init_reg(0xfe, 0x08);
-    dev->reg.init_reg(0xff, 0x02);
-    dev->reg.init_reg(0x98, 0x20);
-    dev->reg.init_reg(0x99, 0x00);
-    dev->reg.init_reg(0x9a, 0x90);
-    dev->reg.init_reg(0x9b, 0x00);
-    dev->reg.init_reg(0xf8, 0x05);
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400) {
+        dev->reg.init_reg(0xab, 0x01);
+    }
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICBOOK_3800) {
+        dev->reg.init_reg(0xbb, 0x00); // FIXME: default is the same
+    }
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICBOOK_3800) {
+        dev->reg.init_reg(0xbc, 0x0f);
+        dev->reg.init_reg(0xdb, 0xff);
+    }
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400) {
+        dev->reg.init_reg(0xbe, 0x07);
+    }
+
+    // 0xd0, 0xd1, 0xd2 - SH0DWN, SH1DWN, SH2DWN - shading bank[0..2] for CCD.
+    // Set during memory layout setup
+
+    // [0xe0..0xf7] - image buffer addresses. Set during memory layout setup
+    dev->reg.init_reg(0xf8, 0x05); // MAXSEL, MINSEL
+
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICBOOK_3800) {
+        dev->reg.init_reg(0xfe, 0x08); // MOTTGST, AUTO_O
+        dev->reg.init_reg(0xff, 0x02); // AUTO_S
+    }
 
     const auto& sensor = sanei_genesys_find_sensor_any(dev);
     const auto& dpihw_sensor = sanei_genesys_find_sensor(dev, sensor.optical_res,
@@ -521,12 +603,11 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     r = sanei_genesys_get_address(reg, REG_0x01);
     r->value |= REG_0x01_SHDAREA;
     if (has_flag(session.params.flags, ScanFlag::DISABLE_SHADING) ||
-        has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION))
+        has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION) ||
+        session.use_host_side_calib)
     {
         r->value &= ~REG_0x01_DVDSET;
-    }
-  else
-    {
+    } else {
         r->value |= REG_0x01_DVDSET;
     }
 
@@ -1161,15 +1242,14 @@ void CommandSetGl846::asic_boot(Genesys_Device* dev, bool cold) const
         dev->interface->write_register(0x0e, 0x00);
     }
 
-  if(dev->usb_mode == 1)
-    {
-      val = 0x14;
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICBOOK_3800) {
+        if (dev->usb_mode == 1) {
+            val = 0x14;
+        } else {
+            val = 0x11;
+        }
+        dev->interface->write_0x8c(0x0f, val);
     }
-  else
-    {
-      val = 0x11;
-    }
-    dev->interface->write_0x8c(0x0f, val);
 
     // test CHKVER
     val = dev->interface->read_register(REG_0x40);
@@ -1191,8 +1271,13 @@ void CommandSetGl846::asic_boot(Genesys_Device* dev, bool cold) const
     }
 
     // set up clocks
-    dev->interface->write_0x8c(0x10, 0x0e);
-    dev->interface->write_0x8c(0x13, 0x0e);
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400) {
+        dev->interface->write_0x8c(0x10, 0x0c);
+        dev->interface->write_0x8c(0x13, 0x0c);
+    } else {
+        dev->interface->write_0x8c(0x10, 0x0e);
+        dev->interface->write_0x8c(0x13, 0x0e);
+    }
 
     // setup gpio
     gl846_init_gpio(dev);

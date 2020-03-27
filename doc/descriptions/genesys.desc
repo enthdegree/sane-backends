@@ -27,6 +27,11 @@
 :usbid "0x07b3" "0x0c12"
 :status :basic
 
+:model "OpticFilm 7400"
+:interface "USB"
+:usbid "0x07b3" "0x0c3a"
+:status :basic
+
 :model "OpticFilm 7500i"
 :interface "USB"
 :usbid "0x07b3" "0x0c13"

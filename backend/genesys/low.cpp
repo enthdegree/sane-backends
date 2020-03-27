@@ -1005,6 +1005,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
 
         if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I ||
             dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
+            dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400 ||
             dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I)
         {
             s.optical_pixels = align_int_up(s.optical_pixels, 16);
@@ -1056,9 +1057,10 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     s.output_line_bytes_raw = s.output_line_bytes;
     s.conseq_pixel_dist = 0;
 
-    if (dev->model->asic_type == AsicType::GL845 ||
-        dev->model->asic_type == AsicType::GL846 ||
-        dev->model->asic_type == AsicType::GL847)
+    if ((dev->model->asic_type == AsicType::GL845 ||
+         dev->model->asic_type == AsicType::GL846 ||
+         dev->model->asic_type == AsicType::GL847) &&
+        dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7400)
     {
         if (s.segment_count > 1) {
             s.conseq_pixel_dist = sensor.segment_size;

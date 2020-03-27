@@ -453,6 +453,20 @@ void genesys_init_motor_tables()
 
 
     motor = Genesys_Motor();
+    motor.id = MotorId::PLUSTEK_OPTICFILM_7400;
+    motor.base_ydpi = 3600;
+    motor.optical_ydpi = 3600;
+
+    profile = MotorProfile();
+    profile.slope = MotorSlope::create_from_steps(64102 * 4, 400 * 4, 30);
+    profile.step_type = StepType::QUARTER;
+    profile.motor_vref = 3;
+    motor.profiles.push_back(profile);
+    motor.fast_profiles.push_back(profile);
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
     motor.id = MotorId::PLUSTEK_OPTICFILM_7500I;
     motor.base_ydpi = 3600;
     motor.optical_ydpi = 3600;

@@ -213,6 +213,7 @@ static void bulk_read_data_send_header(UsbDevice& usb_dev, AsicType asic_type, s
 
     uint8_t outdata[8];
     if (asic_type == AsicType::GL124 ||
+        asic_type == AsicType::GL845 ||
         asic_type == AsicType::GL846 ||
         asic_type == AsicType::GL847)
     {
@@ -246,12 +247,13 @@ static void bulk_read_data_send_header(UsbDevice& usb_dev, AsicType asic_type, s
 
 void ScannerInterfaceUsb::bulk_read_data(std::uint8_t addr, std::uint8_t* data, std::size_t size)
 {
-    // currently supported: GL646, GL841, GL843, GL846, GL847, GL124
+    // currently supported: GL646, GL841, GL843, GL845, GL846, GL847, GL124
     DBG_HELPER(dbg);
 
     unsigned is_addr_used = 1;
     unsigned has_header_before_each_chunk = 0;
     if (dev_->model->asic_type == AsicType::GL124 ||
+        dev_->model->asic_type == AsicType::GL845 ||
         dev_->model->asic_type == AsicType::GL846 ||
         dev_->model->asic_type == AsicType::GL847)
     {

@@ -220,7 +220,7 @@ gl846_init_registers (Genesys_Device * dev)
 
     const auto& sensor = sanei_genesys_find_sensor_any(dev);
     const auto& dpihw_sensor = sanei_genesys_find_sensor(dev, sensor.optical_res,
-                                                         3, ScanMethod::FLATBED);
+                                                         3, dev->model->default_method);
     sanei_genesys_set_dpihw(dev->reg, dpihw_sensor.register_dpihw);
 }
 
@@ -693,22 +693,39 @@ ScanSession CommandSetGl846::calculate_scan_session(const Genesys_Device* dev,
     DBG(DBG_info, "%s ", __func__);
     debug_dump(DBG_info, settings);
 
-    /*  Steps to move to reach scanning area:
+    ScanFlag flags = ScanFlag::NONE;
 
-        - first we move to physical start of scanning either by a fixed steps amount from the
-          black strip or by a fixed amount from parking position, minus the steps done during
-          shading calibration.
-
-        - then we move by the needed offset whitin physical scanning area
-    */
     unsigned move_dpi = dev->motor.base_ydpi;
 
     float move = dev->model->y_offset;
+    if (settings.scan_method == ScanMethod::TRANSPARENCY ||
+        settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+    {
+        // note: move_to_ta() function has already been called and the sensor is at the
+        // transparency adapter
+        if (!dev->ignore_offsets) {
+            move = dev->model->y_offset_ta - dev->model->y_offset_sensor_to_ta;
+        }
+        flags |= ScanFlag::USE_XPA;
+    } else {
+        if (!dev->ignore_offsets) {
+            move = dev->model->y_offset;
+        }
+    }
+
     move = move + settings.tl_y;
     move = static_cast<float>((move * move_dpi) / MM_PER_INCH);
     move -= dev->head_pos(ScanHeadId::PRIMARY);
 
     float start = dev->model->x_offset;
+    if (settings.scan_method == ScanMethod::TRANSPARENCY ||
+        settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+    {
+        start = dev->model->x_offset_ta;
+    } else {
+        start = dev->model->x_offset;
+    }
+
     start = start + dev->settings.tl_x;
     start = static_cast<float>((start * settings.xres) / MM_PER_INCH);
 
@@ -726,7 +743,7 @@ ScanSession CommandSetGl846::calculate_scan_session(const Genesys_Device* dev,
     session.params.scan_mode = settings.scan_mode;
     session.params.color_filter = settings.color_filter;
     // backtracking isn't handled well, so don't enable it
-    session.params.flags = ScanFlag::DISABLE_BUFFER_FULL_MOVE;
+    session.params.flags = flags;
 
     compute_session(dev, session, sensor);
 
@@ -798,7 +815,17 @@ void CommandSetGl846::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
                                             Genesys_Register_Set& regs) const
 {
     DBG_HELPER(dbg);
-  float move;
+
+    unsigned move_dpi = dev->motor.base_ydpi;
+
+    float calib_size_mm = 0;
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
+        dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+    {
+        calib_size_mm = dev->model->y_size_calib_ta_mm;
+    } else {
+        calib_size_mm = dev->model->y_size_calib_mm;
+    }
 
     unsigned channels = 3;
     unsigned resolution = sensor.shading_resolution;
@@ -806,15 +833,25 @@ void CommandSetGl846::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                          dev->settings.scan_method);
 
-    unsigned calib_lines =
-            static_cast<unsigned>(dev->model->y_size_calib_mm * resolution / MM_PER_INCH);
+    float move = 0;
+    ScanFlag flags = ScanFlag::DISABLE_SHADING |
+                     ScanFlag::DISABLE_GAMMA |
+                     ScanFlag::DISABLE_BUFFER_FULL_MOVE;
 
-  /* this is aworkaround insufficent distance for slope
-   * motor acceleration TODO special motor slope for shading  */
-  move=1;
-    if (resolution < 1200) {
-      move=40;
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
+        dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+    {
+        // note: move_to_ta() function has already been called and the sensor is at the
+        // transparency adapter
+        move = static_cast<int>(dev->model->y_offset_calib_white_ta - dev->model->y_offset_sensor_to_ta);
+        flags |= ScanFlag::USE_XPA;
+    } else {
+        move = static_cast<int>(dev->model->y_offset_calib_white);
     }
+
+    move = static_cast<float>((move * move_dpi) / MM_PER_INCH);
+
+    unsigned calib_lines = static_cast<unsigned>(calib_size_mm * resolution / MM_PER_INCH);
 
     ScanSession session;
     session.params.xres = resolution;
@@ -828,9 +865,7 @@ void CommandSetGl846::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = dev->settings.color_filter;
-    session.params.flags = ScanFlag::DISABLE_SHADING |
-                   ScanFlag::DISABLE_GAMMA |
-                   ScanFlag::DISABLE_BUFFER_FULL_MOVE;
+    session.params.flags = flags;
     compute_session(dev, session, calib_sensor);
 
     init_regs_for_scan_session(dev, calib_sensor, &regs, session);
@@ -1275,8 +1310,11 @@ void CommandSetGl846::eject_document(Genesys_Device* dev) const
 
 void CommandSetGl846::move_to_ta(Genesys_Device* dev) const
 {
-    (void) dev;
-    throw SaneException("not implemented");
+    DBG_HELPER(dbg);
+
+    unsigned feed = static_cast<unsigned>((dev->model->y_offset_sensor_to_ta * dev->motor.base_ydpi) /
+                                          MM_PER_INCH);
+    scanner_move(*dev, dev->model->default_method, feed, Direction::FORWARD);
 }
 
 std::unique_ptr<CommandSet> create_gl846_cmd_set()

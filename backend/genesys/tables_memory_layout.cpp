@@ -54,7 +54,7 @@ void genesys_init_memory_layout_tables()
     s_memory_layout->push_back(ml);
 
     ml = MemoryLayout();
-    ml.models = { ModelId::PLUSTEK_OPTICFILM_7400 };
+    ml.models = { ModelId::PLUSTEK_OPTICFILM_7400, ModelId::PLUSTEK_OPTICFILM_8200I };
     ml.regs = {
         { 0x81, 0x6d }, { 0x82, 0x00 }, { 0x83, 0x00 }, { 0x84, 0x00 },
         { 0x85, 0x00 }, { 0x86, 0x00 },

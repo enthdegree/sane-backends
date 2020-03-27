@@ -3377,6 +3377,64 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
+    sensor.sensor_id = SensorId::CCD_PLUSTEK_OPTICFILM_8200I; // gl845
+    sensor.optical_res = 7200;
+    sensor.method = ScanMethod::TRANSPARENCY;
+    sensor.register_dpihw = 1200;
+    sensor.ccd_size_divisor = 1;
+    sensor.black_pixels = 88; // TODO
+    sensor.dummy_pixel = 20;
+    sensor.ccd_start_xoffset = 120;
+    sensor.fau_gain_white_ref = 210;
+    sensor.gain_white_ref = 230;
+    sensor.exposure = { 0x0000, 0x0000, 0x0000 };
+    sensor.exposure_lperiod = 14000;
+    sensor.stagger_config = StaggerConfig{7200, 4};
+    sensor.use_host_side_calib = true;
+    sensor.custom_regs = {
+        { 0x08, 0x00 }, { 0x09, 0x00 }, { 0x0a, 0x00 },
+        { 0x16, 0x27 }, { 0x17, 0x0c }, { 0x18, 0x10 }, { 0x19, 0x2a },
+        { 0x1a, 0x00 }, { 0x1b, 0x00 }, { 0x1c, 0x20 }, { 0x1d, 0x84 },
+        { 0x52, 0x09 }, { 0x53, 0x0d }, { 0x54, 0x0f }, { 0x55, 0x01 },
+        { 0x56, 0x04 }, { 0x57, 0x07 }, { 0x58, 0x31 }, { 0x59, 0x79 }, { 0x5a, 0xc0 },
+        { 0x70, 0x0a }, { 0x71, 0x0b }, { 0x72, 0x0c }, { 0x73, 0x0d },
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x00 },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x00 }, { 0x7d, 0x00 },
+        { 0x87, 0x00 },
+    };
+    sensor.gamma = { 1.0f, 1.0f, 1.0f };
+    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
+    {
+        struct CustomSensorSettings
+        {
+            ValueFilterAny<unsigned> resolutions;
+            ScanMethod method;
+            unsigned register_dpiset;
+        };
+
+        CustomSensorSettings custom_settings[] = {
+            { { 900 },  ScanMethod::TRANSPARENCY, 150 },
+            { { 1800 }, ScanMethod::TRANSPARENCY, 300 },
+            { { 3600 }, ScanMethod::TRANSPARENCY, 600 },
+            { { 7200 }, ScanMethod::TRANSPARENCY, 1200 },
+            { { 900 },  ScanMethod::TRANSPARENCY_INFRARED, 150 },
+            { { 1800 }, ScanMethod::TRANSPARENCY_INFRARED, 300 },
+            { { 3600 }, ScanMethod::TRANSPARENCY_INFRARED, 600 },
+            { { 7200 }, ScanMethod::TRANSPARENCY_INFRARED, 1200 },
+        };
+
+        for (const CustomSensorSettings& setting : custom_settings) {
+            sensor.resolutions = setting.resolutions;
+            sensor.method = setting.method;
+            sensor.shading_resolution = setting.resolutions.values()[0];
+            sensor.register_dpiset = setting.register_dpiset;
+            s_sensors->push_back(sensor);
+        }
+    }
+
+
+    sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_IMG101; // gl846
     sensor.resolutions = { 75, 100, 150, 300, 600, 1200 };
     sensor.exposure_lperiod = 11000;

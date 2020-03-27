@@ -2536,6 +2536,71 @@ void genesys_init_usb_device_tables()
 
 
     model = Genesys_Model();
+    model.name = "plustek-opticfilm-8200i";
+    model.vendor = "PLUSTEK";
+    model.model = "OpticFilm 8200i";
+    model.model_id = ModelId::PLUSTEK_OPTICFILM_8200I;
+    model.asic_type = AsicType::GL845;
+
+    model.resolutions = {
+        {
+            { ScanMethod::TRANSPARENCY, ScanMethod::TRANSPARENCY_INFRARED },
+            { 7200, 3600, 1800, 900 },
+            { 7200, 3600, 1800, 900 },
+        }
+    };
+
+    model.bpp_gray_values = { 16 };
+    model.bpp_color_values = { 16 };
+    model.default_method = ScanMethod::TRANSPARENCY;
+
+    model.x_offset = 0.0;
+    model.y_offset = 0.0;
+    model.x_size = 36.0;
+    model.y_size = 44.0;
+
+    model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 0.0;
+    model.x_offset_calib_black = 6.5;
+    model.x_size_calib_mm = 37.0;
+
+    model.x_offset_ta = 0.5;
+    model.y_offset_ta = 28.5;
+    model.x_size_ta = 37.0;
+    model.y_size_ta = 25.0;
+
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_black_ta = 6.5;
+    model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 2.0;
+
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 12;
+    model.ld_shift_b = 24;
+
+    model.line_mode_color_order = ColorOrder::RGB;
+
+    model.is_cis = false;
+    model.is_sheetfed = false;
+
+    model.sensor_id = SensorId::CCD_PLUSTEK_OPTICFILM_8200I;
+    model.adc_id = AdcId::PLUSTEK_OPTICFILM_8200I;
+    model.gpio_id = GpioId::PLUSTEK_OPTICFILM_8200I;
+    model.motor_id = MotorId::PLUSTEK_OPTICFILM_8200I;
+
+    model.flags = ModelFlag::CUSTOM_GAMMA |
+                  ModelFlag::SKIP_WARMUP |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::SHADING_REPARK;
+
+    model.search_lines = 200;
+    s_usb_devices->emplace_back(0x07b3, 0x130d, model);
+
+
+    model = Genesys_Model();
     model.name = "hewlett-packard-scanjet-N6310";
     model.vendor = "Hewlett Packard";
     model.model = "ScanJet N6310";

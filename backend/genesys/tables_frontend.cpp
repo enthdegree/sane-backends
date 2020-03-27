@@ -540,6 +540,23 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
+    fe.id = AdcId::PLUSTEK_OPTICFILM_8200I;
+    fe.layout = analog_devices;
+    fe.regs = {
+        { 0x00, 0xf8 },
+        { 0x01, 0x80 },
+        { 0x02, 0x28 },
+        { 0x03, 0x20 },
+        { 0x04, 0x28 },
+        { 0x05, 0x2f },
+        { 0x06, 0x2d },
+        { 0x07, 0x23 },
+    };
+    fe.reg2 = {0x00, 0x00, 0x00};
+    s_frontends->push_back(fe);
+
+
+    fe = Genesys_Frontend();
     fe.id = AdcId::CANON_4400F;
     fe.layout = wolfson_layout;
     fe.regs = {

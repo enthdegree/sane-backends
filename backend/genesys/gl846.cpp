@@ -108,25 +108,35 @@ gl846_init_registers (Genesys_Device * dev)
     dev->reg.clear();
 
     dev->reg.init_reg(0x01, 0x60);
-    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400) {
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_8200I)
+    {
         dev->reg.init_reg(0x01, 0x22);
     }
     dev->reg.init_reg(0x02, 0x38);
     dev->reg.init_reg(0x03, 0x03);
-    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400) {
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_8200I)
+    {
         dev->reg.init_reg(0x03, 0xbf);
     }
     dev->reg.init_reg(0x04, 0x22);
     dev->reg.init_reg(0x05, 0x60);
-    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400) {
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_8200I)
+    {
         dev->reg.init_reg(0x05, 0x48);
     }
     dev->reg.init_reg(0x06, 0x10);
-    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400) {
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_8200I)
+    {
         dev->reg.init_reg(0x06, 0xf0);
     }
     dev->reg.init_reg(0x08, 0x60);
-    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400) {
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_8200I)
+    {
         dev->reg.init_reg(0x08, 0x00);
     }
     dev->reg.init_reg(0x09, 0x00);
@@ -135,7 +145,9 @@ gl846_init_registers (Genesys_Device * dev)
     if (dev->model->model_id == ModelId::PLUSTEK_OPTICBOOK_3800) {
         dev->reg.init_reg(0x0b, 0x2a);
     }
-    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400) {
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_8200I)
+    {
         dev->reg.init_reg(0x0b, 0x4a);
     }
     dev->reg.init_reg(0x0c, 0x00);
@@ -163,7 +175,9 @@ gl846_init_registers (Genesys_Device * dev)
     }
 
     dev->reg.init_reg(0x20, 0x03);
-    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400) {
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_8200I)
+    {
         dev->reg.init_reg(0x20, 0x55);
     }
     dev->reg.init_reg(0x21, 0x10); // STEPNO: set during motor setup
@@ -184,7 +198,9 @@ gl846_init_registers (Genesys_Device * dev)
 
     // DUMMY: the number of CCD dummy pixels
     dev->reg.init_reg(0x34, 0x1f);
-    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400) {
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_8200I)
+    {
         dev->reg.init_reg(0x34, 0x14);
     }
 
@@ -208,7 +224,9 @@ gl846_init_registers (Genesys_Device * dev)
 
     // DECSEL, STEPTIM
     dev->reg.init_reg(0x5e, 0x1f);
-    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400) {
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_8200I)
+    {
         dev->reg.init_reg(0x5e, 0x01);
     }
     dev->reg.init_reg(0x5f, 0x01); // FMOVDEC: overwritten during motor setup
@@ -238,7 +256,9 @@ gl846_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x7c, 0x99); // SENSOR_DEF
     dev->reg.init_reg(0x7d, 0x20); // SENSOR_DEF
     dev->reg.init_reg(0x7f, 0x05);
-    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400) {
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_8200I)
+    {
         dev->reg.init_reg(0x7f, 0x00);
     }
     dev->reg.init_reg(0x80, 0x4f); // overwritten during motor setup
@@ -267,7 +287,9 @@ gl846_init_registers (Genesys_Device * dev)
 
     // RFHSET (SDRAM refresh time)
     dev->reg.init_reg(0xa2, 0x1f);
-    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400) {
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_8200I)
+    {
         dev->reg.init_reg(0xa2, 0x0f);
     }
 
@@ -275,7 +297,9 @@ gl846_init_registers (Genesys_Device * dev)
 
     // Various important settings: GPOM9, MULSTOP, NODECEL, TB3TB1, TB5TB2, FIX16CLK
     dev->reg.init_reg(0xab, 0xc0);
-    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400) {
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_8200I)
+    {
         dev->reg.init_reg(0xab, 0x01);
     }
     if (dev->model->model_id == ModelId::PLUSTEK_OPTICBOOK_3800) {
@@ -616,6 +640,7 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
     sanei_genesys_set_lamp_power(dev, sensor, *reg,
                                  !has_flag(session.params.flags, ScanFlag::DISABLE_LAMP));
+    reg->state.is_xpa_on = has_flag(session.params.flags, ScanFlag::USE_XPA);
 
   /* BW threshold */
   r = sanei_genesys_get_address (reg, 0x2e);
@@ -853,11 +878,9 @@ void CommandSetGl846::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
   uint8_t val;
   GenesysRegister *r;
 
-  /* XXX STEF XXX SCAN GPIO */
-  /*
-    val = dev->interface->read_register(REG_0x6C);
-    dev->interface->write_register(REG_0x6C, val);
-  */
+    if (reg->state.is_xpa_on && reg->state.is_lamp_on) {
+        dev->cmd_set->set_xpa_lamp_power(*dev, true);
+    }
 
     scanner_clear_scan_and_feed_counts(*dev);
 
@@ -879,6 +902,10 @@ void CommandSetGl846::end_scan(Genesys_Device* dev, Genesys_Register_Set* reg,
 {
     (void) reg;
     DBG_HELPER_ARGS(dbg, "check_stop = %d", check_stop);
+
+    if (reg->state.is_xpa_on) {
+        dev->cmd_set->set_xpa_lamp_power(*dev, false);
+    }
 
     if (!dev->model->is_sheetfed) {
         scanner_stop_action(*dev);
@@ -1271,7 +1298,9 @@ void CommandSetGl846::asic_boot(Genesys_Device* dev, bool cold) const
     }
 
     // set up clocks
-    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400) {
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_8200I)
+    {
         dev->interface->write_0x8c(0x10, 0x0c);
         dev->interface->write_0x8c(0x13, 0x0c);
     } else {

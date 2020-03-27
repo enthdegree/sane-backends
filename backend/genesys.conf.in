@@ -136,6 +136,9 @@ usb 0x07b3 0x0c3a
 # Plustek OpticFilm 7500i
 usb 0x07b3 0x0c13
 
+# Plustek OpticFilm 8200i
+usb 0x07b3 0x130d
+
 # Primax Electronics, Ltd Xerox 2400 Onetouch
 usb 0x0461 0x038b
 

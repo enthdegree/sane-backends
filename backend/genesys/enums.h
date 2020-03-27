@@ -374,6 +374,8 @@ enum class GpioId : unsigned
     XP300,
 };
 
+std::ostream& operator<<(std::ostream& out, GpioId id);
+
 enum class MotorId : unsigned
 {
     UNKNOWN = 0,

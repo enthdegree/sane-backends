@@ -203,6 +203,45 @@ std::ostream& operator<<(std::ostream& out, AdcId id)
     return out;
 }
 
+std::ostream& operator<<(std::ostream& out, GpioId id)
+{
+    switch (id) {
+        case GpioId::UNKNOWN: out << "UNKNOWN"; break;
+        case GpioId::CANON_LIDE_35: out << "CANON_LIDE_35"; break;
+        case GpioId::CANON_LIDE_80: out << "CANON_LIDE_80"; break;
+        case GpioId::CANON_LIDE_110: out << "CANON_LIDE_110"; break;
+        case GpioId::CANON_LIDE_120: out << "CANON_LIDE_120"; break;
+        case GpioId::CANON_LIDE_200: out << "CANON_LIDE_200"; break;
+        case GpioId::CANON_LIDE_210: out << "CANON_LIDE_210"; break;
+        case GpioId::CANON_LIDE_700F: out << "CANON_LIDE_700F"; break;
+        case GpioId::CANON_4400F: out << "CANON_4400F"; break;
+        case GpioId::CANON_8400F: out << "CANON_8400F"; break;
+        case GpioId::CANON_8600F: out << "CANON_8600F"; break;
+        case GpioId::DP665: out << "DP665"; break;
+        case GpioId::DP685: out << "DP685"; break;
+        case GpioId::G4050: out << "G4050"; break;
+        case GpioId::HP2300: out << "HP2300"; break;
+        case GpioId::HP2400: out << "HP2400"; break;
+        case GpioId::HP3670: out << "HP3670"; break;
+        case GpioId::HP_N6310: out << "HP_N6310"; break;
+        case GpioId::IMG101: out << "IMG101"; break;
+        case GpioId::KVSS080: out << "KVSS080"; break;
+        case GpioId::MD_5345: out << "MD_5345"; break;
+        case GpioId::PLUSTEK_OPTICBOOK_3800: out << "PLUSTEK_OPTICBOOK_3800"; break;
+        case GpioId::PLUSTEK_OPTICFILM_7200I: out << "PLUSTEK_OPTICFILM_7200I"; break;
+        case GpioId::PLUSTEK_OPTICFILM_7300: out << "PLUSTEK_OPTICFILM_7300"; break;
+        case GpioId::PLUSTEK_OPTICFILM_7500I: out << "PLUSTEK_OPTICFILM_7500I"; break;
+        case GpioId::PLUSTEK_OPTICPRO_3600: out << "PLUSTEK_OPTICPRO_3600"; break;
+        case GpioId::ST12: out << "ST12"; break;
+        case GpioId::ST24: out << "ST24"; break;
+        case GpioId::UMAX: out << "UMAX"; break;
+        case GpioId::XP200: out << "XP200"; break;
+        case GpioId::XP300: out << "XP300"; break;
+        default: out << static_cast<unsigned>(id); break;
+    }
+    return out;
+}
+
 std::ostream& operator<<(std::ostream& out, StepType type)
 {
     switch (type) {

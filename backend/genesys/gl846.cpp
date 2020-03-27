@@ -317,6 +317,7 @@ void CommandSetGl846::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
 // @brief set up motor related register for scan
 static void gl846_init_motor_regs_scan(Genesys_Device* dev,
                                        const Genesys_Sensor& sensor,
+                                       const ScanSession& session,
                                        Genesys_Register_Set* reg,
                                        const MotorProfile& motor_profile,
                                        unsigned int scan_exposure_time,
@@ -372,32 +373,31 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
 
     gl846_send_slope_table(dev, SCAN_TABLE, scan_table.table, scan_table.steps_count);
     gl846_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table, scan_table.steps_count);
+    gl846_send_slope_table(dev, STOP_TABLE, scan_table.table, scan_table.steps_count);
+
+    reg->set8(REG_STEPNO, scan_table.steps_count / step_multiplier);
+    reg->set8(REG_FASTNO, scan_table.steps_count / step_multiplier);
+    reg->set8(REG_FSHDEC, scan_table.steps_count / step_multiplier);
 
     // fast table
-    unsigned fast_dpi = sanei_genesys_get_lowest_ydpi(dev);
-
-    // BUG: looks like for fast moves we use inconsistent step type
-    StepType fast_step_type = motor_profile.step_type;
-    if (static_cast<unsigned>(motor_profile.step_type) >= static_cast<unsigned>(StepType::QUARTER)) {
-        fast_step_type = StepType::QUARTER;
+    const auto* fast_profile = get_motor_profile_ptr(dev->motor.fast_profiles, 0, session);
+    if (fast_profile == nullptr) {
+        fast_profile = &motor_profile;
     }
 
-    MotorProfile fast_motor_profile = motor_profile;
-    fast_motor_profile.step_type = fast_step_type;
+    auto fast_table = create_slope_table_fastest(dev->model->asic_type, step_multiplier,
+                                                 *fast_profile);
 
-    auto fast_table = sanei_genesys_slope_table(dev->model->asic_type, fast_dpi,
-                                                scan_exposure_time, dev->motor.base_ydpi,
-                                                step_multiplier, fast_motor_profile);
-
-    gl846_send_slope_table(dev, STOP_TABLE, fast_table.table, fast_table.steps_count);
     gl846_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.steps_count);
     gl846_send_slope_table(dev, HOME_TABLE, fast_table.table, fast_table.steps_count);
 
-    // correct move distance by acceleration and deceleration amounts
+    reg->set8(REG_FMOVNO, fast_table.steps_count / step_multiplier);
+    reg->set8(REG_FMOVDEC, fast_table.steps_count / step_multiplier);
+
     unsigned feedl = feed_steps;
     unsigned dist = 0;
     if (use_fast_fed) {
-        feedl <<= static_cast<unsigned>(fast_step_type);
+        feedl <<= static_cast<unsigned>(fast_profile->step_type);
         dist = (scan_table.steps_count + 2 * fast_table.steps_count);
         // TODO read and decode REG_0xAB
         dist += (reg->get8(0x5e) & 31);
@@ -484,12 +484,6 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
 
     reg->set8(REG_0x67, 0x7f);
     reg->set8(REG_0x68, 0x7f);
-
-    reg->set8(REG_STEPNO, scan_table.steps_count / step_multiplier);
-    reg->set8(REG_FASTNO, scan_table.steps_count / step_multiplier);
-    reg->set8(REG_FSHDEC, scan_table.steps_count / step_multiplier);
-    reg->set8(REG_FMOVNO, fast_table.steps_count / step_multiplier);
-    reg->set8(REG_FMOVDEC, fast_table.steps_count / step_multiplier);
 }
 
 
@@ -633,13 +627,12 @@ void CommandSetGl846::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     DBG_HELPER(dbg);
     session.assert_computed();
 
-  int move;
   int exposure_time;
 
   int slope_dpi = 0;
-  int dummy = 0;
 
-  dummy = 3-session.params.channels;
+    // FIXME: on cis scanners we may want to scan at reduced resolution
+    int dummy = 0;
 
 /* slope_dpi */
 /* cis color scan is effectively a gray scan with 3 gray lines per color
@@ -664,12 +657,6 @@ void CommandSetGl846::init_regs_for_scan_session(Genesys_Device* dev, const Gene
    */
     gl846_init_optical_regs_scan(dev, sensor, reg, exposure_time, session);
 
-/*** motor parameters ***/
-
-  /* add tl_y to base movement */
-  move = session.params.starty;
-  DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
-
     MotorFlag mflags = MotorFlag::NONE;
     if (has_flag(session.params.flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE)) {
         mflags |= MotorFlag::DISABLE_BUFFER_FULL_MOVE;
@@ -681,8 +668,8 @@ void CommandSetGl846::init_regs_for_scan_session(Genesys_Device* dev, const Gene
         mflags |= MotorFlag::REVERSE;
     }
 
-    gl846_init_motor_regs_scan(dev, sensor, reg, motor_profile, exposure_time, slope_dpi,
-                               session.optical_line_count, dummy, move, mflags);
+    gl846_init_motor_regs_scan(dev, sensor, session, reg, motor_profile, exposure_time, slope_dpi,
+                               session.optical_line_count, dummy, session.params.starty, mflags);
 
   /*** prepares data reordering ***/
 

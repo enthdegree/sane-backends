@@ -180,7 +180,7 @@ std::ostream& operator<<(std::ostream& out, const MotorProfile& profile)
 std::ostream& operator<<(std::ostream& out, const Genesys_Motor& motor)
 {
     out << "Genesys_Motor{\n"
-        << "    id: " << static_cast<unsigned>(motor.id) << '\n'
+        << "    id: " << motor.id << '\n'
         << "    base_ydpi: " << motor.base_ydpi << '\n'
         << "    optical_ydpi: " << motor.optical_ydpi << '\n'
         << "    profiles: "

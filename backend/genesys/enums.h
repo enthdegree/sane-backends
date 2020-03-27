@@ -203,7 +203,9 @@ enum class ModelId : unsigned
     PLUSTEK_OPTICBOOK_3800,
     PLUSTEK_OPTICFILM_7200I,
     PLUSTEK_OPTICFILM_7300,
+    PLUSTEK_OPTICFILM_7400,
     PLUSTEK_OPTICFILM_7500I,
+    PLUSTEK_OPTICFILM_8200I,
     PLUSTEK_OPTICPRO_3600,
     PLUSTEK_OPTICPRO_ST12,
     PLUSTEK_OPTICPRO_ST24,
@@ -259,7 +261,9 @@ enum class SensorId : unsigned
     CCD_PLUSTEK_OPTICBOOK_3800,
     CCD_PLUSTEK_OPTICFILM_7200I,
     CCD_PLUSTEK_OPTICFILM_7300,
+    CCD_PLUSTEK_OPTICFILM_7400,
     CCD_PLUSTEK_OPTICFILM_7500I,
+    CCD_PLUSTEK_OPTICFILM_8200I,
     CCD_PLUSTEK_OPTICPRO_3600,
     CCD_ROADWARRIOR,
     CCD_ST12,         // SONY ILX548: 5340 Pixel  ???
@@ -311,7 +315,9 @@ enum class AdcId : unsigned
     PLUSTEK_OPTICBOOK_3800,
     PLUSTEK_OPTICFILM_7200I,
     PLUSTEK_OPTICFILM_7300,
+    PLUSTEK_OPTICFILM_7400,
     PLUSTEK_OPTICFILM_7500I,
+    PLUSTEK_OPTICFILM_8200I,
     PLUSTEK_OPTICPRO_3600,
     WOLFSON_5345,
     WOLFSON_DSM600,
@@ -336,6 +342,8 @@ inline void serialize(std::ostream& str, AdcId& x)
     unsigned value = static_cast<unsigned>(x);
     serialize(str, value);
 }
+
+std::ostream& operator<<(std::ostream& out, AdcId id);
 
 enum class GpioId : unsigned
 {
@@ -363,7 +371,9 @@ enum class GpioId : unsigned
     PLUSTEK_OPTICBOOK_3800,
     PLUSTEK_OPTICFILM_7200I,
     PLUSTEK_OPTICFILM_7300,
+    PLUSTEK_OPTICFILM_7400,
     PLUSTEK_OPTICFILM_7500I,
+    PLUSTEK_OPTICFILM_8200I,
     PLUSTEK_OPTICPRO_3600,
     ST12,
     ST24,
@@ -371,6 +381,8 @@ enum class GpioId : unsigned
     XP200,
     XP300,
 };
+
+std::ostream& operator<<(std::ostream& out, GpioId id);
 
 enum class MotorId : unsigned
 {
@@ -398,7 +410,9 @@ enum class MotorId : unsigned
     PLUSTEK_OPTICBOOK_3800,
     PLUSTEK_OPTICFILM_7200I,
     PLUSTEK_OPTICFILM_7300,
+    PLUSTEK_OPTICFILM_7400,
     PLUSTEK_OPTICFILM_7500I,
+    PLUSTEK_OPTICFILM_8200I,
     PLUSTEK_OPTICPRO_3600,
     ROADWARRIOR,
     ST24,
@@ -406,6 +420,8 @@ enum class MotorId : unsigned
     XP200,
     XP300,
 };
+
+std::ostream& operator<<(std::ostream& out, MotorId id);
 
 enum class StepType : unsigned
 {

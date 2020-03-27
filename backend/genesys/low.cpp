@@ -607,16 +607,17 @@ void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sen
 
         if (dev->model->asic_type == AsicType::GL843) {
             regs_set_exposure(dev->model->asic_type, regs, sensor.exposure);
+        }
 
-            // we don't actually turn on lamp on infrared scan
-            if ((dev->model->model_id == ModelId::CANON_8400F ||
-                 dev->model->model_id == ModelId::CANON_8600F ||
-                 dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I ||
-                 dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I) &&
-                dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
-            {
-                regs.find_reg(0x03).value &= ~REG_0x03_LAMPPWR;
-            }
+        // we don't actually turn on lamp on infrared scan
+        if ((dev->model->model_id == ModelId::CANON_8400F ||
+             dev->model->model_id == ModelId::CANON_8600F ||
+             dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I ||
+             dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I ||
+             dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_8200I) &&
+            dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+        {
+            regs.find_reg(0x03).value &= ~REG_0x03_LAMPPWR;
         }
     } else {
         regs.find_reg(0x03).value &= ~REG_0x03_LAMPPWR;
@@ -1005,7 +1006,9 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
 
         if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I ||
             dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
-            dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I)
+            dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400 ||
+            dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I ||
+            dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_8200I)
         {
             s.optical_pixels = align_int_up(s.optical_pixels, 16);
         }
@@ -1056,9 +1059,11 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     s.output_line_bytes_raw = s.output_line_bytes;
     s.conseq_pixel_dist = 0;
 
-    if (dev->model->asic_type == AsicType::GL845 ||
-        dev->model->asic_type == AsicType::GL846 ||
-        dev->model->asic_type == AsicType::GL847)
+    if ((dev->model->asic_type == AsicType::GL845 ||
+         dev->model->asic_type == AsicType::GL846 ||
+         dev->model->asic_type == AsicType::GL847) &&
+        dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_7400 &&
+        dev->model->model_id != ModelId::PLUSTEK_OPTICFILM_8200I)
     {
         if (s.segment_count > 1) {
             s.conseq_pixel_dist = sensor.segment_size;

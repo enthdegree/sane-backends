@@ -60,7 +60,8 @@ void genesys_init_frontend_tables()
 
     GenesysFrontendLayout analog_devices;
     analog_devices.type = FrontendType::ANALOG_DEVICES;
-
+    analog_devices.offset_addr = { 0x05, 0x06, 0x07 };
+    analog_devices.gain_addr = { 0x02, 0x03, 0x04 };
 
     Genesys_Frontend fe;
     fe.id = AdcId::WOLFSON_UMAX;
@@ -505,6 +506,23 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
+    fe.id = AdcId::PLUSTEK_OPTICFILM_7400;
+    fe.layout = analog_devices;
+    fe.regs = {
+        { 0x00, 0xf8 },
+        { 0x01, 0x80 },
+        { 0x02, 0x1f },
+        { 0x03, 0x14 },
+        { 0x04, 0x19 },
+        { 0x05, 0x1b },
+        { 0x06, 0x1e },
+        { 0x07, 0x0e },
+    };
+    fe.reg2 = {0x00, 0x00, 0x00};
+    s_frontends->push_back(fe);
+
+
+    fe = Genesys_Frontend();
     fe.id = AdcId::PLUSTEK_OPTICFILM_7500I;
     fe.layout = analog_devices;
     fe.regs = {
@@ -516,6 +534,23 @@ void genesys_init_frontend_tables()
         { 0x05, 0x00 },
         { 0x06, 0x00 },
         { 0x07, 0x0111 },
+    };
+    fe.reg2 = {0x00, 0x00, 0x00};
+    s_frontends->push_back(fe);
+
+
+    fe = Genesys_Frontend();
+    fe.id = AdcId::PLUSTEK_OPTICFILM_8200I;
+    fe.layout = analog_devices;
+    fe.regs = {
+        { 0x00, 0xf8 },
+        { 0x01, 0x80 },
+        { 0x02, 0x28 },
+        { 0x03, 0x20 },
+        { 0x04, 0x28 },
+        { 0x05, 0x2f },
+        { 0x06, 0x2d },
+        { 0x07, 0x23 },
     };
     fe.reg2 = {0x00, 0x00, 0x00};
     s_frontends->push_back(fe);

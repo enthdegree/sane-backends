@@ -154,6 +154,7 @@ std::ostream& operator<<(std::ostream& out, const ScanSession& session)
         << "    segment_count: " << session.segment_count << '\n'
         << "    pixel_startx: " << session.pixel_startx << '\n'
         << "    pixel_endx: " << session.pixel_endx << '\n'
+        << "    pixel_count_ratio: " << session.pixel_count_ratio << '\n'
         << "    conseq_pixel_dist: " << session.conseq_pixel_dist << '\n'
         << "    output_segment_pixel_group_count: "
             << session.output_segment_pixel_group_count << '\n'

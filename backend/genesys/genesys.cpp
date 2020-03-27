@@ -997,6 +997,7 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
 
     switch (dev.model->asic_type) {
         case AsicType::GL843:
+        case AsicType::GL845:
             break;
         default:
             throw SaneException("Unsupported asic type");
@@ -2980,7 +2981,9 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
     case SensorId::CCD_CANON_8600F:
     case SensorId::CCD_PLUSTEK_OPTICFILM_7200I:
     case SensorId::CCD_PLUSTEK_OPTICFILM_7300:
+        case SensorId::CCD_PLUSTEK_OPTICFILM_7400:
     case SensorId::CCD_PLUSTEK_OPTICFILM_7500I:
+        case SensorId::CCD_PLUSTEK_OPTICFILM_8200I:
       target_code = 0xe000;
       o = 0;
       compute_coefficients (dev,
@@ -4804,7 +4807,7 @@ static Genesys_Device* attach_usb_device(const char* devname,
     }
 
     if (found_usb_dev == nullptr) {
-        throw SaneException("vendor 0x%xd product 0x%xd is not supported by this backend",
+        throw SaneException("vendor 0x%x product 0x%x is not supported by this backend",
                             vendor_id, product_id);
     }
 

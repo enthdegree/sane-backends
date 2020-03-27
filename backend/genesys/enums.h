@@ -411,6 +411,8 @@ enum class MotorId : unsigned
     XP300,
 };
 
+std::ostream& operator<<(std::ostream& out, MotorId id);
+
 enum class StepType : unsigned
 {
     FULL = 0,

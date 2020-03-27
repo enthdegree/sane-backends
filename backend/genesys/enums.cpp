@@ -242,6 +242,45 @@ std::ostream& operator<<(std::ostream& out, GpioId id)
     return out;
 }
 
+std::ostream& operator<<(std::ostream& out, MotorId id)
+{
+    switch (id) {
+        case MotorId::UNKNOWN: out << "UNKNOWN"; break;
+        case MotorId::CANON_LIDE_100: out << "CANON_LIDE_100"; break;
+        case MotorId::CANON_LIDE_110: out << "CANON_LIDE_110"; break;
+        case MotorId::CANON_LIDE_120: out << "CANON_LIDE_120"; break;
+        case MotorId::CANON_LIDE_200: out << "CANON_LIDE_200"; break;
+        case MotorId::CANON_LIDE_210: out << "CANON_LIDE_210"; break;
+        case MotorId::CANON_LIDE_35: out << "CANON_LIDE_35"; break;
+        case MotorId::CANON_LIDE_700: out << "CANON_LIDE_700"; break;
+        case MotorId::CANON_LIDE_80: out << "CANON_LIDE_80"; break;
+        case MotorId::CANON_4400F: out << "CANON_4400F"; break;
+        case MotorId::CANON_8400F: out << "CANON_8400F"; break;
+        case MotorId::CANON_8600F: out << "CANON_8600F"; break;
+        case MotorId::DP665: out << "DP665"; break;
+        case MotorId::DSMOBILE_600: out << "DSMOBILE_600"; break;
+        case MotorId::G4050: out << "G4050"; break;
+        case MotorId::HP2300: out << "HP2300"; break;
+        case MotorId::HP2400: out << "HP2400"; break;
+        case MotorId::HP3670: out << "HP3670"; break;
+        case MotorId::IMG101: out << "IMG101"; break;
+        case MotorId::KVSS080: out << "KVSS080"; break;
+        case MotorId::MD_5345: out << "MD_5345"; break;
+        case MotorId::PLUSTEK_OPTICBOOK_3800: out << "PLUSTEK_OPTICBOOK_3800"; break;
+        case MotorId::PLUSTEK_OPTICFILM_7200I: out << "PLUSTEK_OPTICFILM_7200I"; break;
+        case MotorId::PLUSTEK_OPTICFILM_7300: out << "PLUSTEK_OPTICFILM_7300"; break;
+        case MotorId::PLUSTEK_OPTICFILM_7500I: out << "PLUSTEK_OPTICFILM_7500I"; break;
+        case MotorId::PLUSTEK_OPTICPRO_3600: out << "PLUSTEK_OPTICPRO_3600"; break;
+        case MotorId::ROADWARRIOR: out << "ROADWARRIOR"; break;
+        case MotorId::ST24: out << "ST24"; break;
+        case MotorId::UMAX: out << "UMAX"; break;
+        case MotorId::XP200: out << "XP200"; break;
+        case MotorId::XP300: out << "XP300"; break;
+        default: out << static_cast<unsigned>(id); break;
+    }
+    return out;
+}
+
 std::ostream& operator<<(std::ostream& out, StepType type)
 {
     switch (type) {

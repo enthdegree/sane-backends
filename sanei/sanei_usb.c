@@ -1303,6 +1303,17 @@ static void sanei_usb_testing_exit()
   xmlFreeDoc(testing_xml_doc);
   free(testing_xml_path);
   xmlCleanupParser();
+
+  // reset testing-related all data to initial values
+  testing_development_mode = 0;
+  testing_known_commands_input_failed = 0;
+  testing_last_known_seq = 0;
+  testing_record_backend = NULL;
+  testing_append_commands_node = NULL;
+
+  testing_xml_path = NULL;
+  testing_xml_doc = NULL;
+  testing_xml_next_tx_node = NULL;
 }
 #else // WITH_USB_RECORD_REPLAY
 SANE_Status sanei_usb_testing_enable_replay(SANE_String_Const path,

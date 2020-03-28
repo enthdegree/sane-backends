@@ -587,9 +587,8 @@ static void sanei_xml_print_seq_if_any(xmlNode* node, const char* parent_fun)
   xmlFree(attr);
 }
 
-// Checks whether transaction should be ignored. We ignore get_descriptor and
-// set_configuration transactions. The latter is ignored because
-// set_configuration is called in sanei_usb_open outside test path.
+// Checks whether transaction should be ignored. We ignore set_configuration
+// transactions, because set_configuration is called in sanei_usb_open outside test path.
 static int sanei_xml_is_transaction_ignored(xmlNode* node)
 {
   if (xmlStrcmp(node->name, (const xmlChar*)"control_tx") != 0)
@@ -627,7 +626,8 @@ static int sanei_xml_is_transaction_ignored(xmlNode* node)
 static xmlNode* sanei_xml_skip_non_tx_nodes(xmlNode* node)
 {
   const char* known_node_names[] = {
-    "control_tx", "bulk_tx", "interrupt_tx", "debug", "known_commands_end"
+    "control_tx", "bulk_tx", "interrupt_tx",
+    "get_descriptor", "debug", "known_commands_end"
   };
 
   while (node != NULL)
@@ -660,13 +660,11 @@ static int sanei_xml_is_known_commands_end(xmlNode* node)
   return xmlStrcmp(node->name, (const xmlChar*)"known_commands_end") == 0;
 }
 
-// returns next transaction node that is not get_descriptor
 static xmlNode* sanei_xml_peek_next_tx_node()
 {
   return testing_xml_next_tx_node;
 }
 
-// returns next transaction node that is not get_descriptor
 static xmlNode* sanei_xml_get_next_tx_node()
 {
   xmlNode* next = testing_xml_next_tx_node;
@@ -4723,14 +4721,66 @@ sanei_usb_set_altinterface (SANE_Int dn, SANE_Int alternate)
     }
 }
 
+#if WITH_USB_RECORD_REPLAY
+
 static SANE_Status
 sanei_usb_replay_get_descriptor(SANE_Int dn,
                                 struct sanei_usb_dev_descriptor *desc)
 {
   (void) dn;
-  (void) desc;
-  return SANE_STATUS_UNSUPPORTED;
-  // ZZTODO
+
+  if (testing_known_commands_input_failed)
+    return SANE_STATUS_IO_ERROR;
+
+  xmlNode* node = sanei_xml_get_next_tx_node();
+  if (node == NULL)
+    {
+      FAIL_TEST(__func__, "no more transactions\n");
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  if (sanei_xml_is_known_commands_end(node))
+    {
+      testing_known_commands_input_failed = 1;
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  sanei_xml_record_seq(node);
+  sanei_xml_break_if_needed(node);
+
+  if (xmlStrcmp(node->name, (const xmlChar*)"get_descriptor") != 0)
+    {
+      FAIL_TEST_TX(__func__, node, "unexpected transaction type %s\n",
+                   (const char*) node->name);
+      testing_known_commands_input_failed = 1;
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  int desc_type = sanei_xml_get_prop_uint(node, "descriptor_type");
+  int bcd_usb = sanei_xml_get_prop_uint(node, "bcd_usb");
+  int bcd_dev = sanei_xml_get_prop_uint(node, "bcd_device");
+  int dev_class = sanei_xml_get_prop_uint(node, "device_class");
+  int dev_sub_class = sanei_xml_get_prop_uint(node, "device_sub_class");
+  int dev_protocol = sanei_xml_get_prop_uint(node, "device_protocol");
+  int max_packet_size = sanei_xml_get_prop_uint(node, "max_packet_size");
+
+  if (desc_type < 0 || bcd_usb < 0 || bcd_dev < 0 || dev_class < 0 ||
+      dev_sub_class < 0 || dev_protocol < 0 || max_packet_size < 0)
+  {
+      FAIL_TEST_TX(__func__, node, "get_descriptor recorded block is missing attributes\n");
+      testing_known_commands_input_failed = 1;
+      return SANE_STATUS_IO_ERROR;
+  }
+
+  desc->desc_type = desc_type;
+  desc->bcd_usb = bcd_usb;
+  desc->bcd_dev = bcd_dev;
+  desc->dev_class = dev_class;
+  desc->dev_sub_class = dev_sub_class;
+  desc->dev_protocol = dev_protocol;
+  desc->max_packet_size = max_packet_size;
+
+  return SANE_STATUS_GOOD;
 }
 
 static void
@@ -4738,9 +4788,27 @@ sanei_usb_record_get_descriptor(SANE_Int dn,
                                 struct sanei_usb_dev_descriptor *desc)
 {
   (void) dn;
-  (void) desc;
-  // ZZTODO
+
+  xmlNode* node = testing_append_commands_node;
+
+  xmlNode* e_tx = xmlNewNode(NULL, (const xmlChar*)"get_descriptor");
+
+  xmlNewProp(e_tx, (const xmlChar*)"time_usec", (const xmlChar*)"0");
+  sanei_xml_set_uint_attr(node, "seq", ++testing_last_known_seq);
+
+  sanei_xml_set_hex_attr(e_tx, "descriptor_type", desc->desc_type);
+  sanei_xml_set_hex_attr(e_tx, "bcd_usb", desc->bcd_usb);
+  sanei_xml_set_hex_attr(e_tx, "bcd_device", desc->bcd_dev);
+  sanei_xml_set_hex_attr(e_tx, "device_class", desc->dev_class);
+  sanei_xml_set_hex_attr(e_tx, "device_sub_class", desc->dev_sub_class);
+  sanei_xml_set_hex_attr(e_tx, "device_protocol", desc->dev_protocol);
+  sanei_xml_set_hex_attr(e_tx, "max_packet_size", desc->max_packet_size);
+
+  node = sanei_xml_append_command(node, 1, e_tx);
+  testing_append_commands_node = node;
 }
+
+#endif // WITH_USB_RECORD_REPLAY
 
 extern SANE_Status
 sanei_usb_get_descriptor( SANE_Int dn,
@@ -4757,7 +4825,12 @@ sanei_usb_get_descriptor( SANE_Int dn,
 
   if (testing_mode == sanei_usb_testing_mode_replay)
     {
+#if WITH_USB_RECORD_REPLAY
       return sanei_usb_replay_get_descriptor(dn, desc);
+#else
+      DBG (1, "USB record-replay mode support is missing\n");
+      return SANE_STATUS_UNSUPPORTED;
+#endif
     }
 
   DBG (5, "sanei_usb_get_descriptor\n");
@@ -4808,7 +4881,12 @@ sanei_usb_get_descriptor( SANE_Int dn,
 
   if (testing_mode == sanei_usb_testing_mode_record)
     {
+#if WITH_USB_RECORD_REPLAY
       sanei_usb_record_get_descriptor(dn, desc);
+#else
+      DBG (1, "USB record-replay mode support is missing\n");
+      return SANE_STATUS_UNSUPPORTED;
+#endif
     }
 
   return SANE_STATUS_GOOD;

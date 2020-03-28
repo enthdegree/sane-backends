@@ -72,6 +72,7 @@ public:
     virtual void close() = 0;
 
     virtual void get_vendor_product(int& vendor, int& product) = 0;
+    virtual std::uint16_t get_bcd_device() = 0;
 
     virtual void control_msg(int rtype, int reg, int value, int index, int length,
                              std::uint8_t* data) = 0;
@@ -97,6 +98,7 @@ public:
     void close() override;
 
     void get_vendor_product(int& vendor, int& product) override;
+    std::uint16_t get_bcd_device() override;
 
     void control_msg(int rtype, int reg, int value, int index, int length,
                      std::uint8_t* data) override;

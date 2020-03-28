@@ -195,6 +195,7 @@ static sanei_usb_testing_mode testing_mode = sanei_usb_testing_mode_disabled;
 
 #if WITH_USB_RECORD_REPLAY
 static int testing_development_mode = 0;
+static int testing_already_opened = 0;
 static int testing_known_commands_input_failed = 0;
 static unsigned testing_last_known_seq = 0;
 static SANE_String testing_record_backend = NULL;
@@ -1200,7 +1201,7 @@ static SANE_Status sanei_usb_testing_init()
           memset(&device, 0, sizeof(device));
           device.devname = strdup(testing_xml_path);
 
-          // other code shouldn't depend on methon because testing_mode is
+          // other code shouldn't depend on method because testing_mode is
           // sanei_usb_testing_mode_replay
           device.method = sanei_usb_method_libusb;
           device.vendor = device_id;
@@ -1306,6 +1307,7 @@ static void sanei_usb_testing_exit()
 
   // reset testing-related all data to initial values
   testing_development_mode = 0;
+  testing_already_opened = 0;
   testing_known_commands_input_failed = 0;
   testing_last_known_seq = 0;
   testing_record_backend = NULL;
@@ -2301,6 +2303,9 @@ sanei_usb_get_endpoint (SANE_Int dn, SANE_Int ep_type)
 #if WITH_USB_RECORD_REPLAY
 static void sanei_usb_record_open(SANE_Int dn)
 {
+  if (testing_already_opened)
+    return;
+
   xmlNode* e_root = xmlNewNode(NULL, (const xmlChar*) "device_capture");
   xmlDocSetRootElement(testing_xml_doc, e_root);
   xmlNewProp(e_root, (const xmlChar*)"backend", (const xmlChar*) testing_record_backend);
@@ -2352,7 +2357,8 @@ static void sanei_usb_record_open(SANE_Int dn)
   xmlNode* e_transactions = xmlNewChild(e_root, NULL, (const xmlChar*)"transactions", NULL);
 
   // add an empty node so that we have something to append to
-  testing_append_commands_node =  xmlAddChild(e_transactions, xmlNewText((const xmlChar*)""));;
+  testing_append_commands_node = xmlAddChild(e_transactions, xmlNewText((const xmlChar*)""));
+  testing_already_opened = 1;
 }
 #endif // WITH_USB_RECORD_REPLAY
 

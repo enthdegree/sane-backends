@@ -170,21 +170,44 @@ namespace genesys {
 
 class UsbDeviceEntry {
 public:
+    static constexpr std::uint16_t BCD_DEVICE_NOT_SET = 0xffff;
 
     UsbDeviceEntry(std::uint16_t vendor_id, std::uint16_t product_id,
-                             const Genesys_Model& model) :
-        vendor_{vendor_id}, product_{product_id}, model_{model}
+                   const Genesys_Model& model) :
+        vendor_{vendor_id}, product_{product_id},
+        bcd_device_{BCD_DEVICE_NOT_SET}, model_{model}
+    {}
+
+    UsbDeviceEntry(std::uint16_t vendor_id, std::uint16_t product_id, std::uint16_t bcd_device,
+                   const Genesys_Model& model) :
+        vendor_{vendor_id}, product_{product_id},
+        bcd_device_{bcd_device}, model_{model}
     {}
 
     std::uint16_t vendor_id() const { return vendor_; }
     std::uint16_t product_id() const { return product_; }
+    std::uint16_t bcd_device() const { return bcd_device_; }
+
     const Genesys_Model& model() const { return model_; }
+
+    bool matches(std::uint16_t vendor_id, std::uint16_t product_id, std::uint16_t bcd_device)
+    {
+        if (vendor_ != vendor_id)
+            return false;
+        if (product_ != product_id)
+            return false;
+        if (bcd_device_ != BCD_DEVICE_NOT_SET && bcd_device_ != bcd_device)
+            return false;
+        return true;
+    }
 
 private:
     // USB vendor identifier
     std::uint16_t vendor_;
     // USB product identifier
     std::uint16_t product_;
+    // USB bcdProduct identifier
+    std::uint16_t bcd_device_;
     // Scanner model information
     Genesys_Model model_;
 };

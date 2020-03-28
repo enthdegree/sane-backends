@@ -47,6 +47,7 @@ struct TestConfig
 {
     std::uint16_t vendor_id = 0;
     std::uint16_t product_id = 0;
+    std::uint16_t bcd_device = 0;
     std::string model_name;
     genesys::ScanMethod method = genesys::ScanMethod::FLATBED;
     genesys::ScanColorMode color_mode = genesys::ScanColorMode::COLOR_SINGLE_PASS;
@@ -246,7 +247,8 @@ void run_single_test_scan(const TestConfig& config, std::stringstream& out)
         build_checkpoint(dev, iface, checkpoint_name, out);
     };
 
-    genesys::enable_testing_mode(config.vendor_id, config.product_id, build_checkpoint_wrapper);
+    genesys::enable_testing_mode(config.vendor_id, config.product_id, config.bcd_device,
+                                 build_checkpoint_wrapper);
 
     SANE_Handle handle;
 
@@ -423,6 +425,7 @@ std::vector<TestConfig> get_all_test_configs()
                             TestConfig config;
                             config.vendor_id = usb_dev.vendor_id();
                             config.product_id = usb_dev.product_id();
+                            config.bcd_device = usb_dev.bcd_device();
                             config.model_name = model.name;
                             config.method = method;
                             config.depth = depth;

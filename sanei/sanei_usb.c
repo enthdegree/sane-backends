@@ -195,15 +195,15 @@ static sanei_usb_testing_mode testing_mode = sanei_usb_testing_mode_disabled;
 
 #if WITH_USB_RECORD_REPLAY
 static int testing_development_mode = 0;
-int testing_known_commands_input_failed = 0;
-unsigned testing_last_known_seq = 0;
-SANE_String testing_record_backend = NULL;
-xmlNode* testing_append_commands_node = NULL;
+static int testing_known_commands_input_failed = 0;
+static unsigned testing_last_known_seq = 0;
+static SANE_String testing_record_backend = NULL;
+static xmlNode* testing_append_commands_node = NULL;
 
 // XML file from which we read testing data
-SANE_String testing_xml_path = NULL;
-xmlDoc* testing_xml_doc = NULL;
-xmlNode* testing_xml_next_tx_node = NULL;
+static SANE_String testing_xml_path = NULL;
+static xmlDoc* testing_xml_doc = NULL;
+static xmlNode* testing_xml_next_tx_node = NULL;
 #endif // WITH_USB_RECORD_REPLAY
 
 #if defined(HAVE_LIBUSB_LEGACY) || defined(HAVE_LIBUSB)

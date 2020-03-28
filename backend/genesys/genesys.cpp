@@ -4231,7 +4231,7 @@ static void init_options(Genesys_Scanner* s)
 {
     DBG_HELPER(dbg);
   SANE_Int option;
-  Genesys_Model *model = s->dev->model;
+    const Genesys_Model* model = s->dev->model;
 
   memset (s->opt, 0, sizeof (s->opt));
 
@@ -4796,10 +4796,10 @@ check_present (SANE_String_Const devname) noexcept
 static Genesys_Device* attach_usb_device(const char* devname,
                                          std::uint16_t vendor_id, std::uint16_t product_id)
 {
-    Genesys_USB_Device_Entry* found_usb_dev = nullptr;
+    UsbDeviceEntry* found_usb_dev = nullptr;
     for (auto& usb_dev : *s_usb_devices) {
-        if (usb_dev.vendor == vendor_id &&
-            usb_dev.product == product_id)
+        if (usb_dev.vendor_id() == vendor_id &&
+            usb_dev.product_id() == product_id)
         {
             found_usb_dev = &usb_dev;
             break;
@@ -4815,9 +4815,9 @@ static Genesys_Device* attach_usb_device(const char* devname,
     Genesys_Device* dev = &s_devices->back();
     dev->file_name = devname;
 
-    dev->model = &found_usb_dev->model;
-    dev->vendorId = found_usb_dev->vendor;
-    dev->productId = found_usb_dev->product;
+    dev->model = &found_usb_dev->model();
+    dev->vendorId = found_usb_dev->vendor_id();
+    dev->productId = found_usb_dev->product_id();
     dev->usb_mode = 0; // i.e. unset
     dev->already_initialized = false;
     return dev;

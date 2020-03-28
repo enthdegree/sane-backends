@@ -397,30 +397,33 @@ std::vector<TestConfig> get_all_test_configs()
     std::unordered_set<std::string> model_names;
 
     for (const auto& usb_dev : *genesys::s_usb_devices) {
-        if (genesys::has_flag(usb_dev.model.flags, genesys::ModelFlag::UNTESTED)) {
+
+        const auto& model = usb_dev.model();
+
+        if (genesys::has_flag(model.flags, genesys::ModelFlag::UNTESTED)) {
             continue;
         }
-        if (model_names.find(usb_dev.model.name) != model_names.end()) {
+        if (model_names.find(model.name) != model_names.end()) {
             continue;
         }
-        model_names.insert(usb_dev.model.name);
+        model_names.insert(model.name);
 
         for (auto scan_mode : { genesys::ScanColorMode::LINEART,
                                 genesys::ScanColorMode::GRAY,
                                 genesys::ScanColorMode::COLOR_SINGLE_PASS }) {
 
-            auto depth_values = usb_dev.model.bpp_gray_values;
+            auto depth_values = model.bpp_gray_values;
             if (scan_mode == genesys::ScanColorMode::COLOR_SINGLE_PASS) {
-                depth_values = usb_dev.model.bpp_color_values;
+                depth_values = model.bpp_color_values;
             }
             for (unsigned depth : depth_values) {
-                for (auto method_resolutions : usb_dev.model.resolutions) {
+                for (auto method_resolutions : model.resolutions) {
                     for (auto method : method_resolutions.methods) {
                         for (unsigned resolution : method_resolutions.get_resolutions()) {
                             TestConfig config;
-                            config.vendor_id = usb_dev.vendor;
-                            config.product_id = usb_dev.product;
-                            config.model_name = usb_dev.model.name;
+                            config.vendor_id = usb_dev.vendor_id();
+                            config.product_id = usb_dev.product_id();
+                            config.model_name = model.name;
                             config.method = method;
                             config.depth = depth;
                             config.resolution = resolution;

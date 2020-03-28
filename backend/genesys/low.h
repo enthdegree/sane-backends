@@ -168,18 +168,25 @@
 
 namespace genesys {
 
-struct Genesys_USB_Device_Entry {
+class UsbDeviceEntry {
+public:
 
-    Genesys_USB_Device_Entry(unsigned v, unsigned p, const Genesys_Model& m) :
-        vendor(v), product(p), model(m)
+    UsbDeviceEntry(std::uint16_t vendor_id, std::uint16_t product_id,
+                             const Genesys_Model& model) :
+        vendor_{vendor_id}, product_{product_id}, model_{model}
     {}
 
+    std::uint16_t vendor_id() const { return vendor_; }
+    std::uint16_t product_id() const { return product_; }
+    const Genesys_Model& model() const { return model_; }
+
+private:
     // USB vendor identifier
-    std::uint16_t vendor;
+    std::uint16_t vendor_;
     // USB product identifier
-    std::uint16_t product;
+    std::uint16_t product_;
     // Scanner model information
-    Genesys_Model model;
+    Genesys_Model model_;
 };
 
 /*--------------------------------------------------------------------------*/
@@ -467,7 +474,7 @@ extern StaticInit<std::vector<Genesys_Frontend>> s_frontends;
 extern StaticInit<std::vector<Genesys_Gpo>> s_gpo;
 extern StaticInit<std::vector<MemoryLayout>> s_memory_layout;
 extern StaticInit<std::vector<Genesys_Motor>> s_motors;
-extern StaticInit<std::vector<Genesys_USB_Device_Entry>> s_usb_devices;
+extern StaticInit<std::vector<UsbDeviceEntry>> s_usb_devices;
 
 void genesys_init_sensor_tables();
 void genesys_init_frontend_tables();

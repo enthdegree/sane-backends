@@ -283,7 +283,7 @@ struct Genesys_Device
     // acquiring the positions of the black and white strips and the actual scan area
     bool ignore_offsets = false;
 
-    Genesys_Model *model = nullptr;
+    const Genesys_Model* model = nullptr;
 
     // pointers to low level functions
     std::unique_ptr<CommandSet> cmd_set;

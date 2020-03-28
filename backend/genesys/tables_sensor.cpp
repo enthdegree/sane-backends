@@ -3651,7 +3651,7 @@ void verify_sensor_tables()
 {
     std::map<SensorId, AsicType> sensor_to_asic;
     for (const auto& device : *s_usb_devices) {
-        sensor_to_asic[device.model.sensor_id] = device.model.asic_type;
+        sensor_to_asic[device.model().sensor_id] = device.model().asic_type;
     }
     for (const auto& sensor : *s_sensors) {
         if (sensor_to_asic.count(sensor.sensor_id) == 0) {

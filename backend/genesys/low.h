@@ -168,18 +168,48 @@
 
 namespace genesys {
 
-struct Genesys_USB_Device_Entry {
+class UsbDeviceEntry {
+public:
+    static constexpr std::uint16_t BCD_DEVICE_NOT_SET = 0xffff;
 
-    Genesys_USB_Device_Entry(unsigned v, unsigned p, const Genesys_Model& m) :
-        vendor(v), product(p), model(m)
+    UsbDeviceEntry(std::uint16_t vendor_id, std::uint16_t product_id,
+                   const Genesys_Model& model) :
+        vendor_{vendor_id}, product_{product_id},
+        bcd_device_{BCD_DEVICE_NOT_SET}, model_{model}
     {}
 
+    UsbDeviceEntry(std::uint16_t vendor_id, std::uint16_t product_id, std::uint16_t bcd_device,
+                   const Genesys_Model& model) :
+        vendor_{vendor_id}, product_{product_id},
+        bcd_device_{bcd_device}, model_{model}
+    {}
+
+    std::uint16_t vendor_id() const { return vendor_; }
+    std::uint16_t product_id() const { return product_; }
+    std::uint16_t bcd_device() const { return bcd_device_; }
+
+    const Genesys_Model& model() const { return model_; }
+
+    bool matches(std::uint16_t vendor_id, std::uint16_t product_id, std::uint16_t bcd_device)
+    {
+        if (vendor_ != vendor_id)
+            return false;
+        if (product_ != product_id)
+            return false;
+        if (bcd_device_ != BCD_DEVICE_NOT_SET && bcd_device_ != bcd_device)
+            return false;
+        return true;
+    }
+
+private:
     // USB vendor identifier
-    std::uint16_t vendor;
+    std::uint16_t vendor_;
     // USB product identifier
-    std::uint16_t product;
+    std::uint16_t product_;
+    // USB bcdProduct identifier
+    std::uint16_t bcd_device_;
     // Scanner model information
-    Genesys_Model model;
+    Genesys_Model model_;
 };
 
 /*--------------------------------------------------------------------------*/
@@ -467,7 +497,7 @@ extern StaticInit<std::vector<Genesys_Frontend>> s_frontends;
 extern StaticInit<std::vector<Genesys_Gpo>> s_gpo;
 extern StaticInit<std::vector<MemoryLayout>> s_memory_layout;
 extern StaticInit<std::vector<Genesys_Motor>> s_motors;
-extern StaticInit<std::vector<Genesys_USB_Device_Entry>> s_usb_devices;
+extern StaticInit<std::vector<UsbDeviceEntry>> s_usb_devices;
 
 void genesys_init_sensor_tables();
 void genesys_init_frontend_tables();

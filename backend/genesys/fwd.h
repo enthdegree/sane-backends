@@ -86,7 +86,7 @@ struct Pixel;
 struct RawPixel;
 
 // low.h
-struct Genesys_USB_Device_Entry;
+struct UsbDeviceEntry;
 
 // motor.h
 struct Genesys_Motor;

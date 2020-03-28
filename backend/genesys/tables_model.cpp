@@ -58,7 +58,7 @@
 
 namespace genesys {
 
-StaticInit<std::vector<Genesys_USB_Device_Entry>> s_usb_devices;
+StaticInit<std::vector<UsbDeviceEntry>> s_usb_devices;
 
 void genesys_init_usb_device_tables()
 {
@@ -2760,7 +2760,7 @@ void genesys_init_usb_device_tables()
 void verify_usb_device_tables()
 {
     for (const auto& device : *s_usb_devices) {
-        const auto& model = device.model;
+        const auto& model = device.model();
 
         if (model.x_size_calib_mm == 0.0f) {
             throw SaneException("Calibration width can't be zero");

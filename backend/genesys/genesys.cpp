@@ -4231,7 +4231,7 @@ static void init_options(Genesys_Scanner* s)
 {
     DBG_HELPER(dbg);
   SANE_Int option;
-  Genesys_Model *model = s->dev->model;
+    const Genesys_Model* model = s->dev->model;
 
   memset (s->opt, 0, sizeof (s->opt));
 
@@ -4794,12 +4794,12 @@ check_present (SANE_String_Const devname) noexcept
 }
 
 static Genesys_Device* attach_usb_device(const char* devname,
-                                         std::uint16_t vendor_id, std::uint16_t product_id)
+                                         std::uint16_t vendor_id, std::uint16_t product_id,
+                                         std::uint16_t bcd_device)
 {
-    Genesys_USB_Device_Entry* found_usb_dev = nullptr;
+    UsbDeviceEntry* found_usb_dev = nullptr;
     for (auto& usb_dev : *s_usb_devices) {
-        if (usb_dev.vendor == vendor_id &&
-            usb_dev.product == product_id)
+        if (usb_dev.matches(vendor_id, product_id, bcd_device))
         {
             found_usb_dev = &usb_dev;
             break;
@@ -4815,9 +4815,9 @@ static Genesys_Device* attach_usb_device(const char* devname,
     Genesys_Device* dev = &s_devices->back();
     dev->file_name = devname;
 
-    dev->model = &found_usb_dev->model;
-    dev->vendorId = found_usb_dev->vendor;
-    dev->productId = found_usb_dev->product;
+    dev->model = &found_usb_dev->model();
+    dev->vendorId = found_usb_dev->vendor_id();
+    dev->productId = found_usb_dev->product_id();
     dev->usb_mode = 0; // i.e. unset
     dev->already_initialized = false;
     return dev;
@@ -4847,6 +4847,10 @@ static Genesys_Device* attach_device_by_name(SANE_String_Const devname, bool may
 
     int vendor, product;
     usb_dev.get_vendor_product(vendor, product);
+
+    // FIXME: enable when get_bcd_device call can be recorded and replayed
+    // auto bcd_device = usb_dev.get_bcd_device();
+    std::uint16_t bcd_device = 0xffff;
     usb_dev.close();
 
   /* KV-SS080 is an auxiliary device which requires a master device to be here */
@@ -4861,7 +4865,7 @@ static Genesys_Device* attach_device_by_name(SANE_String_Const devname, bool may
         }
     }
 
-    Genesys_Device* dev = attach_usb_device(devname, vendor, product);
+    Genesys_Device* dev = attach_usb_device(devname, vendor, product, bcd_device);
 
     DBG(DBG_info, "%s: found %s flatbed scanner %s at %s\n", __func__, dev->model->vendor,
         dev->model->model, dev->file_name.c_str());
@@ -4899,7 +4903,8 @@ static void probe_genesys_devices()
     DBG_HELPER(dbg);
     if (is_testing_mode()) {
         attach_usb_device(get_testing_device_name().c_str(),
-                          get_testing_vendor_id(), get_testing_product_id());
+                          get_testing_vendor_id(), get_testing_product_id(),
+                          get_testing_bcd_device());
         return;
     }
 

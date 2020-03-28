@@ -2288,22 +2288,40 @@ sanei_usb_get_endpoint (SANE_Int dn, SANE_Int ep_type)
 }
 
 #if WITH_USB_RECORD_REPLAY
+static void sanei_xml_indent_child(xmlNode* parent, unsigned indent_count)
+{
+  indent_count *= 4;
+
+  xmlChar* indent_str = malloc(indent_count + 2);
+  indent_str[0] = '\n';
+  memset(indent_str + 1, ' ', indent_count);
+  indent_str[indent_count + 1] = '\0';
+
+  xmlAddChild(parent, xmlNewText(indent_str));
+  free(indent_str);
+}
+
 static void sanei_usb_record_open(SANE_Int dn)
 {
   xmlNode* e_root = xmlNewNode(NULL, (const xmlChar*) "device_capture");
   xmlDocSetRootElement(testing_xml_doc, e_root);
   xmlNewProp(e_root, (const xmlChar*)"backend", (const xmlChar*) testing_record_backend);
 
+  sanei_xml_indent_child(e_root, 1);
   xmlNode* e_description = xmlNewChild(e_root, NULL, (const xmlChar*) "description", NULL);
   sanei_xml_set_hex_attr(e_description, "id_vendor", devices[dn].vendor);
   sanei_xml_set_hex_attr(e_description, "id_product", devices[dn].product);
 
+  sanei_xml_indent_child(e_description, 2);
   xmlNode* e_configurations = xmlNewChild(e_description, NULL,
                                           (const xmlChar*) "configurations", NULL);
+
+  sanei_xml_indent_child(e_configurations, 3);
   xmlNode* e_configuration = xmlNewChild(e_configurations, NULL,
                                          (const xmlChar*) "configuration", NULL);
   sanei_xml_set_uint_attr(e_configuration, "number", 1);
 
+  sanei_xml_indent_child(e_configuration, 4);
   xmlNode* e_interface = xmlNewChild(e_configuration, NULL, (const xmlChar*) "interface", NULL);
   sanei_xml_set_uint_attr(e_interface, "number", devices[dn].interface_nr);
 
@@ -2329,6 +2347,7 @@ static void sanei_usb_record_open(SANE_Int dn)
     {
       if (endpoints[i].ep_address)
         {
+          sanei_xml_indent_child(e_interface, 5);
           xmlNode* e_endpoint = xmlNewChild(e_interface, NULL, (const xmlChar*)"endpoint", NULL);
           xmlNewProp(e_endpoint, (const xmlChar*)"transfer_type",
                      (const xmlChar*) endpoints[i].transfer_type);
@@ -2338,6 +2357,12 @@ static void sanei_usb_record_open(SANE_Int dn)
           sanei_xml_set_hex_attr(e_endpoint, "address", endpoints[i].ep_address);
         }
     }
+  sanei_xml_indent_child(e_interface, 4);
+  sanei_xml_indent_child(e_configuration, 3);
+  sanei_xml_indent_child(e_configurations, 2);
+  sanei_xml_indent_child(e_description, 1);
+
+  sanei_xml_indent_child(e_root, 1);
   xmlNode* e_transactions = xmlNewChild(e_root, NULL, (const xmlChar*)"transactions", NULL);
 
   // add an empty node so that we have something to append to

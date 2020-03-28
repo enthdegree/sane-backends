@@ -3851,7 +3851,7 @@ sanei_usb_replay_control_msg(SANE_Int dn, SANE_Int rtype, SANE_Int req,
   (void) dn;
 
   if (testing_known_commands_input_failed)
-    return -1;
+    return SANE_STATUS_IO_ERROR;
 
   xmlNode* node = sanei_xml_get_next_tx_node();
   if (node == NULL)

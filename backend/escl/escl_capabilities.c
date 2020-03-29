@@ -189,38 +189,33 @@ find_valor_of_array_variables(xmlNode *node, capabilities_t *scanner)
     else if (strcmp(name, "DocumentFormat") == 0)
      {
         int i = 0;
+	int _is_jpeg = 0, _is_png = 0, _is_tiff = 0, _is_pdf = 0;
         scanner->DocumentFormats = char_to_array(scanner->DocumentFormats, &scanner->DocumentFormatsSize, (SANE_String_Const)xmlNodeGetContent(node), 0);
         for(; i < scanner->DocumentFormatsSize; i++)
          {
-            if (scanner->default_format == NULL && !strcmp(scanner->DocumentFormats[i], "image/jpeg"))
-            {
-               scanner->default_format = strdup("image/jpeg");
-            }
+            if (!strcmp(scanner->DocumentFormats[i], "image/jpeg"))
+	      _is_jpeg = 1;
 #if(defined HAVE_LIBPNG)
-            else if(!strcmp(scanner->DocumentFormats[i], "image/png") && (scanner->default_format == NULL || strcmp(scanner->default_format, "image/tiff")))
-            {
-               if (scanner->default_format)
-                  free(scanner->default_format);
-               scanner->default_format = strdup("image/png");
-            }
+            else if(!strcmp(scanner->DocumentFormats[i], "image/png"))
+	      _is_png = 1;
 #endif
 #if(defined HAVE_TIFFIO_H)
             else if(!strcmp(scanner->DocumentFormats[i], "image/tiff"))
-            {
-               if (scanner->default_format)
-                  free(scanner->default_format);
-               scanner->default_format = strdup("image/tiff");
-            }
+	      _is_tiff = 1;
 #endif
 #if(defined HAVE_POPPLER_GLIB)
             else if(!strcmp(scanner->DocumentFormats[i], "application/pdf"))
-            {
-               if (scanner->default_format)
-                  free(scanner->default_format);
-               scanner->default_format = strdup("application/pdf");
-            }
+	      _is_pdf = 1;
 #endif
          }
+	 if (_is_pdf)
+            scanner->default_format = strdup("application/pdf");
+	 else if (_is_tiff)
+            scanner->default_format = strdup("image/tiff");
+	 else if (_is_png)
+            scanner->default_format = strdup("image/png");
+	 else
+            scanner->default_format = strdup("image/jpeg");
          fprintf(stderr, "Capability : [%s]\n", scanner->default_format);
      }
     else if (strcmp(name, "DocumentFormatExt") == 0)
@@ -330,6 +325,27 @@ print_xml_c(xmlNode *node, capabilities_t *scanner)
     return (0);
 }
 
+static void
+_reduce_color_modes(capabilities_t *scanner)
+{
+    if (strcmp(scanner->default_format, "application/pdf")) {
+       if (scanner->ColorModesSize == 3) {
+	  int i = à;
+	  for (i = 0; i < scanner->ColorModesSize; i++)
+	      free(scanner->ColorModes[i]);
+	  free(scanner->ColorModes);
+	  scanner->ColorModes = NULL;
+	  scanner->ColorModesSize = 0;
+          colorModes = char_to_array(scanner->ColorModes,
+			             &scanner->ColorModesSize,
+				     (SANE_String_Const)SANE_VALUE_SCAN_MODE_GRAY, 0);
+          colorModes = char_to_array(scanner->ColorModes,
+			             &scanner->ColorModesSize,
+				     (SANE_String_Const)SANE_VALUE_SCAN_MODE_COLOR, 0);
+       }
+    }
+}
+
 /**
  * \fn capabilities_t *escl_capabilities(const ESCL_Device *device, SANE_Status *status)
  * \brief Function that finally recovers all the capabilities of the scanner, using curl.
@@ -371,6 +387,9 @@ escl_capabilities(const ESCL_Device *device, SANE_Status *status)
     if (node == NULL)
         *status = SANE_STATUS_NO_MEM;
     print_xml_c(node, scanner);
+
+    _reduce_color_modes(scanner);
+
     xmlFreeDoc(data);
     xmlCleanupParser();
     xmlMemoryDump();

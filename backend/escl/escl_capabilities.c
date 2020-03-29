@@ -336,10 +336,10 @@ _reduce_color_modes(capabilities_t *scanner)
 	  free(scanner->ColorModes);
 	  scanner->ColorModes = NULL;
 	  scanner->ColorModesSize = 0;
-          colorModes = char_to_array(scanner->ColorModes,
+          scanner->ColorModes = char_to_array(scanner->ColorModes,
 			             &scanner->ColorModesSize,
 				     (SANE_String_Const)SANE_VALUE_SCAN_MODE_GRAY, 0);
-          colorModes = char_to_array(scanner->ColorModes,
+          scanner->ColorModes = char_to_array(scanner->ColorModes,
 			             &scanner->ColorModesSize,
 				     (SANE_String_Const)SANE_VALUE_SCAN_MODE_COLOR, 0);
        }

@@ -214,7 +214,7 @@ find_valor_of_array_variables(xmlNode *node, capabilities_t *scanner)
             scanner->default_format = strdup("image/tiff");
 	 else if (_is_png)
             scanner->default_format = strdup("image/png");
-	 else
+	 else if(_is_jpeg)
             scanner->default_format = strdup("image/jpeg");
          fprintf(stderr, "Capability : [%s]\n", scanner->default_format);
      }
@@ -330,9 +330,6 @@ _reduce_color_modes(capabilities_t *scanner)
 {
     if (strcmp(scanner->default_format, "application/pdf")) {
        if (scanner->ColorModesSize == 3) {
-	  int i = 0;
-	  for (i = 0; i < scanner->ColorModesSize; i++)
-	      free(scanner->ColorModes[i]);
 	  free(scanner->ColorModes);
 	  scanner->ColorModes = NULL;
 	  scanner->ColorModesSize = 0;

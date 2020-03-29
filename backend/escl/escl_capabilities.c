@@ -330,7 +330,7 @@ _reduce_color_modes(capabilities_t *scanner)
 {
     if (strcmp(scanner->default_format, "application/pdf")) {
        if (scanner->ColorModesSize == 3) {
-	  int i = à;
+	  int i = 0;
 	  for (i = 0; i < scanner->ColorModesSize; i++)
 	      free(scanner->ColorModes[i]);
 	  free(scanner->ColorModes);

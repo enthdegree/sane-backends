@@ -80,7 +80,10 @@ static char formatExtPNG[] =
 static char formatExtTIFF[] =
     "   <scan:DocumentFormatExt>image/tiff</scan:DocumentFormatExt>";
 
-/**
+static char formatExtPDF[] =
+    "   <scan:DocumentFormatExt>application/pdf</scan:DocumentFormatExt>";
+
+    /**
  * \fn static size_t download_callback(void *str, size_t size, size_t nmemb, void *userp)
  * \brief Callback function that stocks in memory the content of the 'job'. Example below :
  *        "Trying 192.168.14.150...
@@ -172,6 +175,8 @@ escl_newjob (capabilities_t *scanner, const ESCL_Device *device, SANE_Status *st
           format_ext = formatExtPNG;
        else if (!strcmp(scanner->default_format, "image/tiff"))
           format_ext = formatExtTIFF;
+       else if (!strcmp(scanner->default_format, "application/pdf"))
+          format_ext = formatExtPDF;
        else
           format_ext = f_ext;
     }

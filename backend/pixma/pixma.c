@@ -1626,7 +1626,11 @@ sane_open (SANE_String_Const name, SANE_Handle * h)
   nscanners = pixma_find_scanners (conf_devices, SANE_FALSE);
   if (nscanners == 0)
     return SANE_STATUS_INVAL;
-  if (name[0] == '\0')
+
+  /* also get device id if we replay a xml file
+   * otherwise name contains the xml filename
+   * and further replay will fail  */
+  if (name[0] == '\0' || strstr (name, ".xml"))
     name = pixma_get_device_id (0);
 
   /* Have we already opened the scanner? */

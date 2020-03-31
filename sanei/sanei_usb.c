@@ -4224,6 +4224,11 @@ static int sanei_usb_replay_read_int(SANE_Int dn, SANE_Byte* buffer,
       return -1;
     }
 
+  if (sanei_usb_check_attr(node, "error", "timeout", __func__))
+    {
+      return -1;
+    }
+
   size_t tx_data_size = 0;
   char* tx_data = sanei_xml_get_hex_data(node, &tx_data_size);
 

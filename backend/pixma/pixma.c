@@ -67,6 +67,7 @@
 # include "../include/sane/sanei_backend.h"
 # include "../include/sane/sanei_config.h"
 # include "../include/sane/sanei_jpeg.h"
+# include "../include/sane/sanei_usb.h"
 
 #ifdef NDEBUG
 # define PDBG(x)
@@ -1597,6 +1598,7 @@ sane_exit (void)
     sane_close (first_scanner);
   cleanup_device_list ();
   pixma_cleanup ();
+  sanei_usb_exit ();
 }
 
 SANE_Status
@@ -1624,7 +1626,11 @@ sane_open (SANE_String_Const name, SANE_Handle * h)
   nscanners = pixma_find_scanners (conf_devices, SANE_FALSE);
   if (nscanners == 0)
     return SANE_STATUS_INVAL;
-  if (name[0] == '\0')
+
+  /* also get device id if we replay a xml file
+   * otherwise name contains the xml filename
+   * and further replay will fail  */
+  if (name[0] == '\0' || strstr (name, ".xml"))
     name = pixma_get_device_id (0);
 
   /* Have we already opened the scanner? */

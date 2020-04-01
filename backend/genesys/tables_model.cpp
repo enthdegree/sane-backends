@@ -2416,10 +2416,16 @@ void genesys_init_usb_device_tables()
     s_usb_devices->emplace_back(0x07b3, 0x0c12, model);
 
 
+    // same as 7300, same USB ID as 7400-v2
+    model.name = "plustek-opticfilm-7400-v1";
+    model.model = "OpticFilm 7400 (v1)";
+    s_usb_devices->emplace_back(0x07b3, 0x0c3a, 0x0400, model);
+
+
     model = Genesys_Model();
-    model.name = "plustek-opticfilm-7400";
+    model.name = "plustek-opticfilm-7400-v2";
     model.vendor = "PLUSTEK";
-    model.model = "OpticFilm 7400";
+    model.model = "OpticFilm 7400 (v2)";
     model.model_id = ModelId::PLUSTEK_OPTICFILM_7400;
     model.asic_type = AsicType::GL845;
 
@@ -2478,7 +2484,7 @@ void genesys_init_usb_device_tables()
                   ModelFlag::SHADING_REPARK;
 
     model.search_lines = 200;
-    s_usb_devices->emplace_back(0x07b3, 0x0c3a, model);
+    s_usb_devices->emplace_back(0x07b3, 0x0c3a, 0x0605, model);
 
 
     model = Genesys_Model();

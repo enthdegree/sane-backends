@@ -17,6 +17,11 @@
 :status :basic
 :comment "Has a Primax USB ID"
 
+:model "OpticFilm 7200 (v2)"
+:interface "USB"
+:usbid "0x07b3" "0x0c07"
+:status :basic
+
 :model "OpticFilm 7200i"
 :interface "USB"
 :usbid "0x07b3" "0x0c04"
@@ -35,6 +40,16 @@
 :model "OpticFilm 7500i"
 :interface "USB"
 :usbid "0x07b3" "0x0c13"
+:status :basic
+
+:model "OpticFilm 7600i"
+:interface "USB"
+:usbid "0x07b3" "0x0c3b"
+:status :basic
+
+:model "OpticFilm 8100"
+:interface "USB"
+:usbid "0x07b3" "0x130c"
 :status :basic
 
 :model "OpticFilm 8200i"

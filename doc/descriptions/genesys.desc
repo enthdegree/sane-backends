@@ -17,6 +17,11 @@
 :status :basic
 :comment "Has a Primax USB ID"
 
+:model "OpticFilm 7200 (v2)"
+:interface "USB"
+:usbid "0x07b3" "0x0c07"
+:status :basic
+
 :model "OpticFilm 7200i"
 :interface "USB"
 :usbid "0x07b3" "0x0c04"

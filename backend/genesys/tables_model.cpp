@@ -2338,6 +2338,19 @@ void genesys_init_usb_device_tables()
     s_usb_devices->emplace_back(0x07b3, 0x0c04, model);
 
 
+    // same as 7200i, just without the infrared channel
+    model.name = "plustek-opticfilm-7200-v2";
+    model.model = "OpticFilm 7200 v2";
+    model.resolutions = {
+        {
+            { ScanMethod::TRANSPARENCY },
+            { 7200, 3600, 1800, 900 },
+            { 7200, 3600, 1800, 900 },
+        }
+    };
+    s_usb_devices->emplace_back(0x07b3, 0x0c07, model);
+
+
     model = Genesys_Model();
     model.name = "plustek-opticfilm-7300";
     model.vendor = "PLUSTEK";

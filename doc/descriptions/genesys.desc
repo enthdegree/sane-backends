@@ -47,6 +47,11 @@
 :usbid "0x07b3" "0x0c3b"
 :status :basic
 
+:model "OpticFilm 8100"
+:interface "USB"
+:usbid "0x07b3" "0x130c"
+:status :basic
+
 :model "OpticFilm 8200i"
 :interface "USB"
 :usbid "0x07b3" "0x130d"

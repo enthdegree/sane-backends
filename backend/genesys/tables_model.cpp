@@ -2487,6 +2487,12 @@ void genesys_init_usb_device_tables()
     s_usb_devices->emplace_back(0x07b3, 0x0c3a, 0x0605, model);
 
 
+    // same as 7400-v2
+    model.name = "plustek-opticfilm-8100";
+    model.model = "OpticFilm 8100";
+    s_usb_devices->emplace_back(0x07b3, 0x130c, model);
+
+
     model = Genesys_Model();
     model.name = "plustek-opticfilm-7500i";
     model.vendor = "PLUSTEK";

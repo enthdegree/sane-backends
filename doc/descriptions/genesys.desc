@@ -20,42 +20,50 @@
 :model "OpticFilm 7200 (v2)"
 :interface "USB"
 :usbid "0x07b3" "0x0c07"
-:status :basic
+:status :complete
+:comment "900, 1800, 3600 and 7200 dpi resolutions supported"
 
 :model "OpticFilm 7200i"
 :interface "USB"
 :usbid "0x07b3" "0x0c04"
-:status :basic
+:status :complete
+:comment "900, 1800, 3600 and 7200 dpi resolutions supported in both regular transparency and infrared modes"
 
 :model "OpticFilm 7300"
 :interface "USB"
 :usbid "0x07b3" "0x0c12"
-:status :basic
+:status :complete
+:comment "900, 1800, 3600 and 7200 dpi resolutions supported"
 
 :model "OpticFilm 7400"
 :interface "USB"
 :usbid "0x07b3" "0x0c3a"
-:status :basic
+:status :complete
+:comment "900, 1800, 3600, 7200 or 600, 1200, 1800, 3600 and 7200 dpi resolutions supported (depending on exact scanner model)"
 
 :model "OpticFilm 7500i"
 :interface "USB"
 :usbid "0x07b3" "0x0c13"
-:status :basic
+:status :complete
+:comment "900, 1800, 3600 and 7200 dpi resolutions supported in both regular transparency and infrared modes"
 
 :model "OpticFilm 7600i"
 :interface "USB"
 :usbid "0x07b3" "0x0c3b"
-:status :basic
+:status :complete
+:comment "900, 1800, 3600 and 7200 dpi resolutions supported in both regular transparency and infrared modes"
 
 :model "OpticFilm 8100"
 :interface "USB"
 :usbid "0x07b3" "0x130c"
-:status :basic
+:status :complete
+:comment "900, 1800, 3600 and 7200 dpi resolutions supported"
 
 :model "OpticFilm 8200i"
 :interface "USB"
 :usbid "0x07b3" "0x130d"
-:status :basic
+:status :complete
+:comment "900, 1800, 3600 and 7200 dpi resolutions supported in both regular transparency and infrared modes"
 
 ; -----------------------------------------------------------------------------
 

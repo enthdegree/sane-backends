@@ -2617,6 +2617,12 @@ void genesys_init_usb_device_tables()
     s_usb_devices->emplace_back(0x07b3, 0x130d, model);
 
 
+    // same as 8200i
+    model.name = "plustek-opticfilm-7600i-v2";
+    model.model = "OpticFilm 7600i (v2)";
+    s_usb_devices->emplace_back(0x07b3, 0x0c3b, 0x0605, model);
+
+
     model = Genesys_Model();
     model.name = "hewlett-packard-scanjet-N6310";
     model.vendor = "Hewlett Packard";

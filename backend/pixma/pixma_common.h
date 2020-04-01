@@ -205,6 +205,7 @@ uint8_t *pixma_newcmd (pixma_cmdbuf_t *, unsigned cmd,
 int pixma_exec (pixma_t *, pixma_cmdbuf_t *);
 int pixma_exec_short_cmd (pixma_t *, pixma_cmdbuf_t *, unsigned cmd);
 int pixma_map_status_errno (unsigned status);
+int pixma_parse_xml_response(const char *xml_message);
 /**@}*/
 
 #define pixma_fill_checksum(start, end) do {		\

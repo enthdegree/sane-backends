@@ -4848,9 +4848,7 @@ static Genesys_Device* attach_device_by_name(SANE_String_Const devname, bool may
     int vendor, product;
     usb_dev.get_vendor_product(vendor, product);
 
-    // FIXME: enable when get_bcd_device call can be recorded and replayed
-    // auto bcd_device = usb_dev.get_bcd_device();
-    std::uint16_t bcd_device = 0xffff;
+    auto bcd_device = usb_dev.get_bcd_device();
     usb_dev.close();
 
   /* KV-SS080 is an auxiliary device which requires a master device to be here */

@@ -889,8 +889,18 @@ sane_start(SANE_Handle h)
     }
     handler->scanner->height = MM_TO_PIXEL(handler->val[OPT_BR_Y].w, 300.0);
     handler->scanner->width = MM_TO_PIXEL(handler->val[OPT_BR_X].w, 300.0);
-    handler->scanner->pos_x = MM_TO_PIXEL(handler->val[OPT_TL_X].w, 300.0);
-    handler->scanner->pos_y = MM_TO_PIXEL(handler->val[OPT_TL_Y].w, 300.0);
+    if (handler->x_range.min == handler->val[OPT_TL_X].w)
+       handler->scanner->pos_x = 0;
+    else
+       handler->scanner->pos_x = MM_TO_PIXEL(
+                                     (handler->val[OPT_TL_X].w - handler->x_range.min),
+                                     300.0);
+    if (handler->y_range.min == handler->val[OPT_TL_Y].w)
+       handler->scanner->pos_y = 0;
+    else
+       handler->scanner->pos_y = MM_TO_PIXEL(
+                                     (handler->val[OPT_TL_Y].w - handler->y_range.min),
+                                     300.0);
     DBG(10, "Calculate Size Image [%dx%d|%dx%d]\n",
              handler->scanner->pos_x,
              handler->scanner->pos_y,

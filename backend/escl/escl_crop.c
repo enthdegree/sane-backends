@@ -37,6 +37,7 @@ escl_crop_surface(capabilities_t *scanner,
 	       int *width,
 	       int *height)
 {
+    double ratio = 1.0;
     int x_off = 0, x = 0;
     int real_w = 0;
     int y_off = 0, y = 0;
@@ -44,24 +45,24 @@ escl_crop_surface(capabilities_t *scanner,
     unsigned char *surface_crop = NULL;
 
     DBG( 1, "Escl Image Crop\n");
-    if (w < (int)scanner->width)
-           scanner->width = w;
+    ratio = (double)w / (double)scanner->width;
+    scanner->width = w;
     if (scanner->pos_x < 0)
            scanner->pos_x = 0;
-    if (scanner->width > scanner->pos_x)
-       x_off = scanner->pos_x;
+    if (scanner->pos_x && scanner->width > scanner->pos_x)
+       x_off = (int)((double)scanner->pos_x * ratio);
     real_w = scanner->width - x_off;
 
-    if (h < (int)scanner->height)
-           scanner->height = h;
+    scanner->height = h;
     if (scanner->pos_y < 0)
-           scanner->pos_y = 0;
-    if (scanner->pos_y < scanner->height)
-       y_off = scanner->pos_y;
+       scanner->pos_y = 0;
+    if (scanner->pos_y && scanner->pos_y < scanner->height)
+       y_off = (int)((double)scanner->pos_y * ratio);
     real_h = scanner->height - y_off;
 
     *width = real_w;
     *height = real_h;
+
     if (x_off > 0 || real_w < scanner->width ||
         y_off > 0 || real_h < scanner->height) {
           surface_crop = (unsigned char *)malloc (sizeof (unsigned char) * real_w

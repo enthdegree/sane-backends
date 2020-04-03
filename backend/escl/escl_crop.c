@@ -49,15 +49,15 @@ escl_crop_surface(capabilities_t *scanner,
     scanner->caps[scanner->source].width = w;
     if (scanner->caps[scanner->source].pos_x < 0)
        scanner->caps[scanner->source].pos_x = 0;
-    if (scanner->caps[scanner->source].pos_x && 
-        (scanner->caps[scanner->source].width > 
+    if (scanner->caps[scanner->source].pos_x &&
+        (scanner->caps[scanner->source].width >
         scanner->caps[scanner->source].pos_x))
        x_off = (int)((double)scanner->caps[scanner->source].pos_x * ratio);
     real_w = scanner->caps[scanner->source].width - x_off;
 
     scanner->caps[scanner->source].height = h;
-    if (scanner->caps[scanner->source].pos_y && 
-        (scanner->caps[scanner->source].height > 
+    if (scanner->caps[scanner->source].pos_y &&
+        (scanner->caps[scanner->source].height >
         scanner->caps[scanner->source].pos_y))
        y_off = (int)((double)scanner->caps[scanner->source].pos_y * ratio);
     real_h = scanner->caps[scanner->source].height - y_off;

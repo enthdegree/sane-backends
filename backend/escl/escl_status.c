@@ -192,7 +192,7 @@ escl_status(SANE_String_Const name, int source)
         status = platen_status;
     } else if (platen_status == SANE_STATUS_DEVICE_BUSY) {
         status = SANE_STATUS_GOOD;
-    } else if (platen_status == SANE_STATUS_GOOD && 
+    } else if (platen_status == SANE_STATUS_GOOD &&
                adf_status == SANE_STATUS_NO_DOCS) {
         status = SANE_STATUS_NO_DOCS;
     } else if (platen_status != SANE_STATUS_UNSUPPORTED) {

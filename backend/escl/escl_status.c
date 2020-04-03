@@ -108,14 +108,13 @@ print_xml_s(xmlNode *node, SANE_Status *platen_status, SANE_Status* adf_status, 
                 }
                 else if (strcmp((const char *)node->name, "AdfState") == 0) {
                     const char *state = (const char *)xmlNodeGetContent(node);
-                    if (!strcmp(state, "ScannerAdfLoaded")) {
+                    if (!strcmp(state, "ScannerAdfLoaded") ||
+                        !strcmp(state, "ScannerAdfProcessing")) {
                         *adf_status = SANE_STATUS_GOOD;
                     } else if (!strcmp(state, "ScannerAdfJam")) {
                         *adf_status = SANE_STATUS_JAMMED;
                     } else if (!strcmp(state, "ScannerAdfDoorOpen")) {
                         *adf_status = SANE_STATUS_COVER_OPEN;
-                    } else if (!strcmp(state, "ScannerAdfProcessing")) {
-                        *adf_status = SANE_STATUS_GOOD;
                     } else if (!strcmp(state, "ScannerAdfEmpty")) {
                         *adf_status = SANE_STATUS_NO_DOCS;
                     } else {
@@ -191,6 +190,11 @@ escl_status(SANE_String_Const name, int source)
     /* Decode Job status */
     if (source == PLATEN) {
         status = platen_status;
+    } else if (platen_status == SANE_STATUS_DEVICE_BUSY) {
+        status = SANE_STATUS_GOOD;
+    } else if (platen_status == SANE_STATUS_GOOD && 
+               adf_status == SANE_STATUS_NO_DOCS) {
+        status = SANE_STATUS_NO_DOCS;
     } else if (platen_status != SANE_STATUS_UNSUPPORTED) {
         status = adf_status;
     }

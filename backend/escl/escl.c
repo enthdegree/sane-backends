@@ -861,21 +861,8 @@ sane_start(SANE_Handle h)
     handler->ps.pixels_per_line = w;
     handler->ps.lines = he;
     handler->ps.bytes_per_line = w * bps;
-    if (handler->scanner->source != PLATEN) {
-		SANE_Status st = escl_status(handler->name, handler->scanner->source);
-		DBG(10, "eSCL : command returned status %s\n", sane_strstatus(st));
-		SANE_Bool next_page =
-			(SANE_STATUS_GOOD == st ?
-				SANE_TRUE :
-				SANE_FALSE);
-        handler->scanner->work = next_page;
-        handler->ps.last_frame = !next_page;
-    }
-    else {
-        handler->scanner->work = SANE_FALSE;
-        handler->ps.last_frame = SANE_TRUE;
-    }
-
+    handler->scanner->work = SANE_FALSE;
+    handler->ps.last_frame = SANE_TRUE;
     handler->ps.format = SANE_FRAME_RGB;
     DBG(10, "NEXT Frame [%s]\n", (handler->ps.last_frame ? "Non" : "Oui"));
     DBG(10, "Real Size Image [%dx%d|%dx%d]\n", 0, 0, w, he);
@@ -961,6 +948,16 @@ sane_read(SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *len)
         *len = 0;
         free(handler->scanner->img_data);
         handler->scanner->img_data = NULL;
+        if (handler->scanner->source != PLATEN) {
+          SANE_Status st = escl_status(handler->name, handler->scanner->source);
+          DBG(10, "eSCL : command returned status %s\n", sane_strstatus(st));
+          SANE_Bool next_page =
+                (SANE_STATUS_GOOD == st ?
+                       SANE_TRUE :
+                       SANE_FALSE);
+           handler->scanner->work = next_page;
+           handler->ps.last_frame = !next_page;
+        }
         return (SANE_STATUS_EOF);
     }
     return (SANE_STATUS_GOOD);

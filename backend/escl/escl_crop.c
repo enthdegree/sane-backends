@@ -72,12 +72,12 @@ escl_crop_surface(capabilities_t *scanner,
         y_off > 0 || real_h < scanner->caps[scanner->source].height) {
           surface_crop = (unsigned char *)malloc (sizeof (unsigned char) * real_w
                      * real_h * bps);
-	      if(!surface_crop) {
+	  if(!surface_crop) {
              DBG( 1, "Escl Crop : Surface_crop Memory allocation problem\n");
-	         free(surface);
-	         surface = NULL;
-	         goto finish;
-	      }
+	     free(surface);
+	     surface = NULL;
+	     goto finish;
+	  }
           for (y = 0; y < real_h; y++)
           {
              for (x = 0; x < real_w; x++)
@@ -91,7 +91,7 @@ escl_crop_surface(capabilities_t *scanner,
              }
           }
           free(surface);
-	      surface = surface_crop;
+	  surface = surface_crop;
     }
     // we don't need row pointers anymore
     scanner->img_data = surface;

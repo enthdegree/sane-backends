@@ -364,43 +364,43 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line)
     }
 
     if (strncmp(line, "[device]", 8) == 0) {
-        escl_device = escl_free_device(escl_device);
-        escl_device = (ESCL_Device*)calloc(1, sizeof(ESCL_Device));
-        if (!escl_device) {
-           DBG (10, "New Escl_Device allocation failure.\n");
-           return (SANE_STATUS_NO_MEM);
-        }
+	escl_device = escl_free_device(escl_device);
+	escl_device = (ESCL_Device*)calloc(1, sizeof(ESCL_Device));
+	if (!escl_device) {
+	   DBG (10, "New Escl_Device allocation failure.");
+	   return (SANE_STATUS_NO_MEM);
+	}
     }
     if (strncmp(line, "ip", 2) == 0) {
-        const char *ip_space = sanei_config_skip_whitespace(line + 2);
-        DBG (10, "New Escl_Device IP [%s].\n", (ip_space ? ip_space : "VIDE"));
-        if (escl_device != NULL && ip_space != NULL) {
-            DBG (10, "New Escl_Device IP Affected.\n");
-            escl_device->ip_address = strdup(ip_space);
-        }
+	const char *ip_space = sanei_config_skip_whitespace(line + 2);
+	DBG (10, "New Escl_Device IP [%s].", (ip_space ? ip_space : "VIDE"));
+	if (escl_device != NULL && ip_space != NULL) {
+	    DBG (10, "New Escl_Device IP Affected.");
+	    escl_device->ip_address = strdup(ip_space);
+	}
     }
     if (sscanf(line, "port %i", &port) == 1 && port != 0) {
-        DBG (10, "New Escl_Device PORT [%d].\n", port);
-        if (escl_device != NULL) {
-            DBG (10, "New Escl_Device PORT Affected.\n");
-            escl_device->port_nb = port;
-        }
+	DBG (10, "New Escl_Device PORT [%d].", port);
+	if (escl_device != NULL) {
+	    DBG (10, "New Escl_Device PORT Affected.");
+	    escl_device->port_nb = port;
+	}
     }
     if (strncmp(line, "model", 5) == 0) {
-        const char *model_space = sanei_config_skip_whitespace(line + 5);
-        DBG (10, "New Escl_Device MODEL [%s].\n", (model_space ? model_space : "VIDE"));
-        if (escl_device != NULL && model_space != NULL) {
-            DBG (10, "New Escl_Device MODEL Affected.\n");
-            escl_device->model_name = strdup(model_space);
-        }
+	const char *model_space = sanei_config_skip_whitespace(line + 5);
+	DBG (10, "New Escl_Device MODEL [%s].", (model_space ? model_space : "VIDE"));
+	if (escl_device != NULL && model_space != NULL) {
+	    DBG (10, "New Escl_Device MODEL Affected.");
+	    escl_device->model_name = strdup(model_space);
+	}
     }
     if (strncmp(line, "type", 4) == 0) {
-        const char *type_space = sanei_config_skip_whitespace(line + 4);
-        DBG (10, "New Escl_Device TYPE [%s].\n", (type_space ? type_space : "VIDE"));
-        if (escl_device != NULL && type_space != NULL) {
-            DBG (10, "New Escl_Device TYPE Affected.\n");
-            escl_device->type = strdup(type_space);
-        }
+	const char *type_space = sanei_config_skip_whitespace(line + 4);
+	DBG (10, "New Escl_Device TYPE [%s].", (type_space ? type_space : "VIDE"));
+	if (escl_device != NULL && type_space != NULL) {
+	    DBG (10, "New Escl_Device TYPE Affected.");
+	    escl_device->type = strdup(type_space);
+	}
     }
     status = escl_check_and_add_device(escl_device);
     if (status == SANE_STATUS_GOOD)
@@ -459,7 +459,7 @@ sane_get_devices(const SANE_Device ***device_list, SANE_Bool local_only)
  * \return status (if everything is OK, status = SANE_STATUS_GOOD)
  */
 static SANE_Status
-init_options(const char *name_source, escl_sane_t *s)
+init_options(SANE_String_Const name_source, escl_sane_t *s)
 {
     DBG (10, "escl init_options\n");
 
@@ -480,7 +480,6 @@ init_options(const char *name_source, escl_sane_t *s)
     }
     else
 	   s->scanner->source = PLATEN;
-
     memset (s->opt, 0, sizeof (s->opt));
     memset (s->val, 0, sizeof (s->val));
     for (i = 0; i < NUM_OPTIONS; ++i) {
@@ -984,9 +983,8 @@ sane_start(SANE_Handle h)
     handler->ps.lines = he;
     handler->ps.bytes_per_line = w * bps;
     handler->scanner->work = SANE_FALSE;
-    handler->ps.last_frame = SANE_TRUE;
     handler->ps.format = SANE_FRAME_RGB;
-    DBG(10, "NEXT Frame [%s]\n", (handler->ps.last_frame ? "Non" : "Oui"));
+//    DBG(10, "NEXT Frame [%s]\n", (handler->ps.last_frame ? "Non" : "Oui"));
     DBG(10, "Real Size Image [%dx%d|%dx%d]\n", 0, 0, w, he);
     return (status);
 }
@@ -1070,8 +1068,14 @@ sane_read(SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *len)
         *len = 0;
         free(handler->scanner->img_data);
         handler->scanner->img_data = NULL;
-        if (handler->scanner->source != PLATEN) {
-          SANE_Status st = escl_status(handler->device, handler->scanner->source);
+        if (handler->scanner->source == PLATEN) {
+		  handler->scanner->work = SANE_FALSE;
+          handler->ps.last_frame = SANE_TRUE;
+       }
+       else {
+          SANE_Status st = escl_status(handler->device,
+                                       handler->scanner->source,
+                                       handler->result);
           DBG(10, "eSCL : command returned status %s\n", sane_strstatus(st));
           SANE_Bool next_page =
                 (SANE_STATUS_GOOD == st ?

@@ -115,7 +115,7 @@ download_callback(void *str, size_t size, size_t nmemb, void *userp)
 }
 
 /**
- * \fn char *escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *status)
+ * \fn char *escl_newjob (capabilities_t *scanner, const ESCL_Device *device, SANE_Status *status)
  * \brief Function that, using curl, uploads the data (composed by the scanner capabilities) to the
  *        server to download the 'job' and recover the 'new job' (char *result), in LOCATION.
  *        This function is called in the 'sane_start' function and it's the equivalent of the
@@ -124,7 +124,7 @@ download_callback(void *str, size_t size, size_t nmemb, void *userp)
  * \return result (the 'new job', situated in LOCATION)
  */
 char *
-escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *status)
+escl_newjob (capabilities_t *scanner, const ESCL_Device *device, SANE_Status *status)
 {
     CURL *curl_handle = NULL;
     int off_x = 0, off_y = 0;
@@ -132,7 +132,6 @@ escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *statu
     struct downloading *download = NULL;
     const char *scan_jobs = "/eSCL/ScanJobs";
     char cap_data[PATH_MAX] = { 0 };
-    char job_cmd[PATH_MAX] = { 0 };
     char *location = NULL;
     char *result = NULL;
     char *temporary = NULL;
@@ -141,7 +140,7 @@ escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *statu
     char duplex_mode[1024] = { 0 };
 
     *status = SANE_STATUS_GOOD;
-    if (name == NULL || scanner == NULL) {
+    if (device == NULL || scanner == NULL) {
         *status = SANE_STATUS_NO_MEM;
         DBG( 1, "Create NewJob : the name or the scan are invalid.\n");
         return (NULL);
@@ -200,13 +199,7 @@ escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *statu
         upload->size = strlen(cap_data);
         download->memory = malloc(1);
         download->size = 0;
-        strcpy(job_cmd, name);
-        strcat(job_cmd, scan_jobs);
-        curl_easy_setopt(curl_handle, CURLOPT_URL, job_cmd);
-        if (strncmp(name, "https", 5) == 0) {
-            curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 0L);
-            curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYHOST, 0L);
-        }
+        escl_curl_url(curl_handle, device, scan_jobs);
         curl_easy_setopt(curl_handle, CURLOPT_POST, 1L);
         curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, upload->read_data);
         curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDSIZE, upload->size);

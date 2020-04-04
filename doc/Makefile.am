@@ -18,6 +18,7 @@ EXTRA_DIST = scanimage.man sane-config.man sane-find-scanner.man \
 # custom install/uninstall if we required man pages for every backend.
 
 BACKEND_5MANS = sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 \
+        sane-canon_lide70.5 \
 	sane-dll.5 sane-dc25.5 sane-dmc.5 sane-epson.5 sane-epson2.5 sane-epsonds.5 \
 	sane-escl.5 sane-hp.5 sane-gphoto2.5 sane-leo.5 sane-lexmark.5 \
 	sane-matsushita.5 sane-microtek.5 sane-microtek2.5 sane-mustek.5 \
@@ -40,6 +41,7 @@ BACKEND_5MANS = sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 \
 	sane-kvs40xx.5 sane-p5.5 sane-magicolor.5
 
 EXTRA_DIST += sane-abaton.man sane-agfafocus.man sane-apple.man sane-as6e.man \
+        sane-canon_lide70.man \
 	sane-dll.man sane-dc25.man sane-dmc.man sane-epson.man \
 	sane-epson2.man sane-epsonds.man sane-escl.man sane-hp.man sane-gphoto2.man \
 	sane-leo.man sane-lexmark.man sane-matsushita.man sane-microtek.man \
@@ -150,6 +152,7 @@ DESC_FILES = descriptions/abaton.desc descriptions/agfafocus.desc \
   descriptions/artec_eplus48u.desc descriptions/as6e.desc \
   descriptions/avision.desc descriptions/bh.desc descriptions/canon630u.desc \
   descriptions/canon.desc descriptions/canon_dr.desc \
+  descriptions/canon_lide70.desc \
   descriptions/canon_pp.desc descriptions/cardscan.desc \
   descriptions/coolscan2.desc descriptions/coolscan.desc \
   descriptions/coolscan3.desc \

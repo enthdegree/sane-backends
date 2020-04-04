@@ -78,6 +78,17 @@ struct Genesys_Gpo
     GenesysRegisterSettingSet regs;
 };
 
+struct MemoryLayout
+{
+    // This is used on GL845, GL846, GL847 and GL124 which have special registers to define the
+    // memory layout
+    MemoryLayout() = default;
+
+    ValueFilter<ModelId> models;
+
+    GenesysRegisterSettingSet regs;
+};
+
 struct MethodResolutions
 {
     std::vector<ScanMethod> methods;
@@ -87,6 +98,16 @@ struct MethodResolutions
     unsigned get_min_resolution_x() const
     {
         return *std::min_element(resolutions_x.begin(), resolutions_x.end());
+    }
+
+    unsigned get_nearest_resolution_x(unsigned resolution) const
+    {
+        return *std::min_element(resolutions_x.begin(), resolutions_x.end(),
+                                 [&](unsigned lhs, unsigned rhs)
+        {
+            return std::abs(static_cast<int>(lhs) - static_cast<int>(resolution)) <
+                     std::abs(static_cast<int>(rhs) - static_cast<int>(resolution));
+        });
     }
 
     unsigned get_min_resolution_y() const
@@ -262,7 +283,7 @@ struct Genesys_Device
     // acquiring the positions of the black and white strips and the actual scan area
     bool ignore_offsets = false;
 
-    Genesys_Model *model = nullptr;
+    const Genesys_Model* model = nullptr;
 
     // pointers to low level functions
     std::unique_ptr<CommandSet> cmd_set;
@@ -272,6 +293,7 @@ struct Genesys_Device
     Genesys_Settings settings;
     Genesys_Frontend frontend, frontend_initial;
     Genesys_Gpo gpo;
+    MemoryLayout memory_layout;
     Genesys_Motor motor;
     std::uint8_t control[6] = {};
 
@@ -365,6 +387,8 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev);
 
 void apply_reg_settings_to_device(Genesys_Device& dev, const GenesysRegisterSettingSet& regs);
 
+void apply_reg_settings_to_device_write_only(Genesys_Device& dev,
+                                             const GenesysRegisterSettingSet& regs);
 GenesysRegisterSettingSet
     apply_reg_settings_to_device_with_backup(Genesys_Device& dev,
                                              const GenesysRegisterSettingSet& regs);

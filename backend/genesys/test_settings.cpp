@@ -52,6 +52,7 @@ namespace {
 bool s_testing_mode = false;
 std::uint16_t s_vendor_id = 0;
 std::uint16_t s_product_id = 0;
+std::uint16_t s_bcd_device = 0;
 TestCheckpointCallback s_checkpoint_callback;
 
 } // namespace
@@ -66,15 +67,17 @@ void disable_testing_mode()
     s_testing_mode = false;
     s_vendor_id = 0;
     s_product_id = 0;
-
+    s_bcd_device = 0;
 }
 
 void enable_testing_mode(std::uint16_t vendor_id, std::uint16_t product_id,
+                         std::uint16_t bcd_device,
                          TestCheckpointCallback checkpoint_callback)
 {
     s_testing_mode = true;
     s_vendor_id = vendor_id;
     s_product_id = product_id;
+    s_bcd_device = bcd_device;
     s_checkpoint_callback = checkpoint_callback;
 }
 
@@ -86,6 +89,11 @@ std::uint16_t get_testing_vendor_id()
 std::uint16_t get_testing_product_id()
 {
     return s_product_id;
+}
+
+std::uint16_t get_testing_bcd_device()
+{
+    return s_bcd_device;
 }
 
 std::string get_testing_device_name()

@@ -64,6 +64,11 @@ std::ostream& operator<<(std::ostream& out, const FrontendType& type)
         case FrontendType::UNKNOWN: out << "UNKNOWN"; break;
         case FrontendType::WOLFSON: out << "WOLFSON"; break;
         case FrontendType::ANALOG_DEVICES: out << "ANALOG_DEVICES"; break;
+        case FrontendType::CANON_LIDE_80: out << "CANON_LIDE_80"; break;
+        case FrontendType::WOLFSON_GL841: out << "WOLFSON_GL841"; break;
+        case FrontendType::WOLFSON_GL846: out << "WOLFSON_GL846"; break;
+        case FrontendType::WOLFSON_GL847: out << "WOLFSON_GL847"; break;
+        case FrontendType::WOLFSON_GL124: out << "WOLFSON_GL124"; break;
         default: out << "(unknown value)";
     }
     return out;
@@ -91,7 +96,7 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Frontend& frontend)
     StreamStateSaver state_saver{out};
 
     out << "Genesys_Frontend{\n"
-        << "    id: " << static_cast<unsigned>(frontend.id) << '\n'
+        << "    id: " << frontend.id << '\n'
         << "    regs: " << format_indent_braced_list(4, frontend.regs) << '\n'
         << std::hex
         << "    reg2[0]: " << frontend.reg2[0] << '\n'
@@ -112,26 +117,6 @@ std::ostream& operator<<(std::ostream& out, const SensorExposure& exposure)
     return out;
 }
 
-std::ostream& operator<<(std::ostream& out, const ResolutionFilter& resolutions)
-{
-    if (resolutions.matches_any()) {
-        out << "ANY";
-        return out;
-    }
-    out << format_vector_unsigned(4, resolutions.resolutions());
-    return out;
-}
-
-std::ostream& operator<<(std::ostream& out, const ScanMethodFilter& methods)
-{
-    if (methods.matches_any()) {
-        out << "ANY";
-        return out;
-    }
-    out << format_vector_unsigned(4, methods.methods());
-    return out;
-}
-
 std::ostream& operator<<(std::ostream& out, const Genesys_Sensor& sensor)
 {
     out << "Genesys_Sensor{\n"
@@ -140,11 +125,11 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Sensor& sensor)
         << "    resolutions: " << format_indent_braced_list(4, sensor.resolutions) << '\n'
         << "    channels: " << format_vector_unsigned(4, sensor.channels) << '\n'
         << "    method: " << sensor.method << '\n'
-        << "    register_dpihw_override: " << sensor.register_dpihw_override << '\n'
-        << "    logical_dpihw_override: " << sensor.logical_dpihw_override << '\n'
-        << "    dpiset_override: " << sensor.dpiset_override << '\n'
+        << "    register_dpihw: " << sensor.register_dpihw << '\n'
+        << "    register_dpiset: " << sensor.register_dpiset << '\n'
         << "    ccd_size_divisor: " << sensor.ccd_size_divisor << '\n'
-        << "    pixel_count_multiplier: " << sensor.pixel_count_multiplier << '\n'
+        << "    shading_factor: " << sensor.shading_factor << '\n'
+        << "    pixel_count_ratio: " << sensor.pixel_count_ratio << '\n'
         << "    black_pixels: " << sensor.black_pixels << '\n'
         << "    dummy_pixel: " << sensor.dummy_pixel << '\n'
         << "    ccd_start_xoffset: " << sensor.ccd_start_xoffset << '\n'

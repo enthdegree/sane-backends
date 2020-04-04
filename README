@@ -57,6 +57,8 @@ installed.
 
         - libgphoto2 (>=2.0): For the gphoto2 backend.
 
+        - a C++11 compliant C++ compiler for the genesys backend.
+
 If you got the source straight from the git repository, as opposed to
 a source tarball, you will need a few more utilities.  These utilities
 should normally *not* be needed for source archives downloaded from

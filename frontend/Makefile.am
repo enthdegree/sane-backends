@@ -21,6 +21,7 @@ scanimage_LDADD = ../backend/libsane.la ../sanei/libsanei.la ../lib/liblib.la \
                   $(PNG_LIBS) $(JPEG_LIBS)
 
 saned_SOURCES = saned.c
+saned_CPPFLAGS = $(AM_CPPFLAGS) $(AVAHI_CFLAGS)
 saned_LDADD = ../backend/libsane.la ../sanei/libsanei.la ../lib/liblib.la \
               $(SYSLOG_LIBS) $(SYSTEMD_LIBS) $(AVAHI_LIBS)
 

@@ -270,7 +270,7 @@ void genesys_init_motor_tables()
     profile.slope = MotorSlope::create_from_steps(20202 * 4, 333 * 4, 100);
     profile.step_type = StepType::QUARTER;
     profile.motor_vref = 0;
-    profile.resolutions = ResolutionFilter::ANY;
+    profile.resolutions = VALUE_FILTER_ANY;
     profile.scan_methods = { ScanMethod::FLATBED };
     motor.profiles.push_back(std::move(profile));
 
@@ -278,7 +278,7 @@ void genesys_init_motor_tables()
     profile.slope = MotorSlope::create_from_steps(65535 * 4, 333 * 4, 100);
     profile.step_type = StepType::QUARTER;
     profile.motor_vref = 2;
-    profile.resolutions = ResolutionFilter::ANY;
+    profile.resolutions = VALUE_FILTER_ANY;
     profile.scan_methods = { ScanMethod::TRANSPARENCY, ScanMethod::TRANSPARENCY_INFRARED };
     motor.profiles.push_back(std::move(profile));
 
@@ -286,8 +286,8 @@ void genesys_init_motor_tables()
     profile.slope = MotorSlope::create_from_steps(65535 * 4, 333 * 4, 200);
     profile.step_type = StepType::QUARTER;
     profile.motor_vref = 2;
-    profile.resolutions = ResolutionFilter::ANY;
-    profile.scan_methods = ScanMethodFilter::ANY;
+    profile.resolutions = VALUE_FILTER_ANY;
+    profile.scan_methods = VALUE_FILTER_ANY;
     motor.fast_profiles.push_back(std::move(profile));
 
     s_motors->push_back(std::move(motor));
@@ -400,6 +400,8 @@ void genesys_init_motor_tables()
                               StepType::HALF, 10528});
     motor.profiles.push_back({MotorSlope::create_from_steps(62496, 10432, 4),
                               StepType::QUARTER, 20864});
+    motor.profiles.push_back({MotorSlope::create_from_steps(62496, 10432, 4),
+                              StepType::EIGHTH, 41536});
     s_motors->push_back(std::move(motor));
 
 
@@ -453,6 +455,20 @@ void genesys_init_motor_tables()
 
 
     motor = Genesys_Motor();
+    motor.id = MotorId::PLUSTEK_OPTICFILM_7400;
+    motor.base_ydpi = 3600;
+    motor.optical_ydpi = 3600;
+
+    profile = MotorProfile();
+    profile.slope = MotorSlope::create_from_steps(64102 * 4, 400 * 4, 30);
+    profile.step_type = StepType::QUARTER;
+    profile.motor_vref = 3;
+    motor.profiles.push_back(profile);
+    motor.fast_profiles.push_back(profile);
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
     motor.id = MotorId::PLUSTEK_OPTICFILM_7500I;
     motor.base_ydpi = 3600;
     motor.optical_ydpi = 3600;
@@ -469,6 +485,20 @@ void genesys_init_motor_tables()
     profile.motor_vref = 0;
     motor.fast_profiles.push_back(std::move(profile));
 
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
+    motor.id = MotorId::PLUSTEK_OPTICFILM_8200I;
+    motor.base_ydpi = 3600;
+    motor.optical_ydpi = 3600;
+
+    profile = MotorProfile();
+    profile.slope = MotorSlope::create_from_steps(64102 * 4, 400 * 4, 100);
+    profile.step_type = StepType::QUARTER;
+    profile.motor_vref = 3;
+    motor.profiles.push_back(profile);
+    motor.fast_profiles.push_back(profile);
     s_motors->push_back(std::move(motor));
 
 

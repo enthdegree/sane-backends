@@ -495,7 +495,7 @@ sanei_pio_close (int fd)
 {
   Port p = port + fd;
 
-  if ((0 > fd) && (NELEMS (port) <= fd))
+  if ((0 > fd) || (NELEMS (port) <= fd))
     return;
 
   if (!p->in_use)
@@ -515,7 +515,7 @@ sanei_pio_close (int fd)
 int
 sanei_pio_read (int fd, u_char * buf, int n)
 {
-  if ((0 > fd) && (NELEMS (port) <= fd))
+  if ((0 > fd) || (NELEMS (port) <= fd))
     return -1;
 
   if (!port[fd].in_use)
@@ -527,7 +527,7 @@ sanei_pio_read (int fd, u_char * buf, int n)
 int
 sanei_pio_write (int fd, const u_char * buf, int n)
 {
-  if ((0 > fd) && (NELEMS (port) <= fd))
+  if ((0 > fd) || (NELEMS (port) <= fd))
     return -1;
 
   if (!port[fd].in_use)

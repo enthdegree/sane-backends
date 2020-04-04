@@ -46,6 +46,7 @@
 
 #include "error.h"
 #include <algorithm>
+#include <cstdint>
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -106,6 +107,75 @@ void compute_array_percentile_approx(T* result, const T* data,
 
         *result++ = *select_it;
     }
+}
+
+class Ratio
+{
+public:
+    Ratio() : multiplier_{1}, divisor_{1}
+    {
+    }
+
+    Ratio(unsigned multiplier, unsigned divisor) : multiplier_{multiplier}, divisor_{divisor}
+    {
+    }
+
+    unsigned multiplier() const { return multiplier_; }
+    unsigned divisor() const { return divisor_; }
+
+    unsigned apply(unsigned arg) const
+    {
+        return static_cast<std::uint64_t>(arg) * multiplier_ / divisor_;
+    }
+
+    int apply(int arg) const
+    {
+        return static_cast<std::int64_t>(arg) * multiplier_ / divisor_;
+    }
+
+    float apply(float arg) const
+    {
+        return arg * multiplier_ / divisor_;
+    }
+
+    unsigned apply_inverse(unsigned arg) const
+    {
+        return static_cast<std::uint64_t>(arg) * divisor_ / multiplier_;
+    }
+
+    int apply_inverse(int arg) const
+    {
+        return static_cast<std::int64_t>(arg) * divisor_ / multiplier_;
+    }
+
+    float apply_inverse(float arg) const
+    {
+        return arg * divisor_ / multiplier_;
+    }
+
+    bool operator==(const Ratio& other) const
+    {
+        return multiplier_ == other.multiplier_ && divisor_ == other.divisor_;
+    }
+private:
+    unsigned multiplier_;
+    unsigned divisor_;
+
+    template<class Stream>
+    friend void serialize(Stream& str, Ratio& x);
+};
+
+template<class Stream>
+void serialize(Stream& str, Ratio& x)
+{
+    serialize(str, x.multiplier_);
+    serialize(str, x.divisor_);
+}
+
+inline std::ostream& operator<<(std::ostream& out, const Ratio& ratio)
+{
+    out << ratio.multiplier() << "/" << ratio.divisor();
+    return out;
 }
 
 template<class Char, class Traits>

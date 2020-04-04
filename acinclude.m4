@@ -613,7 +613,7 @@ for be in ${BACKENDS}; do
     ;;
 
     escl)
-    if test "x${enable_avahi}" != "xyes"; then
+    if test "x${with_avahi}" != "xyes"; then
       echo "*** $be backend requires AVAHI library - $DISABLE_MSG"
       backend_supported="no"
     fi
@@ -629,7 +629,14 @@ for be in ${BACKENDS}; do
     if test "x${sane_cv_use_libjpeg}" != "xyes"; then
       echo "*** $be backend currently requires JPEG library - $DISABLE_MSG"
       backend_supported="no"
+    else
+      if test "x${ac_cv_func_jpeg_crop_scanline}"  != "xyes" \
+      || test "x${ac_cv_func_jpeg_skip_scanlines}" != "xyes"; then
+        echo "*** $be backend requires a newer JPEG library - $DISABLE_MSG"
+        backend_supported="no"
+      fi
     fi
+
     ;;
 
     gphoto2)

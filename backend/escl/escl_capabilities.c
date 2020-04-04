@@ -192,41 +192,34 @@ find_valor_of_array_variables(xmlNode *node, capabilities_t *scanner, int type)
     else if (strcmp(name, "DocumentFormat") == 0)
      {
         int i = 0;
-        SANE_Bool have_jpeg = SANE_FALSE, have_png = SANE_FALSE, have_tiff = SANE_FALSE, have_pdf = SANE_FALSE;
-        scanner->caps[type].DocumentFormats = char_to_array(scanner->caps[type].DocumentFormats, &scanner->caps[type].DocumentFormatsSize, (SANE_String_Const)xmlNodeGetContent(node), 0);
-        for(; i < scanner->caps[type].DocumentFormatsSize; i++)
+	int _is_jpeg = 0, _is_png = 0, _is_tiff = 0, _is_pdf = 0;
+        scanner->DocumentFormats = char_to_array(scanner->DocumentFormats, &scanner->DocumentFormatsSize, (SANE_String_Const)xmlNodeGetContent(node), 0);
+        for(; i < scanner->DocumentFormatsSize; i++)
          {
-            if (!strcmp(scanner->caps[type].DocumentFormats[i], "image/jpeg"))
-            {
-			   have_jpeg = SANE_TRUE;
-            }
+            if (!strcmp(scanner->DocumentFormats[i], "image/jpeg"))
+	      _is_jpeg = 1;
 #if(defined HAVE_LIBPNG)
-            else if(!strcmp(scanner->caps[type].DocumentFormats[i], "image/png"))
-            {
-               have_png = SANE_TRUE;
-            }
+            else if(!strcmp(scanner->DocumentFormats[i], "image/png"))
+	      _is_png = 1;
 #endif
 #if(defined HAVE_TIFFIO_H)
-            else if(type == PLATEN && !strcmp(scanner->caps[type].DocumentFormats[i], "image/tiff"))
-            {
-               have_tiff = SANE_TRUE;
-            }
+            else if(!strcmp(scanner->DocumentFormats[i], "image/tiff"))
+	      _is_tiff = 1;
 #endif
 #if(defined HAVE_POPPLER_GLIB)
-            else if(type == PLATEN && !strcmp(scanner->caps[type].DocumentFormats[i], "application/pdf"))
-            {
-               have_pdf = SANE_TRUE;
-            }
+            else if(!strcmp(scanner->DocumentFormats[i], "application/pdf"))
+	      _is_pdf = 1;
 #endif
          }
-         if (have_pdf)
-             scanner->caps[type].default_format = strdup("application/pdf");
-         else if (have_tiff)
-             scanner->caps[type].default_format = strdup("image/tiff");
-         else if (have_png)
-             scanner->caps[type].default_format = strdup("image/png");
-         else if (have_jpeg)
-             scanner->caps[type].default_format = strdup("image/jpeg");
+	 if (_is_pdf)
+            scanner->default_format = strdup("application/pdf");
+	 else if (_is_tiff)
+            scanner->default_format = strdup("image/tiff");
+	 else if (_is_png)
+            scanner->default_format = strdup("image/png");
+	 else if(_is_jpeg)
+            scanner->default_format = strdup("image/jpeg");
+         fprintf(stderr, "Capability : [%s]\n", scanner->default_format);
      }
     else if (strcmp(name, "DocumentFormatExt") == 0)
         scanner->caps[type].format_ext = 1;
@@ -366,8 +359,32 @@ print_xml_c(xmlNode *node, capabilities_t *scanner, int type)
     return (0);
 }
 
+static void
+_reduce_color_modes(capabilities_t *scanner)
+{
+    int type = 0;
+    for (type = 0; type < 3; type++) {
+         if (scanner->caps[type].ColorModesSize) {
+	     if (scanner->caps[type].default_format &&
+		 strcmp(scanner->caps[type].default_format, "application/pdf")) {
+                 if (scanner->caps[type].ColorModesSize == 3) {
+	             free(scanner->caps[type].ColorModes);
+		     scanner->caps[type].ColorModes = NULL;
+	             scanner->caps[type].ColorModesSize = 0;
+                     scanner->caps[type].ColorModes = char_to_array(scanner->caps[type].ColorModes,
+			             &scanner->caps[type].ColorModesSize,
+				     (SANE_String_Const)SANE_VALUE_SCAN_MODE_GRAY, 0);
+                     scanner->caps[type].ColorModes = char_to_array(scanner->caps[type].ColorModes,
+			             &scanner->caps[type].ColorModesSize,
+				     (SANE_String_Const)SANE_VALUE_SCAN_MODE_COLOR, 0);
+                 }
+	     }
+         }
+    }
+}
+
 /**
- * \fn capabilities_t *escl_capabilities(SANE_String_Const name, SANE_Status *status)
+ * \fn capabilities_t *escl_capabilities(const ESCL_Device *device, SANE_Status *status)
  * \brief Function that finally recovers all the capabilities of the scanner, using curl.
  *        This function is called in the 'sane_open' function and it's the equivalent of
  *        the following curl command : "curl http(s)://'ip':'port'/eSCL/ScannerCapabilities".
@@ -375,7 +392,7 @@ print_xml_c(xmlNode *node, capabilities_t *scanner, int type)
  * \return scanner (the structure that stocks all the capabilities elements)
  */
 capabilities_t *
-escl_capabilities(SANE_String_Const name, SANE_Status *status)
+escl_capabilities(const ESCL_Device *device, SANE_Status *status)
 {
     capabilities_t *scanner = (capabilities_t*)calloc(1, sizeof(capabilities_t));
     CURL *curl_handle = NULL;
@@ -383,10 +400,9 @@ escl_capabilities(SANE_String_Const name, SANE_Status *status)
     xmlDoc *data = NULL;
     xmlNode *node = NULL;
     const char *scanner_capabilities = "/eSCL/ScannerCapabilities";
-    char tmp[PATH_MAX] = { 0 };
 
     *status = SANE_STATUS_GOOD;
-    if (name == NULL)
+    if (device == NULL)
         *status = SANE_STATUS_NO_MEM;
     var = (struct cap *)calloc(1, sizeof(struct cap));
     if (var == NULL)
@@ -394,15 +410,7 @@ escl_capabilities(SANE_String_Const name, SANE_Status *status)
     var->memory = malloc(1);
     var->size = 0;
     curl_handle = curl_easy_init();
-    strcpy(tmp, name);
-    strcat(tmp, scanner_capabilities);
-    DBG( 1, "Get Capabilities : %s\n", tmp);
-    curl_easy_setopt(curl_handle, CURLOPT_URL, tmp);
-    if (strncmp(name, "https", 5) == 0) {
-        DBG( 1, "Ignoring safety certificates, use https\n");
-        curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 0L);
-        curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYHOST, 0L);
-    }
+    escl_curl_url(curl_handle, device, scanner_capabilities);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, memory_callback_c);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)var);
     if (curl_easy_perform(curl_handle) != CURLE_OK) {
@@ -415,8 +423,11 @@ escl_capabilities(SANE_String_Const name, SANE_Status *status)
     node = xmlDocGetRootElement(data);
     if (node == NULL)
         *status = SANE_STATUS_NO_MEM;
+
     scanner->source = 0;
     print_xml_c(node, scanner, -1);
+    _reduce_color_modes(scanner);
+    
     xmlFreeDoc(data);
     xmlCleanupParser();
     xmlMemoryDump();

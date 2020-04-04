@@ -48,9 +48,11 @@
 
 namespace genesys {
 
-TestUsbDevice::TestUsbDevice(std::uint16_t vendor, std::uint16_t product) :
+TestUsbDevice::TestUsbDevice(std::uint16_t vendor, std::uint16_t product,
+                             std::uint16_t bcd_device) :
     vendor_{vendor},
-    product_{product}
+    product_{product},
+    bcd_device_{bcd_device}
 {
 }
 
@@ -100,6 +102,13 @@ void TestUsbDevice::get_vendor_product(int& vendor, int& product)
     assert_is_open();
     vendor = vendor_;
     product = product_;
+}
+
+std::uint16_t TestUsbDevice::get_bcd_device()
+{
+    DBG_HELPER(dbg);
+    assert_is_open();
+    return bcd_device_;
 }
 
 void TestUsbDevice::control_msg(int rtype, int reg, int value, int index, int length,

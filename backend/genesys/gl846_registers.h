@@ -194,7 +194,7 @@ static constexpr RegMask REG_0x1D_CK1LOW = 0x20;
 static constexpr RegMask REG_0x1D_TGSHLD = 0x1f;
 static constexpr RegShift REG_0x1DS_TGSHLD = 0;
 
-
+static constexpr RegAddr REG_0x1E = 0x1e;
 static constexpr RegMask REG_0x1E_WDTIME = 0xf0;
 static constexpr RegShift REG_0x1ES_WDTIME = 4;
 static constexpr RegMask REG_0x1E_LINESEL = 0x0f;
@@ -302,6 +302,16 @@ static constexpr RegAddr REG_0x6D = 0x6d;
 static constexpr RegAddr REG_0x6E = 0x6e;
 static constexpr RegAddr REG_0x6F = 0x6f;
 static constexpr RegAddr REG_0x7E = 0x7e;
+
+static constexpr RegAddr REG_0x80 = 0x80;
+static constexpr RegMask REG_0x80_TABLE1_NORMAL = 0x03;
+static constexpr RegShift REG_0x80S_TABLE1_NORMAL = 0;
+static constexpr RegMask REG_0x80_TABLE2_BACK = 0x0c;
+static constexpr RegShift REG_0x80S_TABLE2_BACK = 2;
+static constexpr RegMask REG_0x80_TABLE4_FAST = 0x30;
+static constexpr RegShift REG_0x80S_TABLE4_FAST = 4;
+static constexpr RegMask REG_0x80_TABLE5_GO_HOME = 0xc0;
+static constexpr RegShift REG_0x80S_TABLE5_GO_HOME = 6;
 
 static constexpr RegMask REG_0x87_ACYCNRLC = 0x10;
 static constexpr RegMask REG_0x87_ENOFFSET = 0x08;

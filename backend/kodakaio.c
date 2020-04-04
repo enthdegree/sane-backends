@@ -18,13 +18,13 @@
  * The connection is now made in sane_start and ended in sane_cancel.
  * 01/01/13 Now with adf, the scan can be padded to make up the full page length,
  * or the page can terminate at the end of the paper. This is a selectable option.
- * 25/11/12 Using avahi now for net autodiscovery. Use configure option --enable-avahi
+ * 25/11/12 Using avahi now for net autodiscovery. Use configure option --with-avahi to make sure it's enabled
  * 1/5/17 patched to use local pointer for avahi callback
  */
 
 /*
 Packages to add to a clean ubuntu install
-libavahi-common-dev
+libavahi-client-dev
 libusb-dev
 libsnmp-dev
 
@@ -32,13 +32,13 @@ convenient lines to paste
 export SANE_DEBUG_KODAKAIO=20
 
 for ubuntu prior to 12.10
-./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-avahi BACKENDS="kodakaio test"
+./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var BACKENDS="kodakaio test"
 
 for ubuntu 12.10
-./configure --prefix=/usr --libdir=/usr/lib/i386-linux-gnu --sysconfdir=/etc --localstatedir=/var --enable-avahi BACKENDS="kodakaio test"
+./configure --prefix=/usr --libdir=/usr/lib/i386-linux-gnu --sysconfdir=/etc --localstatedir=/var BACKENDS="kodakaio test"
 
 for ubuntu 14.10 up to at least 17.04
-./configure --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu --sysconfdir=/etc --localstatedir=/var --enable-avahi BACKENDS="kodakaio test"
+./configure --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu --sysconfdir=/etc --localstatedir=/var BACKENDS="kodakaio test"
 
 If you want to use the test backend, for example with sane-troubleshoot, you should enable it in /etc/sane.d/dll.conf
 

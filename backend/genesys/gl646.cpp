@@ -105,44 +105,6 @@ static void gl646_stop_motor(Genesys_Device* dev)
 }
 
 /**
- * find the closest match in mode tables for the given resolution and scan mode.
- * @param sensor id of the sensor
- * @param required required resolution
- * @param color true is color mode
- * @return the closest resolution for the sensor and mode
- */
-static unsigned get_closest_resolution(SensorId sensor_id, int required, unsigned channels)
-{
-    unsigned best_res = 0;
-    unsigned best_diff = 9600;
-
-    for (const auto& sensor : *s_sensors) {
-        if (sensor_id != sensor.sensor_id)
-            continue;
-
-        // exit on perfect match
-        if (sensor.resolutions.matches(required) && sensor.matches_channel_count(channels)) {
-            DBG(DBG_info, "%s: match found for %d\n", __func__, required);
-            return required;
-        }
-
-        // computes distance and keep mode if it is closer than previous
-        if (sensor.matches_channel_count(channels)) {
-            for (auto res : sensor.resolutions.resolutions()) {
-                unsigned curr_diff = std::abs(static_cast<int>(res) - static_cast<int>(required));
-                if (curr_diff < best_diff) {
-                    best_res = res;
-                    best_diff = curr_diff;
-                }
-            }
-        }
-    }
-
-    DBG(DBG_info, "%s: closest match for %d is %d\n", __func__, required, best_res);
-    return best_res;
-}
-
-/**
  * Returns the cksel values used by the required scan mode.
  * @param sensor id of the sensor
  * @param required required resolution
@@ -313,7 +275,7 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
             break;
     }
 
-    sanei_genesys_set_dpihw(*regs, sensor, sensor.optical_res);
+    sanei_genesys_set_dpihw(*regs, sensor.optical_res);
 
   /* gamma enable for scans */
     if (has_flag(dev->model->flags, ModelFlag::GAMMA_14BIT)) {
@@ -400,8 +362,11 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
 
     regs->set24(REG_MAXWD, session.output_line_bytes);
 
-    regs->set16(REG_DPISET, session.output_resolution * session.ccd_size_divisor *
-                            sensor.ccd_pixels_per_system_pixel());
+    // FIXME: the incoming sensor is selected for incorrect resolution
+    const auto& dpiset_sensor = sanei_genesys_find_sensor(dev, session.params.xres,
+                                                          session.params.channels,
+                                                          session.params.scan_method);
+    regs->set16(REG_DPISET, dpiset_sensor.register_dpiset);
     regs->set16(REG_LPERIOD, sensor.exposure_lperiod);
 
   /* move distance must be adjusted to take into account the extra lines
@@ -663,7 +628,7 @@ gl646_init_regs (Genesys_Device * dev)
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
 
   dev->reg.find_reg(0x05).value = 0x00;	/* 12 bits gamma, disable gamma, 24 clocks/pixel */
-    sanei_genesys_set_dpihw(dev->reg, sensor, sensor.optical_res);
+    sanei_genesys_set_dpihw(dev->reg, sensor.optical_res);
 
     if (has_flag(dev->model->flags, ModelFlag::GAMMA_14BIT)) {
         dev->reg.find_reg(0x05).value |= REG_0x05_GMM14BIT;
@@ -1587,15 +1552,18 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     DBG_HELPER(dbg);
     (void) regs;
   Genesys_Settings settings;
-  int cksel = 1;
 
   /* fill settings for scan : always a color scan */
   int channels = 3;
 
+    unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
+    unsigned cksel = get_cksel(dev->model->sensor_id, dev->settings.xres, channels);
+
+    unsigned resolution = sensor.optical_res / ccd_size_divisor / cksel;
+    // FIXME: we select wrong calibration sensor
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, dev->settings.xres, channels,
                                                          dev->settings.scan_method);
 
-    unsigned ccd_size_divisor = calib_sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
 
   settings.scan_method = dev->settings.scan_method;
   settings.scan_mode = dev->settings.scan_mode;
@@ -1603,9 +1571,7 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
       // FIXME: always a color scan, but why don't we set scan_mode to COLOR_SINGLE_PASS always?
       settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     }
-  settings.xres = sensor.optical_res / ccd_size_divisor;
-  cksel = get_cksel(dev->model->sensor_id, dev->settings.xres, channels);
-  settings.xres = settings.xres / cksel;
+    settings.xres = resolution;
   settings.yres = settings.xres;
   settings.tl_x = 0;
   settings.tl_y = 0;
@@ -1820,7 +1786,6 @@ SensorExposure CommandSetGl646::led_calibration(Genesys_Device* dev, const Genes
   int turn;
   uint16_t expr, expg, expb;
   Genesys_Settings settings;
-  SANE_Int resolution;
 
     unsigned channels = dev->settings.get_channels();
 
@@ -1833,15 +1798,14 @@ SensorExposure CommandSetGl646::led_calibration(Genesys_Device* dev, const Genes
     {
       settings.scan_mode = ScanColorMode::GRAY;
     }
-  resolution = get_closest_resolution(dev->model->sensor_id, sensor.optical_res, channels);
 
-  /* offset calibration is always done in color mode */
+    // offset calibration is always done in color mode
     settings.scan_method = dev->model->default_method;
-  settings.xres = resolution;
-  settings.yres = resolution;
+    settings.xres = sensor.optical_res;
+    settings.yres = sensor.optical_res;
   settings.tl_x = 0;
   settings.tl_y = 0;
-    settings.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
+    settings.pixels = dev->model->x_size_calib_mm * sensor.optical_res / MM_PER_INCH;
     settings.requested_pixels = settings.pixels;
   settings.lines = 1;
   settings.depth = 16;
@@ -1998,24 +1962,25 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
 
   unsigned int channels;
   int pass = 0;
-  SANE_Int resolution;
   Genesys_Settings settings;
   unsigned int x, y, adr, min;
   unsigned int bottom, black_pixels;
 
   channels = 3;
-  resolution = get_closest_resolution(dev->model->sensor_id, sensor.optical_res, channels);
-    const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, 3, ScanMethod::FLATBED);
-    black_pixels = (calib_sensor.black_pixels * resolution) / calib_sensor.optical_res;
+
+    // FIXME: maybe reuse `sensor`
+    const auto& calib_sensor = sanei_genesys_find_sensor(dev, sensor.optical_res, 3,
+                                                         ScanMethod::FLATBED);
+    black_pixels = (calib_sensor.black_pixels * sensor.optical_res) / calib_sensor.optical_res;
   DBG(DBG_io2, "%s: black_pixels=%d\n", __func__, black_pixels);
 
     settings.scan_method = dev->model->default_method;
   settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-  settings.xres = resolution;
-  settings.yres = resolution;
+    settings.xres = sensor.optical_res;
+    settings.yres = sensor.optical_res;
   settings.tl_x = 0;
   settings.tl_y = 0;
-    settings.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
+    settings.pixels = dev->model->x_size_calib_mm * sensor.optical_res / MM_PER_INCH;
     settings.requested_pixels = settings.pixels;
   settings.lines = CALIBRATION_LINES;
   settings.depth = 8;
@@ -2097,7 +2062,6 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     DBG_HELPER(dbg);
     (void) regs;
 
-  unsigned int channels;
   int pass = 0, avg;
   Genesys_Settings settings;
   int topavg, bottomavg;
@@ -2112,10 +2076,11 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
   /* setup for a RGB scan, one full sensor's width line */
   /* resolution is the one from the final scan          */
-    channels = 3;
-    int resolution = get_closest_resolution(dev->model->sensor_id, dev->settings.xres, channels);
+    unsigned resolution = dev->settings.xres;
+    unsigned channels = 3;
 
-    const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, 3, ScanMethod::FLATBED);
+    const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
+                                                         ScanMethod::FLATBED);
     black_pixels = (calib_sensor.black_pixels * resolution) / calib_sensor.optical_res;
 
   DBG(DBG_io2, "%s: black_pixels=%d\n", __func__, black_pixels);
@@ -2243,7 +2208,7 @@ static void ad_fe_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
     (void) regs;
 
   unsigned int i, channels, val;
-  unsigned int size, count, resolution, pass;
+  unsigned int size, count, pass;
   float average;
   Genesys_Settings settings;
   char title[32];
@@ -2251,18 +2216,16 @@ static void ad_fe_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
   /* setup for a RGB scan, one full sensor's width line */
   /* resolution is the one from the final scan          */
   channels = 3;
-  resolution = get_closest_resolution(dev->model->sensor_id, dpi, channels);
-
-    const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, 3, ScanMethod::FLATBED);
+    const auto& calib_sensor = sanei_genesys_find_sensor(dev, dpi, 3, ScanMethod::FLATBED);
 
   settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
 
     settings.scan_method = dev->model->default_method;
-  settings.xres = resolution;
-  settings.yres = resolution;
+    settings.xres = dpi;
+    settings.yres = dpi;
   settings.tl_x = 0;
   settings.tl_y = 0;
-    settings.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
+    settings.pixels = dev->model->x_size_calib_mm * dpi / MM_PER_INCH;
     settings.requested_pixels = settings.pixels;
   settings.lines = CALIBRATION_LINES;
   settings.depth = 8;
@@ -2342,7 +2305,7 @@ void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     (void) dpi;
 
   unsigned int i, j, k, channels, val, maximum, idx;
-  unsigned int count, resolution, pass;
+  unsigned count, pass;
   float average[3];
   Genesys_Settings settings;
   char title[32];
@@ -2355,26 +2318,26 @@ void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys
   /* resolution is the one from the final scan          */
   channels = 3;
 
-  /* we are searching a sensor resolution */
-    resolution = get_closest_resolution(dev->model->sensor_id, dev->settings.xres, channels);
-
-    const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
+    // BUG: the following comment is incorrect
+    // we are searching a sensor resolution */
+    const auto& calib_sensor = sanei_genesys_find_sensor(dev, dev->settings.xres, channels,
                                                          ScanMethod::FLATBED);
 
   settings.scan_method = dev->settings.scan_method;
   settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-  settings.xres = resolution;
-  settings.yres = resolution;
+  settings.xres = dev->settings.xres;
+  settings.yres = dev->settings.xres;
   settings.tl_y = 0;
   if (settings.scan_method == ScanMethod::FLATBED)
     {
       settings.tl_x = 0;
-        settings.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
+        settings.pixels = dev->model->x_size_calib_mm * dev->settings.xres / MM_PER_INCH;
     }
   else
     {
         settings.tl_x = dev->model->x_offset_ta;
-        settings.pixels = static_cast<unsigned>((dev->model->x_size_ta * resolution) / MM_PER_INCH);
+        settings.pixels = static_cast<unsigned>(
+                              (dev->model->x_size_ta * dev->settings.xres) / MM_PER_INCH);
     }
     settings.requested_pixels = settings.pixels;
   settings.lines = CALIBRATION_LINES;
@@ -2502,12 +2465,11 @@ void CommandSetGl646::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     (void) sensor;
 
   Genesys_Settings settings;
-  int resolution, lines;
+  int lines;
 
   dev->frontend = dev->frontend_initial;
 
-  resolution = get_closest_resolution(dev->model->sensor_id, 300, 1);
-
+    unsigned resolution = 300;
     const auto& local_sensor = sanei_genesys_find_sensor(dev, resolution, 1,
                                                          dev->settings.scan_method);
 
@@ -2565,7 +2527,8 @@ static void gl646_repark_head(Genesys_Device* dev)
 
     settings.scan_method = dev->model->default_method;
   settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-  settings.xres = get_closest_resolution(dev->model->sensor_id, 75, 1);
+    settings.xres = dev->model->get_resolution_settings(dev->model->default_method)
+                               .get_min_resolution_y();
   settings.yres = settings.xres;
   settings.tl_x = 0;
   settings.tl_y = 5;

@@ -58,7 +58,7 @@
 
 namespace genesys {
 
-StaticInit<std::vector<Genesys_USB_Device_Entry>> s_usb_devices;
+StaticInit<std::vector<UsbDeviceEntry>> s_usb_devices;
 
 void genesys_init_usb_device_tables()
 {
@@ -467,7 +467,6 @@ void genesys_init_usb_device_tables()
     model.motor_id = MotorId::CANON_4400F;
     model.flags = ModelFlag::SKIP_WARMUP |
                   ModelFlag::DARK_CALIBRATION |
-                  ModelFlag::FULL_HWDPI_MODE |
                   ModelFlag::CUSTOM_GAMMA |
                   ModelFlag::SHADING_REPARK |
                   ModelFlag::UTA_NO_SECONDARY_MOTOR;
@@ -540,7 +539,6 @@ void genesys_init_usb_device_tables()
     model.motor_id = MotorId::CANON_8400F;
     model.flags = ModelFlag::SKIP_WARMUP |
                   ModelFlag::DARK_CALIBRATION |
-                  ModelFlag::FULL_HWDPI_MODE |
                   ModelFlag::CUSTOM_GAMMA |
                   ModelFlag::SHADING_REPARK;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;
@@ -607,7 +605,6 @@ void genesys_init_usb_device_tables()
     model.motor_id = MotorId::CANON_8600F;
     model.flags = ModelFlag::SKIP_WARMUP |
                   ModelFlag::DARK_CALIBRATION |
-                  ModelFlag::FULL_HWDPI_MODE |
                   ModelFlag::CUSTOM_GAMMA |
                   ModelFlag::SHADING_REPARK;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;
@@ -792,16 +789,15 @@ void genesys_init_usb_device_tables()
     model.resolutions = {
         {
             { ScanMethod::FLATBED },
-            // BUG: 4800 resolution crashes
-            { /*4800,*/ 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 },
-            { /*4800,*/ 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 },
+            { 4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 },
+            { 4800, 2400, 1200, 600, /* 400,*/ 300, 150, 100, 75 },
         }
     };
 
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = 2.2;
+    model.x_offset = 2.1;
     model.y_offset = 8.7;
     model.x_size = 216.70;
     model.y_size = 297.5;
@@ -850,16 +846,15 @@ void genesys_init_usb_device_tables()
     model.resolutions = {
         {
             { ScanMethod::FLATBED },
-            // BUG: 4800 resolution crashes
-            { /*4800,*/ 2400, 1200, 600, 300, 150, 100, 75 },
-            { /*4800,*/ 2400, 1200, 600, 300, 150, 100, 75 },
+            { 4800, 2400, 1200, 600, 300, 150, 100, 75 },
+            { 4800, 2400, 1200, 600, 300, 150, 100, 75 },
         }
     };
 
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = 2.2;
+    model.x_offset = 2.1;
     model.y_offset = 8.7;
     model.x_size = 216.70;
     model.y_size = 297.5;
@@ -2048,7 +2043,7 @@ void genesys_init_usb_device_tables()
 
     model.is_cis = true;
     model.is_sheetfed = true;
-    model.sensor_id = SensorId::CCD_XP300;
+    model.sensor_id = SensorId::CCD_DOCKETPORT_487;
     model.adc_id = AdcId::WOLFSON_XP300;
     model.gpio_id = GpioId::XP300;
     model.motor_id = MotorId::XP300;
@@ -2343,6 +2338,19 @@ void genesys_init_usb_device_tables()
     s_usb_devices->emplace_back(0x07b3, 0x0c04, model);
 
 
+    // same as 7200i, just without the infrared channel
+    model.name = "plustek-opticfilm-7200-v2";
+    model.model = "OpticFilm 7200 v2";
+    model.resolutions = {
+        {
+            { ScanMethod::TRANSPARENCY },
+            { 7200, 3600, 1800, 900 },
+            { 7200, 3600, 1800, 900 },
+        }
+    };
+    s_usb_devices->emplace_back(0x07b3, 0x0c07, model);
+
+
     model = Genesys_Model();
     model.name = "plustek-opticfilm-7300";
     model.vendor = "PLUSTEK";
@@ -2408,6 +2416,83 @@ void genesys_init_usb_device_tables()
     s_usb_devices->emplace_back(0x07b3, 0x0c12, model);
 
 
+    // same as 7300, same USB ID as 7400-v2
+    model.name = "plustek-opticfilm-7400-v1";
+    model.model = "OpticFilm 7400 (v1)";
+    s_usb_devices->emplace_back(0x07b3, 0x0c3a, 0x0400, model);
+
+
+    model = Genesys_Model();
+    model.name = "plustek-opticfilm-7400-v2";
+    model.vendor = "PLUSTEK";
+    model.model = "OpticFilm 7400 (v2)";
+    model.model_id = ModelId::PLUSTEK_OPTICFILM_7400;
+    model.asic_type = AsicType::GL845;
+
+    model.resolutions = {
+        {
+            { ScanMethod::TRANSPARENCY },
+            { 7200, 3600, 2400, 1200, 600 },
+            { 7200, 3600, 2400, 1200, 600 },
+        }
+    };
+
+    model.bpp_gray_values = { 16 };
+    model.bpp_color_values = { 16 };
+    model.default_method = ScanMethod::TRANSPARENCY;
+
+    model.x_offset = 0.0;
+    model.y_offset = 0.0;
+    model.x_size = 36.0;
+    model.y_size = 44.0;
+
+    model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 0.0;
+    model.x_offset_calib_black = 6.5;
+    model.x_size_calib_mm = 37.0;
+
+    model.x_offset_ta = 0.5;
+    model.y_offset_ta = 29.0;
+    model.x_size_ta = 37.0;
+    model.y_size_ta = 25.0;
+
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_black_ta = 6.5;
+    model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 2.0;
+
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 12;
+    model.ld_shift_b = 24;
+
+    model.line_mode_color_order = ColorOrder::RGB;
+
+    model.is_cis = false;
+    model.is_sheetfed = false;
+
+    model.sensor_id = SensorId::CCD_PLUSTEK_OPTICFILM_7400;
+    model.adc_id = AdcId::PLUSTEK_OPTICFILM_7400;
+    model.gpio_id = GpioId::PLUSTEK_OPTICFILM_7400;
+    model.motor_id = MotorId::PLUSTEK_OPTICFILM_7400;
+
+    model.flags = ModelFlag::CUSTOM_GAMMA |
+                  ModelFlag::SKIP_WARMUP |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::SHADING_REPARK;
+
+    model.search_lines = 200;
+    s_usb_devices->emplace_back(0x07b3, 0x0c3a, 0x0605, model);
+
+
+    // same as 7400-v2
+    model.name = "plustek-opticfilm-8100";
+    model.model = "OpticFilm 8100";
+    s_usb_devices->emplace_back(0x07b3, 0x130c, model);
+
+
     model = Genesys_Model();
     model.name = "plustek-opticfilm-7500i";
     model.vendor = "PLUSTEK";
@@ -2471,6 +2556,83 @@ void genesys_init_usb_device_tables()
 
     model.search_lines = 200;
     s_usb_devices->emplace_back(0x07b3, 0x0c13, model);
+
+
+    // same as 7500i
+    model.name = "plustek-opticfilm-7600i-v1";
+    model.model = "OpticFilm 7600i (v1)";
+    s_usb_devices->emplace_back(0x07b3, 0x0c3b, 0x0400, model);
+
+
+    model = Genesys_Model();
+    model.name = "plustek-opticfilm-8200i";
+    model.vendor = "PLUSTEK";
+    model.model = "OpticFilm 8200i";
+    model.model_id = ModelId::PLUSTEK_OPTICFILM_8200I;
+    model.asic_type = AsicType::GL845;
+
+    model.resolutions = {
+        {
+            { ScanMethod::TRANSPARENCY, ScanMethod::TRANSPARENCY_INFRARED },
+            { 7200, 3600, 1800, 900 },
+            { 7200, 3600, 1800, 900 },
+        }
+    };
+
+    model.bpp_gray_values = { 16 };
+    model.bpp_color_values = { 16 };
+    model.default_method = ScanMethod::TRANSPARENCY;
+
+    model.x_offset = 0.0;
+    model.y_offset = 0.0;
+    model.x_size = 36.0;
+    model.y_size = 44.0;
+
+    model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 0.0;
+    model.x_offset_calib_black = 6.5;
+    model.x_size_calib_mm = 37.0;
+
+    model.x_offset_ta = 0.5;
+    model.y_offset_ta = 28.5;
+    model.x_size_ta = 37.0;
+    model.y_size_ta = 25.0;
+
+    model.y_offset_sensor_to_ta = 0.0;
+    model.y_offset_calib_black_ta = 6.5;
+    model.y_offset_calib_white_ta = 0.0;
+    model.y_size_calib_ta_mm = 2.0;
+
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 12;
+    model.ld_shift_b = 24;
+
+    model.line_mode_color_order = ColorOrder::RGB;
+
+    model.is_cis = false;
+    model.is_sheetfed = false;
+
+    model.sensor_id = SensorId::CCD_PLUSTEK_OPTICFILM_8200I;
+    model.adc_id = AdcId::PLUSTEK_OPTICFILM_8200I;
+    model.gpio_id = GpioId::PLUSTEK_OPTICFILM_8200I;
+    model.motor_id = MotorId::PLUSTEK_OPTICFILM_8200I;
+
+    model.flags = ModelFlag::CUSTOM_GAMMA |
+                  ModelFlag::SKIP_WARMUP |
+                  ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::SHADING_REPARK;
+
+    model.search_lines = 200;
+    s_usb_devices->emplace_back(0x07b3, 0x130d, model);
+
+
+    // same as 8200i
+    model.name = "plustek-opticfilm-7600i-v2";
+    model.model = "OpticFilm 7600i (v2)";
+    s_usb_devices->emplace_back(0x07b3, 0x0c3b, 0x0605, model);
 
 
     model = Genesys_Model();
@@ -2635,7 +2797,7 @@ void genesys_init_usb_device_tables()
 void verify_usb_device_tables()
 {
     for (const auto& device : *s_usb_devices) {
-        const auto& model = device.model;
+        const auto& model = device.model();
 
         if (model.x_size_calib_mm == 0.0f) {
             throw SaneException("Calibration width can't be zero");

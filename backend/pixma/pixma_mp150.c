@@ -919,11 +919,13 @@ handle_interrupt (pixma_t * s, int timeout)
   else if (s->cfg->pid == LIDE300_PID
            || s->cfg->pid == LIDE400_PID)
   /* unknown value in buf[4]
-   * target in buf[0x13]
-   * always set button-1 */
+   * target in buf[0x13] 01=copy; 02=auto; 03=send; 05=start PDF; 06=finish PDF
+   * "Finish PDF" is Button-2, all others are Button-1 */
   {
-    if (buf[0x13])
-      s->events = PIXMA_EV_BUTTON1 | buf[0x13];
+      if (buf[0x13] == 0x06)
+        s->events = PIXMA_EV_BUTTON2 | buf[0x13];   /* button 2 = cancel / end scan */
+      else if (buf[0x13])
+        s->events = PIXMA_EV_BUTTON1 | buf[0x13];   /* button 1 = start scan */
   }
   else
   /* button no. in buf[0]

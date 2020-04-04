@@ -320,6 +320,16 @@ void genesys_init_gpo_tables()
     };
     s_gpo->push_back(gpo);
 
+
+    gpo = Genesys_Gpo();
+    gpo.id = GpioId::PLUSTEK_OPTICFILM_7400;
+    gpo.regs = {
+        { 0x6b, 0x30 }, { 0x6c, 0x4c }, { 0x6d, 0x80 }, { 0x6e, 0x4c }, { 0x6f, 0x80 },
+        { 0xa6, 0x00 }, { 0xa7, 0x07 }, { 0xa8, 0x20 }, { 0xa9, 0x01 },
+    };
+    s_gpo->push_back(gpo);
+
+
     gpo = Genesys_Gpo();
     gpo.id = GpioId::PLUSTEK_OPTICFILM_7500I;
     gpo.regs = {
@@ -333,6 +343,16 @@ void genesys_init_gpo_tables()
         { 0xa9, 0x01 },
     };
     s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
+    gpo.id = GpioId::PLUSTEK_OPTICFILM_8200I;
+    gpo.regs = {
+        { 0x6b, 0x30 }, { 0x6c, 0x4c }, { 0x6d, 0x80 }, { 0x6e, 0x4c }, { 0x6f, 0x80 },
+        { 0xa6, 0x00 }, { 0xa7, 0x07 }, { 0xa8, 0x20 }, { 0xa9, 0x01 },
+    };
+    s_gpo->push_back(gpo);
+
 
     gpo = Genesys_Gpo();
     gpo.id = GpioId::CANON_4400F;
@@ -382,10 +402,8 @@ void genesys_init_gpo_tables()
     gpo = Genesys_Gpo();
     gpo.id = GpioId::IMG101;
     gpo.regs = {
-        { 0x6c, 0x41 },
-        { 0x6d, 0xa4 },
-        { 0x6e, 0x13 },
-        { 0x6f, 0xa7 },
+        { 0x6b, 0x72 }, { 0x6c, 0x1f }, { 0x6d, 0xa4 }, { 0x6e, 0x13 }, { 0x6f, 0xa7 },
+        { 0xa6, 0x11 }, { 0xa7, 0xff }, { 0xa8, 0x19 }, { 0xa9, 0x05 },
     };
     s_gpo->push_back(gpo);
 
@@ -393,10 +411,8 @@ void genesys_init_gpo_tables()
     gpo = Genesys_Gpo();
     gpo.id = GpioId::PLUSTEK_OPTICBOOK_3800;
     gpo.regs = {
-        { 0x6c, 0x41 },
-        { 0x6d, 0xa4 },
-        { 0x6e, 0x13 },
-        { 0x6f, 0xa7 },
+        { 0x6b, 0x30 }, { 0x6c, 0x01 }, { 0x6d, 0x80 }, { 0x6e, 0x2d }, { 0x6f, 0x80 },
+        { 0xa6, 0x0c }, { 0xa7, 0x8f }, { 0xa8, 0x08 }, { 0xa9, 0x04 },
     };
     s_gpo->push_back(gpo);
 

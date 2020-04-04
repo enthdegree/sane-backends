@@ -227,8 +227,12 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev)
         << "    initial_regs: " << format_indent_braced_list(4, dev.initial_regs) << '\n'
         << "    settings: " << format_indent_braced_list(4, dev.settings) << '\n'
         << "    frontend: " << format_indent_braced_list(4, dev.frontend) << '\n'
-        << "    frontend_initial: " << format_indent_braced_list(4, dev.frontend_initial) << '\n'
-        << "    gpo.regs: " << format_indent_braced_list(4, dev.gpo.regs) << '\n'
+        << "    frontend_initial: " << format_indent_braced_list(4, dev.frontend_initial) << '\n';
+    if (!dev.memory_layout.regs.empty()) {
+        out << "    memory_layout.regs: "
+            << format_indent_braced_list(4, dev.memory_layout.regs) << '\n';
+    }
+    out << "    gpo.regs: " << format_indent_braced_list(4, dev.gpo.regs) << '\n'
         << "    motor: " << format_indent_braced_list(4, dev.motor) << '\n'
         << "    control[0..6]: " << std::hex
         << static_cast<unsigned>(dev.control[0]) << ' '
@@ -270,6 +274,15 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev)
         << "    img_buffer.size(): " << dev.img_buffer.size() << '\n'
         << '}';
     return out;
+}
+
+void apply_reg_settings_to_device_write_only(Genesys_Device& dev,
+                                             const GenesysRegisterSettingSet& regs)
+{
+    GenesysRegisterSettingSet backup;
+    for (const auto& reg : regs) {
+        dev.interface->write_register(reg.address, reg.value);
+    }
 }
 
 void apply_reg_settings_to_device(Genesys_Device& dev, const GenesysRegisterSettingSet& regs)

@@ -65,6 +65,7 @@ EXTRA_DIST += saned.conf.in
 BACKEND_CONFS= abaton.conf agfafocus.conf apple.conf artec.conf \
 	       artec_eplus48u.conf avision.conf bh.conf \
 	       canon630u.conf canon.conf canon_dr.conf \
+               canon_lide70.conf \
 	       canon_pp.conf cardscan.conf coolscan2.conf coolscan3.conf \
 	       coolscan.conf dc210.conf dc240.conf dc25.conf \
 	       dell1600n_net.conf dmc.conf epjitsu.conf epson2.conf \
@@ -157,6 +158,7 @@ be_convenience_libs = libabaton.la libagfafocus.la \
     libapple.la libartec.la libartec_eplus48u.la \
     libas6e.la libavision.la libbh.la \
     libcanon.la libcanon630u.la libcanon_dr.la \
+    libcanon_lide70.la \
     libcanon_pp.la libcardscan.la libcoolscan.la \
     libcoolscan2.la libcoolscan3.la libdc25.la \
     libdc210.la libdc240.la libdell1600n_net.la \
@@ -190,6 +192,7 @@ be_dlopen_libs = libsane-abaton.la libsane-agfafocus.la \
     libsane-apple.la libsane-artec.la libsane-artec_eplus48u.la \
     libsane-as6e.la libsane-avision.la libsane-bh.la \
     libsane-canon.la libsane-canon630u.la libsane-canon_dr.la \
+    libsane-canon_lide70.la \
     libsane-canon_pp.la libsane-cardscan.la libsane-coolscan.la \
     libsane-coolscan2.la libsane-coolscan3.la libsane-dc25.la \
     libsane-dc210.la libsane-dc240.la libsane-dell1600n_net.la \
@@ -343,6 +346,17 @@ libsane_canon_dr_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=canon_dr
 libsane_canon_dr_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_canon_dr_la_LIBADD = $(COMMON_LIBS) libcanon_dr.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo ../sanei/sanei_config2.lo sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_scsi.lo ../sanei/sanei_magic.lo $(MATH_LIB) $(SCSI_LIBS) $(USB_LIBS) $(RESMGR_LIBS)
 EXTRA_DIST += canon_dr.conf.in
+
+libcanon_lide70_la_SOURCES = canon_lide70.c
+libcanon_lide70_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=canon_lide70
+
+nodist_libsane_canon_lide70_la_SOURCES = canon_lide70-s.c
+libsane_canon_lide70_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=canon_lide70
+libsane_canon_lide70_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
+libsane_canon_lide70_la_LIBADD = $(COMMON_LIBS) libcanon_lide70.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo  $(MATH_LIB) $(USB_LIBS) $(RESMGR_LIBS)
+EXTRA_DIST += canon_lide70.conf.in
+# TODO: Why are this distributed but not compiled?
+EXTRA_DIST += canon_lide70-common.c
 
 libcanon_pp_la_SOURCES = canon_pp.c canon_pp.h canon_pp-io.c canon_pp-io.h canon_pp-dev.c canon_pp-dev.h
 libcanon_pp_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=canon_pp

@@ -395,13 +395,6 @@
 :status :unsupported
 :comment "Not supported. However, a stand-alone program for FreeBSD is available."
 
-:model "CanoScan LiDE 70"
-:url "http://www.juergen-ernst.de/info_sane.html"
-:interface "USB"
-:usbid "0x04a9" "0x2225"
-:status :unsupported
-:comment "Philips chip. Backend started, see link"
-
 :model "CanoScan LiDE 90"
 :url "unsupported/canon-lide-90.html"
 :interface "USB"

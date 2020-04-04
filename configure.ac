@@ -665,7 +665,7 @@ AC_ARG_ENABLE(local-backends,
                  [turn off compilation of all backends but net]))
 
 ALL_BACKENDS="abaton agfafocus apple artec artec_eplus48u as6e \
-        avision bh canon canon630u canon_dr canon_pp cardscan \
+        avision bh canon canon630u canon_dr canon_lide70 canon_pp cardscan \
         coolscan coolscan2 coolscan3 dc25 dc210 dc240 \
         dell1600n_net dmc epjitsu epson epson2 epsonds escl fujitsu \
         genesys gphoto2 gt68xx hp hp3500 hp3900 hp4200 hp5400 \

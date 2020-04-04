@@ -1,0 +1,105 @@
+.TH sane\-canon_lide70 5 "26 Nov 2019"  "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.IX sane\-canon_lide70
+.SH NAME
+sane\-canon_lide70 \- SANE backend for the Canon LiDE 70 USB flatbed scanner
+.SH DESCRIPTION
+The
+.B canon_lide70
+library implements a SANE (Scanner Access Now Easy) backend that
+provides access to the Canon Inc. CanoScan LiDE 70 flatbed scanner.
+.PP
+Due to Canon's unwillingness to provide scanner documentation, this
+software was developed by analyzing the USB traffic of the Windows
+XP driver. The precise meaning of the individual commands that are sent
+to the scanner is known only to a very limited extent. Some sophistication
+present in the Windows XP driver has been left out. There is, for example,
+no active calibration.
+.PP
+TESTERS ARE WELCOME. Send your bug reports and comments to
+the sane\-devel mailing list <sane\-devel@alioth-lists.debian.net>
+.PP
+The
+.B Canoscan LiDE 600
+(or 600f, with film unit) is closely related to the LiDE 70, but
+it probably will not work with this backend. The framework of this canon_lide70
+backend could likely be used to develop a backend for the LiDE 600 without too
+much difficulty.
+.PP
+.SH CONFIGURATION
+The
+.I @CONFIGDIR@/canon_lide70.conf
+file identifies the LiDE 70 by its vendor code 0x04a9 and its
+product code 0x2225. For the LiDE 600(f) the product code would be 0x2224.
+.PP
+.SH BACKEND SPECIFIC OPTIONS
+.PP
+.B Scan Mode:
+.TP
+\-\-resolution 75|150|300|600|1200 [default 600]
+.BR
+Sets the resolution of the scanned image in dots per inch. Scanning at 1200 dpi is very slow.
+.TP
+\-\-mode Color|Gray|Lineart [default: Color]
+.BR
+Selects the scan mode. Lineart means fully black and fully white pixels only.
+.TP
+\-\-threshold 0..100 (in steps of 1) [default 75]
+.BR
+Select minimum-brightness percentage to get a white point, relevant only for Lineart
+.TP
+\-\-non-blocking[=(yes|no)] [inactive]
+.BR
+This option has not yet been implemented. Scans are captured in a temporary file with a typical size of 100MB.
+.PP
+.B Geometry:
+.TP
+\-l 0..216.069 [default 0]
+        Top-left x position of scan area in millimeters.
+.TP
+\-t 0..297 [default 0]
+        Top-left y position of scan area in millimeters.
+.TP
+\-x 0..216.069 [default 80]
+        Width of scan-area in millimeters.
+.TP
+\-y 0..297 [default 100]
+        Height of scan-area in millimeters.
+.PP
+.SH FILES
+.TP
+.I @CONFIGDIR@/canon_lide70.conf
+The backend configuration file
+.TP
+.I @LIBDIR@/libsane\-canon_lide70.a
+The static library implementing this backend.
+.TP
+.I @LIBDIR@/libsane\-canon_lide70.so
+The shared library implementing this backend (present on systems that
+support dynamic loading).
+.SH ENVIRONMENT
+.TP
+.B SANE_DEBUG_CANON_LIDE70
+If the library was compiled with debug support enabled, this
+environment variable controls the debug level for this backend.  Higher
+debug levels increase the verbosity of the output.
+
+Example:
+.br
+SANE_DEBUG_CANON_LIDE70=128 scanimage > /dev/null
+.SH KNOWN PROBLEMS
+At low resolutions (75 and 150 dpi, implying high slider speeds)
+the scanner misses the top one millimeter of the scan area. This can
+be remedied by shifting the document one millimeter downward, in cases
+where such precision matters. Note that xsane uses the 75 dpi mode for
+prescans.
+.PP
+It is recommended that in xsane the gamma value be set to approximately 2.0
+to get more realistic colors. This also wipes out some artifacts caused by
+the lack of real calibration.
+.SH "SEE ALSO"
+sane(7), sane\-usb(5), sane\-find\-scanner(1), scanimage(1)
+.br
+http://www.juergen-ernst.de/info_sane.html
+.br
+.SH AUTHOR
+pimvantend, building upon pioneering work by Juergen Ernst.

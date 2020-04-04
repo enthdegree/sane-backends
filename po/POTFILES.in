@@ -20,6 +20,7 @@ backend/canon-sane.c
 backend/canon.c
 backend/canon630u.c
 backend/canon_dr.c
+backend/canon_lide70.c
 backend/epjitsu.c
 backend/epson.c
 backend/epson.h

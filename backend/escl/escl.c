@@ -688,11 +688,6 @@ sane_open(SANE_String_Const name, SANE_Handle *h)
         return status;
     }
 
-    status = escl_status(device);
-    if (status != SANE_STATUS_GOOD) {
-        escl_free_device(device);
-        return (status);
-    }
     handler = (escl_sane_t *)calloc(1, sizeof(escl_sane_t));
     if (handler == NULL) {
         escl_free_device(device);
@@ -704,7 +699,7 @@ sane_open(SANE_String_Const name, SANE_Handle *h)
         escl_free_handler(handler);
         return (status);
     }
-    status = init_options(device, handler);
+    status = init_options(NULL, handler);
     if (status != SANE_STATUS_GOOD) {
         escl_free_handler(handler);
         return (status);
@@ -952,7 +947,7 @@ sane_start(SANE_Handle h)
           DBG (10, "Default Color allocation failure.\n");
           return (SANE_STATUS_NO_MEM);
        }
-       handler->result = escl_newjob(handler->scanner, handler->name, &status);
+       handler->result = escl_newjob(handler->scanner, handler->device, &status);
        if (status != SANE_STATUS_GOOD)
           return (status);
     }
@@ -1076,7 +1071,7 @@ sane_read(SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *len)
         free(handler->scanner->img_data);
         handler->scanner->img_data = NULL;
         if (handler->scanner->source != PLATEN) {
-          SANE_Status st = escl_status(handler->name, handler->scanner->source);
+          SANE_Status st = escl_status(handler->device, handler->scanner->source);
           DBG(10, "eSCL : command returned status %s\n", sane_strstatus(st));
           SANE_Bool next_page =
                 (SANE_STATUS_GOOD == st ?

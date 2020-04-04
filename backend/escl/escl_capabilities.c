@@ -185,41 +185,50 @@ find_valor_of_array_variables(xmlNode *node, capabilities_t *scanner, int type)
     if (strcmp(name, "ColorMode") == 0) {
 		const char *color = (SANE_String_Const)xmlNodeGetContent(node);
 		if (type == PLATEN || strcmp(color, "BlackAndWhite1"))
-          scanner->caps[type].ColorModes = char_to_array(scanner->caps[type].ColorModes, &scanner->caps[type].ColorModesSize, (SANE_String_Const)xmlNodeGetContent(node), 1);
+          scanner->caps[type].ColorModes = char_to_array(
+                            scanner->caps[type].ColorModes,
+                            &scanner->caps[type].ColorModesSize,
+                            (SANE_String_Const)xmlNodeGetContent(node), 1);
 	}
     else if (strcmp(name, "ContentType") == 0)
-        scanner->caps[type].ContentTypes = char_to_array(scanner->caps[type].ContentTypes, &scanner->caps[type].ContentTypesSize, (SANE_String_Const)xmlNodeGetContent(node), 0);
+        scanner->caps[type].ContentTypes = char_to_array(
+                           scanner->caps[type].ContentTypes,
+                           &scanner->caps[type].ContentTypesSize,
+                           (SANE_String_Const)xmlNodeGetContent(node), 0);
     else if (strcmp(name, "DocumentFormat") == 0)
      {
         int i = 0;
 	int _is_jpeg = 0, _is_png = 0, _is_tiff = 0, _is_pdf = 0;
-        scanner->DocumentFormats = char_to_array(scanner->DocumentFormats, &scanner->DocumentFormatsSize, (SANE_String_Const)xmlNodeGetContent(node), 0);
-        for(; i < scanner->DocumentFormatsSize; i++)
+        scanner->caps[type].DocumentFormats = char_to_array(
+                           scanner->caps[type].DocumentFormats,
+                           &scanner->caps[type].DocumentFormatsSize,
+                           (SANE_String_Const)xmlNodeGetContent(node), 0);
+        for(; i < scanner->caps[type].DocumentFormatsSize; i++)
          {
-            if (!strcmp(scanner->DocumentFormats[i], "image/jpeg"))
+            if (!strcmp(scanner->caps[type].DocumentFormats[i], "image/jpeg"))
 	      _is_jpeg = 1;
 #if(defined HAVE_LIBPNG)
-            else if(!strcmp(scanner->DocumentFormats[i], "image/png"))
+            else if(!strcmp(scanner->caps[type].DocumentFormats[i], "image/png"))
 	      _is_png = 1;
 #endif
 #if(defined HAVE_TIFFIO_H)
-            else if(!strcmp(scanner->DocumentFormats[i], "image/tiff"))
+            else if(!strcmp(scanner->caps[type].DocumentFormats[i], "image/tiff"))
 	      _is_tiff = 1;
 #endif
 #if(defined HAVE_POPPLER_GLIB)
-            else if(!strcmp(scanner->DocumentFormats[i], "application/pdf"))
+            else if(!strcmp(scanner->caps[type].DocumentFormats[i], "application/pdf"))
 	      _is_pdf = 1;
 #endif
          }
 	 if (_is_pdf)
-            scanner->default_format = strdup("application/pdf");
+            scanner->caps[type].default_format = strdup("application/pdf");
 	 else if (_is_tiff)
-            scanner->default_format = strdup("image/tiff");
+            scanner->caps[type].default_format = strdup("image/tiff");
 	 else if (_is_png)
-            scanner->default_format = strdup("image/png");
+            scanner->caps[type].default_format = strdup("image/png");
 	 else if(_is_jpeg)
-            scanner->default_format = strdup("image/jpeg");
-         fprintf(stderr, "Capability : [%s]\n", scanner->default_format);
+            scanner->caps[type].default_format = strdup("image/jpeg");
+         fprintf(stderr, "Capability : [%s]\n", scanner->caps[type].default_format);
      }
     else if (strcmp(name, "DocumentFormatExt") == 0)
         scanner->caps[type].format_ext = 1;
@@ -427,7 +436,7 @@ escl_capabilities(const ESCL_Device *device, SANE_Status *status)
     scanner->source = 0;
     print_xml_c(node, scanner, -1);
     _reduce_color_modes(scanner);
-    
+
     xmlFreeDoc(data);
     xmlCleanupParser();
     xmlMemoryDump();

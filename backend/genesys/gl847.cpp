@@ -56,18 +56,10 @@ namespace gl847 {
 /**
  * compute the step multiplier used
  */
-static int
-gl847_get_step_multiplier (Genesys_Register_Set * regs)
+static unsigned gl847_get_step_multiplier (Genesys_Register_Set * regs)
 {
-    GenesysRegister *r = sanei_genesys_get_address(regs, 0x9d);
-    int value = 1;
-    if (r != nullptr)
-    {
-      value = (r->value & 0x0f)>>1;
-      value = 1 << value;
-    }
-  DBG (DBG_io, "%s: step multiplier is %d\n", __func__, value);
-  return value;
+    unsigned value = (regs->get8(0x9d) & 0x0f) >> 1;
+    return 1 << value;
 }
 
 /** @brief sensor specific settings
@@ -526,7 +518,6 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
                                          const ScanSession& session)
 {
     DBG_HELPER_ARGS(dbg, "exposure_time=%d", exposure_time);
-  GenesysRegister *r;
 
     gl847_setup_sensor(dev, sensor, reg);
 
@@ -534,63 +525,58 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
   /* enable shading */
     regs_set_optical_off(dev->model->asic_type, *reg);
-    r = sanei_genesys_get_address(reg, REG_0x01);
-    r->value |= REG_0x01_SHDAREA;
+    reg->find_reg(REG_0x01).value |= REG_0x01_SHDAREA;
 
     if (has_flag(session.params.flags, ScanFlag::DISABLE_SHADING) ||
         has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION))
     {
-        r->value &= ~REG_0x01_DVDSET;
+        reg->find_reg(REG_0x01).value &= ~REG_0x01_DVDSET;
     }
   else
     {
-        r->value |= REG_0x01_DVDSET;
+        reg->find_reg(REG_0x01).value |= REG_0x01_DVDSET;
     }
 
-  r = sanei_genesys_get_address (reg, REG_0x03);
-  r->value &= ~REG_0x03_AVEENB;
+    reg->find_reg(REG_0x03).value &= ~REG_0x03_AVEENB;
 
     sanei_genesys_set_lamp_power(dev, sensor, *reg,
                                  !has_flag(session.params.flags, ScanFlag::DISABLE_LAMP));
 
-  /* BW threshold */
-    r = sanei_genesys_get_address (reg, 0x2e);
-  r->value = dev->settings.threshold;
-    r = sanei_genesys_get_address (reg, 0x2f);
-  r->value = dev->settings.threshold;
+    // BW threshold
+    reg->set8(0x2e, dev->settings.threshold);
+    reg->set8(0x2f, dev->settings.threshold);
 
   /* monochrome / color scan */
-    r = sanei_genesys_get_address (reg, REG_0x04);
     switch (session.params.depth) {
     case 8:
-            r->value &= ~(REG_0x04_LINEART | REG_0x04_BITSET);
+            reg->find_reg(REG_0x04).value &= ~(REG_0x04_LINEART | REG_0x04_BITSET);
       break;
     case 16:
-            r->value &= ~REG_0x04_LINEART;
-            r->value |= REG_0x04_BITSET;
+            reg->find_reg(REG_0x04).value &= ~REG_0x04_LINEART;
+            reg->find_reg(REG_0x04).value |= REG_0x04_BITSET;
       break;
     }
 
-    r->value &= ~(REG_0x04_FILTER | REG_0x04_AFEMOD);
+    reg->find_reg(REG_0x04).value &= ~(REG_0x04_FILTER | REG_0x04_AFEMOD);
   if (session.params.channels == 1)
     {
       switch (session.params.color_filter)
 	{
 
            case ColorFilter::RED:
-               r->value |= 0x14;
+               reg->find_reg(REG_0x04).value |= 0x14;
                break;
            case ColorFilter::BLUE:
-               r->value |= 0x1c;
+               reg->find_reg(REG_0x04).value |= 0x1c;
                break;
            case ColorFilter::GREEN:
-               r->value |= 0x18;
+               reg->find_reg(REG_0x04).value |= 0x18;
                break;
            default:
                break; // should not happen
 	}
     } else {
-        r->value |= 0x10; // mono
+        reg->find_reg(REG_0x04).value |= 0x10; // mono
     }
 
     const auto& dpihw_sensor = sanei_genesys_find_sensor(dev, session.output_resolution,
@@ -607,16 +593,15 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   /* CIS scanners can do true gray by setting LEDADD */
   /* we set up LEDADD only when asked */
     if (dev->model->is_cis) {
-        r = sanei_genesys_get_address (reg, 0x87);
-        r->value &= ~REG_0x87_LEDADD;
+        reg->find_reg(0x87).value &= ~REG_0x87_LEDADD;
+
         if (session.enable_ledadd) {
-            r->value |= REG_0x87_LEDADD;
+            reg->find_reg(0x87).value |= REG_0x87_LEDADD;
         }
       /* RGB weighting
-        r = sanei_genesys_get_address (reg, 0x01);
-        r->value &= ~REG_0x01_TRUEGRAY;
+        reg->find_reg(0x01).value &= ~REG_0x01_TRUEGRAY;
         if (session.enable_ledadd) {
-            r->value |= REG_0x01_TRUEGRAY;
+            reg->find_reg(0x01).value |= REG_0x01_TRUEGRAY;
         }
         */
     }
@@ -634,8 +619,7 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     reg->set16(REG_LPERIOD, exposure_time);
   DBG(DBG_io2, "%s: exposure_time used=%d\n", __func__, exposure_time);
 
-  r = sanei_genesys_get_address (reg, 0x34);
-  r->value = sensor.dummy_pixel;
+    reg->set8(0x34, sensor.dummy_pixel);
 }
 
 void CommandSetGl847::init_regs_for_scan_session(Genesys_Device* dev, const Genesys_Sensor& sensor,
@@ -773,7 +757,6 @@ void CommandSetGl847::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
     DBG_HELPER(dbg);
     (void) sensor;
   uint8_t val;
-  GenesysRegister *r;
 
     // clear GPIO 10
     if (dev->model->gpio_id != GpioId::CANON_LIDE_700F) {
@@ -790,8 +773,7 @@ void CommandSetGl847::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
     val = dev->interface->read_register(REG_0x01);
     val |= REG_0x01_SCAN;
     dev->interface->write_register(REG_0x01, val);
-    r = sanei_genesys_get_address (reg, REG_0x01);
-  r->value = val;
+    reg->set8(REG_0x01, val);
 
     scanner_start_action(*dev, start_motor);
 

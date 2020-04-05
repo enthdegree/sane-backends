@@ -59,24 +59,11 @@ namespace gl843 {
  */
 static int gl843_get_step_multiplier(Genesys_Register_Set* regs)
 {
-    GenesysRegister *r = sanei_genesys_get_address(regs, REG_0x9D);
-    int value = 1;
-  if (r != nullptr)
-    {
-      switch (r->value & 0x0c)
-	{
-	case 0x04:
-	  value = 2;
-	  break;
-	case 0x08:
-	  value = 4;
-	  break;
-	default:
-	  value = 1;
-	}
+    switch (regs->get8(REG_0x9D) & 0x0c) {
+        case 0x04: return 2;
+        case 0x08: return 4;
+        default: return 1;
     }
-  DBG(DBG_io, "%s: step multiplier is %d\n", __func__, value);
-  return value;
 }
 
 /** copy sensor specific settings */
@@ -951,7 +938,6 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 {
     DBG_HELPER_ARGS(dbg, "exposure=%d", exposure);
   unsigned int tgtime;          /**> exposure time multiplier */
-  GenesysRegister *r;
 
   /* tgtime */
   tgtime = exposure / 65536 + 1;
@@ -964,14 +950,14 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
   /* enable shading */
     regs_set_optical_off(dev->model->asic_type, *reg);
-    r = sanei_genesys_get_address (reg, REG_0x01);
     if (has_flag(session.params.flags, ScanFlag::DISABLE_SHADING) ||
         has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION) ||
         session.use_host_side_calib)
     {
-        r->value &= ~REG_0x01_DVDSET;
+        reg->find_reg(REG_0x01).value &= ~REG_0x01_DVDSET;
+
     } else {
-        r->value |= REG_0x01_DVDSET;
+        reg->find_reg(REG_0x01).value |= REG_0x01_DVDSET;
     }
 
     bool use_shdarea = false;
@@ -990,16 +976,15 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     }
 
     if (use_shdarea) {
-        r->value |= REG_0x01_SHDAREA;
+        reg->find_reg(REG_0x01).value |= REG_0x01_SHDAREA;
     } else {
-        r->value &= ~REG_0x01_SHDAREA;
+        reg->find_reg(REG_0x01).value &= ~REG_0x01_SHDAREA;
     }
 
-    r = sanei_genesys_get_address (reg, REG_0x03);
     if (dev->model->model_id == ModelId::CANON_8600F) {
-        r->value |= REG_0x03_AVEENB;
+        reg->find_reg(REG_0x03).value |= REG_0x03_AVEENB;
     } else {
-        r->value &= ~REG_0x03_AVEENB;
+        reg->find_reg(REG_0x03).value &= ~REG_0x03_AVEENB;
   }
 
     // FIXME: we probably don't need to set exposure to registers at this point. It was this way
@@ -1008,43 +993,40 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
                                  !has_flag(session.params.flags, ScanFlag::DISABLE_LAMP));
 
   /* select XPA */
-    r->value &= ~REG_0x03_XPASEL;
+    reg->find_reg(REG_0x03).value &= ~REG_0x03_XPASEL;
     if (has_flag(session.params.flags, ScanFlag::USE_XPA)) {
-        r->value |= REG_0x03_XPASEL;
+        reg->find_reg(REG_0x03).value |= REG_0x03_XPASEL;
     }
     reg->state.is_xpa_on = has_flag(session.params.flags, ScanFlag::USE_XPA);
 
-  /* BW threshold */
-    r = sanei_genesys_get_address(reg, REG_0x2E);
-  r->value = dev->settings.threshold;
-    r = sanei_genesys_get_address(reg, REG_0x2F);
-  r->value = dev->settings.threshold;
+    // BW threshold
+    reg->set8(REG_0x2E, dev->settings.threshold);
+    reg->set8(REG_0x2F, dev->settings.threshold);
 
   /* monochrome / color scan */
-    r = sanei_genesys_get_address(reg, REG_0x04);
     switch (session.params.depth) {
     case 8:
-            r->value &= ~(REG_0x04_LINEART | REG_0x04_BITSET);
+            reg->find_reg(REG_0x04).value &= ~(REG_0x04_LINEART | REG_0x04_BITSET);
       break;
     case 16:
-            r->value &= ~REG_0x04_LINEART;
-            r->value |= REG_0x04_BITSET;
+            reg->find_reg(REG_0x04).value &= ~REG_0x04_LINEART;
+            reg->find_reg(REG_0x04).value |= REG_0x04_BITSET;
       break;
     }
 
-    r->value &= ~(REG_0x04_FILTER | REG_0x04_AFEMOD);
+    reg->find_reg(REG_0x04).value &= ~(REG_0x04_FILTER | REG_0x04_AFEMOD);
   if (session.params.channels == 1)
     {
       switch (session.params.color_filter)
 	{
             case ColorFilter::RED:
-                r->value |= 0x14;
+                reg->find_reg(REG_0x04).value |= 0x14;
                 break;
             case ColorFilter::BLUE:
-                r->value |= 0x1c;
+                reg->find_reg(REG_0x04).value |= 0x1c;
                 break;
             case ColorFilter::GREEN:
-                r->value |= 0x18;
+                reg->find_reg(REG_0x04).value |= 0x18;
                 break;
             default:
                 break; // should not happen
@@ -1052,10 +1034,10 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     } else {
         switch (dev->frontend.layout.type) {
             case FrontendType::WOLFSON:
-                r->value |= 0x10; // pixel by pixel
+                reg->find_reg(REG_0x04).value |= 0x10; // pixel by pixel
                 break;
             case FrontendType::ANALOG_DEVICES:
-                r->value |= 0x20; // slow color pixel by pixel
+                reg->find_reg(REG_0x04).value |= 0x20; // slow color pixel by pixel
                 break;
             default:
                 throw SaneException("Invalid frontend type %d",
@@ -1087,8 +1069,7 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     reg->set16(REG_LPERIOD, exposure / tgtime);
   DBG(DBG_io2, "%s: exposure used=%d\n", __func__, exposure/tgtime);
 
-  r = sanei_genesys_get_address (reg, REG_DUMMY);
-  r->value = sensor.dummy_pixel;
+    reg->set8(REG_DUMMY, sensor.dummy_pixel);
 }
 
 void CommandSetGl843::init_regs_for_scan_session(Genesys_Device* dev, const Genesys_Sensor& sensor,
@@ -1868,7 +1849,7 @@ void CommandSetGl843::asic_boot(Genesys_Device* dev, bool cold) const
     val = dev->reg.find_reg(0x0b).value & REG_0x0B_DRAMSEL;
     val = (val | REG_0x0B_ENBDRAM);
     dev->interface->write_register(REG_0x0B, val);
-  dev->reg.find_reg(0x0b).value = val;
+    dev->reg.find_reg(0x0b).value = val;
 
     if (dev->model->model_id == ModelId::CANON_8400F) {
         dev->interface->write_0x8c(0x1e, 0x01);
@@ -1905,7 +1886,7 @@ void CommandSetGl843::asic_boot(Genesys_Device* dev, bool cold) const
     val = (dev->reg.find_reg(0x0b).value & ~REG_0x0B_CLKSET) | clock_freq;
 
     dev->interface->write_register(REG_0x0B, val);
-  dev->reg.find_reg(0x0b).value = val;
+    dev->reg.find_reg(0x0b).value = val;
 
   /* prevent further writings by bulk write register */
   dev->reg.remove_reg(0x0b);
@@ -1991,14 +1972,11 @@ void CommandSetGl843::send_shading_data(Genesys_Device* dev, const Genesys_Senso
   uint32_t final_size, length, i;
   uint8_t *buffer;
   int count,offset;
-  GenesysRegister *r;
     uint16_t strpixel, endpixel, startx;
 
   offset=0;
   length=size;
-    r = sanei_genesys_get_address(&dev->reg, REG_0x01);
-    if (r->value & REG_0x01_SHDAREA)
-    {
+    if (dev->reg.get8(REG_0x01) & REG_0x01_SHDAREA) {
       /* recompute STRPIXEL used shading calibration so we can
        * compute offset within data for SHDAREA case */
 

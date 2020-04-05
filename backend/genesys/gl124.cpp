@@ -690,7 +690,6 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
                                          const ScanSession& session)
 {
     DBG_HELPER_ARGS(dbg, "exposure_time=%d", exposure_time);
-  GenesysRegister *r;
   uint32_t expmax;
 
     gl124_setup_sensor(dev, sensor, reg);
@@ -699,23 +698,21 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
   /* enable shading */
     regs_set_optical_off(dev->model->asic_type, *reg);
-    r = sanei_genesys_get_address (reg, REG_0x01);
     if (has_flag(session.params.flags, ScanFlag::DISABLE_SHADING) ||
         has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION))
     {
-        r->value &= ~REG_0x01_DVDSET;
+        reg->find_reg(REG_0x01).value &= ~REG_0x01_DVDSET;
     } else {
-        r->value |= REG_0x01_DVDSET;
+        reg->find_reg(REG_0x01).value |= REG_0x01_DVDSET;
     }
 
-    r = sanei_genesys_get_address(reg, REG_0x03);
     if ((dev->model->sensor_id != SensorId::CIS_CANON_LIDE_120) && (session.params.xres>=600)) {
-        r->value &= ~REG_0x03_AVEENB;
+        reg->find_reg(REG_0x03).value &= ~REG_0x03_AVEENB;
       DBG (DBG_io, "%s: disabling AVEENB\n", __func__);
     }
   else
     {
-        r->value |= ~REG_0x03_AVEENB;
+        reg->find_reg(REG_0x03).value |= ~REG_0x03_AVEENB;
       DBG (DBG_io, "%s: enabling AVEENB\n", __func__);
     }
 
@@ -727,30 +724,29 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     dev->interface->write_register(REG_0x115, dev->settings.threshold);
 
   /* monochrome / color scan */
-    r = sanei_genesys_get_address (reg, REG_0x04);
     switch (session.params.depth) {
     case 8:
-            r->value &= ~(REG_0x04_LINEART | REG_0x04_BITSET);
+            reg->find_reg(REG_0x04).value &= ~(REG_0x04_LINEART | REG_0x04_BITSET);
             break;
     case 16:
-            r->value &= ~REG_0x04_LINEART;
-            r->value |= REG_0x04_BITSET;
+            reg->find_reg(REG_0x04).value &= ~REG_0x04_LINEART;
+            reg->find_reg(REG_0x04).value |= REG_0x04_BITSET;
             break;
     }
 
-    r->value &= ~REG_0x04_FILTER;
+    reg->find_reg(REG_0x04).value &= ~REG_0x04_FILTER;
   if (session.params.channels == 1)
     {
       switch (session.params.color_filter)
 	{
             case ColorFilter::RED:
-                r->value |= 0x10;
+                reg->find_reg(REG_0x04).value |= 0x10;
                 break;
             case ColorFilter::BLUE:
-                r->value |= 0x30;
+                reg->find_reg(REG_0x04).value |= 0x30;
                 break;
             case ColorFilter::GREEN:
-                r->value |= 0x20;
+                reg->find_reg(REG_0x04).value |= 0x20;
                 break;
             default:
                 break; // should not happen
@@ -770,16 +766,14 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
     reg->set16(REG_DPISET, sensor.register_dpiset);
 
-    r = sanei_genesys_get_address(reg, REG_0x06);
-    r->value |= REG_0x06_GAIN4;
+    reg->find_reg(REG_0x06).value |= REG_0x06_GAIN4;
 
   /* CIS scanners can do true gray by setting LEDADD */
   /* we set up LEDADD only when asked */
     if (dev->model->is_cis) {
-        r = sanei_genesys_get_address (reg, REG_0x60);
-        r->value &= ~REG_0x60_LEDADD;
+        reg->find_reg(REG_0x60).value &= ~REG_0x60_LEDADD;
         if (session.enable_ledadd) {
-            r->value |= REG_0x60_LEDADD;
+            reg->find_reg(REG_0x60).value |= REG_0x60_LEDADD;
             expmax = reg->get24(REG_EXPR);
             expmax = std::max(expmax, reg->get24(REG_EXPG));
             expmax = std::max(expmax, reg->get24(REG_EXPB));
@@ -789,10 +783,9 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
             dev->reg.set24(REG_EXPB, expmax);
         }
       /* RGB weighting, REG_TRUER,G and B are to be set  */
-        r = sanei_genesys_get_address (reg, 0x01);
-        r->value &= ~REG_0x01_TRUEGRAY;
+        reg->find_reg(0x01).value &= ~REG_0x01_TRUEGRAY;
         if (session.enable_ledadd) {
-            r->value |= REG_0x01_TRUEGRAY;
+            reg->find_reg(0x01).value |= REG_0x01_TRUEGRAY;
             dev->interface->write_register(REG_TRUER, 0x80);
             dev->interface->write_register(REG_TRUEG, 0x80);
             dev->interface->write_register(REG_TRUEB, 0x80);
@@ -939,17 +932,15 @@ void CommandSetGl124::save_power(Genesys_Device* dev, bool enable) const
 void CommandSetGl124::set_powersaving(Genesys_Device* dev, int delay /* in minutes */) const
 {
     DBG_HELPER_ARGS(dbg,  "delay = %d",  delay);
-  GenesysRegister *r;
 
-    r = sanei_genesys_get_address(&dev->reg, REG_0x03);
-  r->value &= ~0xf0;
+    dev->reg.find_reg(REG_0x03).value &= ~0xf0;
   if(delay<15)
     {
-      r->value |= delay;
+        dev->reg.find_reg(REG_0x03).value |= delay;
     }
   else
     {
-      r->value |= 0x0f;
+        dev->reg.find_reg(REG_0x03).value |= 0x0f;
     }
 }
 

@@ -3428,8 +3428,6 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
     unsigned seconds = 0;
-  double first_average = 0;
-  double second_average = 0;
 
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
 
@@ -3462,18 +3460,18 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
         sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size);
         dev->cmd_set->end_scan(dev, &dev->reg, true);
 
-      /* compute difference between the two scans */
+        // compute difference between the two scans
+        double first_average = 0;
+        double second_average = 0;
         for (unsigned pixel = 0; pixel < total_size; pixel++) {
             // 16 bit data
             if (dev->session.params.depth == 16) {
-	      first_average += (first_line[pixel] + first_line[pixel + 1] * 256);
-	      second_average += (second_line[pixel] + second_line[pixel + 1] * 256);
-	      pixel++;
-	    }
-	  else
-	    {
-	      first_average += first_line[pixel];
-	      second_average += second_line[pixel];
+                first_average += (first_line[pixel] + first_line[pixel + 1] * 256);
+                second_average += (second_line[pixel] + second_line[pixel + 1] * 256);
+                pixel++;
+            } else {
+                first_average += first_line[pixel];
+                second_average += second_line[pixel];
             }
         }
 

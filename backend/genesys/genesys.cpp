@@ -3445,9 +3445,11 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
   std::vector<uint8_t> first_line(total_size);
   std::vector<uint8_t> second_line(total_size);
 
-  do
-    {
-      DBG(DBG_info, "%s: one more loop\n", __func__);
+    do {
+        DBG(DBG_info, "%s: one more loop\n", __func__);
+
+        first_line = second_line;
+
         dev->cmd_set->begin_scan(dev, sensor, &dev->reg, false);
 
         if (is_testing_mode()) {
@@ -3455,22 +3457,6 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
             dev->cmd_set->end_scan(dev, &dev->reg, true);
             return;
         }
-
-        wait_until_buffer_non_empty(dev);
-
-        try {
-            sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size);
-        } catch (...) {
-            // FIXME: document why this retry is here
-            sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size);
-        }
-
-        dev->cmd_set->end_scan(dev, &dev->reg, true);
-
-        dev->interface->sleep_ms(1000);
-      seconds++;
-
-        dev->cmd_set->begin_scan(dev, sensor, &dev->reg, false);
 
         wait_until_buffer_non_empty(dev);
 

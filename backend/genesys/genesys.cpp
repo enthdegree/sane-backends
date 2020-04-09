@@ -3428,17 +3428,19 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
     unsigned seconds = 0;
-  int pixel;
-  int channels, total_size;
   double first_average = 0;
   double second_average = 0;
   int difference = 255;
-    int lines = 3;
 
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
 
-    dev->cmd_set->init_regs_for_warmup(dev, sensor, &dev->reg, &channels, &total_size);
+    dev->cmd_set->init_regs_for_warmup(dev, sensor, &dev->reg);
     dev->interface->write_registers(dev->reg);
+
+    auto total_pixels =  dev->session.output_pixels;
+    auto total_size = dev->session.output_line_bytes;
+    auto channels = dev->session.params.channels;
+    auto lines = dev->session.output_line_count;
 
   std::vector<uint8_t> first_line(total_size);
   std::vector<uint8_t> second_line(total_size);
@@ -3476,8 +3478,7 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
         dev->cmd_set->end_scan(dev, &dev->reg, true);
 
       /* compute difference between the two scans */
-      for (pixel = 0; pixel < total_size; pixel++)
-	{
+        for (unsigned pixel = 0; pixel < total_size; pixel++) {
             // 16 bit data
             if (dev->session.params.depth == 16) {
 	      first_average += (first_line[pixel] + first_line[pixel + 1] * 256);
@@ -3488,11 +3489,13 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
 	    {
 	      first_average += first_line[pixel];
 	      second_average += second_line[pixel];
-	    }
-	}
+            }
+        }
+
+        first_average /= total_pixels;
+        second_average /= total_pixels;
+
         if (dev->session.params.depth == 16) {
-	  first_average /= pixel;
-	  second_average /= pixel;
             difference = static_cast<int>(std::fabs(first_average - second_average));
 	  DBG(DBG_info, "%s: average = %.2f, diff = %.3f\n", __func__,
 	      100 * ((second_average) / (256 * 256)),
@@ -3501,11 +3504,8 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
 	  if (second_average > (100 * 256)
 	      && (difference / second_average) < 0.002)
 	    break;
-	}
-      else
-	{
-	  first_average /= pixel;
-	  second_average /= pixel;
+        } else {
+
 	  if (DBG_LEVEL >= DBG_data)
 	    {
               sanei_genesys_write_pnm_file("gl_warmup1.pnm", first_line.data(), 8, channels,
@@ -3519,7 +3519,7 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
 	  if (fabs (first_average - second_average) < 15
 	      && second_average > 55)
 	    break;
-	}
+        }
 
       /* sleep another second before next loop */
         dev->interface->sleep_ms(1000);

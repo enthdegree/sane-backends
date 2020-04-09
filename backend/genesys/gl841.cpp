@@ -2834,8 +2834,7 @@ void CommandSetGl841::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 // wait for lamp warmup by scanning the same line until difference
 // between 2 scans is below a threshold
 void CommandSetGl841::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                           Genesys_Register_Set* local_reg, int* channels,
-                                           int* total_size) const
+                                           Genesys_Register_Set* local_reg) const
 {
     DBG_HELPER(dbg);
     int num_pixels = 4 * 300;
@@ -2857,13 +2856,9 @@ void CommandSetGl841::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     session.params.pixels = num_pixels;
     session.params.lines = 1;
     session.params.depth = 16;
-    session.params.channels = *channels;
+    session.params.channels = 3;
     session.params.scan_method = dev->settings.scan_method;
-    if (*channels == 3) {
-        session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-    } else {
-        session.params.scan_mode = ScanColorMode::GRAY;
-    }
+    session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = dev->settings.color_filter;
     session.params.flags = ScanFlag::DISABLE_SHADING |
                            ScanFlag::DISABLE_GAMMA |
@@ -2873,10 +2868,6 @@ void CommandSetGl841::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     compute_session(dev, session, sensor);
 
     init_regs_for_scan_session(dev, sensor, local_reg, session);
-
-    num_pixels = session.output_pixels;
-
-  *total_size = num_pixels * 3 * 2 * 1;	/* colors * bytes_per_color * scan lines */
 }
 
 /*

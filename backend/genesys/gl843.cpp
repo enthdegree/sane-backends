@@ -1757,20 +1757,18 @@ void CommandSetGl843::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 // wait for lamp warmup by scanning the same line until difference
 // between 2 scans is below a threshold
 void CommandSetGl843::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                           Genesys_Register_Set* reg, int* channels,
-                                           int* total_size) const
+                                           Genesys_Register_Set* reg) const
 {
     DBG_HELPER(dbg);
     (void) sensor;
 
-    *channels=3;
+    unsigned channels = 3;
     unsigned resolution = dev->model->get_resolution_settings(dev->settings.scan_method)
                                      .get_nearest_resolution_x(600);
 
-  const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, *channels,
+  const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                        dev->settings.scan_method);
     unsigned num_pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH / 2;
-  *total_size = num_pixels * 3 * 1;
 
   *reg = dev->reg;
 
@@ -1782,7 +1780,7 @@ void CommandSetGl843::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     session.params.pixels = num_pixels;
     session.params.lines = 1;
     session.params.depth = 8;
-    session.params.channels = *channels;
+    session.params.channels = channels;
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = dev->settings.color_filter;

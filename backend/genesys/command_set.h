@@ -67,8 +67,7 @@ public:
     virtual void init(Genesys_Device* dev) const = 0;
 
     virtual void init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                      Genesys_Register_Set* regs, int* channels,
-                                      int* total_size) const = 0;
+                                      Genesys_Register_Set* regs) const = 0;
 
     virtual void init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                        Genesys_Register_Set& regs) const = 0;

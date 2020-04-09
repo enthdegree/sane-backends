@@ -49,7 +49,9 @@
 
 namespace genesys {
 
-TestScannerInterface::TestScannerInterface(Genesys_Device* dev) : dev_{dev}
+TestScannerInterface::TestScannerInterface(Genesys_Device* dev) :
+    dev_{dev},
+    usb_dev_{get_testing_vendor_id(), get_testing_product_id(), get_testing_bcd_device()}
 {
     // initialize status registers
     if (dev_->model->asic_type == AsicType::GL124) {

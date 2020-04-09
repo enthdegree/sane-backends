@@ -51,8 +51,6 @@ namespace genesys {
 class TestUsbDevice : public IUsbDevice {
 public:
     TestUsbDevice(std::uint16_t vendor, std::uint16_t product, std::uint16_t bcd_device);
-    TestUsbDevice() = default;
-
     ~TestUsbDevice() override;
 
     bool is_open() const override { return is_open_; }

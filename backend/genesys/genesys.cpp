@@ -3492,19 +3492,21 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
 	    break;
         } else {
 
-	  if (DBG_LEVEL >= DBG_data)
-	    {
-              sanei_genesys_write_pnm_file("gl_warmup1.pnm", first_line.data(), 8, channels,
-                                           total_size / (lines * channels), lines);
-              sanei_genesys_write_pnm_file("gl_warmup2.pnm", second_line.data(), 8, channels,
-                                           total_size / (lines * channels), lines);
-	    }
 	  DBG(DBG_info, "%s: average 1 = %.2f, average 2 = %.2f\n", __func__, first_average,
 	      second_average);
           /* if delta below 15/255 ~= 5.8%, lamp is considred warm enough */
 	  if (fabs (first_average - second_average) < 15
 	      && second_average > 55)
 	    break;
+        }
+
+        if (DBG_LEVEL >= DBG_data) {
+            sanei_genesys_write_pnm_file("gl_warmup1.pnm", first_line.data(),
+                                         dev->session.params.depth, channels,
+                                         total_size / (lines * channels), lines);
+            sanei_genesys_write_pnm_file("gl_warmup2.pnm", second_line.data(),
+                                         dev->session.params.depth, channels,
+                                         total_size / (lines * channels), lines);
         }
 
       /* sleep another second before next loop */

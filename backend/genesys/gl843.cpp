@@ -1911,8 +1911,6 @@ void CommandSetGl843::asic_boot(Genesys_Device* dev, bool cold) const
 
     // setup gpio
     gl843_init_gpio(dev);
-
-    scanner_move(*dev, dev->model->default_method, 300, Direction::FORWARD);
     dev->interface->sleep_ms(100);
 }
 

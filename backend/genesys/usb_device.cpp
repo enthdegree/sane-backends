@@ -101,11 +101,24 @@ void UsbDevice::close()
     sanei_usb_close(device_num);
 }
 
-void UsbDevice::get_vendor_product(int& vendor, int& product)
+std::uint16_t UsbDevice::get_vendor_id()
 {
     DBG_HELPER(dbg);
     assert_is_open();
+    int vendor = 0;
+    int product = 0;
     TIE(sanei_usb_get_vendor_product(device_num_, &vendor, &product));
+    return static_cast<std::uint16_t>(vendor);
+}
+
+std::uint16_t UsbDevice::get_product_id()
+{
+    DBG_HELPER(dbg);
+    assert_is_open();
+    int vendor = 0;
+    int product = 0;
+    TIE(sanei_usb_get_vendor_product(device_num_, &vendor, &product));
+    return static_cast<std::uint16_t>(product);
 }
 
 std::uint16_t UsbDevice::get_bcd_device()

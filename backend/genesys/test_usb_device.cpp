@@ -96,12 +96,18 @@ void TestUsbDevice::close()
     name_ = "";
 }
 
-void TestUsbDevice::get_vendor_product(int& vendor, int& product)
+std::uint16_t TestUsbDevice::get_vendor_id()
 {
     DBG_HELPER(dbg);
     assert_is_open();
-    vendor = vendor_;
-    product = product_;
+    return vendor_;
+}
+
+std::uint16_t TestUsbDevice::get_product_id()
+{
+    DBG_HELPER(dbg);
+    assert_is_open();
+    return product_;
 }
 
 std::uint16_t TestUsbDevice::get_bcd_device()

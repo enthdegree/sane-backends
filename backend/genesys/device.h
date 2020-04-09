@@ -265,8 +265,8 @@ struct Genesys_Device
     // frees commonly used data
     void clear();
 
-    SANE_Word vendorId = 0;			/**< USB vendor identifier */
-    SANE_Word productId = 0;			/**< USB product identifier */
+    std::uint16_t vendorId = 0; // USB vendor identifier
+    std::uint16_t productId = 0; // USB product identifier
 
     // USB mode:
     // 0: not set

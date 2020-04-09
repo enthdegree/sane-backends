@@ -3529,7 +3529,7 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
 
   /* wait for lamp warmup : until a warmup for TRANSPARENCY is designed, skip
    * it when scanning from XPA. */
-    if (!has_flag(dev->model->flags, ModelFlag::SKIP_WARMUP) &&
+    if (has_flag(dev->model->flags, ModelFlag::WARMUP) &&
         (dev->settings.scan_method == ScanMethod::FLATBED))
     {
         genesys_warmup_lamp(dev);

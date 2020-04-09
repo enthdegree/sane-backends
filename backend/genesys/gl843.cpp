@@ -1772,6 +1772,17 @@ void CommandSetGl843::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
 
   *reg = dev->reg;
 
+    auto flags = ScanFlag::DISABLE_SHADING |
+                 ScanFlag::DISABLE_GAMMA |
+                 ScanFlag::SINGLE_LINE |
+                 ScanFlag::IGNORE_STAGGER_OFFSET |
+                 ScanFlag::IGNORE_COLOR_OFFSET;
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
+        dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+    {
+        flags |= ScanFlag::USE_XPA;
+    }
+
     ScanSession session;
     session.params.xres = resolution;
     session.params.yres = resolution;
@@ -1784,11 +1795,8 @@ void CommandSetGl843::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = dev->settings.color_filter;
-    session.params.flags =  ScanFlag::DISABLE_SHADING |
-                            ScanFlag::DISABLE_GAMMA |
-                            ScanFlag::SINGLE_LINE |
-                            ScanFlag::IGNORE_STAGGER_OFFSET |
-                            ScanFlag::IGNORE_COLOR_OFFSET;
+    session.params.flags = flags;
+
     compute_session(dev, session, calib_sensor);
 
     init_regs_for_scan_session(dev, calib_sensor, reg, session);

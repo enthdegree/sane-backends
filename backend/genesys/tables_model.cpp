@@ -296,7 +296,8 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::G4050;
     model.gpio_id = GpioId::G4050;
     model.motor_id = MotorId::G4050;
-    model.flags = ModelFlag::SHADING_REPARK |
+    model.flags = ModelFlag::WARMUP |
+                  ModelFlag::SHADING_REPARK |
                   ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;
     model.search_lines = 100;
@@ -345,7 +346,8 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::G4050;
     model.gpio_id = GpioId::G4050;
     model.motor_id = MotorId::G4050;
-    model.flags = ModelFlag::DARK_CALIBRATION |
+    model.flags = ModelFlag::WARMUP |
+                  ModelFlag::DARK_CALIBRATION |
                   ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;
     model.search_lines = 100;
@@ -396,7 +398,8 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::G4050;
     model.gpio_id = GpioId::G4050;
     model.motor_id = MotorId::G4050;
-    model.flags = ModelFlag::DARK_CALIBRATION |
+    model.flags = ModelFlag::WARMUP |
+                  ModelFlag::DARK_CALIBRATION |
                   ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;
     model.search_lines = 100;
@@ -460,7 +463,8 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::CANON_4400F;
     model.gpio_id = GpioId::CANON_4400F;
     model.motor_id = MotorId::CANON_4400F;
-    model.flags = ModelFlag::DARK_CALIBRATION |
+    model.flags = ModelFlag::WARMUP |
+                  ModelFlag::DARK_CALIBRATION |
                   ModelFlag::CUSTOM_GAMMA |
                   ModelFlag::SHADING_REPARK |
                   ModelFlag::UTA_NO_SECONDARY_MOTOR;
@@ -531,7 +535,8 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::CANON_8400F;
     model.gpio_id = GpioId::CANON_8400F;
     model.motor_id = MotorId::CANON_8400F;
-    model.flags = ModelFlag::DARK_CALIBRATION |
+    model.flags = ModelFlag::WARMUP |
+                  ModelFlag::DARK_CALIBRATION |
                   ModelFlag::CUSTOM_GAMMA |
                   ModelFlag::SHADING_REPARK;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;
@@ -596,7 +601,8 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::CANON_8600F;
     model.gpio_id = GpioId::CANON_8600F;
     model.motor_id = MotorId::CANON_8600F;
-    model.flags = ModelFlag::DARK_CALIBRATION |
+    model.flags = ModelFlag::WARMUP |
+                  ModelFlag::DARK_CALIBRATION |
                   ModelFlag::CUSTOM_GAMMA |
                   ModelFlag::SHADING_REPARK;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_FILE_SW | GENESYS_HAS_COPY_SW;
@@ -2299,7 +2305,8 @@ void genesys_init_usb_device_tables()
     model.gpio_id = GpioId::PLUSTEK_OPTICFILM_7200I;
     model.motor_id = MotorId::PLUSTEK_OPTICFILM_7200I;
 
-    model.flags = ModelFlag::CUSTOM_GAMMA |
+    model.flags = ModelFlag::WARMUP |
+                  ModelFlag::CUSTOM_GAMMA |
                   ModelFlag::DARK_CALIBRATION |
                   ModelFlag::SHADING_REPARK |
                   ModelFlag::INVERTED_16BIT_DATA;
@@ -2377,7 +2384,8 @@ void genesys_init_usb_device_tables()
     model.gpio_id = GpioId::PLUSTEK_OPTICFILM_7300;
     model.motor_id = MotorId::PLUSTEK_OPTICFILM_7300;
 
-    model.flags = ModelFlag::CUSTOM_GAMMA |
+    model.flags = ModelFlag::WARMUP |
+                  ModelFlag::CUSTOM_GAMMA |
                   ModelFlag::DARK_CALIBRATION |
                   ModelFlag::SHADING_REPARK;
 
@@ -2517,7 +2525,8 @@ void genesys_init_usb_device_tables()
     model.gpio_id = GpioId::PLUSTEK_OPTICFILM_7500I;
     model.motor_id = MotorId::PLUSTEK_OPTICFILM_7500I;
 
-    model.flags = ModelFlag::CUSTOM_GAMMA |
+    model.flags = ModelFlag::WARMUP |
+                  ModelFlag::CUSTOM_GAMMA |
                   ModelFlag::DARK_CALIBRATION |
                   ModelFlag::SHADING_REPARK;
 

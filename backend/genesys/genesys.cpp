@@ -4845,25 +4845,24 @@ static Genesys_Device* attach_device_by_name(SANE_String_Const devname, bool may
     usb_dev.open(devname);
     DBG(DBG_info, "%s: device `%s' successfully opened\n", __func__, devname);
 
-    int vendor, product;
-    usb_dev.get_vendor_product(vendor, product);
+    auto vendor_id = usb_dev.get_vendor_id();
+    auto product_id = usb_dev.get_product_id();
     usb_dev.close();
 
   /* KV-SS080 is an auxiliary device which requires a master device to be here */
-  if(vendor == 0x04da && product == 0x100f)
-    {
+    if (vendor_id == 0x04da && product_id == 0x100f) {
         present = false;
-      sanei_usb_find_devices (vendor, 0x1006, check_present);
-      sanei_usb_find_devices (vendor, 0x1007, check_present);
-      sanei_usb_find_devices (vendor, 0x1010, check_present);
+        sanei_usb_find_devices(vendor_id, 0x1006, check_present);
+        sanei_usb_find_devices(vendor_id, 0x1007, check_present);
+        sanei_usb_find_devices(vendor_id, 0x1010, check_present);
         if (present == false) {
             throw SaneException("master device not present");
         }
     }
 
-    Genesys_Device* dev = attach_usb_device(devname, vendor, product);
+    Genesys_Device* dev = attach_usb_device(devname, vendor_id, product_id);
 
-    DBG(DBG_info, "%s: found %u flatbed scanner %u at %s\n", __func__, vendor, product,
+    DBG(DBG_info, "%s: found %u flatbed scanner %u at %s\n", __func__, vendor_id, product_id,
         dev->file_name.c_str());
 
     return dev;

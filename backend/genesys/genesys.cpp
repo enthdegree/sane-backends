@@ -4802,8 +4802,9 @@ const UsbDeviceEntry& get_matching_usb_dev(std::uint16_t vendor_id, std::uint16_
         }
     }
 
-    throw SaneException("vendor 0x%x product 0x%x is not supported by this backend",
-                        vendor_id, product_id);
+    throw SaneException("vendor 0x%x product 0x%x (bcdDevice 0x%x) "
+                        "is not supported by this backend",
+                        vendor_id, product_id, bcd_device);
 }
 
 static Genesys_Device* attach_usb_device(const char* devname,

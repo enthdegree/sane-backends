@@ -196,8 +196,11 @@ public:
             return false;
         if (product_ != product_id)
             return false;
-        if (bcd_device_ != BCD_DEVICE_NOT_SET && bcd_device_ != bcd_device)
+        if (bcd_device_ != BCD_DEVICE_NOT_SET && bcd_device != BCD_DEVICE_NOT_SET &&
+            bcd_device_ != bcd_device)
+        {
             return false;
+        }
         return true;
     }
 

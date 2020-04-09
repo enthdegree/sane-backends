@@ -1415,7 +1415,7 @@ std::uint8_t compute_frontend_gain(float value, float target_value,
  * @param dev device to initialize
  * @param max_regs umber of maximum used registers
  */
-void sanei_genesys_asic_init(Genesys_Device* dev, bool /*max_regs*/)
+void sanei_genesys_asic_init(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
 

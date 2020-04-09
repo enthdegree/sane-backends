@@ -4141,7 +4141,7 @@ static std::string calibration_filename(Genesys_Device *currdev)
   /* count models of the same names if several scanners attached */
     if(s_devices->size() > 1) {
         for (const auto& dev : *s_devices) {
-            if (dev.model->model_id == currdev->model->model_id) {
+            if (dev.vendorId == currdev->vendorId && dev.productId == currdev->productId) {
                 count++;
             }
         }
@@ -4793,31 +4793,31 @@ check_present (SANE_String_Const devname) noexcept
   return SANE_STATUS_GOOD;
 }
 
-static Genesys_Device* attach_usb_device(const char* devname,
-                                         std::uint16_t vendor_id, std::uint16_t product_id,
-                                         std::uint16_t bcd_device)
+const UsbDeviceEntry& get_matching_usb_dev(std::uint16_t vendor_id, std::uint16_t product_id,
+                                           std::uint16_t bcd_device)
 {
-    UsbDeviceEntry* found_usb_dev = nullptr;
     for (auto& usb_dev : *s_usb_devices) {
-        if (usb_dev.matches(vendor_id, product_id, bcd_device))
-        {
-            found_usb_dev = &usb_dev;
-            break;
+        if (usb_dev.matches(vendor_id, product_id, bcd_device)) {
+            return usb_dev;
         }
     }
 
-    if (found_usb_dev == nullptr) {
-        throw SaneException("vendor 0x%x product 0x%x is not supported by this backend",
-                            vendor_id, product_id);
-    }
+    throw SaneException("vendor 0x%x product 0x%x is not supported by this backend",
+                        vendor_id, product_id);
+}
+
+static Genesys_Device* attach_usb_device(const char* devname,
+                                         std::uint16_t vendor_id, std::uint16_t product_id)
+{
+    // verify that there's at least one entry for this vendor and product ids. We will check
+    // bcdDevice in open().
+    get_matching_usb_dev(vendor_id, product_id, UsbDeviceEntry::BCD_DEVICE_NOT_SET);
 
     s_devices->emplace_back();
     Genesys_Device* dev = &s_devices->back();
     dev->file_name = devname;
-
-    dev->model = &found_usb_dev->model();
-    dev->vendorId = found_usb_dev->vendor_id();
-    dev->productId = found_usb_dev->product_id();
+    dev->vendorId = vendor_id;
+    dev->productId = product_id;
     dev->usb_mode = 0; // i.e. unset
     dev->already_initialized = false;
     return dev;
@@ -4847,8 +4847,6 @@ static Genesys_Device* attach_device_by_name(SANE_String_Const devname, bool may
 
     int vendor, product;
     usb_dev.get_vendor_product(vendor, product);
-
-    auto bcd_device = usb_dev.get_bcd_device();
     usb_dev.close();
 
   /* KV-SS080 is an auxiliary device which requires a master device to be here */
@@ -4863,10 +4861,10 @@ static Genesys_Device* attach_device_by_name(SANE_String_Const devname, bool may
         }
     }
 
-    Genesys_Device* dev = attach_usb_device(devname, vendor, product, bcd_device);
+    Genesys_Device* dev = attach_usb_device(devname, vendor, product);
 
-    DBG(DBG_info, "%s: found %s flatbed scanner %s at %s\n", __func__, dev->model->vendor,
-        dev->model->model, dev->file_name.c_str());
+    DBG(DBG_info, "%s: found %u flatbed scanner %u at %s\n", __func__, vendor, product,
+        dev->file_name.c_str());
 
     return dev;
 }
@@ -4901,8 +4899,7 @@ static void probe_genesys_devices()
     DBG_HELPER(dbg);
     if (is_testing_mode()) {
         attach_usb_device(get_testing_device_name().c_str(),
-                          get_testing_vendor_id(), get_testing_product_id(),
-                          get_testing_bcd_device());
+                          get_testing_vendor_id(), get_testing_product_id());
         return;
     }
 
@@ -5257,7 +5254,7 @@ static void sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
         }
 
         if (dev) {
-            DBG(DBG_info, "%s: found `%s' in devlist\n", __func__, dev->model->name);
+            DBG(DBG_info, "%s: found `%s' in devlist\n", __func__, dev->file_name.c_str());
         } else if (is_testing_mode()) {
             DBG(DBG_info, "%s: couldn't find `%s' in devlist, not attaching", __func__, devicename);
         } else {
@@ -5279,15 +5276,6 @@ static void sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
         throw SaneException("could not find the device to open: %s", devicename);
     }
 
-    if (has_flag(dev->model->flags, ModelFlag::UNTESTED)) {
-      DBG(DBG_error0, "WARNING: Your scanner is not fully supported or at least \n");
-      DBG(DBG_error0, "         had only limited testing. Please be careful and \n");
-      DBG(DBG_error0, "         report any failure/success to \n");
-      DBG(DBG_error0, "         sane-devel@alioth-lists.debian.net. Please provide as many\n");
-      DBG(DBG_error0, "         details as possible, e.g. the exact name of your\n");
-      DBG(DBG_error0, "         scanner and what does (not) work.\n");
-    }
-
     dbg.vstatus("open device '%s'", dev->file_name.c_str());
 
     if (is_testing_mode()) {
@@ -5299,6 +5287,22 @@ static void sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
     }
     dev->interface->get_usb_device().open(dev->file_name.c_str());
     dbg.clear();
+
+    auto bcd_device = dev->interface->get_usb_device().get_bcd_device();
+    const auto& usb_dev = get_matching_usb_dev(dev->vendorId, dev->productId, bcd_device);
+
+    dev->model = &usb_dev.model();
+
+    dbg.vlog(DBG_info, "Opened device %s", dev->model->name);
+
+    if (has_flag(dev->model->flags, ModelFlag::UNTESTED)) {
+        DBG(DBG_error0, "WARNING: Your scanner is not fully supported or at least \n");
+        DBG(DBG_error0, "         had only limited testing. Please be careful and \n");
+        DBG(DBG_error0, "         report any failure/success to \n");
+        DBG(DBG_error0, "         sane-devel@alioth-lists.debian.net. Please provide as many\n");
+        DBG(DBG_error0, "         details as possible, e.g. the exact name of your\n");
+        DBG(DBG_error0, "         scanner and what does (not) work.\n");
+    }
 
   s_scanners->push_back(Genesys_Scanner());
   auto* s = &s_scanners->back();

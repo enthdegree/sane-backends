@@ -3430,7 +3430,6 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
     unsigned seconds = 0;
   double first_average = 0;
   double second_average = 0;
-  int difference = 255;
 
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
 
@@ -3481,25 +3480,6 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
         first_average /= total_pixels;
         second_average /= total_pixels;
 
-        if (dev->session.params.depth == 16) {
-            difference = static_cast<int>(std::fabs(first_average - second_average));
-	  DBG(DBG_info, "%s: average = %.2f, diff = %.3f\n", __func__,
-	      100 * ((second_average) / (256 * 256)),
-	      100 * (difference / second_average));
-
-	  if (second_average > (100 * 256)
-	      && (difference / second_average) < 0.002)
-	    break;
-        } else {
-
-	  DBG(DBG_info, "%s: average 1 = %.2f, average 2 = %.2f\n", __func__, first_average,
-	      second_average);
-          /* if delta below 15/255 ~= 5.8%, lamp is considred warm enough */
-	  if (fabs (first_average - second_average) < 15
-	      && second_average > 55)
-	    break;
-        }
-
         if (DBG_LEVEL >= DBG_data) {
             sanei_genesys_write_pnm_file("gl_warmup1.pnm", first_line.data(),
                                          dev->session.params.depth, channels,
@@ -3509,7 +3489,15 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
                                          total_size / (lines * channels), lines);
         }
 
-      /* sleep another second before next loop */
+        DBG(DBG_info, "%s: average 1 = %.2f, average 2 = %.2f\n", __func__, first_average,
+            second_average);
+
+        if (second_average > 0 &&
+            std::fabs(first_average - second_average) / second_average < 0.005)
+        {
+            break;
+        }
+
         dev->interface->sleep_ms(1000);
         seconds++;
     } while (seconds < WARMUP_TIME);

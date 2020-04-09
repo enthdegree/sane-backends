@@ -474,8 +474,8 @@ enum class ModelFlag : unsigned
     // use 14-bit gamma table instead of 12-bit
     GAMMA_14BIT = 1 << 1,
 
-    // skip lamp warmup (genesys_warmup())
-    SKIP_WARMUP = 1 << 4,
+    // perform lamp warmup
+    WARMUP = 1 << 4,
 
     // repark head and check for lock by moving without scanning
     REPARK = 1 << 7,

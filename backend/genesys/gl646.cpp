@@ -2458,14 +2458,12 @@ void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys
  *
  */
 void CommandSetGl646::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                           Genesys_Register_Set* local_reg, int* channels,
-                                           int* total_size) const
+                                           Genesys_Register_Set* local_reg) const
 {
     DBG_HELPER(dbg);
     (void) sensor;
 
   Genesys_Settings settings;
-  int lines;
 
   dev->frontend = dev->frontend_initial;
 
@@ -2483,7 +2481,7 @@ void CommandSetGl646::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     settings.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
     settings.requested_pixels = settings.pixels;
   settings.lines = 2;
-  settings.depth = 8;
+    settings.depth = dev->model->bpp_gray_values.front();
   settings.color_filter = ColorFilter::RED;
 
   settings.disable_interpolation = 0;
@@ -2503,11 +2501,6 @@ void CommandSetGl646::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
 
   /* turn off motor during this scan */
   sanei_genesys_set_motor_power(*local_reg, false);
-
-  /* returned value to higher level warmup function */
-  *channels = 1;
-    lines = local_reg->get24(REG_LINCNT) + 1;
-  *total_size = lines * settings.pixels;
 
     // now registers are ok, write them to scanner
     gl646_set_fe(dev, local_sensor, AFE_SET, settings.xres);

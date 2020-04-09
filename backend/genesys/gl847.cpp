@@ -1288,14 +1288,11 @@ bool CommandSetGl847::needs_home_before_init_regs_for_scan(Genesys_Device* dev) 
 }
 
 void CommandSetGl847::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                           Genesys_Register_Set* regs, int* channels,
-                                           int* total_size) const
+                                           Genesys_Register_Set* regs) const
 {
     (void) dev;
     (void) sensor;
     (void) regs;
-    (void) channels;
-    (void) total_size;
     throw SaneException("not implemented");
 }
 

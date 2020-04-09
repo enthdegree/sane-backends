@@ -1418,15 +1418,22 @@ void CommandSetGl124::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 // wait for lamp warmup by scanning the same line until difference
 // between 2 scans is below a threshold
 void CommandSetGl124::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                           Genesys_Register_Set* reg, int* channels,
-                                           int* total_size) const
+                                           Genesys_Register_Set* reg) const
 {
     DBG_HELPER(dbg);
-  int num_pixels;
-
-  *channels=3;
 
   *reg = dev->reg;
+
+    auto flags = ScanFlag::DISABLE_SHADING |
+                 ScanFlag::DISABLE_GAMMA |
+                 ScanFlag::SINGLE_LINE |
+                 ScanFlag::IGNORE_STAGGER_OFFSET |
+                 ScanFlag::IGNORE_COLOR_OFFSET;
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
+        dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+    {
+        flags |= ScanFlag::USE_XPA;
+    }
 
     ScanSession session;
     session.params.xres = sensor.optical_res;
@@ -1435,23 +1442,16 @@ void CommandSetGl124::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     session.params.starty = 0;
     session.params.pixels = dev->model->x_size_calib_mm * sensor.optical_res / MM_PER_INCH / 2;
     session.params.lines = 1;
-    session.params.depth = 8;
-    session.params.channels = *channels;
+    session.params.depth = dev->model->bpp_color_values.front();
+    session.params.channels = 3;
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = dev->settings.color_filter;
-    session.params.flags = ScanFlag::DISABLE_SHADING |
-                           ScanFlag::DISABLE_GAMMA |
-                           ScanFlag::SINGLE_LINE |
-                           ScanFlag::IGNORE_STAGGER_OFFSET |
-                           ScanFlag::IGNORE_COLOR_OFFSET;
+    session.params.flags = flags;
+
     compute_session(dev, session, sensor);
 
     init_regs_for_scan_session(dev, sensor, reg, session);
-
-    num_pixels = session.output_pixels;
-
-  *total_size = num_pixels * 3 * 1;        /* colors * bytes_per_color * scan lines */
 
   sanei_genesys_set_motor_power(*reg, false);
 }

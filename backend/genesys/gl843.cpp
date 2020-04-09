@@ -1757,22 +1757,31 @@ void CommandSetGl843::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 // wait for lamp warmup by scanning the same line until difference
 // between 2 scans is below a threshold
 void CommandSetGl843::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                           Genesys_Register_Set* reg, int* channels,
-                                           int* total_size) const
+                                           Genesys_Register_Set* reg) const
 {
     DBG_HELPER(dbg);
     (void) sensor;
 
-    *channels=3;
+    unsigned channels = 3;
     unsigned resolution = dev->model->get_resolution_settings(dev->settings.scan_method)
                                      .get_nearest_resolution_x(600);
 
-  const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, *channels,
+  const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                        dev->settings.scan_method);
     unsigned num_pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH / 2;
-  *total_size = num_pixels * 3 * 1;
 
   *reg = dev->reg;
+
+    auto flags = ScanFlag::DISABLE_SHADING |
+                 ScanFlag::DISABLE_GAMMA |
+                 ScanFlag::SINGLE_LINE |
+                 ScanFlag::IGNORE_STAGGER_OFFSET |
+                 ScanFlag::IGNORE_COLOR_OFFSET;
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
+        dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+    {
+        flags |= ScanFlag::USE_XPA;
+    }
 
     ScanSession session;
     session.params.xres = resolution;
@@ -1781,16 +1790,13 @@ void CommandSetGl843::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     session.params.starty = 0;
     session.params.pixels = num_pixels;
     session.params.lines = 1;
-    session.params.depth = 8;
-    session.params.channels = *channels;
+    session.params.depth = dev->model->bpp_color_values.front();
+    session.params.channels = channels;
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = dev->settings.color_filter;
-    session.params.flags =  ScanFlag::DISABLE_SHADING |
-                            ScanFlag::DISABLE_GAMMA |
-                            ScanFlag::SINGLE_LINE |
-                            ScanFlag::IGNORE_STAGGER_OFFSET |
-                            ScanFlag::IGNORE_COLOR_OFFSET;
+    session.params.flags = flags;
+
     compute_session(dev, session, calib_sensor);
 
     init_regs_for_scan_session(dev, calib_sensor, reg, session);

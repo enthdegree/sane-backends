@@ -3428,24 +3428,25 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
     unsigned seconds = 0;
-  int pixel;
-  int channels, total_size;
-  double first_average = 0;
-  double second_average = 0;
-  int difference = 255;
-    int lines = 3;
 
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
 
-    dev->cmd_set->init_regs_for_warmup(dev, sensor, &dev->reg, &channels, &total_size);
+    dev->cmd_set->init_regs_for_warmup(dev, sensor, &dev->reg);
     dev->interface->write_registers(dev->reg);
+
+    auto total_pixels =  dev->session.output_pixels;
+    auto total_size = dev->session.output_line_bytes;
+    auto channels = dev->session.params.channels;
+    auto lines = dev->session.output_line_count;
 
   std::vector<uint8_t> first_line(total_size);
   std::vector<uint8_t> second_line(total_size);
 
-  do
-    {
-      DBG(DBG_info, "%s: one more loop\n", __func__);
+    do {
+        DBG(DBG_info, "%s: one more loop\n", __func__);
+
+        first_line = second_line;
+
         dev->cmd_set->begin_scan(dev, sensor, &dev->reg, false);
 
         if (is_testing_mode()) {
@@ -3456,72 +3457,45 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
 
         wait_until_buffer_non_empty(dev);
 
-        try {
-            sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size);
-        } catch (...) {
-            // FIXME: document why this retry is here
-            sanei_genesys_read_data_from_scanner(dev, first_line.data(), total_size);
-        }
-
-        dev->cmd_set->end_scan(dev, &dev->reg, true);
-
-        dev->interface->sleep_ms(1000);
-      seconds++;
-
-        dev->cmd_set->begin_scan(dev, sensor, &dev->reg, false);
-
-        wait_until_buffer_non_empty(dev);
-
         sanei_genesys_read_data_from_scanner(dev, second_line.data(), total_size);
         dev->cmd_set->end_scan(dev, &dev->reg, true);
 
-      /* compute difference between the two scans */
-      for (pixel = 0; pixel < total_size; pixel++)
-	{
+        // compute difference between the two scans
+        double first_average = 0;
+        double second_average = 0;
+        for (unsigned pixel = 0; pixel < total_size; pixel++) {
             // 16 bit data
             if (dev->session.params.depth == 16) {
-	      first_average += (first_line[pixel] + first_line[pixel + 1] * 256);
-	      second_average += (second_line[pixel] + second_line[pixel + 1] * 256);
-	      pixel++;
-	    }
-	  else
-	    {
-	      first_average += first_line[pixel];
-	      second_average += second_line[pixel];
-	    }
-	}
-        if (dev->session.params.depth == 16) {
-	  first_average /= pixel;
-	  second_average /= pixel;
-            difference = static_cast<int>(std::fabs(first_average - second_average));
-	  DBG(DBG_info, "%s: average = %.2f, diff = %.3f\n", __func__,
-	      100 * ((second_average) / (256 * 256)),
-	      100 * (difference / second_average));
+                first_average += (first_line[pixel] + first_line[pixel + 1] * 256);
+                second_average += (second_line[pixel] + second_line[pixel + 1] * 256);
+                pixel++;
+            } else {
+                first_average += first_line[pixel];
+                second_average += second_line[pixel];
+            }
+        }
 
-	  if (second_average > (100 * 256)
-	      && (difference / second_average) < 0.002)
-	    break;
-	}
-      else
-	{
-	  first_average /= pixel;
-	  second_average /= pixel;
-	  if (DBG_LEVEL >= DBG_data)
-	    {
-              sanei_genesys_write_pnm_file("gl_warmup1.pnm", first_line.data(), 8, channels,
-                                           total_size / (lines * channels), lines);
-              sanei_genesys_write_pnm_file("gl_warmup2.pnm", second_line.data(), 8, channels,
-                                           total_size / (lines * channels), lines);
-	    }
-	  DBG(DBG_info, "%s: average 1 = %.2f, average 2 = %.2f\n", __func__, first_average,
-	      second_average);
-          /* if delta below 15/255 ~= 5.8%, lamp is considred warm enough */
-	  if (fabs (first_average - second_average) < 15
-	      && second_average > 55)
-	    break;
-	}
+        first_average /= total_pixels;
+        second_average /= total_pixels;
 
-      /* sleep another second before next loop */
+        if (DBG_LEVEL >= DBG_data) {
+            sanei_genesys_write_pnm_file("gl_warmup1.pnm", first_line.data(),
+                                         dev->session.params.depth, channels,
+                                         total_size / (lines * channels), lines);
+            sanei_genesys_write_pnm_file("gl_warmup2.pnm", second_line.data(),
+                                         dev->session.params.depth, channels,
+                                         total_size / (lines * channels), lines);
+        }
+
+        DBG(DBG_info, "%s: average 1 = %.2f, average 2 = %.2f\n", __func__, first_average,
+            second_average);
+
+        if (second_average > 0 &&
+            std::fabs(first_average - second_average) / second_average < 0.005)
+        {
+            break;
+        }
+
         dev->interface->sleep_ms(1000);
         seconds++;
     } while (seconds < WARMUP_TIME);
@@ -3555,9 +3529,15 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
 
   /* wait for lamp warmup : until a warmup for TRANSPARENCY is designed, skip
    * it when scanning from XPA. */
-    if (!has_flag(dev->model->flags, ModelFlag::SKIP_WARMUP) &&
-        (dev->settings.scan_method == ScanMethod::FLATBED))
+    if (has_flag(dev->model->flags, ModelFlag::WARMUP) &&
+        (dev->settings.scan_method != ScanMethod::TRANSPARENCY_INFRARED))
     {
+        if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
+            dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+        {
+            dev->cmd_set->move_to_ta(dev);
+        }
+
         genesys_warmup_lamp(dev);
     }
 

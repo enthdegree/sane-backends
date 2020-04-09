@@ -1504,7 +1504,7 @@ void CommandSetGl124::init(Genesys_Device* dev) const
   DBG_INIT ();
     DBG_HELPER(dbg);
 
-    sanei_genesys_asic_init(dev, 0);
+    sanei_genesys_asic_init(dev);
 }
 
 

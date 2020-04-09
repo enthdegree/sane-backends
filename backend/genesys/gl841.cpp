@@ -2887,121 +2887,7 @@ void CommandSetGl841::init(Genesys_Device* dev) const
 {
     DBG_INIT();
     DBG_HELPER(dbg);
-
-    dev->set_head_pos_zero(ScanHeadId::PRIMARY);
-
-  /* Check if the device has already been initialized and powered up */
-  if (dev->already_initialized)
-    {
-        auto status = scanner_read_status(*dev);
-        if (!status.is_replugged) {
-            DBG(DBG_info, "%s: already initialized\n", __func__);
-            return;
-        }
-    }
-
-  dev->dark_average_data.clear();
-  dev->white_average_data.clear();
-
-  dev->settings.color_filter = ColorFilter::RED;
-
-    // ASIC reset
-    dev->interface->write_register(0x0e, 0x01);
-    dev->interface->write_register(0x0e, 0x00);
-
-  /* Set default values for registers */
-  gl841_init_registers (dev);
-
-    // Write initial registers
-    dev->interface->write_registers(dev->reg);
-
-  const auto& sensor = sanei_genesys_find_sensor_any(dev);
-
-    // Set analog frontend
-    dev->cmd_set->set_fe(dev, sensor, AFE_INIT);
-
-    // FIXME: move_back_home modifies dev->initial_regs and requires it to be filled
-    dev->initial_regs = dev->reg;
-
-    // Move home
-    dev->cmd_set->move_back_home(dev, true);
-
-    // Init shading data
-    unsigned sensor_pixels = dev->model->x_size_calib_mm * sensor.optical_res / MM_PER_INCH;
-    sanei_genesys_init_shading_data(dev, sensor, sensor_pixels);
-
-  /* ensure head is correctly parked, and check lock */
-    if (has_flag(dev->model->flags, ModelFlag::REPARK)) {
-        // FIXME: if repark fails, we should print an error message that the scanner is locked and
-        // the user should unlock the lock. We should also rethrow with SANE_STATUS_JAMMED
-        scanner_move(*dev, dev->model->default_method, 232, Direction::FORWARD);
-        dev->cmd_set->move_back_home(dev, true);
-    }
-
-    // send gamma tables
-    dev->cmd_set->send_gamma_table(dev, sensor);
-
-  /* initial calibration reg values */
-    Genesys_Register_Set& regs = dev->initial_regs;
-  regs = dev->reg;
-
-    unsigned resolution = 600;
-    unsigned factor = sensor.optical_res / resolution;
-
-    const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, 3,
-                                                         dev->settings.scan_method);
-
-    unsigned num_pixels = 16 / factor;
-
-    ScanSession session;
-    session.params.xres = resolution;
-    session.params.yres = 300;
-    session.params.startx = 0;
-    session.params.starty = 0;
-    session.params.pixels = num_pixels;
-    session.params.lines = 1;
-    session.params.depth = 16;
-    session.params.channels = 3;
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-    session.params.color_filter = ColorFilter::RED;
-    session.params.flags = ScanFlag::DISABLE_SHADING |
-                           ScanFlag::DISABLE_GAMMA |
-                           ScanFlag::SINGLE_LINE |
-                           ScanFlag::IGNORE_STAGGER_OFFSET |
-                           ScanFlag::IGNORE_COLOR_OFFSET;
-    compute_session(dev, session, calib_sensor);
-
-    init_regs_for_scan_session(dev, calib_sensor, &regs, session);
-
-    dev->interface->write_registers(regs);
-
-    std::vector<uint8_t> line(session.output_line_bytes);
-
-  DBG(DBG_info, "%s: starting dummy data reading\n", __func__);
-    dev->cmd_set->begin_scan(dev, calib_sensor, &regs, true);
-
-  sanei_usb_set_timeout(1000);/* 1 second*/
-
-    if (is_testing_mode()) {
-        dev->interface->test_checkpoint("init");
-    } else {
-        // ignore errors. next read will succeed
-        catch_all_exceptions(__func__, [&]()
-        {
-            sanei_genesys_read_data_from_scanner(dev, line.data(), session.output_line_bytes);
-        });
-    }
-
-  sanei_usb_set_timeout(30 * 1000);/* 30 seconds*/
-
-    end_scan(dev, &regs, true);
-
-  regs = dev->reg;
-
-    // Set powersaving(default = 15 minutes)
-    set_powersaving(dev, 15);
-    dev->already_initialized = true;
+    sanei_genesys_asic_init(dev);
 }
 
 void CommandSetGl841::update_hardware_sensors(Genesys_Scanner* s) const
@@ -3126,9 +3012,23 @@ void CommandSetGl841::move_to_ta(Genesys_Device* dev) const
 
 void CommandSetGl841::asic_boot(Genesys_Device *dev, bool cold) const
 {
-    (void) dev;
-    (void) cold;
-    throw SaneException("not implemented");
+    // reset ASIC in case of cold boot
+    if (cold) {
+        dev->interface->write_register(0x0e, 0x01);
+        dev->interface->write_register(0x0e, 0x00);
+    }
+
+    gl841_init_registers(dev);
+
+    // Write initial registers
+    dev->interface->write_registers(dev->reg);
+
+    // FIXME: 0x0b is not set, but on all other backends we do set it
+    // dev->reg.remove_reg(0x0b);
+
+    // FIXME: we probably don't need this
+    const auto& sensor = sanei_genesys_find_sensor_any(dev);
+    dev->cmd_set->set_fe(dev, sensor, AFE_INIT);
 }
 
 std::unique_ptr<CommandSet> create_gl841_cmd_set()

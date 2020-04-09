@@ -386,7 +386,7 @@ bool get_registers_gain4_bit(AsicType asic_type, const Genesys_Register_Set& reg
 
 extern void sanei_genesys_wait_for_home(Genesys_Device* dev);
 
-extern void sanei_genesys_asic_init(Genesys_Device* dev, bool cold);
+extern void sanei_genesys_asic_init(Genesys_Device* dev);
 
 void scanner_start_action(Genesys_Device& dev, bool start_motor);
 void scanner_stop_action(Genesys_Device& dev);

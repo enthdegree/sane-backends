@@ -1779,7 +1779,7 @@ void CommandSetGl843::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     session.params.starty = 0;
     session.params.pixels = num_pixels;
     session.params.lines = 1;
-    session.params.depth = 8;
+    session.params.depth = dev->model->bpp_color_values.front();
     session.params.channels = channels;
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;

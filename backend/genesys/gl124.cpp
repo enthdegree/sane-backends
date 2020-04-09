@@ -1431,7 +1431,7 @@ void CommandSetGl124::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     session.params.starty = 0;
     session.params.pixels = dev->model->x_size_calib_mm * sensor.optical_res / MM_PER_INCH / 2;
     session.params.lines = 1;
-    session.params.depth = 8;
+    session.params.depth = dev->model->bpp_color_values.front();
     session.params.channels = 3;
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;

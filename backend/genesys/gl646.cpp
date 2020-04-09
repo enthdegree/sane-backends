@@ -2481,7 +2481,7 @@ void CommandSetGl646::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     settings.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
     settings.requested_pixels = settings.pixels;
   settings.lines = 2;
-  settings.depth = 8;
+    settings.depth = dev->model->bpp_gray_values.front();
   settings.color_filter = ColorFilter::RED;
 
   settings.disable_interpolation = 0;

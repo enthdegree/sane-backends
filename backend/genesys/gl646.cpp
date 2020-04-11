@@ -596,8 +596,8 @@ gl646_init_regs (Genesys_Device * dev)
     for (addr = 0x60; addr <= 0x6d; addr++)
         dev->reg.init_reg(addr, 0);
 
-  dev->reg.find_reg(0x01).value = 0x20 /*0x22 */ ;	/* enable shading, CCD, color, 1M */
-  dev->reg.find_reg(0x02).value = 0x30 /*0x38 */ ;	/* auto home, one-table-move, full step */
+    dev->reg.find_reg(0x01).value = 0x20 /*0x22 */ ;	/* enable shading, CCD, color, 1M */
+    dev->reg.find_reg(0x02).value = 0x30 /*0x38 */ ;	/* auto home, one-table-move, full step */
     if (dev->model->motor_id == MotorId::MD_5345) {
         dev->reg.find_reg(0x02).value |= 0x01; // half-step
     }
@@ -612,8 +612,8 @@ gl646_init_regs (Genesys_Device * dev)
         default:
       break;
     }
-  dev->reg.find_reg(0x03).value = 0x1f /*0x17 */ ;	/* lamp on */
-  dev->reg.find_reg(0x04).value = 0x13 /*0x03 */ ;	/* 8 bits data, 16 bits A/D, color, Wolfson fe *//* todo: according to spec, 0x0 is reserved? */
+    dev->reg.find_reg(0x03).value = 0x1f /*0x17 */ ;	/* lamp on */
+    dev->reg.find_reg(0x04).value = 0x13 /*0x03 */ ;	/* 8 bits data, 16 bits A/D, color, Wolfson fe *//* todo: according to spec, 0x0 is reserved? */
   switch (dev->model->adc_id)
     {
     case AdcId::AD_XP200:

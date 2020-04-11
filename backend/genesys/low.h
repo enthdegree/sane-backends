@@ -219,16 +219,6 @@ private:
 /*       common functions needed by low level specific functions            */
 /*--------------------------------------------------------------------------*/
 
-inline GenesysRegister* sanei_genesys_get_address(Genesys_Register_Set* regs, uint16_t addr)
-{
-    auto* ret = regs->find_reg_address(addr);
-    if (ret == nullptr) {
-        DBG(DBG_error, "%s: failed to find address for register 0x%02x, crash expected !\n",
-            __func__, addr);
-    }
-    return ret;
-}
-
 extern void sanei_genesys_init_cmd_set(Genesys_Device* dev);
 
 // reads the status of the scanner

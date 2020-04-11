@@ -5256,22 +5256,31 @@ static void sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
         throw SaneException("could not find the device to open: %s", devicename);
     }
 
-    dbg.vstatus("open device '%s'", dev->file_name.c_str());
-
     if (is_testing_mode()) {
-        auto interface = std::unique_ptr<TestScannerInterface>{new TestScannerInterface{dev}};
+        // during testing w
+        auto vendor_id = get_testing_vendor_id();
+        auto product_id = get_testing_product_id();
+        auto bcd_device = get_testing_bcd_device();
+
+        dev->model = &get_matching_usb_dev(vendor_id, product_id, bcd_device).model();
+
+        auto interface = std::unique_ptr<TestScannerInterface>{
+                new TestScannerInterface{dev, vendor_id, product_id, bcd_device}};
         interface->set_checkpoint_callback(get_testing_checkpoint_callback());
         dev->interface = std::move(interface);
+
+        dev->interface->get_usb_device().open(dev->file_name.c_str());
     } else {
         dev->interface = std::unique_ptr<ScannerInterfaceUsb>{new ScannerInterfaceUsb{dev}};
+
+        dbg.vstatus("open device '%s'", dev->file_name.c_str());
+        dev->interface->get_usb_device().open(dev->file_name.c_str());
+        dbg.clear();
+
+        auto bcd_device = dev->interface->get_usb_device().get_bcd_device();
+
+        dev->model = &get_matching_usb_dev(dev->vendorId, dev->productId, bcd_device).model();
     }
-    dev->interface->get_usb_device().open(dev->file_name.c_str());
-    dbg.clear();
-
-    auto bcd_device = dev->interface->get_usb_device().get_bcd_device();
-    const auto& usb_dev = get_matching_usb_dev(dev->vendorId, dev->productId, bcd_device);
-
-    dev->model = &usb_dev.model();
 
     dbg.vlog(DBG_info, "Opened device %s", dev->model->name);
 

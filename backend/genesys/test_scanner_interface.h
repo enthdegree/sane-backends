@@ -56,7 +56,8 @@ namespace genesys {
 class TestScannerInterface : public ScannerInterface
 {
 public:
-    TestScannerInterface(Genesys_Device* dev);
+    TestScannerInterface(Genesys_Device* dev, std::uint16_t vendor_id, std::uint16_t product_id,
+                         std::uint16_t bcd_device);
 
     ~TestScannerInterface() override;
 

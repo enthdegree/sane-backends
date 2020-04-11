@@ -4788,21 +4788,23 @@ const UsbDeviceEntry& get_matching_usb_dev(std::uint16_t vendor_id, std::uint16_
 }
 
 static Genesys_Device* attach_usb_device(const char* devname,
-                                         std::uint16_t vendor_id, std::uint16_t product_id)
+                                         std::uint16_t vendor_id, std::uint16_t product_id,
+                                         std::uint16_t bcd_device)
 {
-    // verify that there's at least one entry for this vendor and product ids. We will check
-    // bcdDevice in open().
-    get_matching_usb_dev(vendor_id, product_id, UsbDeviceEntry::BCD_DEVICE_NOT_SET);
+    const auto& usb_dev = get_matching_usb_dev(vendor_id, product_id, bcd_device);
 
     s_devices->emplace_back();
     Genesys_Device* dev = &s_devices->back();
     dev->file_name = devname;
     dev->vendorId = vendor_id;
     dev->productId = product_id;
+    dev->model = &usb_dev.model();
     dev->usb_mode = 0; // i.e. unset
     dev->already_initialized = false;
     return dev;
 }
+
+static bool s_attach_device_by_name_evaluate_bcd_device = false;
 
 static Genesys_Device* attach_device_by_name(SANE_String_Const devname, bool may_wait)
 {
@@ -4828,6 +4830,12 @@ static Genesys_Device* attach_device_by_name(SANE_String_Const devname, bool may
 
     auto vendor_id = usb_dev.get_vendor_id();
     auto product_id = usb_dev.get_product_id();
+    auto bcd_device = UsbDeviceEntry::BCD_DEVICE_NOT_SET;
+    if (s_attach_device_by_name_evaluate_bcd_device) {
+        // when the device is already known before scanning, we don't want to call get_bcd_device()
+        // when iterating devices, as that will interfere with record/replay during testing.
+        bcd_device = usb_dev.get_bcd_device();
+    }
     usb_dev.close();
 
   /* KV-SS080 is an auxiliary device which requires a master device to be here */
@@ -4841,7 +4849,7 @@ static Genesys_Device* attach_device_by_name(SANE_String_Const devname, bool may
         }
     }
 
-    Genesys_Device* dev = attach_usb_device(devname, vendor_id, product_id);
+    Genesys_Device* dev = attach_usb_device(devname, vendor_id, product_id, bcd_device);
 
     DBG(DBG_info, "%s: found %u flatbed scanner %u at %s\n", __func__, vendor_id, product_id,
         dev->file_name.c_str());
@@ -4879,7 +4887,8 @@ static void probe_genesys_devices()
     DBG_HELPER(dbg);
     if (is_testing_mode()) {
         attach_usb_device(get_testing_device_name().c_str(),
-                          get_testing_vendor_id(), get_testing_product_id());
+                          get_testing_vendor_id(), get_testing_product_id(),
+                          get_testing_bcd_device());
         return;
     }
 
@@ -5129,6 +5138,7 @@ void sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
     );
 
     // cold-plug case :detection of allready connected scanners
+    s_attach_device_by_name_evaluate_bcd_device = false;
     probe_genesys_devices();
 }
 
@@ -5168,6 +5178,7 @@ void sane_get_devices_impl(const SANE_Device *** device_list, SANE_Bool local_on
         // hot-plug case : detection of newly connected scanners */
         sanei_usb_scan_devices();
     }
+    s_attach_device_by_name_evaluate_bcd_device = true;
     probe_genesys_devices();
 
     s_sane_devices->clear();
@@ -5256,22 +5267,31 @@ static void sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
         throw SaneException("could not find the device to open: %s", devicename);
     }
 
-    dbg.vstatus("open device '%s'", dev->file_name.c_str());
-
     if (is_testing_mode()) {
-        auto interface = std::unique_ptr<TestScannerInterface>{new TestScannerInterface{dev}};
+        // during testing w
+        auto vendor_id = get_testing_vendor_id();
+        auto product_id = get_testing_product_id();
+        auto bcd_device = get_testing_bcd_device();
+
+        dev->model = &get_matching_usb_dev(vendor_id, product_id, bcd_device).model();
+
+        auto interface = std::unique_ptr<TestScannerInterface>{
+                new TestScannerInterface{dev, vendor_id, product_id, bcd_device}};
         interface->set_checkpoint_callback(get_testing_checkpoint_callback());
         dev->interface = std::move(interface);
+
+        dev->interface->get_usb_device().open(dev->file_name.c_str());
     } else {
         dev->interface = std::unique_ptr<ScannerInterfaceUsb>{new ScannerInterfaceUsb{dev}};
+
+        dbg.vstatus("open device '%s'", dev->file_name.c_str());
+        dev->interface->get_usb_device().open(dev->file_name.c_str());
+        dbg.clear();
+
+        auto bcd_device = dev->interface->get_usb_device().get_bcd_device();
+
+        dev->model = &get_matching_usb_dev(dev->vendorId, dev->productId, bcd_device).model();
     }
-    dev->interface->get_usb_device().open(dev->file_name.c_str());
-    dbg.clear();
-
-    auto bcd_device = dev->interface->get_usb_device().get_bcd_device();
-    const auto& usb_dev = get_matching_usb_dev(dev->vendorId, dev->productId, bcd_device);
-
-    dev->model = &usb_dev.model();
 
     dbg.vlog(DBG_info, "Opened device %s", dev->model->name);
 

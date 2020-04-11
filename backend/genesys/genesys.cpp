@@ -5268,7 +5268,8 @@ static void sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
     }
 
     if (is_testing_mode()) {
-        // during testing w
+        // during testing we need to initialize dev->model before test scanner interface is created
+        // as that it needs to know what type of chip it needs to mimic.
         auto vendor_id = get_testing_vendor_id();
         auto product_id = get_testing_product_id();
         auto bcd_device = get_testing_bcd_device();

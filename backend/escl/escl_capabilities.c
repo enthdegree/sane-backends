@@ -179,51 +179,61 @@ find_nodes_c(xmlNode *node)
  * \return 0
  */
 static int
-find_valor_of_array_variables(xmlNode *node, capabilities_t *scanner)
+find_valor_of_array_variables(xmlNode *node, capabilities_t *scanner, int type)
 {
     const char *name = (const char *)node->name;
-    if (strcmp(name, "ColorMode") == 0)
-        scanner->ColorModes = char_to_array(scanner->ColorModes, &scanner->ColorModesSize, (SANE_String_Const)xmlNodeGetContent(node), 1);
+    if (strcmp(name, "ColorMode") == 0) {
+		const char *color = (SANE_String_Const)xmlNodeGetContent(node);
+		if (type == PLATEN || strcmp(color, "BlackAndWhite1"))
+          scanner->caps[type].ColorModes = char_to_array(scanner->caps[type].ColorModes, &scanner->caps[type].ColorModesSize, (SANE_String_Const)xmlNodeGetContent(node), 1);
+	}
     else if (strcmp(name, "ContentType") == 0)
-        scanner->ContentTypes = char_to_array(scanner->ContentTypes, &scanner->ContentTypesSize, (SANE_String_Const)xmlNodeGetContent(node), 0);
+        scanner->caps[type].ContentTypes = char_to_array(scanner->caps[type].ContentTypes, &scanner->caps[type].ContentTypesSize, (SANE_String_Const)xmlNodeGetContent(node), 0);
     else if (strcmp(name, "DocumentFormat") == 0)
      {
         int i = 0;
-	int _is_jpeg = 0, _is_png = 0, _is_tiff = 0, _is_pdf = 0;
-        scanner->DocumentFormats = char_to_array(scanner->DocumentFormats, &scanner->DocumentFormatsSize, (SANE_String_Const)xmlNodeGetContent(node), 0);
-        for(; i < scanner->DocumentFormatsSize; i++)
+        SANE_Bool have_jpeg = SANE_FALSE, have_png = SANE_FALSE, have_tiff = SANE_FALSE, have_pdf = SANE_FALSE;
+        scanner->caps[type].DocumentFormats = char_to_array(scanner->caps[type].DocumentFormats, &scanner->caps[type].DocumentFormatsSize, (SANE_String_Const)xmlNodeGetContent(node), 0);
+        for(; i < scanner->caps[type].DocumentFormatsSize; i++)
          {
-            if (!strcmp(scanner->DocumentFormats[i], "image/jpeg"))
-	      _is_jpeg = 1;
+            if (!strcmp(scanner->caps[type].DocumentFormats[i], "image/jpeg"))
+            {
+			   have_jpeg = SANE_TRUE;
+            }
 #if(defined HAVE_LIBPNG)
-            else if(!strcmp(scanner->DocumentFormats[i], "image/png"))
-	      _is_png = 1;
+            else if(!strcmp(scanner->caps[type].DocumentFormats[i], "image/png"))
+            {
+               have_png = SANE_TRUE;
+            }
 #endif
 #if(defined HAVE_TIFFIO_H)
-            else if(!strcmp(scanner->DocumentFormats[i], "image/tiff"))
-	      _is_tiff = 1;
+            else if(type == PLATEN && !strcmp(scanner->caps[type].DocumentFormats[i], "image/tiff"))
+            {
+               have_tiff = SANE_TRUE;
+            }
 #endif
 #if(defined HAVE_POPPLER_GLIB)
-            else if(!strcmp(scanner->DocumentFormats[i], "application/pdf"))
-	      _is_pdf = 1;
+            else if(type == PLATEN && !strcmp(scanner->caps[type].DocumentFormats[i], "application/pdf"))
+            {
+               have_pdf = SANE_TRUE;
+            }
 #endif
          }
-	 if (_is_pdf)
-            scanner->default_format = strdup("application/pdf");
-	 else if (_is_tiff)
-            scanner->default_format = strdup("image/tiff");
-	 else if (_is_png)
-            scanner->default_format = strdup("image/png");
-	 else if(_is_jpeg)
-            scanner->default_format = strdup("image/jpeg");
-         fprintf(stderr, "Capability : [%s]\n", scanner->default_format);
+         if (have_pdf)
+             scanner->caps[type].default_format = strdup("application/pdf");
+         else if (have_tiff)
+             scanner->caps[type].default_format = strdup("image/tiff");
+         else if (have_png)
+             scanner->caps[type].default_format = strdup("image/png");
+         else if (have_jpeg)
+             scanner->caps[type].default_format = strdup("image/jpeg");
      }
     else if (strcmp(name, "DocumentFormatExt") == 0)
-        scanner->format_ext = 1;
+        scanner->caps[type].format_ext = 1;
     else if (strcmp(name, "Intent") == 0)
-        scanner->SupportedIntents = char_to_array(scanner->SupportedIntents, &scanner->SupportedIntentsSize, (SANE_String_Const)xmlNodeGetContent(node), 0);
+        scanner->caps[type].SupportedIntents = char_to_array(scanner->caps[type].SupportedIntents, &scanner->caps[type].SupportedIntentsSize, (SANE_String_Const)xmlNodeGetContent(node), 0);
     else if (strcmp(name, "XResolution") == 0)
-        scanner->SupportedResolutions = int_to_array(scanner->SupportedResolutions, &scanner->SupportedResolutionsSize, atoi((const char *)xmlNodeGetContent(node)));
+        scanner->caps[type].SupportedResolutions = int_to_array(scanner->caps[type].SupportedResolutions, &scanner->caps[type].SupportedResolutionsSize, atoi((const char *)xmlNodeGetContent(node)));
     return (0);
 }
 
@@ -237,39 +247,39 @@ find_valor_of_array_variables(xmlNode *node, capabilities_t *scanner)
  * \return 0
  */
 static int
-find_value_of_int_variables(xmlNode *node, capabilities_t *scanner)
+find_value_of_int_variables(xmlNode *node, capabilities_t *scanner, int type)
 {
     int MaxWidth = 0;
     int MaxHeight = 0;
     const char *name = (const char *)node->name;
 
     if (strcmp(name, "MinWidth") == 0)
-        scanner->MinWidth = atoi((const char*)xmlNodeGetContent(node));
+        scanner->caps[type].MinWidth = atoi((const char*)xmlNodeGetContent(node));
     else if (strcmp(name, "MaxWidth") == 0) {
         MaxWidth = atoi((const char*)xmlNodeGetContent(node));
-        if (scanner->MaxWidth == 0 || MaxWidth < scanner->MaxWidth)
-            scanner->MaxWidth = atoi((const char *)xmlNodeGetContent(node));
+        if (scanner->caps[type].MaxWidth == 0 || MaxWidth < scanner->caps[type].MaxWidth)
+            scanner->caps[type].MaxWidth = atoi((const char *)xmlNodeGetContent(node));
     }
     else if (strcmp(name, "MinHeight") == 0)
-        scanner->MinHeight = atoi((const char*)xmlNodeGetContent(node));
+        scanner->caps[type].MinHeight = atoi((const char*)xmlNodeGetContent(node));
     else if (strcmp(name, "MaxHeight") == 0) {
         MaxHeight = atoi((const char*)xmlNodeGetContent(node));
-        if (scanner->MaxHeight == 0 || MaxHeight < scanner->MaxHeight)
-            scanner->MaxHeight = atoi((const char *)xmlNodeGetContent(node));
+        if (scanner->caps[type].MaxHeight == 0 || MaxHeight < scanner->caps[type].MaxHeight)
+            scanner->caps[type].MaxHeight = atoi((const char *)xmlNodeGetContent(node));
     }
     else if (strcmp(name, "MaxScanRegions") == 0)
-        scanner->MaxScanRegions = atoi((const char *)xmlNodeGetContent(node));
+        scanner->caps[type].MaxScanRegions = atoi((const char *)xmlNodeGetContent(node));
     else if (strcmp(name, "MaxOpticalXResolution") == 0)
-        scanner->MaxOpticalXResolution = atoi((const char *)xmlNodeGetContent(node));
+        scanner->caps[type].MaxOpticalXResolution = atoi((const char *)xmlNodeGetContent(node));
     else if (strcmp(name, "RiskyLeftMargin") == 0)
-        scanner->RiskyLeftMargin = atoi((const char *)xmlNodeGetContent(node));
+        scanner->caps[type].RiskyLeftMargin = atoi((const char *)xmlNodeGetContent(node));
     else if (strcmp(name, "RiskyRightMargin") == 0)
-        scanner->RiskyRightMargin = atoi((const char *)xmlNodeGetContent(node));
+        scanner->caps[type].RiskyRightMargin = atoi((const char *)xmlNodeGetContent(node));
     else if (strcmp(name, "RiskyTopMargin") == 0)
-        scanner->RiskyTopMargin = atoi((const char *)xmlNodeGetContent(node));
+        scanner->caps[type].RiskyTopMargin = atoi((const char *)xmlNodeGetContent(node));
     else if (strcmp(name, "RiskyBottomMargin") == 0)
-        scanner->RiskyBottomMargin = atoi((const char *)xmlNodeGetContent(node));
-    find_valor_of_array_variables(node, scanner);
+        scanner->caps[type].RiskyBottomMargin = atoi((const char *)xmlNodeGetContent(node));
+    find_valor_of_array_variables(node, scanner, type);
     return (0);
 }
 
@@ -282,7 +292,7 @@ find_value_of_int_variables(xmlNode *node, capabilities_t *scanner)
  * \return 0
  */
 static int
-find_true_variables(xmlNode *node, capabilities_t *scanner)
+find_true_variables(xmlNode *node, capabilities_t *scanner, int type)
 {
     const char *name = (const char *)node->name;
     if (strcmp(name, "MinWidth") == 0 ||
@@ -301,7 +311,7 @@ find_true_variables(xmlNode *node, capabilities_t *scanner)
         strcmp(name, "RiskyTopMargin") == 0 ||
         strcmp(name, "RiskyBottomMargin") == 0 ||
         strcmp(name, "DocumentFormatExt") == 0)
-            find_value_of_int_variables(node, scanner);
+            find_value_of_int_variables(node, scanner, type);
     return (0);
 }
 
@@ -312,14 +322,45 @@ find_true_variables(xmlNode *node, capabilities_t *scanner)
  * \return 0
  */
 static int
-print_xml_c(xmlNode *node, capabilities_t *scanner)
+print_xml_c(xmlNode *node, capabilities_t *scanner, int type)
 {
     while (node) {
         if (node->type == XML_ELEMENT_NODE) {
-            if (find_nodes_c(node))
-                find_true_variables(node, scanner);
+            if (find_nodes_c(node) && type != -1)
+                find_true_variables(node, scanner, type);
         }
-        print_xml_c(node->children, scanner);
+	if (!strcmp((const char *)node->name, "PlatenInputCaps")) {
+           scanner->Sources =
+                 char_to_array(scanner->Sources,
+                               &scanner->SourcesSize,
+                               (SANE_String_Const)SANE_I18N ("Flatbed"),
+                               0);
+	   scanner->source = PLATEN;
+           print_xml_c(node->children, scanner, PLATEN);
+	   scanner->caps[PLATEN].duplex = 0;
+	}
+	else if (!strcmp((const char *)node->name, "AdfSimplexInputCaps")) {
+           scanner->Sources =
+                 char_to_array(scanner->Sources,
+                               &scanner->SourcesSize,
+                               (SANE_String_Const)SANE_I18N("ADF"),
+                               0);
+	   if (scanner->source == -1) scanner->source = ADFSIMPLEX;
+           print_xml_c(node->children, scanner, ADFSIMPLEX);
+	   scanner->caps[ADFSIMPLEX].duplex = 0;
+	}
+	else if (!strcmp((const char *)node->name, "AdfDuplexInputCaps")) {
+           scanner->Sources =
+                 char_to_array(scanner->Sources,
+                               &scanner->SourcesSize,
+                               (SANE_String_Const)SANE_I18N ("ADF Duplex"),
+                               0);
+	   if (scanner->source == -1) scanner->source = ADFDUPLEX;
+           print_xml_c(node->children, scanner, ADFDUPLEX);
+	   scanner->caps[ADFDUPLEX].duplex = 1;
+	}
+	else
+           print_xml_c(node->children, scanner, type);
         node = node->next;
     }
     return (0);
@@ -328,18 +369,24 @@ print_xml_c(xmlNode *node, capabilities_t *scanner)
 static void
 _reduce_color_modes(capabilities_t *scanner)
 {
-    if (strcmp(scanner->default_format, "application/pdf")) {
-       if (scanner->ColorModesSize == 3) {
-	  free(scanner->ColorModes);
-	  scanner->ColorModes = NULL;
-	  scanner->ColorModesSize = 0;
-          scanner->ColorModes = char_to_array(scanner->ColorModes,
-			             &scanner->ColorModesSize,
+    int type = 0;
+    for (type = 0; type < 3; type++) {
+         if (scanner->caps[type].ColorModesSize) {
+	     if (scanner->caps[type].default_format &&
+		 strcmp(scanner->caps[type].default_format, "application/pdf")) {
+                 if (scanner->caps[type].ColorModesSize == 3) {
+	             free(scanner->caps[type].ColorModes);
+		     scanner->caps[type].ColorModes = NULL;
+	             scanner->caps[type].ColorModesSize = 0;
+                     scanner->caps[type].ColorModes = char_to_array(scanner->caps[type].ColorModes,
+			             &scanner->caps[type].ColorModesSize,
 				     (SANE_String_Const)SANE_VALUE_SCAN_MODE_GRAY, 0);
-          scanner->ColorModes = char_to_array(scanner->ColorModes,
-			             &scanner->ColorModesSize,
+                     scanner->caps[type].ColorModes = char_to_array(scanner->caps[type].ColorModes,
+			             &scanner->caps[type].ColorModesSize,
 				     (SANE_String_Const)SANE_VALUE_SCAN_MODE_COLOR, 0);
-       }
+                 }
+	     }
+         }
     }
 }
 
@@ -383,8 +430,9 @@ escl_capabilities(const ESCL_Device *device, SANE_Status *status)
     node = xmlDocGetRootElement(data);
     if (node == NULL)
         *status = SANE_STATUS_NO_MEM;
-    print_xml_c(node, scanner);
 
+    scanner->source = 0;
+    print_xml_c(node, scanner, -1);
     _reduce_color_modes(scanner);
 
     xmlFreeDoc(data);

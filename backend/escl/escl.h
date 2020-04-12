@@ -64,6 +64,14 @@
 
 #define ESCL_CONFIG_FILE "escl.conf"
 
+
+enum {
+   PLATEN = 0,
+   ADFSIMPLEX,
+   ADFDUPLEX
+};
+
+
 typedef struct {
     int             p1_0;
     int             p2_0;
@@ -79,15 +87,15 @@ typedef struct {
 typedef struct ESCL_Device {
     struct ESCL_Device *next;
 
-    char      *model_name;
-    int       port_nb;
+    char    *model_name;
+    int             port_nb;
     char      *ip_address;
-    char      *type;
+    char *type;
     SANE_Bool https;
     char      *unix_socket;
 } ESCL_Device;
 
-typedef struct capabilities
+typedef struct capst
 {
     int height;
     int width;
@@ -107,6 +115,7 @@ typedef struct capabilities
     int ContentTypesSize;
     SANE_String_Const *DocumentFormats;
     int DocumentFormatsSize;
+    int format_ext;
     SANE_Int *SupportedResolutions;
     int SupportedResolutionsSize;
     SANE_String_Const *SupportedIntents;
@@ -117,11 +126,20 @@ typedef struct capabilities
     int RiskyRightMargin;
     int RiskyTopMargin;
     int RiskyBottomMargin;
+    int duplex;
+} caps_t;
+
+typedef struct capabilities
+{
+    caps_t caps[3];
+    int source;
+    SANE_String_Const *Sources;
+    int SourcesSize;
     FILE *tmp;
     unsigned char *img_data;
     long img_size;
     long img_read;
-    int format_ext;
+    SANE_Bool work;
 } capabilities_t;
 
 typedef struct {
@@ -151,6 +169,9 @@ enum
     OPT_TL_Y,
     OPT_BR_X,
     OPT_BR_Y,
+
+    OPT_SCAN_SOURCE,
+
     NUM_OPTIONS
 };
 
@@ -160,7 +181,7 @@ enum
 ESCL_Device *escl_devices(SANE_Status *status);
 SANE_Status escl_device_add(int port_nb, const char *model_name,
 		            char *ip_address, char *type);
-SANE_Status escl_status(const ESCL_Device *device);
+SANE_Status escl_status(const ESCL_Device *device, int source, char *jobid);
 capabilities_t *escl_capabilities(const ESCL_Device *device, SANE_Status *status);
 char *escl_newjob(capabilities_t *scanner, const ESCL_Device *device,
 		  SANE_Status *status);

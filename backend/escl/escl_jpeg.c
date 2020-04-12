@@ -193,20 +193,39 @@ get_JPEG_data(capabilities_t *scanner, int *width, int *height, int *bps)
     cinfo.out_color_space = JCS_RGB;
     cinfo.quantize_colors = FALSE;
     jpeg_calc_output_dimensions(&cinfo);
-    if (cinfo.output_width < (unsigned int)scanner->width)
-          scanner->width = cinfo.output_width;
-    if (scanner->pos_x < 0)
-          scanner->pos_x = 0;
+    if (cinfo.output_width < (unsigned int)scanner->caps[scanner->source].width)
+          scanner->caps[scanner->source].width = cinfo.output_width;
+    if (scanner->caps[scanner->source].pos_x < 0)
+          scanner->caps[scanner->source].pos_x = 0;
 
-    if (cinfo.output_height < (unsigned int)scanner->height)
-           scanner->height = cinfo.output_height;
-    if (scanner->pos_y < 0)
-          scanner->pos_y = 0;
-
-    x_off = scanner->pos_x;
-    w = scanner->width - x_off;
-    y_off = scanner->pos_y;
-    h = scanner->height - y_off;
+    if (cinfo.output_height < (unsigned int)scanner->caps[scanner->source].height)
+           scanner->caps[scanner->source].height = cinfo.output_height;
+    if (scanner->caps[scanner->source].pos_y < 0)
+          scanner->caps[scanner->source].pos_y = 0;
+    DBG(10, "1-JPEF Geometry [%dx%d|%dx%d]\n",
+	        scanner->caps[scanner->source].pos_x,
+	        scanner->caps[scanner->source].pos_y,
+	        scanner->caps[scanner->source].width,
+	        scanner->caps[scanner->source].height);
+    x_off = scanner->caps[scanner->source].pos_x;
+    if (x_off > (unsigned int)scanner->caps[scanner->source].width) {
+       w = scanner->caps[scanner->source].width;
+       x_off = 0;
+    }
+    else
+       w = scanner->caps[scanner->source].width - x_off;
+    y_off = scanner->caps[scanner->source].pos_y;
+    if(y_off > (unsigned int)scanner->caps[scanner->source].height) {
+       h = scanner->caps[scanner->source].height;
+       y_off = 0;
+    }
+    else
+       h = scanner->caps[scanner->source].height - y_off;
+    DBG(10, "2-JPEF Geometry [%dx%d|%dx%d]\n",
+	        x_off,
+	        y_off,
+	        w,
+	        h);
     surface = malloc(w * h * cinfo.output_components);
     if (surface == NULL) {
         jpeg_destroy_decompress(&cinfo);
@@ -224,7 +243,7 @@ get_JPEG_data(capabilities_t *scanner, int *width, int *height, int *bps)
     if (y_off > 0)
         jpeg_skip_scanlines(&cinfo, y_off);
     pos = 0;
-    while (cinfo.output_scanline < (unsigned int)scanner->height) {
+    while (cinfo.output_scanline < (unsigned int)scanner->caps[scanner->source].height) {
         rowptr[0] = (JSAMPROW)surface + (lineSize * pos); // ..cinfo.output_scanline);
         jpeg_read_scanlines(&cinfo, rowptr, (JDIMENSION) 1);
        pos++;

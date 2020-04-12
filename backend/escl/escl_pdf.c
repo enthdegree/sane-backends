@@ -140,8 +140,8 @@ get_PDF_data(capabilities_t *scanner, int *width, int *height, int *bps)
         }
 
     poppler_page_get_size (page, &dw, &dh);
-    dw = (double)scanner->default_resolution * dw / 72.0;
-    dh = (double)scanner->default_resolution * dh / 72.0;
+    dw = (double)scanner->caps[scanner->source].default_resolution * dw / 72.0;
+    dh = (double)scanner->caps[scanner->source].default_resolution * dh / 72.0;
     w = (int)ceil(dw);
     h = (int)ceil(dh);
     cairo_surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, w, h);
@@ -157,8 +157,8 @@ get_PDF_data(capabilities_t *scanner, int *width, int *height, int *bps)
                 status =  SANE_STATUS_INVAL;
                 goto free_surface;
         }
-    cairo_scale (cr, (double)scanner->default_resolution / 72.0,
-                     (double)scanner->default_resolution / 72.0);
+    cairo_scale (cr, (double)scanner->caps[scanner->source].default_resolution / 72.0,
+                     (double)scanner->caps[scanner->source].default_resolution / 72.0);
     cairo_save (cr);
     poppler_page_render (page, cr);
     cairo_restore (cr);

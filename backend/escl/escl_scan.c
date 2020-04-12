@@ -80,12 +80,12 @@ escl_scan(capabilities_t *scanner, const ESCL_Device *device, char *result)
             if (curl_easy_perform(curl_handle) != CURLE_OK) {
                 status = SANE_STATUS_INVAL;
             }
-            else
-                curl_easy_cleanup(curl_handle);
             fseek(scanner->tmp, 0, SEEK_SET);
         }
         else
             status = SANE_STATUS_NO_MEM;
+        curl_easy_cleanup(curl_handle);
     }
+    printf ("eSCL scan : %s\n", sane_strstatus(status));
     return (status);
 }

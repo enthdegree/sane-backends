@@ -68,22 +68,12 @@ static const char settings[] =
     "   <scan:ColorMode>%s</scan:ColorMode>" \
     "   <scan:XResolution>%d</scan:XResolution>" \
     "   <scan:YResolution>%d</scan:YResolution>" \
-    "   <pwg:InputSource>Platen</pwg:InputSource>" \
+    "   <pwg:InputSource>%s</pwg:InputSource>" \
+    "   <scan:InputSource>%s</scan:InputSource>" \
+    "%s" \
     "</scan:ScanSettings>";
 
-static char formatExtJPEG[] =
-    "   <scan:DocumentFormatExt>image/jpeg</scan:DocumentFormatExt>";
-
-static char formatExtPNG[] =
-    "   <scan:DocumentFormatExt>image/png</scan:DocumentFormatExt>";
-
-static char formatExtTIFF[] =
-    "   <scan:DocumentFormatExt>image/tiff</scan:DocumentFormatExt>";
-
-static char formatExtPDF[] =
-    "   <scan:DocumentFormatExt>application/pdf</scan:DocumentFormatExt>";
-
-    /**
+/**
  * \fn static size_t download_callback(void *str, size_t size, size_t nmemb, void *userp)
  * \brief Callback function that stocks in memory the content of the 'job'. Example below :
  *        "Trying 192.168.14.150...
@@ -137,6 +127,7 @@ char *
 escl_newjob (capabilities_t *scanner, const ESCL_Device *device, SANE_Status *status)
 {
     CURL *curl_handle = NULL;
+    int off_x = 0, off_y = 0;
     struct uploading *upload = NULL;
     struct downloading *download = NULL;
     const char *scan_jobs = "/eSCL/ScanJobs";
@@ -146,6 +137,7 @@ escl_newjob (capabilities_t *scanner, const ESCL_Device *device, SANE_Status *st
     char *temporary = NULL;
     char *f_ext = "";
     char *format_ext = NULL;
+    char duplex_mode[1024] = { 0 };
 
     *status = SANE_STATUS_GOOD;
     if (device == NULL || scanner == NULL) {
@@ -167,26 +159,41 @@ escl_newjob (capabilities_t *scanner, const ESCL_Device *device, SANE_Status *st
         return (NULL);
     }
     curl_handle = curl_easy_init();
-    if (scanner->format_ext == 1)
+    if (scanner->caps[scanner->source].format_ext == 1)
     {
-       if (!strcmp(scanner->default_format, "image/jpeg"))
-          format_ext = formatExtJPEG;
-       else if (!strcmp(scanner->default_format, "image/png"))
-          format_ext = formatExtPNG;
-       else if (!strcmp(scanner->default_format, "image/tiff"))
-          format_ext = formatExtTIFF;
-       else if (!strcmp(scanner->default_format, "application/pdf"))
-          format_ext = formatExtPDF;
-       else
-          format_ext = f_ext;
+        char f_ext_tmp[1024];
+        snprintf(f_ext_tmp, sizeof(f_ext_tmp),
+			"   <scan:DocumentFormatExt>%s</scan:DocumentFormatExt>",
+    			scanner->caps[scanner->source].default_format);
+        format_ext = f_ext_tmp;
     }
     else
       format_ext = f_ext;
-    DBG( 1, "Create NewJob : %s\n", scanner->default_format);
+    if(scanner->source > PLATEN) {
+       snprintf(duplex_mode, sizeof(duplex_mode),
+		       "   <scan:Duplex>%s</scan:Duplex>",
+		       scanner->source == ADFDUPLEX ? "true" : "false");
+    }
+    DBG( 1, "Create NewJob : %s\n", scanner->caps[scanner->source].default_format);
+    if (scanner->caps[scanner->source].pos_x > scanner->caps[scanner->source].width)
+         off_x = (scanner->caps[scanner->source].pos_x > scanner->caps[scanner->source].width) / 2;
+    if (scanner->caps[scanner->source].pos_y > scanner->caps[scanner->source].height)
+         off_y = (scanner->caps[scanner->source].pos_y > scanner->caps[scanner->source].height) / 2;
     if (curl_handle != NULL) {
-        snprintf(cap_data, sizeof(cap_data), settings, scanner->height, scanner->width, 0, 0, scanner->default_format,
-                 format_ext,
-                 scanner->default_color, scanner->default_resolution, scanner->default_resolution);
+		char *source = (scanner->source == PLATEN ? "Platen" : "Feeder");
+        snprintf(cap_data, sizeof(cap_data), settings,
+			scanner->caps[scanner->source].height,
+			scanner->caps[scanner->source].width,
+			off_x,
+			off_y,
+			scanner->caps[scanner->source].default_format,
+			format_ext,
+			scanner->caps[scanner->source].default_color,
+			scanner->caps[scanner->source].default_resolution,
+			scanner->caps[scanner->source].default_resolution,
+			source,
+			source,
+			duplex_mode[0] == 0 ? "" : duplex_mode);
         DBG( 1, "Create NewJob : %s\n", cap_data);
         upload->read_data = strdup(cap_data);
         upload->size = strlen(cap_data);

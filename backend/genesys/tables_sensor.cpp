@@ -2216,7 +2216,7 @@ void genesys_init_sensor_tables()
                 },
                 {},
             },
-            {   { 300 }, 1200, 45000, 1, { ScanMethod::TRANSPARENCY,
+            {   { 300 }, 1200, 45000, 6, { ScanMethod::TRANSPARENCY,
                                            ScanMethod::TRANSPARENCY_INFRARED }, {
                     { 0x0c, 0x00 },
                     { 0x16, 0x13 }, { 0x17, 0x0a }, { 0x18, 0x10 }, { 0x19, 0x2a },
@@ -2232,7 +2232,7 @@ void genesys_init_sensor_tables()
                 },
                 {},
             },
-            {   { 600 }, 2400, 45000, 2, { ScanMethod::TRANSPARENCY,
+            {   { 600 }, 2400, 45000, 11, { ScanMethod::TRANSPARENCY,
                                            ScanMethod::TRANSPARENCY_INFRARED }, {
                     { 0x0c, 0x00 },
                     { 0x16, 0x13 }, { 0x17, 0x0a }, { 0x18, 0x10 }, { 0x19, 0x2a },
@@ -2248,7 +2248,7 @@ void genesys_init_sensor_tables()
                 },
                 {},
             },
-            {   { 1200 }, 4800, 45000, 5, { ScanMethod::TRANSPARENCY,
+            {   { 1200 }, 4800, 45000, 23, { ScanMethod::TRANSPARENCY,
                                             ScanMethod::TRANSPARENCY_INFRARED }, {
                     { 0x0c, 0x00 },
                     { 0x16, 0x13 }, { 0x17, 0x0a }, { 0x18, 0x10 }, { 0x19, 0x2a },
@@ -2280,8 +2280,8 @@ void genesys_init_sensor_tables()
                 },
                 {},
             },
-            {   { 4800 }, 4800, 45000, 20, { ScanMethod::TRANSPARENCY,
-                                             ScanMethod::TRANSPARENCY_INFRARED }, {
+            {   { 4800 }, 4800, 45000, 285, { ScanMethod::TRANSPARENCY,
+                                              ScanMethod::TRANSPARENCY_INFRARED }, {
                     { 0x0c, 0x00 },
                     { 0x16, 0x13 }, { 0x17, 0x15 }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x61 }, { 0x1d, 0x75 },

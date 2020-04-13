@@ -880,29 +880,21 @@ void CommandSetGl847::send_shading_data(Genesys_Device* dev, const Genesys_Senso
                                         uint8_t* data, int size) const
 {
     DBG_HELPER_ARGS(dbg, "writing %d bytes of shading data", size);
-    std::uint32_t addr, length, i, pixels;
+    std::uint32_t addr, i;
   uint8_t val,*ptr,*src;
 
-  /* shading data is plit in 3 (up to 5 with IR) areas
-     write(0x10014000,0x00000dd8)
-     URB 23429  bulk_out len  3544  wrote 0x33 0x10 0x....
-     write(0x1003e000,0x00000dd8)
-     write(0x10068000,0x00000dd8)
-   */
-    length = static_cast<std::uint32_t>(size / 3);
-    std::uint32_t strpixel = dev->session.pixel_startx;
-    std::uint32_t endpixel = dev->session.pixel_endx;
+    unsigned length = static_cast<unsigned>(size / 3);
 
-  pixels=endpixel-strpixel;
+    // we're using SHDAREA, thus we only need to upload part of the line
+    unsigned offset = dev->session.pixel_count_ratio.apply(
+                dev->session.params.startx * sensor.optical_res / dev->session.params.xres);
+    unsigned pixels = dev->session.pixel_count_ratio.apply(dev->session.optical_pixels_raw);
 
-  /* since we're using SHDAREA, substract startx coordinate from shading */
-    strpixel -= (sensor.ccd_start_xoffset * 600) / sensor.optical_res;
+    // turn pixel value into bytes 2x16 bits words
+    offset *= 2 * 2;
+    pixels *= 2 * 2;
 
-  /* turn pixel value into bytes 2x16 bits words */
-  strpixel*=2*2;
-  pixels*=2*2;
-
-    dev->interface->record_key_value("shading_offset", std::to_string(strpixel));
+    dev->interface->record_key_value("shading_offset", std::to_string(offset));
     dev->interface->record_key_value("shading_pixels", std::to_string(pixels));
     dev->interface->record_key_value("shading_length", std::to_string(length));
     dev->interface->record_key_value("shading_factor", std::to_string(sensor.shading_factor));
@@ -924,7 +916,7 @@ void CommandSetGl847::send_shading_data(Genesys_Device* dev, const Genesys_Senso
         // iterate on both sensor segment
         for (unsigned x = 0; x < pixels; x += 4 * sensor.shading_factor) {
           /* coefficient source */
-          src=(data+strpixel+i*length)+x;
+            src = (data + offset + i * length) + x;
 
           /* coefficient copy */
           ptr[0]=src[0];

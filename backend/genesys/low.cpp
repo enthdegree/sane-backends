@@ -1115,8 +1115,7 @@ static std::size_t get_usb_buffer_read_size(AsicType asic, const ScanSession& se
     }
 }
 
-void build_image_pipeline(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                          const ScanSession& session)
+void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
 {
     static unsigned s_pipeline_index = 0;
 

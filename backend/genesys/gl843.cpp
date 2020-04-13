@@ -1136,7 +1136,7 @@ void CommandSetGl843::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     dev->read_buffer.clear();
     dev->read_buffer.alloc(session.buffer_size_read);
 
-    build_image_pipeline(dev, sensor, session);
+    build_image_pipeline(dev, session);
 
     dev->read_active = true;
 
@@ -1182,7 +1182,7 @@ ScanSession CommandSetGl843::calculate_scan_session(const Genesys_Device* dev,
     if (settings.scan_method==ScanMethod::TRANSPARENCY ||
         settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        start = get_model_x_offset_ta(*dev, settings);
+        start = dev->model->x_offset_ta;
     } else {
         start = dev->model->x_offset;
     }
@@ -1465,7 +1465,7 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     unsigned calib_pixels_offset = 0;
 
     if (should_calibrate_only_active_area(*dev, dev->settings)) {
-        float offset = get_model_x_offset_ta(*dev, dev->settings);
+        float offset = dev->model->x_offset_ta;
         // FIXME: we should use resolution here
         offset = static_cast<float>((offset * dev->settings.xres) / MM_PER_INCH);
 

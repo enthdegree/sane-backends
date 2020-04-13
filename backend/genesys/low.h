@@ -329,8 +329,6 @@ void scanner_search_strip(Genesys_Device& dev, bool forward, bool black);
 bool should_calibrate_only_active_area(const Genesys_Device& dev,
                                        const Genesys_Settings& settings);
 
-float get_model_x_offset_ta(const Genesys_Device& dev, const Genesys_Settings& settings);
-
 void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& sensor,
                                 Genesys_Register_Set& regs);
 
@@ -436,8 +434,7 @@ extern void sanei_genesys_generate_gamma_buffer(Genesys_Device* dev,
 
 void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& sensor);
 
-void build_image_pipeline(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                          const ScanSession& session);
+void build_image_pipeline(Genesys_Device* dev, const ScanSession& session);
 
 std::uint8_t compute_frontend_gain(float value, float target_value,
                                    FrontendType frontend_type);

@@ -1341,14 +1341,6 @@ bool should_calibrate_only_active_area(const Genesys_Device& dev,
     return false;
 }
 
-float get_model_x_offset_ta(const Genesys_Device& dev, const Genesys_Settings& settings)
-{
-    if (dev.model->model_id == ModelId::CANON_4400F && settings.xres == 4800) {
-        return dev.model->x_offset_ta - 10.0;
-    }
-    return dev.model->x_offset_ta;
-}
-
 void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& sensor,
                                 Genesys_Register_Set& regs)
 {
@@ -1411,7 +1403,7 @@ void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& senso
         black_pixels = calib_sensor->black_pixels / factor;
 
         if (should_calibrate_only_active_area(dev, dev.settings)) {
-            float offset = get_model_x_offset_ta(dev, dev.settings);
+            float offset = dev.model->x_offset_ta;
             offset /= calib_sensor->get_ccd_size_divisor_for_dpi(resolution);
             start_pixel = static_cast<int>((offset * resolution) / MM_PER_INCH);
 

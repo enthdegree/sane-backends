@@ -2006,13 +2006,14 @@ void genesys_init_sensor_tables()
             Ratio pixel_count_ratio;
             int exposure_lperiod;
             unsigned output_pixel_offset;
+            int shading_pixel_offset;
             std::vector<ScanMethod> methods;
             GenesysRegisterSettingSet extra_custom_regs;
             GenesysRegisterSettingSet custom_fe_regs;
         };
 
         CustomSensorSettings custom_settings[] = {
-            {   { 400 }, 2400, Ratio{1, 4}, 7200, 2, { ScanMethod::FLATBED }, {
+            {   { 400 }, 2400, Ratio{1, 4}, 7200, 2, 0, { ScanMethod::FLATBED }, {
                     { 0x16, 0x33 }, { 0x17, 0x0c }, { 0x18, 0x13 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x84 }, { 0x1e, 0xa0 },
                     { 0x52, 0x0d }, { 0x53, 0x10 }, { 0x54, 0x01 }, { 0x55, 0x04 },
@@ -2024,7 +2025,7 @@ void genesys_init_sensor_tables()
                     { 0x80, 0x2a },
                 }, {}
             },
-            {   { 800 }, 4800, Ratio{1, 4}, 7200, 5, { ScanMethod::FLATBED }, {
+            {   { 800 }, 4800, Ratio{1, 4}, 7200, 5, 13, { ScanMethod::FLATBED }, {
                     { 0x16, 0x33 }, { 0x17, 0x0c }, { 0x18, 0x13 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x84 }, { 0x1e, 0xa0 },
                     { 0x52, 0x0d }, { 0x53, 0x10 }, { 0x54, 0x01 }, { 0x55, 0x04 },
@@ -2036,7 +2037,7 @@ void genesys_init_sensor_tables()
                     { 0x80, 0x20 },
                 }, {}
             },
-            {   { 1600 }, 4800, Ratio{1, 2}, 14400, 10, { ScanMethod::FLATBED }, {
+            {   { 1600 }, 4800, Ratio{1, 2}, 14400, 10, 8, { ScanMethod::FLATBED }, {
                     { 0x16, 0x33 }, { 0x17, 0x0c }, { 0x18, 0x11 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x84 }, { 0x1e, 0xa1 },
                     { 0x52, 0x0b }, { 0x53, 0x0e }, { 0x54, 0x11 }, { 0x55, 0x02 },
@@ -2050,7 +2051,7 @@ void genesys_init_sensor_tables()
                     { 0x03, 0x1f },
                 }
             },
-            {   { 3200 }, 4800, Ratio{1, 1}, 28800, 20, { ScanMethod::FLATBED }, {
+            {   { 3200 }, 4800, Ratio{1, 1}, 28800, 20, -2, { ScanMethod::FLATBED }, {
                     { 0x16, 0x33 }, { 0x17, 0x0c }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x20 }, { 0x1d, 0x84 }, { 0x1e, 0xa1 },
                     { 0x52, 0x02 }, { 0x53, 0x05 }, { 0x54, 0x08 }, { 0x55, 0x0b },
@@ -2064,8 +2065,8 @@ void genesys_init_sensor_tables()
                     { 0x03, 0x1f },
                 },
             },
-            {   { 400 }, 2400, Ratio{1, 4}, 14400, 2, { ScanMethod::TRANSPARENCY,
-                                                        ScanMethod::TRANSPARENCY_INFRARED }, {
+            {   { 400 }, 2400, Ratio{1, 4}, 14400, 2, 0, { ScanMethod::TRANSPARENCY,
+                                                           ScanMethod::TRANSPARENCY_INFRARED }, {
                     { 0x16, 0x33 }, { 0x17, 0x0c }, { 0x18, 0x13 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x84 }, { 0x1e, 0xa0 },
                     { 0x52, 0x0d }, { 0x53, 0x10 }, { 0x54, 0x01 }, { 0x55, 0x04 },
@@ -2077,8 +2078,8 @@ void genesys_init_sensor_tables()
                     { 0x80, 0x20 },
                 }, {}
             },
-            {   { 800 }, 4800, Ratio{1, 4}, 14400, 5, { ScanMethod::TRANSPARENCY,
-                                                        ScanMethod::TRANSPARENCY_INFRARED }, {
+            {   { 800 }, 4800, Ratio{1, 4}, 14400, 5, 13, { ScanMethod::TRANSPARENCY,
+                                                            ScanMethod::TRANSPARENCY_INFRARED }, {
                     { 0x16, 0x33 }, { 0x17, 0x0c }, { 0x18, 0x13 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x84 }, { 0x1e, 0xa0 },
                     { 0x52, 0x0d }, { 0x53, 0x10 }, { 0x54, 0x01 }, { 0x55, 0x04 },
@@ -2090,8 +2091,8 @@ void genesys_init_sensor_tables()
                     { 0x80, 0x20 },
                 }, {}
             },
-            {   { 1600 }, 4800, Ratio{1, 2}, 28800, 10, { ScanMethod::TRANSPARENCY,
-                                                          ScanMethod::TRANSPARENCY_INFRARED }, {
+            {   { 1600 }, 4800, Ratio{1, 2}, 28800, 10, 8, { ScanMethod::TRANSPARENCY,
+                                                             ScanMethod::TRANSPARENCY_INFRARED }, {
                     { 0x16, 0x33 }, { 0x17, 0x0c }, { 0x18, 0x11 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x84 }, { 0x1e, 0xa0 },
                     { 0x52, 0x0b }, { 0x53, 0x0e }, { 0x54, 0x11 }, { 0x55, 0x02 },
@@ -2105,8 +2106,8 @@ void genesys_init_sensor_tables()
                     { 0x03, 0x1f },
                 },
             },
-            {   { 3200 }, 4800, Ratio{1, 1}, 28800, 20, { ScanMethod::TRANSPARENCY,
-                                                          ScanMethod::TRANSPARENCY_INFRARED }, {
+            {   { 3200 }, 4800, Ratio{1, 1}, 28800, 20, 10, { ScanMethod::TRANSPARENCY,
+                                                              ScanMethod::TRANSPARENCY_INFRARED }, {
                     { 0x16, 0x33 }, { 0x17, 0x0c }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x20 }, { 0x1d, 0x84 }, { 0x1e, 0xa0 },
                     { 0x52, 0x02 }, { 0x53, 0x05 }, { 0x54, 0x08 }, { 0x55, 0x0b },
@@ -2132,6 +2133,7 @@ void genesys_init_sensor_tables()
                     sensor.pixel_count_ratio = setting.pixel_count_ratio;
                     sensor.exposure_lperiod = setting.exposure_lperiod;
                     sensor.output_pixel_offset = setting.output_pixel_offset;
+                    sensor.shading_pixel_offset = setting.shading_pixel_offset;
                     sensor.method = method;
                     sensor.custom_regs = setting.extra_custom_regs;
                     sensor.custom_fe_regs = setting.custom_fe_regs;

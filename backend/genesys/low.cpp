@@ -976,7 +976,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     }
 
     if (dev->model->asic_type == AsicType::GL646 && s.params.xres == 400) {
-        s.optical_pixels = (s.optical_pixels / 6) * 6;
+        s.optical_pixels = align_multiple_floor(s.optical_pixels, 6);
     }
 
     if (dev->model->asic_type == AsicType::GL843) {

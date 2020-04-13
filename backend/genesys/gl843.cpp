@@ -1964,7 +1964,7 @@ void CommandSetGl843::send_shading_data(Genesys_Device* dev, const Genesys_Senso
   uint8_t *buffer;
     int count;
 
-    unsigned offset = 0;
+    int offset = 0;
     unsigned length = size;
 
     if (dev->reg.get8(REG_0x01) & REG_0x01_SHDAREA) {
@@ -1974,9 +1974,13 @@ void CommandSetGl843::send_shading_data(Genesys_Device* dev, const Genesys_Senso
         length = dev->session.output_pixels * sensor.shading_resolution /
                  dev->session.params.xres;
 
+        offset += sensor.shading_pixel_offset;
+
         // 16 bit words, 2 words per color, 3 color channels
         length *= 2 * 2 * 3;
         offset *= 2 * 2 * 3;
+    } else {
+        offset += sensor.shading_pixel_offset * 2 * 2 * 3;
     }
 
     dev->interface->record_key_value("shading_offset", std::to_string(offset));
@@ -1990,6 +1994,11 @@ void CommandSetGl843::send_shading_data(Genesys_Device* dev, const Genesys_Senso
   /* copy regular shading data to the expected layout */
   buffer = final_data.data();
   count = 0;
+    if (offset < 0) {
+        count += (-offset);
+        length -= (-offset);
+        offset = 0;
+    }
 
   /* loop over calibration data */
   for (i = 0; i < length; i++)

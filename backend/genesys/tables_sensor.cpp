@@ -3372,20 +3372,22 @@ void genesys_init_sensor_tables()
         {
             ValueFilterAny<unsigned> resolutions;
             unsigned register_dpiset;
+            unsigned output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 600 }, 100 },
-            { { 1200 }, 200 },
-            { { 2400 }, 400 },
-            { { 3600 }, 600 },
-            { { 7200 }, 1200 },
+            { { 600 }, 100, 10 },
+            { { 1200 }, 200, 20 },
+            { { 2400 }, 400, 40 },
+            { { 3600 }, 600, 60 },
+            { { 7200 }, 1200, 120 },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.shading_resolution = setting.resolutions.values()[0];
             sensor.register_dpiset = setting.register_dpiset;
+            sensor.output_pixel_offset = setting.output_pixel_offset;
             s_sensors->push_back(sensor);
         }
     }
@@ -3505,17 +3507,18 @@ void genesys_init_sensor_tables()
             ValueFilterAny<unsigned> resolutions;
             ScanMethod method;
             unsigned register_dpiset;
+            unsigned output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 900 },  ScanMethod::TRANSPARENCY, 150 },
-            { { 1800 }, ScanMethod::TRANSPARENCY, 300 },
-            { { 3600 }, ScanMethod::TRANSPARENCY, 600 },
-            { { 7200 }, ScanMethod::TRANSPARENCY, 1200 },
-            { { 900 },  ScanMethod::TRANSPARENCY_INFRARED, 150 },
-            { { 1800 }, ScanMethod::TRANSPARENCY_INFRARED, 300 },
-            { { 3600 }, ScanMethod::TRANSPARENCY_INFRARED, 600 },
-            { { 7200 }, ScanMethod::TRANSPARENCY_INFRARED, 1200 },
+            { { 900 },  ScanMethod::TRANSPARENCY, 150, 15 },
+            { { 1800 }, ScanMethod::TRANSPARENCY, 300, 30 },
+            { { 3600 }, ScanMethod::TRANSPARENCY, 600, 60 },
+            { { 7200 }, ScanMethod::TRANSPARENCY, 1200, 120 },
+            { { 900 },  ScanMethod::TRANSPARENCY_INFRARED, 150, 15 },
+            { { 1800 }, ScanMethod::TRANSPARENCY_INFRARED, 300, 30 },
+            { { 3600 }, ScanMethod::TRANSPARENCY_INFRARED, 600, 60 },
+            { { 7200 }, ScanMethod::TRANSPARENCY_INFRARED, 1200, 120 },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
@@ -3523,6 +3526,7 @@ void genesys_init_sensor_tables()
             sensor.method = setting.method;
             sensor.shading_resolution = setting.resolutions.values()[0];
             sensor.register_dpiset = setting.register_dpiset;
+            sensor.output_pixel_offset = setting.output_pixel_offset;
             s_sensors->push_back(sensor);
         }
     }

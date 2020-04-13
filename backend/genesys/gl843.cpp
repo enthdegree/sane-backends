@@ -1188,15 +1188,6 @@ ScanSession CommandSetGl843::calculate_scan_session(const Genesys_Device* dev,
     }
     start = start + settings.tl_x;
 
-    if ((dev->model->model_id == ModelId::CANON_4400F &&
-            settings.scan_method == ScanMethod::TRANSPARENCY) ||
-        dev->model->model_id == ModelId::CANON_8400F ||
-        dev->model->model_id == ModelId::CANON_8600F)
-    {
-        // FIXME: this is probably just an artifact of a bug elsewhere
-        start /= sensor.get_ccd_size_divisor_for_dpi(settings.xres);
-    }
-
     start = static_cast<float>((start * settings.xres) / MM_PER_INCH);
 
     ScanSession session;

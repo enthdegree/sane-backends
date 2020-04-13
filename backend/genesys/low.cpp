@@ -955,7 +955,11 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     // after all adjustments on the optical pixels have been made, compute the number of pixels
     // to retrieve from the chip
     s.output_pixels = (s.optical_pixels * s.output_resolution) / s.optical_resolution;
-    s.output_startx = s.params.startx + sensor.output_pixel_offset;
+
+    if (static_cast<int>(s.params.startx) + sensor.output_pixel_offset < 0)
+        throw SaneException("Invalid sensor.output_pixel_offset");
+    s.output_startx = static_cast<unsigned>(
+                static_cast<int>(s.params.startx) + sensor.output_pixel_offset);
 
     s.num_staggered_lines = 0;
     if (!has_flag(s.params.flags, ScanFlag::IGNORE_STAGGER_OFFSET))

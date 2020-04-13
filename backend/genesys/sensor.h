@@ -294,7 +294,7 @@ struct Genesys_Sensor {
     Ratio pixel_count_ratio = Ratio{1, 1};
 
     // The offset in pixels in terms of scan resolution that needs to be applied to scan position.
-    unsigned output_pixel_offset = 0;
+    int output_pixel_offset = 0;
 
     int black_pixels = 0;
     // value of the dummy register

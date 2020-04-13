@@ -103,6 +103,7 @@ bool ScanSession::operator==(const ScanSession& other) const
         optical_pixels_raw == other.optical_pixels_raw &&
         optical_line_count == other.optical_line_count &&
         output_resolution == other.output_resolution &&
+        output_startx == other.output_startx &&
         output_pixels == other.output_pixels &&
         output_channel_bytes == other.output_channel_bytes &&
         output_line_bytes == other.output_line_bytes &&
@@ -141,6 +142,7 @@ std::ostream& operator<<(std::ostream& out, const ScanSession& session)
         << "    optical_pixels_raw: " << session.optical_pixels_raw << '\n'
         << "    optical_line_count: " << session.optical_line_count << '\n'
         << "    output_resolution: " << session.output_resolution << '\n'
+        << "    output_startx: " << session.output_startx << '\n'
         << "    output_pixels: " << session.output_pixels << '\n'
         << "    output_line_bytes: " << session.output_line_bytes << '\n'
         << "    output_line_bytes_raw: " << session.output_line_bytes_raw << '\n'

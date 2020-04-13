@@ -121,8 +121,9 @@ struct SetupParams {
     unsigned startx = NOT_SET;
     // start pixel in Y direction, counted according to base_ydpi
     unsigned starty = NOT_SET;
-    // the number of pixels in X direction. Note that each logical pixel may correspond to more
-    // than one CCD pixel, see CKSEL and GenesysSensor::ccd_pixels_per_system_pixel()
+    // the number of pixels in X direction. Counted in terms of xres.
+    // Note that each logical pixel may correspond to more than one CCD pixel, see CKSEL and
+    // GenesysSensor::ccd_pixels_per_system_pixel()
     unsigned pixels = NOT_SET;
 
     // the number of pixels in the X direction as requested by the frontend. This will be different
@@ -231,6 +232,9 @@ struct ScanSession {
     // the resolution of the output data.
     // gl843-only
     unsigned output_resolution = 0;
+
+    // the offset in pixels from the beginning of output data
+    unsigned output_startx = 0;
 
     // the number of pixels in output data (after desegmentation)
     unsigned output_pixels = 0;
@@ -345,6 +349,7 @@ void serialize(Stream& str, ScanSession& x)
     serialize(str, x.optical_pixels_raw);
     serialize(str, x.optical_line_count);
     serialize(str, x.output_resolution);
+    serialize(str, x.output_startx);
     serialize(str, x.output_pixels);
     serialize(str, x.output_channel_bytes);
     serialize(str, x.output_line_bytes);

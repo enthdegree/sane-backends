@@ -1055,22 +1055,21 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
     /* gpio part.*/
     if (dev->model->gpio_id == GpioId::CANON_LIDE_35) {
-        if (session.ccd_size_divisor > 1) {
+        if (session.params.xres <= 600) {
             reg->find_reg(REG_0x6C).value &= ~0x80;
         } else {
             reg->find_reg(REG_0x6C).value |= 0x80;
         }
       }
     if (dev->model->gpio_id == GpioId::CANON_LIDE_80) {
-        if (session.ccd_size_divisor > 1) {
-
-        reg->find_reg(REG_0x6C).value &= ~0x40;
-        reg->find_reg(REG_0x6C).value |= 0x20;
+        if (session.params.xres <= 600) {
+            reg->find_reg(REG_0x6C).value &= ~0x40;
+            reg->find_reg(REG_0x6C).value |= 0x20;
         } else {
-        reg->find_reg(REG_0x6C).value &= ~0x20;
-        reg->find_reg(REG_0x6C).value |= 0x40;
+            reg->find_reg(REG_0x6C).value &= ~0x20;
+            reg->find_reg(REG_0x6C).value |= 0x40;
         }
-      }
+    }
 
     /* enable shading */
     reg->find_reg(0x01).value |= REG_0x01_SCAN;

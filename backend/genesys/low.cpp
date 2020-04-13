@@ -833,15 +833,10 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
 
         // startx cannot be below dummy pixel value
         s.pixel_startx = sensor.dummy_pixel;
-        if (has_flag(s.params.flags, ScanFlag::USE_XCORRECTION) && sensor.ccd_start_xoffset > 0) {
-            s.pixel_startx = sensor.ccd_start_xoffset;
-        }
+
         s.pixel_startx += s.params.startx * sensor.optical_res / s.params.xres;
 
-        s.pixel_endx = s.pixel_startx + s.optical_pixels;
-
-        s.pixel_startx /= sensor.ccd_pixels_per_system_pixel() * s.ccd_size_divisor;
-        s.pixel_endx /= sensor.ccd_pixels_per_system_pixel() * s.ccd_size_divisor;
+        s.pixel_endx = s.pixel_startx + s.optical_pixels * s.ccd_size_divisor;
 
     } else if (dev->model->asic_type == AsicType::GL841) {
         unsigned startx = s.params.startx * sensor.optical_res / s.params.xres;
@@ -850,19 +845,6 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
                                 / sensor.optical_res;
 
         s.pixel_startx += sensor.dummy_pixel + 1;
-
-        /*  In case of SHDAREA, we need to align start on pixel average factor, startx is
-            different than 0 only when calling for function to setup for scan, where shading data
-            needs to be align.
-
-            NOTE: we can check the value of the register here, because we don't set this bit
-            anywhere except in initialization.
-        */
-        const uint8_t REG_0x01_SHDAREA = 0x02;
-        if ((dev->reg.find_reg(0x01).value & REG_0x01_SHDAREA) != 0) {
-            unsigned average_factor = s.optical_resolution / s.params.xres;
-            s.pixel_startx = align_multiple_floor(s.pixel_startx, average_factor);
-        }
 
         s.pixel_endx = s.pixel_startx + s.optical_pixels;
 
@@ -947,13 +929,6 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
             s.pixel_startx++;
             s.pixel_endx++;
         }
-
-        std::uint32_t segcnt = (sensor.custom_regs.get_value(gl124::REG_SEGCNT) << 16) +
-                               (sensor.custom_regs.get_value(gl124::REG_SEGCNT + 1) << 8) +
-                                sensor.custom_regs.get_value(gl124::REG_SEGCNT + 2);
-        if (s.pixel_endx == segcnt) {
-            s.pixel_endx = 0;
-        }
     }
 }
 
@@ -973,11 +948,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     s.ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(s.params.xres);
     s.pixel_count_ratio = sensor.pixel_count_ratio;
 
-    if (dev->model->asic_type == AsicType::GL646) {
-        s.optical_resolution = sensor.optical_res;
-    } else {
-        s.optical_resolution = sensor.optical_res / s.ccd_size_divisor;
-    }
+    s.optical_resolution = sensor.optical_res / s.ccd_size_divisor;
     s.output_resolution = s.params.xres;
 
     if (s.output_resolution > s.optical_resolution) {
@@ -986,17 +957,13 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
 
     // compute the number of optical pixels that will be acquired by the chip
     s.optical_pixels = (s.params.pixels * s.optical_resolution) / s.output_resolution;
-    if (s.optical_pixels * s.output_resolution < s.params.pixels * s.optical_resolution) {
-        s.optical_pixels++;
-    }
 
     if (dev->model->asic_type == AsicType::GL841) {
-        if (s.optical_pixels & 1)
-            s.optical_pixels++;
+        s.optical_pixels = align_int_up(s.optical_pixels, 2);
     }
 
     if (dev->model->asic_type == AsicType::GL646 && s.params.xres == 400) {
-        s.optical_pixels = (s.optical_pixels / 6) * 6;
+        s.optical_pixels = align_multiple_floor(s.optical_pixels, 6);
     }
 
     if (dev->model->asic_type == AsicType::GL843) {
@@ -1017,6 +984,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     // after all adjustments on the optical pixels have been made, compute the number of pixels
     // to retrieve from the chip
     s.output_pixels = (s.optical_pixels * s.output_resolution) / s.optical_resolution;
+    s.output_startx = s.params.startx + sensor.output_pixel_offset;
 
     s.num_staggered_lines = 0;
     if (!has_flag(s.params.flags, ScanFlag::IGNORE_STAGGER_OFFSET))

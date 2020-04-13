@@ -929,13 +929,6 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
             s.pixel_startx++;
             s.pixel_endx++;
         }
-
-        std::uint32_t segcnt = (sensor.custom_regs.get_value(gl124::REG_SEGCNT) << 16) +
-                               (sensor.custom_regs.get_value(gl124::REG_SEGCNT + 1) << 8) +
-                                sensor.custom_regs.get_value(gl124::REG_SEGCNT + 2);
-        if (s.pixel_endx == segcnt) {
-            s.pixel_endx = 0;
-        }
     }
 }
 

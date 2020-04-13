@@ -792,8 +792,12 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
         }
     }
 
+    std::uint32_t pixel_endx = session.pixel_endx;
+    if (pixel_endx == reg->get24(REG_SEGCNT)) {
+        pixel_endx = 0;
+    }
     reg->set24(REG_STRPIXEL, session.pixel_startx);
-    reg->set24(REG_ENDPIXEL, session.pixel_endx);
+    reg->set24(REG_ENDPIXEL, pixel_endx);
 
   dev->line_count = 0;
 
@@ -1150,10 +1154,6 @@ void CommandSetGl124::send_shading_data(Genesys_Device* dev, const Genesys_Senso
     std::uint32_t strpixel = dev->session.pixel_startx;
     std::uint32_t endpixel = dev->session.pixel_endx;
     segcnt = dev->reg.get24(REG_SEGCNT);
-  if(endpixel==0)
-    {
-      endpixel=segcnt;
-    }
 
   /* turn pixel value into bytes 2x16 bits words */
   strpixel*=2*2; /* 2 words of 2 bytes */

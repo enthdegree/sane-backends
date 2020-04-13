@@ -982,9 +982,6 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
 
     // compute the number of optical pixels that will be acquired by the chip
     s.optical_pixels = (s.params.pixels * s.optical_resolution) / s.output_resolution;
-    if (s.optical_pixels * s.output_resolution < s.params.pixels * s.optical_resolution) {
-        s.optical_pixels++;
-    }
 
     if (dev->model->asic_type == AsicType::GL841) {
         if (s.optical_pixels & 1)

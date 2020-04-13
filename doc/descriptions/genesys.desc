@@ -21,49 +21,49 @@
 :interface "USB"
 :usbid "0x07b3" "0x0c07"
 :status :complete
-:comment "900, 1800, 3600 and 7200 dpi resolutions supported"
+:comment "900, 1800, 3600 and 7200 dpi resolutions are supported"
 
 :model "OpticFilm 7200i"
 :interface "USB"
 :usbid "0x07b3" "0x0c04"
 :status :complete
-:comment "900, 1800, 3600 and 7200 dpi resolutions supported in both regular transparency and infrared modes"
+:comment "900, 1800, 3600 and 7200 dpi resolutions are supported in both regular transparency and infrared modes"
 
 :model "OpticFilm 7300"
 :interface "USB"
 :usbid "0x07b3" "0x0c12"
 :status :complete
-:comment "900, 1800, 3600 and 7200 dpi resolutions supported"
+:comment "900, 1800, 3600 and 7200 dpi resolutions are supported"
 
 :model "OpticFilm 7400"
 :interface "USB"
 :usbid "0x07b3" "0x0c3a"
 :status :complete
-:comment "900, 1800, 3600, 7200 or 600, 1200, 1800, 3600 and 7200 dpi resolutions supported (depending on exact scanner model)"
+:comment "900, 1800, 3600, 7200 or 600, 1200, 1800, 3600 and 7200 dpi resolutions are supported (depending on exact scanner model)"
 
 :model "OpticFilm 7500i"
 :interface "USB"
 :usbid "0x07b3" "0x0c13"
 :status :complete
-:comment "900, 1800, 3600 and 7200 dpi resolutions supported in both regular transparency and infrared modes"
+:comment "900, 1800, 3600 and 7200 dpi resolutions are supported in both regular transparency and infrared modes"
 
 :model "OpticFilm 7600i"
 :interface "USB"
 :usbid "0x07b3" "0x0c3b"
 :status :complete
-:comment "900, 1800, 3600 and 7200 dpi resolutions supported in both regular transparency and infrared modes"
+:comment "900, 1800, 3600 and 7200 dpi resolutions are supported in both regular transparency and infrared modes"
 
 :model "OpticFilm 8100"
 :interface "USB"
 :usbid "0x07b3" "0x130c"
 :status :complete
-:comment "900, 1800, 3600 and 7200 dpi resolutions supported"
+:comment "900, 1800, 3600 and 7200 dpi resolutions are supported"
 
 :model "OpticFilm 8200i"
 :interface "USB"
 :usbid "0x07b3" "0x130d"
 :status :complete
-:comment "900, 1800, 3600 and 7200 dpi resolutions supported in both regular transparency and infrared modes"
+:comment "900, 1800, 3600 and 7200 dpi resolutions are supported in both regular transparency and infrared modes"
 
 ; -----------------------------------------------------------------------------
 
@@ -185,43 +185,43 @@
 :interface "USB"
 :usbid "0x04a9" "0x1904"
 :status :complete
-:comment "GL847 based, resolution from 75 to 2400 dpi"
+:comment "resolutions from 75 to 2400 dpi are supported"
 
 :model "CanoScan LiDE 110"
 :interface "USB"
 :usbid "0x04a9" "0x1909"
 :status :complete
-:comment "GL124 based, resolution from 75 to 2400 dpi"
+:comment "resolutions from 75 to 2400 dpi are supported"
 
 :model "CanoScan LiDE 120"
 :interface "USB"
 :usbid "0x04a9" "0x190e"
 :status :complete
-:comment "GL124+ based, resolution from 75 to 2400 dpi"
+:comment "resolutions from 75 to 2400 dpi are supported"
 
 :model "CanoScan LiDE 200"
 :interface "USB"
 :usbid "0x04a9" "0x1905"
 :status :complete
-:comment "GL847 based, resolution from 75 to 4800 dpi"
+:comment "resolutions from 75 to 4800 dpi are supported"
 
 :model "CanoScan LiDE 210"
 :interface "USB"
 :usbid "0x04a9" "0x190a"
 :status :complete
-:comment "GL124 based, resolution from 75 to 4800 dpi"
+:comment "resolutions from 75 to 4800 dpi are supported"
 
 :model "CanoScan LiDE 220"
 :interface "USB"
 :usbid "0x04a9" "0x190f"
 :status :complete
-:comment "GL124+ based, resolution from 75 to 4800 dpi"
+:comment "resolutions from 75 to 4800 dpi are supported"
 
 :model "CanoScan 4400F"
 :interface "USB"
 :usbid "0x04a9" "0x2228"
-:status :basic
-:comment "GL843 based"
+:status :complete
+:comment "300, 600, 1200 dpi resolutions are supported in flatbed mode; 1200, 2400, 4800 dpi resolutions are supported in transparency scanning mode"
 
 :model "CanoScan 5600F"
 :interface "USB"
@@ -233,27 +233,27 @@
 :url "unsupported/canon-8400f.html"
 :interface "USB"
 :usbid "0x04a9" "0x221e"
-:status :basic
-:comment "GL841 based, to be added to genesys backend"
+:status :complete
+:comment "400, 800, 1600, 3200 dpi resolutions are supported in flatbed, transparency and infrared transparency scanning modes"
 
 :model "CanoScan 8600F"
 :url "unsupported/canon-8600.html"
 :interface "USB"
 :usbid "0x04a9" "0x2229"
-:status :basic
-:comment "normal and transparency scans work up to 1200 dpi resolution"
+:status :complete
+:comment "300, 600, 1200 dpi resolutions supported in flatbed scanning mode; 300, 600, 1200, 2400, 4800 dpi resolutions are supported in transparency and infrared transparency scanning modes"
 
 :model "CanoScan 700F"
 :interface "USB"
 :usbid "0x04a9" "0x1907"
-:status :good
-:comment "GL847 based, resolution from 75 to 4800 dpi"
+:status :basic
+:comment "GL847 based, resolutions from 75 to 1200 dpi are supported"
 
 :model "Canon Image Formula 101"
 :interface "USB"
 :usbid "0x1083" "0x162e"
 :status :unsupported
-:comment "GL846 based, work in progress"
+:comment "GL846 based"
 
 ; -----------------------------------------------------------------------------
 

@@ -118,7 +118,7 @@ void genesys_init_sensor_tables()
         {
             ValueFilterAny<unsigned> resolutions;
             unsigned register_dpiset;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
@@ -160,7 +160,7 @@ void genesys_init_sensor_tables()
         struct CustomSensorSettings
         {
             ValueFilterAny<unsigned> resolutions;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
@@ -202,7 +202,7 @@ void genesys_init_sensor_tables()
         {
             ValueFilterAny<unsigned> resolutions;
             unsigned register_dpiset;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
@@ -250,7 +250,7 @@ void genesys_init_sensor_tables()
             unsigned exposure_lperiod;
             unsigned ccd_size_divisor;
             Ratio pixel_count_ratio;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
             GenesysRegisterSettingSet custom_regs;
         };
 
@@ -378,7 +378,7 @@ void genesys_init_sensor_tables()
             unsigned register_dpiset;
             unsigned exposure_lperiod;
             Ratio pixel_count_ratio;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
             GenesysRegisterSettingSet custom_regs;
         };
 
@@ -479,7 +479,7 @@ void genesys_init_sensor_tables()
             unsigned exposure_lperiod;
             unsigned ccd_size_divisor;
             Ratio pixel_count_ratio;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
             GenesysRegisterSettingSet custom_regs;
         };
 
@@ -574,7 +574,7 @@ void genesys_init_sensor_tables()
             unsigned register_dpihw;
             unsigned register_dpiset;
             unsigned shading_resolution;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
@@ -630,7 +630,7 @@ void genesys_init_sensor_tables()
             std::vector<unsigned> channels;
             unsigned exposure_lperiod;
             SensorExposure exposure;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
@@ -685,7 +685,7 @@ void genesys_init_sensor_tables()
             unsigned register_dpiset;
             unsigned exposure_lperiod;
             Ratio pixel_count_ratio;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
             GenesysRegisterSettingSet custom_regs;
         };
 
@@ -805,7 +805,7 @@ void genesys_init_sensor_tables()
         {
             ValueFilterAny<unsigned> resolutions;
             unsigned register_dpiset;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
@@ -861,7 +861,7 @@ void genesys_init_sensor_tables()
         {
             ValueFilterAny<unsigned> resolutions;
             unsigned register_dpiset;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
@@ -918,7 +918,7 @@ void genesys_init_sensor_tables()
         {
             ValueFilterAny<unsigned> resolutions;
             unsigned register_dpiset;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
@@ -974,7 +974,7 @@ void genesys_init_sensor_tables()
         {
             ValueFilterAny<unsigned> resolutions;
             unsigned register_dpiset;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
@@ -1030,7 +1030,7 @@ void genesys_init_sensor_tables()
         {
             ValueFilterAny<unsigned> resolutions;
             unsigned register_dpiset;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
@@ -1087,7 +1087,7 @@ void genesys_init_sensor_tables()
         {
             ValueFilterAny<unsigned> resolutions;
             unsigned register_dpiset;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
@@ -1125,7 +1125,7 @@ void genesys_init_sensor_tables()
             SensorExposure exposure;
             Ratio pixel_count_ratio;
             unsigned shading_factor;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
             unsigned segment_size;
             std::vector<unsigned> segment_order;
             GenesysRegisterSettingSet custom_regs;
@@ -1286,7 +1286,7 @@ void genesys_init_sensor_tables()
             SensorExposure exposure;
             Ratio pixel_count_ratio;
             unsigned shading_factor;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
             unsigned segment_size;
             std::vector<unsigned> segment_order;
             GenesysRegisterSettingSet custom_regs;
@@ -1431,7 +1431,7 @@ void genesys_init_sensor_tables()
             SensorExposure exposure;
             Ratio pixel_count_ratio;
             unsigned shading_factor;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
             unsigned segment_size;
             std::vector<unsigned> segment_order;
             GenesysRegisterSettingSet custom_regs;
@@ -1589,7 +1589,7 @@ void genesys_init_sensor_tables()
             ValueFilterAny<unsigned> resolutions;
             unsigned register_dpiset;
             Ratio pixel_count_ratio;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
@@ -1632,7 +1632,7 @@ void genesys_init_sensor_tables()
             int exposure_lperiod;
             ScanMethod method;
             Ratio pixel_count_ratio;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
             GenesysRegisterSettingSet extra_custom_regs;
         };
 
@@ -1759,7 +1759,7 @@ void genesys_init_sensor_tables()
             int exposure_lperiod;
             ScanMethod method;
             Ratio pixel_count_ratio;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
             GenesysRegisterSettingSet extra_custom_regs;
         };
 
@@ -1880,14 +1880,14 @@ void genesys_init_sensor_tables()
             unsigned register_dpiset;
             int exposure_lperiod;
             bool use_host_side_calib;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
             std::vector<ScanMethod> methods;
             GenesysRegisterSettingSet extra_custom_regs;
             GenesysRegisterSettingSet extra_custom_fe_regs;
         };
 
         CustomSensorSettings custom_settings[] = {
-            {   { 300 }, 1200, 11640, false, 1, { ScanMethod::FLATBED }, {
+            {   { 300 }, 1200, 11640, false, 197, { ScanMethod::FLATBED }, {
                     { 0x16, 0x13 }, { 0x17, 0x0a }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x6b },
                     { 0x52, 0x0a }, { 0x53, 0x0d }, { 0x54, 0x00 }, { 0x55, 0x03 },
@@ -1899,7 +1899,7 @@ void genesys_init_sensor_tables()
                     { 0x9e, 0x2d },
                 }, {}
             },
-            {   { 600 }, 2400, 11640, false, 2, { ScanMethod::FLATBED }, {
+            {   { 600 }, 2400, 11640, false, 392, { ScanMethod::FLATBED }, {
                     { 0x16, 0x13 }, { 0x17, 0x0a }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x6b },
                     { 0x52, 0x0a }, { 0x53, 0x0d }, { 0x54, 0x00 }, { 0x55, 0x03 },
@@ -1911,7 +1911,7 @@ void genesys_init_sensor_tables()
                     { 0x9e, 0x2d },
                 }, {}
             },
-            {   { 1200 }, 4800, 11640, false, 5, { ScanMethod::FLATBED }, {
+            {   { 1200 }, 4800, 11640, false, 794, { ScanMethod::FLATBED }, {
                     { 0x16, 0x13 }, { 0x17, 0x0a }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x6b },
                     { 0x52, 0x0a }, { 0x53, 0x0d }, { 0x54, 0x00 }, { 0x55, 0x03 },
@@ -1949,7 +1949,7 @@ void genesys_init_sensor_tables()
                     { 0x03, 0x1f },
                 }
             },
-            {   { 4800 }, 4800, 33300, true, 20, { ScanMethod::TRANSPARENCY }, {
+            {   { 4800 }, 4800, 33300, true, -2063, { ScanMethod::TRANSPARENCY }, {
                     { 0x16, 0x13 }, { 0x17, 0x15 }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x61 }, { 0x1d, 0x75 },
                     { 0x52, 0x02 }, { 0x53, 0x05 }, { 0x54, 0x08 }, { 0x55, 0x0b },
@@ -2005,14 +2005,15 @@ void genesys_init_sensor_tables()
             unsigned register_dpiset;
             Ratio pixel_count_ratio;
             int exposure_lperiod;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
+            int shading_pixel_offset;
             std::vector<ScanMethod> methods;
             GenesysRegisterSettingSet extra_custom_regs;
             GenesysRegisterSettingSet custom_fe_regs;
         };
 
         CustomSensorSettings custom_settings[] = {
-            {   { 400 }, 2400, Ratio{1, 4}, 7200, 2, { ScanMethod::FLATBED }, {
+            {   { 400 }, 2400, Ratio{1, 4}, 7200, 2, 0, { ScanMethod::FLATBED }, {
                     { 0x16, 0x33 }, { 0x17, 0x0c }, { 0x18, 0x13 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x84 }, { 0x1e, 0xa0 },
                     { 0x52, 0x0d }, { 0x53, 0x10 }, { 0x54, 0x01 }, { 0x55, 0x04 },
@@ -2024,7 +2025,7 @@ void genesys_init_sensor_tables()
                     { 0x80, 0x2a },
                 }, {}
             },
-            {   { 800 }, 4800, Ratio{1, 4}, 7200, 5, { ScanMethod::FLATBED }, {
+            {   { 800 }, 4800, Ratio{1, 4}, 7200, 5, 13, { ScanMethod::FLATBED }, {
                     { 0x16, 0x33 }, { 0x17, 0x0c }, { 0x18, 0x13 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x84 }, { 0x1e, 0xa0 },
                     { 0x52, 0x0d }, { 0x53, 0x10 }, { 0x54, 0x01 }, { 0x55, 0x04 },
@@ -2036,7 +2037,7 @@ void genesys_init_sensor_tables()
                     { 0x80, 0x20 },
                 }, {}
             },
-            {   { 1600 }, 4800, Ratio{1, 2}, 14400, 10, { ScanMethod::FLATBED }, {
+            {   { 1600 }, 4800, Ratio{1, 2}, 14400, 10, 8, { ScanMethod::FLATBED }, {
                     { 0x16, 0x33 }, { 0x17, 0x0c }, { 0x18, 0x11 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x84 }, { 0x1e, 0xa1 },
                     { 0x52, 0x0b }, { 0x53, 0x0e }, { 0x54, 0x11 }, { 0x55, 0x02 },
@@ -2050,7 +2051,7 @@ void genesys_init_sensor_tables()
                     { 0x03, 0x1f },
                 }
             },
-            {   { 3200 }, 4800, Ratio{1, 1}, 28800, 20, { ScanMethod::FLATBED }, {
+            {   { 3200 }, 4800, Ratio{1, 1}, 28800, 20, -2, { ScanMethod::FLATBED }, {
                     { 0x16, 0x33 }, { 0x17, 0x0c }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x20 }, { 0x1d, 0x84 }, { 0x1e, 0xa1 },
                     { 0x52, 0x02 }, { 0x53, 0x05 }, { 0x54, 0x08 }, { 0x55, 0x0b },
@@ -2064,8 +2065,8 @@ void genesys_init_sensor_tables()
                     { 0x03, 0x1f },
                 },
             },
-            {   { 400 }, 2400, Ratio{1, 4}, 14400, 2, { ScanMethod::TRANSPARENCY,
-                                                        ScanMethod::TRANSPARENCY_INFRARED }, {
+            {   { 400 }, 2400, Ratio{1, 4}, 14400, 2, 0, { ScanMethod::TRANSPARENCY,
+                                                           ScanMethod::TRANSPARENCY_INFRARED }, {
                     { 0x16, 0x33 }, { 0x17, 0x0c }, { 0x18, 0x13 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x84 }, { 0x1e, 0xa0 },
                     { 0x52, 0x0d }, { 0x53, 0x10 }, { 0x54, 0x01 }, { 0x55, 0x04 },
@@ -2077,8 +2078,8 @@ void genesys_init_sensor_tables()
                     { 0x80, 0x20 },
                 }, {}
             },
-            {   { 800 }, 4800, Ratio{1, 4}, 14400, 5, { ScanMethod::TRANSPARENCY,
-                                                        ScanMethod::TRANSPARENCY_INFRARED }, {
+            {   { 800 }, 4800, Ratio{1, 4}, 14400, 5, 13, { ScanMethod::TRANSPARENCY,
+                                                            ScanMethod::TRANSPARENCY_INFRARED }, {
                     { 0x16, 0x33 }, { 0x17, 0x0c }, { 0x18, 0x13 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x84 }, { 0x1e, 0xa0 },
                     { 0x52, 0x0d }, { 0x53, 0x10 }, { 0x54, 0x01 }, { 0x55, 0x04 },
@@ -2090,8 +2091,8 @@ void genesys_init_sensor_tables()
                     { 0x80, 0x20 },
                 }, {}
             },
-            {   { 1600 }, 4800, Ratio{1, 2}, 28800, 10, { ScanMethod::TRANSPARENCY,
-                                                          ScanMethod::TRANSPARENCY_INFRARED }, {
+            {   { 1600 }, 4800, Ratio{1, 2}, 28800, 10, 8, { ScanMethod::TRANSPARENCY,
+                                                             ScanMethod::TRANSPARENCY_INFRARED }, {
                     { 0x16, 0x33 }, { 0x17, 0x0c }, { 0x18, 0x11 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x84 }, { 0x1e, 0xa0 },
                     { 0x52, 0x0b }, { 0x53, 0x0e }, { 0x54, 0x11 }, { 0x55, 0x02 },
@@ -2105,8 +2106,8 @@ void genesys_init_sensor_tables()
                     { 0x03, 0x1f },
                 },
             },
-            {   { 3200 }, 4800, Ratio{1, 1}, 28800, 20, { ScanMethod::TRANSPARENCY,
-                                                          ScanMethod::TRANSPARENCY_INFRARED }, {
+            {   { 3200 }, 4800, Ratio{1, 1}, 28800, 20, 10, { ScanMethod::TRANSPARENCY,
+                                                              ScanMethod::TRANSPARENCY_INFRARED }, {
                     { 0x16, 0x33 }, { 0x17, 0x0c }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x20 }, { 0x1d, 0x84 }, { 0x1e, 0xa0 },
                     { 0x52, 0x02 }, { 0x53, 0x05 }, { 0x54, 0x08 }, { 0x55, 0x0b },
@@ -2127,11 +2128,12 @@ void genesys_init_sensor_tables()
             for (auto method : setting.methods)
                 {for (auto resolution : setting.resolutions.values()) {
                     sensor.resolutions = { resolution };
-                    sensor.shading_resolution = std::max(800u, resolution);
+                    sensor.shading_resolution = resolution;
                     sensor.register_dpiset = setting.register_dpiset;
                     sensor.pixel_count_ratio = setting.pixel_count_ratio;
                     sensor.exposure_lperiod = setting.exposure_lperiod;
                     sensor.output_pixel_offset = setting.output_pixel_offset;
+                    sensor.shading_pixel_offset = setting.shading_pixel_offset;
                     sensor.method = method;
                     sensor.custom_regs = setting.extra_custom_regs;
                     sensor.custom_fe_regs = setting.custom_fe_regs;
@@ -2162,7 +2164,7 @@ void genesys_init_sensor_tables()
             ValueFilterAny<unsigned> resolutions;
             unsigned register_dpiset;
             int exposure_lperiod;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
             std::vector<ScanMethod> methods;
             GenesysRegisterSettingSet extra_custom_regs;
             GenesysRegisterSettingSet custom_fe_regs;
@@ -2214,7 +2216,7 @@ void genesys_init_sensor_tables()
                 },
                 {},
             },
-            {   { 300 }, 1200, 45000, 1, { ScanMethod::TRANSPARENCY,
+            {   { 300 }, 1200, 45000, 6, { ScanMethod::TRANSPARENCY,
                                            ScanMethod::TRANSPARENCY_INFRARED }, {
                     { 0x0c, 0x00 },
                     { 0x16, 0x13 }, { 0x17, 0x0a }, { 0x18, 0x10 }, { 0x19, 0x2a },
@@ -2230,7 +2232,7 @@ void genesys_init_sensor_tables()
                 },
                 {},
             },
-            {   { 600 }, 2400, 45000, 2, { ScanMethod::TRANSPARENCY,
+            {   { 600 }, 2400, 45000, 11, { ScanMethod::TRANSPARENCY,
                                            ScanMethod::TRANSPARENCY_INFRARED }, {
                     { 0x0c, 0x00 },
                     { 0x16, 0x13 }, { 0x17, 0x0a }, { 0x18, 0x10 }, { 0x19, 0x2a },
@@ -2246,7 +2248,7 @@ void genesys_init_sensor_tables()
                 },
                 {},
             },
-            {   { 1200 }, 4800, 45000, 5, { ScanMethod::TRANSPARENCY,
+            {   { 1200 }, 4800, 45000, 23, { ScanMethod::TRANSPARENCY,
                                             ScanMethod::TRANSPARENCY_INFRARED }, {
                     { 0x0c, 0x00 },
                     { 0x16, 0x13 }, { 0x17, 0x0a }, { 0x18, 0x10 }, { 0x19, 0x2a },
@@ -2278,8 +2280,8 @@ void genesys_init_sensor_tables()
                 },
                 {},
             },
-            {   { 4800 }, 4800, 45000, 20, { ScanMethod::TRANSPARENCY,
-                                             ScanMethod::TRANSPARENCY_INFRARED }, {
+            {   { 4800 }, 4800, 45000, -1982, { ScanMethod::TRANSPARENCY,
+                                                ScanMethod::TRANSPARENCY_INFRARED }, {
                     { 0x0c, 0x00 },
                     { 0x16, 0x13 }, { 0x17, 0x15 }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x61 }, { 0x1d, 0x75 },
@@ -2352,7 +2354,7 @@ void genesys_init_sensor_tables()
             ValueFilterAny<unsigned> resolutions;
             unsigned register_dpihw;
             unsigned shading_factor;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
@@ -3144,7 +3146,7 @@ void genesys_init_sensor_tables()
             ValueFilterAny<unsigned> resolutions;
             unsigned register_dpihw;
             unsigned register_dpiset;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
@@ -3217,7 +3219,7 @@ void genesys_init_sensor_tables()
             unsigned ccd_size_divisor;
             unsigned shading_resolution;
             Ratio pixel_count_ratio;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
             unsigned exposure_lperiod;
             unsigned register_dpiset;
             GenesysRegisterSettingSet custom_fe_regs;
@@ -3305,7 +3307,7 @@ void genesys_init_sensor_tables()
             unsigned ccd_size_divisor;
             unsigned shading_resolution;
             Ratio pixel_count_ratio;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
             unsigned register_dpiset;
         };
 
@@ -3360,7 +3362,7 @@ void genesys_init_sensor_tables()
         {
             ValueFilterAny<unsigned> resolutions;
             unsigned register_dpiset;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
@@ -3430,7 +3432,7 @@ void genesys_init_sensor_tables()
             unsigned ccd_size_divisor;
             unsigned shading_resolution;
             Ratio pixel_count_ratio;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
             unsigned exposure_lperiod;
             unsigned register_dpiset;
         };
@@ -3493,7 +3495,7 @@ void genesys_init_sensor_tables()
             ValueFilterAny<unsigned> resolutions;
             ScanMethod method;
             unsigned register_dpiset;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
@@ -3667,7 +3669,7 @@ void genesys_init_sensor_tables()
             unsigned register_dpiset;
             unsigned shading_resolution;
             unsigned shading_factor;
-            unsigned output_pixel_offset;
+            int output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {

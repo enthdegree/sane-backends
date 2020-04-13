@@ -129,6 +129,7 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Sensor& sensor)
         << "    register_dpiset: " << sensor.register_dpiset << '\n'
         << "    ccd_size_divisor: " << sensor.ccd_size_divisor << '\n'
         << "    shading_factor: " << sensor.shading_factor << '\n'
+        << "    shading_pixel_offset: " << sensor.shading_pixel_offset << '\n'
         << "    pixel_count_ratio: " << sensor.pixel_count_ratio << '\n'
         << "    output_pixel_offset: " << sensor.output_pixel_offset << '\n'
         << "    black_pixels: " << sensor.black_pixels << '\n'

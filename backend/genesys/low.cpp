@@ -831,12 +831,12 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
         s.pixel_startx += s.output_startx * sensor.optical_res / s.params.xres;
         s.pixel_endx = s.pixel_startx + s.optical_pixels * s.ccd_size_divisor;
 
-    } else if (dev->model->asic_type == AsicType::GL841) {
+    } else if (dev->model->asic_type == AsicType::GL841 ||
+               dev->model->asic_type == AsicType::GL843) {
         s.pixel_startx = (s.output_startx * s.optical_resolution) / s.params.xres;
         s.pixel_endx = s.pixel_startx + s.optical_pixels;
 
-    } else if (dev->model->asic_type == AsicType::GL843 ||
-               dev->model->asic_type == AsicType::GL845 ||
+    } else if (dev->model->asic_type == AsicType::GL845 ||
                dev->model->asic_type == AsicType::GL846 ||
                dev->model->asic_type == AsicType::GL847 ||
                dev->model->asic_type == AsicType::GL124)
@@ -955,7 +955,11 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     // after all adjustments on the optical pixels have been made, compute the number of pixels
     // to retrieve from the chip
     s.output_pixels = (s.optical_pixels * s.output_resolution) / s.optical_resolution;
-    s.output_startx = s.params.startx + sensor.output_pixel_offset;
+
+    if (static_cast<int>(s.params.startx) + sensor.output_pixel_offset < 0)
+        throw SaneException("Invalid sensor.output_pixel_offset");
+    s.output_startx = static_cast<unsigned>(
+                static_cast<int>(s.params.startx) + sensor.output_pixel_offset);
 
     s.num_staggered_lines = 0;
     if (!has_flag(s.params.flags, ScanFlag::IGNORE_STAGGER_OFFSET))
@@ -1111,8 +1115,7 @@ static std::size_t get_usb_buffer_read_size(AsicType asic, const ScanSession& se
     }
 }
 
-void build_image_pipeline(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                          const ScanSession& session)
+void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
 {
     static unsigned s_pipeline_index = 0;
 
@@ -1221,14 +1224,9 @@ void build_image_pipeline(Genesys_Device* dev, const Genesys_Sensor& sensor,
         !has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION) &&
         !has_flag(session.params.flags, ScanFlag::DISABLE_SHADING))
     {
-        unsigned pixel_shift = session.params.startx;
-        if (dev->model->model_id == ModelId::CANON_4400F) {
-            pixel_shift =
-                    session.params.startx * sensor.optical_res / dev->calib_session.params.xres;
-        }
         dev->pipeline.push_node<ImagePipelineNodeCalibrate>(dev->dark_average_data,
                                                             dev->white_average_data,
-                                                            pixel_shift *
+                                                            session.params.startx *
                                                                 dev->calib_session.params.channels);
 
         if (DBG_LEVEL >= DBG_io2) {

@@ -1136,7 +1136,7 @@ void CommandSetGl843::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     dev->read_buffer.clear();
     dev->read_buffer.alloc(session.buffer_size_read);
 
-    build_image_pipeline(dev, sensor, session);
+    build_image_pipeline(dev, session);
 
     dev->read_active = true;
 
@@ -1182,20 +1182,11 @@ ScanSession CommandSetGl843::calculate_scan_session(const Genesys_Device* dev,
     if (settings.scan_method==ScanMethod::TRANSPARENCY ||
         settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        start = get_model_x_offset_ta(*dev, settings);
+        start = dev->model->x_offset_ta;
     } else {
         start = dev->model->x_offset;
     }
     start = start + settings.tl_x;
-
-    if ((dev->model->model_id == ModelId::CANON_4400F &&
-            settings.scan_method == ScanMethod::TRANSPARENCY) ||
-        dev->model->model_id == ModelId::CANON_8400F ||
-        dev->model->model_id == ModelId::CANON_8600F)
-    {
-        // FIXME: this is probably just an artifact of a bug elsewhere
-        start /= sensor.get_ccd_size_divisor_for_dpi(settings.xres);
-    }
 
     start = static_cast<float>((start * settings.xres) / MM_PER_INCH);
 
@@ -1474,7 +1465,7 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     unsigned calib_pixels_offset = 0;
 
     if (should_calibrate_only_active_area(*dev, dev->settings)) {
-        float offset = get_model_x_offset_ta(*dev, dev->settings);
+        float offset = dev->model->x_offset_ta;
         // FIXME: we should use resolution here
         offset = static_cast<float>((offset * dev->settings.xres) / MM_PER_INCH);
 
@@ -1498,6 +1489,12 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
         // note: move_to_ta() function has already been called and the sensor is at the
         // transparency adapter
         move = static_cast<int>(dev->model->y_offset_calib_white_ta - dev->model->y_offset_sensor_to_ta);
+        if (dev->model->model_id == ModelId::CANON_8600F && resolution == 2400) {
+            move /= 2;
+        }
+        if (dev->model->model_id == ModelId::CANON_8600F && resolution == 4800) {
+            move /= 4;
+        }
         flags |= ScanFlag::USE_XPA;
     } else {
         move = static_cast<int>(dev->model->y_offset_calib_white);
@@ -1973,7 +1970,7 @@ void CommandSetGl843::send_shading_data(Genesys_Device* dev, const Genesys_Senso
   uint8_t *buffer;
     int count;
 
-    unsigned offset = 0;
+    int offset = 0;
     unsigned length = size;
 
     if (dev->reg.get8(REG_0x01) & REG_0x01_SHDAREA) {
@@ -1983,9 +1980,13 @@ void CommandSetGl843::send_shading_data(Genesys_Device* dev, const Genesys_Senso
         length = dev->session.output_pixels * sensor.shading_resolution /
                  dev->session.params.xres;
 
+        offset += sensor.shading_pixel_offset;
+
         // 16 bit words, 2 words per color, 3 color channels
         length *= 2 * 2 * 3;
         offset *= 2 * 2 * 3;
+    } else {
+        offset += sensor.shading_pixel_offset * 2 * 2 * 3;
     }
 
     dev->interface->record_key_value("shading_offset", std::to_string(offset));
@@ -1999,6 +2000,11 @@ void CommandSetGl843::send_shading_data(Genesys_Device* dev, const Genesys_Senso
   /* copy regular shading data to the expected layout */
   buffer = final_data.data();
   count = 0;
+    if (offset < 0) {
+        count += (-offset);
+        length -= (-offset);
+        offset = 0;
+    }
 
   /* loop over calibration data */
   for (i = 0; i < length; i++)

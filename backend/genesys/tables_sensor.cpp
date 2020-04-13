@@ -2280,8 +2280,8 @@ void genesys_init_sensor_tables()
                 },
                 {},
             },
-            {   { 4800 }, 4800, 45000, 285, { ScanMethod::TRANSPARENCY,
-                                              ScanMethod::TRANSPARENCY_INFRARED }, {
+            {   { 4800 }, 4800, 45000, -1982, { ScanMethod::TRANSPARENCY,
+                                                ScanMethod::TRANSPARENCY_INFRARED }, {
                     { 0x0c, 0x00 },
                     { 0x16, 0x13 }, { 0x17, 0x15 }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x61 }, { 0x1d, 0x75 },

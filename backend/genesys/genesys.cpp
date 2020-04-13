@@ -1343,9 +1343,6 @@ bool should_calibrate_only_active_area(const Genesys_Device& dev,
 
 float get_model_x_offset_ta(const Genesys_Device& dev, const Genesys_Settings& settings)
 {
-    if (dev.model->model_id == ModelId::CANON_8600F && settings.xres == 4800) {
-        return 85.0f;
-    }
     if (dev.model->model_id == ModelId::CANON_4400F && settings.xres == 4800) {
         return dev.model->x_offset_ta - 10.0;
     }

@@ -3288,7 +3288,6 @@ void genesys_init_sensor_tables()
     sensor.optical_res = 7200;
     sensor.method = ScanMethod::TRANSPARENCY;
     sensor.register_dpihw = 1200;
-    sensor.ccd_size_divisor = 1;
     sensor.black_pixels = 88; // TODO
     sensor.dummy_pixel = 20;
     sensor.ccd_start_xoffset = 120;
@@ -3419,7 +3418,6 @@ void genesys_init_sensor_tables()
     sensor.optical_res = 7200;
     sensor.method = ScanMethod::TRANSPARENCY;
     sensor.register_dpihw = 1200;
-    sensor.ccd_size_divisor = 1;
     sensor.black_pixels = 88; // TODO
     sensor.dummy_pixel = 20;
     sensor.ccd_start_xoffset = 120;

@@ -2838,33 +2838,30 @@ void CommandSetGl841::send_shading_data(Genesys_Device* dev, const Genesys_Senso
 {
     DBG_HELPER_ARGS(dbg, "writing %d bytes of shading data", size);
   uint32_t length, x, pixels, i;
-    std::uint16_t beginpixel;
   uint8_t *ptr,*src;
 
   /* old method if no SHDAREA */
     if ((dev->reg.find_reg(0x01).value & REG_0x01_SHDAREA) == 0) {
+        // Note that this requires the sensor pixel offset to be exactly the same as to start
+        // reading from dummy_pixel + 1 position.
         dev->interface->write_buffer(0x3c, 0x0000, data, size);
         return;
     }
 
   /* data is whole line, we extract only the part for the scanned area */
     length = static_cast<std::uint32_t>(size / 3);
-    unsigned strpixel = dev->session.pixel_startx;
-    unsigned endpixel = dev->session.pixel_endx;
 
-  /* turn pixel value into bytes 2x16 bits words */
-  strpixel*=2*2; /* 2 words of 2 bytes */
-  endpixel*=2*2;
-  pixels=endpixel-strpixel;
+    // turn pixel value into bytes 2x16 bits words
+    pixels = dev->session.pixel_endx - dev->session.pixel_startx;
+    pixels *= 4;
 
-  /* shading pixel begin is start pixel minus start pixel during shading
-   * calibration. Currently only cases handled are full and half ccd resolution.
-   */
-    beginpixel = sensor.ccd_start_xoffset / dev->session.ccd_size_divisor;
-  beginpixel += sensor.dummy_pixel + 1;
-  DBG(DBG_io2, "%s: ORIGIN PIXEL=%d\n", __func__, beginpixel);
-    beginpixel = (strpixel - beginpixel * 2 * 2) / sensor.shading_factor;
-  DBG(DBG_io2, "%s: BEGIN PIXEL=%d\n", __func__, beginpixel/4);
+    // shading pixel begin is start pixel minus start pixel during shading
+    // calibration. Currently only cases handled are full and half ccd resolution.
+    unsigned beginpixel = dev->session.params.startx * dev->session.optical_resolution /
+            dev->session.params.xres;
+    DBG(DBG_io2, "%s: ORIGIN PIXEL=%d\n", __func__, beginpixel);
+    beginpixel *= 4;
+    beginpixel /= sensor.shading_factor;
 
     dev->interface->record_key_value("shading_offset", std::to_string(beginpixel));
     dev->interface->record_key_value("shading_pixels", std::to_string(pixels));
@@ -2888,7 +2885,7 @@ void CommandSetGl841::send_shading_data(Genesys_Device* dev, const Genesys_Senso
       for(x=0;x<pixels;x+=4)
         {
           /* coefficient source */
-          src=data+x+beginpixel+i*length;
+            src = data + x + beginpixel + i * length;
           ptr[0]=src[0];
           ptr[1]=src[1];
           ptr[2]=src[2];

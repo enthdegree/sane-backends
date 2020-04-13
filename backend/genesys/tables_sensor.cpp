@@ -581,16 +581,17 @@ void genesys_init_sensor_tables()
             unsigned register_dpihw;
             unsigned register_dpiset;
             unsigned shading_resolution;
+            unsigned output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 75 }, 1200, 150, 600 },
-            { { 100 }, 1200, 200, 600 },
-            { { 150 }, 1200, 300, 600 },
-            { { 200 }, 1200, 400, 600 },
-            { { 300 }, 1200, 600, 600 },
-            { { 600 }, 1200, 1200, 600 },
-            { { 1200 }, 1200, 1200, 1200 },
+            { { 75 }, 1200, 150, 600, 11 },
+            { { 100 }, 1200, 200, 600, 14 },
+            { { 150 }, 1200, 300, 600, 22 },
+            { { 200 }, 1200, 400, 600, 29 },
+            { { 300 }, 1200, 600, 600, 44 },
+            { { 600 }, 1200, 1200, 600, 88 },
+            { { 1200 }, 1200, 1200, 1200, 88 },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
@@ -598,6 +599,7 @@ void genesys_init_sensor_tables()
             sensor.register_dpihw = setting.register_dpihw;
             sensor.register_dpiset = setting.register_dpiset;
             sensor.shading_resolution = setting.shading_resolution;
+            sensor.output_pixel_offset = setting.output_pixel_offset;
             s_sensors->push_back(sensor);
         }
     }
@@ -813,19 +815,21 @@ void genesys_init_sensor_tables()
         {
             ValueFilterAny<unsigned> resolutions;
             unsigned register_dpiset;
+            unsigned output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 75 }, 75 },
-            { { 150 }, 150 },
-            { { 300 }, 300 },
-            { { 600 }, 600 },
-            { { 1200 }, 1200 },
+            { { 75 }, 75, 1 },
+            { { 150 }, 150, 3 },
+            { { 300 }, 300, 7 },
+            { { 600 }, 600, 14 },
+            { { 1200 }, 1200, 28 },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.register_dpiset = setting.register_dpiset;
+            sensor.output_pixel_offset = setting.output_pixel_offset;
             s_sensors->push_back(sensor);
         }
     }
@@ -868,19 +872,21 @@ void genesys_init_sensor_tables()
         {
             ValueFilterAny<unsigned> resolutions;
             unsigned register_dpiset;
+            unsigned output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 75 }, 75 },
-            { { 150 }, 150 },
-            { { 300 }, 300 },
-            { { 600 }, 600 },
-            { { 1200 }, 1200 },
+            { { 75 }, 75, 1 },
+            { { 150 }, 150, 3 },
+            { { 300 }, 300, 7 },
+            { { 600 }, 600, 14 },
+            { { 1200 }, 1200, 28 },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.register_dpiset = setting.register_dpiset;
+            sensor.output_pixel_offset = setting.output_pixel_offset;
             s_sensors->push_back(sensor);
         }
     }
@@ -924,18 +930,20 @@ void genesys_init_sensor_tables()
         {
             ValueFilterAny<unsigned> resolutions;
             unsigned register_dpiset;
+            unsigned output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 75 }, 75 },
-            { { 150 }, 150 },
-            { { 300 }, 300 },
-            { { 600 }, 600 },
+            { { 75 }, 75, 3 },
+            { { 150 }, 150, 7 },
+            { { 300 }, 300, 14 },
+            { { 600 }, 600, 29 },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.register_dpiset = setting.register_dpiset;
+            sensor.output_pixel_offset = setting.output_pixel_offset;
             s_sensors->push_back(sensor);
         }
     }
@@ -979,18 +987,20 @@ void genesys_init_sensor_tables()
         {
             ValueFilterAny<unsigned> resolutions;
             unsigned register_dpiset;
+            unsigned output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 75 }, 150 },
-            { { 150 }, 300 },
-            { { 300 }, 600 },
-            { { 600 }, 1200 },
+            { { 75 }, 150, 3 },
+            { { 150 }, 300, 7 },
+            { { 300 }, 600, 14 },
+            { { 600 }, 1200, 28 },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.register_dpiset = setting.register_dpiset;
+            sensor.output_pixel_offset = setting.output_pixel_offset;
             s_sensors->push_back(sensor);
         }
     }
@@ -1034,18 +1044,20 @@ void genesys_init_sensor_tables()
         {
             ValueFilterAny<unsigned> resolutions;
             unsigned register_dpiset;
+            unsigned output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 75 }, 150 },
-            { { 150 }, 300 },
-            { { 300 }, 600 },
-            { { 600 }, 600 },
+            { { 75 }, 150, 3 },
+            { { 150 }, 300, 7 },
+            { { 300 }, 600, 14 },
+            { { 600 }, 600, 28 },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.register_dpiset = setting.register_dpiset;
+            sensor.output_pixel_offset = setting.output_pixel_offset;
             s_sensors->push_back(sensor);
         }
     }
@@ -1090,18 +1102,20 @@ void genesys_init_sensor_tables()
         {
             ValueFilterAny<unsigned> resolutions;
             unsigned register_dpiset;
+            unsigned output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 75 }, 75 },
-            { { 150 }, 150 },
-            { { 300 }, 300 },
-            { { 600 }, 600 },
+            { { 75 }, 75, 3 },
+            { { 150 }, 150, 6 },
+            { { 300 }, 300, 13 },
+            { { 600 }, 600, 27 },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.register_dpiset = setting.register_dpiset;
+            sensor.output_pixel_offset = setting.output_pixel_offset;
             s_sensors->push_back(sensor);
         }
     }
@@ -3127,16 +3141,17 @@ void genesys_init_sensor_tables()
             ValueFilterAny<unsigned> resolutions;
             unsigned register_dpihw;
             unsigned register_dpiset;
+            unsigned output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 75 }, 600, 150 },
-            { { 100 }, 600, 200 },
-            { { 150 }, 600, 300 },
-            { { 200 }, 600, 400 },
-            { { 300 }, 600, 600 },
-            { { 600 }, 600, 1200 },
-            { { 1200 }, 1200, 1200 },
+            { { 75 }, 600, 150, 11 },
+            { { 100 }, 600, 200, 14 },
+            { { 150 }, 600, 300, 22 },
+            { { 200 }, 600, 400, 29 },
+            { { 300 }, 600, 600, 44 },
+            { { 600 }, 600, 1200, 88 },
+            { { 1200 }, 1200, 1200, 88 },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
@@ -3144,6 +3159,7 @@ void genesys_init_sensor_tables()
             sensor.register_dpihw = setting.register_dpihw;
             sensor.register_dpiset = setting.register_dpiset;
             sensor.shading_resolution = setting.register_dpihw;
+            sensor.output_pixel_offset = setting.output_pixel_offset;
             s_sensors->push_back(sensor);
         }
     }
@@ -3647,16 +3663,17 @@ void genesys_init_sensor_tables()
             unsigned register_dpiset;
             unsigned shading_resolution;
             unsigned shading_factor;
+            unsigned output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 75 }, 150, 600, 8 },
-            { { 100 }, 200, 600, 6 },
-            { { 150 }, 300, 600, 4 },
-            { { 200 }, 400, 600, 3 },
-            { { 300 }, 600, 600, 2 },
-            { { 600 }, 1200, 600, 1 },
-            { { 1200 }, 1200, 1200, 1 },
+            { { 75 }, 150, 600, 8, 2 },
+            { { 100 }, 200, 600, 6, 3 },
+            { { 150 }, 300, 600, 4, 4 },
+            { { 200 }, 400, 600, 3, 6 },
+            { { 300 }, 600, 600, 2, 9 },
+            { { 600 }, 1200, 600, 1, 17 },
+            { { 1200 }, 1200, 1200, 1, 35 },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
@@ -3664,6 +3681,7 @@ void genesys_init_sensor_tables()
             sensor.register_dpiset = setting.register_dpiset;
             sensor.shading_resolution = setting.shading_resolution;
             sensor.shading_factor = setting.shading_factor;
+            sensor.output_pixel_offset = setting.output_pixel_offset;
             s_sensors->push_back(sensor);
         }
     }

@@ -851,19 +851,6 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
 
         s.pixel_startx += sensor.dummy_pixel + 1;
 
-        /*  In case of SHDAREA, we need to align start on pixel average factor, startx is
-            different than 0 only when calling for function to setup for scan, where shading data
-            needs to be align.
-
-            NOTE: we can check the value of the register here, because we don't set this bit
-            anywhere except in initialization.
-        */
-        const uint8_t REG_0x01_SHDAREA = 0x02;
-        if ((dev->reg.find_reg(0x01).value & REG_0x01_SHDAREA) != 0) {
-            unsigned average_factor = s.optical_resolution / s.params.xres;
-            s.pixel_startx = align_multiple_floor(s.pixel_startx, average_factor);
-        }
-
         s.pixel_endx = s.pixel_startx + s.optical_pixels;
 
     } else if (dev->model->asic_type == AsicType::GL843) {

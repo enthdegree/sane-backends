@@ -838,10 +838,8 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
         s.pixel_endx = s.pixel_startx + s.optical_pixels;
 
     } else if (dev->model->asic_type == AsicType::GL843) {
-        unsigned startx = s.params.startx * sensor.optical_res / s.params.xres;
-
-        s.pixel_startx = (startx + sensor.dummy_pixel);
-        s.pixel_endx = s.pixel_startx + s.optical_pixels;
+        s.pixel_startx = s.output_startx * sensor.optical_res / s.params.xres;
+        s.pixel_endx = s.pixel_startx + s.optical_pixels_raw;
 
     } else if (dev->model->asic_type == AsicType::GL845 ||
                dev->model->asic_type == AsicType::GL846 ||

@@ -1969,39 +1969,23 @@ void CommandSetGl843::send_shading_data(Genesys_Device* dev, const Genesys_Senso
                                         uint8_t* data, int size) const
 {
     DBG_HELPER(dbg);
-  uint32_t final_size, length, i;
+    uint32_t final_size, i;
   uint8_t *buffer;
-  int count,offset;
-    uint16_t strpixel, endpixel, startx;
+    int count;
 
-  offset=0;
-  length=size;
+    unsigned offset = 0;
+    unsigned length = size;
+
     if (dev->reg.get8(REG_0x01) & REG_0x01_SHDAREA) {
-      /* recompute STRPIXEL used shading calibration so we can
-       * compute offset within data for SHDAREA case */
+        offset = dev->session.params.startx * sensor.shading_resolution /
+                 dev->session.params.xres;
 
-        // FIXME: the following is likely incorrect
-        // start coordinate in optical dpi coordinates
-        startx = sensor.dummy_pixel;
-        startx = dev->session.pixel_count_ratio.apply(startx);
+        length = dev->session.output_pixels * sensor.shading_resolution /
+                 dev->session.params.xres;
 
-      /* current scan coordinates */
-        strpixel = dev->session.pixel_startx;
-        endpixel = dev->session.pixel_endx;
-
-        if (dev->model->model_id == ModelId::CANON_4400F ||
-            dev->model->model_id == ModelId::CANON_8600F)
-        {
-            int half_ccd_factor = dev->session.optical_resolution / sensor.shading_resolution;
-            strpixel = dev->session.pixel_count_ratio.apply(strpixel / half_ccd_factor);
-            endpixel = dev->session.pixel_count_ratio.apply(endpixel / half_ccd_factor);
-        }
-
-      /* 16 bit words, 2 words per color, 3 color channels */
-      offset=(strpixel-startx)*2*2*3;
-      length=(endpixel-strpixel)*2*2*3;
-      DBG(DBG_info, "%s: STRPIXEL=%d, ENDPIXEL=%d, startx=%d\n", __func__, strpixel, endpixel,
-          startx);
+        // 16 bit words, 2 words per color, 3 color channels
+        length *= 2 * 2 * 3;
+        offset *= 2 * 2 * 3;
     }
 
     dev->interface->record_key_value("shading_offset", std::to_string(offset));

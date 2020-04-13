@@ -838,7 +838,7 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
         }
         s.pixel_startx += s.params.startx * sensor.optical_res / s.params.xres;
 
-        s.pixel_endx = s.pixel_startx + s.optical_pixels;
+        s.pixel_endx = s.pixel_startx + s.optical_pixels * s.ccd_size_divisor;
 
         s.pixel_startx /= sensor.ccd_pixels_per_system_pixel() * s.ccd_size_divisor;
         s.pixel_endx /= sensor.ccd_pixels_per_system_pixel() * s.ccd_size_divisor;
@@ -973,11 +973,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     s.ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(s.params.xres);
     s.pixel_count_ratio = sensor.pixel_count_ratio;
 
-    if (dev->model->asic_type == AsicType::GL646) {
-        s.optical_resolution = sensor.optical_res;
-    } else {
-        s.optical_resolution = sensor.optical_res / s.ccd_size_divisor;
-    }
+    s.optical_resolution = sensor.optical_res / s.ccd_size_divisor;
     s.output_resolution = s.params.xres;
 
     if (s.output_resolution > s.optical_resolution) {

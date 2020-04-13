@@ -802,6 +802,12 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
     }
 
     // wait until feed count reaches the required value
+    if (dev.model->model_id == ModelId::CANON_LIDE_700F) {
+        if (dev.cmd_set->needs_update_home_sensor_gpio()) {
+            dev.cmd_set->update_home_sensor_gpio(dev);
+        }
+    }
+
     // FIXME: should porbably wait for some timeout
     Status status;
     for (unsigned i = 0;; ++i) {

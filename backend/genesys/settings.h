@@ -121,8 +121,9 @@ struct SetupParams {
     unsigned startx = NOT_SET;
     // start pixel in Y direction, counted according to base_ydpi
     unsigned starty = NOT_SET;
-    // the number of pixels in X direction. Note that each logical pixel may correspond to more
-    // than one CCD pixel, see CKSEL and GenesysSensor::ccd_pixels_per_system_pixel()
+    // the number of pixels in X direction. Counted in terms of xres.
+    // Note that each logical pixel may correspond to more than one CCD pixel, see CKSEL and
+    // GenesysSensor::ccd_pixels_per_system_pixel()
     unsigned pixels = NOT_SET;
 
     // the number of pixels in the X direction as requested by the frontend. This will be different

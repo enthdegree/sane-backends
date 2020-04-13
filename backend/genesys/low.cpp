@@ -830,12 +830,7 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
     unsigned ccd_pixels_per_system_pixel = sensor.ccd_pixels_per_system_pixel();
 
     if (dev->model->asic_type == AsicType::GL646) {
-
-        // startx cannot be below dummy pixel value
-        s.pixel_startx = sensor.dummy_pixel;
-
-        s.pixel_startx += s.params.startx * sensor.optical_res / s.params.xres;
-
+        s.pixel_startx += s.output_startx * sensor.optical_res / s.params.xres;
         s.pixel_endx = s.pixel_startx + s.optical_pixels * s.ccd_size_divisor;
 
     } else if (dev->model->asic_type == AsicType::GL841) {

@@ -1460,8 +1460,7 @@ void CommandSetGl646::move_back_home(Genesys_Device* dev, bool wait_until_home) 
     session.params.scan_method = dev->model->default_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = ColorFilter::RED;
-    session.params.flags = ScanFlag::USE_XCORRECTION |
-                            ScanFlag::REVERSE;
+    session.params.flags = ScanFlag::REVERSE;
     if (dev->model->default_method == ScanMethod::TRANSPARENCY) {
         session.params.flags |= ScanFlag::USE_XPA;
     }
@@ -1711,9 +1710,6 @@ static ScanSession setup_for_scan(Genesys_Device* dev,
     session.params.flags = ScanFlag::NONE;
     if (settings.scan_method == ScanMethod::TRANSPARENCY) {
         session.params.flags |= ScanFlag::USE_XPA;
-    }
-    if (xcorrection) {
-        session.params.flags |= ScanFlag::USE_XCORRECTION;
     }
     if (reverse) {
         session.params.flags |= ScanFlag::REVERSE;
@@ -3125,7 +3121,7 @@ ScanSession CommandSetGl646::calculate_scan_session(const Genesys_Device* dev,
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = settings.scan_mode;
     session.params.color_filter = settings.color_filter;
-    session.params.flags = ScanFlag::USE_XCORRECTION;
+    session.params.flags = ScanFlag::NONE;
     if (settings.scan_method == ScanMethod::TRANSPARENCY) {
         session.params.flags |= ScanFlag::USE_XPA;
     }

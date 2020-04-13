@@ -551,7 +551,6 @@ enum class ScanFlag : unsigned
     FEEDING = 1 << 8,
     USE_XPA = 1 << 9,
     ENABLE_LEDADD = 1 << 10,
-    USE_XCORRECTION = 1 << 11,
     REVERSE = 1 << 12,
 };
 

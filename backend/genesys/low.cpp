@@ -833,9 +833,7 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
 
         // startx cannot be below dummy pixel value
         s.pixel_startx = sensor.dummy_pixel;
-        if (has_flag(s.params.flags, ScanFlag::USE_XCORRECTION) && sensor.ccd_start_xoffset > 0) {
-            s.pixel_startx = sensor.ccd_start_xoffset;
-        }
+
         s.pixel_startx += s.params.startx * sensor.optical_res / s.params.xres;
 
         s.pixel_endx = s.pixel_startx + s.optical_pixels * s.ccd_size_divisor;

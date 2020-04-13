@@ -290,6 +290,9 @@ struct Genesys_Sensor {
     // the scanner.
     Ratio pixel_count_ratio = Ratio{1, 1};
 
+    // The offset in pixels in terms of scan resolution that needs to be applied to scan position.
+    unsigned output_pixel_offset = 0;
+
     int black_pixels = 0;
     // value of the dummy register
     int dummy_pixel = 0;
@@ -365,6 +368,7 @@ struct Genesys_Sensor {
             ccd_size_divisor == other.ccd_size_divisor &&
             shading_factor == other.shading_factor &&
             pixel_count_ratio == other.pixel_count_ratio &&
+            output_pixel_offset == other.output_pixel_offset &&
             black_pixels == other.black_pixels &&
             dummy_pixel == other.dummy_pixel &&
             ccd_start_xoffset == other.ccd_start_xoffset &&
@@ -393,6 +397,7 @@ void serialize(Stream& str, Genesys_Sensor& x)
     serialize(str, x.shading_resolution);
     serialize(str, x.ccd_size_divisor);
     serialize(str, x.shading_factor);
+    serialize(str, x.output_pixel_offset);
     serialize(str, x.pixel_count_ratio);
     serialize(str, x.black_pixels);
     serialize(str, x.dummy_pixel);

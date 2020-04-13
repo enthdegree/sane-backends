@@ -233,6 +233,9 @@ struct ScanSession {
     // gl843-only
     unsigned output_resolution = 0;
 
+    // the offset in pixels from the beginning of output data
+    unsigned output_startx = 0;
+
     // the number of pixels in output data (after desegmentation)
     unsigned output_pixels = 0;
 
@@ -346,6 +349,7 @@ void serialize(Stream& str, ScanSession& x)
     serialize(str, x.optical_pixels_raw);
     serialize(str, x.optical_line_count);
     serialize(str, x.output_resolution);
+    serialize(str, x.output_startx);
     serialize(str, x.output_pixels);
     serialize(str, x.output_channel_bytes);
     serialize(str, x.output_line_bytes);

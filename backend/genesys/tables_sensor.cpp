@@ -2127,7 +2127,7 @@ void genesys_init_sensor_tables()
             for (auto method : setting.methods)
                 {for (auto resolution : setting.resolutions.values()) {
                     sensor.resolutions = { resolution };
-                    sensor.shading_resolution = std::max(800u, resolution);
+                    sensor.shading_resolution = resolution;
                     sensor.register_dpiset = setting.register_dpiset;
                     sensor.pixel_count_ratio = setting.pixel_count_ratio;
                     sensor.exposure_lperiod = setting.exposure_lperiod;

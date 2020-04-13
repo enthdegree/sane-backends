@@ -1489,6 +1489,12 @@ void CommandSetGl843::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
         // note: move_to_ta() function has already been called and the sensor is at the
         // transparency adapter
         move = static_cast<int>(dev->model->y_offset_calib_white_ta - dev->model->y_offset_sensor_to_ta);
+        if (dev->model->model_id == ModelId::CANON_8600F && resolution == 2400) {
+            move /= 2;
+        }
+        if (dev->model->model_id == ModelId::CANON_8600F && resolution == 4800) {
+            move /= 4;
+        }
         flags |= ScanFlag::USE_XPA;
     } else {
         move = static_cast<int>(dev->model->y_offset_calib_white);

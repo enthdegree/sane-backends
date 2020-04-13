@@ -100,7 +100,6 @@ void genesys_init_sensor_tables()
     sensor.optical_res = 1200;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 64;
-    sensor.ccd_start_xoffset = 0;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 230;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -144,7 +143,6 @@ void genesys_init_sensor_tables()
     sensor.optical_res = 600;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 85;
-    sensor.ccd_start_xoffset = 152;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 230;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -186,7 +184,6 @@ void genesys_init_sensor_tables()
     sensor.optical_res = 1200;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 64;
-    sensor.ccd_start_xoffset = 0;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 230;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -231,7 +228,6 @@ void genesys_init_sensor_tables()
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 16;
-    sensor.ccd_start_xoffset = 0;
     sensor.fau_gain_white_ref = 190;
     sensor.gain_white_ref = 190;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -361,7 +357,6 @@ void genesys_init_sensor_tables()
     sensor.optical_res = 1200;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 15;
-    sensor.ccd_start_xoffset = 0;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -463,7 +458,6 @@ void genesys_init_sensor_tables()
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 20;
-    sensor.ccd_start_xoffset = 0;
     sensor.fau_gain_white_ref = 180;
     sensor.gain_white_ref = 180;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -548,7 +542,6 @@ void genesys_init_sensor_tables()
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 87;
-    sensor.ccd_start_xoffset = 0;
     sensor.fau_gain_white_ref = 0;
     sensor.gain_white_ref = 0;
     sensor.exposure = { 0x0400, 0x0400, 0x0400 };
@@ -609,7 +602,6 @@ void genesys_init_sensor_tables()
     sensor.optical_res = 600;
     sensor.black_pixels = 5;
     sensor.dummy_pixel = 38;
-    sensor.ccd_start_xoffset = 0;
     sensor.fau_gain_white_ref = 200;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x1450, 0x0c80, 0x0a28 };
@@ -672,7 +664,6 @@ void genesys_init_sensor_tables()
     sensor.optical_res = 1200;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 16;
-    sensor.ccd_start_xoffset = 0;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0, 0, 0 };
@@ -784,7 +775,6 @@ void genesys_init_sensor_tables()
     sensor.shading_resolution = 600;
     sensor.black_pixels = 27;
     sensor.dummy_pixel = 27;
-    sensor.ccd_start_xoffset = 0;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x1100, 0x1100, 0x1100 };
@@ -841,7 +831,6 @@ void genesys_init_sensor_tables()
     sensor.shading_resolution = 600;
     sensor.black_pixels = 27;
     sensor.dummy_pixel = 27;
-    sensor.ccd_start_xoffset = 0;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x1100, 0x1100, 0x1100 };
@@ -899,7 +888,6 @@ void genesys_init_sensor_tables()
     sensor.shading_resolution = 600;
     sensor.black_pixels = 28;
     sensor.dummy_pixel = 28;
-    sensor.ccd_start_xoffset = 0;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x1544, 0x1544, 0x1544 };
@@ -956,7 +944,6 @@ void genesys_init_sensor_tables()
     sensor.shading_resolution = 600;
     sensor.black_pixels = 27;
     sensor.dummy_pixel = 27;
-    sensor.ccd_start_xoffset = 0;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x1100, 0x1100, 0x1100 };
@@ -1013,7 +1000,6 @@ void genesys_init_sensor_tables()
     sensor.shading_resolution = 600;
     sensor.black_pixels = 27;
     sensor.dummy_pixel = 27;
-    sensor.ccd_start_xoffset = 0;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x1100, 0x1100, 0x1100 };
@@ -1071,7 +1057,6 @@ void genesys_init_sensor_tables()
     sensor.optical_res = 600;
     sensor.black_pixels = 27;
     sensor.dummy_pixel = 27;
-    sensor.ccd_start_xoffset = 0;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x1100, 0x1100, 0x1100 };
@@ -1126,7 +1111,6 @@ void genesys_init_sensor_tables()
     sensor.optical_res = 4800;
     sensor.black_pixels = 87*4;
     sensor.dummy_pixel = 16*4;
-    sensor.ccd_start_xoffset = 320*8;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -1289,8 +1273,6 @@ void genesys_init_sensor_tables()
     sensor.optical_res = 4800;
     sensor.black_pixels = 73*8; // black pixels 73 at 600 dpi
     sensor.dummy_pixel = 16*8;
-    // 384 at 600 dpi
-    sensor.ccd_start_xoffset = 384*8;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
@@ -1435,7 +1417,6 @@ void genesys_init_sensor_tables()
     sensor.optical_res = 2400;
     sensor.black_pixels = 87*4;
     sensor.dummy_pixel = 16*4;
-    sensor.ccd_start_xoffset = 320*4;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x01c1, 0x0126, 0x00e5 };
@@ -1569,7 +1550,6 @@ void genesys_init_sensor_tables()
     sensor.shading_resolution = 600;
     sensor.black_pixels = 38;
     sensor.dummy_pixel = 38;
-    sensor.ccd_start_xoffset = 152;
     sensor.fau_gain_white_ref = 160;
     sensor.gain_white_ref = 160;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -1636,7 +1616,6 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 50*8;
     // 31 at 600 dpi dummy_pixels 58 at 1200
     sensor.dummy_pixel = 58;
-    sensor.ccd_start_xoffset = 152;
     sensor.fau_gain_white_ref = 160;
     sensor.gain_white_ref = 160;
     sensor.exposure = { 0x2c09, 0x22b8, 0x10f0 };
@@ -1764,7 +1743,6 @@ void genesys_init_sensor_tables()
     sensor.optical_res = 4800;
     sensor.black_pixels = 100;
     sensor.dummy_pixel = 58;
-    sensor.ccd_start_xoffset = 152;
     sensor.fau_gain_white_ref = 160;
     sensor.gain_white_ref = 160;
     sensor.exposure = { 0x2c09, 0x22b8, 0x10f0 };
@@ -1889,7 +1867,6 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 50*8;
     // 31 at 600 dpi, 58 at 1200 dpi
     sensor.dummy_pixel = 20;
-    sensor.ccd_start_xoffset = 152;
     sensor.fau_gain_white_ref = 160;
     sensor.gain_white_ref = 160;
     sensor.exposure = { 0x9c40, 0x9c40, 0x9c40 };
@@ -2014,7 +1991,6 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 50*8;
     // 31 at 600 dpi, 58 at 1200 dpi
     sensor.dummy_pixel = 20;
-    sensor.ccd_start_xoffset = 152;
     sensor.fau_gain_white_ref = 160;
     sensor.gain_white_ref = 160;
     sensor.exposure = { 0x9c40, 0x9c40, 0x9c40 };
@@ -2173,7 +2149,6 @@ void genesys_init_sensor_tables()
     sensor.ccd_size_divisor = 4;
     sensor.black_pixels = 31;
     sensor.dummy_pixel = 20;
-    sensor.ccd_start_xoffset = 0; // not used at the moment
     sensor.fau_gain_white_ref = 160;
     sensor.gain_white_ref = 160;
     sensor.exposure = { 0x9c40, 0x9c40, 0x9c40 };
@@ -2347,7 +2322,6 @@ void genesys_init_sensor_tables()
     sensor.black_pixels = 96;
     sensor.dummy_pixel = 26;
     sensor.pixel_count_ratio = Ratio{1, 4};
-    sensor.ccd_start_xoffset = 128;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 230;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -2410,7 +2384,6 @@ void genesys_init_sensor_tables()
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 16;
-    sensor.ccd_start_xoffset = 303;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -2580,7 +2553,6 @@ void genesys_init_sensor_tables()
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 16;
-    sensor.ccd_start_xoffset = 303;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -2751,7 +2723,6 @@ void genesys_init_sensor_tables()
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 16;
-    sensor.ccd_start_xoffset = 303;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -2947,7 +2918,6 @@ void genesys_init_sensor_tables()
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 16;
-    sensor.ccd_start_xoffset = 303;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -3143,7 +3113,6 @@ void genesys_init_sensor_tables()
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 87;
-    sensor.ccd_start_xoffset = 0;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 230;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -3204,7 +3173,6 @@ void genesys_init_sensor_tables()
     sensor.register_dpihw = 1200;
     sensor.black_pixels = 88; // TODO
     sensor.dummy_pixel = 20;
-    sensor.ccd_start_xoffset = 0;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 230;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -3293,7 +3261,6 @@ void genesys_init_sensor_tables()
     sensor.register_dpihw = 1200;
     sensor.black_pixels = 88; // TODO
     sensor.dummy_pixel = 20;
-    sensor.ccd_start_xoffset = 0;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 230;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -3368,7 +3335,6 @@ void genesys_init_sensor_tables()
     sensor.register_dpihw = 1200;
     sensor.black_pixels = 88; // TODO
     sensor.dummy_pixel = 20;
-    sensor.ccd_start_xoffset = 120;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 230;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -3420,7 +3386,6 @@ void genesys_init_sensor_tables()
     sensor.register_dpihw = 1200;
     sensor.black_pixels = 88; // TODO
     sensor.dummy_pixel = 20;
-    sensor.ccd_start_xoffset = 0;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 230;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -3502,7 +3467,6 @@ void genesys_init_sensor_tables()
     sensor.register_dpihw = 1200;
     sensor.black_pixels = 88; // TODO
     sensor.dummy_pixel = 20;
-    sensor.ccd_start_xoffset = 120;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 230;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -3563,7 +3527,6 @@ void genesys_init_sensor_tables()
     sensor.optical_res = 1200;
     sensor.black_pixels = 31;
     sensor.dummy_pixel = 31;
-    sensor.ccd_start_xoffset = 0;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
@@ -3619,7 +3582,6 @@ void genesys_init_sensor_tables()
     sensor.optical_res = 1200;
     sensor.black_pixels = 31;
     sensor.dummy_pixel = 31;
-    sensor.ccd_start_xoffset = 0;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0, 0, 0 };
@@ -3672,8 +3634,6 @@ void genesys_init_sensor_tables()
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 20;
     sensor.dummy_pixel = 6;
-    // tuned to give 3*8 multiple startx coordinate during shading calibration
-    sensor.ccd_start_xoffset = 34; // 14=>3, 20=>2
     sensor.fau_gain_white_ref = 150;
     sensor.gain_white_ref = 150;
     // maps to 0x70-0x73 for GL841

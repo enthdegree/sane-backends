@@ -133,7 +133,6 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Sensor& sensor)
         << "    output_pixel_offset: " << sensor.output_pixel_offset << '\n'
         << "    black_pixels: " << sensor.black_pixels << '\n'
         << "    dummy_pixel: " << sensor.dummy_pixel << '\n'
-        << "    ccd_start_xoffset: " << sensor.ccd_start_xoffset << '\n'
         << "    fau_gain_white_ref: " << sensor.fau_gain_white_ref << '\n'
         << "    gain_white_ref: " << sensor.gain_white_ref << '\n'
         << "    exposure: " << format_indent_braced_list(4, sensor.exposure) << '\n'

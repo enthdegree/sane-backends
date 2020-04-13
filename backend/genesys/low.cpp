@@ -969,8 +969,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     s.optical_pixels = (s.params.pixels * s.optical_resolution) / s.output_resolution;
 
     if (dev->model->asic_type == AsicType::GL841) {
-        if (s.optical_pixels & 1)
-            s.optical_pixels++;
+        s.optical_pixels = align_int_up(s.optical_pixels, 2);
     }
 
     if (dev->model->asic_type == AsicType::GL646 && s.params.xres == 400) {

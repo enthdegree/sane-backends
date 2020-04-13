@@ -1141,6 +1141,7 @@ void genesys_init_sensor_tables()
             SensorExposure exposure;
             Ratio pixel_count_ratio;
             unsigned shading_factor;
+            unsigned output_pixel_offset;
             unsigned segment_size;
             std::vector<unsigned> segment_order;
             GenesysRegisterSettingSet custom_regs;
@@ -1148,7 +1149,7 @@ void genesys_init_sensor_tables()
 
         CustomSensorSettings custom_settings[] = {
             // Note: Windows driver uses 1424 lperiod and enables dummy line (0x17)
-            {   { 75 }, 600, 2848, { 304, 203, 180 }, Ratio{1, 8}, 8, 5136,
+            {   { 75 }, 600, 2848, { 304, 203, 180 }, Ratio{1, 8}, 8, 40, 5136,
                 std::vector<unsigned>{}, {
                     { 0x16, 0x10 }, { 0x17, 0x0a }, { 0x18, 0x00 }, { 0x19, 0xff },
                     { 0x1a, 0x34 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x04 },
@@ -1160,7 +1161,7 @@ void genesys_init_sensor_tables()
                 }
             },
             // Note: Windows driver uses 1424 lperiod and enables dummy line (0x17)
-            {   { 100 }, 600, 2848, { 304, 203, 180 }, Ratio{1, 8}, 6, 5136,
+            {   { 100 }, 600, 2848, { 304, 203, 180 }, Ratio{1, 8}, 6, 53, 5136,
                 std::vector<unsigned>{}, {
                     { 0x16, 0x10 }, { 0x17, 0x0a }, { 0x18, 0x00 }, { 0x19, 0xff },
                     { 0x1a, 0x34 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x04 },
@@ -1172,7 +1173,7 @@ void genesys_init_sensor_tables()
                 }
             },
             // Note: Windows driver uses 1424 lperiod and enables dummy line (0x17)
-            {   { 150 }, 600, 2848, { 304, 203, 180 }, Ratio{1, 8}, 4, 5136,
+            {   { 150 }, 600, 2848, { 304, 203, 180 }, Ratio{1, 8}, 4, 80, 5136,
                 std::vector<unsigned>{}, {
                     { 0x16, 0x10 }, { 0x17, 0x0a }, { 0x18, 0x00 }, { 0x19, 0xff },
                     { 0x1a, 0x34 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x04 },
@@ -1184,7 +1185,7 @@ void genesys_init_sensor_tables()
                 }
             },
             // Note: Windows driver uses 1424 lperiod and enables dummy line (0x17)
-            {   { 200 }, 600, 2848, { 304, 203, 180 }, Ratio{1, 8}, 3, 5136,
+            {   { 200 }, 600, 2848, { 304, 203, 180 }, Ratio{1, 8}, 3, 106, 5136,
                 std::vector<unsigned>{}, {
                     { 0x16, 0x10 }, { 0x17, 0x0a }, { 0x18, 0x00 }, { 0x19, 0xff },
                     { 0x1a, 0x34 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x04 },
@@ -1196,7 +1197,7 @@ void genesys_init_sensor_tables()
                 }
             },
             // Note: Windows driver uses 788 lperiod and enables dummy line (0x17)
-            {   { 300 }, 600, 1424, { 304, 203, 180 }, Ratio{1, 8}, 2, 5136,
+            {   { 300 }, 600, 1424, { 304, 203, 180 }, Ratio{1, 8}, 2, 160, 5136,
                 std::vector<unsigned>{}, {
                     { 0x16, 0x10 }, { 0x17, 0x0a }, { 0x18, 0x00 }, { 0x19, 0xff },
                     { 0x1a, 0x34 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x04 },
@@ -1208,7 +1209,7 @@ void genesys_init_sensor_tables()
                 }
             },
             // Note: Windows driver uses 788 lperiod and enables dummy line (0x17)
-            {   { 400 }, 600, 1424, { 304, 203, 180 }, Ratio{1, 8}, 1, 5136,
+            {   { 400 }, 600, 1424, { 304, 203, 180 }, Ratio{1, 8}, 1, 213, 5136,
                 std::vector<unsigned>{}, {
                     { 0x16, 0x10 }, { 0x17, 0x0a }, { 0x18, 0x00 }, { 0x19, 0xff },
                     { 0x1a, 0x34 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x04 },
@@ -1219,7 +1220,7 @@ void genesys_init_sensor_tables()
                     { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
                 }
             },
-            {   { 600 }, 600, 1432, { 492, 326, 296 }, Ratio{1, 8}, 1, 5136,
+            {   { 600 }, 600, 1432, { 492, 326, 296 }, Ratio{1, 8}, 1, 320, 5136,
                 std::vector<unsigned>{}, {
                     { 0x16, 0x10 }, { 0x17, 0x0a }, { 0x18, 0x00 }, { 0x19, 0xff },
                     { 0x1a, 0x34 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x04 },
@@ -1230,7 +1231,7 @@ void genesys_init_sensor_tables()
                     { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
                 }
             },
-            {   { 1200 }, 1200, 2712, { 935, 592, 538 }, Ratio{1, 8}, 1, 5136,
+            {   { 1200 }, 1200, 2712, { 935, 592, 538 }, Ratio{1, 8}, 1, 640, 5136,
                 { 0, 1 }, {
                     { 0x16, 0x10 }, { 0x17, 0x08 }, { 0x18, 0x00 }, { 0x19, 0xff },
                     { 0x1a, 0x34 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x04 },
@@ -1241,7 +1242,7 @@ void genesys_init_sensor_tables()
                     { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
                 }
             },
-            {   { 2400 }, 2400, 5280, { 1777, 1125, 979 }, Ratio{1, 8}, 1, 5136,
+            {   { 2400 }, 2400, 5280, { 1777, 1125, 979 }, Ratio{1, 8}, 1, 1280, 5136,
                 { 0, 2, 1, 3 }, {
                     { 0x16, 0x10 }, { 0x17, 0x06 }, { 0x18, 0x00 }, { 0x19, 0xff },
                     { 0x1a, 0x34 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x04 },
@@ -1252,7 +1253,7 @@ void genesys_init_sensor_tables()
                     { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
                 }
             },
-            {   { 4800 }, 4800, 10416, { 3377, 2138, 1780 }, Ratio{1, 8}, 1, 5136,
+            {   { 4800 }, 4800, 10416, { 3377, 2138, 1780 }, Ratio{1, 8}, 1, 2560, 5136,
                 { 0, 2, 4, 6, 1, 3, 5, 7 }, {
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0xff },
                     { 0x1a, 0x34 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x04 },
@@ -1274,6 +1275,7 @@ void genesys_init_sensor_tables()
             sensor.exposure = setting.exposure;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;
             sensor.shading_factor = setting.shading_factor;
+            sensor.output_pixel_offset = setting.output_pixel_offset;
             sensor.segment_size = setting.segment_size;
             sensor.segment_order = setting.segment_order;
             sensor.custom_regs = setting.custom_regs;
@@ -1302,13 +1304,15 @@ void genesys_init_sensor_tables()
             SensorExposure exposure;
             Ratio pixel_count_ratio;
             unsigned shading_factor;
+            unsigned output_pixel_offset;
             unsigned segment_size;
             std::vector<unsigned> segment_order;
             GenesysRegisterSettingSet custom_regs;
         };
 
         CustomSensorSettings custom_settings[] = {
-            {   { 75 }, 600, 2848, { 465, 310, 239 }, Ratio{1, 8}, 8, 5187, std::vector<unsigned>{}, {
+            {   { 75 }, 600, 2848, { 465, 310, 239 }, Ratio{1, 8}, 8, 48, 5187,
+                std::vector<unsigned>{}, {
                     { 0x16, 0x10 }, { 0x17, 0x0c }, { 0x18, 0x00 }, { 0x19, 0xff },
                     { 0x1a, 0x34 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x04 },
                     { 0x52, 0x07 }, { 0x53, 0x03 }, { 0x54, 0x00 }, { 0x55, 0x00 },
@@ -1318,7 +1322,8 @@ void genesys_init_sensor_tables()
                     { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
                 }
             },
-            {   { 100 }, 600, 2848, { 465, 310, 239 }, Ratio{1, 8}, 6, 5187, std::vector<unsigned>{}, {
+            {   { 100 }, 600, 2848, { 465, 310, 239 }, Ratio{1, 8}, 6, 64, 5187,
+                std::vector<unsigned>{}, {
                     { 0x16, 0x10 }, { 0x17, 0x0c }, { 0x18, 0x00 }, { 0x19, 0xff },
                     { 0x1a, 0x34 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x04 },
                     { 0x52, 0x07 }, { 0x53, 0x03 }, { 0x54, 0x00 }, { 0x55, 0x00 },
@@ -1328,7 +1333,8 @@ void genesys_init_sensor_tables()
                     { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
                 }
             },
-            {   { 150 }, 600, 2848, { 465, 310, 239 }, Ratio{1, 8}, 4, 5187, std::vector<unsigned>{}, {
+            {   { 150 }, 600, 2848, { 465, 310, 239 }, Ratio{1, 8}, 4, 96, 5187,
+                std::vector<unsigned>{}, {
                     { 0x16, 0x10 }, { 0x17, 0x0c }, { 0x18, 0x00 }, { 0x19, 0xff },
                     { 0x1a, 0x34 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x04 },
                     { 0x52, 0x07 }, { 0x53, 0x03 }, { 0x54, 0x00 }, { 0x55, 0x00 },
@@ -1338,7 +1344,8 @@ void genesys_init_sensor_tables()
                     { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
                 }
             },
-            {   { 200 }, 600, 2848, { 465, 310, 239 }, Ratio{1, 8}, 3, 5187, std::vector<unsigned>{}, {
+            {   { 200 }, 600, 2848, { 465, 310, 239 }, Ratio{1, 8}, 3, 128, 5187,
+                std::vector<unsigned>{}, {
                     { 0x16, 0x10 }, { 0x17, 0x0c }, { 0x18, 0x00 }, { 0x19, 0xff },
                     { 0x1a, 0x34 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x04 },
                     { 0x52, 0x07 }, { 0x53, 0x03 }, { 0x54, 0x00 }, { 0x55, 0x00 },
@@ -1348,7 +1355,8 @@ void genesys_init_sensor_tables()
                     { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
                 }
             },
-            {   { 300 }, 600, 1424, { 465, 310, 239 }, Ratio{1, 8}, 2, 5187, std::vector<unsigned>{}, {
+            {   { 300 }, 600, 1424, { 465, 310, 239 }, Ratio{1, 8}, 2, 192, 5187,
+                std::vector<unsigned>{}, {
                     { 0x16, 0x10 }, { 0x17, 0x0c }, { 0x18, 0x00 }, { 0x19, 0xff },
                     { 0x1a, 0x34 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x04 },
                     { 0x52, 0x07 }, { 0x53, 0x03 }, { 0x54, 0x00 }, { 0x55, 0x00 },
@@ -1358,7 +1366,8 @@ void genesys_init_sensor_tables()
                     { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
                 }
             },
-            {   { 600 }, 600, 1504, { 465, 310, 239 }, Ratio{1, 8}, 1, 5187, std::vector<unsigned>{}, {
+            {   { 600 }, 600, 1504, { 465, 310, 239 }, Ratio{1, 8}, 1, 384, 5187,
+                std::vector<unsigned>{}, {
                     { 0x16, 0x10 }, { 0x17, 0x0c }, { 0x18, 0x00 }, { 0x19, 0xff },
                     { 0x1a, 0x34 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x04 },
                     { 0x52, 0x07 }, { 0x53, 0x03 }, { 0x54, 0x00 }, { 0x55, 0x00 },
@@ -1368,7 +1377,8 @@ void genesys_init_sensor_tables()
                     { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
                 }
             },
-            {   { 1200 }, 1200, 2696, { 1464, 844, 555 }, Ratio{1, 8}, 1, 5187, { 0, 1 }, {
+            {   { 1200 }, 1200, 2696, { 1464, 844, 555 }, Ratio{1, 8}, 1, 768, 5187,
+                { 0, 1 }, {
                     { 0x16, 0x10 }, { 0x17, 0x0a }, { 0x18, 0x00 }, { 0x19, 0xff },
                     { 0x1a, 0x34 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x04 },
                     { 0x52, 0x07 }, { 0x53, 0x03 }, { 0x54, 0x00 }, { 0x55, 0x00 },
@@ -1378,7 +1388,8 @@ void genesys_init_sensor_tables()
                     { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
                 }
             },
-            {   { 2400 }, 2400, 10576, { 2798, 1558, 972 }, Ratio{1, 8}, 1, 5187, { 0, 1, 2, 3 }, {
+            {   { 2400 }, 2400, 10576, { 2798, 1558, 972 }, Ratio{1, 8}, 1, 1536, 5187,
+                { 0, 1, 2, 3 }, {
                     { 0x16, 0x10 }, { 0x17, 0x08 }, { 0x18, 0x00 }, { 0x19, 0xff },
                     { 0x1a, 0x34 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x04 },
                     { 0x52, 0x07 }, { 0x53, 0x03 }, { 0x54, 0x00 }, { 0x55, 0x00 },
@@ -1388,7 +1399,7 @@ void genesys_init_sensor_tables()
                     { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
                 }
             },
-            {   { 4800 }, 4800, 10576, { 2798, 1558, 972 }, Ratio{1, 8}, 1, 5187,
+            {   { 4800 }, 4800, 10576, { 2798, 1558, 972 }, Ratio{1, 8}, 1, 3072, 5187,
                 { 0, 1, 4, 5, 2, 3, 6, 7 }, {
                     { 0x16, 0x10 }, { 0x17, 0x06 }, { 0x18, 0x00 }, { 0x19, 0xff },
                     { 0x1a, 0x34 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x04 },
@@ -1410,6 +1421,7 @@ void genesys_init_sensor_tables()
             sensor.exposure = setting.exposure;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;
             sensor.shading_factor = setting.shading_factor;
+            sensor.output_pixel_offset = setting.output_pixel_offset;
             sensor.segment_size = setting.segment_size;
             sensor.segment_order = setting.segment_order;
             sensor.custom_regs = setting.custom_regs;
@@ -1438,13 +1450,15 @@ void genesys_init_sensor_tables()
             SensorExposure exposure;
             Ratio pixel_count_ratio;
             unsigned shading_factor;
+            unsigned output_pixel_offset;
             unsigned segment_size;
             std::vector<unsigned> segment_order;
             GenesysRegisterSettingSet custom_regs;
         };
 
         CustomSensorSettings custom_settings[] = {
-            {   { 75 }, 600, 2304, { 423, 294, 242 }, Ratio{1, 4}, 8, 5136, std::vector<unsigned>{}, {
+            {   { 75 }, 600, 2304, { 423, 294, 242 }, Ratio{1, 4}, 8, 40, 5136,
+                std::vector<unsigned>{}, {
                     { 0x16, 0x10 }, { 0x17, 0x0a }, { 0x18, 0x00 }, { 0x19, 0xff },
                     { 0x1a, 0x34 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x04 },
                     { 0x52, 0x03 }, { 0x53, 0x07 }, { 0x54, 0x00 }, { 0x55, 0x00 },
@@ -1454,7 +1468,8 @@ void genesys_init_sensor_tables()
                     { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
                 }
             },
-            {   { 100 }, 600, 2304, { 423, 294, 242 }, Ratio{1, 4}, 6, 5136, std::vector<unsigned>{}, {
+            {   { 100 }, 600, 2304, { 423, 294, 242 }, Ratio{1, 4}, 6, 53, 5136,
+                std::vector<unsigned>{}, {
                     { 0x16, 0x10 }, { 0x17, 0x0a }, { 0x18, 0x00 }, { 0x19, 0xff },
                     { 0x1a, 0x34 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x04 },
                     { 0x52, 0x03 }, { 0x53, 0x07 }, { 0x54, 0x00 }, { 0x55, 0x00 },
@@ -1464,7 +1479,8 @@ void genesys_init_sensor_tables()
                     { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
                 }
             },
-            {   { 150 }, 600, 2304, { 423, 294, 242 }, Ratio{1, 4}, 4, 5136, std::vector<unsigned>{}, {
+            {   { 150 }, 600, 2304, { 423, 294, 242 }, Ratio{1, 4}, 4, 80, 5136,
+                std::vector<unsigned>{}, {
                     { 0x16, 0x10 }, { 0x17, 0x0a }, { 0x18, 0x00 }, { 0x19, 0xff },
                     { 0x1a, 0x34 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x04 },
                     { 0x52, 0x03 }, { 0x53, 0x07 }, { 0x54, 0x00 }, { 0x55, 0x00 },
@@ -1474,7 +1490,8 @@ void genesys_init_sensor_tables()
                     { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
                 }
             },
-            {   { 200 }, 600, 2304, { 423, 294, 242 }, Ratio{1, 4}, 3, 5136, std::vector<unsigned>{}, {
+            {   { 200 }, 600, 2304, { 423, 294, 242 }, Ratio{1, 4}, 3, 106, 5136,
+                std::vector<unsigned>{}, {
                     { 0x16, 0x10 }, { 0x17, 0x0a }, { 0x18, 0x00 }, { 0x19, 0xff },
                     { 0x1a, 0x34 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x04 },
                     { 0x52, 0x03 }, { 0x53, 0x07 }, { 0x54, 0x00 }, { 0x55, 0x00 },
@@ -1484,7 +1501,8 @@ void genesys_init_sensor_tables()
                     { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
                 }
             },
-            {   { 300 }, 600, 1728, { 423, 294, 242 }, Ratio{1, 4}, 2, 5136, std::vector<unsigned>{}, {
+            {   { 300 }, 600, 1728, { 423, 294, 242 }, Ratio{1, 4}, 2, 160, 5136,
+                std::vector<unsigned>{}, {
                     { 0x16, 0x10 }, { 0x17, 0x0a }, { 0x18, 0x00 }, { 0x19, 0xff },
                     { 0x1a, 0x34 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x04 },
                     { 0x52, 0x03 }, { 0x53, 0x07 }, { 0x54, 0x00 }, { 0x55, 0x00 },
@@ -1494,7 +1512,8 @@ void genesys_init_sensor_tables()
                     { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
                 }
             },
-            {   { 600 }, 600, 1432, { 423, 294, 242 }, Ratio{1, 4}, 1, 5136, std::vector<unsigned>{}, {
+            {   { 600 }, 600, 1432, { 423, 294, 242 }, Ratio{1, 4}, 1, 320, 5136,
+                std::vector<unsigned>{}, {
                     { 0x16, 0x10 }, { 0x17, 0x0a }, { 0x18, 0x00 }, { 0x19, 0xff },
                     { 0x1a, 0x34 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x04 },
                     { 0x52, 0x03 }, { 0x53, 0x07 }, { 0x54, 0x00 }, { 0x55, 0x00 },
@@ -1504,7 +1523,7 @@ void genesys_init_sensor_tables()
                     { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
                 },
             },
-            {   { 1200 }, 1200, 2712, { 791, 542, 403 }, Ratio{1, 4}, 1, 5136, {0, 1}, {
+            {   { 1200 }, 1200, 2712, { 791, 542, 403 }, Ratio{1, 4}, 1, 640, 5136, {0, 1}, {
                     { 0x16, 0x10 }, { 0x17, 0x08 }, { 0x18, 0x00 }, { 0x19, 0xff },
                     { 0x1a, 0x34 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x04 },
                     { 0x52, 0x03 }, { 0x53, 0x07 }, { 0x54, 0x00 }, { 0x55, 0x00 },
@@ -1514,7 +1533,7 @@ void genesys_init_sensor_tables()
                     { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
                 }
             },
-            {   { 2400 }, 2400, 5280, { 1504, 1030, 766 }, Ratio{1, 4}, 1, 5136, {0, 2, 1, 3}, {
+            {   { 2400 }, 2400, 5280, { 1504, 1030, 766 }, Ratio{1, 4}, 1, 1280, 5136, {0, 2, 1, 3}, {
                     { 0x16, 0x10 }, { 0x17, 0x06 }, { 0x18, 0x00 }, { 0x19, 0xff },
                     { 0x1a, 0x34 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x04 },
                     { 0x52, 0x03 }, { 0x53, 0x07 }, { 0x54, 0x00 }, { 0x55, 0x00 },
@@ -1535,6 +1554,7 @@ void genesys_init_sensor_tables()
             sensor.exposure = setting.exposure;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;
             sensor.shading_factor = setting.shading_factor;
+            sensor.output_pixel_offset = setting.output_pixel_offset;
             sensor.segment_size = setting.segment_size;
             sensor.segment_order = setting.segment_order;
             sensor.custom_regs = setting.custom_regs;
@@ -2358,17 +2378,18 @@ void genesys_init_sensor_tables()
             ValueFilterAny<unsigned> resolutions;
             unsigned register_dpihw;
             unsigned shading_factor;
+            unsigned output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 75 }, 600, 8 },
-            { { 100 }, 600, 6 },
-            { { 150 }, 600, 4 },
-            { { 200 }, 600, 3 },
-            { { 300 }, 600, 2 },
-            { { 600 }, 600, 1 },
-            { { 1200 }, 1200, 1, },
-            { { 2400 }, 2400, 1, },
+            { { 75 }, 600, 8, 4 },
+            { { 100 }, 600, 6, 5 },
+            { { 150 }, 600, 4, 8 },
+            { { 200 }, 600, 3, 10 },
+            { { 300 }, 600, 2, 16 },
+            { { 600 }, 600, 1, 32 },
+            { { 1200 }, 1200, 1, 64 },
+            { { 2400 }, 2400, 1, 128 },
         };
 
         auto base_custom_regs = sensor.custom_regs;
@@ -2378,6 +2399,7 @@ void genesys_init_sensor_tables()
             sensor.register_dpihw = setting.register_dpihw;
             sensor.shading_resolution = setting.register_dpihw;
             sensor.shading_factor = setting.shading_factor;
+            sensor.output_pixel_offset = setting.output_pixel_offset;
             s_sensors->push_back(sensor);
         }
     }

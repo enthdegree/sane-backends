@@ -286,6 +286,9 @@ struct Genesys_Sensor {
     // How many real pixels correspond to one shading pixel that is sent to the scanner
     unsigned shading_factor = 1;
 
+    // How many pixels the shading data is offset from the acquired data
+    int shading_pixel_offset = 0;
+
     // This defines the ratio between logical pixel coordinates and the pixel coordinates sent to
     // the scanner.
     Ratio pixel_count_ratio = Ratio{1, 1};
@@ -365,6 +368,7 @@ struct Genesys_Sensor {
             shading_resolution == other.shading_resolution &&
             ccd_size_divisor == other.ccd_size_divisor &&
             shading_factor == other.shading_factor &&
+            shading_pixel_offset == other.shading_pixel_offset &&
             pixel_count_ratio == other.pixel_count_ratio &&
             output_pixel_offset == other.output_pixel_offset &&
             black_pixels == other.black_pixels &&
@@ -394,6 +398,7 @@ void serialize(Stream& str, Genesys_Sensor& x)
     serialize(str, x.shading_resolution);
     serialize(str, x.ccd_size_divisor);
     serialize(str, x.shading_factor);
+    serialize(str, x.shading_pixel_offset);
     serialize(str, x.output_pixel_offset);
     serialize(str, x.pixel_count_ratio);
     serialize(str, x.black_pixels);

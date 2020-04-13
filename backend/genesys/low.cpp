@@ -1225,14 +1225,9 @@ void build_image_pipeline(Genesys_Device* dev, const Genesys_Sensor& sensor,
         !has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION) &&
         !has_flag(session.params.flags, ScanFlag::DISABLE_SHADING))
     {
-        unsigned pixel_shift = session.params.startx;
-        if (dev->model->model_id == ModelId::CANON_4400F) {
-            pixel_shift =
-                    session.params.startx * sensor.optical_res / dev->calib_session.params.xres;
-        }
         dev->pipeline.push_node<ImagePipelineNodeCalibrate>(dev->dark_average_data,
                                                             dev->white_average_data,
-                                                            pixel_shift *
+                                                            session.params.startx *
                                                                 dev->calib_session.params.channels);
 
         if (DBG_LEVEL >= DBG_io2) {

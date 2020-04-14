@@ -2005,6 +2005,9 @@ void CommandSetGl843::send_shading_data(Genesys_Device* dev, const Genesys_Senso
         length -= (-offset);
         offset = 0;
     }
+    if (static_cast<int>(length) + offset > static_cast<int>(size)) {
+        length = size - offset;
+    }
 
   /* loop over calibration data */
   for (i = 0; i < length; i++)

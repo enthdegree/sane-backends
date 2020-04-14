@@ -1760,6 +1760,7 @@ void genesys_init_sensor_tables()
             ScanMethod method;
             Ratio pixel_count_ratio;
             int output_pixel_offset;
+            int shading_pixel_offset;
             GenesysRegisterSettingSet extra_custom_regs;
         };
 
@@ -1830,16 +1831,16 @@ void genesys_init_sensor_tables()
         };
 
         CustomSensorSettings custom_settings[] = {
-            {   { 100 }, 600, 100, 8016, ScanMethod::FLATBED, Ratio{1, 8}, 1, regs_100_to_600 },
-            {   { 150 }, 600, 150, 8016, ScanMethod::FLATBED, Ratio{1, 8}, 1, regs_100_to_600 },
-            {   { 200 }, 600, 200, 8016, ScanMethod::FLATBED, Ratio{1, 8}, 2, regs_100_to_600 },
-            {   { 300 }, 600, 300, 8016, ScanMethod::FLATBED, Ratio{1, 8}, 3, regs_100_to_600 },
-            {   { 400 }, 600, 400, 8016, ScanMethod::FLATBED, Ratio{1, 8}, 4, regs_100_to_600 },
-            {   { 600 }, 600, 600, 8016, ScanMethod::FLATBED, Ratio{1, 8}, 7, regs_100_to_600 },
-            {   { 1200 }, 1200, 1200, 56064, ScanMethod::FLATBED, Ratio{1, 4}, 14, regs_1200 },
-            {   { 2400 }, 2400, 2400, 56064, ScanMethod::FLATBED, Ratio{1, 2}, 29, regs_2400 },
-            {   { 4800 }, 4800, 4800, 42752, ScanMethod::FLATBED, Ratio{1, 1}, 58, regs_4800 },
-            { VALUE_FILTER_ANY, 600, 600, 15624, ScanMethod::TRANSPARENCY, Ratio{1, 1}, 58, regs_ta_any }
+            { { 100 }, 600, 100, 8016, ScanMethod::FLATBED, Ratio{1, 8}, 1, 50, regs_100_to_600 },
+            { { 150 }, 600, 150, 8016, ScanMethod::FLATBED, Ratio{1, 8}, 1, 50, regs_100_to_600 },
+            { { 200 }, 600, 200, 8016, ScanMethod::FLATBED, Ratio{1, 8}, 2, 50, regs_100_to_600 },
+            { { 300 }, 600, 300, 8016, ScanMethod::FLATBED, Ratio{1, 8}, 3, 50, regs_100_to_600 },
+            { { 400 }, 600, 400, 8016, ScanMethod::FLATBED, Ratio{1, 8}, 4, 50, regs_100_to_600 },
+            { { 600 }, 600, 600, 8016, ScanMethod::FLATBED, Ratio{1, 8}, 7, 50, regs_100_to_600 },
+            { { 1200 }, 1200, 1200, 56064, ScanMethod::FLATBED, Ratio{1, 4}, 14, 0, regs_1200 },
+            { { 2400 }, 2400, 2400, 56064, ScanMethod::FLATBED, Ratio{1, 2}, 29, 0, regs_2400 },
+            { { 4800 }, 4800, 4800, 42752, ScanMethod::FLATBED, Ratio{1, 1}, 58, 0, regs_4800 },
+            { VALUE_FILTER_ANY, 600, 600, 15624, ScanMethod::TRANSPARENCY, Ratio{1, 1}, 58, 0, regs_ta_any }
         };
 
         auto base_custom_regs = sensor.custom_regs;
@@ -1853,6 +1854,7 @@ void genesys_init_sensor_tables()
             sensor.method = setting.method;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;
             sensor.output_pixel_offset = setting.output_pixel_offset;
+            sensor.shading_pixel_offset = setting.shading_pixel_offset;
             sensor.custom_regs = base_custom_regs;
             sensor.custom_regs.merge(setting.extra_custom_regs);
             s_sensors->push_back(sensor);

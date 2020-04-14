@@ -3513,6 +3513,7 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
     DBG_HELPER(dbg);
   unsigned int steps, expected;
 
+
   /* since not all scanners are set ot wait for head to park
    * we check we are not still parking before starting a new scan */
     if (dev->parking) {
@@ -5326,21 +5327,6 @@ static void sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
 
     // some hardware capabilities are detected through sensors
     s->dev->cmd_set->update_hardware_sensors (s);
-
-  /* here is the place to fetch a stored calibration cache */
-  if (s->dev->force_calibration == 0)
-    {
-        auto path = calibration_filename(s->dev);
-        s->calibration_file = path;
-        s->dev->calib_file = path;
-      DBG(DBG_info, "%s: Calibration filename set to:\n", __func__);
-      DBG(DBG_info, "%s: >%s<\n", __func__, s->dev->calib_file.c_str());
-
-        catch_all_exceptions(__func__, [&]()
-        {
-            sanei_genesys_read_calibration(s->dev->calibration_cache, s->dev->calib_file);
-        });
-    }
 }
 
 SANE_GENESYS_API_LINKAGE
@@ -6156,6 +6142,20 @@ void sane_start_impl(SANE_Handle handle)
     }
     if (s->pos_top_left_y >= s->pos_bottom_right_y) {
         throw SaneException("top left y >= bottom right y");
+    }
+
+    // fetch stored calibration
+    if (s->dev->force_calibration == 0) {
+        auto path = calibration_filename(s->dev);
+        s->calibration_file = path;
+        s->dev->calib_file = path;
+        DBG(DBG_info, "%s: Calibration filename set to:\n", __func__);
+        DBG(DBG_info, "%s: >%s<\n", __func__, s->dev->calib_file.c_str());
+
+        catch_all_exceptions(__func__, [&]()
+        {
+            sanei_genesys_read_calibration(s->dev->calibration_cache, s->dev->calib_file);
+        });
     }
 
   /* First make sure we have a current parameter set.  Some of the

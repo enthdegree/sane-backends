@@ -323,8 +323,6 @@
 <ivec:param_set servicetype=\"scan\"><ivec:jobID>00000001</ivec:jobID>\
 </ivec:param_set></ivec:contents></cmd>"
 
-#define XML_OK   "<ivec:response>OK</ivec:response>"
-
 enum mp150_state_t
 {
   state_idle,
@@ -462,7 +460,7 @@ send_xml_dialog (pixma_t * s, const char * xml_message)
   PDBG (pixma_dbg (10, "XML message sent to scanner:\n%s\n", xml_message));
   PDBG (pixma_dbg (10, "XML response back from scanner:\n%s\n", mp->cb.buf));
 
-  return (strcasestr ((const char *) mp->cb.buf, XML_OK) != NULL);
+  return pixma_parse_xml_response((const char*)mp->cb.buf) == PIXMA_STATUS_OK;
 }
 
 static int

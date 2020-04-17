@@ -111,277 +111,244 @@ static void sanei_gl841_setup_sensor(const Genesys_Sensor& sensor, Genesys_Regis
 }
 
 /*
- * Set all registers LiDE 80 to default values
- * (function called only once at the beginning)
- * we are doing a special case to ease development
- */
-static void
-gl841_init_lide80 (Genesys_Device * dev)
-{
-    dev->reg.init_reg(0x01, 0x82); // 0x02 = SHDAREA  and no CISSET !
-    dev->reg.init_reg(0x02, 0x10);
-    dev->reg.init_reg(0x03, 0x50);
-    dev->reg.init_reg(0x04, 0x02);
-    dev->reg.init_reg(0x05, 0x4c);  // 1200 DPI
-    dev->reg.init_reg(0x06, 0x38);  // 0x38 scanmod=1, pwrbit, GAIN4
-    dev->reg.init_reg(0x07, 0x00);
-    dev->reg.init_reg(0x08, 0x00);
-    dev->reg.init_reg(0x09, 0x11);
-    dev->reg.init_reg(0x0a, 0x00);
-
-    dev->reg.init_reg(0x10, 0x40);
-    dev->reg.init_reg(0x11, 0x00);
-    dev->reg.init_reg(0x12, 0x40);
-    dev->reg.init_reg(0x13, 0x00);
-    dev->reg.init_reg(0x14, 0x40);
-    dev->reg.init_reg(0x15, 0x00);
-    dev->reg.init_reg(0x16, 0x00);
-    dev->reg.init_reg(0x17, 0x01);
-    dev->reg.init_reg(0x18, 0x00);
-    dev->reg.init_reg(0x19, 0x06);
-    dev->reg.init_reg(0x1a, 0x00);
-    dev->reg.init_reg(0x1b, 0x00);
-    dev->reg.init_reg(0x1c, 0x00);
-    dev->reg.init_reg(0x1d, 0x04);
-    dev->reg.init_reg(0x1e, 0x10);
-    dev->reg.init_reg(0x1f, 0x04);
-    dev->reg.init_reg(0x20, 0x02);
-    dev->reg.init_reg(0x21, 0x10);
-    dev->reg.init_reg(0x22, 0x20);
-    dev->reg.init_reg(0x23, 0x20);
-    dev->reg.init_reg(0x24, 0x10);
-    dev->reg.init_reg(0x25, 0x00);
-    dev->reg.init_reg(0x26, 0x00);
-    dev->reg.init_reg(0x27, 0x00);
-
-    dev->reg.init_reg(0x29, 0xff);
-
-    const auto& sensor = sanei_genesys_find_sensor_any(dev);
-    dev->reg.init_reg(0x2c, sensor.optical_res>>8);
-    dev->reg.init_reg(0x2d, sensor.optical_res & 0xff);
-    dev->reg.init_reg(0x2e, 0x80);
-    dev->reg.init_reg(0x2f, 0x80);
-    dev->reg.init_reg(0x30, 0x00);
-    dev->reg.init_reg(0x31, 0x10);
-    dev->reg.init_reg(0x32, 0x15);
-    dev->reg.init_reg(0x33, 0x0e);
-    dev->reg.init_reg(0x34, 0x40);
-    dev->reg.init_reg(0x35, 0x00);
-    dev->reg.init_reg(0x36, 0x2a);
-    dev->reg.init_reg(0x37, 0x30);
-    dev->reg.init_reg(0x38, 0x2a);
-    dev->reg.init_reg(0x39, 0xf8);
-
-    dev->reg.init_reg(0x3d, 0x00);
-    dev->reg.init_reg(0x3e, 0x00);
-    dev->reg.init_reg(0x3f, 0x00);
-
-    dev->reg.init_reg(0x52, 0x03);
-    dev->reg.init_reg(0x53, 0x07);
-    dev->reg.init_reg(0x54, 0x00);
-    dev->reg.init_reg(0x55, 0x00);
-    dev->reg.init_reg(0x56, 0x00);
-    dev->reg.init_reg(0x57, 0x00);
-    dev->reg.init_reg(0x58, 0x29);
-    dev->reg.init_reg(0x59, 0x69);
-    dev->reg.init_reg(0x5a, 0x55);
-
-    dev->reg.init_reg(0x5d, 0x20);
-    dev->reg.init_reg(0x5e, 0x41);
-    dev->reg.init_reg(0x5f, 0x40);
-    dev->reg.init_reg(0x60, 0x00);
-    dev->reg.init_reg(0x61, 0x00);
-    dev->reg.init_reg(0x62, 0x00);
-    dev->reg.init_reg(0x63, 0x00);
-    dev->reg.init_reg(0x64, 0x00);
-    dev->reg.init_reg(0x65, 0x00);
-    dev->reg.init_reg(0x66, 0x00);
-    dev->reg.init_reg(0x67, 0x40);
-    dev->reg.init_reg(0x68, 0x40);
-    dev->reg.init_reg(0x69, 0x20);
-    dev->reg.init_reg(0x6a, 0x20);
-    dev->reg.init_reg(0x6c, 0x00);
-    dev->reg.init_reg(0x6d, 0x00);
-    dev->reg.init_reg(0x6e, 0x00);
-    dev->reg.init_reg(0x6f, 0x00);
-    dev->reg.init_reg(0x70, 0x00);
-    dev->reg.init_reg(0x71, 0x05);
-    dev->reg.init_reg(0x72, 0x07);
-    dev->reg.init_reg(0x73, 0x09);
-    dev->reg.init_reg(0x74, 0x00);
-    dev->reg.init_reg(0x75, 0x01);
-    dev->reg.init_reg(0x76, 0xff);
-    dev->reg.init_reg(0x77, 0x00);
-    dev->reg.init_reg(0x78, 0x0f);
-    dev->reg.init_reg(0x79, 0xf0);
-    dev->reg.init_reg(0x7a, 0xf0);
-    dev->reg.init_reg(0x7b, 0x00);
-    dev->reg.init_reg(0x7c, 0x1e);
-    dev->reg.init_reg(0x7d, 0x11);
-    dev->reg.init_reg(0x7e, 0x00);
-    dev->reg.init_reg(0x7f, 0x50);
-    dev->reg.init_reg(0x80, 0x00);
-    dev->reg.init_reg(0x81, 0x00);
-    dev->reg.init_reg(0x82, 0x0f);
-    dev->reg.init_reg(0x83, 0x00);
-    dev->reg.init_reg(0x84, 0x0e);
-    dev->reg.init_reg(0x85, 0x00);
-    dev->reg.init_reg(0x86, 0x0d);
-    dev->reg.init_reg(0x87, 0x02);
-    dev->reg.init_reg(0x88, 0x00);
-    dev->reg.init_reg(0x89, 0x00);
-
-    for (const auto& reg : dev->gpo.regs) {
-        dev->reg.set8(reg.address, reg.value);
-    }
-
-    // specific scanner settings, clock and gpio first
-    dev->interface->write_register(REG_0x6B, 0x0c);
-    dev->interface->write_register(0x06, 0x10);
-    dev->interface->write_register(REG_0x6E, 0x6d);
-    dev->interface->write_register(REG_0x6F, 0x80);
-    dev->interface->write_register(REG_0x6B, 0x0e);
-    dev->interface->write_register(REG_0x6C, 0x00);
-    dev->interface->write_register(REG_0x6D, 0x8f);
-    dev->interface->write_register(REG_0x6B, 0x0e);
-    dev->interface->write_register(REG_0x6B, 0x0e);
-    dev->interface->write_register(REG_0x6B, 0x0a);
-    dev->interface->write_register(REG_0x6B, 0x02);
-    dev->interface->write_register(REG_0x6B, 0x06);
-
-    dev->interface->write_0x8c(0x10, 0x94);
-    dev->interface->write_register(0x09, 0x10);
-
-  // FIXME: the following code originally changed 0x6b, but due to bug the 0x6c register was
-  // effectively changed. The current behavior matches the old code, but should probably be fixed.
-    dev->reg.find_reg(0x6c).value |= REG_0x6B_GPO18;
-    dev->reg.find_reg(0x6c).value &= ~REG_0x6B_GPO17;
-
-    sanei_gl841_setup_sensor(sensor, &dev->reg);
-}
-
-/*
  * Set all registers to default values
  * (function called only once at the beginning)
  */
 static void
 gl841_init_registers (Genesys_Device * dev)
 {
-  int addr;
+    DBG_HELPER(dbg);
 
-  DBG(DBG_proc, "%s\n", __func__);
-
-  dev->reg.clear();
-    if (dev->model->model_id == ModelId::CANON_LIDE_80) {
-      gl841_init_lide80(dev);
-      return ;
-    }
-
-    for (addr = 1; addr <= 0x0a; addr++) {
-        dev->reg.init_reg(addr, 0);
-    }
-    for (addr = 0x10; addr <= 0x27; addr++) {
-        dev->reg.init_reg(addr, 0);
-    }
-    dev->reg.init_reg(0x29, 0);
-    for (addr = 0x2c; addr <= 0x39; addr++)
-        dev->reg.init_reg(addr, 0);
-    for (addr = 0x3d; addr <= 0x3f; addr++)
-        dev->reg.init_reg(addr, 0);
-    for (addr = 0x52; addr <= 0x5a; addr++)
-        dev->reg.init_reg(addr, 0);
-    for (addr = 0x5d; addr <= 0x87; addr++)
-        dev->reg.init_reg(addr, 0);
-
-
-    dev->reg.find_reg(0x01).value = 0x20;	/* (enable shading), CCD, color, 1M */
+    dev->reg.init_reg(0x01, 0x20);
     if (dev->model->is_cis) {
         dev->reg.find_reg(0x01).value |= REG_0x01_CISSET;
     } else {
         dev->reg.find_reg(0x01).value &= ~REG_0x01_CISSET;
     }
-
-    dev->reg.find_reg(0x02).value = 0x30 /*0x38 */ ;	/* auto home, one-table-move, full step */
-    dev->reg.find_reg(0x02).value |= REG_0x02_AGOHOME;
-    sanei_genesys_set_motor_power(dev->reg, true);
-    dev->reg.find_reg(0x02).value |= REG_0x02_FASTFED;
-
-    dev->reg.find_reg(0x03).value = 0x1f /*0x17 */ ;	/* lamp on */
-    dev->reg.find_reg(0x03).value |= REG_0x03_AVEENB;
-
-    if (dev->model->sensor_id == SensorId::CCD_PLUSTEK_OPTICPRO_3600) {
-        // AD front end
-        dev->reg.find_reg(0x04).value  = (2 << REG_0x04S_AFEMOD) | 0x02;
-    }
-  else /* Wolfson front end */
-    {
-        dev->reg.find_reg(0x04).value |= 1 << REG_0x04S_AFEMOD;
+    if (dev->model->model_id == ModelId::CANON_LIDE_80) {
+        dev->reg.init_reg(0x01, 0x82);
     }
 
-  const auto& sensor = sanei_genesys_find_sensor_any(dev);
+    dev->reg.init_reg(0x02, 0x38);
+    if (dev->model->model_id == ModelId::CANON_LIDE_80) {
+        dev->reg.init_reg(0x02, 0x10);
+    }
 
-    dev->reg.find_reg(0x05).value = 0x00;	/* disable gamma, 24 clocks/pixel */
+    dev->reg.init_reg(0x03, 0x5f);
+    if (dev->model->model_id == ModelId::CANON_LIDE_80) {
+        dev->reg.init_reg(0x03, 0x50);
+    }
+
+    dev->reg.init_reg(0x04, 0x10);
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICPRO_3600) {
+        dev->reg.init_reg(0x04, 0x22);
+    } else if (dev->model->model_id == ModelId::CANON_LIDE_80) {
+        dev->reg.init_reg(0x04, 0x02);
+    }
+
+    const auto& sensor = sanei_genesys_find_sensor_any(dev);
+
+    dev->reg.init_reg(0x05, 0x00); // disable gamma, 24 clocks/pixel
 
     sanei_genesys_set_dpihw(dev->reg, sensor.register_dpihw);
 
-    dev->reg.find_reg(0x06).value |= REG_0x06_PWRBIT;
-    dev->reg.find_reg(0x06).value |= REG_0x06_GAIN4;
-
-  /* XP300 CCD needs different clock and clock/pixels values */
-    if (dev->model->sensor_id != SensorId::CCD_XP300 &&
-        dev->model->sensor_id != SensorId::CCD_DOCKETPORT_487 &&
-        dev->model->sensor_id != SensorId::CCD_DP685 &&
-        dev->model->sensor_id != SensorId::CCD_PLUSTEK_OPTICPRO_3600)
-    {
-        dev->reg.find_reg(0x06).value |= 0 << REG_0x06S_SCANMOD;
-        dev->reg.find_reg(0x09).value |= 1 << REG_0x09S_CLKSET;
-    }
-  else
-    {
-        dev->reg.find_reg(0x06).value |= 0x05 << REG_0x06S_SCANMOD; /* 15 clocks/pixel */
-        dev->reg.find_reg(0x09).value = 0; /* 24 MHz CLKSET */
+    if (dev->model->model_id == ModelId::CANON_LIDE_80) {
+        dev->reg.init_reg(0x05, 0x4c);
     }
 
-    dev->reg.find_reg(0x1e).value = 0xf0;	/* watch-dog time */
+    dev->reg.init_reg(0x06, 0x18);
+    if (dev->model->model_id == ModelId::CANON_LIDE_80) {
+        dev->reg.init_reg(0x06, 0x38);
+    }
+    if (dev->model->model_id == ModelId::VISIONEER_STROBE_XP300 ||
+        dev->model->model_id == ModelId::SYSCAN_DOCKETPORT_485 ||
+        dev->model->model_id == ModelId::DCT_DOCKETPORT_487 ||
+        dev->model->model_id == ModelId::SYSCAN_DOCKETPORT_685 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICPRO_3600)
+    {
+        dev->reg.init_reg(0x06, 0xb8);
+    }
 
-    dev->reg.find_reg(0x17).value |= 1 << REG_0x17S_TGW;
+    dev->reg.init_reg(0x07, 0x00);
+    dev->reg.init_reg(0x08, 0x00);
 
-    dev->reg.find_reg(0x19).value = 0x50;
+    dev->reg.init_reg(0x09, 0x10);
+    if (dev->model->model_id == ModelId::CANON_LIDE_80) {
+        dev->reg.init_reg(0x09, 0x11);
+    }
+    if (dev->model->model_id == ModelId::VISIONEER_STROBE_XP300 ||
+        dev->model->model_id == ModelId::SYSCAN_DOCKETPORT_485 ||
+        dev->model->model_id == ModelId::DCT_DOCKETPORT_487 ||
+        dev->model->model_id == ModelId::SYSCAN_DOCKETPORT_685 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICPRO_3600)
+    {
+        dev->reg.init_reg(0x09, 0x00);
+    }
+    dev->reg.init_reg(0x0a, 0x00);
 
-    dev->reg.find_reg(0x1d).value |= 1 << REG_0x1DS_TGSHLD;
+    // EXPR[0:15], EXPG[0:15], EXPB[0:15]: Exposure time settings
+    dev->reg.init_reg(0x10, 0x00);
+    dev->reg.init_reg(0x11, 0x00);
+    dev->reg.init_reg(0x12, 0x00);
+    dev->reg.init_reg(0x13, 0x00);
+    dev->reg.init_reg(0x14, 0x00);
+    dev->reg.init_reg(0x15, 0x00);
+    if (dev->model->model_id == ModelId::CANON_LIDE_80) {
+        dev->reg.init_reg(0x10, 0x40);
+        dev->reg.init_reg(0x11, 0x00);
+        dev->reg.init_reg(0x12, 0x40);
+        dev->reg.init_reg(0x13, 0x00);
+        dev->reg.init_reg(0x14, 0x40);
+        dev->reg.init_reg(0x15, 0x00);
+    }
 
-    dev->reg.find_reg(0x1e).value |= 1 << REG_0x1ES_WDTIME;
+    dev->reg.init_reg(0x16, 0x00);
+    dev->reg.init_reg(0x17, 0x01);
+    dev->reg.init_reg(0x18, 0x00);
+    dev->reg.init_reg(0x19, 0x50);
+    if (dev->model->model_id == ModelId::CANON_LIDE_80) {
+        dev->reg.init_reg(0x19, 0x06);
+    }
 
-/*SCANFED*/
-    dev->reg.find_reg(0x1f).value = 0x01;
+    dev->reg.init_reg(0x1a, 0x00);
+    dev->reg.init_reg(0x1b, 0x00);
+    dev->reg.init_reg(0x1c, 0x00);
+    dev->reg.init_reg(0x1d, 0x01);
+    if (dev->model->model_id == ModelId::CANON_LIDE_80) {
+        dev->reg.init_reg(0x1d, 0x04);
+    }
+    dev->reg.init_reg(0x1e, 0xf0);
+    if (dev->model->model_id == ModelId::CANON_LIDE_80) {
+        dev->reg.init_reg(0x1e, 0x10);
+    }
+    dev->reg.init_reg(0x1f, 0x01);
+    if (dev->model->model_id == ModelId::CANON_LIDE_80) {
+        dev->reg.init_reg(0x1f, 0x04);
+    }
+    dev->reg.init_reg(0x20, 0x20);
+    dev->reg.init_reg(0x21, 0x00);
+    dev->reg.init_reg(0x22, 0x00);
+    dev->reg.init_reg(0x23, 0x00);
+    dev->reg.init_reg(0x24, 0x00);
+    if (dev->model->model_id == ModelId::CANON_LIDE_80) {
+        dev->reg.init_reg(0x20, 0x02);
+        dev->reg.init_reg(0x21, 0x10);
+        dev->reg.init_reg(0x22, 0x20);
+        dev->reg.init_reg(0x23, 0x20);
+        dev->reg.init_reg(0x24, 0x10);
+    }
+    dev->reg.init_reg(0x25, 0x00);
+    dev->reg.init_reg(0x26, 0x00);
+    dev->reg.init_reg(0x27, 0x00);
+    dev->reg.init_reg(0x29, 0xff);
 
-/*BUFSEL*/
-    dev->reg.find_reg(0x20).value = 0x20;
+    dev->reg.init_reg(0x2c, 0x00);
+    dev->reg.init_reg(0x2d, 0x00);
+    if (dev->model->model_id == ModelId::CANON_LIDE_80) {
+        dev->reg.init_reg(0x2c, sensor.optical_res >> 8);
+        dev->reg.init_reg(0x2d, sensor.optical_res & 0xff);
+    }
+    dev->reg.init_reg(0x2e, 0x80);
+    dev->reg.init_reg(0x2f, 0x80);
 
-/*LAMPPWM*/
-    dev->reg.find_reg(0x29).value = 0xff;
+    dev->reg.init_reg(0x30, 0x00);
+    dev->reg.init_reg(0x31, 0x00);
+    dev->reg.init_reg(0x32, 0x00);
+    dev->reg.init_reg(0x33, 0x00);
+    dev->reg.init_reg(0x34, 0x00);
+    dev->reg.init_reg(0x35, 0x00);
+    dev->reg.init_reg(0x36, 0x00);
+    dev->reg.init_reg(0x37, 0x00);
+    dev->reg.init_reg(0x38, 0x4f);
+    dev->reg.init_reg(0x39, 0xc1);
+    if (dev->model->model_id == ModelId::CANON_LIDE_80) {
+        dev->reg.init_reg(0x31, 0x10);
+        dev->reg.init_reg(0x32, 0x15);
+        dev->reg.init_reg(0x33, 0x0e);
+        dev->reg.init_reg(0x34, 0x40);
+        dev->reg.init_reg(0x35, 0x00);
+        dev->reg.init_reg(0x36, 0x2a);
+        dev->reg.init_reg(0x37, 0x30);
+        dev->reg.init_reg(0x38, 0x2a);
+        dev->reg.init_reg(0x39, 0xf8);
+    }
 
-/*BWHI*/
-    dev->reg.find_reg(0x2e).value = 0x80;
+    dev->reg.init_reg(0x3d, 0x00);
+    dev->reg.init_reg(0x3e, 0x00);
+    dev->reg.init_reg(0x3f, 0x00);
 
-/*BWLOW*/
-    dev->reg.find_reg(0x2f).value = 0x80;
+    dev->reg.init_reg(0x52, 0x00);
+    dev->reg.init_reg(0x53, 0x00);
+    dev->reg.init_reg(0x54, 0x00);
+    dev->reg.init_reg(0x55, 0x00);
+    dev->reg.init_reg(0x56, 0x00);
+    dev->reg.init_reg(0x57, 0x00);
+    dev->reg.init_reg(0x58, 0x03);
+    dev->reg.init_reg(0x59, 0x03);
+    dev->reg.init_reg(0x5a, 0x40);
+    if (dev->model->model_id == ModelId::CANON_LIDE_80) {
+        dev->reg.init_reg(0x52, 0x03);
+        dev->reg.init_reg(0x53, 0x07);
+        dev->reg.init_reg(0x54, 0x00);
+        dev->reg.init_reg(0x55, 0x00);
+        dev->reg.init_reg(0x56, 0x00);
+        dev->reg.init_reg(0x57, 0x00);
+        dev->reg.init_reg(0x58, 0x29);
+        dev->reg.init_reg(0x59, 0x69);
+        dev->reg.init_reg(0x5a, 0x55);
+    }
 
-/*LPERIOD*/
-    dev->reg.find_reg(0x38).value = 0x4f;
-    dev->reg.find_reg(0x39).value = 0xc1;
-
-/*VSMPW*/
-    dev->reg.find_reg(0x58).value |= 3 << REG_0x58S_VSMPW;
-
-/*BSMPW*/
-    dev->reg.find_reg(0x59).value |= 3 << REG_0x59S_BSMPW;
-
-/*RLCSEL*/
-    dev->reg.find_reg(0x5a).value |= REG_0x5A_RLCSEL;
-
-/*STOPTIM*/
-    dev->reg.find_reg(0x5e).value |= 0x2 << REG_0x5ES_STOPTIM;
+    if (dev->model->model_id == ModelId::CANON_LIDE_80) {
+        dev->reg.init_reg(0x5d, 0x20);
+        dev->reg.init_reg(0x5e, 0x41);
+        dev->reg.init_reg(0x5f, 0x40);
+        dev->reg.init_reg(0x60, 0x00);
+        dev->reg.init_reg(0x61, 0x00);
+        dev->reg.init_reg(0x62, 0x00);
+        dev->reg.init_reg(0x63, 0x00);
+        dev->reg.init_reg(0x64, 0x00);
+        dev->reg.init_reg(0x65, 0x00);
+        dev->reg.init_reg(0x66, 0x00);
+        dev->reg.init_reg(0x67, 0x40);
+        dev->reg.init_reg(0x68, 0x40);
+        dev->reg.init_reg(0x69, 0x20);
+        dev->reg.init_reg(0x6a, 0x20);
+        dev->reg.init_reg(0x6c, 0x00);
+        dev->reg.init_reg(0x6d, 0x00);
+        dev->reg.init_reg(0x6e, 0x00);
+        dev->reg.init_reg(0x6f, 0x00);
+        dev->reg.init_reg(0x70, 0x00);
+        dev->reg.init_reg(0x71, 0x05);
+        dev->reg.init_reg(0x72, 0x07);
+        dev->reg.init_reg(0x73, 0x09);
+        dev->reg.init_reg(0x74, 0x00);
+        dev->reg.init_reg(0x75, 0x01);
+        dev->reg.init_reg(0x76, 0xff);
+        dev->reg.init_reg(0x77, 0x00);
+        dev->reg.init_reg(0x78, 0x0f);
+        dev->reg.init_reg(0x79, 0xf0);
+        dev->reg.init_reg(0x7a, 0xf0);
+        dev->reg.init_reg(0x7b, 0x00);
+        dev->reg.init_reg(0x7c, 0x1e);
+        dev->reg.init_reg(0x7d, 0x11);
+        dev->reg.init_reg(0x7e, 0x00);
+        dev->reg.init_reg(0x7f, 0x50);
+        dev->reg.init_reg(0x80, 0x00);
+        dev->reg.init_reg(0x81, 0x00);
+        dev->reg.init_reg(0x82, 0x0f);
+        dev->reg.init_reg(0x83, 0x00);
+        dev->reg.init_reg(0x84, 0x0e);
+        dev->reg.init_reg(0x85, 0x00);
+        dev->reg.init_reg(0x86, 0x0d);
+        dev->reg.init_reg(0x87, 0x02);
+        dev->reg.init_reg(0x88, 0x00);
+        dev->reg.init_reg(0x89, 0x00);
+    } else {
+        for (unsigned addr = 0x5d; addr <= 0x87; addr++) {
+            dev->reg.init_reg(addr, 0);
+        }
+        dev->reg.init_reg(0x5e, 0x02);
+    }
 
     sanei_gl841_setup_sensor(sensor, &dev->reg);
 
@@ -390,7 +357,6 @@ gl841_init_registers (Genesys_Device * dev)
         dev->reg.set8(reg.address, reg.value);
     }
 
-  /* TODO there is a switch calling to be written here */
     if (dev->model->gpio_id == GpioId::CANON_LIDE_35) {
         dev->reg.find_reg(0x6b).value |= REG_0x6B_GPO18;
         dev->reg.find_reg(0x6b).value &= ~REG_0x6B_GPO17;
@@ -402,10 +368,32 @@ gl841_init_registers (Genesys_Device * dev)
 
     if (dev->model->gpio_id == GpioId::DP685) {
       /* REG_0x6B_GPO18 lights on green led */
-        dev->reg.find_reg(0x6b).value |= REG_0x6B_GPO17|REG_0x6B_GPO18;
+        dev->reg.find_reg(0x6b).value |= REG_0x6B_GPO17 | REG_0x6B_GPO18;
     }
 
-  DBG(DBG_proc, "%s complete\n", __func__);
+    if (dev->model->model_id == ModelId::CANON_LIDE_80) {
+        // specific scanner settings, clock and gpio first
+        dev->interface->write_register(REG_0x6B, 0x0c);
+        dev->interface->write_register(0x06, 0x10);
+        dev->interface->write_register(REG_0x6E, 0x6d);
+        dev->interface->write_register(REG_0x6F, 0x80);
+        dev->interface->write_register(REG_0x6B, 0x0e);
+        dev->interface->write_register(REG_0x6C, 0x00);
+        dev->interface->write_register(REG_0x6D, 0x8f);
+        dev->interface->write_register(REG_0x6B, 0x0e);
+        dev->interface->write_register(REG_0x6B, 0x0e);
+        dev->interface->write_register(REG_0x6B, 0x0a);
+        dev->interface->write_register(REG_0x6B, 0x02);
+        dev->interface->write_register(REG_0x6B, 0x06);
+
+        dev->interface->write_0x8c(0x10, 0x94);
+        dev->interface->write_register(0x09, 0x10);
+
+        // FIXME: the following code originally changed 0x6b, but due to bug the 0x6c register was
+        // effectively changed. The current behavior matches the old code, but should probably be fixed.
+        dev->reg.find_reg(0x6c).value |= REG_0x6B_GPO18;
+        dev->reg.find_reg(0x6c).value &= ~REG_0x6B_GPO17;
+    }
 }
 
 // Send slope table for motor movement slope_table in machine byte order

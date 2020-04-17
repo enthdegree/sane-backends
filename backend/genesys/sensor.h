@@ -325,7 +325,6 @@ struct Genesys_Sensor {
     // True if calibration should be performed on host-side
     bool use_host_side_calib = false;
 
-    GenesysRegisterSettingSet custom_base_regs; // gl646-specific
     GenesysRegisterSettingSet custom_regs;
     GenesysRegisterSettingSet custom_fe_regs;
 
@@ -381,7 +380,6 @@ struct Genesys_Sensor {
             segment_order == other.segment_order &&
             stagger_config == other.stagger_config &&
             use_host_side_calib == other.use_host_side_calib &&
-            custom_base_regs == other.custom_base_regs &&
             custom_regs == other.custom_regs &&
             custom_fe_regs == other.custom_fe_regs &&
             gamma == other.gamma;
@@ -418,8 +416,6 @@ void serialize(Stream& str, Genesys_Sensor& x)
     serialize(str, x.stagger_config);
     serialize_newline(str);
     serialize(str, x.use_host_side_calib);
-    serialize_newline(str);
-    serialize(str, x.custom_base_regs);
     serialize_newline(str);
     serialize(str, x.custom_regs);
     serialize_newline(str);

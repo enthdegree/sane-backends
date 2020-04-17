@@ -552,6 +552,9 @@ enum class ScanFlag : unsigned
     USE_XPA = 1 << 9,
     ENABLE_LEDADD = 1 << 10,
     REVERSE = 1 << 12,
+
+    // (unused): the scanner should return head to home position automatically after scan.
+    AUTO_GO_HOME = 1 << 13,
 };
 
 inline ScanFlag operator|(ScanFlag left, ScanFlag right)
@@ -589,39 +592,6 @@ inline void serialize(std::ostream& str, ScanFlag& x)
 }
 
 std::ostream& operator<<(std::ostream& out, ScanFlag flags);
-
-
-
-enum class MotorFlag : unsigned
-{
-    NONE = 0,
-    AUTO_GO_HOME = 1 << 0,
-    DISABLE_BUFFER_FULL_MOVE = 1 << 2,
-    FEED = 1 << 3,
-    USE_XPA = 1 << 4,
-    REVERSE = 1 << 5,
-};
-
-inline MotorFlag operator|(MotorFlag left, MotorFlag right)
-{
-    return static_cast<MotorFlag>(static_cast<unsigned>(left) | static_cast<unsigned>(right));
-}
-
-inline MotorFlag& operator|=(MotorFlag& left, MotorFlag right)
-{
-    left = left | right;
-    return left;
-}
-
-inline MotorFlag operator&(MotorFlag left, MotorFlag right)
-{
-    return static_cast<MotorFlag>(static_cast<unsigned>(left) & static_cast<unsigned>(right));
-}
-
-inline bool has_flag(MotorFlag flags, MotorFlag which)
-{
-    return (flags & which) == which;
-}
 
 
 enum class Direction : unsigned

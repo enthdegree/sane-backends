@@ -504,7 +504,7 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
                                        unsigned int scan_dummy,
                                        unsigned int feed_steps,
                                        ScanColorMode scan_mode,
-                                       MotorFlag flags)
+                                       ScanFlag flags)
 {
     DBG_HELPER(dbg);
   int use_fast_fed;
@@ -579,15 +579,15 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
         r02 &= ~REG_0x02_FASTFED;
     }
 
-    if (has_flag(flags, MotorFlag::AUTO_GO_HOME)) {
+    if (has_flag(flags, ScanFlag::AUTO_GO_HOME)) {
         r02 |= REG_0x02_AGOHOME;
     }
 
-    if (has_flag(flags, MotorFlag::DISABLE_BUFFER_FULL_MOVE) || (yres >= sensor.optical_res))
+    if (has_flag(flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE) || (yres >= sensor.optical_res))
     {
         r02 |= REG_0x02_ACDCDIS;
     }
-    if (has_flag(flags, MotorFlag::REVERSE)) {
+    if (has_flag(flags, ScanFlag::REVERSE)) {
         r02 |= REG_0x02_MTRREV;
     }
 
@@ -629,7 +629,7 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
     feedl <<= static_cast<unsigned>(motor_profile.step_type);
 
     dist = scan_table.steps_count;
-    if (has_flag(flags, MotorFlag::FEED)) {
+    if (has_flag(flags, ScanFlag::FEEDING)) {
         dist *= 2;
     }
     if (use_fast_fed) {
@@ -857,19 +857,9 @@ void CommandSetGl124::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     move = session.params.starty;
   DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
 
-    MotorFlag mflags = MotorFlag::NONE;
-    if (has_flag(session.params.flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE)) {
-        mflags |= MotorFlag::DISABLE_BUFFER_FULL_MOVE;
-    }
-    if (has_flag(session.params.flags, ScanFlag::FEEDING)) {
-        mflags |= MotorFlag::FEED;
-    }
-    if (has_flag(session.params.flags, ScanFlag::REVERSE)) {
-        mflags |= MotorFlag::REVERSE;
-    }
     gl124_init_motor_regs_scan(dev, sensor, reg, motor_profile, exposure_time, slope_dpi,
                                session.optical_line_count,
-                               dummy, move, session.params.scan_mode, mflags);
+                               dummy, move, session.params.scan_mode, session.params.flags);
 
   /*** prepares data reordering ***/
 

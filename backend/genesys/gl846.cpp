@@ -405,7 +405,7 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
                                        unsigned int scan_lines,
                                        unsigned int scan_dummy,
                                        unsigned int feed_steps,
-                                       MotorFlag flags)
+                                       ScanFlag flags)
 {
     DBG_HELPER_ARGS(dbg, "scan_exposure_time=%d, scan_yres=%d, step_type=%d, scan_lines=%d, "
                          "scan_dummy=%d, feed_steps=%d, flags=%x",
@@ -415,7 +415,7 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
     unsigned step_multiplier = gl846_get_step_multiplier(reg);
 
     bool use_fast_fed = false;
-    if (dev->settings.yres == 4444 && feed_steps > 100 && !has_flag(flags, MotorFlag::FEED)) {
+    if (dev->settings.yres == 4444 && feed_steps > 100 && !has_flag(flags, ScanFlag::FEEDING)) {
         use_fast_fed = true;
     }
 
@@ -432,14 +432,14 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
         reg02 &= ~REG_0x02_FASTFED;
     }
 
-    if (has_flag(flags, MotorFlag::AUTO_GO_HOME)) {
+    if (has_flag(flags, ScanFlag::AUTO_GO_HOME)) {
         reg02 |= REG_0x02_AGOHOME | REG_0x02_NOTHOME;
     }
 
-    if (has_flag(flags, MotorFlag::DISABLE_BUFFER_FULL_MOVE) ||(scan_yres>=sensor.optical_res)) {
+    if (has_flag(flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE) || (scan_yres>=sensor.optical_res)) {
         reg02 |= REG_0x02_ACDCDIS;
     }
-    if (has_flag(flags, MotorFlag::REVERSE)) {
+    if (has_flag(flags, ScanFlag::REVERSE)) {
         reg02 |= REG_0x02_MTRREV;
     } else {
         reg02 &= ~REG_0x02_MTRREV;
@@ -494,7 +494,7 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
     } else {
         feedl <<= static_cast<unsigned>(motor_profile.step_type);
         dist = scan_table.steps_count;
-        if (has_flag(flags, MotorFlag::FEED)) {
+        if (has_flag(flags, ScanFlag::FEEDING)) {
             dist *= 2;
         }
     }
@@ -738,20 +738,9 @@ void CommandSetGl846::init_regs_for_scan_session(Genesys_Device* dev, const Gene
    * scan since color calibration is OK for this mode
    */
     gl846_init_optical_regs_scan(dev, sensor, reg, exposure_time, session);
-
-    MotorFlag mflags = MotorFlag::NONE;
-    if (has_flag(session.params.flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE)) {
-        mflags |= MotorFlag::DISABLE_BUFFER_FULL_MOVE;
-    }
-    if (has_flag(session.params.flags, ScanFlag::FEEDING)) {
-        mflags |= MotorFlag::FEED;
-    }
-    if (has_flag(session.params.flags, ScanFlag::REVERSE)) {
-        mflags |= MotorFlag::REVERSE;
-    }
-
     gl846_init_motor_regs_scan(dev, sensor, session, reg, motor_profile, exposure_time, slope_dpi,
-                               session.optical_line_count, dummy, session.params.starty, mflags);
+                               session.optical_line_count, dummy, session.params.starty,
+                               session.params.flags);
 
   /*** prepares data reordering ***/
 

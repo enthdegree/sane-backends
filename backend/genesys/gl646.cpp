@@ -512,7 +512,6 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
 
     uint32_t move = session.params.starty;
 
-  int i, nb;
   Motor_Master *motor = nullptr;
   uint32_t z1, z2;
   int feedl;
@@ -520,36 +519,21 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
 
   /* for the given resolution, search for master
    * motor mode setting */
-  i = 0;
-  nb = sizeof (motor_master) / sizeof (Motor_Master);
-  while (i < nb)
-    {
-      if (dev->model->motor_id == motor_master[i].motor_id
-          && motor_master[i].dpi == session.params.yres
-          && motor_master[i].channels == session.params.channels)
-	{
-	  motor = &motor_master[i];
-	}
-      i++;
+    for (unsigned i = 0; i < sizeof (motor_master) / sizeof (Motor_Master); ++i) {
+        if (dev->model->motor_id == motor_master[i].motor_id &&
+            motor_master[i].dpi == session.params.yres &&
+            motor_master[i].channels == session.params.channels)
+        {
+            motor = &motor_master[i];
+        }
     }
-  if (motor == nullptr)
-    {
+    if (motor == nullptr) {
         throw SaneException("unable to find settings for motor %d at %d dpi, color=%d",
                             static_cast<unsigned>(dev->model->motor_id),
                             session.params.yres, session.params.channels);
     }
 
-  /* now we can search for the specific sensor settings */
-  i = 0;
-
-    // now apply values from settings to registers
-    regs->set16(REG_EXPR, sensor.exposure.red);
-    regs->set16(REG_EXPG, sensor.exposure.green);
-    regs->set16(REG_EXPB, sensor.exposure.blue);
-
-    for (const auto& reg : sensor.custom_regs) {
-        regs->set8(reg.address, reg.value);
-    }
+    scanner_setup_sensor(*dev, sensor, *regs);
 
   /* now generate slope tables : we are not using generate_slope_table3 yet */
     auto slope_table1 = create_slope_table(motor->slope1, motor->slope1.max_speed_w, StepType::FULL,

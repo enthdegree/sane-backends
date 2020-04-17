@@ -1172,10 +1172,5 @@ void CommandSetGl847::move_to_ta(Genesys_Device* dev) const
     throw SaneException("not implemented");
 }
 
-std::unique_ptr<CommandSet> create_gl847_cmd_set()
-{
-    return std::unique_ptr<CommandSet>(new CommandSetGl847{});
-}
-
 } // namespace gl847
 } // namespace genesys

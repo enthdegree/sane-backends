@@ -56,6 +56,14 @@
 #include "gl847_registers.h"
 #include "gl646_registers.h"
 
+#include "gl124.h"
+#include "gl646.h"
+#include "gl841.h"
+#include "gl843.h"
+#include "gl846.h"
+#include "gl847.h"
+#include "gl646.h"
+
 #include <cstdio>
 #include <cmath>
 #include <vector>
@@ -66,29 +74,16 @@
 
 namespace genesys {
 
-/**
- * setup the hardware dependent functions
- */
-
-namespace gl124 { std::unique_ptr<CommandSet> create_gl124_cmd_set(); }
-namespace gl646 { std::unique_ptr<CommandSet> create_gl646_cmd_set(); }
-namespace gl841 { std::unique_ptr<CommandSet> create_gl841_cmd_set(); }
-namespace gl843 { std::unique_ptr<CommandSet> create_gl843_cmd_set(); }
-namespace gl846 { std::unique_ptr<CommandSet> create_gl846_cmd_set(); }
-namespace gl847 { std::unique_ptr<CommandSet> create_gl847_cmd_set(); }
-
-void sanei_genesys_init_cmd_set(Genesys_Device* dev)
+std::unique_ptr<CommandSet> create_cmd_set(AsicType asic_type)
 {
-  DBG_INIT ();
-    DBG_HELPER(dbg);
-    switch (dev->model->asic_type) {
-        case AsicType::GL646: dev->cmd_set = gl646::create_gl646_cmd_set(); break;
-        case AsicType::GL841: dev->cmd_set = gl841::create_gl841_cmd_set(); break;
-        case AsicType::GL843: dev->cmd_set = gl843::create_gl843_cmd_set(); break;
+    switch (asic_type) {
+        case AsicType::GL646: return std::unique_ptr<CommandSet>(new gl646::CommandSetGl646{});
+        case AsicType::GL841: return std::unique_ptr<CommandSet>(new gl841::CommandSetGl841{});
+        case AsicType::GL843: return std::unique_ptr<CommandSet>(new gl843::CommandSetGl843{});
         case AsicType::GL845: // since only a few reg bits differs we handle both together
-        case AsicType::GL846: dev->cmd_set = gl846::create_gl846_cmd_set(); break;
-        case AsicType::GL847: dev->cmd_set = gl847::create_gl847_cmd_set(); break;
-        case AsicType::GL124: dev->cmd_set = gl124::create_gl124_cmd_set(); break;
+        case AsicType::GL846: return std::unique_ptr<CommandSet>(new gl846::CommandSetGl846{});
+        case AsicType::GL847: return std::unique_ptr<CommandSet>(new gl847::CommandSetGl847{});
+        case AsicType::GL124: return std::unique_ptr<CommandSet>(new gl124::CommandSetGl124{});
         default: throw SaneException(SANE_STATUS_INVAL, "unknown ASIC type");
     }
 }

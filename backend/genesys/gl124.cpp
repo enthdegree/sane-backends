@@ -1511,10 +1511,5 @@ void CommandSetGl124::move_to_ta(Genesys_Device* dev) const
     throw SaneException("not implemented");
 }
 
-std::unique_ptr<CommandSet> create_gl124_cmd_set()
-{
-    return std::unique_ptr<CommandSet>(new CommandSetGl124{});
-}
-
 } // namespace gl124
 } // namespace genesys

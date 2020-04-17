@@ -219,7 +219,7 @@ private:
 /*       common functions needed by low level specific functions            */
 /*--------------------------------------------------------------------------*/
 
-extern void sanei_genesys_init_cmd_set(Genesys_Device* dev);
+std::unique_ptr<CommandSet> create_cmd_set(AsicType asic_type);
 
 // reads the status of the scanner
 Status scanner_read_status(Genesys_Device& dev);

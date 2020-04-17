@@ -1890,10 +1890,5 @@ void CommandSetGl843::wait_for_motor_stop(Genesys_Device* dev) const
     (void) dev;
 }
 
-std::unique_ptr<CommandSet> create_gl843_cmd_set()
-{
-    return std::unique_ptr<CommandSet>(new CommandSetGl843{});
-}
-
 } // namespace gl843
 } // namespace genesys

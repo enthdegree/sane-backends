@@ -1275,10 +1275,5 @@ void CommandSetGl846::move_to_ta(Genesys_Device* dev) const
     scanner_move(*dev, dev->model->default_method, feed, Direction::FORWARD);
 }
 
-std::unique_ptr<CommandSet> create_gl846_cmd_set()
-{
-    return std::unique_ptr<CommandSet>(new CommandSetGl846{});
-}
-
 } // namespace gl846
 } // namespace genesys

@@ -5619,7 +5619,9 @@ static void sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
 
     init_options(s);
 
-    sanei_genesys_init_cmd_set(s->dev);
+    DBG_INIT();
+
+    s->dev->cmd_set = create_cmd_set(s->dev->model->asic_type);
 
     // FIXME: we create sensor tables for the sensor, this should happen when we know which sensor
     // we will select

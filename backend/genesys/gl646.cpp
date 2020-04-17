@@ -3137,10 +3137,5 @@ void CommandSetGl646::asic_boot(Genesys_Device *dev, bool cold) const
     throw SaneException("not implemented");
 }
 
-std::unique_ptr<CommandSet> create_gl646_cmd_set()
-{
-    return std::unique_ptr<CommandSet>(new CommandSetGl646{});
-}
-
 } // namespace gl646
 } // namespace genesys

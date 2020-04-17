@@ -2652,10 +2652,5 @@ void CommandSetGl841::asic_boot(Genesys_Device *dev, bool cold) const
     dev->cmd_set->set_fe(dev, sensor, AFE_INIT);
 }
 
-std::unique_ptr<CommandSet> create_gl841_cmd_set()
-{
-    return std::unique_ptr<CommandSet>(new CommandSetGl841{});
-}
-
 } // namespace gl841
 } // namespace genesys

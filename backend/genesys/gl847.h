@@ -50,26 +50,6 @@
 namespace genesys {
 namespace gl847 {
 
-typedef struct
-{
-    GpioId gpio_id;
-  uint8_t r6b;
-  uint8_t r6c;
-  uint8_t r6d;
-  uint8_t r6e;
-  uint8_t r6f;
-  uint8_t ra6;
-  uint8_t ra7;
-  uint8_t ra8;
-  uint8_t ra9;
-} Gpio_Profile;
-
-static Gpio_Profile gpios[]={
-    { GpioId::CANON_LIDE_200, 0x02, 0xf9, 0x20, 0xff, 0x00, 0x04, 0x04, 0x00, 0x00},
-    { GpioId::CANON_LIDE_700F, 0x06, 0xdb, 0xff, 0xff, 0x80, 0x15, 0x07, 0x20, 0x10},
-    { GpioId::UNKNOWN, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-};
-
 class CommandSetGl847 : public CommandSetCommon
 {
 public:

@@ -53,6 +53,27 @@
 namespace genesys {
 namespace gl847 {
 
+struct Gpio_Profile
+{
+    GpioId gpio_id;
+    std::uint8_t r6b;
+    std::uint8_t r6c;
+    std::uint8_t r6d;
+    std::uint8_t r6e;
+    std::uint8_t r6f;
+    std::uint8_t ra6;
+    std::uint8_t ra7;
+    std::uint8_t ra8;
+    std::uint8_t ra9;
+};
+
+static Gpio_Profile gpios[] =
+{
+    { GpioId::CANON_LIDE_200, 0x02, 0xf9, 0x20, 0xff, 0x00, 0x04, 0x04, 0x00, 0x00},
+    { GpioId::CANON_LIDE_700F, 0x06, 0xdb, 0xff, 0xff, 0x80, 0x15, 0x07, 0x20, 0x10},
+    { GpioId::UNKNOWN, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+};
+
 /**
  * compute the step multiplier used
  */

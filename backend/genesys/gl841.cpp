@@ -187,12 +187,12 @@ gl841_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x0a, 0x00);
 
     // EXPR[0:15], EXPG[0:15], EXPB[0:15]: Exposure time settings
-    dev->reg.init_reg(0x10, 0x00);
-    dev->reg.init_reg(0x11, 0x00);
-    dev->reg.init_reg(0x12, 0x00);
-    dev->reg.init_reg(0x13, 0x00);
-    dev->reg.init_reg(0x14, 0x00);
-    dev->reg.init_reg(0x15, 0x00);
+    dev->reg.init_reg(0x10, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x11, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x12, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x13, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x14, 0x00); // SENSOR_DEF
+    dev->reg.init_reg(0x15, 0x00); // SENSOR_DEF
     if (dev->model->model_id == ModelId::CANON_LIDE_80) {
         dev->reg.init_reg(0x10, 0x40);
         dev->reg.init_reg(0x11, 0x00);
@@ -202,21 +202,14 @@ gl841_init_registers (Genesys_Device * dev)
         dev->reg.init_reg(0x15, 0x00);
     }
 
-    dev->reg.init_reg(0x16, 0x00);
-    dev->reg.init_reg(0x17, 0x01);
-    dev->reg.init_reg(0x18, 0x00);
-    dev->reg.init_reg(0x19, 0x50);
-    if (dev->model->model_id == ModelId::CANON_LIDE_80) {
-        dev->reg.init_reg(0x19, 0x06);
-    }
-
-    dev->reg.init_reg(0x1a, 0x00);
-    dev->reg.init_reg(0x1b, 0x00);
-    dev->reg.init_reg(0x1c, 0x00);
-    dev->reg.init_reg(0x1d, 0x01);
-    if (dev->model->model_id == ModelId::CANON_LIDE_80) {
-        dev->reg.init_reg(0x1d, 0x04);
-    }
+    dev->reg.init_reg(0x16, 0x00); // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
+    dev->reg.init_reg(0x17, 0x00); // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
+    dev->reg.init_reg(0x18, 0x00); // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
+    dev->reg.init_reg(0x19, 0x00); // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
+    dev->reg.init_reg(0x1a, 0x00); // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
+    dev->reg.init_reg(0x1b, 0x00); // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
+    dev->reg.init_reg(0x1c, 0x00); // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
+    dev->reg.init_reg(0x1d, 0x01); // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
     dev->reg.init_reg(0x1e, 0xf0);
     if (dev->model->model_id == ModelId::CANON_LIDE_80) {
         dev->reg.init_reg(0x1e, 0x10);
@@ -277,26 +270,15 @@ gl841_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x3e, 0x00);
     dev->reg.init_reg(0x3f, 0x00);
 
-    dev->reg.init_reg(0x52, 0x00);
-    dev->reg.init_reg(0x53, 0x00);
-    dev->reg.init_reg(0x54, 0x00);
-    dev->reg.init_reg(0x55, 0x00);
-    dev->reg.init_reg(0x56, 0x00);
-    dev->reg.init_reg(0x57, 0x00);
-    dev->reg.init_reg(0x58, 0x03);
-    dev->reg.init_reg(0x59, 0x03);
-    dev->reg.init_reg(0x5a, 0x40);
-    if (dev->model->model_id == ModelId::CANON_LIDE_80) {
-        dev->reg.init_reg(0x52, 0x03);
-        dev->reg.init_reg(0x53, 0x07);
-        dev->reg.init_reg(0x54, 0x00);
-        dev->reg.init_reg(0x55, 0x00);
-        dev->reg.init_reg(0x56, 0x00);
-        dev->reg.init_reg(0x57, 0x00);
-        dev->reg.init_reg(0x58, 0x29);
-        dev->reg.init_reg(0x59, 0x69);
-        dev->reg.init_reg(0x5a, 0x55);
-    }
+    dev->reg.init_reg(0x52, 0x00);  // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
+    dev->reg.init_reg(0x53, 0x00);  // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
+    dev->reg.init_reg(0x54, 0x00);  // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
+    dev->reg.init_reg(0x55, 0x00);  // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
+    dev->reg.init_reg(0x56, 0x00);  // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
+    dev->reg.init_reg(0x57, 0x00);  // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
+    dev->reg.init_reg(0x58, 0x00);  // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
+    dev->reg.init_reg(0x59, 0x00);  // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
+    dev->reg.init_reg(0x5a, 0x00);  // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
 
     if (dev->model->model_id == ModelId::CANON_LIDE_80) {
         dev->reg.init_reg(0x5d, 0x20);
@@ -317,10 +299,19 @@ gl841_init_registers (Genesys_Device * dev)
         dev->reg.init_reg(0x6d, 0x00);
         dev->reg.init_reg(0x6e, 0x00);
         dev->reg.init_reg(0x6f, 0x00);
-        dev->reg.init_reg(0x70, 0x00);
-        dev->reg.init_reg(0x71, 0x05);
-        dev->reg.init_reg(0x72, 0x07);
-        dev->reg.init_reg(0x73, 0x09);
+    } else {
+        for (unsigned addr = 0x5d; addr <= 0x6f; addr++) {
+            dev->reg.init_reg(addr, 0);
+        }
+        dev->reg.init_reg(0x5e, 0x02);
+    }
+
+    dev->reg.init_reg(0x70, 0x00); // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
+    dev->reg.init_reg(0x71, 0x00); // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
+    dev->reg.init_reg(0x72, 0x00); // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
+    dev->reg.init_reg(0x73, 0x00); // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
+
+    if (dev->model->model_id == ModelId::CANON_LIDE_80) {
         dev->reg.init_reg(0x74, 0x00);
         dev->reg.init_reg(0x75, 0x01);
         dev->reg.init_reg(0x76, 0xff);
@@ -344,10 +335,9 @@ gl841_init_registers (Genesys_Device * dev)
         dev->reg.init_reg(0x88, 0x00);
         dev->reg.init_reg(0x89, 0x00);
     } else {
-        for (unsigned addr = 0x5d; addr <= 0x87; addr++) {
+        for (unsigned addr = 0x74; addr <= 0x87; addr++) {
             dev->reg.init_reg(addr, 0);
         }
-        dev->reg.init_reg(0x5e, 0x02);
     }
 
     sanei_gl841_setup_sensor(sensor, &dev->reg);

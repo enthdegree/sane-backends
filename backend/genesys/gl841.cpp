@@ -2005,8 +2005,8 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
 
     unsigned resolution = sensor.shading_resolution;
 
-    const auto& calib_sensor_base = sanei_genesys_find_sensor(dev, resolution, channels,
-                                                              dev->settings.scan_method);
+    const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
+                                                         dev->settings.scan_method);
 
     ScanSession session;
     session.params.xres = resolution;
@@ -2025,9 +2025,9 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
                            ScanFlag::SINGLE_LINE |
                            ScanFlag::IGNORE_STAGGER_OFFSET |
                            ScanFlag::IGNORE_COLOR_OFFSET;
-    compute_session(dev, session, calib_sensor_base);
+    compute_session(dev, session, calib_sensor);
 
-    init_regs_for_scan_session(dev, calib_sensor_base, &regs, session);
+    init_regs_for_scan_session(dev, calib_sensor, &regs, session);
 
     dev->interface->write_registers(regs);
 
@@ -2051,21 +2051,15 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
   max_exposure=((exp[0]+exp[1]+exp[2])/3)*2;
   target=sensor.gain_white_ref*256;
 
-    auto calib_sensor = calib_sensor_base;
-
     bool acceptable = false;
     do {
-        calib_sensor.exposure.red = exp[0];
-        calib_sensor.exposure.green = exp[1];
-        calib_sensor.exposure.blue = exp[2];
-
-        regs_set_exposure(dev->model->asic_type, regs, calib_sensor.exposure);
-        dev->interface->write_register(0x10, (calib_sensor.exposure.red >> 8) & 0xff);
-        dev->interface->write_register(0x11, calib_sensor.exposure.red & 0xff);
-        dev->interface->write_register(0x12, (calib_sensor.exposure.green >> 8) & 0xff);
-        dev->interface->write_register(0x13, calib_sensor.exposure.green & 0xff);
-        dev->interface->write_register(0x14, (calib_sensor.exposure.blue >> 8) & 0xff);
-        dev->interface->write_register(0x15, calib_sensor.exposure.blue & 0xff);
+        regs_set_exposure(dev->model->asic_type, regs, { exp[0], exp[1], exp[2] });
+        dev->interface->write_register(0x10, (exp[0] >> 8) & 0xff);
+        dev->interface->write_register(0x11, exp[0] & 0xff);
+        dev->interface->write_register(0x12, (exp[1] >> 8) & 0xff);
+        dev->interface->write_register(0x13, exp[1] & 0xff);
+        dev->interface->write_register(0x14, (exp[2] >> 8) & 0xff);
+        dev->interface->write_register(0x15, exp[2] & 0xff);
 
         dev->interface->write_registers(regs);
 
@@ -2075,7 +2069,7 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
         if (is_testing_mode()) {
             dev->interface->test_checkpoint("led_calibration");
             move_back_home(dev, true);
-            return calib_sensor.exposure;
+            return { exp[0], exp[1], exp[2] };
         }
 
         auto image = read_unshuffled_image_from_scanner(dev, session, session.output_line_bytes);
@@ -2169,7 +2163,7 @@ SensorExposure CommandSetGl841::led_calibration(Genesys_Device* dev, const Genes
 
     dev->cmd_set->move_back_home(dev, true);
 
-    return calib_sensor.exposure;
+    return { exp[0], exp[1], exp[2] };
 }
 
 /** @brief calibration for AD frontend devices

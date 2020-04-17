@@ -68,39 +68,6 @@ static int gl841_exposure_time(Genesys_Device *dev, const Genesys_Sensor& sensor
                                int start,
                                int used_pixels);
 
-/** copy sensor specific settings */
-/* *dev  : device infos
-   *regs : registers to be set
-   extended : do extended set up
-   ccd_size_divisor: set up for half ccd resolution
-   all registers 08-0B, 10-1D, 52-59 are set up. They shouldn't
-   appear anywhere else but in register_ini
-
-Responsible for signals to CCD/CIS:
-  CCD_CK1X (CK1INV(0x16),CKDIS(0x16),CKTOGGLE(0x18),CKDELAY(0x18),MANUAL1(0x1A),CK1MTGL(0x1C),CK1LOW(0x1D),CK1MAP(0x74,0x75,0x76),CK1NEG(0x7D))
-  CCD_CK2X (CK2INV(0x16),CKDIS(0x16),CKTOGGLE(0x18),CKDELAY(0x18),MANUAL1(0x1A),CK1LOW(0x1D),CK1NEG(0x7D))
-  CCD_CK3X (MANUAL3(0x1A),CK3INV(0x1A),CK3MTGL(0x1C),CK3LOW(0x1D),CK3MAP(0x77,0x78,0x79),CK3NEG(0x7D))
-  CCD_CK4X (MANUAL3(0x1A),CK4INV(0x1A),CK4MTGL(0x1C),CK4LOW(0x1D),CK4MAP(0x7A,0x7B,0x7C),CK4NEG(0x7D))
-  CCD_CPX  (CTRLHI(0x16),CTRLINV(0x16),CTRLDIS(0x16),CPH(0x72),CPL(0x73),CPNEG(0x7D))
-  CCD_RSX  (CTRLHI(0x16),CTRLINV(0x16),CTRLDIS(0x16),RSH(0x70),RSL(0x71),RSNEG(0x7D))
-  CCD_TGX  (TGINV(0x16),TGMODE(0x17),TGW(0x17),EXPR(0x10,0x11),TGSHLD(0x1D))
-  CCD_TGG  (TGINV(0x16),TGMODE(0x17),TGW(0x17),EXPG(0x12,0x13),TGSHLD(0x1D))
-  CCD_TGB  (TGINV(0x16),TGMODE(0x17),TGW(0x17),EXPB(0x14,0x15),TGSHLD(0x1D))
-  LAMP_SW  (EXPR(0x10,0x11),XPA_SEL(0x03),LAMP_PWR(0x03),LAMPTIM(0x03),MTLLAMP(0x04),LAMPPWM(0x29))
-  XPA_SW   (EXPG(0x12,0x13),XPA_SEL(0x03),LAMP_PWR(0x03),LAMPTIM(0x03),MTLLAMP(0x04),LAMPPWM(0x29))
-  LAMP_B   (EXPB(0x14,0x15),LAMP_PWR(0x03))
-
-other registers:
-  CISSET(0x01),CNSET(0x18),DCKSEL(0x18),SCANMOD(0x18),EXPDMY(0x19),LINECLP(0x1A),CKAREA(0x1C),TGTIME(0x1C),LINESEL(0x1E),DUMMY(0x34)
-
-Responsible for signals to AFE:
-  VSMP  (VSMP(0x58),VSMPW(0x58))
-  BSMP  (BSMP(0x59),BSMPW(0x59))
-
-other register settings depending on this:
-  RHI(0x52),RLOW(0x53),GHI(0x54),GLOW(0x55),BHI(0x56),BLOW(0x57),
-
-*/
 static void sanei_gl841_setup_sensor(const Genesys_Sensor& sensor, Genesys_Register_Set* regs)
 {
     DBG_HELPER(dbg);
@@ -677,36 +644,6 @@ static void gl841_init_motor_regs(Genesys_Device* dev, const Genesys_Sensor& sen
 
     feedl = feed_steps - fast_table.steps_count * 2;
     use_fast_fed = 1;
-
-/* all needed slopes available. we did even decide which mode to use.
-   what next?
-   - transfer slopes
-SCAN:
-flags \ use_fast_fed    ! 0         1
-------------------------\--------------------
-                      0 ! 0,1,2     0,1,2,3
-MotorFlag::AUTO_GO_HOME ! 0,1,2,4   0,1,2,3,4
-OFF:       none
-FEED:      3
-GO_HOME:   3
-HOME_FREE: 3
-   - setup registers
-     * slope specific registers (already done)
-     * DECSEL for HOME_FREE/GO_HOME/SCAN
-     * FEEDL
-     * MTRREV
-     * MTRPWR
-     * FASTFED
-     * STEPSEL
-     * MTRPWM
-     * FSTPSEL
-     * FASTPWM
-     * HOMENEG
-     * BWDSTEP
-     * FWDSTEP
-     * Z1
-     * Z2
- */
 
     reg->set8(0x3d, (feedl >> 16) & 0xf);
     reg->set8(0x3e, (feedl >> 8) & 0xff);

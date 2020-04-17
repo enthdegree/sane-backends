@@ -576,31 +576,16 @@ static void gl841_init_motor_regs_off(Genesys_Register_Set* reg, unsigned int sc
     reg->set8(0x26, (scan_lines >> 8) & 0xff);
     reg->set8(0x27, scan_lines & 0xff);
 
-    reg->find_reg(0x02).value &= ~0x01; /*LONGCURV OFF*/
-    reg->find_reg(0x02).value &= ~0x80; /*NOT_HOME OFF*/
-
-    reg->find_reg(0x02).value &= ~0x10;
-
-    reg->find_reg(0x02).value &= ~0x06;
-
-    reg->find_reg(0x02).value &= ~0x08;
-
-    reg->find_reg(0x02).value &= ~0x20;
-
-    reg->find_reg(0x02).value &= ~0x40;
+    reg->set8(0x02, 0x00);
 
     reg->set8(0x67, 0x3f);
-
     reg->set8(0x68, 0x3f);
 
     reg->set8(REG_STEPNO, 0);
-
     reg->set8(REG_FASTNO, 0);
 
     reg->set8(0x69, 0);
-
     reg->set8(0x6a, 0);
-
     reg->set8(0x5f, 0);
 }
 

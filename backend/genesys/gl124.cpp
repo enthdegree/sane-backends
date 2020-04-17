@@ -1209,8 +1209,8 @@ void CommandSetGl124::send_shading_data(Genesys_Device* dev, const Genesys_Senso
  * by doing a 600 dpi scan
  * @param dev scanner device
  */
-static void move_to_calibration_area(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                     Genesys_Register_Set& regs)
+void move_to_calibration_area(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                              Genesys_Register_Set& regs)
 {
     (void) sensor;
 
@@ -1275,123 +1275,7 @@ static void move_to_calibration_area(Genesys_Device* dev, const Genesys_Sensor& 
 SensorExposure CommandSetGl124::led_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                                 Genesys_Register_Set& regs) const
 {
-    DBG_HELPER(dbg);
-    int i;
-  int avg[3];
-  int turn;
-  uint16_t exp[3],target;
-
-  /* move to calibration area */
-  move_to_calibration_area(dev, sensor, regs);
-
-  /* offset calibration is always done in 16 bit depth color mode */
-    unsigned channels = 3;
-    unsigned resolution = sensor.shading_resolution;
-
-    const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
-                                                         dev->settings.scan_method);
-
-  /* initial calibration reg values */
-  regs = dev->reg;
-
-    ScanSession session;
-    session.params.xres = resolution;
-    session.params.yres = resolution;
-    session.params.startx = 0;
-    session.params.starty = 0;
-    session.params.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;;
-    session.params.lines = 1;
-    session.params.depth = 16;
-    session.params.channels = channels;
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-    session.params.color_filter = dev->settings.color_filter;
-    session.params.flags = ScanFlag::DISABLE_SHADING |
-                           ScanFlag::DISABLE_GAMMA |
-                           ScanFlag::SINGLE_LINE |
-                           ScanFlag::IGNORE_STAGGER_OFFSET |
-                           ScanFlag::IGNORE_COLOR_OFFSET;
-    compute_session(dev, session, calib_sensor);
-
-    init_regs_for_scan_session(dev, calib_sensor, &regs, session);
-
-    // initial loop values and boundaries
-    exp[0] = calib_sensor.exposure.red;
-    exp[1] = calib_sensor.exposure.green;
-    exp[2] = calib_sensor.exposure.blue;
-  target=sensor.gain_white_ref*256;
-
-  turn = 0;
-
-  /* no move during led calibration */
-  sanei_genesys_set_motor_power(regs, false);
-    bool acceptable = false;
-  do
-    {
-        // set up exposure
-        regs.set24(REG_EXPR, exp[0]);
-        regs.set24(REG_EXPG, exp[1]);
-        regs.set24(REG_EXPB, exp[2]);
-
-        // write registers and scan data
-        dev->interface->write_registers(regs);
-
-      DBG(DBG_info, "%s: starting line reading\n", __func__);
-        begin_scan(dev, calib_sensor, &regs, true);
-
-        if (is_testing_mode()) {
-            dev->interface->test_checkpoint("led_calibration");
-            scanner_stop_action(*dev);
-            return calib_sensor.exposure;
-        }
-
-        auto image = read_unshuffled_image_from_scanner(dev, session, session.output_line_bytes);
-
-        // stop scanning
-        scanner_stop_action(*dev);
-
-      if (DBG_LEVEL >= DBG_data)
-	{
-          char fn[30];
-          std::snprintf(fn, 30, "gl124_led_%02d.pnm", turn);
-            sanei_genesys_write_pnm_file(fn, image);
-        }
-
-        for (unsigned ch = 0; ch < channels; ch++) {
-            avg[ch] = 0;
-            for (std::size_t x = 0; x < image.get_width(); x++) {
-                avg[ch] += image.get_raw_channel(x, 0, ch);
-            }
-            avg[ch] /= image.get_width();
-        }
-
-      DBG(DBG_info, "%s: average: %d,%d,%d\n", __func__, avg[0], avg[1], avg[2]);
-
-      /* check if exposure gives average within the boundaries */
-        acceptable = true;
-      for(i=0;i<3;i++)
-        {
-          /* we accept +- 2% delta from target */
-          if(abs(avg[i]-target)>target/50)
-            {
-                float prev_weight = 0.5;
-                exp[i] = exp[i] * prev_weight + ((exp[i] * target) / avg[i]) * (1 - prev_weight);
-                acceptable = false;
-            }
-        }
-
-      turn++;
-    }
-  while (!acceptable && turn < 100);
-
-  DBG(DBG_info, "%s: acceptable exposure: %d,%d,%d\n", __func__, exp[0], exp[1], exp[2]);
-
-    // set these values as final ones for scan
-    dev->reg.set24(REG_EXPR, exp[0]);
-    dev->reg.set24(REG_EXPG, exp[1]);
-    dev->reg.set24(REG_EXPB, exp[2]);
-
-    return { exp[0], exp[1], exp[2] };
+    return scanner_led_calibration(*dev, sensor, regs);
 }
 
 void CommandSetGl124::offset_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,

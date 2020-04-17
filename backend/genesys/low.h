@@ -153,19 +153,6 @@
 #define AFE_SET        2
 #define AFE_POWER_SAVE 4
 
-#define LOWORD(x)  ((uint16_t)((x) & 0xffff))
-#define HIWORD(x)  ((uint16_t)((x) >> 16))
-#define LOBYTE(x)  ((uint8_t)((x) & 0xFF))
-#define HIBYTE(x)  ((uint8_t)((x) >> 8))
-
-/* Global constants */
-/* TODO: emove this leftover of early backend days */
-#define MOTOR_SPEED_MAX		350
-#define DARK_VALUE		0
-
-#define MAX_RESOLUTIONS 13
-#define MAX_DPI 4
-
 namespace genesys {
 
 class UsbDeviceEntry {

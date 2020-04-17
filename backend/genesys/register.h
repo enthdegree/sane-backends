@@ -415,6 +415,11 @@ public:
         }
     }
 
+    bool has_reg(AddressType address) const
+    {
+        return find_reg_index(address) != -1;
+    }
+
     SettingType& find_reg(AddressType address)
     {
         int i = find_reg_index(address);

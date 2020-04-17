@@ -3602,6 +3602,19 @@ void verify_sensor_tables()
                 throw SaneException("shading_resolution is not defined");
             }
         }
+
+        if (asic_type == AsicType::GL841) {
+            auto required_registers = {
+                0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d,
+                0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5a,
+                0x70, 0x71, 0x72, 0x73,
+            };
+            for (auto address : required_registers) {
+                if (!sensor.custom_regs.has_reg(address)) {
+                    throw SaneException("Required register is not present");
+                }
+            }
+        }
     }
 }
 

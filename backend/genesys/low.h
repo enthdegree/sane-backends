@@ -372,6 +372,9 @@ void scanner_stop_action_no_move(Genesys_Device& dev, Genesys_Register_Set& regs
 
 bool scanner_is_motor_stopped(Genesys_Device& dev);
 
+void scanner_setup_sensor(Genesys_Device& dev, const Genesys_Sensor& sensor,
+                          Genesys_Register_Set& regs);
+
 const MotorProfile* get_motor_profile_ptr(const std::vector<MotorProfile>& profiles,
                                           unsigned exposure,
                                           const ScanSession& session);

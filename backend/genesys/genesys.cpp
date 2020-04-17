@@ -632,6 +632,30 @@ bool scanner_is_motor_stopped(Genesys_Device& dev)
     }
 }
 
+void scanner_setup_sensor(Genesys_Device& dev, const Genesys_Sensor& sensor,
+                          Genesys_Register_Set& regs)
+{
+    DBG_HELPER(dbg);
+
+    if (dev.model->asic_type == AsicType::GL646) {
+        for (const auto& custom_reg : sensor.custom_base_regs) {
+            regs.set8(custom_reg.address, custom_reg.value);
+        }
+    } else {
+        for (const auto& custom_reg : sensor.custom_regs) {
+            regs.set8(custom_reg.address, custom_reg.value);
+        }
+    }
+
+    if (dev.model->asic_type != AsicType::GL841 &&
+        dev.model->asic_type != AsicType::GL843)
+    {
+        regs_set_exposure(dev.model->asic_type, regs, sensor.exposure);
+    }
+
+    dev.segment_order = sensor.segment_order;
+}
+
 void scanner_stop_action(Genesys_Device& dev)
 {
     DBG_HELPER(dbg);

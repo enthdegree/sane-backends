@@ -640,35 +640,6 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
     reg->set16(REG_FMOVDEC, fast_table.steps_count);
 }
 
-
-/** @brief copy sensor specific settings
- * Set up register set for the given sensor resolution. Values are from the device table
- * in genesys_devices.c for registers:
- *       [0x16 ... 0x1d]
- *       [0x52 ... 0x5e]
- * Other come from the specific device sensor table in genesys_gl124.h:
- *      0x18, 0x20, 0x61, 0x98 and
- * @param dev device to set up
- * @param regs register set to modify
- * @param dpi resolution of the sensor during scan
- * @param ccd_size_divisor flag for half ccd mode
- * */
-static void gl124_setup_sensor(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                               Genesys_Register_Set* regs)
-{
-    DBG_HELPER(dbg);
-
-    for (const auto& reg : sensor.custom_regs) {
-        regs->set8(reg.address, reg.value);
-    }
-
-    regs->set24(REG_EXPR, sensor.exposure.red);
-    regs->set24(REG_EXPG, sensor.exposure.green);
-    regs->set24(REG_EXPB, sensor.exposure.blue);
-
-    dev->segment_order = sensor.segment_order;
-}
-
 /** @brief setup optical related registers
  * start and pixels are expressed in optical sensor resolution coordinate
  * space.
@@ -692,7 +663,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     DBG_HELPER_ARGS(dbg, "exposure_time=%d", exposure_time);
   uint32_t expmax;
 
-    gl124_setup_sensor(dev, sensor, reg);
+    scanner_setup_sensor(*dev, sensor, *reg);
 
     dev->cmd_set->set_fe(dev, sensor, AFE_SET);
 

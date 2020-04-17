@@ -546,30 +546,6 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     gl646_send_slope_table(dev, 1, slope_table2.table, regs->get8(0x6b));
 }
 
-
-/** copy sensor specific settings */
-/* *dev  : device infos
-   *regs : regiters to be set
-   extended : do extended set up
-   ccd_size_divisor: set up for half ccd resolution
-   all registers 08-0B, 10-1D, 52-5E are set up. They shouldn't
-   appear anywhere else but in register init
-*/
-static void
-gl646_setup_sensor (Genesys_Device * dev, const Genesys_Sensor& sensor, Genesys_Register_Set * regs)
-{
-    (void) dev;
-    DBG(DBG_proc, "%s: start\n", __func__);
-
-    for (const auto& reg_setting : sensor.custom_base_regs) {
-        regs->set8(reg_setting.address, reg_setting.value);
-    }
-    // FIXME: all other drivers don't set exposure here
-    regs_set_exposure(AsicType::GL646, *regs, sensor.exposure);
-
-    DBG(DBG_proc, "%s: end\n", __func__);
-}
-
 /**
  * Set all registers to default values after init
  * @param dev scannerr's device to set
@@ -643,8 +619,7 @@ gl646_init_regs (Genesys_Device * dev)
         dev->reg.find_reg(0x06).value = 0x18; // PWRBIT on, shading gain=8, normal AFE image capture
     }
 
-
-  gl646_setup_sensor(dev, sensor, &dev->reg);
+    scanner_setup_sensor(*dev, sensor, dev->reg);
 
   dev->reg.find_reg(0x1e).value = 0xf0;	/* watch-dog time */
 

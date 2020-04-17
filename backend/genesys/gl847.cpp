@@ -62,25 +62,6 @@ static unsigned gl847_get_step_multiplier (Genesys_Register_Set * regs)
     return 1 << value;
 }
 
-/** @brief sensor specific settings
-*/
-static void gl847_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                               Genesys_Register_Set* regs)
-{
-    DBG_HELPER(dbg);
-
-    for (const auto& reg : sensor.custom_regs) {
-        regs->set8(reg.address, reg.value);
-    }
-
-    regs->set16(REG_EXPR, sensor.exposure.red);
-    regs->set16(REG_EXPG, sensor.exposure.green);
-    regs->set16(REG_EXPB, sensor.exposure.blue);
-
-    dev->segment_order = sensor.segment_order;
-}
-
-
 /** @brief set all registers to default values .
  * This function is called only once at the beginning and
  * fills register startup values for registers reused across scans.
@@ -519,7 +500,7 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 {
     DBG_HELPER_ARGS(dbg, "exposure_time=%d", exposure_time);
 
-    gl847_setup_sensor(dev, sensor, reg);
+    scanner_setup_sensor(*dev, sensor, *reg);
 
     dev->cmd_set->set_fe(dev, sensor, AFE_SET);
 

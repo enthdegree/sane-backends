@@ -10,6 +10,7 @@
 ;
 
 :backend "canon_lide70"          ; name of backend
+:new :yes
 :url "http://www.juergen-ernst.de/info_sane.html"
 :version "0"                     ; version of backend
 :manpage "sane-canon_lide70"     ; name of manpage (if it exists)

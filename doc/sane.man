@@ -217,6 +217,11 @@ The canon_dr backend supports the Canon DR-Series ADF SCSI and USB scanners. See
 .BR sane\-canon_dr (5)
 for details.
 .TP
+.B canon_lide70
+The canon_lide70 backend supports the CanoScan LiDE 70 USB scanner. See
+.BR sane\-canon_lide70 (5)
+for details.
+.TP
 .B canon_pp
 The canon_pp backend supports the CanoScan FB330P, FB630P, N340P and N640P
 parallel port scanners.  See

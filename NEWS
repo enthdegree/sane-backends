@@ -2,6 +2,10 @@
 
 ## New with the next release
 
+### Backends
+
+- adds an `canon_lide70` backend
+
 ### Documentation
 
 - removes the SANE Standard.  This is now maintained as a separate

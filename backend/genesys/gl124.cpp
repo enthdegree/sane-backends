@@ -53,6 +53,37 @@
 namespace genesys {
 namespace gl124 {
 
+struct Gpio_layout
+{
+    std::uint8_t r31;
+    std::uint8_t r32;
+    std::uint8_t r33;
+    std::uint8_t r34;
+    std::uint8_t r35;
+    std::uint8_t r36;
+    std::uint8_t r38;
+};
+
+/** @brief gpio layout
+ * describes initial gpio settings for a given model
+ * registers 0x31 to 0x38
+ */
+static Gpio_layout gpios[] = {
+    /* LiDE 110 */
+    { /*    0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x38 */
+        0x9f, 0x59, 0x01, 0x80, 0x5f, 0x01, 0x00
+    },
+    /* LiDE 210 */
+    {
+        0x9f, 0x59, 0x01, 0x80, 0x5f, 0x01, 0x00
+    },
+    /* LiDE 120 */
+    {
+        0x9f, 0x53, 0x01, 0x80, 0x5f, 0x01, 0x00
+    },
+};
+
+
 /** @brief set all registers to default values .
  * This function is called only once at the beginning and
  * fills register startup values for registers reused across scans.
@@ -473,7 +504,7 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
                                        unsigned int scan_dummy,
                                        unsigned int feed_steps,
                                        ScanColorMode scan_mode,
-                                       MotorFlag flags)
+                                       ScanFlag flags)
 {
     DBG_HELPER(dbg);
   int use_fast_fed;
@@ -548,15 +579,15 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
         r02 &= ~REG_0x02_FASTFED;
     }
 
-    if (has_flag(flags, MotorFlag::AUTO_GO_HOME)) {
+    if (has_flag(flags, ScanFlag::AUTO_GO_HOME)) {
         r02 |= REG_0x02_AGOHOME;
     }
 
-    if (has_flag(flags, MotorFlag::DISABLE_BUFFER_FULL_MOVE) || (yres >= sensor.optical_res))
+    if (has_flag(flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE) || (yres >= sensor.optical_res))
     {
         r02 |= REG_0x02_ACDCDIS;
     }
-    if (has_flag(flags, MotorFlag::REVERSE)) {
+    if (has_flag(flags, ScanFlag::REVERSE)) {
         r02 |= REG_0x02_MTRREV;
     }
 
@@ -598,7 +629,7 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
     feedl <<= static_cast<unsigned>(motor_profile.step_type);
 
     dist = scan_table.steps_count;
-    if (has_flag(flags, MotorFlag::FEED)) {
+    if (has_flag(flags, ScanFlag::FEEDING)) {
         dist *= 2;
     }
     if (use_fast_fed) {
@@ -640,35 +671,6 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
     reg->set16(REG_FMOVDEC, fast_table.steps_count);
 }
 
-
-/** @brief copy sensor specific settings
- * Set up register set for the given sensor resolution. Values are from the device table
- * in genesys_devices.c for registers:
- *       [0x16 ... 0x1d]
- *       [0x52 ... 0x5e]
- * Other come from the specific device sensor table in genesys_gl124.h:
- *      0x18, 0x20, 0x61, 0x98 and
- * @param dev device to set up
- * @param regs register set to modify
- * @param dpi resolution of the sensor during scan
- * @param ccd_size_divisor flag for half ccd mode
- * */
-static void gl124_setup_sensor(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                               Genesys_Register_Set* regs)
-{
-    DBG_HELPER(dbg);
-
-    for (const auto& reg : sensor.custom_regs) {
-        regs->set8(reg.address, reg.value);
-    }
-
-    regs->set24(REG_EXPR, sensor.exposure.red);
-    regs->set24(REG_EXPG, sensor.exposure.green);
-    regs->set24(REG_EXPB, sensor.exposure.blue);
-
-    dev->segment_order = sensor.segment_order;
-}
-
 /** @brief setup optical related registers
  * start and pixels are expressed in optical sensor resolution coordinate
  * space.
@@ -692,7 +694,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     DBG_HELPER_ARGS(dbg, "exposure_time=%d", exposure_time);
   uint32_t expmax;
 
-    gl124_setup_sensor(dev, sensor, reg);
+    scanner_setup_sensor(*dev, sensor, *reg);
 
     dev->cmd_set->set_fe(dev, sensor, AFE_SET);
 
@@ -855,19 +857,9 @@ void CommandSetGl124::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     move = session.params.starty;
   DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
 
-    MotorFlag mflags = MotorFlag::NONE;
-    if (has_flag(session.params.flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE)) {
-        mflags |= MotorFlag::DISABLE_BUFFER_FULL_MOVE;
-    }
-    if (has_flag(session.params.flags, ScanFlag::FEEDING)) {
-        mflags |= MotorFlag::FEED;
-    }
-    if (has_flag(session.params.flags, ScanFlag::REVERSE)) {
-        mflags |= MotorFlag::REVERSE;
-    }
     gl124_init_motor_regs_scan(dev, sensor, reg, motor_profile, exposure_time, slope_dpi,
                                session.optical_line_count,
-                               dummy, move, session.params.scan_mode, mflags);
+                               dummy, move, session.params.scan_mode, session.params.flags);
 
   /*** prepares data reordering ***/
 
@@ -1509,11 +1501,6 @@ void CommandSetGl124::move_to_ta(Genesys_Device* dev) const
 {
     (void) dev;
     throw SaneException("not implemented");
-}
-
-std::unique_ptr<CommandSet> create_gl124_cmd_set()
-{
-    return std::unique_ptr<CommandSet>(new CommandSetGl124{});
 }
 
 } // namespace gl124

@@ -886,9 +886,9 @@ void genesys_init_usb_device_tables()
 
 
     model = Genesys_Model();
-    model.name = "canon-5600f";
+    model.name = "canon-canoscan-5600f";
     model.vendor = "Canon";
-    model.model = "5600F";
+    model.model = "CanoScan 5600F";
     model.model_id = ModelId::CANON_5600F;
     model.asic_type = AsicType::GL847;
 

@@ -50,39 +50,6 @@
 namespace genesys {
 namespace gl124 {
 
-typedef struct
-{
-  uint8_t r31;
-  uint8_t r32;
-  uint8_t r33;
-  uint8_t r34;
-  uint8_t r35;
-  uint8_t r36;
-  uint8_t r38;
-} Gpio_layout;
-
-/** @brief gpio layout
- * describes initial gpio settings for a given model
- * registers 0x31 to 0x38
- */
-static Gpio_layout gpios[]={
-	/* LiDE 110 */
-	{ /*    0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x38 */
-		0x9f, 0x59, 0x01, 0x80, 0x5f, 0x01, 0x00
-	},
-	/* LiDE 210 */
-	{
-		0x9f, 0x59, 0x01, 0x80, 0x5f, 0x01, 0x00
-	},
-	/* LiDE 120 */
-	{
-		0x9f, 0x53, 0x01, 0x80, 0x5f, 0x01, 0x00
-	},
-};
-
-static void gl124_send_slope_table(Genesys_Device* dev, int table_nr,
-                                   const std::vector<uint16_t>& slope_table, int steps);
-
 class CommandSetGl124 : public CommandSetCommon
 {
 public:

@@ -68,15 +68,6 @@ static int gl841_exposure_time(Genesys_Device *dev, const Genesys_Sensor& sensor
                                int start,
                                int used_pixels);
 
-static void sanei_gl841_setup_sensor(const Genesys_Sensor& sensor, Genesys_Register_Set* regs)
-{
-    DBG_HELPER(dbg);
-
-    for (const auto& custom_reg : sensor.custom_regs) {
-        regs->set8(custom_reg.address, custom_reg.value);
-    }
-}
-
 /*
  * Set all registers to default values
  * (function called only once at the beginning)
@@ -169,14 +160,14 @@ gl841_init_registers (Genesys_Device * dev)
         dev->reg.init_reg(0x15, 0x00);
     }
 
-    dev->reg.init_reg(0x16, 0x00); // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
-    dev->reg.init_reg(0x17, 0x00); // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
-    dev->reg.init_reg(0x18, 0x00); // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
-    dev->reg.init_reg(0x19, 0x00); // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
-    dev->reg.init_reg(0x1a, 0x00); // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
-    dev->reg.init_reg(0x1b, 0x00); // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
-    dev->reg.init_reg(0x1c, 0x00); // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
-    dev->reg.init_reg(0x1d, 0x01); // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
+    dev->reg.init_reg(0x16, 0x00); // SENSOR_DEF, overwritten in scanner_setup_sensor() below
+    dev->reg.init_reg(0x17, 0x00); // SENSOR_DEF, overwritten in scanner_setup_sensor() below
+    dev->reg.init_reg(0x18, 0x00); // SENSOR_DEF, overwritten in scanner_setup_sensor() below
+    dev->reg.init_reg(0x19, 0x00); // SENSOR_DEF, overwritten in scanner_setup_sensor() below
+    dev->reg.init_reg(0x1a, 0x00); // SENSOR_DEF, overwritten in scanner_setup_sensor() below
+    dev->reg.init_reg(0x1b, 0x00); // SENSOR_DEF, overwritten in scanner_setup_sensor() below
+    dev->reg.init_reg(0x1c, 0x00); // SENSOR_DEF, overwritten in scanner_setup_sensor() below
+    dev->reg.init_reg(0x1d, 0x01); // SENSOR_DEF, overwritten in scanner_setup_sensor() below
     dev->reg.init_reg(0x1e, 0xf0);
     if (dev->model->model_id == ModelId::CANON_LIDE_80) {
         dev->reg.init_reg(0x1e, 0x10);
@@ -237,15 +228,15 @@ gl841_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x3e, 0x00);
     dev->reg.init_reg(0x3f, 0x00);
 
-    dev->reg.init_reg(0x52, 0x00);  // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
-    dev->reg.init_reg(0x53, 0x00);  // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
-    dev->reg.init_reg(0x54, 0x00);  // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
-    dev->reg.init_reg(0x55, 0x00);  // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
-    dev->reg.init_reg(0x56, 0x00);  // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
-    dev->reg.init_reg(0x57, 0x00);  // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
-    dev->reg.init_reg(0x58, 0x00);  // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
-    dev->reg.init_reg(0x59, 0x00);  // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
-    dev->reg.init_reg(0x5a, 0x00);  // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
+    dev->reg.init_reg(0x52, 0x00);  // SENSOR_DEF, overwritten in scanner_setup_sensor() below
+    dev->reg.init_reg(0x53, 0x00);  // SENSOR_DEF, overwritten in scanner_setup_sensor() below
+    dev->reg.init_reg(0x54, 0x00);  // SENSOR_DEF, overwritten in scanner_setup_sensor() below
+    dev->reg.init_reg(0x55, 0x00);  // SENSOR_DEF, overwritten in scanner_setup_sensor() below
+    dev->reg.init_reg(0x56, 0x00);  // SENSOR_DEF, overwritten in scanner_setup_sensor() below
+    dev->reg.init_reg(0x57, 0x00);  // SENSOR_DEF, overwritten in scanner_setup_sensor() below
+    dev->reg.init_reg(0x58, 0x00);  // SENSOR_DEF, overwritten in scanner_setup_sensor() below
+    dev->reg.init_reg(0x59, 0x00);  // SENSOR_DEF, overwritten in scanner_setup_sensor() below
+    dev->reg.init_reg(0x5a, 0x00);  // SENSOR_DEF, overwritten in scanner_setup_sensor() below
 
     if (dev->model->model_id == ModelId::CANON_LIDE_80) {
         dev->reg.init_reg(0x5d, 0x20);
@@ -273,10 +264,10 @@ gl841_init_registers (Genesys_Device * dev)
         dev->reg.init_reg(0x5e, 0x02);
     }
 
-    dev->reg.init_reg(0x70, 0x00); // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
-    dev->reg.init_reg(0x71, 0x00); // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
-    dev->reg.init_reg(0x72, 0x00); // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
-    dev->reg.init_reg(0x73, 0x00); // SENSOR_DEF, overwritten in sanei_gl841_setup_sensor() below
+    dev->reg.init_reg(0x70, 0x00); // SENSOR_DEF, overwritten in scanner_setup_sensor() below
+    dev->reg.init_reg(0x71, 0x00); // SENSOR_DEF, overwritten in scanner_setup_sensor() below
+    dev->reg.init_reg(0x72, 0x00); // SENSOR_DEF, overwritten in scanner_setup_sensor() below
+    dev->reg.init_reg(0x73, 0x00); // SENSOR_DEF, overwritten in scanner_setup_sensor() below
 
     if (dev->model->model_id == ModelId::CANON_LIDE_80) {
         dev->reg.init_reg(0x74, 0x00);
@@ -307,7 +298,7 @@ gl841_init_registers (Genesys_Device * dev)
         }
     }
 
-    sanei_gl841_setup_sensor(sensor, &dev->reg);
+    scanner_setup_sensor(*dev, sensor, dev->reg);
 
     // set up GPIO
     for (const auto& reg : dev->gpo.regs) {
@@ -601,7 +592,7 @@ uint8_t *table;
 static void gl841_init_motor_regs(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                   Genesys_Register_Set* reg, unsigned int feed_steps,/*1/base_ydpi*/
                                   /*maybe float for half/quarter step resolution?*/
-                                  unsigned int action, MotorFlag flags)
+                                  unsigned int action, ScanFlag flags)
 {
     DBG_HELPER_ARGS(dbg, "feed_steps=%d, action=%d, flags=%x", feed_steps, action,
                     static_cast<unsigned>(flags));
@@ -669,7 +660,7 @@ static void gl841_init_motor_regs(Genesys_Device* dev, const Genesys_Sensor& sen
     else
     reg->find_reg(0x02).value &= ~0x08;
 
-    if (has_flag(flags, MotorFlag::AUTO_GO_HOME)) {
+    if (has_flag(flags, ScanFlag::AUTO_GO_HOME)) {
         reg->find_reg(0x02).value |= 0x20;
     } else {
         reg->find_reg(0x02).value &= ~0x20;
@@ -677,7 +668,7 @@ static void gl841_init_motor_regs(Genesys_Device* dev, const Genesys_Sensor& sen
 
     reg->find_reg(0x02).value &= ~0x40;
 
-    if (has_flag(flags, MotorFlag::REVERSE)) {
+    if (has_flag(flags, ScanFlag::REVERSE)) {
         reg->find_reg(0x02).value |= REG_0x02_MTRREV;
     }
 
@@ -702,7 +693,7 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
                                        // number of scan lines to add in a scan_lines line
                                        unsigned int feed_steps,/*1/base_ydpi*/
                                        // maybe float for half/quarter step resolution?
-                                       MotorFlag flags)
+                                       ScanFlag flags)
 {
     DBG_HELPER_ARGS(dbg, "scan_exposure_time=%d, scan_yres=%d, scan_step_type=%d, scan_lines=%d,"
                          " scan_dummy=%d, feed_steps=%d, flags=%x",
@@ -819,36 +810,6 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
     }
     DBG(DBG_info, "%s: Decided to use %s mode\n", __func__, use_fast_fed?"fast feed":"slow feed");
 
-/* all needed slopes available. we did even decide which mode to use.
-   what next?
-   - transfer slopes
-SCAN:
-flags \ use_fast_fed    ! 0         1
-------------------------\--------------------
-                      0 ! 0,1,2     0,1,2,3
-MotorFlag::AUTO_GO_HOME ! 0,1,2,4   0,1,2,3,4
-OFF:       none
-FEED:      3
-GO_HOME:   3
-HOME_FREE: 3
-   - setup registers
-     * slope specific registers (already done)
-     * DECSEL for HOME_FREE/GO_HOME/SCAN
-     * FEEDL
-     * MTRREV
-     * MTRPWR
-     * FASTFED
-     * STEPSEL
-     * MTRPWM
-     * FSTPSEL
-     * FASTPWM
-     * HOMENEG
-     * BWDSTEP
-     * FWDSTEP
-     * Z1
-     * Z2
- */
-
     reg->set8(0x3d, (feedl >> 16) & 0xf);
     reg->set8(0x3e, (feedl >> 8) & 0xff);
     reg->set8(0x3f, feedl & 0xff);
@@ -866,12 +827,12 @@ HOME_FREE: 3
     else
     reg->find_reg(0x02).value &= ~0x08;
 
-    if (has_flag(flags, MotorFlag::AUTO_GO_HOME))
+    if (has_flag(flags, ScanFlag::AUTO_GO_HOME))
     reg->find_reg(0x02).value |= 0x20;
     else
     reg->find_reg(0x02).value &= ~0x20;
 
-    if (has_flag(flags, MotorFlag::DISABLE_BUFFER_FULL_MOVE)) {
+    if (has_flag(flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE)) {
         reg->find_reg(0x02).value |= 0x40;
     } else {
         reg->find_reg(0x02).value &= ~0x40;
@@ -885,7 +846,7 @@ HOME_FREE: 3
         gl841_send_slope_table(dev, sensor, 3, fast_table.table, 256);
     }
 
-    if (has_flag(flags, MotorFlag::AUTO_GO_HOME)) {
+    if (has_flag(flags, ScanFlag::AUTO_GO_HOME)) {
         gl841_send_slope_table(dev, sensor, 4, fast_table.table, 256);
     }
 
@@ -1066,7 +1027,7 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     }
 
     /* sensor parameters */
-    sanei_gl841_setup_sensor(sensor, &dev->reg);
+    scanner_setup_sensor(*dev, sensor, dev->reg);
     reg->set8(0x29, 255); /*<<<"magic" number, only suitable for cis*/
     reg->set16(REG_DPISET, sensor.register_dpiset);
     reg->set16(REG_STRPIXEL, session.pixel_startx);
@@ -1259,11 +1220,8 @@ dummy \ scanned lines
     if (has_flag(session.params.flags, ScanFlag::SINGLE_LINE)) {
         gl841_init_motor_regs_off(reg, session.optical_line_count);
     } else {
-        auto motor_flag = has_flag(session.params.flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE) ?
-                              MotorFlag::DISABLE_BUFFER_FULL_MOVE : MotorFlag::NONE;
-
         gl841_init_motor_regs_scan(dev, sensor, reg, exposure_time, slope_dpi, scan_step_type,
-                                   session.optical_line_count, dummy, move, motor_flag);
+                                   session.optical_line_count, dummy, move, session.params.flags);
   }
 
     dev->read_buffer.clear();
@@ -1587,7 +1545,7 @@ void CommandSetGl841::eject_document(Genesys_Device* dev) const
     regs_set_optical_off(dev->model->asic_type, local_reg);
 
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
-    gl841_init_motor_regs(dev, sensor, &local_reg, 65536, MOTOR_ACTION_FEED, MotorFlag::NONE);
+    gl841_init_motor_regs(dev, sensor, &local_reg, 65536, MOTOR_ACTION_FEED, ScanFlag::NONE);
 
     dev->interface->write_registers(local_reg);
 
@@ -1858,7 +1816,7 @@ void CommandSetGl841::move_back_home(Genesys_Device* dev, bool wait_until_home) 
 
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
 
-    gl841_init_motor_regs(dev, sensor, &local_reg, 65536, MOTOR_ACTION_GO_HOME, MotorFlag::REVERSE);
+    gl841_init_motor_regs(dev, sensor, &local_reg, 65536, MOTOR_ACTION_GO_HOME, ScanFlag::REVERSE);
 
     // set up for no scan
     regs_set_optical_off(dev->model->asic_type, local_reg);
@@ -2650,11 +2608,6 @@ void CommandSetGl841::asic_boot(Genesys_Device *dev, bool cold) const
     // FIXME: we probably don't need this
     const auto& sensor = sanei_genesys_find_sensor_any(dev);
     dev->cmd_set->set_fe(dev, sensor, AFE_INIT);
-}
-
-std::unique_ptr<CommandSet> create_gl841_cmd_set()
-{
-    return std::unique_ptr<CommandSet>(new CommandSetGl841{});
 }
 
 } // namespace gl841

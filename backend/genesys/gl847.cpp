@@ -53,6 +53,27 @@
 namespace genesys {
 namespace gl847 {
 
+struct Gpio_Profile
+{
+    GpioId gpio_id;
+    std::uint8_t r6b;
+    std::uint8_t r6c;
+    std::uint8_t r6d;
+    std::uint8_t r6e;
+    std::uint8_t r6f;
+    std::uint8_t ra6;
+    std::uint8_t ra7;
+    std::uint8_t ra8;
+    std::uint8_t ra9;
+};
+
+static Gpio_Profile gpios[] =
+{
+    { GpioId::CANON_LIDE_200, 0x02, 0xf9, 0x20, 0xff, 0x00, 0x04, 0x04, 0x00, 0x00},
+    { GpioId::CANON_LIDE_700F, 0x06, 0xdb, 0xff, 0xff, 0x80, 0x15, 0x07, 0x20, 0x10},
+    { GpioId::UNKNOWN, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+};
+
 /**
  * compute the step multiplier used
  */
@@ -61,25 +82,6 @@ static unsigned gl847_get_step_multiplier (Genesys_Register_Set * regs)
     unsigned value = (regs->get8(0x9d) & 0x0f) >> 1;
     return 1 << value;
 }
-
-/** @brief sensor specific settings
-*/
-static void gl847_setup_sensor(Genesys_Device * dev, const Genesys_Sensor& sensor,
-                               Genesys_Register_Set* regs)
-{
-    DBG_HELPER(dbg);
-
-    for (const auto& reg : sensor.custom_regs) {
-        regs->set8(reg.address, reg.value);
-    }
-
-    regs->set16(REG_EXPR, sensor.exposure.red);
-    regs->set16(REG_EXPG, sensor.exposure.green);
-    regs->set16(REG_EXPB, sensor.exposure.blue);
-
-    dev->segment_order = sensor.segment_order;
-}
-
 
 /** @brief set all registers to default values .
  * This function is called only once at the beginning and
@@ -340,7 +342,7 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
                                        unsigned int scan_lines,
                                        unsigned int scan_dummy,
                                        unsigned int feed_steps,
-                                       MotorFlag flags)
+                                       ScanFlag flags)
 {
     DBG_HELPER_ARGS(dbg, "scan_exposure_time=%d, can_yres=%d, step_type=%d, scan_lines=%d, "
                          "scan_dummy=%d, feed_steps=%d, flags=%x",
@@ -350,7 +352,7 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
     unsigned step_multiplier = gl847_get_step_multiplier (reg);
 
     bool use_fast_fed = false;
-    if (dev->settings.yres == 4444 && feed_steps > 100 && !has_flag(flags, MotorFlag::FEED)) {
+    if (dev->settings.yres == 4444 && feed_steps > 100 && !has_flag(flags, ScanFlag::FEEDING)) {
         use_fast_fed = true;
     }
 
@@ -367,14 +369,14 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
         reg02 &= ~REG_0x02_FASTFED;
     }
 
-    if (has_flag(flags, MotorFlag::AUTO_GO_HOME)) {
+    if (has_flag(flags, ScanFlag::AUTO_GO_HOME)) {
         reg02 |= REG_0x02_AGOHOME | REG_0x02_NOTHOME;
     }
 
-    if (has_flag(flags, MotorFlag::DISABLE_BUFFER_FULL_MOVE) ||(scan_yres>=sensor.optical_res)) {
+    if (has_flag(flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE) || (scan_yres >= sensor.optical_res)) {
         reg02 |= REG_0x02_ACDCDIS;
     }
-    if (has_flag(flags, MotorFlag::REVERSE)) {
+    if (has_flag(flags, ScanFlag::REVERSE)) {
         reg02 |= REG_0x02_MTRREV;
     } else {
         reg02 &= ~REG_0x02_MTRREV;
@@ -421,7 +423,7 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
     } else {
         feedl <<= static_cast<unsigned>(motor_profile.step_type);
         dist = scan_table.steps_count;
-        if (has_flag(flags, MotorFlag::FEED)) {
+        if (has_flag(flags, ScanFlag::FEEDING)) {
             dist *= 2;
         }
     }
@@ -519,7 +521,7 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 {
     DBG_HELPER_ARGS(dbg, "exposure_time=%d", exposure_time);
 
-    gl847_setup_sensor(dev, sensor, reg);
+    scanner_setup_sensor(*dev, sensor, *reg);
 
     dev->cmd_set->set_fe(dev, sensor, AFE_SET);
 
@@ -629,7 +631,6 @@ void CommandSetGl847::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     DBG_HELPER(dbg);
     session.assert_computed();
 
-  int move;
   int exposure_time;
 
   int slope_dpi = 0;
@@ -659,23 +660,9 @@ void CommandSetGl847::init_regs_for_scan_session(Genesys_Device* dev, const Gene
    * scan since color calibration is OK for this mode
    */
     gl847_init_optical_regs_scan(dev, sensor, reg, exposure_time, session);
-
-    move = session.params.starty;
-    DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
-
-    MotorFlag mflags = MotorFlag::NONE;
-    if (has_flag(session.params.flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE)) {
-        mflags |= MotorFlag::DISABLE_BUFFER_FULL_MOVE;
-    }
-    if (has_flag(session.params.flags, ScanFlag::FEEDING)) {
-        mflags |= MotorFlag::FEED;
-  }
-    if (has_flag(session.params.flags, ScanFlag::REVERSE)) {
-        mflags |= MotorFlag::REVERSE;
-    }
-
     gl847_init_motor_regs_scan(dev, sensor, reg, motor_profile, exposure_time, slope_dpi,
-                               session.optical_line_count, dummy, move, mflags);
+                               session.optical_line_count, dummy, session.params.starty,
+                               session.params.flags);
 
     dev->read_buffer.clear();
     dev->read_buffer.alloc(session.buffer_size_read);
@@ -1170,11 +1157,6 @@ void CommandSetGl847::move_to_ta(Genesys_Device* dev) const
 {
     (void) dev;
     throw SaneException("not implemented");
-}
-
-std::unique_ptr<CommandSet> create_gl847_cmd_set()
-{
-    return std::unique_ptr<CommandSet>(new CommandSetGl847{});
 }
 
 } // namespace gl847

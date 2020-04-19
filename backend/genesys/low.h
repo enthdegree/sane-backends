@@ -153,19 +153,6 @@
 #define AFE_SET        2
 #define AFE_POWER_SAVE 4
 
-#define LOWORD(x)  ((uint16_t)((x) & 0xffff))
-#define HIWORD(x)  ((uint16_t)((x) >> 16))
-#define LOBYTE(x)  ((uint8_t)((x) & 0xFF))
-#define HIBYTE(x)  ((uint8_t)((x) >> 8))
-
-/* Global constants */
-/* TODO: emove this leftover of early backend days */
-#define MOTOR_SPEED_MAX		350
-#define DARK_VALUE		0
-
-#define MAX_RESOLUTIONS 13
-#define MAX_DPI 4
-
 namespace genesys {
 
 class UsbDeviceEntry {
@@ -219,7 +206,7 @@ private:
 /*       common functions needed by low level specific functions            */
 /*--------------------------------------------------------------------------*/
 
-extern void sanei_genesys_init_cmd_set(Genesys_Device* dev);
+std::unique_ptr<CommandSet> create_cmd_set(AsicType asic_type);
 
 // reads the status of the scanner
 Status scanner_read_status(Genesys_Device& dev);
@@ -384,6 +371,9 @@ void scanner_stop_action(Genesys_Device& dev);
 void scanner_stop_action_no_move(Genesys_Device& dev, Genesys_Register_Set& regs);
 
 bool scanner_is_motor_stopped(Genesys_Device& dev);
+
+void scanner_setup_sensor(Genesys_Device& dev, const Genesys_Sensor& sensor,
+                          Genesys_Register_Set& regs);
 
 const MotorProfile* get_motor_profile_ptr(const std::vector<MotorProfile>& profiles,
                                           unsigned exposure,

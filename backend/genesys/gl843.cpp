@@ -66,26 +66,6 @@ static int gl843_get_step_multiplier(Genesys_Register_Set* regs)
     }
 }
 
-/** copy sensor specific settings */
-static void gl843_setup_sensor(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                               Genesys_Register_Set* regs)
-{
-    DBG_HELPER(dbg);
-    for (const auto& custom_reg : sensor.custom_regs) {
-        regs->set8(custom_reg.address, custom_reg.value);
-    }
-    if (dev->model->model_id == ModelId::PANASONIC_KV_SS080 ||
-        dev->model->model_id == ModelId::HP_SCANJET_4850C ||
-        dev->model->model_id == ModelId::HP_SCANJET_G4010 ||
-        dev->model->model_id == ModelId::HP_SCANJET_G4050)
-    {
-        regs->set8(0x7d, 0x90);
-    }
-
-    dev->segment_order = sensor.segment_order;
-}
-
-
 /** @brief set all registers to default values .
  * This function is called only once at the beginning and
  * fills register startup values for registers reused across scans.
@@ -96,9 +76,9 @@ static void gl843_setup_sensor(Genesys_Device* dev, const Genesys_Sensor& sensor
 static void
 gl843_init_registers (Genesys_Device * dev)
 {
-  // Within this function SENSOR_DEF marker documents that a register is part
-  // of the sensors definition and the actual value is set in
-  // gl843_setup_sensor().
+    // Within this function SENSOR_DEF marker documents that a register is part
+    // of the sensors definition and the actual value is set in
+    // scanner_setup_sensor().
 
     // 0x6c, 0x6d, 0x6e, 0x6f, 0xa6, 0xa7, 0xa8, 0xa9 are defined in the Gpo sensor struct
 
@@ -743,7 +723,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
                                        unsigned int scan_lines,
                                        unsigned int scan_dummy,
                                        unsigned int feed_steps,
-                                       MotorFlag flags)
+                                       ScanFlag flags)
 {
     DBG_HELPER_ARGS(dbg, "exposure=%d, scan_yres=%d, step_type=%d, scan_lines=%d, scan_dummy=%d, "
                          "feed_steps=%d, flags=%x",
@@ -757,7 +737,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
 
     bool use_fast_fed = false;
 
-    if ((scan_yres >= 300 && feed_steps > 900) || (has_flag(flags, MotorFlag::FEED))) {
+    if ((scan_yres >= 300 && feed_steps > 900) || (has_flag(flags, ScanFlag::FEEDING))) {
         use_fast_fed = true;
     }
 
@@ -775,19 +755,19 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     }
 
     // in case of automatic go home, move until home sensor
-    if (has_flag(flags, MotorFlag::AUTO_GO_HOME)) {
+    if (has_flag(flags, ScanFlag::AUTO_GO_HOME)) {
         reg02 |= REG_0x02_AGOHOME | REG_0x02_NOTHOME;
     }
 
   /* disable backtracking */
-    if (has_flag(flags, MotorFlag::DISABLE_BUFFER_FULL_MOVE)
+    if (has_flag(flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE)
       ||(scan_yres>=2400 && dev->model->model_id != ModelId::CANON_4400F)
       ||(scan_yres>=sensor.optical_res))
     {
         reg02 |= REG_0x02_ACDCDIS;
     }
 
-    if (has_flag(flags, MotorFlag::REVERSE)) {
+    if (has_flag(flags, ScanFlag::REVERSE)) {
         reg02 |= REG_0x02_MTRREV;
     } else {
         reg02 &= ~REG_0x02_MTRREV;
@@ -943,8 +923,8 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   tgtime = exposure / 65536 + 1;
   DBG(DBG_io2, "%s: tgtime=%d\n", __func__, tgtime);
 
-  /* sensor parameters */
-    gl843_setup_sensor(dev, sensor, reg);
+    // sensor parameters
+    scanner_setup_sensor(*dev, sensor, *reg);
 
     dev->cmd_set->set_fe(dev, sensor, AFE_SET);
 
@@ -1114,24 +1094,9 @@ void CommandSetGl843::init_regs_for_scan_session(Genesys_Device* dev, const Gene
 
     // now _LOGICAL_ optical values used are known, setup registers
     gl843_init_optical_regs_scan(dev, sensor, reg, exposure, session);
-
-  /*** motor parameters ***/
-    MotorFlag mflags = MotorFlag::NONE;
-    if (has_flag(session.params.flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE)) {
-        mflags |= MotorFlag::DISABLE_BUFFER_FULL_MOVE;
-    }
-    if (has_flag(session.params.flags, ScanFlag::FEEDING)) {
-        mflags |= MotorFlag::FEED;
-    }
-    if (has_flag(session.params.flags, ScanFlag::USE_XPA)) {
-        mflags |= MotorFlag::USE_XPA;
-    }
-    if (has_flag(session.params.flags, ScanFlag::REVERSE)) {
-        mflags |= MotorFlag::REVERSE;
-    }
-
     gl843_init_motor_regs_scan(dev, sensor, session, reg, motor_profile, exposure, slope_dpi,
-                               session.optical_line_count, dummy, session.params.starty, mflags);
+                               session.optical_line_count, dummy, session.params.starty,
+                               session.params.flags);
 
     dev->read_buffer.clear();
     dev->read_buffer.alloc(session.buffer_size_read);
@@ -1888,11 +1853,6 @@ bool CommandSetGl843::needs_home_before_init_regs_for_scan(Genesys_Device* dev) 
 void CommandSetGl843::wait_for_motor_stop(Genesys_Device* dev) const
 {
     (void) dev;
-}
-
-std::unique_ptr<CommandSet> create_gl843_cmd_set()
-{
-    return std::unique_ptr<CommandSet>(new CommandSetGl843{});
 }
 
 } // namespace gl843

@@ -594,9 +594,11 @@ bool scanner_is_motor_stopped(Genesys_Device& dev)
             return !status.is_motor_enabled && status.is_feeding_finished;
         }
         case AsicType::GL841: {
+            auto status = scanner_read_status(dev);
             auto reg = dev.interface->read_register(gl841::REG_0x40);
 
-            return (!(reg & gl841::REG_0x40_DATAENB) && !(reg & gl841::REG_0x40_MOTMFLG));
+            return (!(reg & gl841::REG_0x40_DATAENB) && !(reg & gl841::REG_0x40_MOTMFLG) &&
+                    !status.is_motor_enabled);
         }
         case AsicType::GL843: {
             auto status = scanner_read_status(dev);

@@ -143,7 +143,6 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Sensor& sensor)
         << format_indent_braced_list(4, format_vector_unsigned(4, sensor.segment_order)) << '\n'
         << "    stagger_config: " << format_indent_braced_list(4, sensor.stagger_config) << '\n'
         << "    use_host_side_calib: " << sensor.use_host_side_calib << '\n'
-        << "    custom_base_regs: " << format_indent_braced_list(4, sensor.custom_base_regs) << '\n'
         << "    custom_regs: " << format_indent_braced_list(4, sensor.custom_regs) << '\n'
         << "    custom_fe_regs: " << format_indent_braced_list(4, sensor.custom_fe_regs) << '\n'
         << "    gamma.red: " << sensor.gamma[0] << '\n'

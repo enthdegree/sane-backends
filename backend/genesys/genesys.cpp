@@ -637,14 +637,8 @@ void scanner_setup_sensor(Genesys_Device& dev, const Genesys_Sensor& sensor,
 {
     DBG_HELPER(dbg);
 
-    if (dev.model->asic_type == AsicType::GL646) {
-        for (const auto& custom_reg : sensor.custom_base_regs) {
-            regs.set8(custom_reg.address, custom_reg.value);
-        }
-    } else {
-        for (const auto& custom_reg : sensor.custom_regs) {
-            regs.set8(custom_reg.address, custom_reg.value);
-        }
+    for (const auto& custom_reg : sensor.custom_regs) {
+        regs.set8(custom_reg.address, custom_reg.value);
     }
 
     if (dev.model->asic_type != AsicType::GL841 &&

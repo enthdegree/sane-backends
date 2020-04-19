@@ -1865,6 +1865,306 @@ void scanner_coarse_gain_calibration(Genesys_Device& dev, const Genesys_Sensor& 
     dev.cmd_set->move_back_home(&dev, true);
 }
 
+namespace gl124 {
+    void move_to_calibration_area(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                  Genesys_Register_Set& regs);
+} // namespace gl124
+
+SensorExposure scanner_led_calibration(Genesys_Device& dev, const Genesys_Sensor& sensor,
+                                       Genesys_Register_Set& regs)
+{
+    DBG_HELPER(dbg);
+
+    float move = 0;
+
+    if (dev.model->asic_type == AsicType::GL841) {
+        if (dev.model->y_offset_calib_white > 0) {
+            move = (dev.model->y_offset_calib_white * (dev.motor.base_ydpi)) / MM_PER_INCH;
+            scanner_move(dev, dev.model->default_method, static_cast<unsigned>(move),
+                         Direction::FORWARD);
+        }
+    } else if (dev.model->asic_type == AsicType::GL843) {
+        // do nothing
+    } else if (dev.model->asic_type == AsicType::GL845 ||
+               dev.model->asic_type == AsicType::GL846 ||
+               dev.model->asic_type == AsicType::GL847)
+    {
+        move = dev.model->y_offset_calib_white;
+        move = static_cast<float>((move * (dev.motor.base_ydpi / 4)) / MM_PER_INCH);
+        if (move > 20) {
+            scanner_move(dev, dev.model->default_method, static_cast<unsigned>(move),
+                         Direction::FORWARD);
+        }
+    } else if (dev.model->asic_type == AsicType::GL124) {
+        gl124::move_to_calibration_area(&dev, sensor, regs);
+    }
+
+
+    unsigned channels = 3;
+    unsigned resolution = sensor.shading_resolution;
+    const auto& calib_sensor = sanei_genesys_find_sensor(&dev, resolution, channels,
+                                                         dev.settings.scan_method);
+
+    if (dev.model->asic_type == AsicType::GL845 ||
+        dev.model->asic_type == AsicType::GL846 ||
+        dev.model->asic_type == AsicType::GL847 ||
+        dev.model->asic_type == AsicType::GL124)
+    {
+        regs = dev.reg; // FIXME: apply this to all ASICs
+    }
+
+    unsigned yres = resolution;
+    if (dev.model->asic_type == AsicType::GL841) {
+        yres = dev.settings.yres; // FIXME: remove this
+    }
+
+    ScanSession session;
+    session.params.xres = resolution;
+    session.params.yres = yres;
+    session.params.startx = 0;
+    session.params.starty = 0;
+    session.params.pixels = dev.model->x_size_calib_mm * resolution / MM_PER_INCH;
+    session.params.lines = 1;
+    session.params.depth = 16;
+    session.params.channels = channels;
+    session.params.scan_method = dev.settings.scan_method;
+    session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    session.params.color_filter = dev.settings.color_filter;
+    session.params.flags = ScanFlag::DISABLE_SHADING |
+                           ScanFlag::DISABLE_GAMMA |
+                           ScanFlag::SINGLE_LINE |
+                           ScanFlag::IGNORE_STAGGER_OFFSET |
+                           ScanFlag::IGNORE_COLOR_OFFSET;
+    compute_session(&dev, session, calib_sensor);
+
+    dev.cmd_set->init_regs_for_scan_session(&dev, calib_sensor, &regs, session);
+
+    if (dev.model->asic_type == AsicType::GL841) {
+        dev.interface->write_registers(regs); // FIXME: remove this
+    }
+
+    std::uint16_t exp[3];
+
+    if (dev.model->asic_type == AsicType::GL841) {
+        exp[0] = sensor.exposure.red;
+        exp[1] = sensor.exposure.green;
+        exp[2] = sensor.exposure.blue;
+    } else {
+        exp[0] = calib_sensor.exposure.red;
+        exp[1] = calib_sensor.exposure.green;
+        exp[2] = calib_sensor.exposure.blue;
+    }
+
+    std::uint16_t target = sensor.gain_white_ref * 256;
+
+    std::uint16_t min_exposure = 500; // only gl841
+    std::uint16_t max_exposure = ((exp[0] + exp[1] + exp[2]) / 3) * 2; // only gl841
+
+    std::uint16_t top[3] = {};
+    std::uint16_t bottom[3] = {};
+
+    if (dev.model->asic_type == AsicType::GL845 ||
+        dev.model->asic_type == AsicType::GL846)
+    {
+        bottom[0] = 29000;
+        bottom[1] = 29000;
+        bottom[2] = 29000;
+
+        top[0] = 41000;
+        top[1] = 51000;
+        top[2] = 51000;
+    } else if (dev.model->asic_type == AsicType::GL847) {
+        bottom[0] = 28000;
+        bottom[1] = 28000;
+        bottom[2] = 28000;
+
+        top[0] = 32000;
+        top[1] = 32000;
+        top[2] = 32000;
+    }
+
+    if (dev.model->asic_type == AsicType::GL845 ||
+        dev.model->asic_type == AsicType::GL846 ||
+        dev.model->asic_type == AsicType::GL847 ||
+        dev.model->asic_type == AsicType::GL124)
+    {
+        sanei_genesys_set_motor_power(regs, false);
+    }
+
+    bool acceptable = false;
+    for (unsigned i_test = 0; i_test < 100 && !acceptable; ++i_test) {
+        regs_set_exposure(dev.model->asic_type, regs, { exp[0], exp[1], exp[2] });
+
+        if (dev.model->asic_type == AsicType::GL841) {
+            // FIXME: remove
+            dev.interface->write_register(0x10, (exp[0] >> 8) & 0xff);
+            dev.interface->write_register(0x11, exp[0] & 0xff);
+            dev.interface->write_register(0x12, (exp[1] >> 8) & 0xff);
+            dev.interface->write_register(0x13, exp[1] & 0xff);
+            dev.interface->write_register(0x14, (exp[2] >> 8) & 0xff);
+            dev.interface->write_register(0x15, exp[2] & 0xff);
+        }
+
+        dev.interface->write_registers(regs);
+
+        dbg.log(DBG_info, "starting line reading");
+        dev.cmd_set->begin_scan(&dev, calib_sensor, &regs, true);
+
+        if (is_testing_mode()) {
+            dev.interface->test_checkpoint("led_calibration");
+            scanner_stop_action(dev);
+            if (dev.model->asic_type == AsicType::GL841) {
+                // FIXME: we should call gl841_stop_action() here
+                dev.cmd_set->move_back_home(&dev, true);
+                return { exp[0], exp[1], exp[2] };
+            } else if (dev.model->asic_type == AsicType::GL124) {
+                scanner_stop_action(dev);
+                return calib_sensor.exposure;
+            } else {
+                scanner_stop_action(dev);
+                dev.cmd_set->move_back_home(&dev, true);
+                return calib_sensor.exposure;
+            }
+        }
+
+        auto image = read_unshuffled_image_from_scanner(&dev, session, session.output_line_bytes);
+
+        if (dev.model->asic_type == AsicType::GL841) {
+            gl841::gl841_stop_action(&dev);
+        } else {
+            scanner_stop_action(dev);
+        }
+
+        if (DBG_LEVEL >= DBG_data) {
+            char fn[30];
+            std::snprintf(fn, 30, "gl_led_%02d.pnm", i_test);
+            sanei_genesys_write_pnm_file(fn, image);
+        }
+
+        int avg[3];
+        for (unsigned ch = 0; ch < channels; ch++) {
+            avg[ch] = 0;
+            for (std::size_t x = 0; x < image.get_width(); x++) {
+                avg[ch] += image.get_raw_channel(x, 0, ch);
+            }
+            avg[ch] /= image.get_width();
+        }
+
+        dbg.vlog(DBG_info, "average: %d, %d, %d", avg[0], avg[1], avg[2]);
+
+        acceptable = true;
+
+        if (dev.model->asic_type == AsicType::GL841) {
+            if (avg[0] < avg[1] * 0.95 || avg[1] < avg[0] * 0.95 ||
+                avg[0] < avg[2] * 0.95 || avg[2] < avg[0] * 0.95 ||
+                avg[1] < avg[2] * 0.95 || avg[2] < avg[1] * 0.95)
+            {
+                acceptable = false;
+            }
+
+            // led exposure is not acceptable if white level is too low.
+            // ~80 hardcoded value for white level
+            if (avg[0] < 20000 || avg[1] < 20000 || avg[2] < 20000) {
+                acceptable = false;
+            }
+
+            // for scanners using target value
+            if (target > 0) {
+                acceptable = true;
+                for (unsigned i = 0; i < 3; i++) {
+                    // we accept +- 2% delta from target
+                    if (std::abs(avg[i] - target) > target / 50) {
+                        exp[i] = (exp[i] * target) / avg[i];
+                        acceptable = false;
+                    }
+                }
+            } else {
+                if (!acceptable) {
+                    unsigned avga = (avg[0] + avg[1] + avg[2]) / 3;
+                    exp[0] = (exp[0] * avga) / avg[0];
+                    exp[1] = (exp[1] * avga) / avg[1];
+                    exp[2] = (exp[2] * avga) / avg[2];
+                    /*  Keep the resulting exposures below this value. Too long exposure drives
+                        the ccd into saturation. We may fix this by relying on the fact that
+                        we get a striped scan without shading, by means of statistical calculation
+                    */
+                    unsigned avge = (exp[0] + exp[1] + exp[2]) / 3;
+
+                    if (avge > max_exposure) {
+                        exp[0] = (exp[0] * max_exposure) / avge;
+                        exp[1] = (exp[1] * max_exposure) / avge;
+                        exp[2] = (exp[2] * max_exposure) / avge;
+                    }
+                    if (avge < min_exposure) {
+                        exp[0] = (exp[0] * min_exposure) / avge;
+                        exp[1] = (exp[1] * min_exposure) / avge;
+                        exp[2] = (exp[2] * min_exposure) / avge;
+                    }
+
+                }
+            }
+        } else if (dev.model->asic_type == AsicType::GL845 ||
+                   dev.model->asic_type == AsicType::GL846)
+        {
+            for (unsigned i = 0; i < 3; i++) {
+                if (avg[i] < bottom[i]) {
+                    exp[i] = (exp[i] * bottom[i]) / avg[i];
+                    acceptable = false;
+                }
+                if (avg[i] > top[i]) {
+                    exp[i] = (exp[i] * top[i]) / avg[i];
+                    acceptable = false;
+                }
+            }
+        } else if (dev.model->asic_type == AsicType::GL847) {
+            for (unsigned i = 0; i < 3; i++) {
+                if (avg[i] < bottom[i] || avg[i] > top[i]) {
+                    auto target = (bottom[i] + top[i]) / 2;
+                    exp[i] = (exp[i] * target) / avg[i];
+                    acceptable = false;
+                }
+            }
+        } else if (dev.model->asic_type == AsicType::GL124) {
+            for (unsigned i = 0; i < 3; i++) {
+                // we accept +- 2% delta from target
+                if (std::abs(avg[i] - target) > target / 50) {
+                    float prev_weight = 0.5;
+                    exp[i] = exp[i] * prev_weight + ((exp[i] * target) / avg[i]) * (1 - prev_weight);
+                    acceptable = false;
+                }
+            }
+        }
+    }
+
+    if (dev.model->asic_type == AsicType::GL845 ||
+        dev.model->asic_type == AsicType::GL846 ||
+        dev.model->asic_type == AsicType::GL847 ||
+        dev.model->asic_type == AsicType::GL124)
+    {
+        // set these values as final ones for scan
+        regs_set_exposure(dev.model->asic_type, dev.reg, { exp[0], exp[1], exp[2] });
+    }
+
+    if (dev.model->asic_type == AsicType::GL841 ||
+        dev.model->asic_type == AsicType::GL843)
+    {
+        dev.cmd_set->move_back_home(&dev, true);
+    }
+
+    if (dev.model->asic_type == AsicType::GL845 ||
+        dev.model->asic_type == AsicType::GL846 ||
+        dev.model->asic_type == AsicType::GL847)
+    {
+        if (move > 20) {
+            dev.cmd_set->move_back_home(&dev, true);
+        }
+    }
+
+    dbg.vlog(DBG_info,"acceptable exposure: %d, %d, %d\n", exp[0], exp[1], exp[2]);
+
+    return { exp[0], exp[1], exp[2] };
+}
+
 void sanei_genesys_calculate_zmod(bool two_table,
                                   uint32_t exposure_time,
                                   const std::vector<uint16_t>& slope_table,

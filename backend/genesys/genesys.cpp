@@ -1117,10 +1117,6 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
     throw SaneException("Timeout waiting for XPA lamp to park");
 }
 
-namespace gl841 {
-    void gl841_stop_action(Genesys_Device* dev);
-} // namespace gl841
-
 void scanner_search_strip(Genesys_Device& dev, bool forward, bool black)
 {
     DBG_HELPER_ARGS(dbg, "%s %s", black ? "black" : "white", forward ? "forward" : "reverse");
@@ -1187,11 +1183,7 @@ void scanner_search_strip(Genesys_Device& dev, bool forward, bool black)
 
     if (is_testing_mode()) {
         dev.interface->test_checkpoint("search_strip");
-        if (dev.model->asic_type == AsicType::GL841) {
-            gl841::gl841_stop_action(&dev);
-        } else {
-            scanner_stop_action(dev);
-        }
+        scanner_stop_action(dev);
         return;
     }
 
@@ -1200,11 +1192,7 @@ void scanner_search_strip(Genesys_Device& dev, bool forward, bool black)
     // now we're on target, we can read data
     auto image = read_unshuffled_image_from_scanner(&dev, session, session.output_total_bytes);
 
-    if (dev.model->asic_type == AsicType::GL841) {
-        gl841::gl841_stop_action(&dev);
-    } else {
-        scanner_stop_action(dev);
-    }
+    scanner_stop_action(dev);
 
     unsigned pass = 0;
     if (DBG_LEVEL >= DBG_data) {
@@ -1770,11 +1758,7 @@ void scanner_coarse_gain_calibration(Genesys_Device& dev, const Genesys_Sensor& 
 
     if (is_testing_mode()) {
         dev.interface->test_checkpoint("coarse_gain_calibration");
-        if (dev.model->asic_type == AsicType::GL841) {
-            gl841::gl841_stop_action(&dev);
-        } else {
-            scanner_stop_action(dev);
-        }
+        scanner_stop_action(dev);
         dev.cmd_set->move_back_home(&dev, true);
         return;
     }
@@ -1876,11 +1860,7 @@ void scanner_coarse_gain_calibration(Genesys_Device& dev, const Genesys_Sensor& 
         dev.frontend.get_gain(1),
         dev.frontend.get_gain(2));
 
-    if (dev.model->asic_type == AsicType::GL841) {
-        gl841::gl841_stop_action(&dev);
-    } else {
-        scanner_stop_action(dev);
-    }
+    scanner_stop_action(dev);
 
     dev.cmd_set->move_back_home(&dev, true);
 }
@@ -2032,9 +2012,8 @@ SensorExposure scanner_led_calibration(Genesys_Device& dev, const Genesys_Sensor
 
         if (is_testing_mode()) {
             dev.interface->test_checkpoint("led_calibration");
-            scanner_stop_action(dev);
             if (dev.model->asic_type == AsicType::GL841) {
-                // FIXME: we should call gl841_stop_action() here
+                scanner_stop_action(dev);
                 dev.cmd_set->move_back_home(&dev, true);
                 return { exp[0], exp[1], exp[2] };
             } else if (dev.model->asic_type == AsicType::GL124) {
@@ -2049,11 +2028,7 @@ SensorExposure scanner_led_calibration(Genesys_Device& dev, const Genesys_Sensor
 
         auto image = read_unshuffled_image_from_scanner(&dev, session, session.output_line_bytes);
 
-        if (dev.model->asic_type == AsicType::GL841) {
-            gl841::gl841_stop_action(&dev);
-        } else {
-            scanner_stop_action(dev);
-        }
+        scanner_stop_action(dev);
 
         if (DBG_LEVEL >= DBG_data) {
             char fn[30];

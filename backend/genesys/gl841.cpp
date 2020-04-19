@@ -511,12 +511,6 @@ void CommandSetGl841::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
     }
 }
 
-enum MotorAction {
-    MOTOR_ACTION_FEED = 1,
-    MOTOR_ACTION_GO_HOME = 2,
-    MOTOR_ACTION_HOME_FREE = 3
-};
-
 // @brief turn off motor
 static void gl841_init_motor_regs_off(Genesys_Register_Set* reg, unsigned int scan_lines)
 {
@@ -588,14 +582,11 @@ uint8_t *table;
     }
 }
 
-
-static void gl841_init_motor_regs(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                  Genesys_Register_Set* reg, unsigned int feed_steps,/*1/base_ydpi*/
-                                  /*maybe float for half/quarter step resolution?*/
-                                  unsigned int action, ScanFlag flags)
+static void gl841_init_motor_regs_feed(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                       Genesys_Register_Set* reg, unsigned int feed_steps,/*1/base_ydpi*/
+                                       ScanFlag flags)
 {
-    DBG_HELPER_ARGS(dbg, "feed_steps=%d, action=%d, flags=%x", feed_steps, action,
-                    static_cast<unsigned>(flags));
+    DBG_HELPER_ARGS(dbg, "feed_steps=%d, flags=%x", feed_steps, static_cast<unsigned>(flags));
     unsigned int fast_exposure = 0;
     int use_fast_fed = 0;
     unsigned int feedl;
@@ -614,20 +605,12 @@ static void gl841_init_motor_regs(Genesys_Device* dev, const Genesys_Sensor& sen
 
     gl841_write_freq(dev, dev->motor.base_ydpi / 4);
 
-    if (action == MOTOR_ACTION_FEED || action == MOTOR_ACTION_GO_HOME) {
-        /* FEED and GO_HOME can use fastest slopes available */
-        fast_exposure = gl841_exposure_time(dev, sensor,
-                                            dev->motor.base_ydpi / 4,
-                                            StepType::FULL,
-                                            0,
-                                            0);
-        DBG(DBG_info, "%s : fast_exposure=%d pixels\n", __func__, fast_exposure);
-      }
+    fast_exposure = gl841_exposure_time(dev, sensor,
+                                        dev->motor.base_ydpi / 4,
+                                        StepType::FULL,
+                                        0,
+                                        0);
 
-    if (action == MOTOR_ACTION_HOME_FREE) {
-/* HOME_FREE must be able to stop in one step, so do not try to get faster */
-        fast_exposure = dev->motor.get_slope_with_step_type(StepType::FULL).max_speed_w;
-    }
 
     auto fast_table = sanei_genesys_create_slope_table3(dev->model->asic_type, dev->motor,
                                                         StepType::FULL, fast_exposure,
@@ -648,12 +631,7 @@ static void gl841_init_motor_regs(Genesys_Device* dev, const Genesys_Sensor& sen
     reg->find_reg(0x02).value &= ~0x01; /*LONGCURV OFF*/
     reg->find_reg(0x02).value &= ~0x80; /*NOT_HOME OFF*/
 
-    reg->find_reg(0x02).value |= 0x10;
-
-    if (action == MOTOR_ACTION_GO_HOME)
-    reg->find_reg(0x02).value |= 0x06;
-    else
-    reg->find_reg(0x02).value &= ~0x06;
+    reg->find_reg(0x02).value |= REG_0x02_MTRPWR;
 
     if (use_fast_fed)
     reg->find_reg(0x02).value |= 0x08;
@@ -670,6 +648,8 @@ static void gl841_init_motor_regs(Genesys_Device* dev, const Genesys_Sensor& sen
 
     if (has_flag(flags, ScanFlag::REVERSE)) {
         reg->find_reg(0x02).value |= REG_0x02_MTRREV;
+    } else {
+        reg->find_reg(0x02).value &= ~REG_0x02_MTRREV;
     }
 
     gl841_send_slope_table(dev, sensor, 3, fast_table.table, 256);
@@ -817,10 +797,13 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
     reg->set8(0x25, (scan_lines >> 16) & 0xf);
     reg->set8(0x26, (scan_lines >> 8) & 0xff);
     reg->set8(0x27, scan_lines & 0xff);
-    reg->find_reg(0x02).value &= ~0x01; /*LONGCURV OFF*/
-    reg->find_reg(0x02).value &= ~0x80; /*NOT_HOME OFF*/
-    reg->find_reg(0x02).value |= 0x10;
-    reg->find_reg(0x02).value &= ~0x06;
+    reg->find_reg(0x02).value = REG_0x02_MTRPWR;
+
+    if (has_flag(flags, ScanFlag::REVERSE)) {
+        reg->find_reg(0x02).value |= REG_0x02_MTRREV;
+    } else {
+        reg->find_reg(0x02).value &= ~REG_0x02_MTRREV;
+    }
 
     if (use_fast_fed)
     reg->find_reg(0x02).value |= 0x08;
@@ -1466,49 +1449,6 @@ void CommandSetGl841::set_powersaving(Genesys_Device* dev, int delay /* in minut
     dev->interface->write_registers(local_reg);
 }
 
-void gl841_stop_action(Genesys_Device* dev)
-{
-    // FIXME: figure out a way to merge this to scanner_stop_action()
-
-    DBG_HELPER(dbg);
-  Genesys_Register_Set local_reg;
-  unsigned int loop;
-
-    scanner_read_print_status(*dev);
-
-    if (scanner_is_motor_stopped(*dev)) {
-        DBG(DBG_info, "%s: already stopped\n", __func__);
-        return;
-    }
-
-  local_reg = dev->reg;
-
-    regs_set_optical_off(dev->model->asic_type, local_reg);
-
-    gl841_init_motor_regs_off(&local_reg,0);
-    dev->interface->write_registers(local_reg);
-
-    if (is_testing_mode()) {
-        return;
-    }
-
-  /* looks like writing the right registers to zero is enough to get the chip
-     out of scan mode into command mode, actually triggering(writing to
-     register 0x0f) seems to be unnecessary */
-
-  loop = 10;
-    while (loop > 0) {
-        if (scanner_is_motor_stopped(*dev)) {
-            return;
-        }
-
-        dev->interface->sleep_ms(100);
-        loop--;
-    }
-
-    throw SaneException(SANE_STATUS_IO_ERROR, "could not stop motor");
-}
-
 static bool gl841_get_paper_sensor(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
@@ -1537,22 +1477,21 @@ void CommandSetGl841::eject_document(Genesys_Device* dev) const
 
     // FIXME: unused result
     scanner_read_status(*dev);
-
-    gl841_stop_action(dev);
+    scanner_stop_action(*dev);
 
   local_reg = dev->reg;
 
     regs_set_optical_off(dev->model->asic_type, local_reg);
 
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
-    gl841_init_motor_regs(dev, sensor, &local_reg, 65536, MOTOR_ACTION_FEED, ScanFlag::NONE);
+    gl841_init_motor_regs_feed(dev, sensor, &local_reg, 65536, ScanFlag::NONE);
 
     dev->interface->write_registers(local_reg);
 
     try {
         scanner_start_action(*dev, true);
     } catch (...) {
-        catch_all_exceptions(__func__, [&]() { gl841_stop_action(dev); });
+        catch_all_exceptions(__func__, [&]() { scanner_stop_action(*dev); });
         // restore original registers
         catch_all_exceptions(__func__, [&]()
         {
@@ -1563,7 +1502,7 @@ void CommandSetGl841::eject_document(Genesys_Device* dev) const
 
     if (is_testing_mode()) {
         dev->interface->test_checkpoint("eject_document");
-        gl841_stop_action(dev);
+        scanner_stop_action(*dev);
         return;
     }
 
@@ -1590,7 +1529,7 @@ void CommandSetGl841::eject_document(Genesys_Device* dev) const
 	{
           // when we come here then the scanner needed too much time for this, so we better stop
           // the motor
-          catch_all_exceptions(__func__, [&](){ gl841_stop_action(dev); });
+          catch_all_exceptions(__func__, [&](){ scanner_stop_action(*dev); });
           throw SaneException(SANE_STATUS_IO_ERROR,
                               "timeout while waiting for scanhead to go home");
 	}
@@ -1622,11 +1561,22 @@ void CommandSetGl841::eject_document(Genesys_Device* dev) const
       ++loop;
     }
 
-    gl841_stop_action(dev);
+    scanner_stop_action(*dev);
 
     dev->document = false;
 }
 
+void CommandSetGl841::update_home_sensor_gpio(Genesys_Device& dev) const
+{
+    if (dev.model->gpio_id == GpioId::CANON_LIDE_35) {
+        dev.interface->read_register(REG_0x6C);
+        dev.interface->write_register(REG_0x6C, dev.gpo.regs.get_value(0x6c));
+    }
+    if (dev.model->gpio_id == GpioId::CANON_LIDE_80) {
+        dev.interface->read_register(REG_0x6B);
+        dev.interface->write_register(REG_0x6B, REG_0x6B_GPO18 | REG_0x6B_GPO17);
+    }
+}
 
 void CommandSetGl841::load_document(Genesys_Device* dev) const
 {
@@ -1764,106 +1714,14 @@ void CommandSetGl841::end_scan(Genesys_Device* dev, Genesys_Register_Set __sane_
     DBG_HELPER_ARGS(dbg, "check_stop = %d", check_stop);
 
     if (!dev->model->is_sheetfed) {
-        gl841_stop_action(dev);
+        scanner_stop_action(*dev);
     }
 }
 
 // Moves the slider to the home (top) position slowly
 void CommandSetGl841::move_back_home(Genesys_Device* dev, bool wait_until_home) const
 {
-    DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
-  Genesys_Register_Set local_reg;
-  int loop = 0;
-
-    if (dev->model->is_sheetfed) {
-      DBG(DBG_proc, "%s: there is no \"home\"-concept for sheet fed\n", __func__);
-      DBG(DBG_proc, "%s: finished\n", __func__);
-      return;
-    }
-
-    // reset gpio pin
-    uint8_t val;
-    if (dev->model->gpio_id == GpioId::CANON_LIDE_35) {
-        val = dev->interface->read_register(REG_0x6C);
-        val = dev->gpo.regs.get_value(0x6c);
-        dev->interface->write_register(REG_0x6C, val);
-    }
-    if (dev->model->gpio_id == GpioId::CANON_LIDE_80) {
-        val = dev->interface->read_register(REG_0x6B);
-        val = REG_0x6B_GPO18 | REG_0x6B_GPO17;
-        dev->interface->write_register(REG_0x6B, val);
-    }
-    dev->cmd_set->save_power(dev, false);
-
-    // first read gives HOME_SENSOR true
-    auto status = scanner_read_reliable_status(*dev);
-
-
-    if (status.is_at_home) {
-      DBG(DBG_info, "%s: already at home, completed\n", __func__);
-        dev->set_head_pos_zero(ScanHeadId::PRIMARY);
-      return;
-    }
-
-    scanner_stop_action_no_move(*dev, dev->reg);
-
-  /* if motor is on, stop current action */
-    if (status.is_motor_enabled) {
-        gl841_stop_action(dev);
-    }
-
-  local_reg = dev->reg;
-
-  const auto& sensor = sanei_genesys_find_sensor_any(dev);
-
-    gl841_init_motor_regs(dev, sensor, &local_reg, 65536, MOTOR_ACTION_GO_HOME, ScanFlag::REVERSE);
-
-    // set up for no scan
-    regs_set_optical_off(dev->model->asic_type, local_reg);
-
-    dev->interface->write_registers(local_reg);
-
-    try {
-        scanner_start_action(*dev, true);
-    } catch (...) {
-        catch_all_exceptions(__func__, [&]() { gl841_stop_action(dev); });
-        // restore original registers
-        catch_all_exceptions(__func__, [&]()
-        {
-            dev->interface->write_registers(dev->reg);
-        });
-        throw;
-    }
-
-    if (is_testing_mode()) {
-        dev->interface->test_checkpoint("move_back_home");
-        dev->set_head_pos_zero(ScanHeadId::PRIMARY);
-        return;
-    }
-
-  if (wait_until_home)
-    {
-      while (loop < 300)		/* do not wait longer then 30 seconds */
-	{
-            auto status = scanner_read_status(*dev);
-            if (status.is_at_home) {
-	      DBG(DBG_info, "%s: reached home position\n", __func__);
-	      DBG(DBG_proc, "%s: finished\n", __func__);
-                dev->set_head_pos_zero(ScanHeadId::PRIMARY);
-                return;
-	    }
-            dev->interface->sleep_ms(100);
-	  ++loop;
-	}
-
-        // when we come here then the scanner needed too much time for this, so we better stop
-        // the motor
-        catch_all_exceptions(__func__, [&](){ gl841_stop_action(dev); });
-        dev->set_head_pos_unknown(ScanHeadId::PRIMARY);
-        throw SaneException(SANE_STATUS_IO_ERROR, "timeout while waiting for scanhead to go home");
-    }
-
-  DBG(DBG_info, "%s: scanhead is still moving\n", __func__);
+    scanner_move_back_home(*dev, wait_until_home);
 }
 
 // init registers for shading calibration
@@ -2020,12 +1878,12 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
 
         if (is_testing_mode()) {
             dev->interface->test_checkpoint("ad_fe_offset_calibration");
-            gl841_stop_action(dev);
+            scanner_stop_action(*dev);
             return;
         }
 
       sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
-      gl841_stop_action (dev);
+      scanner_stop_action(*dev);
       if (DBG_LEVEL >= DBG_data) {
           char fn[30];
           std::snprintf(fn, 30, "gl841_offset_%02d.pnm", turn);
@@ -2221,7 +2079,7 @@ void CommandSetGl841::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 	  offl[2] = offl[1] = offl[0];
       }
 
-        gl841_stop_action(dev);
+        scanner_stop_action(*dev);
 
       turn++;
   } while (!acceptable && turn < 100);
@@ -2311,7 +2169,7 @@ void CommandSetGl841::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 	  offl[2] = offl[1] = offl[0];
       }
 
-        gl841_stop_action(dev);
+        scanner_stop_action(*dev);
 
       turn++;
 

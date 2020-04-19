@@ -859,6 +859,7 @@ void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
 
     switch (dev.model->asic_type) {
+        case AsicType::GL841:
         case AsicType::GL843:
         case AsicType::GL845:
         case AsicType::GL846:
@@ -867,6 +868,11 @@ void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
             break;
         default:
             throw SaneException("Unsupported asic type");
+    }
+
+    if (dev.model->is_sheetfed) {
+        dbg.vlog(DBG_proc, "sheetfed scanner, skipping going back home");
+        return;
     }
 
     // FIXME: also check whether the scanner actually has a secondary head

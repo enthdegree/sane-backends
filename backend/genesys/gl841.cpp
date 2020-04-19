@@ -1583,6 +1583,17 @@ void CommandSetGl841::eject_document(Genesys_Device* dev) const
     dev->document = false;
 }
 
+void CommandSetGl841::update_home_sensor_gpio(Genesys_Device& dev) const
+{
+    if (dev.model->gpio_id == GpioId::CANON_LIDE_35) {
+        dev.interface->read_register(REG_0x6C);
+        dev.interface->write_register(REG_0x6C, dev.gpo.regs.get_value(0x6c));
+    }
+    if (dev.model->gpio_id == GpioId::CANON_LIDE_80) {
+        dev.interface->read_register(REG_0x6B);
+        dev.interface->write_register(REG_0x6B, REG_0x6B_GPO18 | REG_0x6B_GPO17);
+    }
+}
 
 void CommandSetGl841::load_document(Genesys_Device* dev) const
 {
@@ -1727,99 +1738,7 @@ void CommandSetGl841::end_scan(Genesys_Device* dev, Genesys_Register_Set __sane_
 // Moves the slider to the home (top) position slowly
 void CommandSetGl841::move_back_home(Genesys_Device* dev, bool wait_until_home) const
 {
-    DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
-  Genesys_Register_Set local_reg;
-  int loop = 0;
-
-    if (dev->model->is_sheetfed) {
-      DBG(DBG_proc, "%s: there is no \"home\"-concept for sheet fed\n", __func__);
-      DBG(DBG_proc, "%s: finished\n", __func__);
-      return;
-    }
-
-    // reset gpio pin
-    uint8_t val;
-    if (dev->model->gpio_id == GpioId::CANON_LIDE_35) {
-        val = dev->interface->read_register(REG_0x6C);
-        val = dev->gpo.regs.get_value(0x6c);
-        dev->interface->write_register(REG_0x6C, val);
-    }
-    if (dev->model->gpio_id == GpioId::CANON_LIDE_80) {
-        val = dev->interface->read_register(REG_0x6B);
-        val = REG_0x6B_GPO18 | REG_0x6B_GPO17;
-        dev->interface->write_register(REG_0x6B, val);
-    }
-    dev->cmd_set->save_power(dev, false);
-
-    // first read gives HOME_SENSOR true
-    auto status = scanner_read_reliable_status(*dev);
-
-
-    if (status.is_at_home) {
-      DBG(DBG_info, "%s: already at home, completed\n", __func__);
-        dev->set_head_pos_zero(ScanHeadId::PRIMARY);
-      return;
-    }
-
-    scanner_stop_action_no_move(*dev, dev->reg);
-
-  /* if motor is on, stop current action */
-    if (status.is_motor_enabled) {
-        scanner_stop_action(*dev);
-    }
-
-  local_reg = dev->reg;
-
-  const auto& sensor = sanei_genesys_find_sensor_any(dev);
-
-    gl841_init_motor_regs(dev, sensor, &local_reg, 65536, MOTOR_ACTION_GO_HOME, ScanFlag::REVERSE);
-
-    // set up for no scan
-    regs_set_optical_off(dev->model->asic_type, local_reg);
-
-    dev->interface->write_registers(local_reg);
-
-    try {
-        scanner_start_action(*dev, true);
-    } catch (...) {
-        catch_all_exceptions(__func__, [&]() { scanner_stop_action(*dev); });
-        // restore original registers
-        catch_all_exceptions(__func__, [&]()
-        {
-            dev->interface->write_registers(dev->reg);
-        });
-        throw;
-    }
-
-    if (is_testing_mode()) {
-        dev->interface->test_checkpoint("move_back_home");
-        dev->set_head_pos_zero(ScanHeadId::PRIMARY);
-        return;
-    }
-
-  if (wait_until_home)
-    {
-      while (loop < 300)		/* do not wait longer then 30 seconds */
-	{
-            auto status = scanner_read_status(*dev);
-            if (status.is_at_home) {
-	      DBG(DBG_info, "%s: reached home position\n", __func__);
-	      DBG(DBG_proc, "%s: finished\n", __func__);
-                dev->set_head_pos_zero(ScanHeadId::PRIMARY);
-                return;
-	    }
-            dev->interface->sleep_ms(100);
-	  ++loop;
-	}
-
-        // when we come here then the scanner needed too much time for this, so we better stop
-        // the motor
-        catch_all_exceptions(__func__, [&](){ scanner_stop_action(*dev); });
-        dev->set_head_pos_unknown(ScanHeadId::PRIMARY);
-        throw SaneException(SANE_STATUS_IO_ERROR, "timeout while waiting for scanhead to go home");
-    }
-
-  DBG(DBG_info, "%s: scanhead is still moving\n", __func__);
+    scanner_move_back_home(*dev, wait_until_home);
 }
 
 // init registers for shading calibration

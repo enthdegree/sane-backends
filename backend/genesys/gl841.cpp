@@ -511,12 +511,6 @@ void CommandSetGl841::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
     }
 }
 
-enum MotorAction {
-    MOTOR_ACTION_FEED = 1,
-    MOTOR_ACTION_GO_HOME = 2,
-    MOTOR_ACTION_HOME_FREE = 3
-};
-
 // @brief turn off motor
 static void gl841_init_motor_regs_off(Genesys_Register_Set* reg, unsigned int scan_lines)
 {
@@ -588,14 +582,11 @@ uint8_t *table;
     }
 }
 
-
-static void gl841_init_motor_regs(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                  Genesys_Register_Set* reg, unsigned int feed_steps,/*1/base_ydpi*/
-                                  /*maybe float for half/quarter step resolution?*/
-                                  unsigned int action, ScanFlag flags)
+static void gl841_init_motor_regs_feed(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                       Genesys_Register_Set* reg, unsigned int feed_steps,/*1/base_ydpi*/
+                                       ScanFlag flags)
 {
-    DBG_HELPER_ARGS(dbg, "feed_steps=%d, action=%d, flags=%x", feed_steps, action,
-                    static_cast<unsigned>(flags));
+    DBG_HELPER_ARGS(dbg, "feed_steps=%d, flags=%x", feed_steps, static_cast<unsigned>(flags));
     unsigned int fast_exposure = 0;
     int use_fast_fed = 0;
     unsigned int feedl;
@@ -614,20 +605,12 @@ static void gl841_init_motor_regs(Genesys_Device* dev, const Genesys_Sensor& sen
 
     gl841_write_freq(dev, dev->motor.base_ydpi / 4);
 
-    if (action == MOTOR_ACTION_FEED || action == MOTOR_ACTION_GO_HOME) {
-        /* FEED and GO_HOME can use fastest slopes available */
-        fast_exposure = gl841_exposure_time(dev, sensor,
-                                            dev->motor.base_ydpi / 4,
-                                            StepType::FULL,
-                                            0,
-                                            0);
-        DBG(DBG_info, "%s : fast_exposure=%d pixels\n", __func__, fast_exposure);
-      }
+    fast_exposure = gl841_exposure_time(dev, sensor,
+                                        dev->motor.base_ydpi / 4,
+                                        StepType::FULL,
+                                        0,
+                                        0);
 
-    if (action == MOTOR_ACTION_HOME_FREE) {
-/* HOME_FREE must be able to stop in one step, so do not try to get faster */
-        fast_exposure = dev->motor.get_slope_with_step_type(StepType::FULL).max_speed_w;
-    }
 
     auto fast_table = sanei_genesys_create_slope_table3(dev->model->asic_type, dev->motor,
                                                         StepType::FULL, fast_exposure,
@@ -1501,7 +1484,7 @@ void CommandSetGl841::eject_document(Genesys_Device* dev) const
     regs_set_optical_off(dev->model->asic_type, local_reg);
 
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
-    gl841_init_motor_regs(dev, sensor, &local_reg, 65536, MOTOR_ACTION_FEED, ScanFlag::NONE);
+    gl841_init_motor_regs_feed(dev, sensor, &local_reg, 65536, ScanFlag::NONE);
 
     dev->interface->write_registers(local_reg);
 

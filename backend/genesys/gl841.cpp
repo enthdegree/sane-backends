@@ -822,6 +822,12 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
     reg->find_reg(0x02).value |= 0x10;
     reg->find_reg(0x02).value &= ~0x06;
 
+    if (has_flag(flags, ScanFlag::REVERSE)) {
+        reg->find_reg(0x02).value |= REG_0x02_MTRREV;
+    } else {
+        reg->find_reg(0x02).value &= ~REG_0x02_MTRREV;
+    }
+
     if (use_fast_fed)
     reg->find_reg(0x02).value |= 0x08;
     else

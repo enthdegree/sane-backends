@@ -648,12 +648,7 @@ static void gl841_init_motor_regs(Genesys_Device* dev, const Genesys_Sensor& sen
     reg->find_reg(0x02).value &= ~0x01; /*LONGCURV OFF*/
     reg->find_reg(0x02).value &= ~0x80; /*NOT_HOME OFF*/
 
-    reg->find_reg(0x02).value |= 0x10;
-
-    if (action == MOTOR_ACTION_GO_HOME)
-    reg->find_reg(0x02).value |= 0x06;
-    else
-    reg->find_reg(0x02).value &= ~0x06;
+    reg->find_reg(0x02).value |= REG_0x02_MTRPWR;
 
     if (use_fast_fed)
     reg->find_reg(0x02).value |= 0x08;
@@ -670,6 +665,8 @@ static void gl841_init_motor_regs(Genesys_Device* dev, const Genesys_Sensor& sen
 
     if (has_flag(flags, ScanFlag::REVERSE)) {
         reg->find_reg(0x02).value |= REG_0x02_MTRREV;
+    } else {
+        reg->find_reg(0x02).value &= ~REG_0x02_MTRREV;
     }
 
     gl841_send_slope_table(dev, sensor, 3, fast_table.table, 256);
@@ -817,10 +814,7 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
     reg->set8(0x25, (scan_lines >> 16) & 0xf);
     reg->set8(0x26, (scan_lines >> 8) & 0xff);
     reg->set8(0x27, scan_lines & 0xff);
-    reg->find_reg(0x02).value &= ~0x01; /*LONGCURV OFF*/
-    reg->find_reg(0x02).value &= ~0x80; /*NOT_HOME OFF*/
-    reg->find_reg(0x02).value |= 0x10;
-    reg->find_reg(0x02).value &= ~0x06;
+    reg->find_reg(0x02).value = REG_0x02_MTRPWR;
 
     if (has_flag(flags, ScanFlag::REVERSE)) {
         reg->find_reg(0x02).value |= REG_0x02_MTRREV;

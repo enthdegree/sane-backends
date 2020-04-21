@@ -86,6 +86,6 @@ escl_scan(capabilities_t *scanner, const ESCL_Device *device, char *result)
             status = SANE_STATUS_NO_MEM;
         curl_easy_cleanup(curl_handle);
     }
-    printf ("eSCL scan : %s\n", sane_strstatus(status));
+    DBG(10, "eSCL scan : %s\n", sane_strstatus(status));
     return (status);
 }

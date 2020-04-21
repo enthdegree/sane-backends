@@ -1084,12 +1084,12 @@ sane_read(SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *len)
            handler->scanner->work = next_page;
            handler->ps.last_frame = !next_page;
            if (handler->ps.last_frame == SANE_TRUE)
-              status = SANE_STATUS_EOF;
-	   else
               status = SANE_STATUS_NO_DOCS;
+           else
+              status = SANE_STATUS_EOF;
         }
-	else
-           status = SANE_STATUS_EOF;
+        else
+          status = SANE_STATUS_EOF;
         return status;
     }
     return (SANE_STATUS_GOOD);

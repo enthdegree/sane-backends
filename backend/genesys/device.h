@@ -207,7 +207,7 @@ struct Genesys_Model
     // Amount of feeding needed to eject document after finishing scanning in mm
     float eject_feed = 0;
 
-    // Line-distance correction (in pixel at optical_ydpi) for CCD scanners
+    // Line-distance correction (in pixel at motor base_ydpi) for CCD scanners
     SANE_Int ld_shift_r = 0;
     SANE_Int ld_shift_g = 0;
     SANE_Int ld_shift_b = 0;

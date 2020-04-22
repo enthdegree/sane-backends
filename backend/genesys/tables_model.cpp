@@ -1194,8 +1194,8 @@ void genesys_init_usb_device_tables()
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
 
-    model.ld_shift_r = 16;
-    model.ld_shift_g = 8;
+    model.ld_shift_r = 32;
+    model.ld_shift_g = 16;
     model.ld_shift_b = 0;
 
     model.line_mode_color_order = ColorOrder::RGB;
@@ -1502,8 +1502,8 @@ void genesys_init_usb_device_tables()
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
 
-    model.ld_shift_r = 48;
-    model.ld_shift_g = 24;
+    model.ld_shift_r = 96;
+    model.ld_shift_g = 48;
     model.ld_shift_b = 0;
     model.line_mode_color_order = ColorOrder::RGB;
 
@@ -2066,8 +2066,8 @@ void genesys_init_usb_device_tables()
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
 
-    model.ld_shift_r = 48;
-    model.ld_shift_g = 24;
+    model.ld_shift_r = 96;
+    model.ld_shift_g = 48;
     model.ld_shift_b = 0;
     model.line_mode_color_order = ColorOrder::RGB;
 
@@ -2122,8 +2122,8 @@ void genesys_init_usb_device_tables()
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
 
-    model.ld_shift_r = 48;
-    model.ld_shift_g = 24;
+    model.ld_shift_r = 96;
+    model.ld_shift_g = 48;
     model.ld_shift_b = 0;
     model.line_mode_color_order = ColorOrder::RGB;
 

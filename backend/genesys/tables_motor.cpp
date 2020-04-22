@@ -57,8 +57,7 @@ void genesys_init_motor_tables()
 
     Genesys_Motor motor;
     motor.id = MotorId::UMAX;
-    motor.base_ydpi = 1200;
-    motor.optical_ydpi = 2400;
+    motor.base_ydpi = 2400;
     motor.profiles.push_back({MotorSlope::create_from_steps(11000, 3000, 128), StepType::FULL, 0});
     motor.profiles.push_back({MotorSlope::create_from_steps(11000, 3000, 128), StepType::HALF, 0});
     s_motors->push_back(std::move(motor));
@@ -66,8 +65,7 @@ void genesys_init_motor_tables()
 
     motor = Genesys_Motor();
     motor.id = MotorId::MD_5345; // MD5345/6228/6471
-    motor.base_ydpi = 1200;
-    motor.optical_ydpi = 2400;
+    motor.base_ydpi = 2400;
     motor.profiles.push_back({MotorSlope::create_from_steps(2000, 1375, 128), StepType::FULL, 0});
     motor.profiles.push_back({MotorSlope::create_from_steps(2000, 1375, 128), StepType::HALF, 0});
     s_motors->push_back(std::move(motor));
@@ -76,7 +74,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::ST24;
     motor.base_ydpi = 2400;
-    motor.optical_ydpi = 2400;
     motor.profiles.push_back({MotorSlope::create_from_steps(2289, 2100, 128), StepType::FULL, 0});
     motor.profiles.push_back({MotorSlope::create_from_steps(2289, 2100, 128), StepType::HALF, 0});
     s_motors->push_back(std::move(motor));
@@ -85,7 +82,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::HP3670;
     motor.base_ydpi = 1200;
-    motor.optical_ydpi = 1200;
     motor.profiles.push_back({MotorSlope::create_from_steps(11000, 3000, 128), StepType::FULL, 0});
     motor.profiles.push_back({MotorSlope::create_from_steps(11000, 3000, 128), StepType::HALF, 0});
     s_motors->push_back(std::move(motor));
@@ -94,7 +90,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::HP2400;
     motor.base_ydpi = 1200;
-    motor.optical_ydpi = 1200;
     motor.profiles.push_back({MotorSlope::create_from_steps(11000, 3000, 128), StepType::FULL, 0});
     motor.profiles.push_back({MotorSlope::create_from_steps(11000, 3000, 128), StepType::HALF, 0});
     s_motors->push_back(std::move(motor));
@@ -102,8 +97,7 @@ void genesys_init_motor_tables()
 
     motor = Genesys_Motor();
     motor.id = MotorId::HP2300;
-    motor.base_ydpi = 600;
-    motor.optical_ydpi = 1200;
+    motor.base_ydpi = 1200;
     motor.profiles.push_back({MotorSlope::create_from_steps(3200, 1200, 128), StepType::FULL, 0});
     motor.profiles.push_back({MotorSlope::create_from_steps(3200, 1200, 128), StepType::HALF, 0});
     s_motors->push_back(std::move(motor));
@@ -112,7 +106,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::CANON_LIDE_35;
     motor.base_ydpi = 1200;
-    motor.optical_ydpi = 2400;
     motor.profiles.push_back({MotorSlope::create_from_steps(3500, 1300, 60), StepType::FULL, 0});
     motor.profiles.push_back({MotorSlope::create_from_steps(3500, 1400, 60), StepType::HALF, 0});
     s_motors->push_back(std::move(motor));
@@ -121,7 +114,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::XP200;
     motor.base_ydpi = 600;
-    motor.optical_ydpi = 600;
     motor.profiles.push_back({MotorSlope::create_from_steps(3500, 1300, 60), StepType::FULL, 0});
     motor.profiles.push_back({MotorSlope::create_from_steps(3500, 1300, 60), StepType::HALF, 0});
     s_motors->push_back(std::move(motor));
@@ -130,7 +122,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::XP300;
     motor.base_ydpi = 300;
-    motor.optical_ydpi = 600;
     // works best with GPIO10, GPIO14 off
     motor.profiles.push_back({MotorSlope::create_from_steps(3700, 3700, 2), StepType::FULL, 0});
     motor.profiles.push_back({MotorSlope::create_from_steps(11000, 11000, 2), StepType::HALF, 0});
@@ -140,7 +131,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::DP665;
     motor.base_ydpi = 750;
-    motor.optical_ydpi = 1500;
     motor.profiles.push_back({MotorSlope::create_from_steps(3000, 2500, 10), StepType::FULL, 0});
     motor.profiles.push_back({MotorSlope::create_from_steps(11000, 11000, 2), StepType::HALF, 0});
     s_motors->push_back(std::move(motor));
@@ -149,7 +139,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::ROADWARRIOR;
     motor.base_ydpi = 750;
-    motor.optical_ydpi = 1500;
     motor.profiles.push_back({MotorSlope::create_from_steps(3000, 2600, 10), StepType::FULL, 0});
     motor.profiles.push_back({MotorSlope::create_from_steps(11000, 11000, 2), StepType::HALF, 0});
     s_motors->push_back(std::move(motor));
@@ -158,7 +147,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::DSMOBILE_600;
     motor.base_ydpi = 750;
-    motor.optical_ydpi = 1500;
     motor.profiles.push_back({MotorSlope::create_from_steps(6666, 3700, 8), StepType::FULL, 0});
     motor.profiles.push_back({MotorSlope::create_from_steps(6666, 3700, 8), StepType::HALF, 0});
     s_motors->push_back(std::move(motor));
@@ -167,7 +155,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::CANON_LIDE_100;
     motor.base_ydpi = 1200;
-    motor.optical_ydpi = 6400;
     motor.profiles.push_back({MotorSlope::create_from_steps(46876, 864, 255),
                               StepType::HALF, 1432});
     motor.profiles.push_back({MotorSlope::create_from_steps(46876, 864, 279),
@@ -180,7 +167,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::CANON_LIDE_200;
     motor.base_ydpi = 1200;
-    motor.optical_ydpi = 6400;
     motor.profiles.push_back({MotorSlope::create_from_steps(46876, 864, 255),
                               StepType::HALF, 1432});
     motor.profiles.push_back({MotorSlope::create_from_steps(46876, 864, 279),
@@ -195,7 +181,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::CANON_LIDE_700;
     motor.base_ydpi = 1200;
-    motor.optical_ydpi = 6400;
     motor.profiles.push_back({MotorSlope::create_from_steps(46876, 534, 255),
                               StepType::HALF, 1424});
     motor.profiles.push_back({MotorSlope::create_from_steps(46876, 534, 255),
@@ -212,7 +197,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::KVSS080;
     motor.base_ydpi = 1200;
-    motor.optical_ydpi = 1200;
     motor.profiles.push_back({MotorSlope::create_from_steps(44444, 500, 489),
                               StepType::HALF, 8000});
     s_motors->push_back(std::move(motor));
@@ -221,7 +205,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::G4050;
     motor.base_ydpi = 2400;
-    motor.optical_ydpi = 9600;
     motor.profiles.push_back({MotorSlope::create_from_steps(7842, 320, 602),
                               StepType::HALF, 8016});
     motor.profiles.push_back({MotorSlope::create_from_steps(9422, 254, 1004),
@@ -236,7 +219,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::CANON_4400F;
     motor.base_ydpi = 2400;
-    motor.optical_ydpi = 9600;
 
     profile = MotorProfile();
     profile.slope = MotorSlope::create_from_steps(28597 * 2, 727 * 2, 200);
@@ -264,7 +246,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::CANON_8400F;
     motor.base_ydpi = 1600;
-    motor.optical_ydpi = 6400;
 
     profile = MotorProfile();
     profile.slope = MotorSlope::create_from_steps(20202 * 4, 333 * 4, 100);
@@ -296,7 +277,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::CANON_8600F;
     motor.base_ydpi = 2400;
-    motor.optical_ydpi = 9600;
 
     profile = MotorProfile();
     profile.slope = MotorSlope::create_from_steps(54612, 1500, 219);
@@ -361,7 +341,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::CANON_LIDE_110;
     motor.base_ydpi = 4800;
-    motor.optical_ydpi = 9600;
     motor.profiles.push_back({MotorSlope::create_from_steps(62496, 335, 255),
                               StepType::FULL, 2768});
     motor.profiles.push_back({MotorSlope::create_from_steps(62496, 335, 469),
@@ -376,7 +355,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::CANON_LIDE_120;
     motor.base_ydpi = 4800;
-    motor.optical_ydpi = 9600;
     motor.profiles.push_back({MotorSlope::create_from_steps(62496, 864, 127),
                               StepType::FULL, 4608});
     motor.profiles.push_back({MotorSlope::create_from_steps(62496, 2010, 63),
@@ -391,7 +369,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::CANON_LIDE_210;
     motor.base_ydpi = 4800;
-    motor.optical_ydpi = 9600;
     motor.profiles.push_back({MotorSlope::create_from_steps(62496, 335, 255),
                               StepType::FULL, 2768});
     motor.profiles.push_back({MotorSlope::create_from_steps(62496, 335, 469),
@@ -408,7 +385,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::PLUSTEK_OPTICPRO_3600;
     motor.base_ydpi = 1200;
-    motor.optical_ydpi = 2400;
     motor.profiles.push_back({MotorSlope::create_from_steps(3500, 1300, 60), StepType::FULL, 0});
     motor.profiles.push_back({MotorSlope::create_from_steps(3500, 3250, 60), StepType::HALF, 0});
     s_motors->push_back(std::move(motor));
@@ -417,7 +393,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::PLUSTEK_OPTICFILM_7200I;
     motor.base_ydpi = 3600;
-    motor.optical_ydpi = 3600;
 
     profile = MotorProfile();
     profile.slope = MotorSlope::create_from_steps(34722 * 2, 454 * 2, 40);
@@ -437,7 +412,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::PLUSTEK_OPTICFILM_7300;
     motor.base_ydpi = 3600;
-    motor.optical_ydpi = 3600;
 
     profile = MotorProfile();
     profile.slope = MotorSlope::create_from_steps(56818 * 4, 454 * 4, 30);
@@ -457,7 +431,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::PLUSTEK_OPTICFILM_7400;
     motor.base_ydpi = 3600;
-    motor.optical_ydpi = 3600;
 
     profile = MotorProfile();
     profile.slope = MotorSlope::create_from_steps(64102 * 4, 400 * 4, 30);
@@ -471,7 +444,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::PLUSTEK_OPTICFILM_7500I;
     motor.base_ydpi = 3600;
-    motor.optical_ydpi = 3600;
 
     profile = MotorProfile();
     profile.slope = MotorSlope::create_from_steps(56818 * 4, 454 * 4, 30);
@@ -491,7 +463,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::PLUSTEK_OPTICFILM_8200I;
     motor.base_ydpi = 3600;
-    motor.optical_ydpi = 3600;
 
     profile = MotorProfile();
     profile.slope = MotorSlope::create_from_steps(64102 * 4, 400 * 4, 100);
@@ -505,7 +476,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::IMG101;
     motor.base_ydpi = 600;
-    motor.optical_ydpi = 1200;
     motor.profiles.push_back({MotorSlope::create_from_steps(22000, 1000, 1017),
                               StepType::HALF, 11000});
     s_motors->push_back(std::move(motor));
@@ -514,7 +484,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::PLUSTEK_OPTICBOOK_3800;
     motor.base_ydpi = 600;
-    motor.optical_ydpi = 1200;
     motor.profiles.push_back({MotorSlope::create_from_steps(22000, 1000, 1017),
                               StepType::HALF, 11000});
     s_motors->push_back(std::move(motor));
@@ -523,7 +492,6 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::CANON_LIDE_80;
     motor.base_ydpi = 2400;
-    motor.optical_ydpi = 4800; // 9600
     motor.profiles.push_back({MotorSlope::create_from_steps(9560, 1912, 31), StepType::FULL, 0});
     s_motors->push_back(std::move(motor));
 }

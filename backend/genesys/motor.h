@@ -169,8 +169,6 @@ struct Genesys_Motor
     MotorId id = MotorId::UNKNOWN;
     // motor base steps. Unit: 1/inch
     int base_ydpi = 0;
-    // maximum resolution in y-direction. Unit: 1/inch
-    int optical_ydpi = 0;
     // slopes to derive individual slopes from
     std::vector<MotorProfile> profiles;
     // slopes to derive individual slopes from for fast moving

@@ -731,8 +731,8 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
   feedl = move;
 
     if (session.num_staggered_lines + session.max_color_shift_lines > 0 && feedl != 0) {
-        int feed_offset = ((session.max_color_shift_lines + session.num_staggered_lines) * dev->motor.optical_ydpi) /
-                motor->dpi;
+        unsigned total_lines = session.max_color_shift_lines + session.num_staggered_lines;
+        int feed_offset = (total_lines * dev->motor.base_ydpi) / motor->dpi;
         if (feedl > feed_offset) {
             feedl = feedl - feed_offset;
         }
@@ -1997,7 +1997,6 @@ static ScanSession setup_for_scan(Genesys_Device* dev,
 
     // compute distance to move
     float move = 0;
-    // XXX STEF XXX MD5345 -> optical_ydpi, other base_ydpi => half/full step ? */
     if (!split) {
         if (!dev->model->is_sheetfed) {
             if (ycorrection) {
@@ -2013,7 +2012,7 @@ static ScanSession setup_for_scan(Genesys_Device* dev,
             move = 0;
         }
     }
-    move = static_cast<float>((move * dev->motor.optical_ydpi) / MM_PER_INCH);
+    move = static_cast<float>((move * dev->motor.base_ydpi) / MM_PER_INCH);
     DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
 
     float start = settings.tl_x;
@@ -3419,7 +3418,6 @@ ScanSession CommandSetGl646::calculate_scan_session(const Genesys_Device* dev,
 {
     // compute distance to move
     float move = 0;
-    // XXX STEF XXX MD5345 -> optical_ydpi, other base_ydpi => half/full step ? */
     if (!dev->model->is_sheetfed) {
         move = dev->model->y_offset;
         // add tl_y to base movement
@@ -3431,7 +3429,7 @@ ScanSession CommandSetGl646::calculate_scan_session(const Genesys_Device* dev,
         move = 0;
     }
 
-    move = static_cast<float>((move * dev->motor.optical_ydpi) / MM_PER_INCH);
+    move = static_cast<float>((move * dev->motor.base_ydpi) / MM_PER_INCH);
     float start = settings.tl_x;
     if (settings.scan_method == ScanMethod::FLATBED) {
         start += dev->model->x_offset;

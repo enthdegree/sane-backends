@@ -39,7 +39,6 @@ void test_create_slope_table3()
     Genesys_Motor motor;
     motor.id = MotorId::CANON_LIDE_200;
     motor.base_ydpi = 1200;
-    motor.optical_ydpi = 6400;
     motor.profiles.push_back({MotorSlope::create_from_steps(10000, 1000, 20), StepType::FULL, 0});
     motor.profiles.push_back({MotorSlope::create_from_steps(10000, 1000, 20), StepType::HALF, 0});
     motor.profiles.push_back({MotorSlope::create_from_steps(10000, 1000, 16),

@@ -109,6 +109,13 @@
 #ifndef SSIZE_MAX
 # define SSIZE_MAX      LONG_MAX
 #endif
+#ifndef HOST_NAME_MAX
+# ifdef _POSIX_HOST_NAME_MAX
+#  define HOST_NAME_MAX _POSIX_HOST_NAME_MAX
+# else
+#  define HOST_NAME_MAX 255
+# endif
+#endif
 
 /* static data */
 static bjnp_device_t device[BJNP_NO_DEVICES];

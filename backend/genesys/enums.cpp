@@ -140,6 +140,7 @@ std::ostream& operator<<(std::ostream& out, ModelId id)
         case ModelId::PANASONIC_KV_SS080: out << "PANASONIC_KV_SS080"; break;
         case ModelId::PENTAX_DSMOBILE_600: out << "PENTAX_DSMOBILE_600"; break;
         case ModelId::PLUSTEK_OPTICBOOK_3800: out << "PLUSTEK_OPTICBOOK_3800"; break;
+        case ModelId::PLUSTEK_OPTICFILM_7200: out << "PLUSTEK_OPTICFILM_7200"; break;
         case ModelId::PLUSTEK_OPTICFILM_7200I: out << "PLUSTEK_OPTICFILM_7200I"; break;
         case ModelId::PLUSTEK_OPTICFILM_7300: out << "PLUSTEK_OPTICFILM_7300"; break;
         case ModelId::PLUSTEK_OPTICFILM_7400: out << "PLUSTEK_OPTICFILM_7400"; break;

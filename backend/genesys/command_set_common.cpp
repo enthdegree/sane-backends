@@ -114,6 +114,7 @@ void CommandSetCommon::set_xpa_lamp_power(Genesys_Device& dev, bool set) const
                 { 0x6c, 0x00, 0x80 },
             }
         },
+        {   ModelId::PLUSTEK_OPTICFILM_7200, ScanMethod::TRANSPARENCY, {}, {} },
         {   ModelId::PLUSTEK_OPTICFILM_7200I, ScanMethod::TRANSPARENCY, {}, {} },
         {   ModelId::PLUSTEK_OPTICFILM_7200I, ScanMethod::TRANSPARENCY_INFRARED, {
                 { 0xa8, 0x07, 0x07 },
@@ -209,6 +210,7 @@ void CommandSetCommon::set_motor_mode(Genesys_Device& dev, Genesys_Register_Set&
                 { 0xa9, 0x00, 0x10 }, // note that 0x20 bit is not reset
             }, {}
         },
+        {   ModelId::PLUSTEK_OPTICFILM_7200, VALUE_FILTER_ANY, {}, {}, {} },
         {   ModelId::PLUSTEK_OPTICFILM_7200I, VALUE_FILTER_ANY, {}, {}, {} },
         {   ModelId::PLUSTEK_OPTICFILM_7300, VALUE_FILTER_ANY, {}, {}, {} },
         {   ModelId::PLUSTEK_OPTICFILM_7400, VALUE_FILTER_ANY, {}, {}, {} },

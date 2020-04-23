@@ -51,6 +51,7 @@
 #include "gl124_registers.h"
 #include "gl646_registers.h"
 #include "gl841_registers.h"
+#include "gl842_registers.h"
 #include "gl843_registers.h"
 #include "gl846_registers.h"
 #include "gl847_registers.h"
@@ -59,6 +60,7 @@
 #include "gl124.h"
 #include "gl646.h"
 #include "gl841.h"
+#include "gl842.h"
 #include "gl843.h"
 #include "gl846.h"
 #include "gl847.h"
@@ -79,6 +81,7 @@ std::unique_ptr<CommandSet> create_cmd_set(AsicType asic_type)
     switch (asic_type) {
         case AsicType::GL646: return std::unique_ptr<CommandSet>(new gl646::CommandSetGl646{});
         case AsicType::GL841: return std::unique_ptr<CommandSet>(new gl841::CommandSetGl841{});
+        case AsicType::GL842: return std::unique_ptr<CommandSet>(new gl842::CommandSetGl842{});
         case AsicType::GL843: return std::unique_ptr<CommandSet>(new gl843::CommandSetGl843{});
         case AsicType::GL845: // since only a few reg bits differs we handle both together
         case AsicType::GL846: return std::unique_ptr<CommandSet>(new gl846::CommandSetGl846{});
@@ -271,6 +274,7 @@ Status scanner_read_status(Genesys_Device& dev)
         case AsicType::GL124: address = 0x101; break;
         case AsicType::GL646:
         case AsicType::GL841:
+        case AsicType::GL842:
         case AsicType::GL843:
         case AsicType::GL845:
         case AsicType::GL846:
@@ -827,7 +831,9 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
         s.pixel_endx = s.pixel_startx + s.optical_pixels * s.ccd_size_divisor;
 
     } else if (dev->model->asic_type == AsicType::GL841 ||
-               dev->model->asic_type == AsicType::GL843) {
+               dev->model->asic_type == AsicType::GL842 ||
+               dev->model->asic_type == AsicType::GL843)
+    {
         s.pixel_startx = (s.output_startx * s.optical_resolution) / s.params.xres;
         s.pixel_endx = s.pixel_startx + s.optical_pixels;
 
@@ -843,7 +849,8 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
     s.pixel_startx = sensor.pixel_count_ratio.apply(s.pixel_startx);
     s.pixel_endx = sensor.pixel_count_ratio.apply(s.pixel_endx);
 
-    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I ||
+    if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200 ||
+        dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I ||
         dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
         dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I)
     {
@@ -858,12 +865,10 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
             s.pixel_startx++;
             s.pixel_endx++;
         }
-    } else if (dev->model->asic_type == AsicType::GL841) {
-        if (s.num_staggered_lines > 0 && (s.pixel_startx & 1) == 0) {
-            s.pixel_startx++;
-            s.pixel_endx++;
-        }
-    } else if (dev->model->asic_type == AsicType::GL843) {
+    } else if (dev->model->asic_type == AsicType::GL841 ||
+               dev->model->asic_type == AsicType::GL842 ||
+               dev->model->asic_type == AsicType::GL843)
+    {
         // in case of stagger we have to start at an odd coordinate
         // FIXME: we should probably just configure the image pipeline accordingly
         bool stagger_starts_even = false;
@@ -924,7 +929,9 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     // compute the number of optical pixels that will be acquired by the chip
     s.optical_pixels = (s.params.pixels * s.optical_resolution) / s.output_resolution;
 
-    if (dev->model->asic_type == AsicType::GL841) {
+    if (dev->model->asic_type == AsicType::GL841 ||
+        dev->model->asic_type == AsicType::GL842)
+    {
         s.optical_pixels = align_int_up(s.optical_pixels, 2);
     }
 
@@ -937,7 +944,8 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
         // In quarter-CCD mode optical_pixels is 4x larger than the actual physical number
         s.optical_pixels = align_int_up(s.optical_pixels, 2 * s.ccd_size_divisor);
 
-        if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I ||
+        if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200 ||
+            dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I ||
             dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
             dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400 ||
             dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I ||
@@ -1033,12 +1041,15 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
         s.conseq_pixel_dist = s.output_pixels / s.ccd_size_divisor / s.segment_count;
     }
 
-    if (dev->model->asic_type == AsicType::GL843) {
+    if (dev->model->asic_type == AsicType::GL842 ||
+        dev->model->asic_type == AsicType::GL843)
+    {
         s.conseq_pixel_dist = s.output_pixels / s.segment_count;
     }
 
     s.output_segment_pixel_group_count = 0;
     if (dev->model->asic_type == AsicType::GL124 ||
+        dev->model->asic_type == AsicType::GL842 ||
         dev->model->asic_type == AsicType::GL843)
     {
         s.output_segment_pixel_group_count = s.output_pixels /
@@ -1071,6 +1082,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     s.use_host_side_calib = sensor.use_host_side_calib;
 
     if (dev->model->asic_type == AsicType::GL841 ||
+        dev->model->asic_type == AsicType::GL842 ||
         dev->model->asic_type == AsicType::GL843)
     {
         // no 16 bit gamma for this ASIC
@@ -1102,6 +1114,7 @@ static std::size_t get_usb_buffer_read_size(AsicType asic, const ScanSession& se
             // BUG: we shouldn't multiply by channels here
             return session.output_line_bytes_raw * session.params.channels;
 
+        case AsicType::GL842:
         case AsicType::GL843:
             return session.output_line_bytes_raw * 2;
 
@@ -1427,6 +1440,7 @@ void scanner_start_action(Genesys_Device& dev, bool start_motor)
     switch (dev.model->asic_type) {
         case AsicType::GL646:
         case AsicType::GL841:
+        case AsicType::GL842:
         case AsicType::GL843:
         case AsicType::GL845:
         case AsicType::GL846:
@@ -1495,6 +1509,12 @@ void regs_set_exposure(AsicType asic_type, Genesys_Register_Set& regs,
             regs.set16(gl841::REG_EXPB, exposure.blue);
             break;
         }
+        case AsicType::GL842: {
+            regs.set16(gl842::REG_EXPR, exposure.red);
+            regs.set16(gl842::REG_EXPG, exposure.green);
+            regs.set16(gl842::REG_EXPB, exposure.blue);
+            break;
+        }
         case AsicType::GL843: {
             regs.set16(gl843::REG_EXPR, exposure.red);
             regs.set16(gl843::REG_EXPG, exposure.green);
@@ -1531,6 +1551,10 @@ void regs_set_optical_off(AsicType asic_type, Genesys_Register_Set& regs)
             regs.find_reg(gl841::REG_0x01).value &= ~gl841::REG_0x01_SCAN;
             break;
         }
+        case AsicType::GL842: {
+            regs.find_reg(gl842::REG_0x01).value &= ~gl842::REG_0x01_SCAN;
+            break;
+        }
         case AsicType::GL843: {
             regs.find_reg(gl843::REG_0x01).value &= ~gl843::REG_0x01_SCAN;
             break;
@@ -1560,6 +1584,8 @@ bool get_registers_gain4_bit(AsicType asic_type, const Genesys_Register_Set& reg
             return static_cast<bool>(regs.get8(gl646::REG_0x06) & gl646::REG_0x06_GAIN4);
         case AsicType::GL841:
             return static_cast<bool>(regs.get8(gl841::REG_0x06) & gl841::REG_0x06_GAIN4);
+        case AsicType::GL842:
+            return static_cast<bool>(regs.get8(gl842::REG_0x06) & gl842::REG_0x06_GAIN4);
         case AsicType::GL843:
             return static_cast<bool>(regs.get8(gl843::REG_0x06) & gl843::REG_0x06_GAIN4);
         case AsicType::GL845:

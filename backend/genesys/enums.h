@@ -201,6 +201,7 @@ enum class ModelId : unsigned
     PANASONIC_KV_SS080,
     PENTAX_DSMOBILE_600,
     PLUSTEK_OPTICBOOK_3800,
+    PLUSTEK_OPTICFILM_7200,
     PLUSTEK_OPTICFILM_7200I,
     PLUSTEK_OPTICFILM_7300,
     PLUSTEK_OPTICFILM_7400,
@@ -259,6 +260,7 @@ enum class SensorId : unsigned
     CCD_IMG101,
     CCD_KVSS080,
     CCD_PLUSTEK_OPTICBOOK_3800,
+    CCD_PLUSTEK_OPTICFILM_7200,
     CCD_PLUSTEK_OPTICFILM_7200I,
     CCD_PLUSTEK_OPTICFILM_7300,
     CCD_PLUSTEK_OPTICFILM_7400,
@@ -313,6 +315,7 @@ enum class AdcId : unsigned
     IMG101,
     KVSS080,
     PLUSTEK_OPTICBOOK_3800,
+    PLUSTEK_OPTICFILM_7200,
     PLUSTEK_OPTICFILM_7200I,
     PLUSTEK_OPTICFILM_7300,
     PLUSTEK_OPTICFILM_7400,
@@ -369,6 +372,7 @@ enum class GpioId : unsigned
     KVSS080,
     MD_5345,
     PLUSTEK_OPTICBOOK_3800,
+    PLUSTEK_OPTICFILM_7200,
     PLUSTEK_OPTICFILM_7200I,
     PLUSTEK_OPTICFILM_7300,
     PLUSTEK_OPTICFILM_7400,
@@ -408,6 +412,7 @@ enum class MotorId : unsigned
     KVSS080,
     MD_5345,
     PLUSTEK_OPTICBOOK_3800,
+    PLUSTEK_OPTICFILM_7200,
     PLUSTEK_OPTICFILM_7200I,
     PLUSTEK_OPTICFILM_7300,
     PLUSTEK_OPTICFILM_7400,
@@ -455,6 +460,7 @@ enum class AsicType : unsigned
     UNKNOWN = 0,
     GL646,
     GL841,
+    GL842,
     GL843,
     GL845,
     GL846,
@@ -505,7 +511,10 @@ enum class ModelFlag : unsigned
     INVERTED_16BIT_DATA = 1 << 20,
 
     // the scanner has transparency, but it's implemented using only one motor
-    UTA_NO_SECONDARY_MOTOR = 1 << 21
+    UTA_NO_SECONDARY_MOTOR = 1 << 21,
+
+    // the scanner has transparency, but it's implemented using only one lamp
+    TA_NO_SECONDARY_LAMP = 1 << 22,
 };
 
 inline ModelFlag operator|(ModelFlag left, ModelFlag right)

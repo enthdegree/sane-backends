@@ -17,6 +17,12 @@
 :status :basic
 :comment "Has a Primax USB ID"
 
+:model "OpticFilm 7200"
+:interface "USB"
+:usbid "0x07b3" "0x0807"
+:status :complete
+:comment "900, 1800, 3600 and 7200 dpi resolutions are supported"
+
 :model "OpticFilm 7200 (v2)"
 :interface "USB"
 :usbid "0x07b3" "0x0c07"

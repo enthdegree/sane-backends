@@ -293,6 +293,19 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
+    gpo.id = GpioId::PLUSTEK_OPTICFILM_7200;
+    gpo.regs = {
+        { 0x6b, 0x33 },
+        { 0x6c, 0x00 },
+        { 0x6d, 0x80 },
+        { 0x6e, 0x0c },
+        { 0x6f, 0x80 },
+        { 0x7e, 0x00 }
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
     gpo.id = GpioId::PLUSTEK_OPTICFILM_7200I;
     gpo.regs = {
         { 0x6c, 0x4c },

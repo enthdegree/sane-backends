@@ -3028,6 +3028,60 @@ void genesys_init_sensor_tables()
         }
     }
 
+
+    sensor = Genesys_Sensor();
+    sensor.sensor_id = SensorId::CCD_PLUSTEK_OPTICFILM_7200; // gl842
+    sensor.optical_res = 7200;
+    sensor.register_dpihw = 1200;
+    sensor.black_pixels = 88; // TODO
+    sensor.dummy_pixel = 19;
+    sensor.fau_gain_white_ref = 210;
+    sensor.gain_white_ref = 230;
+    sensor.exposure = { 0x2b00, 0x2b00, 0x2b00 };
+    sensor.exposure_lperiod = 0x694e;
+    sensor.stagger_config = StaggerConfig{7200, 4};
+    sensor.use_host_side_calib = true;
+    sensor.custom_regs = {
+        { 0x16, 0x3b }, { 0x17, 0x4b }, { 0x18, 0x10 }, { 0x19, 0x00 },
+        { 0x1a, 0x24 }, { 0x1b, 0x00 }, { 0x1c, 0x40 }, { 0x1d, 0x84 },
+        { 0x52, 0x09 }, { 0x53, 0x0c }, { 0x54, 0x0e }, { 0x55, 0x02 },
+        { 0x56, 0x04 }, { 0x57, 0x07 }, { 0x58, 0x22 }, { 0x59, 0x69 }, { 0x5a, 0xc0 },
+        { 0x70, 0x08 }, { 0x71, 0x09 }, { 0x72, 0x0b }, { 0x73, 0x0c },
+        { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x00 },
+        { 0x77, 0x00 }, { 0x78, 0x7f }, { 0x79, 0xff },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x00 }, { 0x7d, 0x00 }, { 0x7f, 0x01 }
+    };
+    sensor.gamma = { 1.0f, 1.0f, 1.0f };
+    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
+    {
+        struct CustomSensorSettings
+        {
+            ValueFilterAny<unsigned> resolutions;
+            ScanMethod method;
+            Ratio pixel_count_ratio;
+            int output_pixel_offset;
+            unsigned register_dpiset;
+        };
+
+        CustomSensorSettings custom_settings[] = {
+            { { 900 }, ScanMethod::TRANSPARENCY, Ratio{8, 8}, 2, 150, },
+            { { 1800 }, ScanMethod::TRANSPARENCY, Ratio{4, 4}, 10, 300, },
+            { { 3600 }, ScanMethod::TRANSPARENCY, Ratio{2, 2}, 10, 600, },
+            { { 7200 }, ScanMethod::TRANSPARENCY, Ratio{1, 1}, 20, 1200, },
+        };
+
+        for (const CustomSensorSettings& setting : custom_settings) {
+            sensor.resolutions = setting.resolutions;
+            sensor.method = setting.method;
+            sensor.shading_resolution = setting.resolutions.values().front();
+            sensor.pixel_count_ratio = setting.pixel_count_ratio;
+            sensor.output_pixel_offset = setting.output_pixel_offset;
+            sensor.register_dpiset = setting.register_dpiset;
+            s_sensors->push_back(sensor);
+        }
+    }
+
+
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_PLUSTEK_OPTICFILM_7200I; // gl843
     sensor.optical_res = 7200;
@@ -3569,6 +3623,20 @@ void verify_sensor_tables()
                 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d,
                 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5a,
                 0x70, 0x71, 0x72, 0x73,
+            };
+            for (auto address : required_registers) {
+                if (!sensor.custom_regs.has_reg(address)) {
+                    throw SaneException("Required register is not present");
+                }
+            }
+        }
+
+        if (asic_type == AsicType::GL842) {
+            auto required_registers = {
+                0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d,
+                0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5a,
+                0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7a, 0x7b, 0x7c, 0x7d,
+                0x7f
             };
             for (auto address : required_registers) {
                 if (!sensor.custom_regs.has_reg(address)) {

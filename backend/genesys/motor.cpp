@@ -92,7 +92,8 @@ unsigned get_slope_table_max_size(AsicType asic_type)
 {
     switch (asic_type) {
         case AsicType::GL646:
-        case AsicType::GL841: return 255;
+        case AsicType::GL841:
+        case AsicType::GL842: return 255;
         case AsicType::GL843:
         case AsicType::GL845:
         case AsicType::GL846:

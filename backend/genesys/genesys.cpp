@@ -64,6 +64,7 @@
 #include "conv.h"
 #include "gl124_registers.h"
 #include "gl841_registers.h"
+#include "gl842_registers.h"
 #include "gl843_registers.h"
 #include "gl846_registers.h"
 #include "gl847_registers.h"
@@ -560,6 +561,11 @@ void scanner_clear_scan_and_feed_counts(Genesys_Device& dev)
                                           gl841::REG_0x0D_CLRLNCNT);
             break;
         }
+        case AsicType::GL842: {
+            dev.interface->write_register(gl842::REG_0x0D,
+                                          gl842::REG_0x0D_CLRLNCNT);
+            break;
+        }
         case AsicType::GL843: {
             dev.interface->write_register(gl843::REG_0x0D,
                                           gl843::REG_0x0D_CLRLNCNT | gl843::REG_0x0D_CLRMCNT);
@@ -598,6 +604,13 @@ bool scanner_is_motor_stopped(Genesys_Device& dev)
             auto reg = dev.interface->read_register(gl841::REG_0x40);
 
             return (!(reg & gl841::REG_0x40_DATAENB) && !(reg & gl841::REG_0x40_MOTMFLG) &&
+                    !status.is_motor_enabled);
+        }
+        case AsicType::GL842: {
+            auto status = scanner_read_status(dev);
+            auto reg = dev.interface->read_register(gl842::REG_0x40);
+
+            return (!(reg & gl842::REG_0x40_DATAENB) && !(reg & gl842::REG_0x40_MOTMFLG) &&
                     !status.is_motor_enabled);
         }
         case AsicType::GL843: {
@@ -658,6 +671,7 @@ void scanner_stop_action(Genesys_Device& dev)
 
     switch (dev.model->asic_type) {
         case AsicType::GL841:
+        case AsicType::GL842:
         case AsicType::GL843:
         case AsicType::GL845:
         case AsicType::GL846:
@@ -699,6 +713,7 @@ void scanner_stop_action_no_move(Genesys_Device& dev, genesys::Genesys_Register_
     switch (dev.model->asic_type) {
         case AsicType::GL646:
         case AsicType::GL841:
+        case AsicType::GL842:
         case AsicType::GL843:
         case AsicType::GL845:
         case AsicType::GL846:
@@ -860,6 +875,7 @@ void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
 
     switch (dev.model->asic_type) {
         case AsicType::GL841:
+        case AsicType::GL842:
         case AsicType::GL843:
         case AsicType::GL845:
         case AsicType::GL846:
@@ -1028,6 +1044,7 @@ void scanner_move_back_home_ta(Genesys_Device& dev)
     DBG_HELPER(dbg);
 
     switch (dev.model->asic_type) {
+        case AsicType::GL842:
         case AsicType::GL843:
         case AsicType::GL845:
             break;
@@ -1360,6 +1377,12 @@ void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& senso
 {
     DBG_HELPER(dbg);
 
+    if (dev.model->asic_type == AsicType::GL842 &&
+        dev.frontend.layout.type != FrontendType::WOLFSON)
+    {
+        return;
+    }
+
     if (dev.model->asic_type == AsicType::GL843 &&
         dev.frontend.layout.type != FrontendType::WOLFSON)
     {
@@ -1447,7 +1470,7 @@ void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& senso
 
     ScanSession session;
     session.params.xres = resolution;
-    session.params.yres = resolution;;
+    session.params.yres = resolution;
     session.params.startx = start_pixel;
     session.params.starty = 0;
     session.params.pixels = target_pixels;
@@ -1487,14 +1510,18 @@ void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& senso
 
     if (is_testing_mode()) {
         dev.interface->test_checkpoint("offset_calibration");
-        if (dev.model->asic_type == AsicType::GL843) {
+        if (dev.model->asic_type == AsicType::GL842 ||
+            dev.model->asic_type == AsicType::GL843)
+        {
             scanner_stop_action_no_move(dev, regs);
         }
         return;
     }
 
     Image first_line;
-    if (dev.model->asic_type == AsicType::GL843) {
+    if (dev.model->asic_type == AsicType::GL842 ||
+        dev.model->asic_type == AsicType::GL843)
+    {
         first_line = read_unshuffled_image_from_scanner(&dev, session,
                                                         session.output_total_bytes_raw);
         scanner_stop_action_no_move(dev, regs);
@@ -1528,7 +1555,9 @@ void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& senso
     dev.cmd_set->begin_scan(&dev, *calib_sensor, &regs, true);
 
     Image second_line;
-    if (dev.model->asic_type == AsicType::GL843) {
+    if (dev.model->asic_type == AsicType::GL842 ||
+        dev.model->asic_type == AsicType::GL843)
+    {
         second_line = read_unshuffled_image_from_scanner(&dev, session,
                                                          session.output_total_bytes_raw);
         scanner_stop_action_no_move(dev, regs);
@@ -1566,7 +1595,9 @@ void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& senso
         DBG(DBG_info, "%s: starting second line reading\n", __func__);
         dev.cmd_set->begin_scan(&dev, *calib_sensor, &regs, true);
 
-        if (dev.model->asic_type == AsicType::GL843) {
+        if (dev.model->asic_type == AsicType::GL842 ||
+            dev.model->asic_type == AsicType::GL843)
+        {
             second_line = read_unshuffled_image_from_scanner(&dev, session,
                                                              session.output_total_bytes_raw);
             scanner_stop_action_no_move(dev, regs);
@@ -1630,6 +1661,12 @@ void scanner_coarse_gain_calibration(Genesys_Device& dev, const Genesys_Sensor& 
 {
     DBG_HELPER_ARGS(dbg, "dpi = %d", dpi);
 
+    if (dev.model->asic_type == AsicType::GL842 &&
+        dev.frontend.layout.type != FrontendType::WOLFSON)
+    {
+        return;
+    }
+
     if (dev.model->asic_type == AsicType::GL843 &&
         dev.frontend.layout.type != FrontendType::WOLFSON)
     {
@@ -1680,7 +1717,10 @@ void scanner_coarse_gain_calibration(Genesys_Device& dev, const Genesys_Sensor& 
                                                              dev.settings.scan_method);
         resolution = dpihw_sensor.shading_resolution;
     }
-    if (dev.model->asic_type == AsicType::GL843) {
+
+    if (dev.model->asic_type == AsicType::GL842 ||
+        dev.model->asic_type == AsicType::GL843)
+    {
         const auto& dpihw_sensor = sanei_genesys_find_sensor(&dev, dpi, channels,
                                                              dev.settings.scan_method);
         resolution = dpihw_sensor.shading_resolution;
@@ -1707,6 +1747,7 @@ void scanner_coarse_gain_calibration(Genesys_Device& dev, const Genesys_Sensor& 
 
     const Genesys_Sensor* calib_sensor = &sensor;
     if (dev.model->asic_type == AsicType::GL841 ||
+        dev.model->asic_type == AsicType::GL842 ||
         dev.model->asic_type == AsicType::GL843)
     {
         calib_sensor = &sanei_genesys_find_sensor(&dev, resolution, channels,
@@ -1770,7 +1811,9 @@ void scanner_coarse_gain_calibration(Genesys_Device& dev, const Genesys_Sensor& 
     }
 
     Image image;
-    if (dev.model->asic_type == AsicType::GL843) {
+    if (dev.model->asic_type == AsicType::GL842 ||
+        dev.model->asic_type == AsicType::GL843)
+    {
         image = read_unshuffled_image_from_scanner(&dev, session, session.output_total_bytes_raw);
     } else if (dev.model->asic_type == AsicType::GL124) {
         // BUG: we probably want to read whole image, not just first line
@@ -1779,7 +1822,9 @@ void scanner_coarse_gain_calibration(Genesys_Device& dev, const Genesys_Sensor& 
         image = read_unshuffled_image_from_scanner(&dev, session, session.output_total_bytes);
     }
 
-    if (dev.model->asic_type == AsicType::GL843) {
+    if (dev.model->asic_type == AsicType::GL842 ||
+        dev.model->asic_type == AsicType::GL843)
+    {
         scanner_stop_action_no_move(dev, regs);
     }
 
@@ -1791,7 +1836,9 @@ void scanner_coarse_gain_calibration(Genesys_Device& dev, const Genesys_Sensor& 
         float curr_output = 0;
         float target_value = 0;
 
-        if (dev.model->asic_type == AsicType::GL843) {
+        if (dev.model->asic_type == AsicType::GL842 ||
+            dev.model->asic_type == AsicType::GL843)
+        {
             std::vector<uint16_t> values;
             // FIXME: start from the second line because the first line often has artifacts. Probably
             // caused by unclean cleanup of previous scan
@@ -1889,7 +1936,9 @@ SensorExposure scanner_led_calibration(Genesys_Device& dev, const Genesys_Sensor
             scanner_move(dev, dev.model->default_method, static_cast<unsigned>(move),
                          Direction::FORWARD);
         }
-    } else if (dev.model->asic_type == AsicType::GL843) {
+    } else if (dev.model->asic_type == AsicType::GL842 ||
+               dev.model->asic_type == AsicType::GL843)
+    {
         // do nothing
     } else if (dev.model->asic_type == AsicType::GL845 ||
                dev.model->asic_type == AsicType::GL846 ||
@@ -2147,6 +2196,7 @@ SensorExposure scanner_led_calibration(Genesys_Device& dev, const Genesys_Sensor
     }
 
     if (dev.model->asic_type == AsicType::GL841 ||
+        dev.model->asic_type == AsicType::GL842 ||
         dev.model->asic_type == AsicType::GL843)
     {
         dev.cmd_set->move_back_home(&dev, true);
@@ -2224,7 +2274,9 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
   size_t size;
   uint32_t pixels_per_line;
 
-    if (dev->model->asic_type == AsicType::GL843) {
+    if (dev->model->asic_type == AsicType::GL842 ||
+        dev->model->asic_type == AsicType::GL843)
+    {
         pixels_per_line = dev->calib_session.output_pixels;
     } else {
         pixels_per_line = dev->calib_session.params.pixels;
@@ -2250,7 +2302,9 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
 
     // FIXME: the current calculation is likely incorrect on non-GL843 implementations,
     // but this needs checking. Note the extra line when computing size.
-    if (dev->model->asic_type == AsicType::GL843) {
+    if (dev->model->asic_type == AsicType::GL842 ||
+        dev->model->asic_type == AsicType::GL843)
+    {
         size = dev->calib_session.output_total_bytes_raw;
     } else {
         size = channels * 2 * pixels_per_line * (dev->calib_session.params.lines + 1);
@@ -2343,7 +2397,9 @@ static void genesys_dummy_dark_shading(Genesys_Device* dev, const Genesys_Sensor
   uint32_t skip, xend;
   int dummy1, dummy2, dummy3;	/* dummy black average per channel */
 
-    if (dev->model->asic_type == AsicType::GL843) {
+    if (dev->model->asic_type == AsicType::GL842 ||
+        dev->model->asic_type == AsicType::GL843)
+    {
         pixels_per_line = dev->calib_session.output_pixels;
     } else {
         pixels_per_line = dev->calib_session.params.pixels;
@@ -2468,7 +2524,9 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
   uint32_t dark, white, dark_sum, white_sum, dark_count, white_count, col,
     dif;
 
-    if (dev->model->asic_type == AsicType::GL843) {
+    if (dev->model->asic_type == AsicType::GL842 ||
+        dev->model->asic_type == AsicType::GL843)
+    {
         pixels_per_line = dev->calib_session.output_pixels;
     } else {
         pixels_per_line = dev->calib_session.params.pixels;
@@ -2490,7 +2548,9 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
   dev->dark_average_data.clear();
   dev->dark_average_data.resize(dev->average_size);
 
-    if (dev->model->asic_type == AsicType::GL843) {
+    if (dev->model->asic_type == AsicType::GL842 ||
+        dev->model->asic_type == AsicType::GL843)
+    {
         size = dev->calib_session.output_total_bytes_raw;
     } else {
         // FIXME: on GL841 this is different than dev->calib_session.output_total_bytes_raw,
@@ -3093,7 +3153,9 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
     unsigned start_offset =
             dev->calib_session.params.startx * sensor.optical_res / dev->calib_session.params.xres;
 
-    if (dev->model->asic_type == AsicType::GL843) {
+    if (dev->model->asic_type == AsicType::GL842 ||
+        dev->model->asic_type == AsicType::GL843)
+    {
         pixels_per_line = dev->calib_session.output_pixels + start_offset;
     } else {
         pixels_per_line = dev->calib_session.params.pixels + start_offset;
@@ -3275,6 +3337,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
     case SensorId::CCD_CANON_4400F:
     case SensorId::CCD_CANON_8400F:
     case SensorId::CCD_CANON_8600F:
+        case SensorId::CCD_PLUSTEK_OPTICFILM_7200:
     case SensorId::CCD_PLUSTEK_OPTICFILM_7200I:
     case SensorId::CCD_PLUSTEK_OPTICFILM_7300:
         case SensorId::CCD_PLUSTEK_OPTICFILM_7400:

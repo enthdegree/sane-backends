@@ -61,6 +61,7 @@ TestScannerInterface::TestScannerInterface(Genesys_Device* dev, uint16_t vendor_
         write_register(0x41, 0x00);
     }
     if (dev_->model->asic_type == AsicType::GL841 ||
+        dev_->model->asic_type == AsicType::GL842 ||
         dev_->model->asic_type == AsicType::GL843 ||
         dev_->model->asic_type == AsicType::GL845 ||
         dev_->model->asic_type == AsicType::GL846 ||

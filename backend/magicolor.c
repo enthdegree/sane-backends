@@ -836,6 +836,26 @@ cmd_get_scanning_parameters(SANE_Handle handle,
 		        *data_pixels, *data_pixels,
 		        *lines, *lines,
 		        *pixels_per_line, *pixels_per_line);
+
+		/*
+		 * SECURITY REMEDIATION
+		 * See gitlab issue #279 - Issue10 SIGFPE in mc_setup_block_mode
+		 *
+		 * pixels_per_line cannot be zero, otherwise a division by zero error can occur later.
+		 * Added checking the parameters to ensure that this issue cannot occur.
+		 *
+		 * Additionally to the reported issue, it makes no sense for any of the values of
+		 * data_pixels, lines or pixels_per_line to be zero. I do not have any knowledge
+		 * of valid maximums for these parameters.
+		 *
+		 */
+		if ((*data_pixels == 0) || (*lines == 0) || (*pixels_per_line == 0)) {
+			DBG (1, "%s: ERROR: Returned image parameters contain invalid "
+				"bytes. Zero values for these parameters are not rational.\n",
+				__func__);
+			dump_hex_buffer_dense (1, rxbuf, 8);
+			return SANE_STATUS_INVAL;
+		}
 	}
 
 	return status;

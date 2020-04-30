@@ -255,18 +255,20 @@ static int decode_value(char *buf, int len)
 }
 
 /* h000 */
-static char *decode_binary(char *buf)
+static char *decode_binary(char *buf, int len)
 {
 	char tmp[6];
 	int hl;
 
 	memcpy(tmp, buf, 4);
 	tmp[4] = '\0';
+	len -= 4;
 
 	if (buf[0] != 'h')
 		return NULL;
 
 	hl = strtol(tmp + 1, NULL, 16);
+	if (hl > len) hl = len;
 	if (hl) {
 
 		char *v = malloc(hl + 1);
@@ -279,9 +281,9 @@ static char *decode_binary(char *buf)
 	return NULL;
 }
 
-static char *decode_string(char *buf)
+static char *decode_string(char *buf, int len)
 {
-	char *p, *s = decode_binary(buf);
+	char *p, *s = decode_binary(buf, len);
 	if (s == NULL)
 		return NULL;
 
@@ -326,20 +328,20 @@ static SANE_Status info_cb(void *userdata, char *token, int len)
 
 	if (strncmp("PRD", token, 3) == 0) {
 		free(s->hw->model);
-		s->hw->model = decode_string(value);
+		s->hw->model = decode_string(value, len);
 		s->hw->sane.model = s->hw->model;
 		DBG(1, " product: %s\n", s->hw->model);
 		/* we will free the string later */
 	}
 
 	if (strncmp("VER", token, 3) == 0) {
-		char *v = decode_string(value);
+		char *v = decode_string(value, len);
 		DBG(1, " version: %s\n", v);
 		free(v);
 	}
 
 	if (strncmp("S/N", token, 3) == 0) {
-		char *v = decode_string(value);
+		char *v = decode_string(value, len);
 		DBG(1, "  serial: %s\n", v);
 		free(v);
 	}

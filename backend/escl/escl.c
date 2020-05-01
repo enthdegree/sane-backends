@@ -470,9 +470,9 @@ init_options(SANE_String_Const name_source, escl_sane_t *s)
 	   int source = s->scanner->source;
 	   DBG (10, "escl init_options name [%s]\n", name_source);
 	   if (!strcmp(name_source, SANE_I18N ("ADF Duplex")))
-	       s->scanner->source = ADFSIMPLEX;
-	   else if (!strncmp(name_source, "AD", 2) ||
-	            !strcmp(name_source, SANE_I18N ("ADF Duplex")))
+	       s->scanner->source = ADFDUPLEX;
+	   else if (!strncmp(name_source, "A", 1) ||
+	            !strcmp(name_source, SANE_I18N ("ADF")))
 	       s->scanner->source = ADFSIMPLEX;
 	   else
 	       s->scanner->source = PLATEN;
@@ -839,6 +839,7 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v, SANE_Int 
 		*i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS | SANE_INFO_INEXACT;
 	    break;
 	case OPT_SCAN_SOURCE:
+	    DBG(10, "SET OPT_SCAN_SOURCE(%s)\n", (SANE_String_Const)v);
 	    init_options((SANE_String_Const)v, handler);
 	    if (i)
 		*i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS | SANE_INFO_INEXACT;

@@ -423,19 +423,26 @@ escl_capabilities(const ESCL_Device *device, SANE_Status *status)
     if (curl_easy_perform(curl_handle) != CURLE_OK) {
         DBG( 1, "The scanner didn't respond.\n");
         *status = SANE_STATUS_INVAL;
+        goto clean_data;
     }
+    DBG( 10, "XML Capabilities[\n%s\n]\n", var->memory);
     data = xmlReadMemory(var->memory, var->size, "file.xml", NULL, 0);
-    if (data == NULL)
+    if (data == NULL) {
         *status = SANE_STATUS_NO_MEM;
+        goto clean_data;
+    }
     node = xmlDocGetRootElement(data);
-    if (node == NULL)
+    if (node == NULL) {
         *status = SANE_STATUS_NO_MEM;
+        goto clean;
+    }
 
     scanner->source = 0;
     print_xml_c(node, scanner, -1);
     _reduce_color_modes(scanner);
-
+clean:
     xmlFreeDoc(data);
+clean_data:
     xmlCleanupParser();
     xmlMemoryDump();
     curl_easy_cleanup(curl_handle);

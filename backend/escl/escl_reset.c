@@ -56,12 +56,11 @@ CURL_CALL:
         escl_curl_url(curl_handle, device, scan_cmd);
         if (curl_easy_perform(curl_handle) == CURLE_OK) {
             curl_easy_getinfo(curl_handle, CURLINFO_RESPONSE_CODE, &answer);
-            if (i < 3 && answer == 503) {
-                curl_easy_cleanup(curl_handle);
-                i++;
-                goto CURL_CALL;
-            }
+            i++;
+            if (i >= 15) return;
         }
         curl_easy_cleanup(curl_handle);
+        if (SANE_STATUS_GOOD != escl_status(device, PLATEN, result))
+            goto CURL_CALL;
     }
 }

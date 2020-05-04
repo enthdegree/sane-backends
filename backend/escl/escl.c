@@ -450,6 +450,23 @@ sane_get_devices(const SANE_Device ***device_list, SANE_Bool local_only)
     return (devlist) ? SANE_STATUS_GOOD : SANE_STATUS_NO_MEM;
 }
 
+/* Returns the length of the longest string, including the terminating
+ * character. */
+static size_t
+_source_size_max (SANE_String_Const * sources)
+{
+  size_t size = 0;
+
+  while(*sources)
+   {
+      size_t t = strlen (*sources) + 1;
+      if (t > size)
+          size = t;
+      sources++;
+   }
+  return size;
+}
+
 /**
  * \fn static SANE_Status init_options(SANE_String_Const name, escl_sane_t *s)
  * \brief Function thzt initializes all the needed options of the received scanner
@@ -601,7 +618,7 @@ init_options(SANE_String_Const name_source, escl_sane_t *s)
     s->opt[OPT_SCAN_SOURCE].title = SANE_TITLE_SCAN_SOURCE;
     s->opt[OPT_SCAN_SOURCE].desc = SANE_DESC_SCAN_SOURCE;
     s->opt[OPT_SCAN_SOURCE].type = SANE_TYPE_STRING;
-    s->opt[OPT_SCAN_SOURCE].size = s->scanner->SourcesSize;
+    s->opt[OPT_SCAN_SOURCE].size = _source_size_max(s->scanner->Sources);
     s->opt[OPT_SCAN_SOURCE].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     s->opt[OPT_SCAN_SOURCE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
     s->opt[OPT_SCAN_SOURCE].constraint.string_list = s->scanner->Sources;

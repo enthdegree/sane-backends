@@ -114,7 +114,7 @@ static struct MagicolorCap magicolor_cap[] = {
 
   /* KONICA MINOLTA magicolor 1690MF, USB ID 0x123b:2089 */
   {
-      0x2089, "mc1690mf", "KONICA MINOLTA magicolor 1690MF", "1.3.6.1.4.1.183341.1.1.2.1.32.3.2",
+      0x2089, "mc1690mf", "KONICA MINOLTA magicolor 1690MF", ".1.3.6.1.4.1.18334.1.1.1.1.1.23.1.1",
       -1, 0x85,
       600, {150, 600, 0}, magicolor_default_resolutions, 3,  /* 600 dpi max, 3 resolutions */
       8, magicolor_default_depths,                          /* color depth 8 default, 1 and 8 possible */
@@ -1545,8 +1545,10 @@ mc_get_device_from_identification (const char*ident)
 {
 	int n;
 	for (n = 0; n < NELEMS (magicolor_cap); n++) {
-		if (strcmp (magicolor_cap[n].model, ident) || strcmp (magicolor_cap[n].OID, ident))
+		if ((strcmp (magicolor_cap[n].model, ident) == 0) || (strcmp (magicolor_cap[n].OID, ident) == 0))
+		{
 			return &magicolor_cap[n];
+		}
 	}
 	return NULL;
 }
@@ -1853,9 +1855,9 @@ mc_network_discovery_handle (struct snmp_pdu *pdu, snmp_discovery_data *magic)
 	oid anOID[MAX_OID_LEN];
 	size_t anOID_len = MAX_OID_LEN;
 	/* Device information variables */
-	char ip_addr[1024];
-	char model[1024];
-	char device[1024];
+	char ip_addr[1024] = "";
+	char model[1024] = "";
+	char device[1024] = "";
 	/* remote IP detection variables */
 	netsnmp_indexed_addr_pair *responder = (netsnmp_indexed_addr_pair *) pdu->transport_data;
 	struct sockaddr_in *remote = NULL;
@@ -1904,6 +1906,13 @@ mc_network_discovery_handle (struct snmp_pdu *pdu, snmp_discovery_data *magic)
 			DBG (3, "%s: SystemObjectID does not return an OID, device is not a magicolor device\n", __func__);
 			return 0;
 		}
+
+		// Make sure that snprint_objid gives us just numbers, instead of a
+		// SNMPv2-SMI::enterprises prefix.
+		netsnmp_ds_set_int(NETSNMP_DS_LIBRARY_ID,
+				   NETSNMP_DS_LIB_OID_OUTPUT_FORMAT,
+				   NETSNMP_OID_OUTPUT_NUMERIC);
+
 		snprint_objid (device, sizeof(device), vp->val.objid, value_len);
 		DBG (5, "%s: Device object ID is '%s'\n", __func__, device);
 
@@ -1923,8 +1932,9 @@ mc_network_discovery_handle (struct snmp_pdu *pdu, snmp_discovery_data *magic)
 	read_objid(MAGICOLOR_SNMP_SYSDESCR_OID, anOID, &anOID_len);
 	vp = find_varbind_in_list (varlist, anOID, anOID_len);
 	if (vp) {
-		memcpy(model,vp->val.string,vp->val_len);
-		model[vp->val_len] = '\0';
+		size_t model_len = min(vp->val_len, sizeof(model) - 1);
+		memcpy(model, vp->val.string, model_len);
+		model[model_len] = '\0';
 		DBG (5, "%s: Found model: %s\n", __func__, model);
 	}
 

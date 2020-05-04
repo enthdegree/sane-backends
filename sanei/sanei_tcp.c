@@ -45,6 +45,11 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
+
+#ifndef SSIZE_MAX
+#define SSIZE_MAX LONG_MAX
+#endif
 
 #ifdef HAVE_WINSOCK2_H
 #include <winsock2.h>
@@ -115,15 +120,21 @@ sanei_tcp_close(int fd)
 }
 
 ssize_t
-sanei_tcp_write(int fd, const u_char * buf, int count)
+sanei_tcp_write(int fd, const u_char * buf, size_t count)
 {
 	return send(fd, buf, count, 0);
 }
 
 ssize_t
-sanei_tcp_read(int fd, u_char * buf, int count)
+sanei_tcp_read(int fd, u_char * buf, size_t count)
 {
-        ssize_t bytes_recv = 0, rc = 1;
+	size_t bytes_recv = 0;
+	ssize_t rc = 1;
+
+	if (count > SSIZE_MAX) {
+		errno = EINVAL;
+		return -1;
+	}
 
 	while (bytes_recv < count && rc > 0)
 	{

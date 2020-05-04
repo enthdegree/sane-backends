@@ -193,6 +193,8 @@ static SANE_Status esci2_cmd(epsonds_scanner* s,
 
 			ssize_t read = eds_recv(s, pbuf, more, &status);
 			if (read != more) {
+				free(pbuf);
+				return SANE_STATUS_IO_ERROR;
 			}
 
 			/* parse the received data block */

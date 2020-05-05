@@ -209,6 +209,18 @@ get_vendor(char *search)
 		return strdup("Fujitsu");
 	else if(strcasestr(search, "HP"))
 		return strdup("HP");
+	else if(strcasestr(search, "Canon"))
+		return strdup("Canon");
+	else if(strcasestr(search, "Lexmark"))
+		return strdup("Lexmark");
+	else if(strcasestr(search, "Samsung"))
+		return strdup("Samsung");
+	else if(strcasestr(search, "Xerox"))
+		return strdup("Xerox");
+	else if(strcasestr(search, "OKI"))
+		return strdup("OKI");
+	else if(strcasestr(search, "Hewlett Packard"))
+		return strdup("Hewlett Packard");
 	else if(strcasestr(search, "IBM"))
 		return strdup("IBM");
 	else if(strcasestr(search, "Mustek"))
@@ -270,12 +282,12 @@ convertFromESCLDev(ESCL_Device *cdev)
     if (!sdev->vendor)
        sdev->vendor = strdup("ESCL");
     else
-       lv = strlen(sdev->vendor);
+       lv = strlen(sdev->vendor) + 1;
     if (!sdev->vendor) {
        DBG (10, "Vendor allocation failure.\n");
        goto freemodel;
     }
-    sdev->model = strdup((lv + 1) + cdev->model_name);
+    sdev->model = strdup(lv + cdev->model_name);
     if (!sdev->model) {
        DBG (10, "Model allocation failure.\n");
        goto freename;

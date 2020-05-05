@@ -2286,7 +2286,6 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     (void) regs;
 
   int pass = 0, avg;
-  Genesys_Settings settings;
   int topavg, bottomavg;
   int top, bottom, black_pixels;
 
@@ -2308,20 +2307,30 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
   DBG(DBG_io2, "%s: black_pixels=%d\n", __func__, black_pixels);
 
-    settings.scan_method = dev->model->default_method;
-  settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-  settings.xres = resolution;
-  settings.yres = resolution;
-  settings.tl_x = 0;
-  settings.tl_y = 0;
-    settings.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
-    settings.requested_pixels = settings.pixels;
-  settings.lines = CALIBRATION_LINES;
-  settings.depth = 8;
-  settings.color_filter = ColorFilter::RED;
+    unsigned pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
+    unsigned lines = CALIBRATION_LINES;
+    if (dev->model->is_cis) {
+        lines = ((lines + 2) / 3) * 3;
+    }
 
-  settings.disable_interpolation = 0;
-  settings.threshold = 0;
+    ScanSession session;
+    session.params.xres = resolution;
+    session.params.yres = resolution;
+    session.params.startx = 0;
+    session.params.starty = 0;
+    session.params.pixels = pixels;
+    session.params.requested_pixels = pixels;
+    session.params.lines = lines;
+    session.params.depth = 8;
+    session.params.channels = channels;
+    session.params.scan_method = dev->settings.scan_method;
+    session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    session.params.color_filter = ColorFilter::RED;
+    session.params.flags = ScanFlag::NONE;
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
+        session.params.flags |= ScanFlag::USE_XPA;
+    }
+    compute_session(dev, session, sensor);
 
   /* scan first line of data with no gain, but with offset from
    * last calibration */
@@ -2337,18 +2346,15 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
   std::vector<uint8_t> first_line, second_line;
 
-    simple_scan(dev, calib_sensor, settings, false, true, false, first_line,
-                "offset_first_line");
+    dev->cmd_set->init_regs_for_scan_session(dev, sensor, &dev->reg, session);
+    simple_scan(dev, calib_sensor, session, false, false, first_line, "offset_first_line");
 
-  if (DBG_LEVEL >= DBG_data)
-    {
+    if (DBG_LEVEL >= DBG_data) {
       char title[30];
         std::snprintf(title, 30, "gl646_offset%03d.pnm", bottom);
-      sanei_genesys_write_pnm_file(title, first_line.data(), 8, channels,
-                                   settings.pixels, settings.lines);
+        sanei_genesys_write_pnm_file(title, first_line.data(), 8, channels, pixels, lines);
     }
-  bottomavg = dark_average(first_line.data(), settings.pixels, settings.lines, channels,
-                           black_pixels);
+    bottomavg = dark_average(first_line.data(), pixels, lines, channels, black_pixels);
   DBG(DBG_io2, "%s: bottom avg=%d\n", __func__, bottomavg);
 
   /* now top value */
@@ -2356,18 +2362,15 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
   dev->frontend.set_offset(0, top);
   dev->frontend.set_offset(1, top);
   dev->frontend.set_offset(2, top);
-    simple_scan(dev, calib_sensor, settings, false, true, false, second_line,
-                "offset_second_line");
+    dev->cmd_set->init_regs_for_scan_session(dev, calib_sensor, &dev->reg, session);
+    simple_scan(dev, calib_sensor, session, false, false, second_line, "offset_second_line");
 
-  if (DBG_LEVEL >= DBG_data)
-    {
+    if (DBG_LEVEL >= DBG_data) {
       char title[30];
         std::snprintf(title, 30, "gl646_offset%03d.pnm", top);
-      sanei_genesys_write_pnm_file (title, second_line.data(), 8, channels,
-				    settings.pixels, settings.lines);
+        sanei_genesys_write_pnm_file (title, second_line.data(), 8, channels, pixels, lines);
     }
-  topavg = dark_average(second_line.data(), settings.pixels, settings.lines, channels,
-                        black_pixels);
+    topavg = dark_average(second_line.data(), pixels, lines, channels, black_pixels);
   DBG(DBG_io2, "%s: top avg=%d\n", __func__, topavg);
 
     if (is_testing_mode()) {
@@ -2385,20 +2388,17 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
       dev->frontend.set_offset(2, (top + bottom) / 2);
 
         // scan with no move
-        simple_scan(dev, calib_sensor, settings, false, true, false, second_line,
+        dev->cmd_set->init_regs_for_scan_session(dev, calib_sensor, &dev->reg, session);
+        simple_scan(dev, calib_sensor, session, false, false, second_line,
                     "offset_calibration_i");
 
-      if (DBG_LEVEL >= DBG_data)
-	{
+        if (DBG_LEVEL >= DBG_data) {
           char title[30];
             std::snprintf(title, 30, "gl646_offset%03d.pnm", dev->frontend.get_offset(1));
-          sanei_genesys_write_pnm_file (title, second_line.data(), 8, channels,
-					settings.pixels, settings.lines);
-	}
+            sanei_genesys_write_pnm_file(title, second_line.data(), 8, channels, pixels, lines);
+        }
 
-      avg =
-        dark_average (second_line.data(), settings.pixels, settings.lines, channels,
-		      black_pixels);
+        avg = dark_average(second_line.data(), pixels, lines, channels, black_pixels);
       DBG(DBG_info, "%s: avg=%d offset=%d\n", __func__, avg, dev->frontend.get_offset(1));
 
       /* compute new boundaries */

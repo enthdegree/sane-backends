@@ -80,22 +80,6 @@ static void gl646_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
  */
 static void simple_move(Genesys_Device* dev, SANE_Int distance);
 
-/**
- * Does a simple scan of the area given by the settings. Scanned data
- * it put in an allocated area which must be freed by the caller.
- * and slope tables, based on the parameter struct. There is no shading
- * correction while gamma correction is active.
- * @param dev      device to set up
- * @param settings settings of the scan
- * @param move     flag to enable scanhead to move
- * @param forward  flag to tell movement direction
- * @param shading  flag to tell if shading correction should be done
- * @param data     pointer that will point to the scanned data
- */
-static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                        Genesys_Settings settings, bool move, bool forward,
-                        bool shading, std::vector<uint8_t>& data, const char* test_identifier);
-
 static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                         const ScanSession& session, bool move, bool shading,
                         std::vector<uint8_t>& data, const char* test_identifier);
@@ -2185,8 +2169,7 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
 
   unsigned int channels;
   int pass = 0;
-  Genesys_Settings settings;
-  unsigned int x, y, adr, min;
+    unsigned adr, min;
   unsigned int bottom, black_pixels;
 
   channels = 3;
@@ -2197,20 +2180,31 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
     black_pixels = (calib_sensor.black_pixels * sensor.optical_res) / calib_sensor.optical_res;
   DBG(DBG_io2, "%s: black_pixels=%d\n", __func__, black_pixels);
 
-    settings.scan_method = dev->model->default_method;
-  settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-    settings.xres = sensor.optical_res;
-    settings.yres = sensor.optical_res;
-  settings.tl_x = 0;
-  settings.tl_y = 0;
-    settings.pixels = dev->model->x_size_calib_mm * sensor.optical_res / MM_PER_INCH;
-    settings.requested_pixels = settings.pixels;
-  settings.lines = CALIBRATION_LINES;
-  settings.depth = 8;
-  settings.color_filter = ColorFilter::RED;
+    unsigned pixels = dev->model->x_size_calib_mm * sensor.optical_res / MM_PER_INCH;
+    unsigned lines = CALIBRATION_LINES;
 
-  settings.disable_interpolation = 0;
-  settings.threshold = 0;
+    if (dev->model->is_cis) {
+        lines = ((lines + 2) / 3) * 3;
+    }
+
+    ScanSession session;
+    session.params.xres = sensor.optical_res;
+    session.params.yres = sensor.optical_res;
+    session.params.startx = 0;
+    session.params.starty = 0;
+    session.params.pixels = pixels;
+    session.params.requested_pixels = pixels;
+    session.params.lines = lines;
+    session.params.depth = 8;
+    session.params.channels = 3;
+    session.params.scan_method = dev->settings.scan_method;
+    session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    session.params.color_filter = ColorFilter::RED;
+    session.params.flags = ScanFlag::NONE;
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
+        session.params.flags |= ScanFlag::USE_XPA;
+    }
+    compute_session(dev, session, calib_sensor);
 
   /* scan first line of data with no gain */
   dev->frontend.set_gain(0, 0);
@@ -2227,27 +2221,24 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
       dev->frontend.set_offset(0, bottom);
       dev->frontend.set_offset(1, bottom);
       dev->frontend.set_offset(2, bottom);
-        simple_scan(dev, calib_sensor, settings, false, true, false, line,
-                    "ad_fe_offset_calibration");
+
+        dev->cmd_set->init_regs_for_scan_session(dev, calib_sensor, &dev->reg, session);
+        simple_scan(dev, calib_sensor, session, false, false, line, "ad_fe_offset_calibration");
 
         if (is_testing_mode()) {
             return;
         }
 
-      if (DBG_LEVEL >= DBG_data)
-	{
+        if (DBG_LEVEL >= DBG_data) {
           char title[30];
           std::snprintf(title, 30, "gl646_offset%03d.pnm", static_cast<int>(bottom));
-          sanei_genesys_write_pnm_file (title, line.data(), 8, channels,
-					settings.pixels, settings.lines);
-	}
+            sanei_genesys_write_pnm_file (title, line.data(), 8, channels, pixels, lines);
+        }
 
       min = 0;
-      for (y = 0; y < settings.lines; y++)
-	{
-	  for (x = 0; x < black_pixels; x++)
-	    {
-	      adr = (x + y * settings.pixels) * channels;
+        for (unsigned y = 0; y < lines; y++) {
+            for (unsigned x = 0; x < black_pixels; x++) {
+                adr = (x + y * pixels) * channels;
 	      if (line[adr] > min)
 		min = line[adr];
 	      if (line[adr + 1] > min)
@@ -2962,73 +2953,6 @@ void CommandSetGl646::move_to_ta(Genesys_Device* dev) const
     DBG_HELPER(dbg);
 
     simple_move(dev, static_cast<int>(dev->model->y_offset_sensor_to_ta));
-}
-
-
-/**
- * Does a simple scan: ie no line reordering and avanced data buffering and
- * shading correction. Memory for data is allocated in this function
- * and must be freed by caller.
- * @param dev device of the scanner
- * @param settings parameters of the scan
- * @param move true if moving during scan
- * @param forward true if moving forward during scan
- * @param shading true to enable shading correction
- * @param data pointer for the data
- */
-static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                        Genesys_Settings settings, bool do_move, bool forward,
-                        bool shading, std::vector<uint8_t>& data,
-                        const char* scan_identifier)
-{
-    DBG_HELPER_ARGS(dbg, "move=%d, forward=%d, shading=%d", do_move, forward, shading);
-
-  /* round up to multiple of 3 in case of CIS scanner */
-    if (dev->model->is_cis) {
-      settings.lines = ((settings.lines + 2) / 3) * 3;
-    }
-
-    // compute distance to move
-    float move = 0;
-    if (do_move && settings.tl_y > 0) {
-        move += settings.tl_y;
-
-        if (move < 0) {
-            DBG(DBG_error, "%s: overriding negative move value %f\n", __func__, move);
-            move = 0;
-        }
-    }
-    move = static_cast<float>((move * dev->motor.base_ydpi) / MM_PER_INCH);
-    DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
-
-    float start = settings.tl_x;
-    start = static_cast<float>((start * settings.xres) / MM_PER_INCH);
-
-    ScanSession session;
-    session.params.xres = settings.xres;
-    session.params.yres = settings.yres;
-    session.params.startx = static_cast<unsigned>(start);
-    session.params.starty = static_cast<unsigned>(move);
-    session.params.pixels = settings.pixels;
-    session.params.requested_pixels = settings.requested_pixels;
-    session.params.lines = settings.lines;
-    session.params.depth = settings.depth;
-    session.params.channels = settings.get_channels();
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = settings.scan_mode;
-    session.params.color_filter = settings.color_filter;
-    session.params.flags = ScanFlag::NONE;
-    if (settings.scan_method == ScanMethod::TRANSPARENCY) {
-        session.params.flags |= ScanFlag::USE_XPA;
-    }
-    if (!forward) {
-        session.params.flags |= ScanFlag::REVERSE;
-    }
-    compute_session(dev, session, sensor);
-
-    dev->cmd_set->init_regs_for_scan_session(dev, sensor, &dev->reg, session);
-
-    simple_scan(dev, sensor, session, do_move, shading, data, scan_identifier);
 }
 
 static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,

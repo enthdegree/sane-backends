@@ -2527,48 +2527,61 @@ void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     DBG_HELPER(dbg);
     (void) dpi;
 
-  unsigned int i, j, k, channels, val, maximum, idx;
+    unsigned val, maximum, idx;
   unsigned count, pass;
   float average[3];
-  Genesys_Settings settings;
   char title[32];
 
     if (dev->model->sensor_id == SensorId::CIS_XP200) {
-      return ad_fe_coarse_gain_calibration(dev, sensor, regs, sensor.optical_res);
+        ad_fe_coarse_gain_calibration(dev, sensor, regs, sensor.optical_res);
+        return;
     }
 
   /* setup for a RGB scan, one full sensor's width line */
   /* resolution is the one from the final scan          */
-  channels = 3;
+    unsigned channels = 3;
 
     // BUG: the following comment is incorrect
     // we are searching a sensor resolution */
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, dev->settings.xres, channels,
                                                          ScanMethod::FLATBED);
 
-  settings.scan_method = dev->settings.scan_method;
-  settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-  settings.xres = dev->settings.xres;
-  settings.yres = dev->settings.xres;
-  settings.tl_y = 0;
-  if (settings.scan_method == ScanMethod::FLATBED)
-    {
-      settings.tl_x = 0;
-        settings.pixels = dev->model->x_size_calib_mm * dev->settings.xres / MM_PER_INCH;
-    }
-  else
-    {
-        settings.tl_x = dev->model->x_offset_ta;
-        settings.pixels = static_cast<unsigned>(
+    unsigned pixels = 0;
+    float start = 0;
+    if (dev->settings.scan_method == ScanMethod::FLATBED) {
+        pixels = dev->model->x_size_calib_mm * dev->settings.xres / MM_PER_INCH;
+    } else {
+        start = dev->model->x_offset_ta;
+        pixels = static_cast<unsigned>(
                               (dev->model->x_size_ta * dev->settings.xres) / MM_PER_INCH);
     }
-    settings.requested_pixels = settings.pixels;
-  settings.lines = CALIBRATION_LINES;
-  settings.depth = 8;
-  settings.color_filter = ColorFilter::RED;
 
-  settings.disable_interpolation = 0;
-  settings.threshold = 0;
+    unsigned lines = CALIBRATION_LINES;
+    // round up to multiple of 3 in case of CIS scanner
+    if (dev->model->is_cis) {
+        lines = ((lines + 2) / 3) * 3;
+    }
+
+    start = static_cast<float>((start * dev->settings.xres) / MM_PER_INCH);
+
+    ScanSession session;
+    session.params.xres = dev->settings.xres;
+    session.params.yres = dev->settings.xres;
+    session.params.startx = static_cast<unsigned>(start);
+    session.params.starty = 0;
+    session.params.pixels = pixels;
+    session.params.requested_pixels = pixels;
+    session.params.lines = lines;
+    session.params.depth = 8;
+    session.params.channels = channels;
+    session.params.scan_method = dev->settings.scan_method;
+    session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    session.params.color_filter = ColorFilter::RED;
+    session.params.flags = ScanFlag::NONE;
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
+        session.params.flags |= ScanFlag::USE_XPA;
+    }
+    compute_session(dev, session, calib_sensor);
 
   /* start gain value */
   dev->frontend.set_gain(0, 1);
@@ -2605,35 +2618,31 @@ void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys
             (average[2] < calib_sensor.gain_white_ref)) && (pass < 30))
     {
         // scan with no move
-        simple_scan(dev, calib_sensor, settings, false, true, false, line,
-                    "coarse_gain_calibration");
+        dev->cmd_set->init_regs_for_scan_session(dev, calib_sensor, &dev->reg, session);
+        simple_scan(dev, calib_sensor, session, false, false, line, "coarse_gain_calibration");
 
       /* log scanning data */
       if (DBG_LEVEL >= DBG_data)
 	{
           std::sprintf(title, "gl646_gain%02d.pnm", pass);
-          sanei_genesys_write_pnm_file(title, line.data(), 8, channels, settings.pixels,
-                                       settings.lines);
+          sanei_genesys_write_pnm_file(title, line.data(), 8, channels, pixels, lines);
 	}
       pass++;
 
       /* average high level for each channel and compute gain
          to reach the target code
          we only use the central half of the CCD data         */
-      for (k = idx; k < idx + channels; k++)
-	{
+        for (unsigned k = idx; k < idx + channels; k++) {
 	  /* we find the maximum white value, so we can deduce a threshold
 	     to average white values */
 	  maximum = 0;
-	  for (i = 0; i < settings.lines; i++)
-	    {
-	      for (j = 0; j < settings.pixels; j++)
-		{
-		  val = line[i * channels * settings.pixels + j + k];
+            for (unsigned i = 0; i < lines; i++) {
+                for (unsigned j = 0; j < pixels; j++) {
+          val = line[i * channels * pixels + j + k];
 		  if (val > maximum)
 		    maximum = val;
-		}
-	    }
+                }
+            }
 
 	  /* threshold */
             maximum = static_cast<int>(maximum * 0.9);
@@ -2641,19 +2650,17 @@ void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 	  /* computes white average */
 	  average[k] = 0;
 	  count = 0;
-	  for (i = 0; i < settings.lines; i++)
-	    {
-	      for (j = 0; j < settings.pixels; j++)
-		{
+            for (unsigned i = 0; i < lines; i++) {
+                for (unsigned j = 0; j < pixels; j++) {
 		  /* averaging only white points allow us not to care about dark margins */
-		  val = line[i * channels * settings.pixels + j + k];
+          val = line[i * channels * pixels + j + k];
 		  if (val > maximum)
 		    {
 		      average[k] += val;
 		      count++;
 		    }
-		}
-	    }
+                }
+            }
 	  average[k] = average[k] / count;
 
 	  /* adjusts gain for the channel */
@@ -2972,7 +2979,6 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
       settings.lines = ((settings.lines + 2) / 3) * 3;
     }
 
-    auto* regs = &dev->reg;
     // compute distance to move
     float move = 0;
     if (do_move && settings.tl_y > 0) {
@@ -3011,7 +3017,7 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
     }
     compute_session(dev, session, sensor);
 
-    dev->cmd_set->init_regs_for_scan_session(dev, sensor, regs, session);
+    dev->cmd_set->init_regs_for_scan_session(dev, sensor, &dev->reg, session);
 
     simple_scan(dev, sensor, session, do_move, shading, data, scan_identifier);
 }

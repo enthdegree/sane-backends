@@ -3133,30 +3133,43 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
 static void simple_move(Genesys_Device* dev, SANE_Int distance)
 {
     DBG_HELPER_ARGS(dbg, "%d mm", distance);
-  Genesys_Settings settings;
 
     unsigned resolution = sanei_genesys_get_lowest_dpi(dev);
 
-  const auto& sensor = sanei_genesys_find_sensor(dev, resolution, 3, dev->model->default_method);
+    const auto& sensor = sanei_genesys_find_sensor(dev, resolution, 3, dev->model->default_method);
 
-  /* TODO give a no AGOHOME flag */
-    settings.scan_method = dev->model->default_method;
-  settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-  settings.xres = resolution;
-  settings.yres = resolution;
-  settings.tl_y = 0;
-  settings.tl_x = 0;
-    settings.pixels = dev->model->x_size_calib_mm * settings.xres / MM_PER_INCH;
-    settings.requested_pixels = settings.pixels;
-    settings.lines = static_cast<unsigned>((distance * settings.xres) / MM_PER_INCH);
-  settings.depth = 8;
-  settings.color_filter = ColorFilter::RED;
+    // TODO give a no AGOHOME flag
+    unsigned lines = static_cast<unsigned>((distance * resolution) / MM_PER_INCH);
 
-  settings.disable_interpolation = 0;
-  settings.threshold = 0;
+    // round up to multiple of 3 in case of CIS scanner
+    if (dev->model->is_cis) {
+        lines = ((lines + 2) / 3) * 3;
+    }
 
-  std::vector<uint8_t> data;
-    simple_scan(dev, sensor, settings, true, true, false, data, "simple_move");
+    auto* regs = &dev->reg;
+
+    ScanSession session;
+    session.params.xres = resolution;
+    session.params.yres = resolution;
+    session.params.startx = 0;
+    session.params.starty = 0;
+    session.params.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
+    session.params.lines = lines;
+    session.params.depth = 8;
+    session.params.channels = 3;
+    session.params.scan_method = dev->settings.scan_method;
+    session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    session.params.color_filter = ColorFilter::RED;
+    session.params.flags = ScanFlag::NONE;
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
+        session.params.flags |= ScanFlag::USE_XPA;
+    }
+    compute_session(dev, session, sensor);
+
+    dev->cmd_set->init_regs_for_scan_session(dev, sensor, regs, session);
+
+    std::vector<uint8_t> data;
+    simple_scan(dev, sensor, session, true, false, data, "simple_move");
 }
 
 /**

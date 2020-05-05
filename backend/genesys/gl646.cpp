@@ -1919,10 +1919,31 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   settings.disable_interpolation = dev->settings.disable_interpolation;
   settings.threshold = dev->settings.threshold;
 
-    // we don't want top offset, but we need right margin to be the same than the one for the final
-    // scan
-    dev->calib_session = setup_for_scan(dev, calib_sensor, &dev->reg, settings,
-                                        true, false, false, false);
+    float start = settings.tl_x;
+    start = static_cast<float>((start * settings.xres) / MM_PER_INCH);
+
+    ScanSession session;
+    session.params.xres = settings.xres;
+    session.params.yres = settings.yres;
+    session.params.startx = static_cast<unsigned>(start);
+    session.params.starty = 0;
+    session.params.pixels = settings.pixels;
+    session.params.requested_pixels = settings.requested_pixels;
+    session.params.lines = settings.lines;
+    session.params.depth = settings.depth;
+    session.params.channels = settings.get_channels();
+    session.params.scan_method = dev->settings.scan_method;
+    session.params.scan_mode = settings.scan_mode;
+    session.params.color_filter = settings.color_filter;
+    session.params.flags = ScanFlag::NONE;
+    if (settings.scan_method == ScanMethod::TRANSPARENCY) {
+        session.params.flags |= ScanFlag::USE_XPA;
+    }
+    compute_session(dev, session, calib_sensor);
+
+    dev->cmd_set->init_regs_for_scan_session(dev, calib_sensor, &dev->reg, session);
+
+    dev->calib_session = session;
 
   /* no shading */
     dev->reg.find_reg(0x01).value &= ~REG_0x01_DVDSET;

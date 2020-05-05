@@ -70,7 +70,6 @@ public:
     virtual void bulk_write_data(std::uint8_t addr, std::uint8_t* data, std::size_t size) = 0;
 
     // GL646, GL841, GL843 have different ways to write to RAM and to gamma tables
-    // FIXME: remove flags when updating tests
     virtual void write_buffer(std::uint8_t type, std::uint32_t addr, std::uint8_t* data,
                               std::size_t size) = 0;
 

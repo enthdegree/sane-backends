@@ -96,6 +96,9 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                         Genesys_Settings settings, bool move, bool forward,
                         bool shading, std::vector<uint8_t>& data, const char* test_identifier);
 
+static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                        const ScanSession& session, bool move, bool shading,
+                        std::vector<uint8_t>& data, const char* test_identifier);
 /**
  * Send the stop scan command
  * */
@@ -2966,7 +2969,6 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                         const char* scan_identifier)
 {
     DBG_HELPER_ARGS(dbg, "move=%d, forward=%d, shading=%d", do_move, forward, shading);
-    unsigned lines, bpp;
 
   /* round up to multiple of 3 in case of CIS scanner */
     if (dev->model->is_cis) {
@@ -3014,7 +3016,16 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
 
     dev->cmd_set->init_regs_for_scan_session(dev, sensor, regs, session);
 
-  /* allocate memory fo scan : LINCNT may have been adjusted for CCD reordering */
+    simple_scan(dev, sensor, session, do_move, shading, data, scan_identifier);
+}
+
+static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                        const ScanSession& session, bool move,
+                        bool shading, std::vector<uint8_t>& data, const char* scan_identifier)
+{
+    unsigned lines, bpp;
+
+    // allocate memory fo scan : LINCNT may have been adjusted for CCD reordering
     if (dev->model->is_cis) {
         lines = dev->reg.get24(REG_LINCNT) / 3;
     } else {

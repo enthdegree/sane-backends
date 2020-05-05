@@ -2431,9 +2431,8 @@ static void ad_fe_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
     (void) regs;
 
   unsigned int i, channels, val;
-  unsigned int size, count, pass;
+  unsigned count, pass;
   float average;
-  Genesys_Settings settings;
   char title[32];
 
   /* setup for a RGB scan, one full sensor's width line */
@@ -2441,23 +2440,33 @@ static void ad_fe_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
   channels = 3;
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, dpi, 3, ScanMethod::FLATBED);
 
-  settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    unsigned pixels = dev->model->x_size_calib_mm * dpi / MM_PER_INCH;
 
-    settings.scan_method = dev->model->default_method;
-    settings.xres = dpi;
-    settings.yres = dpi;
-  settings.tl_x = 0;
-  settings.tl_y = 0;
-    settings.pixels = dev->model->x_size_calib_mm * dpi / MM_PER_INCH;
-    settings.requested_pixels = settings.pixels;
-  settings.lines = CALIBRATION_LINES;
-  settings.depth = 8;
-  settings.color_filter = ColorFilter::RED;
+    unsigned lines = CALIBRATION_LINES;
+    if (dev->model->is_cis) {
+        lines = ((lines + 2) / 3) * 3;
+    }
 
-  settings.disable_interpolation = 0;
-  settings.threshold = 0;
+    ScanSession session;
+    session.params.xres = dpi;
+    session.params.yres = dpi;
+    session.params.startx = 0;
+    session.params.starty = 0;
+    session.params.pixels = pixels;
+    session.params.requested_pixels = pixels;
+    session.params.lines = lines;
+    session.params.depth = 8;
+    session.params.channels = 3;
+    session.params.scan_method = dev->settings.scan_method;
+    session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    session.params.color_filter = ColorFilter::RED;
+    session.params.flags = ScanFlag::NONE;
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
+        session.params.flags |= ScanFlag::USE_XPA;
+    }
+    compute_session(dev, session, calib_sensor);
 
-  size = channels * settings.pixels * settings.lines;
+    std::size_t size = channels * pixels * lines;
 
   /* start gain value */
   dev->frontend.set_gain(0, 1);
@@ -2471,17 +2480,17 @@ static void ad_fe_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
 
     // loop until each channel raises to acceptable level
     while ((average < calib_sensor.gain_white_ref) && (pass < 30)) {
+
         // scan with no move
-        simple_scan(dev, calib_sensor, settings, false, true, false, line,
+        dev->cmd_set->init_regs_for_scan_session(dev, calib_sensor, &dev->reg, session);
+        simple_scan(dev, calib_sensor, session, false, false, line,
                     "ad_fe_coarse_gain_calibration");
 
       /* log scanning data */
-      if (DBG_LEVEL >= DBG_data)
-	{
+        if (DBG_LEVEL >= DBG_data) {
             std::sprintf(title, "gl646_alternative_gain%02d.pnm", pass);
-          sanei_genesys_write_pnm_file(title, line.data(), 8, channels, settings.pixels,
-                                       settings.lines);
-	}
+            sanei_genesys_write_pnm_file(title, line.data(), 8, channels, pixels, lines);
+        }
       pass++;
 
       /* computes white average */

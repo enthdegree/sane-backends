@@ -2005,43 +2005,42 @@ SensorExposure CommandSetGl646::led_calibration(Genesys_Device* dev, const Genes
 {
     DBG_HELPER(dbg);
     (void) regs;
-  int total_size;
   unsigned int i, j;
   int val;
   int avg[3], avga, avge;
   int turn;
   uint16_t expr, expg, expb;
-  Genesys_Settings settings;
 
     unsigned channels = dev->settings.get_channels();
 
-  /* get led calibration resolution */
-  if (dev->settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS)
-    {
-      settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-    }
-  else
-    {
-      settings.scan_mode = ScanColorMode::GRAY;
+    ScanColorMode scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    if (dev->settings.scan_mode != ScanColorMode::COLOR_SINGLE_PASS) {
+        scan_mode = ScanColorMode::GRAY;
     }
 
     // offset calibration is always done in color mode
-    settings.scan_method = dev->model->default_method;
-    settings.xres = sensor.optical_res;
-    settings.yres = sensor.optical_res;
-  settings.tl_x = 0;
-  settings.tl_y = 0;
-    settings.pixels = dev->model->x_size_calib_mm * sensor.optical_res / MM_PER_INCH;
-    settings.requested_pixels = settings.pixels;
-  settings.lines = 1;
-  settings.depth = 16;
-  settings.color_filter = ColorFilter::RED;
+    unsigned pixels = dev->model->x_size_calib_mm * sensor.optical_res / MM_PER_INCH;
 
-  settings.disable_interpolation = 0;
-  settings.threshold = 0;
+    ScanSession session;
+    session.params.xres = sensor.optical_res;
+    session.params.yres = sensor.optical_res;
+    session.params.startx = 0;
+    session.params.starty = 0;
+    session.params.pixels = pixels;
+    session.params.lines = 1;
+    session.params.depth = 16;
+    session.params.channels = channels;
+    session.params.scan_method = dev->settings.scan_method;
+    session.params.scan_mode = scan_mode;
+    session.params.color_filter = ColorFilter::RED;
+    session.params.flags = ScanFlag::NONE;
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
+        session.params.flags |= ScanFlag::USE_XPA;
+    }
+    compute_session(dev, session, sensor);
 
-  /* colors * bytes_per_color * scan lines */
-  total_size = settings.pixels * channels * 2 * 1;
+    // colors * bytes_per_color * scan lines
+    unsigned total_size = pixels * channels * 2 * 1;
 
   std::vector<uint8_t> line(total_size);
 
@@ -2068,7 +2067,9 @@ SensorExposure CommandSetGl646::led_calibration(Genesys_Device* dev, const Genes
 
       DBG(DBG_info, "%s: starting first line reading\n", __func__);
 
-        simple_scan(dev, calib_sensor, settings, false, true, false, line, "led_calibration");
+
+        dev->cmd_set->init_regs_for_scan_session(dev, calib_sensor, &dev->reg, session);
+        simple_scan(dev, calib_sensor, session, false, false, line, "led_calibration");
 
         if (is_testing_mode()) {
             return calib_sensor.exposure;
@@ -2078,7 +2079,7 @@ SensorExposure CommandSetGl646::led_calibration(Genesys_Device* dev, const Genes
 	{
           char fn[30];
             std::snprintf(fn, 30, "gl646_led_%02d.pnm", turn);
-          sanei_genesys_write_pnm_file(fn, line.data(), 16, channels, settings.pixels, 1);
+          sanei_genesys_write_pnm_file(fn, line.data(), 16, channels, pixels, 1);
 	}
 
         acceptable = true;
@@ -2086,20 +2087,16 @@ SensorExposure CommandSetGl646::led_calibration(Genesys_Device* dev, const Genes
       for (j = 0; j < channels; j++)
 	{
 	  avg[j] = 0;
-	  for (i = 0; i < settings.pixels; i++)
-	    {
-	      if (dev->model->is_cis)
-		val =
-		  line[i * 2 + j * 2 * settings.pixels + 1] * 256 +
-		  line[i * 2 + j * 2 * settings.pixels];
-	      else
-		val =
-		  line[i * 2 * channels + 2 * j + 1] * 256 +
-		  line[i * 2 * channels + 2 * j];
-	      avg[j] += val;
+            for (i = 0; i < pixels; i++) {
+                if (dev->model->is_cis) {
+                    val = line[i * 2 + j * 2 * pixels + 1] * 256 + line[i * 2 + j * 2 * pixels];
+                } else {
+                    val = line[i * 2 * channels + 2 * j + 1] * 256 + line[i * 2 * channels + 2 * j];
+                }
+            avg[j] += val;
 	    }
 
-	  avg[j] /= settings.pixels;
+      avg[j] /= pixels;
 	}
 
       DBG(DBG_info, "%s: average: %d,%d,%d\n", __func__, avg[0], avg[1], avg[2]);

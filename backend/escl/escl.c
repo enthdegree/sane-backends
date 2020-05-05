@@ -282,12 +282,12 @@ convertFromESCLDev(ESCL_Device *cdev)
     if (!sdev->vendor)
        sdev->vendor = strdup("ESCL");
     else
-       lv = strlen(sdev->vendor);
+       lv = strlen(sdev->vendor) + 1;
     if (!sdev->vendor) {
        DBG (10, "Vendor allocation failure.\n");
        goto freemodel;
     }
-    sdev->model = strdup((lv + 1) + cdev->model_name);
+    sdev->model = strdup(lv + cdev->model_name);
     if (!sdev->model) {
        DBG (10, "Model allocation failure.\n");
        goto freename;

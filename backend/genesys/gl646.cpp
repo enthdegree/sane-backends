@@ -72,27 +72,6 @@ static void write_control(Genesys_Device* dev, const Genesys_Sensor& sensor, int
 static void gl646_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set, int dpi);
 
 /**
- * sets up the scanner for a scan, registers, gamma tables, shading tables
- * and slope tables, based on the parameter struct.
- * @param dev         device to set up
- * @param regs        registers to set up
- * @param settings    settings of the scan
- * @param split       true if move before scan has to be done
- * @param xcorrection true if scanner's X geometry must be taken into account to
- * 		     compute X, ie add left margins
- * @param ycorrection true if scanner's Y geometry must be taken into account to
- * 		     compute Y, ie add top margins
- */
-static ScanSession setup_for_scan(Genesys_Device* device,
-                                  const Genesys_Sensor& sensor,
-                                  Genesys_Register_Set*regs,
-                                  Genesys_Settings settings,
-                                  bool split,
-                                  bool xcorrection,
-                                  bool ycorrection,
-                                  bool reverse);
-
-/**
  * Does a simple move of the given distance by doing a scan at lowest resolution
  * shading correction. Memory for data is allocated in this function
  * and must be freed by caller.
@@ -1993,87 +1972,6 @@ void CommandSetGl646::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
 }
 
 /**
- * set up registers for the actual scan. The scan's parameters are given
- * through the device settings. It allocates the scan buffers.
- * @param dev scanner's device
- * @param regs     registers to set up
- * @param settings settings of scan
- * @param split true if move to scan area is split from scan, false is
- *              scan first moves to area
- * @param xcorrection take x geometry correction into account (fixed and detected offsets)
- * @param ycorrection take y geometry correction into account
- */
-static ScanSession setup_for_scan(Genesys_Device* dev,
-                                  const Genesys_Sensor& sensor,
-                                  Genesys_Register_Set*regs,
-                                  Genesys_Settings settings,
-                                  bool split,
-                                  bool xcorrection,
-                                  bool ycorrection,
-                                  bool reverse)
-{
-    DBG_HELPER(dbg);
-
-    debug_dump(DBG_info, dev->settings);
-
-    // compute distance to move
-    float move = 0;
-    if (!split) {
-        if (!dev->model->is_sheetfed) {
-            if (ycorrection) {
-                move = dev->model->y_offset;
-            }
-
-            // add tl_y to base movement
-        }
-        move += settings.tl_y;
-
-        if (move < 0) {
-            DBG(DBG_error, "%s: overriding negative move value %f\n", __func__, move);
-            move = 0;
-        }
-    }
-    move = static_cast<float>((move * dev->motor.base_ydpi) / MM_PER_INCH);
-    DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
-
-    float start = settings.tl_x;
-    if (xcorrection) {
-        if (settings.scan_method == ScanMethod::FLATBED) {
-            start += dev->model->x_offset;
-        } else {
-            start += dev->model->x_offset_ta;
-        }
-    }
-    start = static_cast<float>((start * settings.xres) / MM_PER_INCH);
-
-    ScanSession session;
-    session.params.xres = settings.xres;
-    session.params.yres = settings.yres;
-    session.params.startx = static_cast<unsigned>(start);
-    session.params.starty = static_cast<unsigned>(move);
-    session.params.pixels = settings.pixels;
-    session.params.requested_pixels = settings.requested_pixels;
-    session.params.lines = settings.lines;
-    session.params.depth = settings.depth;
-    session.params.channels = settings.get_channels();
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = settings.scan_mode;
-    session.params.color_filter = settings.color_filter;
-    session.params.flags = ScanFlag::NONE;
-    if (settings.scan_method == ScanMethod::TRANSPARENCY) {
-        session.params.flags |= ScanFlag::USE_XPA;
-    }
-    if (reverse) {
-        session.params.flags |= ScanFlag::REVERSE;
-    }
-    compute_session(dev, session, sensor);
-
-    dev->cmd_set->init_regs_for_scan_session(dev, sensor, regs, session);
-
-    return session;
-}
-
-/**
  * this function send gamma table to ASIC
  */
 void CommandSetGl646::send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor) const
@@ -2906,7 +2804,33 @@ static void gl646_repark_head(Genesys_Device* dev)
     const auto& sensor = sanei_genesys_find_sensor(dev, settings.xres, 3,
                                                    dev->model->default_method);
 
-    setup_for_scan(dev, sensor, &dev->reg, settings, false, false, false, false);
+    float move = settings.tl_y;
+    move = static_cast<float>((move * dev->motor.base_ydpi) / MM_PER_INCH);
+    DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
+
+    float start = settings.tl_x;
+    start = static_cast<float>((start * settings.xres) / MM_PER_INCH);
+
+    ScanSession session;
+    session.params.xres = settings.xres;
+    session.params.yres = settings.yres;
+    session.params.startx = static_cast<unsigned>(start);
+    session.params.starty = static_cast<unsigned>(move);
+    session.params.pixels = settings.pixels;
+    session.params.requested_pixels = settings.requested_pixels;
+    session.params.lines = settings.lines;
+    session.params.depth = settings.depth;
+    session.params.channels = settings.get_channels();
+    session.params.scan_method = dev->settings.scan_method;
+    session.params.scan_mode = settings.scan_mode;
+    session.params.color_filter = settings.color_filter;
+    session.params.flags = ScanFlag::NONE;
+    if (settings.scan_method == ScanMethod::TRANSPARENCY) {
+        session.params.flags |= ScanFlag::USE_XPA;
+    }
+    compute_session(dev, session, sensor);
+
+    dev->cmd_set->init_regs_for_scan_session(dev, sensor, &dev->reg, session);
 
   /* TODO seems wrong ... no effective scan */
     regs_set_optical_off(dev->model->asic_type, dev->reg);

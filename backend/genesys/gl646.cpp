@@ -1861,7 +1861,6 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 {
     DBG_HELPER(dbg);
     (void) regs;
-  Genesys_Settings settings;
 
   /* fill settings for scan : always a color scan */
   int channels = 3;
@@ -1874,48 +1873,26 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, dev->settings.xres, channels,
                                                          dev->settings.scan_method);
 
-
-  settings.scan_method = dev->settings.scan_method;
-  settings.scan_mode = dev->settings.scan_mode;
-    if (!dev->model->is_cis) {
-      // FIXME: always a color scan, but why don't we set scan_mode to COLOR_SINGLE_PASS always?
-      settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-    }
-    settings.xres = resolution;
-  settings.yres = settings.xres;
-  settings.tl_x = 0;
-  settings.tl_y = 0;
-    settings.pixels = dev->model->x_size_calib_mm * settings.xres / MM_PER_INCH;
-    settings.requested_pixels = settings.pixels;
+    auto pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
 
     unsigned calib_lines =
-            static_cast<unsigned>(dev->model->y_size_calib_mm * settings.yres / MM_PER_INCH);
-    settings.lines = calib_lines;
-
-  settings.depth = 16;
-  settings.color_filter = dev->settings.color_filter;
-
-  settings.disable_interpolation = dev->settings.disable_interpolation;
-  settings.threshold = dev->settings.threshold;
-
-    float start = settings.tl_x;
-    start = static_cast<float>((start * settings.xres) / MM_PER_INCH);
+            static_cast<unsigned>(dev->model->y_size_calib_mm * resolution / MM_PER_INCH);
 
     ScanSession session;
-    session.params.xres = settings.xres;
-    session.params.yres = settings.yres;
-    session.params.startx = static_cast<unsigned>(start);
+    session.params.xres = resolution;
+    session.params.yres = resolution;
+    session.params.startx = 0;
     session.params.starty = 0;
-    session.params.pixels = settings.pixels;
-    session.params.requested_pixels = settings.requested_pixels;
-    session.params.lines = settings.lines;
-    session.params.depth = settings.depth;
-    session.params.channels = settings.get_channels();
+    session.params.pixels = pixels;
+    session.params.requested_pixels = pixels;
+    session.params.lines = calib_lines;
+    session.params.depth = 16;
+    session.params.channels = channels;
     session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = settings.scan_mode;
-    session.params.color_filter = settings.color_filter;
+    session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    session.params.color_filter = dev->settings.color_filter;
     session.params.flags = ScanFlag::NONE;
-    if (settings.scan_method == ScanMethod::TRANSPARENCY) {
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
         session.params.flags |= ScanFlag::USE_XPA;
     }
     compute_session(dev, session, calib_sensor);
@@ -1939,8 +1916,8 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
         dev->reg.set24(REG_LINCNT, calib_lines * 3);
     }
 
-  DBG(DBG_info, "%s:\n\tdev->settings.xres=%d\n\tdev->settings.yres=%d\n", __func__,
-      dev->settings.xres, dev->settings.yres);
+    DBG(DBG_info, "%s:\n\tdev->settings.xres=%d\n\tdev->settings.yres=%d\n", __func__,
+        resolution, resolution);
 }
 
 bool CommandSetGl646::needs_home_before_init_regs_for_scan(Genesys_Device* dev) const
@@ -2709,48 +2686,30 @@ void CommandSetGl646::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     DBG_HELPER(dbg);
     (void) sensor;
 
-  Genesys_Settings settings;
-
   dev->frontend = dev->frontend_initial;
 
     unsigned resolution = 300;
     const auto& local_sensor = sanei_genesys_find_sensor(dev, resolution, 1,
                                                          dev->settings.scan_method);
 
-  /* set up for a half width 2 lines gray scan without moving */
-    settings.scan_method = dev->model->default_method;
-  settings.scan_mode = ScanColorMode::GRAY;
-  settings.xres = resolution;
-  settings.yres = resolution;
-  settings.tl_x = 0;
-  settings.tl_y = 0;
-    settings.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
-    settings.requested_pixels = settings.pixels;
-  settings.lines = 2;
-    settings.depth = dev->model->bpp_gray_values.front();
-  settings.color_filter = ColorFilter::RED;
-
-  settings.disable_interpolation = 0;
-  settings.threshold = 0;
-
-    float start = settings.tl_x;
-    start = static_cast<float>((start * settings.xres) / MM_PER_INCH);
+    // set up for a full width 2 lines gray scan without moving
+    unsigned pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
 
     ScanSession session;
-    session.params.xres = settings.xres;
-    session.params.yres = settings.yres;
-    session.params.startx = static_cast<unsigned>(start);
+    session.params.xres = resolution;
+    session.params.yres = resolution;
+    session.params.startx = 0;
     session.params.starty = 0;
-    session.params.pixels = settings.pixels;
-    session.params.requested_pixels = settings.requested_pixels;
-    session.params.lines = settings.lines;
-    session.params.depth = settings.depth;
-    session.params.channels = settings.get_channels();
+    session.params.pixels = pixels;
+    session.params.requested_pixels = pixels;
+    session.params.lines = 2;
+    session.params.depth = dev->model->bpp_gray_values.front();
+    session.params.channels = 1;
     session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = settings.scan_mode;
-    session.params.color_filter = settings.color_filter;
+    session.params.scan_mode = ScanColorMode::GRAY;
+    session.params.color_filter =  ColorFilter::RED;
     session.params.flags = ScanFlag::NONE;
-    if (settings.scan_method == ScanMethod::TRANSPARENCY) {
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
         session.params.flags |= ScanFlag::USE_XPA;
     }
     compute_session(dev, session, local_sensor);
@@ -2770,7 +2729,7 @@ void CommandSetGl646::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
   sanei_genesys_set_motor_power(*local_reg, false);
 
     // now registers are ok, write them to scanner
-    gl646_set_fe(dev, local_sensor, AFE_SET, settings.xres);
+    gl646_set_fe(dev, local_sensor, AFE_SET, session.params.xres);
 }
 
 
@@ -2782,50 +2741,31 @@ void CommandSetGl646::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
 static void gl646_repark_head(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  Genesys_Settings settings;
-  unsigned int expected, steps;
+    unsigned resolution = dev->model->get_resolution_settings(dev->model->default_method)
+                                     .get_min_resolution_y();
 
-    settings.scan_method = dev->model->default_method;
-  settings.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-    settings.xres = dev->model->get_resolution_settings(dev->model->default_method)
-                               .get_min_resolution_y();
-  settings.yres = settings.xres;
-  settings.tl_x = 0;
-  settings.tl_y = 5;
-  settings.pixels = 600;
-    settings.requested_pixels = settings.pixels;
-  settings.lines = 4;
-  settings.depth = 8;
-  settings.color_filter = ColorFilter::RED;
-
-  settings.disable_interpolation = 0;
-  settings.threshold = 0;
-
-    const auto& sensor = sanei_genesys_find_sensor(dev, settings.xres, 3,
+    const auto& sensor = sanei_genesys_find_sensor(dev, resolution, 3,
                                                    dev->model->default_method);
 
-    float move = settings.tl_y;
+    float move = 5.0f;
     move = static_cast<float>((move * dev->motor.base_ydpi) / MM_PER_INCH);
     DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
 
-    float start = settings.tl_x;
-    start = static_cast<float>((start * settings.xres) / MM_PER_INCH);
-
     ScanSession session;
-    session.params.xres = settings.xres;
-    session.params.yres = settings.yres;
-    session.params.startx = static_cast<unsigned>(start);
+    session.params.xres = resolution;
+    session.params.yres = resolution;
+    session.params.startx = 0;
     session.params.starty = static_cast<unsigned>(move);
-    session.params.pixels = settings.pixels;
-    session.params.requested_pixels = settings.requested_pixels;
-    session.params.lines = settings.lines;
-    session.params.depth = settings.depth;
-    session.params.channels = settings.get_channels();
+    session.params.pixels = 600;
+    session.params.requested_pixels = 600;
+    session.params.lines = 4;
+    session.params.depth = 8;
+    session.params.channels = 3;
     session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = settings.scan_mode;
-    session.params.color_filter = settings.color_filter;
+    session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
+    session.params.color_filter = ColorFilter::RED;
     session.params.flags = ScanFlag::NONE;
-    if (settings.scan_method == ScanMethod::TRANSPARENCY) {
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
         session.params.flags |= ScanFlag::USE_XPA;
     }
     compute_session(dev, session, sensor);
@@ -2840,7 +2780,8 @@ static void gl646_repark_head(Genesys_Device* dev)
     // start scan
     dev->cmd_set->begin_scan(dev, sensor, &dev->reg, true);
 
-    expected = dev->reg.get24(REG_FEEDL);
+    unsigned steps = 0;
+    unsigned expected = dev->reg.get24(REG_FEEDL);
   do
     {
         dev->interface->sleep_ms(100);

@@ -47,6 +47,8 @@
 #ifdef HAVE_SYS_TIME_H
 # include <sys/time.h>
 #endif
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <unistd.h>
 
 #include "sane/saneopts.h"

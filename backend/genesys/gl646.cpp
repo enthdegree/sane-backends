@@ -2835,8 +2835,29 @@ void CommandSetGl646::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
   settings.disable_interpolation = 0;
   settings.threshold = 0;
 
-    // setup for scan
-    setup_for_scan(dev, local_sensor, &dev->reg, settings, true, false, false, false);
+    float start = settings.tl_x;
+    start = static_cast<float>((start * settings.xres) / MM_PER_INCH);
+
+    ScanSession session;
+    session.params.xres = settings.xres;
+    session.params.yres = settings.yres;
+    session.params.startx = static_cast<unsigned>(start);
+    session.params.starty = 0;
+    session.params.pixels = settings.pixels;
+    session.params.requested_pixels = settings.requested_pixels;
+    session.params.lines = settings.lines;
+    session.params.depth = settings.depth;
+    session.params.channels = settings.get_channels();
+    session.params.scan_method = dev->settings.scan_method;
+    session.params.scan_mode = settings.scan_mode;
+    session.params.color_filter = settings.color_filter;
+    session.params.flags = ScanFlag::NONE;
+    if (settings.scan_method == ScanMethod::TRANSPARENCY) {
+        session.params.flags |= ScanFlag::USE_XPA;
+    }
+    compute_session(dev, session, local_sensor);
+
+    dev->cmd_set->init_regs_for_scan_session(dev, local_sensor, &dev->reg, session);
 
   /* we are not going to move, so clear these bits */
     dev->reg.find_reg(0x02).value &= ~(REG_0x02_FASTFED | REG_0x02_AGOHOME);

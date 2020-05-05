@@ -3054,22 +3054,58 @@ void CommandSetGl646::move_to_ta(Genesys_Device* dev) const
  * @param data pointer for the data
  */
 static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                        Genesys_Settings settings, bool move, bool forward,
+                        Genesys_Settings settings, bool do_move, bool forward,
                         bool shading, std::vector<uint8_t>& data,
                         const char* scan_identifier)
 {
-    DBG_HELPER_ARGS(dbg, "move=%d, forward=%d, shading=%d", move, forward, shading);
+    DBG_HELPER_ARGS(dbg, "move=%d, forward=%d, shading=%d", do_move, forward, shading);
   unsigned int size, lines, x, y, bpp;
-    bool split;
 
   /* round up to multiple of 3 in case of CIS scanner */
     if (dev->model->is_cis) {
       settings.lines = ((settings.lines + 2) / 3) * 3;
     }
 
-  /* setup for move then scan */
-    split = !(move && settings.tl_y > 0);
-    setup_for_scan(dev, sensor, &dev->reg, settings, split, false, false, !forward);
+    auto* regs = &dev->reg;
+    // compute distance to move
+    float move = 0;
+    if (do_move && settings.tl_y > 0) {
+        move += settings.tl_y;
+
+        if (move < 0) {
+            DBG(DBG_error, "%s: overriding negative move value %f\n", __func__, move);
+            move = 0;
+        }
+    }
+    move = static_cast<float>((move * dev->motor.base_ydpi) / MM_PER_INCH);
+    DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
+
+    float start = settings.tl_x;
+    start = static_cast<float>((start * settings.xres) / MM_PER_INCH);
+
+    ScanSession session;
+    session.params.xres = settings.xres;
+    session.params.yres = settings.yres;
+    session.params.startx = static_cast<unsigned>(start);
+    session.params.starty = static_cast<unsigned>(move);
+    session.params.pixels = settings.pixels;
+    session.params.requested_pixels = settings.requested_pixels;
+    session.params.lines = settings.lines;
+    session.params.depth = settings.depth;
+    session.params.channels = settings.get_channels();
+    session.params.scan_method = dev->settings.scan_method;
+    session.params.scan_mode = settings.scan_mode;
+    session.params.color_filter = settings.color_filter;
+    session.params.flags = ScanFlag::NONE;
+    if (settings.scan_method == ScanMethod::TRANSPARENCY) {
+        session.params.flags |= ScanFlag::USE_XPA;
+    }
+    if (!forward) {
+        session.params.flags |= ScanFlag::REVERSE;
+    }
+    compute_session(dev, session, sensor);
+
+    dev->cmd_set->init_regs_for_scan_session(dev, sensor, regs, session);
 
   /* allocate memory fo scan : LINCNT may have been adjusted for CCD reordering */
     if (dev->model->is_cis) {

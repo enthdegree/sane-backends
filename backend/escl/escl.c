@@ -200,6 +200,32 @@ max_string_size(const SANE_String_Const strings[])
     return (max_size + 1);
 }
 
+static char *
+get_vendor(char *search)
+{
+	if(strcasestr(search, "Epson"))
+		return strdup("Epson");
+	else if(strcasestr(search, "Fujitsu"))
+		return strdup("Fujitsu");
+	else if(strcasestr(search, "HP"))
+		return strdup("HP");
+	else if(strcasestr(search, "IBM"))
+		return strdup("IBM");
+	else if(strcasestr(search, "Mustek"))
+		return strdup("Mustek");
+	else if(strcasestr(search, "Ricoh"))
+		return strdup("Ricoh");
+	else if(strcasestr(search, "Sharp"))
+		return strdup("Sharp");
+	else if(strcasestr(search, "UMAX"))
+		return strdup("UMAX");
+	else if(strcasestr(search, "PINT"))
+		return strdup("PINT");
+	else if(strcasestr(search, "Brother"))
+		return strdup("Brother");
+	return NULL;
+}
+
 /**
  * \fn static SANE_Device *convertFromESCLDev(ESCL_Device *cdev)
  * \brief Function that checks if the url of the received scanner is secured or not (http / https).
@@ -215,7 +241,7 @@ static SANE_Device *
 convertFromESCLDev(ESCL_Device *cdev)
 {
     char *tmp;
-    int len;
+    int len, lv = 0;
     char unix_path[PATH_MAX+7] = { 0 };
     SANE_Device *sdev = (SANE_Device*) calloc(1, sizeof(SANE_Device));
     if (!sdev) {
@@ -239,15 +265,20 @@ convertFromESCLDev(ESCL_Device *cdev)
     sdev->name = tmp;
 
     DBG( 1, "Escl add device : %s\n", tmp);
-    sdev->model = strdup(cdev->model_name);
-    if (!sdev->model) {
-       DBG (10, "Model allocation failure.\n");
-       goto freename;
-    }
-    sdev->vendor = strdup("ESCL");
+    sdev->vendor = get_vendor(cdev->model_name);
+
+    if (!sdev->vendor)
+       sdev->vendor = strdup("ESCL");
+    else
+       lv = strlen(sdev->vendor);
     if (!sdev->vendor) {
        DBG (10, "Vendor allocation failure.\n");
        goto freemodel;
+    }
+    sdev->model = strdup((lv + 1) + cdev->model_name);
+    if (!sdev->model) {
+       DBG (10, "Model allocation failure.\n");
+       goto freename;
     }
     sdev->type = strdup("flatbed scanner");
     if (!sdev->type) {

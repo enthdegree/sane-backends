@@ -3059,7 +3059,7 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                         const char* scan_identifier)
 {
     DBG_HELPER_ARGS(dbg, "move=%d, forward=%d, shading=%d", do_move, forward, shading);
-  unsigned int size, lines, x, y, bpp;
+    unsigned lines, bpp;
 
   /* round up to multiple of 3 in case of CIS scanner */
     if (dev->model->is_cis) {
@@ -3113,23 +3113,21 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
     } else {
         lines = dev->reg.get24(REG_LINCNT) + 1;
     }
-  size = lines * settings.pixels;
-    if (settings.depth == 16) {
+
+    std::size_t size = lines * session.params.pixels;
+    if (session.params.depth == 16) {
         bpp = 2;
     } else {
         bpp = 1;
     }
-    size *= bpp * settings.get_channels();
+    size *= bpp * session.params.channels;
   data.clear();
   data.resize(size);
 
-  DBG(DBG_io, "%s: allocated %d bytes of memory for %d lines\n", __func__, size, lines);
-
-  /* put back real line number in settings */
-  settings.lines = lines;
+    DBG(DBG_io, "%s: allocated %zu bytes of memory for %d lines\n", __func__, size, lines);
 
     // initialize frontend
-    gl646_set_fe(dev, sensor, AFE_SET, settings.xres);
+    gl646_set_fe(dev, sensor, AFE_SET, session.params.xres);
 
   /* no shading correction and not watch dog for simple scan */
     dev->reg.find_reg(0x01).value &= ~(REG_0x01_DVDSET | REG_0x01_DOGENB);
@@ -3151,7 +3149,7 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
     }
 
   /* no automatic go home when using XPA */
-  if (settings.scan_method == ScanMethod::TRANSPARENCY) {
+    if (session.params.scan_method == ScanMethod::TRANSPARENCY) {
         dev->reg.find_reg(0x02).value &= ~REG_0x02_AGOHOME;
     }
 
@@ -3172,46 +3170,38 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
     sanei_genesys_read_data_from_scanner(dev, data.data(), size);
 
   /* in case of CIS scanner, we must reorder data */
-    if (dev->model->is_cis && settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS) {
-      /* alloc one line sized working buffer */
-      std::vector<uint8_t> buffer(settings.pixels * 3 * bpp);
+    if (dev->model->is_cis && session.params.scan_mode == ScanColorMode::COLOR_SINGLE_PASS) {
+        auto pixels_count = session.params.pixels;
 
-      /* reorder one line of data and put it back to buffer */
-      if (bpp == 1)
-	{
-	  for (y = 0; y < lines; y++)
-	    {
-	      /* reorder line */
-	      for (x = 0; x < settings.pixels; x++)
-		{
-                  buffer[x * 3] = data[y * settings.pixels * 3 + x];
-                  buffer[x * 3 + 1] = data[y * settings.pixels * 3 + settings.pixels + x];
-                  buffer[x * 3 + 2] = data[y * settings.pixels * 3 + 2 * settings.pixels + x];
-		}
-	      /* copy line back */
-              memcpy (data.data() + settings.pixels * 3 * y, buffer.data(),
-		      settings.pixels * 3);
-	    }
-	}
-      else
-	{
-	  for (y = 0; y < lines; y++)
-	    {
-	      /* reorder line */
-	      for (x = 0; x < settings.pixels; x++)
-		{
-                  buffer[x * 6] = data[y * settings.pixels * 6 + x * 2];
-                  buffer[x * 6 + 1] = data[y * settings.pixels * 6 + x * 2 + 1];
-                  buffer[x * 6 + 2] = data[y * settings.pixels * 6 + 2 * settings.pixels + x * 2];
-                  buffer[x * 6 + 3] = data[y * settings.pixels * 6 + 2 * settings.pixels + x * 2 + 1];
-                  buffer[x * 6 + 4] = data[y * settings.pixels * 6 + 4 * settings.pixels + x * 2];
-                  buffer[x * 6 + 5] = data[y * settings.pixels * 6 + 4 * settings.pixels + x * 2 + 1];
-		}
-	      /* copy line back */
-              memcpy (data.data() + settings.pixels * 6 * y, buffer.data(),
-		      settings.pixels * 6);
-	    }
-	}
+        std::vector<uint8_t> buffer(pixels_count * 3 * bpp);
+
+        if (bpp == 1) {
+            for (unsigned y = 0; y < lines; y++) {
+                // reorder line
+                for (unsigned x = 0; x < pixels_count; x++) {
+                    buffer[x * 3] = data[y * pixels_count * 3 + x];
+                    buffer[x * 3 + 1] = data[y * pixels_count * 3 + pixels_count + x];
+                    buffer[x * 3 + 2] = data[y * pixels_count * 3 + 2 * pixels_count + x];
+                }
+                // copy line back
+                std::memcpy(data.data() + pixels_count * 3 * y, buffer.data(), pixels_count * 3);
+            }
+        } else {
+            for (unsigned y = 0; y < lines; y++) {
+                // reorder line
+                auto pixels_count = session.params.pixels;
+                for (unsigned x = 0; x < pixels_count; x++) {
+                    buffer[x * 6] = data[y * pixels_count * 6 + x * 2];
+                    buffer[x * 6 + 1] = data[y * pixels_count * 6 + x * 2 + 1];
+                    buffer[x * 6 + 2] = data[y * pixels_count * 6 + 2 * pixels_count + x * 2];
+                    buffer[x * 6 + 3] = data[y * pixels_count * 6 + 2 * pixels_count + x * 2 + 1];
+                    buffer[x * 6 + 4] = data[y * pixels_count * 6 + 4 * pixels_count + x * 2];
+                    buffer[x * 6 + 5] = data[y * pixels_count * 6 + 4 * pixels_count + x * 2 + 1];
+                }
+                // copy line back
+                std::memcpy(data.data() + pixels_count * 6 * y, buffer.data(),pixels_count * 6);
+            }
+        }
     }
 
     // end scan , waiting the motor to stop if needed (if moving), but without ejecting doc

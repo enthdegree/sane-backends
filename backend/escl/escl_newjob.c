@@ -205,8 +205,9 @@ escl_newjob (capabilities_t *scanner, const ESCL_Device *device, SANE_Status *st
         curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDSIZE, upload->size);
         curl_easy_setopt(curl_handle, CURLOPT_HEADERFUNCTION, download_callback);
         curl_easy_setopt(curl_handle, CURLOPT_HEADERDATA, (void *)download);
-        if (curl_easy_perform(curl_handle) != CURLE_OK) {
-            DBG( 1, "Create NewJob : the scanner responded incorrectly.\n");
+        CURLcode res = curl_easy_perform(curl_handle);
+        if (res != CURLE_OK) {
+            DBG( 1, "Create NewJob : the scanner responded incorrectly: %s\n", curl_easy_strerror(res));
             *status = SANE_STATUS_INVAL;
         }
         else {

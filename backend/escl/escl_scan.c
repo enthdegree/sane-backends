@@ -77,7 +77,9 @@ escl_scan(capabilities_t *scanner, const ESCL_Device *device, char *result)
         scanner->tmp = tmpfile();
         if (scanner->tmp != NULL) {
             curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, scanner->tmp);
-            if (curl_easy_perform(curl_handle) != CURLE_OK) {
+            CURLcode res = curl_easy_perform(curl_handle);
+            if (res != CURLE_OK) {
+                DBG( 1, "Unable to scan: %s\n", curl_easy_strerror(res));
                 status = SANE_STATUS_INVAL;
             }
             fseek(scanner->tmp, 0, SEEK_SET);

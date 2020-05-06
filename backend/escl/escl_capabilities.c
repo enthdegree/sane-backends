@@ -330,31 +330,22 @@ print_xml_c(xmlNode *node, capabilities_t *scanner, int type)
                 find_true_variables(node, scanner, type);
         }
 	if (!strcmp((const char *)node->name, "PlatenInputCaps")) {
-           scanner->Sources =
-                 char_to_array(scanner->Sources,
-                               &scanner->SourcesSize,
-                               (SANE_String_Const)SANE_I18N ("Flatbed"),
-                               0);
+           scanner->Sources[PLATEN] = (SANE_String_Const)strdup(SANE_I18N ("Flatbed"));
+           scanner->SourcesSize++;
 	   scanner->source = PLATEN;
            print_xml_c(node->children, scanner, PLATEN);
 	   scanner->caps[PLATEN].duplex = 0;
 	}
 	else if (!strcmp((const char *)node->name, "AdfSimplexInputCaps")) {
-           scanner->Sources =
-                 char_to_array(scanner->Sources,
-                               &scanner->SourcesSize,
-                               (SANE_String_Const)SANE_I18N("ADF"),
-                               0);
+           scanner->Sources[ADFSIMPLEX] = (SANE_String_Const)strdup(SANE_I18N("ADF"));
+           scanner->SourcesSize++;
 	   if (scanner->source == -1) scanner->source = ADFSIMPLEX;
            print_xml_c(node->children, scanner, ADFSIMPLEX);
 	   scanner->caps[ADFSIMPLEX].duplex = 0;
 	}
 	else if (!strcmp((const char *)node->name, "AdfDuplexInputCaps")) {
-           scanner->Sources =
-                 char_to_array(scanner->Sources,
-                               &scanner->SourcesSize,
-                               (SANE_String_Const)SANE_I18N ("ADF Duplex"),
-                               0);
+           scanner->Sources[ADFDUPLEX] = (SANE_String_Const)strdup(SANE_I18N ("ADF Duplex"));
+           scanner->SourcesSize++;
 	   if (scanner->source == -1) scanner->source = ADFDUPLEX;
            print_xml_c(node->children, scanner, ADFDUPLEX);
 	   scanner->caps[ADFDUPLEX].duplex = 1;
@@ -406,6 +397,7 @@ escl_capabilities(const ESCL_Device *device, SANE_Status *status)
     struct cap *var = NULL;
     xmlDoc *data = NULL;
     xmlNode *node = NULL;
+    int i = 0;
     const char *scanner_capabilities = "/eSCL/ScannerCapabilities";
 
     *status = SANE_STATUS_GOOD;
@@ -438,6 +430,9 @@ escl_capabilities(const ESCL_Device *device, SANE_Status *status)
     }
 
     scanner->source = 0;
+    scanner->Sources = (SANE_String_Const *)malloc(sizeof(SANE_String_Const) * 4);
+    for (i = 0; i < 4; i++)
+       scanner->Sources[i] = NULL;
     print_xml_c(node, scanner, -1);
     _reduce_color_modes(scanner);
 clean:

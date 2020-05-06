@@ -117,7 +117,7 @@ esci2_check_header(const char *cmd, const char *buf, unsigned int *more)
 		return 0;
 	}
 
-	err = sscanf(&buf[5], "%x#", more);
+	err = sscanf(&buf[5], "%7x#", more);
 	if (err != 1) {
 		DBG(1, "cannot decode length from header\n");
 		return 0;

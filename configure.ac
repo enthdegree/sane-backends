@@ -129,7 +129,7 @@ AC_ARG_WITH(v4l,
              # as "$with_v4l" will be set to "no"])
 
 if test "$with_v4l" != "no" ; then
-  PKG_CHECK_MODULES(LIBV4L, libv4l1, have_libv4l1=yes, have_libv4l1=no)
+  PKG_CHECK_MODULES(LIBV4L, [libv4l1 >= 0.8.3], have_libv4l1=yes, have_libv4l1=no)
 fi
 
 AC_ARG_WITH(avahi,

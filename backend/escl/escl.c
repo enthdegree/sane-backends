@@ -155,9 +155,23 @@ escl_device_add(int port_nb, const char *model_name, char *ip_address, char *typ
     ESCL_Device *current = NULL;
     DBG (10, "escl_device_add\n");
     for (current = list_devices_primary; current; current = current->next) {
-	if (strcmp(current->ip_address, ip_address) == 0 && current->port_nb == port_nb
-	    && strcmp(current->type, type) == 0)
-	    return (SANE_STATUS_GOOD);
+	if (strcmp(current->ip_address, ip_address) == 0)
+           {
+	      if (strcmp(current->type, type))
+                {
+                  if(!strcmp(type, "_uscans._tcp") ||
+                     !strcmp(type, "https"))
+                    {
+                       free (current->type);
+                       current->type = strdup(type);
+                       current->port_nb = port_nb;
+                       current->https = SANE_TRUE;
+                    }
+	          return (SANE_STATUS_GOOD);
+                }
+              else if (current->port_nb == port_nb)
+	        return (SANE_STATUS_GOOD);
+           }
     }
     current = (ESCL_Device*)calloc(1, sizeof(*current));
     if (current == NULL) {

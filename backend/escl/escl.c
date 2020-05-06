@@ -157,7 +157,6 @@ escl_device_add(int port_nb, const char *model_name, char *ip_address, char *typ
     for (current = list_devices_primary; current; current = current->next) {
 	if (strcmp(current->ip_address, ip_address) == 0)
            {
-    DBG (10, "escl_device_add IP[%s]->[%s]\n", current->ip_address, current->type, type);
 	      if (strcmp(current->type, type))
                 {
                   if(!strcmp(type, "_uscans._tcp") ||

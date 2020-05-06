@@ -412,8 +412,9 @@ escl_capabilities(const ESCL_Device *device, SANE_Status *status)
     escl_curl_url(curl_handle, device, scanner_capabilities);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, memory_callback_c);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)var);
-    if (curl_easy_perform(curl_handle) != CURLE_OK) {
-        DBG( 1, "The scanner didn't respond.\n");
+    CURLcode res = curl_easy_perform(curl_handle);
+    if (res != CURLE_OK) {
+        DBG( 1, "The scanner didn't respond: %s\n", curl_easy_strerror(res));
         *status = SANE_STATUS_INVAL;
         goto clean_data;
     }

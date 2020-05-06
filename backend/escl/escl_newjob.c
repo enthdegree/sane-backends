@@ -169,7 +169,7 @@ escl_newjob (capabilities_t *scanner, const ESCL_Device *device, SANE_Status *st
     }
     else
       format_ext = f_ext;
-    if(scanner->source > PLATEN) {
+    if(scanner->source > PLATEN && scanner->Sources[ADFDUPLEX]) {
        snprintf(duplex_mode, sizeof(duplex_mode),
 		       "   <scan:Duplex>%s</scan:Duplex>",
 		       scanner->source == ADFDUPLEX ? "true" : "false");

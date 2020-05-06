@@ -227,14 +227,21 @@ escl_newjob (capabilities_t *scanner, const ESCL_Device *device, SANE_Status *st
                        }
                     }
                     if (result == NULL) {
-                       DBG( 1, "Error : Create NewJob, no location\n");
-                       *status = SANE_STATUS_INVAL;
+                        DBG( 1, "Error : Create NewJob, no location: %s\n", download->memory);
+                        *status = SANE_STATUS_INVAL;
                     }
                     free(download->memory);
                 }
                 else {
-                    DBG( 1, "Create NewJob : The creation of the failed job\n");
-                    *status = SANE_STATUS_INVAL;
+                    DBG( 1, "Create NewJob : The creation of the failed job: %s\n", download->memory);
+                    // If "409 Conflict" appear it means that there is no paper in feeder
+                    if (strstr(download->memory, "409 Conflict") != NULL)
+                        *status = SANE_STATUS_NO_DOCS;
+                    // If "503 Service Unavailable" appear, it means that device is busy (scanning in progress)
+                    else if (strstr(download->memory, "503 Service Unavailable") != NULL)
+                        *status = SANE_STATUS_DEVICE_BUSY;
+                    else
+                        *status = SANE_STATUS_INVAL;
                 }
             }
             else {

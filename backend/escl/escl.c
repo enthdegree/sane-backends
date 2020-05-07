@@ -1149,8 +1149,7 @@ sane_read(SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *len)
         handler->scanner->img_data = NULL;
         if (handler->scanner->source != PLATEN) {
           SANE_Status st = escl_status(handler->device,
-                                       handler->scanner->source,
-                                       handler->result);
+                                       handler->scanner->source);
           DBG(10, "eSCL : command returned status %s\n", sane_strstatus(st));
           SANE_Bool next_page =
                 (SANE_STATUS_GOOD == st ?

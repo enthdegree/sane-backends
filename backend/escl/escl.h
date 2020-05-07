@@ -181,7 +181,7 @@ enum
 ESCL_Device *escl_devices(SANE_Status *status);
 SANE_Status escl_device_add(int port_nb, const char *model_name,
 		            char *ip_address, char *type);
-SANE_Status escl_status(const ESCL_Device *device, int source, char *jobid);
+SANE_Status escl_status(const ESCL_Device *device, int source);
 capabilities_t *escl_capabilities(const ESCL_Device *device, SANE_Status *status);
 char *escl_newjob(capabilities_t *scanner, const ESCL_Device *device,
 		  SANE_Status *status);

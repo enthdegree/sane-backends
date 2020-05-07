@@ -880,6 +880,11 @@ esci2_img(struct epsonds_scanner *s, SANE_Int *length)
 		return parse_status;
 	}
 
+	/* more data than was accounted for in s->buf */
+	if (more > s->bsz) {
+		return SANE_STATUS_IO_ERROR;
+	}
+
 	/* ALWAYS read image data */
 	if (s->hw->connection == SANE_EPSONDS_NET) {
 		epsonds_net_request_read(s, more);

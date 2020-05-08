@@ -74,18 +74,24 @@ escl_scan(capabilities_t *scanner, const ESCL_Device *device, char *result)
                  scan_jobs, result, scanner_start);
         escl_curl_url(curl_handle, device, scan_cmd);
         curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_callback);
+        if (scanner->tmp)
+            fclose(scanner->tmp);
         scanner->tmp = tmpfile();
         if (scanner->tmp != NULL) {
             curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, scanner->tmp);
             CURLcode res = curl_easy_perform(curl_handle);
             if (res != CURLE_OK) {
                 DBG( 1, "Unable to scan: %s\n", curl_easy_strerror(res));
+                fclose(scanner->tmp);
+                scanner->tmp = NULL;
                 status = SANE_STATUS_INVAL;
+		goto cleanup;
             }
             fseek(scanner->tmp, 0, SEEK_SET);
         }
         else
             status = SANE_STATUS_NO_MEM;
+cleanup:
         curl_easy_cleanup(curl_handle);
     }
     DBG(10, "eSCL scan : %s\n", sane_strstatus(status));

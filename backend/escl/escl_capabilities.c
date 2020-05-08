@@ -141,7 +141,7 @@ memory_callback_c(void *contents, size_t size, size_t nmemb, void *userp)
 
     char *str = realloc(mem->memory, mem->size + realsize + 1);
     if (str == NULL) {
-        fprintf(stderr, "not enough memory (realloc returned NULL)\n");
+        DBG(10, "not enough memory (realloc returned NULL)\n");
         return (0);
     }
     mem->memory = str;
@@ -442,6 +442,8 @@ clean_data:
     xmlCleanupParser();
     xmlMemoryDump();
     curl_easy_cleanup(curl_handle);
-    free(var->memory);
+    if (var)
+      free(var->memory);
+    free(var);
     return (scanner);
 }

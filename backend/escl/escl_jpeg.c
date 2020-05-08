@@ -120,7 +120,6 @@ jpeg_RW_src(j_decompress_ptr cinfo, FILE *ctx)
     if (cinfo->src == NULL) {
         cinfo->src = (struct jpeg_source_mgr *)(*cinfo->mem->alloc_small)
             ((j_common_ptr) cinfo, JPOOL_PERMANENT, sizeof(my_source_mgr));
-        src = (my_source_mgr *) cinfo->src;
     }
     src = (my_source_mgr *) cinfo->src;
     src->pub.init_source = init_source;

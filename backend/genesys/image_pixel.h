@@ -51,6 +51,7 @@
 
 namespace genesys {
 
+// 16-bit values are in host endian
 enum class PixelFormat
 {
     UNKNOWN,

@@ -81,7 +81,7 @@ static void gl646_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
 static void simple_move(Genesys_Device* dev, SANE_Int distance);
 
 static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                        const ScanSession& session, bool move, bool shading,
+                        const ScanSession& session, bool move,
                         std::vector<uint8_t>& data, const char* test_identifier);
 /**
  * Send the stop scan command
@@ -510,7 +510,7 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
   /* R01 */
   /* now setup other registers for final scan (ie with shading enabled) */
   /* watch dog + shading + scan enable */
-    regs->find_reg(0x01).value |= REG_0x01_DOGENB | REG_0x01_DVDSET | REG_0x01_SCAN;
+    regs->find_reg(0x01).value |= REG_0x01_DOGENB | REG_0x01_SCAN;
     if (dev->model->is_cis) {
         regs->find_reg(0x01).value |= REG_0x01_CISSET;
     } else {
@@ -518,8 +518,12 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     }
 
     // if device has no calibration, don't enable shading correction
-    if (has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION)) {
+    if (has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION) ||
+        has_flag(session.params.flags, ScanFlag::DISABLE_SHADING))
+    {
         regs->find_reg(0x01).value &= ~REG_0x01_DVDSET;
+    } else {
+        regs->find_reg(0x01).value |= REG_0x01_DVDSET;
     }
 
     regs->find_reg(0x01).value &= ~REG_0x01_FASTMOD;
@@ -2017,7 +2021,7 @@ SensorExposure CommandSetGl646::led_calibration(Genesys_Device* dev, const Genes
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = scan_mode;
     session.params.color_filter = ColorFilter::RED;
-    session.params.flags = ScanFlag::NONE;
+    session.params.flags = ScanFlag::DISABLE_SHADING;
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
         session.params.flags |= ScanFlag::USE_XPA;
     }
@@ -2051,9 +2055,8 @@ SensorExposure CommandSetGl646::led_calibration(Genesys_Device* dev, const Genes
 
       DBG(DBG_info, "%s: starting first line reading\n", __func__);
 
-
         dev->cmd_set->init_regs_for_scan_session(dev, calib_sensor, &dev->reg, session);
-        simple_scan(dev, calib_sensor, session, false, false, line, "led_calibration");
+        simple_scan(dev, calib_sensor, session, false, line, "led_calibration");
 
         if (is_testing_mode()) {
             return calib_sensor.exposure;
@@ -2200,7 +2203,7 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = ColorFilter::RED;
-    session.params.flags = ScanFlag::NONE;
+    session.params.flags = ScanFlag::DISABLE_SHADING;
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
         session.params.flags |= ScanFlag::USE_XPA;
     }
@@ -2223,7 +2226,7 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
       dev->frontend.set_offset(2, bottom);
 
         dev->cmd_set->init_regs_for_scan_session(dev, calib_sensor, &dev->reg, session);
-        simple_scan(dev, calib_sensor, session, false, false, line, "ad_fe_offset_calibration");
+        simple_scan(dev, calib_sensor, session, false, line, "ad_fe_offset_calibration");
 
         if (is_testing_mode()) {
             return;
@@ -2317,7 +2320,7 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = ColorFilter::RED;
-    session.params.flags = ScanFlag::NONE;
+    session.params.flags = ScanFlag::DISABLE_SHADING;
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
         session.params.flags |= ScanFlag::USE_XPA;
     }
@@ -2338,7 +2341,7 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
   std::vector<uint8_t> first_line, second_line;
 
     dev->cmd_set->init_regs_for_scan_session(dev, sensor, &dev->reg, session);
-    simple_scan(dev, calib_sensor, session, false, false, first_line, "offset_first_line");
+    simple_scan(dev, calib_sensor, session, false, first_line, "offset_first_line");
 
     if (DBG_LEVEL >= DBG_data) {
       char title[30];
@@ -2354,7 +2357,7 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
   dev->frontend.set_offset(1, top);
   dev->frontend.set_offset(2, top);
     dev->cmd_set->init_regs_for_scan_session(dev, calib_sensor, &dev->reg, session);
-    simple_scan(dev, calib_sensor, session, false, false, second_line, "offset_second_line");
+    simple_scan(dev, calib_sensor, session, false, second_line, "offset_second_line");
 
     if (DBG_LEVEL >= DBG_data) {
       char title[30];
@@ -2380,7 +2383,7 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
         // scan with no move
         dev->cmd_set->init_regs_for_scan_session(dev, calib_sensor, &dev->reg, session);
-        simple_scan(dev, calib_sensor, session, false, false, second_line,
+        simple_scan(dev, calib_sensor, session, false, second_line,
                     "offset_calibration_i");
 
         if (DBG_LEVEL >= DBG_data) {
@@ -2451,7 +2454,7 @@ static void ad_fe_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = ColorFilter::RED;
-    session.params.flags = ScanFlag::NONE;
+    session.params.flags = ScanFlag::DISABLE_SHADING;
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
         session.params.flags |= ScanFlag::USE_XPA;
     }
@@ -2474,7 +2477,7 @@ static void ad_fe_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
 
         // scan with no move
         dev->cmd_set->init_regs_for_scan_session(dev, calib_sensor, &dev->reg, session);
-        simple_scan(dev, calib_sensor, session, false, false, line,
+        simple_scan(dev, calib_sensor, session, false, line,
                     "ad_fe_coarse_gain_calibration");
 
       /* log scanning data */
@@ -2577,7 +2580,7 @@ void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = ColorFilter::RED;
-    session.params.flags = ScanFlag::NONE;
+    session.params.flags = ScanFlag::DISABLE_SHADING;
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
         session.params.flags |= ScanFlag::USE_XPA;
     }
@@ -2619,7 +2622,7 @@ void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     {
         // scan with no move
         dev->cmd_set->init_regs_for_scan_session(dev, calib_sensor, &dev->reg, session);
-        simple_scan(dev, calib_sensor, session, false, false, line, "coarse_gain_calibration");
+        simple_scan(dev, calib_sensor, session, false, line, "coarse_gain_calibration");
 
       /* log scanning data */
       if (DBG_LEVEL >= DBG_data)
@@ -2957,7 +2960,7 @@ void CommandSetGl646::move_to_ta(Genesys_Device* dev) const
 
 static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                         const ScanSession& session, bool move,
-                        bool shading, std::vector<uint8_t>& data, const char* scan_identifier)
+                        std::vector<uint8_t>& data, const char* scan_identifier)
 {
     unsigned lines, bpp;
 
@@ -2983,11 +2986,8 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
     // initialize frontend
     gl646_set_fe(dev, sensor, AFE_SET, session.params.xres);
 
-  /* no shading correction and not watch dog for simple scan */
-    dev->reg.find_reg(0x01).value &= ~(REG_0x01_DVDSET | REG_0x01_DOGENB);
-    if (shading) {
-      dev->reg.find_reg(0x01).value |= REG_0x01_DVDSET;
-    }
+    // no watch dog for simple scan
+    dev->reg.find_reg(0x01).value &= ~REG_0x01_DOGENB;
 
   /* enable gamma table for the scan */
     dev->reg.find_reg(0x05).value |= REG_0x05_GMMENB;
@@ -3108,7 +3108,7 @@ static void simple_move(Genesys_Device* dev, SANE_Int distance)
     dev->cmd_set->init_regs_for_scan_session(dev, sensor, regs, session);
 
     std::vector<uint8_t> data;
-    simple_scan(dev, sensor, session, true, false, data, "simple_move");
+    simple_scan(dev, sensor, session, true, data, "simple_move");
 }
 
 /**

@@ -1148,18 +1148,25 @@ sane_read(SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *len)
         free(handler->scanner->img_data);
         handler->scanner->img_data = NULL;
         if (handler->scanner->source != PLATEN) {
+	  SANE_Bool next_page = SANE_FALSE;
           SANE_Status st = escl_status(handler->device,
                                        handler->scanner->source);
           DBG(10, "eSCL : command returned status %s\n", sane_strstatus(st));
-          SANE_Bool next_page =
-                (SANE_STATUS_GOOD == st ?
-                       SANE_TRUE :
-                       SANE_FALSE);
-           handler->scanner->work = next_page;
-           handler->ps.last_frame = !next_page;
-           if (handler->ps.last_frame == SANE_TRUE)
+	  // Thank's Alexander Pevzner (pzz@apevzner.com)
+	  switch (status) {
+             case SANE_STATUS_GOOD:
+             case SANE_STATUS_UNSUPPORTED:
+             case SANE_STATUS_DEVICE_BUSY:
+                DBG(10, "eSCL : next page\n");
+	        next_page = SANE_TRUE;
+             default:
+                break;
+          }
+          handler->scanner->work = next_page;
+          handler->ps.last_frame = !next_page;
+          if (handler->ps.last_frame == SANE_TRUE)
               status = SANE_STATUS_NO_DOCS;
-           else
+          else
               status = SANE_STATUS_EOF;
         }
         else

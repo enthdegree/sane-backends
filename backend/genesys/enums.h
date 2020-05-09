@@ -507,6 +507,9 @@ enum class ModelFlag : unsigned
     // the head must be reparked between shading scans
     SHADING_REPARK = 1 << 18,
 
+    // the scanner outputs inverted pixel data
+    INVERT_PIXEL_DATA = 1 << 19,
+
     // the scanner outputs 16-bit data that is byte-inverted
     SWAP_16BIT_DATA = 1 << 20,
 

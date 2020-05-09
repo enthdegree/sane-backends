@@ -544,6 +544,10 @@ Image read_unshuffled_image_from_scanner(Genesys_Device* dev, const ScanSession&
         pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
     }
 
+    if (has_flag(dev->model->flags, ModelFlag::INVERT_PIXEL_DATA)) {
+        pipeline.push_node<ImagePipelineNodeInvert>();
+    }
+
 #ifdef WORDS_BIGENDIAN
     if (session.params.depth == 16) {
         pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
@@ -1190,6 +1194,10 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
         dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
                                                         std::to_string(s_pipeline_index) +
                                                         "_1_after_swap.pnm");
+    }
+
+    if (has_flag(dev->model->flags, ModelFlag::INVERT_PIXEL_DATA)) {
+        dev->pipeline.push_node<ImagePipelineNodeInvert>();
     }
 
     if (dev->model->is_cis && session.params.channels == 3) {

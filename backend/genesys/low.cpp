@@ -1704,11 +1704,11 @@ const MotorProfile& get_motor_profile(const std::vector<MotorProfile>& profiles,
     return *profile;
 }
 
-MotorSlopeTable sanei_genesys_slope_table(AsicType asic_type, int dpi, int exposure, int base_dpi,
-                                          unsigned step_multiplier,
-                                          const MotorProfile& motor_profile)
+MotorSlopeTable create_slope_table(AsicType asic_type, const Genesys_Motor& motor, unsigned ydpi,
+                                   unsigned exposure, unsigned step_multiplier,
+                                   const MotorProfile& motor_profile)
 {
-    unsigned target_speed_w = ((exposure * dpi) / base_dpi);
+    unsigned target_speed_w = ((exposure * ydpi) / motor.base_ydpi);
 
     auto table = create_slope_table_for_speed(motor_profile.slope, target_speed_w,
                                               motor_profile.step_type,

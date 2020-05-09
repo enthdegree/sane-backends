@@ -383,9 +383,9 @@ const MotorProfile& get_motor_profile(const std::vector<MotorProfile>& profiles,
                                       unsigned exposure,
                                       const ScanSession& session);
 
-MotorSlopeTable sanei_genesys_slope_table(AsicType asic_type, int dpi, int exposure, int base_dpi,
-                                          unsigned step_multiplier,
-                                          const MotorProfile& motor_profile);
+MotorSlopeTable create_slope_table(AsicType asic_type, const Genesys_Motor& motor, unsigned ydpi,
+                                   unsigned exposure, unsigned step_multiplier,
+                                   const MotorProfile& motor_profile);
 
 MotorSlopeTable create_slope_table_fastest(AsicType asic_type, unsigned step_multiplier,
                                            const MotorProfile& motor_profile);

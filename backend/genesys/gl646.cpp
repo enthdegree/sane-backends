@@ -1883,7 +1883,7 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = dev->settings.color_filter;
-    session.params.flags = ScanFlag::NONE;
+    session.params.flags = ScanFlag::DISABLE_SHADING;
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
         session.params.flags |= ScanFlag::USE_XPA;
     }
@@ -1894,7 +1894,6 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     dev->calib_session = session;
 
   /* no shading */
-    dev->reg.find_reg(0x01).value &= ~REG_0x01_DVDSET;
     dev->reg.find_reg(0x02).value |= REG_0x02_ACDCDIS;	/* ease backtracking */
     dev->reg.find_reg(0x02).value &= ~REG_0x02_FASTFED;
     dev->reg.find_reg(0x05).value &= ~REG_0x05_GMMENB;

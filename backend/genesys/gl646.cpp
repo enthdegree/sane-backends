@@ -3072,7 +3072,6 @@ static void simple_move(Genesys_Device* dev, SANE_Int distance)
 
     const auto& sensor = sanei_genesys_find_sensor(dev, resolution, 3, dev->model->default_method);
 
-    // TODO give a no AGOHOME flag
     unsigned lines = static_cast<unsigned>((distance * resolution) / MM_PER_INCH);
 
     // round up to multiple of 3 in case of CIS scanner
@@ -3094,7 +3093,7 @@ static void simple_move(Genesys_Device* dev, SANE_Int distance)
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = ColorFilter::RED;
-    session.params.flags = ScanFlag::AUTO_GO_HOME;
+    session.params.flags = ScanFlag::NONE;
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
         session.params.flags |= ScanFlag::USE_XPA;
     }

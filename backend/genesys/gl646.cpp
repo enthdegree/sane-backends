@@ -2718,7 +2718,7 @@ void CommandSetGl646::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::GRAY;
     session.params.color_filter =  ColorFilter::RED;
-    session.params.flags = ScanFlag::NONE;
+    session.params.flags = ScanFlag::DISABLE_SHADING;
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
         session.params.flags |= ScanFlag::USE_XPA;
     }
@@ -2728,9 +2728,6 @@ void CommandSetGl646::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
 
   /* we are not going to move, so clear these bits */
     dev->reg.find_reg(0x02).value &= ~(REG_0x02_FASTFED | REG_0x02_AGOHOME);
-
-  /* don't enable any correction for this scan */
-    dev->reg.find_reg(0x01).value &= ~REG_0x01_DVDSET;
 
   /* copy to local_reg */
   *local_reg = dev->reg;

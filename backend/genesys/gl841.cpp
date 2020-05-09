@@ -685,7 +685,6 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
     unsigned int slow_time;
     unsigned int feedl;
     unsigned int min_restep = 0x20;
-    uint32_t z1, z2;
 
     fast_exposure = gl841_exposure_time(dev, sensor,
                                         dev->motor.base_ydpi / 4,
@@ -867,16 +866,8 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
    z1 = (slope_0_time-1) % exposure_time;
    z2 = (slope_0_time-1) % exposure_time;
 */
-    z1 = z2 = 0;
-
-    DBG(DBG_info, "%s: z1 = %d\n", __func__, z1);
-    DBG(DBG_info, "%s: z2 = %d\n", __func__, z2);
-    reg->set8(0x60, ((z1 >> 16) & 0xff));
-    reg->set8(0x61, ((z1 >> 8) & 0xff));
-    reg->set8(0x62, (z1 & 0xff));
-    reg->set8(0x63, ((z2 >> 16) & 0xff));
-    reg->set8(0x64, ((z2 >> 8) & 0xff));
-    reg->set8(0x65, (z2 & 0xff));
+    reg->set24(REG_0x60, 0);
+    reg->set24(REG_0x63, 0);
     reg->find_reg(REG_0x1E).value &= REG_0x1E_WDTIME;
     reg->find_reg(REG_0x1E).value |= scan_dummy;
     reg->set8(0x67, 0x3f | (static_cast<unsigned>(scan_step_type) << 6));
@@ -1108,34 +1099,6 @@ void CommandSetGl841::init_regs_for_scan_session(Genesys_Device* dev, const Gene
 
   int slope_dpi = 0;
   int dummy = 0;
-
-/*
-results:
-
-for scanner:
-start
-end
-dpiset
-exposure_time
-dummy
-z1
-z2
-
-for ordered_read:
-  dev->words_per_line
-  dev->read_factor
-  dev->requested_buffer_size
-  dev->read_buffer_size
-  dev->read_pos
-  dev->read_bytes_in_buffer
-  dev->read_bytes_left
-  dev->max_shift
-  dev->stagger
-
-independent of our calculated values:
-  dev->total_bytes_read
-  dev->bytes_to_read
- */
 
 /* dummy */
   /* dummy lines: may not be usefull, for instance 250 dpi works with 0 or 1

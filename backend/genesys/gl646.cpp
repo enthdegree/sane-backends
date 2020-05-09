@@ -1891,7 +1891,9 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = dev->settings.color_filter;
     session.params.flags = ScanFlag::DISABLE_SHADING |
-                           ScanFlag::DISABLE_GAMMA;
+                           ScanFlag::DISABLE_GAMMA |
+                           ScanFlag::IGNORE_COLOR_OFFSET |
+                           ScanFlag::IGNORE_STAGGER_OFFSET;
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
         session.params.flags |= ScanFlag::USE_XPA;
     }
@@ -1905,14 +1907,6 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     dev->reg.find_reg(0x02).value |= REG_0x02_ACDCDIS;	/* ease backtracking */
     dev->reg.find_reg(0x02).value &= ~REG_0x02_FASTFED;
   sanei_genesys_set_motor_power(dev->reg, false);
-
-  /* TODO another flag to setup regs ? */
-  /* enforce needed LINCNT, getting rid of extra lines for color reordering */
-    if (!dev->model->is_cis) {
-        dev->reg.set24(REG_LINCNT, calib_lines);
-    } else {
-        dev->reg.set24(REG_LINCNT, calib_lines * 3);
-    }
 
     DBG(DBG_info, "%s:\n\tdev->settings.xres=%d\n\tdev->settings.yres=%d\n", __func__,
         resolution, resolution);
@@ -2962,21 +2956,14 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                         const ScanSession& session, bool move,
                         std::vector<uint8_t>& data, const char* scan_identifier)
 {
-    unsigned lines, bpp;
-
-    // allocate memory fo scan : LINCNT may have been adjusted for CCD reordering
-    if (dev->model->is_cis) {
-        lines = dev->reg.get24(REG_LINCNT) / 3;
-    } else {
-        lines = dev->reg.get24(REG_LINCNT) + 1;
+    unsigned lines = session.output_line_count;
+    if (!dev->model->is_cis) {
+        lines++;
     }
 
     std::size_t size = lines * session.params.pixels;
-    if (session.params.depth == 16) {
-        bpp = 2;
-    } else {
-        bpp = 1;
-    }
+    unsigned bpp = session.params.depth == 16 ? 2 : 1;
+
     size *= bpp * session.params.channels;
   data.clear();
   data.resize(size);

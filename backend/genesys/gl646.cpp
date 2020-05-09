@@ -609,7 +609,13 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
         regs->find_reg(0x05).value |= REG_0x05_GMM14BIT;
     }
 
-    regs->find_reg(0x05).value &= ~REG_0x05_GMMENB;
+    if (!has_flag(session.params.flags, ScanFlag::DISABLE_GAMMA) &&
+        session.params.depth < 16)
+    {
+        regs->find_reg(REG_0x05).value |= REG_0x05_GMMENB;
+    } else {
+        regs->find_reg(REG_0x05).value &= ~REG_0x05_GMMENB;
+    }
 
   /* true CIS gray if needed */
     if (dev->model->is_cis && session.params.channels == 1 && dev->settings.true_gray) {
@@ -1763,7 +1769,8 @@ void CommandSetGl646::move_back_home(Genesys_Device* dev, bool wait_until_home) 
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = ColorFilter::RED;
     session.params.flags = ScanFlag::REVERSE |
-                           ScanFlag::AUTO_GO_HOME;
+                           ScanFlag::AUTO_GO_HOME |
+                           ScanFlag::DISABLE_GAMMA;
     if (dev->model->default_method == ScanMethod::TRANSPARENCY) {
         session.params.flags |= ScanFlag::USE_XPA;
     }
@@ -1883,7 +1890,8 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = dev->settings.color_filter;
-    session.params.flags = ScanFlag::DISABLE_SHADING;
+    session.params.flags = ScanFlag::DISABLE_SHADING |
+                           ScanFlag::DISABLE_GAMMA;
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
         session.params.flags |= ScanFlag::USE_XPA;
     }
@@ -1896,7 +1904,6 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   /* no shading */
     dev->reg.find_reg(0x02).value |= REG_0x02_ACDCDIS;	/* ease backtracking */
     dev->reg.find_reg(0x02).value &= ~REG_0x02_FASTFED;
-    dev->reg.find_reg(0x05).value &= ~REG_0x05_GMMENB;
   sanei_genesys_set_motor_power(dev->reg, false);
 
   /* TODO another flag to setup regs ? */
@@ -1932,11 +1939,6 @@ void CommandSetGl646::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     ScanSession session = calculate_scan_session(dev, sensor, dev->settings);
 
     init_regs_for_scan_session(dev, sensor, &regs, session);
-
-  /* gamma is only enabled at final scan time */
-    if (dev->settings.depth < 16) {
-        regs.find_reg(0x05).value |= REG_0x05_GMMENB;
-    }
 }
 
 /**
@@ -2718,7 +2720,8 @@ void CommandSetGl646::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::GRAY;
     session.params.color_filter =  ColorFilter::RED;
-    session.params.flags = ScanFlag::DISABLE_SHADING;
+    session.params.flags = ScanFlag::DISABLE_SHADING |
+                           ScanFlag::DISABLE_GAMMA;
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
         session.params.flags |= ScanFlag::USE_XPA;
     }
@@ -2985,9 +2988,6 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
 
     // no watch dog for simple scan
     dev->reg.find_reg(0x01).value &= ~REG_0x01_DOGENB;
-
-  /* enable gamma table for the scan */
-    dev->reg.find_reg(0x05).value |= REG_0x05_GMMENB;
 
   /* one table movement for simple scan */
     dev->reg.find_reg(0x02).value &= ~REG_0x02_FASTFED;

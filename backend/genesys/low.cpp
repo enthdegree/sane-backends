@@ -1710,19 +1710,20 @@ MotorSlopeTable sanei_genesys_slope_table(AsicType asic_type, int dpi, int expos
 {
     unsigned target_speed_w = ((exposure * dpi) / base_dpi);
 
-    auto table = create_slope_table(motor_profile.slope, target_speed_w, motor_profile.step_type,
-                                    step_multiplier, 2 * step_multiplier,
-                                    get_slope_table_max_size(asic_type));
+    auto table = create_slope_table_for_speed(motor_profile.slope, target_speed_w,
+                                              motor_profile.step_type,
+                                              step_multiplier, 2 * step_multiplier,
+                                              get_slope_table_max_size(asic_type));
     return table;
 }
 
 MotorSlopeTable create_slope_table_fastest(AsicType asic_type, unsigned step_multiplier,
                                            const MotorProfile& motor_profile)
 {
-    return create_slope_table(motor_profile.slope, motor_profile.slope.max_speed_w,
-                              motor_profile.step_type,
-                              step_multiplier, 2 * step_multiplier,
-                              get_slope_table_max_size(asic_type));
+    return create_slope_table_for_speed(motor_profile.slope, motor_profile.slope.max_speed_w,
+                                        motor_profile.step_type,
+                                        step_multiplier, 2 * step_multiplier,
+                                        get_slope_table_max_size(asic_type));
 }
 
 /** @brief returns the lowest possible ydpi for the device

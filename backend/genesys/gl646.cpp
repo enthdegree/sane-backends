@@ -502,10 +502,12 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     scanner_setup_sensor(*dev, sensor, *regs);
 
   /* now generate slope tables : we are not using generate_slope_table3 yet */
-    auto slope_table1 = create_slope_table(motor->slope1, motor->slope1.max_speed_w, StepType::FULL,
-                                           1, 4, get_slope_table_max_size(AsicType::GL646));
-    auto slope_table2 = create_slope_table(motor->slope2, motor->slope2.max_speed_w, StepType::FULL,
-                                           1, 4, get_slope_table_max_size(AsicType::GL646));
+    auto slope_table1 = create_slope_table_for_speed(motor->slope1, motor->slope1.max_speed_w,
+                                                     StepType::FULL, 1, 4,
+                                                     get_slope_table_max_size(AsicType::GL646));
+    auto slope_table2 = create_slope_table_for_speed(motor->slope2, motor->slope2.max_speed_w,
+                                                     StepType::FULL, 1, 4,
+                                                     get_slope_table_max_size(AsicType::GL646));
 
   /* R01 */
   /* now setup other registers for final scan (ie with shading enabled) */
@@ -1436,9 +1438,9 @@ void CommandSetGl646::load_document(Genesys_Device* dev) const
   regs.init_reg(0x24, 4);
 
   /* generate slope table 2 */
-    auto slope_table = create_slope_table(MotorSlope::create_from_steps(6000, 2400, 50), 2400,
-                                          StepType::FULL, 1, 4,
-                                          get_slope_table_max_size(AsicType::GL646));
+    auto slope_table = create_slope_table_for_speed(MotorSlope::create_from_steps(6000, 2400, 50),
+                                                    2400, StepType::FULL, 1, 4,
+                                                    get_slope_table_max_size(AsicType::GL646));
     // document loading:
     // send regs
     // start motor
@@ -1593,9 +1595,9 @@ void CommandSetGl646::eject_document(Genesys_Device* dev) const
   regs.init_reg(0x24, 4);
 
   /* generate slope table 2 */
-    auto slope_table = create_slope_table(MotorSlope::create_from_steps(10000, 1600, 60), 1600,
-                                          StepType::FULL, 1, 4,
-                                          get_slope_table_max_size(AsicType::GL646));
+    auto slope_table = create_slope_table_for_speed(MotorSlope::create_from_steps(10000, 1600, 60),
+                                                    1600, StepType::FULL, 1, 4,
+                                                    get_slope_table_max_size(AsicType::GL646));
     // document eject:
     // send regs
     // start motor

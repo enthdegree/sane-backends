@@ -358,8 +358,8 @@ MotorSlopeTable sanei_genesys_create_slope_table3(AsicType asic_type, const Gene
 {
     unsigned target_speed_w = (exposure_time * yres) / motor.base_ydpi;
 
-    return create_slope_table(motor.get_slope_with_step_type(step_type), target_speed_w,
-                              step_type, 1, 1, get_slope_table_max_size(asic_type));
+    return create_slope_table_for_speed(motor.get_slope_with_step_type(step_type), target_speed_w,
+                                        step_type, 1, 1, get_slope_table_max_size(asic_type));
 }
 
 /** @brief computes gamma table

@@ -189,7 +189,7 @@ escl_status(const ESCL_Device *device, int source)
     print_xml_platen_and_adf_status(node, &platen, &adf);
     if (platen == SANE_STATUS_DEVICE_BUSY &&
         adf == SANE_STATUS_NO_DOCS) {
-        status = SANE_STATUS_NO_DOCS;
+        status = SANE_STATUS_GOOD;
     } else if (platen != SANE_STATUS_GOOD &&
         platen != SANE_STATUS_UNSUPPORTED) {
         status = platen;

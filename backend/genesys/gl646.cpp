@@ -572,7 +572,7 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
       break;
     }
 
-    if (dev->model->is_sheetfed) {
+    if (dev->model->is_sheetfed || !has_flag(session.params.flags, ScanFlag::AUTO_GO_HOME)) {
         regs->find_reg(0x02).value &= ~REG_0x02_AGOHOME;
     } else {
         regs->find_reg(0x02).value |= REG_0x02_AGOHOME;
@@ -1762,7 +1762,8 @@ void CommandSetGl646::move_back_home(Genesys_Device* dev, bool wait_until_home) 
     session.params.scan_method = dev->model->default_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = ColorFilter::RED;
-    session.params.flags = ScanFlag::REVERSE;
+    session.params.flags = ScanFlag::REVERSE |
+                           ScanFlag::AUTO_GO_HOME;
     if (dev->model->default_method == ScanMethod::TRANSPARENCY) {
         session.params.flags |= ScanFlag::USE_XPA;
     }
@@ -1895,7 +1896,7 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   /* no shading */
     dev->reg.find_reg(0x01).value &= ~REG_0x01_DVDSET;
     dev->reg.find_reg(0x02).value |= REG_0x02_ACDCDIS;	/* ease backtracking */
-    dev->reg.find_reg(0x02).value &= ~(REG_0x02_FASTFED | REG_0x02_AGOHOME);
+    dev->reg.find_reg(0x02).value &= ~REG_0x02_FASTFED;
     dev->reg.find_reg(0x05).value &= ~REG_0x05_GMMENB;
   sanei_genesys_set_motor_power(dev->reg, false);
 
@@ -2727,7 +2728,7 @@ void CommandSetGl646::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     dev->cmd_set->init_regs_for_scan_session(dev, local_sensor, &dev->reg, session);
 
   /* we are not going to move, so clear these bits */
-    dev->reg.find_reg(0x02).value &= ~(REG_0x02_FASTFED | REG_0x02_AGOHOME);
+    dev->reg.find_reg(0x02).value &= ~REG_0x02_FASTFED;
 
   /* copy to local_reg */
   *local_reg = dev->reg;
@@ -2771,7 +2772,7 @@ static void gl646_repark_head(Genesys_Device* dev)
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = ColorFilter::RED;
-    session.params.flags = ScanFlag::NONE;
+    session.params.flags = ScanFlag::AUTO_GO_HOME;
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
         session.params.flags |= ScanFlag::USE_XPA;
     }
@@ -2993,10 +2994,7 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
     dev->reg.find_reg(0x02).value &= ~REG_0x02_FASTFED;
 
     if (!move) {
-      sanei_genesys_set_motor_power(dev->reg, false);
-
-      /* no automatic go home if no movement */
-        dev->reg.find_reg(0x02).value &= ~REG_0x02_AGOHOME;
+        sanei_genesys_set_motor_power(dev->reg, false);
     }
 
   /* no automatic go home when using XPA */
@@ -3096,7 +3094,7 @@ static void simple_move(Genesys_Device* dev, SANE_Int distance)
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
     session.params.color_filter = ColorFilter::RED;
-    session.params.flags = ScanFlag::NONE;
+    session.params.flags = ScanFlag::AUTO_GO_HOME;
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
         session.params.flags |= ScanFlag::USE_XPA;
     }
@@ -3341,7 +3339,7 @@ ScanSession CommandSetGl646::calculate_scan_session(const Genesys_Device* dev,
     session.params.scan_method = dev->settings.scan_method;
     session.params.scan_mode = settings.scan_mode;
     session.params.color_filter = settings.color_filter;
-    session.params.flags = ScanFlag::NONE;
+    session.params.flags = ScanFlag::AUTO_GO_HOME;
     if (settings.scan_method == ScanMethod::TRANSPARENCY) {
         session.params.flags |= ScanFlag::USE_XPA;
     }

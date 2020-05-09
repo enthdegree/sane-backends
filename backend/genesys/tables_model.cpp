@@ -2376,7 +2376,7 @@ void genesys_init_usb_device_tables()
                   ModelFlag::CUSTOM_GAMMA |
                   ModelFlag::DARK_CALIBRATION |
                   ModelFlag::SHADING_REPARK |
-                  ModelFlag::INVERTED_16BIT_DATA;
+                  ModelFlag::SWAP_16BIT_DATA;
 
     model.search_lines = 200;
     s_usb_devices->emplace_back(0x07b3, 0x0c04, model);

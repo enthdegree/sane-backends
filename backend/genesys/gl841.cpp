@@ -664,10 +664,9 @@ static void gl841_init_motor_regs_feed(Genesys_Device* dev, const Genesys_Sensor
 }
 
 static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                       Genesys_Register_Set* reg,
+                                       Genesys_Register_Set* reg, const MotorProfile& motor_profile,
                                        unsigned int scan_exposure_time,/*pixel*/
                                        unsigned scan_yres, // dpi, motor resolution
-                                       StepType scan_step_type,
                                        unsigned int scan_lines,/*lines, scan resolution*/
                                        unsigned int scan_dummy,
                                        // number of scan lines to add in a scan_lines line
@@ -677,7 +676,7 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
 {
     DBG_HELPER_ARGS(dbg, "scan_exposure_time=%d, scan_yres=%d, scan_step_type=%d, scan_lines=%d,"
                          " scan_dummy=%d, feed_steps=%d, flags=%x",
-                    scan_exposure_time, scan_yres, static_cast<unsigned>(scan_step_type),
+                    scan_exposure_time, scan_yres, static_cast<unsigned>(motor_profile.step_type),
                     scan_lines, scan_dummy, feed_steps, static_cast<unsigned>(flags));
     unsigned int fast_exposure;
     int use_fast_fed = 0;
@@ -716,15 +715,15 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
  */
 
     auto slow_table = sanei_genesys_create_slope_table3(dev->model->asic_type, dev->motor,
-                                                        scan_step_type, scan_exposure_time,
-                                                        scan_yres);
+                                                        motor_profile.step_type,
+                                                        scan_exposure_time, scan_yres);
 
     auto back_table = sanei_genesys_create_slope_table3(dev->model->asic_type, dev->motor,
-                                                        scan_step_type, 0, scan_yres);
+                                                        motor_profile.step_type, 0, scan_yres);
 
-    if (feed_steps < (slow_table.steps_count >> static_cast<unsigned>(scan_step_type))) {
+    if (feed_steps < (slow_table.steps_count >> static_cast<unsigned>(motor_profile.step_type))) {
 	/*TODO: what should we do here?? go back to exposure calculation?*/
-        feed_steps = slow_table.steps_count >> static_cast<unsigned>(scan_step_type);
+        feed_steps = slow_table.steps_count >> static_cast<unsigned>(motor_profile.step_type);
     }
 
     auto fast_table = sanei_genesys_create_slope_table3(dev->model->asic_type, dev->motor,
@@ -732,9 +731,9 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
                                                         dev->motor.base_ydpi / 4);
 
     unsigned max_fast_slope_steps_count = 1;
-    if (feed_steps > (slow_table.steps_count >> static_cast<unsigned>(scan_step_type)) + 2) {
+    if (feed_steps > (slow_table.steps_count >> static_cast<unsigned>(motor_profile.step_type)) + 2) {
         max_fast_slope_steps_count = (feed_steps -
-            (slow_table.steps_count >> static_cast<unsigned>(scan_step_type))) / 2;
+            (slow_table.steps_count >> static_cast<unsigned>(motor_profile.step_type))) / 2;
     }
 
     if (fast_table.steps_count > max_fast_slope_steps_count) {
@@ -750,7 +749,7 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
 	use_fast_fed = 0;
       }
     else if (feed_steps < fast_table.steps_count * 2 +
-             (slow_table.steps_count >> static_cast<unsigned>(scan_step_type)))
+             (slow_table.steps_count >> static_cast<unsigned>(motor_profile.step_type)))
     {
         use_fast_fed = 0;
         DBG(DBG_info, "%s: feed too short, slow move forced.\n", __func__);
@@ -766,11 +765,11 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
 	fast_time =
 	    fast_exposure / 4 *
         (feed_steps - fast_table.steps_count*2 -
-         (slow_table.steps_count >> static_cast<unsigned>(scan_step_type)))
+         (slow_table.steps_count >> static_cast<unsigned>(motor_profile.step_type)))
         + fast_table.pixeltime_sum*2 + slow_table.pixeltime_sum;
 	slow_time =
 	    (scan_exposure_time * scan_yres) / dev->motor.base_ydpi *
-        (feed_steps - (slow_table.steps_count >> static_cast<unsigned>(scan_step_type)))
+        (feed_steps - (slow_table.steps_count >> static_cast<unsigned>(motor_profile.step_type)))
         + slow_table.pixeltime_sum;
 
 	DBG(DBG_info, "%s: Time for slow move: %d\n", __func__, slow_time);
@@ -781,11 +780,11 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
 
     if (use_fast_fed) {
         feedl = feed_steps - fast_table.steps_count * 2 -
-                (slow_table.steps_count >> static_cast<unsigned>(scan_step_type));
-    } else if ((feed_steps << static_cast<unsigned>(scan_step_type)) < slow_table.steps_count) {
+                (slow_table.steps_count >> static_cast<unsigned>(motor_profile.step_type));
+    } else if ((feed_steps << static_cast<unsigned>(motor_profile.step_type)) < slow_table.steps_count) {
         feedl = 0;
     } else {
-        feedl = (feed_steps << static_cast<unsigned>(scan_step_type)) - slow_table.steps_count;
+        feedl = (feed_steps << static_cast<unsigned>(motor_profile.step_type)) - slow_table.steps_count;
     }
     DBG(DBG_info, "%s: Decided to use %s mode\n", __func__, use_fast_fed?"fast feed":"slow feed");
 
@@ -870,7 +869,7 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
     reg->set24(REG_0x63, 0);
     reg->find_reg(REG_0x1E).value &= REG_0x1E_WDTIME;
     reg->find_reg(REG_0x1E).value |= scan_dummy;
-    reg->set8(0x67, 0x3f | (static_cast<unsigned>(scan_step_type) << 6));
+    reg->set8(0x67, 0x3f | (static_cast<unsigned>(motor_profile.step_type) << 6));
     reg->set8(0x68, 0x3f);
     reg->set8(REG_STEPNO, (slow_table.steps_count >> 1) + (slow_table.steps_count & 1));
     reg->set8(REG_FASTNO, (back_table.steps_count >> 1) + (back_table.steps_count & 1));
@@ -1056,37 +1055,6 @@ int led_exposure;
   return exposure_time;
 }
 
-/**@brief compute scan_step_type
- * Try to do at least 4 steps per line. if that is impossible we will have to
- * live with that.
- * @param dev device
- * @param yres motor resolution
- */
-static StepType gl841_scan_step_type(Genesys_Device *dev, int yres)
-{
-    StepType type = StepType::FULL;
-
-  /* TODO : check if there is a bug around the use of max_step_type   */
-  /* should be <=1, need to chek all devices entry in genesys_devices */
-    if (yres * 4 < dev->motor.base_ydpi || dev->motor.max_step_type() == StepType::FULL) {
-        type = StepType::FULL;
-    } else if (yres * 4 < dev->motor.base_ydpi * 2 ||
-               dev->motor.max_step_type() <= StepType::HALF)
-    {
-        type = StepType::HALF;
-    } else {
-        type = StepType::QUARTER;
-    }
-
-  /* this motor behaves differently */
-    if (dev->model->motor_id==MotorId::CANON_LIDE_80) {
-        // driven by 'frequency' tables ?
-        type = StepType::FULL;
-    }
-
-    return type;
-}
-
 void CommandSetGl841::init_regs_for_scan_session(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                                  Genesys_Register_Set* reg,
                                                  const ScanSession& session) const
@@ -1138,10 +1106,11 @@ dummy \ scanned lines
 
   slope_dpi = slope_dpi * (1 + dummy);
 
-    StepType scan_step_type = gl841_scan_step_type(dev, session.params.yres);
+    const auto& motor_profile = get_motor_profile(dev->motor.profiles, 0, session);
+
     exposure_time = gl841_exposure_time(dev, sensor,
                     slope_dpi,
-                    scan_step_type,
+                                        motor_profile.step_type,
                                         session.pixel_startx,
                                         session.optical_pixels);
   DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
@@ -1166,7 +1135,7 @@ dummy \ scanned lines
     if (has_flag(session.params.flags, ScanFlag::SINGLE_LINE)) {
         gl841_init_motor_regs_off(reg, session.optical_line_count);
     } else {
-        gl841_init_motor_regs_scan(dev, sensor, reg, exposure_time, slope_dpi, scan_step_type,
+        gl841_init_motor_regs_scan(dev, sensor, reg, motor_profile, exposure_time, slope_dpi,
                                    session.optical_line_count, dummy, move, session.params.flags);
   }
 

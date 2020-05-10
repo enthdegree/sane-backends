@@ -2521,8 +2521,6 @@ void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     DBG_HELPER(dbg);
     (void) dpi;
 
-    unsigned val, maximum, idx;
-  unsigned count, pass;
   float average[3];
   char title[32];
 
@@ -2581,27 +2579,11 @@ void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys
   dev->frontend.set_gain(1, 1);
   dev->frontend.set_gain(2, 1);
 
-  if (channels > 1)
-    {
-      average[0] = 0;
-      average[1] = 0;
-      average[2] = 0;
-      idx = 0;
-    }
-  else
-    {
-      average[0] = 255;
-      average[1] = 255;
-      average[2] = 255;
-        switch (dev->settings.color_filter) {
-            case ColorFilter::RED: idx = 0; break;
-            case ColorFilter::GREEN: idx = 1; break;
-            case ColorFilter::BLUE: idx = 2; break;
-            default: idx = 0; break; // should not happen
-        }
-      average[idx] = 0;
-    }
-  pass = 0;
+    average[0] = 0;
+    average[1] = 0;
+    average[2] = 0;
+
+    unsigned pass = 0;
 
   std::vector<uint8_t> line;
 
@@ -2625,15 +2607,14 @@ void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys
       /* average high level for each channel and compute gain
          to reach the target code
          we only use the central half of the CCD data         */
-        for (unsigned k = idx; k < idx + channels; k++) {
+        for (unsigned k = 0; k < channels; k++) {
 	  /* we find the maximum white value, so we can deduce a threshold
 	     to average white values */
-	  maximum = 0;
+            unsigned maximum = 0;
             for (unsigned i = 0; i < lines; i++) {
                 for (unsigned j = 0; j < pixels; j++) {
-          val = line[i * channels * pixels + j + k];
-		  if (val > maximum)
-		    maximum = val;
+                    unsigned val = line[i * channels * pixels + j + k];
+                    maximum = std::max(maximum, val);
                 }
             }
 
@@ -2642,11 +2623,11 @@ void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 
 	  /* computes white average */
 	  average[k] = 0;
-	  count = 0;
+            unsigned count = 0;
             for (unsigned i = 0; i < lines; i++) {
                 for (unsigned j = 0; j < pixels; j++) {
 		  /* averaging only white points allow us not to care about dark margins */
-          val = line[i * channels * pixels + j + k];
+                    unsigned val = line[i * channels * pixels + j + k];
 		  if (val > maximum)
 		    {
 		      average[k] += val;
@@ -2663,11 +2644,6 @@ void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 	  DBG(DBG_proc, "%s: channel %d, average = %.2f, gain = %d\n", __func__, k, average[k],
               dev->frontend.get_gain(k));
 	}
-    }
-
-    if (channels < 3) {
-        dev->frontend.set_gain(1, dev->frontend.get_gain(0));
-        dev->frontend.set_gain(2, dev->frontend.get_gain(0));
     }
 
   DBG(DBG_info, "%s: gains=(%d,%d,%d)\n", __func__,

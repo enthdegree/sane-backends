@@ -2597,66 +2597,6 @@ void CommandSetGl646::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     gl646_set_fe(dev, local_sensor, AFE_SET, session.params.xres);
 }
 
-
-/*
- * this function moves head without scanning, forward, then backward
- * so that the head goes to park position.
- * as a by-product, also check for lock
- */
-static void gl646_repark_head(Genesys_Device* dev)
-{
-    DBG_HELPER(dbg);
-    unsigned resolution = dev->model->get_resolution_settings(dev->model->default_method)
-                                     .get_min_resolution_y();
-
-    const auto& sensor = sanei_genesys_find_sensor(dev, resolution, 3,
-                                                   dev->model->default_method);
-
-    float move = 5.0f;
-    move = static_cast<float>((move * dev->motor.base_ydpi) / MM_PER_INCH);
-    DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
-
-    ScanSession session;
-    session.params.xres = resolution;
-    session.params.yres = resolution;
-    session.params.startx = 0;
-    session.params.starty = static_cast<unsigned>(move);
-    session.params.pixels = 600;
-    session.params.lines = 4;
-    session.params.depth = 8;
-    session.params.channels = 3;
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-    session.params.color_filter = ColorFilter::RED;
-    session.params.flags = ScanFlag::AUTO_GO_HOME;
-    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
-        session.params.flags |= ScanFlag::USE_XPA;
-    }
-    compute_session(dev, session, sensor);
-
-    dev->cmd_set->init_regs_for_scan_session(dev, sensor, &dev->reg, session);
-
-  /* TODO seems wrong ... no effective scan */
-    regs_set_optical_off(dev->model->asic_type, dev->reg);
-
-    dev->interface->write_registers(dev->reg);
-
-    // start scan
-    dev->cmd_set->begin_scan(dev, sensor, &dev->reg, true);
-
-    unsigned steps = 0;
-    unsigned expected = dev->reg.get24(REG_FEEDL);
-  do
-    {
-        dev->interface->sleep_ms(100);
-        sanei_genesys_read_feed_steps (dev, &steps);
-    }
-  while (steps < expected);
-
-    // toggle motor flag, put an huge step number and redo move backward
-    dev->cmd_set->move_back_home(dev, 1);
-}
-
 /* *
  * initialize ASIC : registers, motor tables, and gamma tables
  * then ensure scanner's head is at home
@@ -2792,13 +2732,7 @@ void CommandSetGl646::init(Genesys_Device* dev) const
 
   /* ensure head is correctly parked, and check lock */
     if (!dev->model->is_sheetfed) {
-        if (has_flag(dev->model->flags, ModelFlag::REPARK)) {
-            // FIXME: if repark fails, we should print an error message that the scanner is locked and
-            // the user should unlock the lock. We should also rethrow with SANE_STATUS_JAMMED
-            gl646_repark_head(dev);
-        } else {
-            move_back_home(dev, true);
-        }
+        move_back_home(dev, true);
     }
 
   /* here session and device are initialized */

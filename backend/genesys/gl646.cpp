@@ -1761,7 +1761,6 @@ void CommandSetGl646::move_back_home(Genesys_Device* dev, bool wait_until_home) 
     session.params.startx = 0;
     session.params.starty = 65535;
     session.params.pixels = 600;
-    session.params.requested_pixels = 600;
     session.params.lines = 1;
     session.params.depth = 8;
     session.params.channels = 3;
@@ -1883,7 +1882,6 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     session.params.startx = 0;
     session.params.starty = 0;
     session.params.pixels = pixels;
-    session.params.requested_pixels = pixels;
     session.params.lines = calib_lines;
     session.params.depth = 16;
     session.params.channels = channels;
@@ -2192,7 +2190,6 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
     session.params.startx = 0;
     session.params.starty = 0;
     session.params.pixels = pixels;
-    session.params.requested_pixels = pixels;
     session.params.lines = lines;
     session.params.depth = 8;
     session.params.channels = 3;
@@ -2309,7 +2306,6 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     session.params.startx = 0;
     session.params.starty = 0;
     session.params.pixels = pixels;
-    session.params.requested_pixels = pixels;
     session.params.lines = lines;
     session.params.depth = 8;
     session.params.channels = channels;
@@ -2443,7 +2439,6 @@ static void ad_fe_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sen
     session.params.startx = 0;
     session.params.starty = 0;
     session.params.pixels = pixels;
-    session.params.requested_pixels = pixels;
     session.params.lines = lines;
     session.params.depth = 8;
     session.params.channels = 3;
@@ -2569,7 +2564,6 @@ void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys
     session.params.startx = static_cast<unsigned>(start);
     session.params.starty = 0;
     session.params.pixels = pixels;
-    session.params.requested_pixels = pixels;
     session.params.lines = lines;
     session.params.depth = 8;
     session.params.channels = channels;
@@ -2707,7 +2701,6 @@ void CommandSetGl646::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     session.params.startx = 0;
     session.params.starty = 0;
     session.params.pixels = pixels;
-    session.params.requested_pixels = pixels;
     session.params.lines = 2;
     session.params.depth = dev->model->bpp_gray_values.front();
     session.params.channels = 1;
@@ -2761,7 +2754,6 @@ static void gl646_repark_head(Genesys_Device* dev)
     session.params.startx = 0;
     session.params.starty = static_cast<unsigned>(move);
     session.params.pixels = 600;
-    session.params.requested_pixels = 600;
     session.params.lines = 4;
     session.params.depth = 8;
     session.params.channels = 3;

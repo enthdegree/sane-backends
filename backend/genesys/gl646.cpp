@@ -2406,108 +2406,6 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
       dev->frontend.get_offset(2));
 }
 
-/** @brief gain calibration for Analog Device frontends
- * Alternative coarse gain calibration
- */
-static void ad_fe_coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                          Genesys_Register_Set& regs, int dpi)
-{
-    DBG_HELPER(dbg);
-    (void) sensor;
-    (void) regs;
-
-  unsigned int i, channels, val;
-  unsigned count, pass;
-  float average;
-  char title[32];
-
-  /* setup for a RGB scan, one full sensor's width line */
-  /* resolution is the one from the final scan          */
-  channels = 3;
-    const auto& calib_sensor = sanei_genesys_find_sensor(dev, dpi, 3, ScanMethod::FLATBED);
-
-    unsigned pixels = dev->model->x_size_calib_mm * dpi / MM_PER_INCH;
-
-    unsigned lines = CALIBRATION_LINES;
-    if (dev->model->is_cis) {
-        lines = ((lines + 2) / 3) * 3;
-    }
-
-    ScanSession session;
-    session.params.xres = dpi;
-    session.params.yres = dpi;
-    session.params.startx = 0;
-    session.params.starty = 0;
-    session.params.pixels = pixels;
-    session.params.lines = lines;
-    session.params.depth = 8;
-    session.params.channels = 3;
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-    session.params.color_filter = ColorFilter::RED;
-    session.params.flags = ScanFlag::DISABLE_SHADING;
-    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
-        session.params.flags |= ScanFlag::USE_XPA;
-    }
-    compute_session(dev, session, calib_sensor);
-
-    std::size_t size = channels * pixels * lines;
-
-  /* start gain value */
-  dev->frontend.set_gain(0, 1);
-  dev->frontend.set_gain(1, 1);
-  dev->frontend.set_gain(2, 1);
-
-  average = 0;
-  pass = 0;
-
-  std::vector<uint8_t> line;
-
-    // loop until each channel raises to acceptable level
-    while ((average < calib_sensor.gain_white_ref) && (pass < 30)) {
-
-        // scan with no move
-        dev->cmd_set->init_regs_for_scan_session(dev, calib_sensor, &dev->reg, session);
-        simple_scan(dev, calib_sensor, session, false, line,
-                    "ad_fe_coarse_gain_calibration");
-
-      /* log scanning data */
-        if (DBG_LEVEL >= DBG_data) {
-            std::sprintf(title, "gl646_alternative_gain%02d.pnm", pass);
-            sanei_genesys_write_pnm_file(title, line.data(), 8, channels, pixels, lines);
-        }
-      pass++;
-
-      /* computes white average */
-      average = 0;
-      count = 0;
-      for (i = 0; i < size; i++)
-	{
-	  val = line[i];
-	  average += val;
-	  count++;
-	}
-      average = average / count;
-
-        uint8_t gain0 = dev->frontend.get_gain(0);
-        // adjusts gain for the channel
-        if (average < calib_sensor.gain_white_ref) {
-            gain0 += 1;
-        }
-
-        dev->frontend.set_gain(0, gain0);
-        dev->frontend.set_gain(1, gain0);
-        dev->frontend.set_gain(2, gain0);
-
-      DBG(DBG_proc, "%s: average = %.2f, gain = %d\n", __func__, average, gain0);
-    }
-
-  DBG(DBG_info, "%s: gains=(%d,%d,%d)\n", __func__,
-      dev->frontend.get_gain(0),
-      dev->frontend.get_gain(1),
-      dev->frontend.get_gain(2));
-}
-
 /**
  * Alternative coarse gain calibration
  * this on uses the settings from offset_calibration. First scan moves so
@@ -2520,14 +2418,11 @@ void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys
 {
     DBG_HELPER(dbg);
     (void) dpi;
+    (void) sensor;
+    (void) regs;
 
   float average[3];
   char title[32];
-
-    if (dev->model->sensor_id == SensorId::CIS_XP200) {
-        ad_fe_coarse_gain_calibration(dev, sensor, regs, sensor.optical_res);
-        return;
-    }
 
   /* setup for a RGB scan, one full sensor's width line */
   /* resolution is the one from the final scan          */
@@ -2596,20 +2491,18 @@ void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys
         dev->cmd_set->init_regs_for_scan_session(dev, calib_sensor, &dev->reg, session);
         simple_scan(dev, calib_sensor, session, false, line, "coarse_gain_calibration");
 
-      /* log scanning data */
-      if (DBG_LEVEL >= DBG_data)
-	{
-          std::sprintf(title, "gl646_gain%02d.pnm", pass);
-          sanei_genesys_write_pnm_file(title, line.data(), 8, channels, pixels, lines);
-	}
-      pass++;
+        if (DBG_LEVEL >= DBG_data) {
+            std::sprintf(title, "gl646_gain%02d.pnm", pass);
+            sanei_genesys_write_pnm_file(title, line.data(), 8, channels, pixels, lines);
+        }
+        pass++;
 
-      /* average high level for each channel and compute gain
-         to reach the target code
-         we only use the central half of the CCD data         */
+        // average high level for each channel and compute gain to reach the target code
+        // we only use the central half of the CCD data
         for (unsigned k = 0; k < channels; k++) {
-	  /* we find the maximum white value, so we can deduce a threshold
-	     to average white values */
+
+            // we find the maximum white value, so we can deduce a threshold
+            // to average white values
             unsigned maximum = 0;
             for (unsigned i = 0; i < lines; i++) {
                 for (unsigned j = 0; j < pixels; j++) {
@@ -2618,38 +2511,37 @@ void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys
                 }
             }
 
-	  /* threshold */
             maximum = static_cast<int>(maximum * 0.9);
 
-	  /* computes white average */
-	  average[k] = 0;
+            // computes white average
+            average[k] = 0;
             unsigned count = 0;
             for (unsigned i = 0; i < lines; i++) {
                 for (unsigned j = 0; j < pixels; j++) {
-		  /* averaging only white points allow us not to care about dark margins */
+                    // averaging only white points allow us not to care about dark margins
                     unsigned val = line[i * channels * pixels + j + k];
-		  if (val > maximum)
-		    {
-		      average[k] += val;
-		      count++;
-		    }
+                    if (val > maximum) {
+                        average[k] += val;
+                        count++;
+                    }
                 }
             }
-	  average[k] = average[k] / count;
+            average[k] = average[k] / count;
 
-	  /* adjusts gain for the channel */
-          if (average[k] < calib_sensor.gain_white_ref)
-            dev->frontend.set_gain(k, dev->frontend.get_gain(k) + 1);
+            // adjusts gain for the channel
+            if (average[k] < calib_sensor.gain_white_ref) {
+                dev->frontend.set_gain(k, dev->frontend.get_gain(k) + 1);
+            }
 
-	  DBG(DBG_proc, "%s: channel %d, average = %.2f, gain = %d\n", __func__, k, average[k],
-              dev->frontend.get_gain(k));
-	}
+            DBG(DBG_proc, "%s: channel %d, average = %.2f, gain = %d\n", __func__, k, average[k],
+                dev->frontend.get_gain(k));
+        }
     }
 
-  DBG(DBG_info, "%s: gains=(%d,%d,%d)\n", __func__,
-      dev->frontend.get_gain(0),
-      dev->frontend.get_gain(1),
-      dev->frontend.get_gain(2));
+    DBG(DBG_info, "%s: gains=(%d,%d,%d)\n", __func__,
+        dev->frontend.get_gain(0),
+        dev->frontend.get_gain(1),
+        dev->frontend.get_gain(2));
 }
 
 /**

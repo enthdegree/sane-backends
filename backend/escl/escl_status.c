@@ -84,7 +84,36 @@ find_nodes_s(xmlNode *node)
 }
 
 static void
-print_xml_platen_and_adf_status(xmlNode *node, SANE_Status *platen, SANE_Status *adf)
+print_xml_job_status(xmlNode *node,
+                     SANE_Status *job)
+{
+    while (node) {
+        if (node->type == XML_ELEMENT_NODE) {
+            if (find_nodes_s(node)) {
+                if (strcmp((const char *)node->name, "JobState") == 0) {
+                    const char *state = (const char *)xmlNodeGetContent(node);
+					if (!strcmp(state, "Processing")) {
+                        *job = SANE_STATUS_DEVICE_BUSY;
+                        DBG(10, "jobId Processing SANE_STATUS_DEVICE_BUSY\n");
+					}
+					if (!strcmp(state, "Completed")) {
+                        *job = SANE_STATUS_GOOD;
+                        DBG(10, "jobId Completed SANE_STATUS_GOOD\n");
+					}
+                }
+            }
+        }
+        print_xml_job_status(node->children, job);
+        node = node->next;
+    }
+}
+
+static void
+print_xml_platen_and_adf_status(xmlNode *node,
+                                SANE_Status *platen,
+                                SANE_Status *adf,
+                                const char* jobId,
+                                SANE_Status *job)
 {
     while (node) {
         if (node->type == XML_ELEMENT_NODE) {
@@ -104,7 +133,7 @@ print_xml_platen_and_adf_status(xmlNode *node, SANE_Status *platen, SANE_Status 
                     }
                 }
                 // Thank's Alexander Pevzner (pzz@apevzner.com)
-                else if (strcmp((const char *)node->name, "AdfState") == 0) {
+                else if (adf && strcmp((const char *)node->name, "AdfState") == 0) {
                     const char *state = (const char *)xmlNodeGetContent(node);
                     if (!strcmp(state, "ScannerAdfLoaded")){
 			DBG(10, "ScannerAdfLoaded SANE_STATUS_GOOD\n");
@@ -128,9 +157,18 @@ print_xml_platen_and_adf_status(xmlNode *node, SANE_Status *platen, SANE_Status 
                         *adf = SANE_STATUS_UNSUPPORTED;
                     }
                 }
+                else if (jobId && job && strcmp((const char *)node->name, "JobUri") == 0) {
+                    if (strstr((const char *)xmlNodeGetContent(node), jobId)) {
+						print_xml_job_status(node, job);
+					}
+                }
             }
         }
-        print_xml_platen_and_adf_status(node->children, platen, adf);
+        print_xml_platen_and_adf_status(node->children,
+                                        platen,
+                                        adf,
+                                        jobId,
+                                        job);
         node = node->next;
     }
 }
@@ -144,7 +182,10 @@ print_xml_platen_and_adf_status(xmlNode *node, SANE_Status *platen, SANE_Status 
  * \return status (if everything is OK, status = SANE_STATUS_GOOD, otherwise, SANE_STATUS_NO_MEM/SANE_STATUS_INVAL)
  */
 SANE_Status
-escl_status(const ESCL_Device *device, int source)
+escl_status(const ESCL_Device *device,
+            int source,
+            const char* jobId,
+            SANE_Status *job)
 {
     SANE_Status status = SANE_STATUS_DEVICE_BUSY;
     SANE_Status platen= SANE_STATUS_DEVICE_BUSY;
@@ -186,7 +227,7 @@ escl_status(const ESCL_Device *device, int source)
     }
     /* Decode Job status */
     // Thank's Alexander Pevzner (pzz@apevzner.com)
-    print_xml_platen_and_adf_status(node, &platen, &adf);
+    print_xml_platen_and_adf_status(node, &platen, &adf, jobId, job);
     if (platen != SANE_STATUS_GOOD &&
         platen != SANE_STATUS_UNSUPPORTED) {
         status = platen;

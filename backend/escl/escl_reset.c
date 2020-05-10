@@ -70,7 +70,10 @@ CURL_CALL:
             if (i >= 15) return;
         }
         curl_easy_cleanup(curl_handle);
-        if (SANE_STATUS_GOOD != escl_status(device, PLATEN))
+        if (SANE_STATUS_GOOD != escl_status(device,
+                                            PLATEN,
+                                            NULL,
+                                            NULL))
             goto CURL_CALL;
     }
 }

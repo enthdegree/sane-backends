@@ -1148,17 +1148,17 @@ sane_read(SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *len)
         free(handler->scanner->img_data);
         handler->scanner->img_data = NULL;
         if (handler->scanner->source != PLATEN) {
-	  SANE_Bool next_page = SANE_FALSE;
+	      SANE_Bool next_page = SANE_FALSE;
           SANE_Status st = escl_status(handler->device,
                                        handler->scanner->source);
           DBG(10, "eSCL : command returned status %s\n", sane_strstatus(st));
-	  // Thank's Alexander Pevzner (pzz@apevzner.com)
-	  switch (status) {
+	      // Thank's Alexander Pevzner (pzz@apevzner.com)
+	      switch (st) {
              case SANE_STATUS_GOOD:
              case SANE_STATUS_UNSUPPORTED:
              case SANE_STATUS_DEVICE_BUSY:
                 DBG(10, "eSCL : next page\n");
-	        next_page = SANE_TRUE;
+	            next_page = SANE_TRUE;
              default:
                 break;
           }

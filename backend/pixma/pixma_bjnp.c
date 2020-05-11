@@ -1799,7 +1799,7 @@ bjnp_allocate_device (SANE_String_Const devname,
   if (result != 0 )
     {
       PDBG (bjnp_dbg (LOG_CRIT, "bjnp_allocate_device: ERROR - Cannot resolve host: %s port %s\n", host, port));
-      return SANE_STATUS_INVAL;
+      return BJNP_STATUS_INVAL;
     }
 
   /* Check if a device number is already allocated to any of the scanner's addresses */

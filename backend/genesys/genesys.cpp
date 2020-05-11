@@ -2158,11 +2158,19 @@ SensorExposure scanner_led_calibration(Genesys_Device& dev, const Genesys_Sensor
         {
             for (unsigned i = 0; i < 3; i++) {
                 if (avg[i] < bottom[i]) {
-                    exp[i] = (exp[i] * bottom[i]) / avg[i];
+                    if (avg[i] != 0) {
+                        exp[i] = (exp[i] * bottom[i]) / avg[i];
+                    } else {
+                        exp[i] *= 10;
+                    }
                     acceptable = false;
                 }
                 if (avg[i] > top[i]) {
-                    exp[i] = (exp[i] * top[i]) / avg[i];
+                    if (avg[i] != 0) {
+                        exp[i] = (exp[i] * top[i]) / avg[i];
+                    } else {
+                        exp[i] *= 10;
+                    }
                     acceptable = false;
                 }
             }
@@ -2170,7 +2178,12 @@ SensorExposure scanner_led_calibration(Genesys_Device& dev, const Genesys_Sensor
             for (unsigned i = 0; i < 3; i++) {
                 if (avg[i] < bottom[i] || avg[i] > top[i]) {
                     auto target = (bottom[i] + top[i]) / 2;
-                    exp[i] = (exp[i] * target) / avg[i];
+                    if (avg[i] != 0) {
+                        exp[i] = (exp[i] * target) / avg[i];
+                    } else {
+                        exp[i] *= 10;
+                    }
+
                     acceptable = false;
                 }
             }
@@ -2179,7 +2192,11 @@ SensorExposure scanner_led_calibration(Genesys_Device& dev, const Genesys_Sensor
                 // we accept +- 2% delta from target
                 if (std::abs(avg[i] - target) > target / 50) {
                     float prev_weight = 0.5;
-                    exp[i] = exp[i] * prev_weight + ((exp[i] * target) / avg[i]) * (1 - prev_weight);
+                    if (avg[i] != 0) {
+                        exp[i] = exp[i] * prev_weight + ((exp[i] * target) / avg[i]) * (1 - prev_weight);
+                    } else {
+                        exp[i] = exp[i] * prev_weight + (exp[i] * 10) * (1 - prev_weight);
+                    }
                     acceptable = false;
                 }
             }

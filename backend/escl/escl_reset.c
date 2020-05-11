@@ -31,6 +31,15 @@
 
 #include <curl/curl.h>
 
+static size_t
+write_callback(void __sane_unused__*str,
+               size_t __sane_unused__ size,
+               size_t nmemb,
+               void __sane_unused__ *userp)
+{
+    return nmemb;
+}
+
 /**
  * \fn void escl_scanner(const ESCL_Device *device, char *result)
  * \brief Function that resets the scanner after each scan, using curl.
@@ -54,13 +63,17 @@ CURL_CALL:
         snprintf(scan_cmd, sizeof(scan_cmd), "%s%s%s",
                  scan_jobs, result, scanner_start);
         escl_curl_url(curl_handle, device, scan_cmd);
+        curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_callback);
         if (curl_easy_perform(curl_handle) == CURLE_OK) {
             curl_easy_getinfo(curl_handle, CURLINFO_RESPONSE_CODE, &answer);
             i++;
             if (i >= 15) return;
         }
         curl_easy_cleanup(curl_handle);
-        if (SANE_STATUS_GOOD != escl_status(device, PLATEN, result))
+        if (SANE_STATUS_GOOD != escl_status(device,
+                                            PLATEN,
+                                            NULL,
+                                            NULL))
             goto CURL_CALL;
     }
 }

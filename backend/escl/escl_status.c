@@ -85,8 +85,7 @@ find_nodes_s(xmlNode *node)
 
 static void
 print_xml_job_status(xmlNode *node,
-                     SANE_Status *processing,
-                     SANE_Status *complete,
+                     SANE_Status *job,
                      int *image)
 {
     while (node) {
@@ -94,49 +93,33 @@ print_xml_job_status(xmlNode *node,
             if (find_nodes_s(node)) {
                 if (strcmp((const char *)node->name, "JobState") == 0) {
                     const char *state = (const char *)xmlNodeGetContent(node);
-					if (!strcmp(state, "Processing")) {
-                        *processing = SANE_STATUS_GOOD;
-					}
-					if (!strcmp(state, "Completed")) {
-                        *complete = SANE_STATUS_GOOD;
-					}
-                }
-                else if (strcmp((const char *)node->name, "ImagesToTransfer") == 0) {
-                    const char *state = (const char *)xmlNodeGetContent(node);
-                    *image = atoi(state);
+                    if (!strcmp(state, "Processing")) {
+                        *job = SANE_STATUS_DEVICE_BUSY;
+                        DBG(10, "jobId Processing SANE_STATUS_DEVICE_BUSY\n");
+                    }
+                    else if (!strcmp(state, "Completed")) {
+                        *job = SANE_STATUS_GOOD;
+                        DBG(10, "jobId Completed SANE_STATUS_GOOD\n");
+                    }
+                    else if (strcmp((const char *)node->name, "ImagesToTransfer") == 0) {
+	                const char *state = (const char *)xmlNodeGetContent(node);
+	                *image = atoi(state);
+	            }
                 }
             }
         }
-        print_xml_job_status(node->children, processing, complete, image);
+        print_xml_job_status(node->children, job, image);
         node = node->next;
     }
 }
 
 static void
-print_xml_feeder_status(xmlNode *node,
-                        const char *job,
-                        SANE_Status *processing,
-                        SANE_Status *complete,
-                        int *image)
-{
-    while (node) {
-        if (node->type == XML_ELEMENT_NODE) {
-            if (find_nodes_s(node)) {
-                if (strcmp((const char *)node->name, "JobUri") == 0) {
-                    if (strstr((const char *)xmlNodeGetContent(node), job)) {
-						print_xml_job_status(node, processing, complete, image);
-						return;
-					}
-                }
-            }
-        }
-        print_xml_feeder_status(node->children, job, processing, complete, image);
-        node = node->next;
-    }
-}
-
-static void
-print_xml_platen_status(xmlNode *node, SANE_Status *status)
+print_xml_platen_and_adf_status(xmlNode *node,
+                                SANE_Status *platen,
+                                SANE_Status *adf,
+                                const char* jobId,
+                                SANE_Status *job,
+                                int *image)
 {
     while (node) {
         if (node->type == XML_ELEMENT_NODE) {
@@ -145,19 +128,54 @@ print_xml_platen_status(xmlNode *node, SANE_Status *status)
 					printf ("State\t");
                     const char *state = (const char *)xmlNodeGetContent(node);
                     if (!strcmp(state, "Idle")) {
-						printf("Idle SANE_STATUS_GOOD\n");
-                        *status = SANE_STATUS_GOOD;
+			DBG(10, "Idle SANE_STATUS_GOOD\n");
+                        *platen = SANE_STATUS_GOOD;
                     } else if (!strcmp(state, "Processing")) {
-						printf("Processing SANE_STATUS_DEVICE_BUSY\n");
-                        *status = SANE_STATUS_DEVICE_BUSY;
+			DBG(10, "Processing SANE_STATUS_DEVICE_BUSY\n");
+                        *platen = SANE_STATUS_DEVICE_BUSY;
                     } else {
-						printf("%s SANE_STATUS_UNSUPPORTED\n", state);
-                        *status = SANE_STATUS_UNSUPPORTED;
+			DBG(10, "%s SANE_STATUS_UNSUPPORTED\n", state);
+                        *platen = SANE_STATUS_UNSUPPORTED;
                     }
+                }
+                // Thank's Alexander Pevzner (pzz@apevzner.com)
+                else if (adf && strcmp((const char *)node->name, "AdfState") == 0) {
+                    const char *state = (const char *)xmlNodeGetContent(node);
+                    if (!strcmp(state, "ScannerAdfLoaded")){
+			DBG(10, "ScannerAdfLoaded SANE_STATUS_GOOD\n");
+                        *adf = SANE_STATUS_GOOD;
+                    } else if (!strcmp(state, "ScannerAdfJam")) {
+                        DBG(10, "ScannerAdfJam SANE_STATUS_JAMMED\n");
+                        *adf = SANE_STATUS_JAMMED;
+                    } else if (!strcmp(state, "ScannerAdfDoorOpen")) {
+                        DBG(10, "ScannerAdfDoorOpen SANE_STATUS_COVER_OPEN\n");
+                        *adf = SANE_STATUS_COVER_OPEN;
+                    } else if (!strcmp(state, "ScannerAdfProcessing")) {
+                        /* Kyocera version */
+                        DBG(10, "ScannerAdfProcessing SANE_STATUS_NO_DOC\n");
+                        *adf = SANE_STATUS_NO_DOCS;
+                    } else if (!strcmp(state, "ScannerAdfEmpty")) {
+                        DBG(10, "ScannerAdfEmpty SANE_STATUS_NO_DOCS\n");
+                        /* Cannon TR4500, EPSON XP-7100 */
+                        *adf = SANE_STATUS_NO_DOCS;
+                    } else {
+                        DBG(10, "%s SANE_STATUS_NO_DOCS\n", state);
+                        *adf = SANE_STATUS_UNSUPPORTED;
+                    }
+                }
+                else if (jobId && job && strcmp((const char *)node->name, "JobUri") == 0) {
+                    if (strstr((const char *)xmlNodeGetContent(node), jobId)) {
+						print_xml_job_status(node, job, image);
+					}
                 }
             }
         }
-        print_xml_platen_status(node->children, status);
+        print_xml_platen_and_adf_status(node->children,
+                                        platen,
+                                        adf,
+                                        jobId,
+                                        job,
+                                        image);
         node = node->next;
     }
 }
@@ -171,17 +189,28 @@ print_xml_platen_status(xmlNode *node, SANE_Status *status)
  * \return status (if everything is OK, status = SANE_STATUS_GOOD, otherwise, SANE_STATUS_NO_MEM/SANE_STATUS_INVAL)
  */
 SANE_Status
-escl_status(const ESCL_Device *device, int source, char *jobid)
+escl_status(const ESCL_Device *device,
+            int source,
+            const char* jobId,
+            SANE_Status *job)
 {
-    SANE_Status status;
+    SANE_Status status = SANE_STATUS_DEVICE_BUSY;
+    SANE_Status platen= SANE_STATUS_DEVICE_BUSY;
+    SANE_Status adf= SANE_STATUS_DEVICE_BUSY;
     CURL *curl_handle = NULL;
     struct idle *var = NULL;
     xmlDoc *data = NULL;
     xmlNode *node = NULL;
     const char *scanner_status = "/eSCL/ScannerStatus";
+    int image = -1;
+    int pass = 0;
+reload:
 
     if (device == NULL)
         return (SANE_STATUS_NO_MEM);
+    status = SANE_STATUS_DEVICE_BUSY;
+    platen= SANE_STATUS_DEVICE_BUSY;
+    adf= SANE_STATUS_DEVICE_BUSY;
     var = (struct idle*)calloc(1, sizeof(struct idle));
     if (var == NULL)
         return (SANE_STATUS_NO_MEM);
@@ -209,23 +238,16 @@ escl_status(const ESCL_Device *device, int source, char *jobid)
         status = SANE_STATUS_NO_MEM;
         goto clean;
     }
-    status = SANE_STATUS_DEVICE_BUSY;
     /* Decode Job status */
-    if (source == PLATEN) {
-	    print_xml_platen_status(node, &status);
+    // Thank's Alexander Pevzner (pzz@apevzner.com)
+    print_xml_platen_and_adf_status(node, &platen, &adf, jobId, job, &image);
+    if (platen != SANE_STATUS_GOOD &&
+        platen != SANE_STATUS_UNSUPPORTED) {
+        status = platen;
+    } else if (source == PLATEN) {
+        status = platen;
     } else {
-	    SANE_Status processing = SANE_STATUS_UNSUPPORTED;
-        SANE_Status complete = SANE_STATUS_UNSUPPORTED;
-        int image = -1;
-	    print_xml_feeder_status(node, jobid, &processing, &complete, &image);
-	    if (processing == SANE_STATUS_GOOD  && image == 0 &&
-	        complete == SANE_STATUS_UNSUPPORTED)
-	           status = SANE_STATUS_EOF;
-	    else if (complete == SANE_STATUS_GOOD  && image == -1 &&
-	             processing == SANE_STATUS_UNSUPPORTED)
-	           status = SANE_STATUS_EOF;
-	    else
-	           status = SANE_STATUS_GOOD;
+        status = adf;
     }
     DBG (10, "STATUS : %s\n", sane_strstatus(status));
 clean:
@@ -236,5 +258,14 @@ clean_data:
     curl_easy_cleanup(curl_handle);
     free(var->memory);
     free(var);
+    if (pass == 0 &&
+        source != PLATEN &&
+        image == 0 &&
+        (status == SANE_STATUS_GOOD ||
+         status == SANE_STATUS_UNSUPPORTED ||
+         status == SANE_STATUS_DEVICE_BUSY)) {
+       pass = 1;
+       goto reload;
+    }
     return (status);
 }

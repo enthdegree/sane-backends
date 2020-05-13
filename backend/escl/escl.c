@@ -572,7 +572,7 @@ init_options(SANE_String_Const name_source, escl_sane_t *s)
     s->x_range2.max = PIXEL_TO_MM(s->scanner->caps[s->scanner->source].MaxWidth, 300.0);
     s->x_range2.quant = 0;
     s->y_range1.min = 0;
-    s->y_range1.max = 
+    s->y_range1.max =
 	    PIXEL_TO_MM((s->scanner->caps[s->scanner->source].MaxHeight -
 	                 s->scanner->caps[s->scanner->source].MinHeight),
 			300.0);

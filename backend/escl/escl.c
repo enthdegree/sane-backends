@@ -52,8 +52,10 @@ typedef struct Handled {
     SANE_Option_Descriptor opt[NUM_OPTIONS];
     Option_Value val[NUM_OPTIONS];
     capabilities_t *scanner;
-    SANE_Range x_range;
-    SANE_Range y_range;
+    SANE_Range x_range1;
+    SANE_Range x_range2;
+    SANE_Range y_range1;
+    SANE_Range y_range2;
     SANE_Bool cancel;
     SANE_Bool write_scan_data;
     SANE_Bool decompress_scan_data;
@@ -560,12 +562,24 @@ init_options(SANE_String_Const name_source, escl_sane_t *s)
 	   s->opt[i].size = sizeof (SANE_Word);
 	   s->opt[i].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     }
-    s->x_range.min = PIXEL_TO_MM(s->scanner->caps[s->scanner->source].MinWidth, 300.0);
-    s->x_range.max = PIXEL_TO_MM(s->scanner->caps[s->scanner->source].MaxWidth, 300.0);
-    s->x_range.quant = 0;
-    s->y_range.min = PIXEL_TO_MM(s->scanner->caps[s->scanner->source].MinHeight, 300.0);
-    s->y_range.max = PIXEL_TO_MM(s->scanner->caps[s->scanner->source].MaxHeight, 300.0);
-    s->y_range.quant = 0;
+    s->x_range1.min = 0;
+    s->x_range1.max =
+	    PIXEL_TO_MM((s->scanner->caps[s->scanner->source].MaxWidth -
+		         s->scanner->caps[s->scanner->source].MinWidth),
+			300.0);
+    s->x_range1.quant = 0;
+    s->x_range2.min = PIXEL_TO_MM(s->scanner->caps[s->scanner->source].MinWidth, 300.0);
+    s->x_range2.max = PIXEL_TO_MM(s->scanner->caps[s->scanner->source].MaxWidth, 300.0);
+    s->x_range2.quant = 0;
+    s->y_range1.min = 0;
+    s->y_range1.max = 
+	    PIXEL_TO_MM((s->scanner->caps[s->scanner->source].MaxHeight -
+	                 s->scanner->caps[s->scanner->source].MinHeight),
+			300.0);
+    s->y_range1.quant = 0;
+    s->y_range2.min = PIXEL_TO_MM(s->scanner->caps[s->scanner->source].MinHeight, 300.0);
+    s->y_range2.max = PIXEL_TO_MM(s->scanner->caps[s->scanner->source].MaxHeight, 300.0);
+    s->y_range2.quant = 0;
     s->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
     s->opt[OPT_NUM_OPTS].desc = SANE_DESC_NUM_OPTIONS;
     s->opt[OPT_NUM_OPTS].type = SANE_TYPE_INT;
@@ -634,8 +648,8 @@ init_options(SANE_String_Const name_source, escl_sane_t *s)
     s->opt[OPT_TL_X].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     s->opt[OPT_TL_X].unit = SANE_UNIT_MM;
     s->opt[OPT_TL_X].constraint_type = SANE_CONSTRAINT_RANGE;
-    s->opt[OPT_TL_X].constraint.range = &s->x_range;
-    s->val[OPT_TL_X].w = s->x_range.min;
+    s->opt[OPT_TL_X].constraint.range = &s->x_range1;
+    s->val[OPT_TL_X].w = s->x_range1.min;
 
     s->opt[OPT_TL_Y].name = SANE_NAME_SCAN_TL_Y;
     s->opt[OPT_TL_Y].title = SANE_TITLE_SCAN_TL_Y;
@@ -645,8 +659,8 @@ init_options(SANE_String_Const name_source, escl_sane_t *s)
     s->opt[OPT_TL_Y].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     s->opt[OPT_TL_Y].unit = SANE_UNIT_MM;
     s->opt[OPT_TL_Y].constraint_type = SANE_CONSTRAINT_RANGE;
-    s->opt[OPT_TL_Y].constraint.range = &s->y_range;
-    s->val[OPT_TL_Y].w = s->y_range.min;
+    s->opt[OPT_TL_Y].constraint.range = &s->y_range1;
+    s->val[OPT_TL_Y].w = s->y_range1.min;
 
     s->opt[OPT_BR_X].name = SANE_NAME_SCAN_BR_X;
     s->opt[OPT_BR_X].title = SANE_TITLE_SCAN_BR_X;
@@ -656,8 +670,8 @@ init_options(SANE_String_Const name_source, escl_sane_t *s)
     s->opt[OPT_BR_X].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     s->opt[OPT_BR_X].unit = SANE_UNIT_MM;
     s->opt[OPT_BR_X].constraint_type = SANE_CONSTRAINT_RANGE;
-    s->opt[OPT_BR_X].constraint.range = &s->x_range;
-    s->val[OPT_BR_X].w = s->x_range.max;
+    s->opt[OPT_BR_X].constraint.range = &s->x_range2;
+    s->val[OPT_BR_X].w = s->x_range2.max;
 
     s->opt[OPT_BR_Y].name = SANE_NAME_SCAN_BR_Y;
     s->opt[OPT_BR_Y].title = SANE_TITLE_SCAN_BR_Y;
@@ -667,8 +681,8 @@ init_options(SANE_String_Const name_source, escl_sane_t *s)
     s->opt[OPT_BR_Y].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     s->opt[OPT_BR_Y].unit = SANE_UNIT_MM;
     s->opt[OPT_BR_Y].constraint_type = SANE_CONSTRAINT_RANGE;
-    s->opt[OPT_BR_Y].constraint.range = &s->y_range;
-    s->val[OPT_BR_Y].w = s->y_range.max;
+    s->opt[OPT_BR_Y].constraint.range = &s->y_range2;
+    s->val[OPT_BR_Y].w = s->y_range2.max;
 
 	/* OPT_SCAN_SOURCE */
     s->opt[OPT_SCAN_SOURCE].name = SANE_NAME_SCAN_SOURCE;
@@ -1002,17 +1016,17 @@ sane_start(SANE_Handle h)
             MM_TO_PIXEL(handler->val[OPT_BR_Y].w, 300.0);
        handler->scanner->caps[handler->scanner->source].width =
             MM_TO_PIXEL(handler->val[OPT_BR_X].w, 300.0);;
-       if (handler->x_range.min == handler->val[OPT_TL_X].w)
+       if (handler->x_range1.min == handler->val[OPT_TL_X].w)
            handler->scanner->caps[handler->scanner->source].pos_x = 0;
        else
            handler->scanner->caps[handler->scanner->source].pos_x =
-               MM_TO_PIXEL((handler->val[OPT_TL_X].w - handler->x_range.min),
+               MM_TO_PIXEL((handler->val[OPT_TL_X].w - handler->x_range1.min),
                300.0);
-       if (handler->y_range.min == handler->val[OPT_TL_X].w)
+       if (handler->y_range1.min == handler->val[OPT_TL_X].w)
            handler->scanner->caps[handler->scanner->source].pos_y = 0;
        else
            handler->scanner->caps[handler->scanner->source].pos_y =
-               MM_TO_PIXEL((handler->val[OPT_TL_Y].w - handler->y_range.min),
+               MM_TO_PIXEL((handler->val[OPT_TL_Y].w - handler->y_range1.min),
                300.0);
        DBG(10, "Calculate Size Image [%dx%d|%dx%d]\n",
 	        handler->scanner->caps[handler->scanner->source].pos_x,

@@ -10,7 +10,7 @@ usb
 # e.g.:
 # usb 0x4b8 0x14c
 
-# Network
+# Network (not yet supported!)
 #
 # net 192.168.1.123
-net autodiscovery
+#net autodiscovery

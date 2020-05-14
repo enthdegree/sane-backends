@@ -955,6 +955,7 @@ _go_next_page(SANE_Status status,
               SANE_Status job)
 {
    // Thank's Alexander Pevzner (pzz@apevzner.com)
+   SANE_Status st = SANE_STATUS_NO_DOCS;
    switch (status) {
       case SANE_STATUS_GOOD:
       case SANE_STATUS_UNSUPPORTED:
@@ -962,13 +963,14 @@ _go_next_page(SANE_Status status,
          DBG(10, "eSCL : Test next page\n");
          if (job != SANE_STATUS_GOOD) {
             DBG(10, "eSCL : Go next page\n");
-            return SANE_STATUS_GOOD;
+            st = SANE_STATUS_GOOD;
          }
+         break;
       }
       default:
          DBG(10, "eSCL : No next page\n");
-         return SANE_STATUS_NO_DOCS;
    }
+   return st;
 }
 
 /**

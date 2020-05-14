@@ -976,6 +976,12 @@ sane_start(SANE_Handle h)
     handler->decompress_scan_data = SANE_FALSE;
     handler->end_read = SANE_FALSE;
     if (handler->scanner->work == SANE_FALSE) {
+       SANE_Status st = escl_status(handler->device,
+                                    handler->scanner->source,
+                                    NULL,
+                                    NULL);
+       if (st != SANE_STATUS_GOOD)
+          return st;
        if(handler->scanner->caps[handler->scanner->source].default_color)
           free(handler->scanner->caps[handler->scanner->source].default_color);
        if (handler->val[OPT_PREVIEW].w == SANE_TRUE)
@@ -1040,6 +1046,29 @@ sane_start(SANE_Handle h)
        handler->result = escl_newjob(handler->scanner, handler->device, &status);
        if (status != SANE_STATUS_GOOD)
           return (status);
+    }
+    else
+    {
+       SANE_Status job = SANE_STATUS_UNSUPPORTED;
+       SANE_Status st = escl_status(handler->device,
+                                       handler->scanner->source,
+                                       handler->result,
+                                       &job);
+       DBG(10, "eSCL : command returned status %s\n", sane_strstatus(st));
+       // Thank's Alexander Pevzner (pzz@apevzner.com)
+       switch (st) {
+          case SANE_STATUS_GOOD:
+          case SANE_STATUS_UNSUPPORTED:
+          case SANE_STATUS_DEVICE_BUSY:
+             if (job != SANE_STATUS_GOOD) {
+                DBG(10, "eSCL : next page\n");
+                break;
+             }
+          default:
+             DBG(10, "eSCL : No next page\n");
+             handler->scanner->work = SANE_FALSE;
+             return SANE_STATUS_NO_DOCS;
+       }
     }
     status = escl_scan(handler->scanner, handler->device, handler->result);
     if (status != SANE_STATUS_GOOD)
@@ -1179,7 +1208,7 @@ sane_read(SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *len)
              default:
                 break;
           }
-          handler->scanner->work = next_page;
+          handler->scanner->work = SANE_TRUE;
           handler->ps.last_frame = !next_page;
         }
         return SANE_STATUS_EOF;

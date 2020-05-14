@@ -950,6 +950,27 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v, SANE_Int 
     return (SANE_STATUS_GOOD);
 }
 
+static SANE_Bool
+_go_next_page(SANE_Status status,
+              SANE_Status job)
+{
+   // Thank's Alexander Pevzner (pzz@apevzner.com)
+   switch (status) {
+      case SANE_STATUS_GOOD:
+      case SANE_STATUS_UNSUPPORTED:
+      case SANE_STATUS_DEVICE_BUSY: {
+         DBG(10, "eSCL : Test next page\n");
+         if (job != SANE_STATUS_GOOD) {
+            DBG(10, "eSCL : Go next page\n");
+            return SANE_STATUS_GOOD;
+         }
+      }
+      default:
+         DBG(10, "eSCL : No next page\n");
+         return SANE_STATUS_NO_DOCS;
+   }
+}
+
 /**
  * \fn SANE_Status sane_start(SANE_Handle h)
  * \brief Function that initiates aquisition of an image from the device represented by handle 'h'.
@@ -1055,19 +1076,10 @@ sane_start(SANE_Handle h)
                                        handler->result,
                                        &job);
        DBG(10, "eSCL : command returned status %s\n", sane_strstatus(st));
-       // Thank's Alexander Pevzner (pzz@apevzner.com)
-       switch (st) {
-          case SANE_STATUS_GOOD:
-          case SANE_STATUS_UNSUPPORTED:
-          case SANE_STATUS_DEVICE_BUSY:
-             if (job != SANE_STATUS_GOOD) {
-                DBG(10, "eSCL : next page\n");
-                break;
-             }
-          default:
-             DBG(10, "eSCL : No next page\n");
-             handler->scanner->work = SANE_FALSE;
-             return SANE_STATUS_NO_DOCS;
+       if (_go_next_page(st, job) != SANE_STATUS_GOOD)
+       {
+         handler->scanner->work = SANE_FALSE;
+         return SANE_STATUS_NO_DOCS;
        }
     }
     status = escl_scan(handler->scanner, handler->device, handler->result);
@@ -1197,17 +1209,8 @@ sane_read(SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *len)
                                        handler->result,
                                        &job);
           DBG(10, "eSCL : command returned status %s\n", sane_strstatus(st));
-	      // Thank's Alexander Pevzner (pzz@apevzner.com)
-	      switch (st) {
-             case SANE_STATUS_GOOD:
-             case SANE_STATUS_UNSUPPORTED:
-             case SANE_STATUS_DEVICE_BUSY:
-                DBG(10, "eSCL : next page\n");
-                if (job != SANE_STATUS_GOOD)
-	               next_page = SANE_TRUE;
-             default:
-                break;
-          }
+          if (_go_next_page(st, job) == SANE_STATUS_GOOD)
+	     next_page = SANE_TRUE;
           handler->scanner->work = SANE_TRUE;
           handler->ps.last_frame = !next_page;
         }

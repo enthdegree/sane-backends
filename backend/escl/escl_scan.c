@@ -43,8 +43,9 @@
 static size_t
 write_callback(void *str, size_t size, size_t nmemb, void *userp)
 {
-    size_t to_write = fwrite(str, size, nmemb, (FILE *)userp);
-
+    capabilities_t *scanner = (capabilities_t *)userp;
+    size_t to_write = fwrite(str, size, nmemb, scanner->tmp);
+    scanner->real_read += to_write;
     return (to_write);
 }
 
@@ -68,6 +69,7 @@ escl_scan(capabilities_t *scanner, const ESCL_Device *device, char *result)
 
     if (device == NULL)
         return (SANE_STATUS_NO_MEM);
+    scanner->real_read = 0;
     curl_handle = curl_easy_init();
     if (curl_handle != NULL) {
         snprintf(scan_cmd, sizeof(scan_cmd), "%s%s%s",
@@ -78,7 +80,7 @@ escl_scan(capabilities_t *scanner, const ESCL_Device *device, char *result)
             fclose(scanner->tmp);
         scanner->tmp = tmpfile();
         if (scanner->tmp != NULL) {
-            curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, scanner->tmp);
+            curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, scanner);
             CURLcode res = curl_easy_perform(curl_handle);
             if (res != CURLE_OK) {
                 DBG( 1, "Unable to scan: %s\n", curl_easy_strerror(res));
@@ -94,6 +96,12 @@ escl_scan(capabilities_t *scanner, const ESCL_Device *device, char *result)
 cleanup:
         curl_easy_cleanup(curl_handle);
     }
-    DBG(10, "eSCL scan : %s\n", sane_strstatus(status));
+    DBG(10, "eSCL scan : [%s]\treal read (%ld)\n", sane_strstatus(status), scanner->real_read);
+    if (scanner->real_read == 0)
+    {
+       fclose(scanner->tmp);
+       scanner->tmp = NULL;
+       return SANE_STATUS_NO_DOCS;
+    }
     return (status);
 }

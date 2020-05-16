@@ -892,7 +892,7 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     /* enable shading */
     reg->find_reg(0x01).value |= REG_0x01_SCAN;
     if (has_flag(session.params.flags, ScanFlag::DISABLE_SHADING) ||
-        has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION)) {
+        has_flag(dev->model->flags, ModelFlag::DISABLE_SHADING_CALIBRATION)) {
         reg->find_reg(0x01).value &= ~REG_0x01_DVDSET;
     } else {
         reg->find_reg(0x01).value |= REG_0x01_DVDSET;

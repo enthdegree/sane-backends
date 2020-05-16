@@ -599,7 +599,7 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     regs_set_optical_off(dev->model->asic_type, *reg);
     reg->find_reg(REG_0x01).value |= REG_0x01_SHDAREA;
     if (has_flag(session.params.flags, ScanFlag::DISABLE_SHADING) ||
-        has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION) ||
+        has_flag(dev->model->flags, ModelFlag::DISABLE_SHADING_CALIBRATION) ||
         session.use_host_side_calib)
     {
         reg->find_reg(REG_0x01).value &= ~REG_0x01_DVDSET;

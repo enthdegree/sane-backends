@@ -3948,9 +3948,13 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
   /* try to use cached calibration first */
   if (!genesys_restore_calibration (dev, sensor))
     {
-       /* calibration : sheetfed scanners can't calibrate before each scan */
-       /* and also those who have the NO_CALIBRATION flag                  */
-        if (!has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION) && !dev->model->is_sheetfed) {
+        // calibration : sheetfed scanners can't calibrate before each scan.
+        // also don't run calibration for those scanners where all passes are disabled
+        bool shading_disabled =
+                has_flag(dev->model->flags, ModelFlag::DISABLE_ADC_CALIBRATION) &&
+                has_flag(dev->model->flags, ModelFlag::DISABLE_EXPOSURE_CALIBRATION) &&
+                has_flag(dev->model->flags, ModelFlag::DISABLE_SHADING_CALIBRATION);
+        if (!shading_disabled && !dev->model->is_sheetfed) {
             genesys_scanner_calibration(dev, sensor);
           genesys_save_calibration (dev, sensor);
 	}
@@ -3988,7 +3992,7 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
   /* GL124 is using SHDAREA, so we have to wait for scan to be set up before
    * sending shading data */
     if (dev->cmd_set->has_send_shading_data() &&
-        !has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION))
+        !has_flag(dev->model->flags, ModelFlag::DISABLE_SHADING_CALIBRATION))
     {
         genesys_send_shading_coefficient(dev, sensor);
     }

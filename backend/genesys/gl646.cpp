@@ -519,7 +519,7 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     }
 
     // if device has no calibration, don't enable shading correction
-    if (has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION) ||
+    if (has_flag(dev->model->flags, ModelFlag::DISABLE_SHADING_CALIBRATION) ||
         has_flag(session.params.flags, ScanFlag::DISABLE_SHADING))
     {
         regs->find_reg(0x01).value &= ~REG_0x01_DVDSET;

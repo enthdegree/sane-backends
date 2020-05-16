@@ -505,9 +505,6 @@ enum class ModelFlag : unsigned
     // allow custom gamma tables
     CUSTOM_GAMMA = 1 << 13,
 
-    // skip calibration completely, this is needed for sheet-fed scanners
-    NO_CALIBRATION = 1 << 14,
-
     // the scanner uses multi-segment sensors that must be handled during calibration
     SIS_SENSOR = 1 << 16,
 

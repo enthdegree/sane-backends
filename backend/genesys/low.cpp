@@ -1247,7 +1247,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
     }
 
     if (session.use_host_side_calib &&
-        !has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION) &&
+        !has_flag(dev->model->flags, ModelFlag::DISABLE_SHADING_CALIBRATION) &&
         !has_flag(session.params.flags, ScanFlag::DISABLE_SHADING))
     {
         dev->pipeline.push_node<ImagePipelineNodeCalibrate>(dev->dark_average_data,

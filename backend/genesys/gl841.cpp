@@ -652,7 +652,7 @@ static void gl841_init_motor_regs_feed(Genesys_Device* dev, const Genesys_Sensor
         reg->find_reg(0x02).value &= ~REG_0x02_MTRREV;
     }
 
-    gl841_send_slope_table(dev, sensor, 3, fast_table.table, 256);
+    gl841_send_slope_table(dev, sensor, 3, fast_table.table, 255);
 
     reg->set8(0x67, 0x3f);
     reg->set8(0x68, 0x3f);
@@ -819,16 +819,16 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
         reg->find_reg(0x02).value &= ~0x40;
     }
 
-    gl841_send_slope_table(dev, sensor, 0, slow_table.table, 256);
-    gl841_send_slope_table(dev, sensor, 1, back_table.table, 256);
-    gl841_send_slope_table(dev, sensor, 2, slow_table.table, 256);
+    gl841_send_slope_table(dev, sensor, 0, slow_table.table, 255);
+    gl841_send_slope_table(dev, sensor, 1, back_table.table, 255);
+    gl841_send_slope_table(dev, sensor, 2, slow_table.table, 255);
 
     if (use_fast_fed) {
-        gl841_send_slope_table(dev, sensor, 3, fast_table.table, 256);
+        gl841_send_slope_table(dev, sensor, 3, fast_table.table, 255);
     }
 
     if (has_flag(flags, ScanFlag::AUTO_GO_HOME)) {
-        gl841_send_slope_table(dev, sensor, 4, fast_table.table, 256);
+        gl841_send_slope_table(dev, sensor, 4, fast_table.table, 255);
     }
 
 /* now reg 0x21 and 0x24 are available, we can calculate reg 0x22 and 0x23,

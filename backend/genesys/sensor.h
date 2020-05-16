@@ -121,7 +121,7 @@ enum class FrontendType : unsigned
     CANON_LIDE_80,
     WOLFSON_GL841, // old code path, likely wrong calculation
     WOLFSON_GL846, // old code path, likely wrong calculation
-    WOLFSON_GL847, // old code path, likely wrong calculation
+    ANALOG_DEVICES_GL847, // old code path, likely wrong calculation
     WOLFSON_GL124, // old code path, likely wrong calculation
 };
 

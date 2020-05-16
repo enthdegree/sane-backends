@@ -277,14 +277,13 @@ static void gl847_send_slope_table(Genesys_Device* dev, int table_nr,
 static void gl847_set_ad_fe(Genesys_Device* dev, uint8_t set)
 {
     DBG_HELPER(dbg);
-  int i;
 
     // wait for FE to be ready
     auto status = scanner_read_status(*dev);
     while (status.is_front_end_busy) {
         dev->interface->sleep_ms(10);
         status = scanner_read_status(*dev);
-    };
+    }
 
   if (set == AFE_INIT)
     {
@@ -297,16 +296,8 @@ static void gl847_set_ad_fe(Genesys_Device* dev, uint8_t set)
     // reset DAC
     dev->interface->write_fe_register(0x00, 0x80);
 
-    // write them to analog frontend
-    dev->interface->write_fe_register(0x00, dev->frontend.regs.get_value(0x00));
-
-    dev->interface->write_fe_register(0x01, dev->frontend.regs.get_value(0x01));
-
-    for (i = 0; i < 3; i++) {
-        dev->interface->write_fe_register(0x02 + i, dev->frontend.get_gain(i));
-    }
-    for (i = 0; i < 3; i++) {
-        dev->interface->write_fe_register(0x05 + i, dev->frontend.get_offset(i));
+    for (const auto& reg : dev->frontend.regs) {
+        dev->interface->write_fe_register(reg.address, reg.value);
     }
 }
 

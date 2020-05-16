@@ -311,47 +311,35 @@ void genesys_init_frontend_tables()
 
     fe = Genesys_Frontend();
     fe.id = AdcId::CANON_LIDE_200;
-    fe.layout = wolfson_layout;
-    fe.layout.type = FrontendType::WOLFSON_GL847;
+    fe.layout = analog_devices;
+    fe.layout.type = FrontendType::ANALOG_DEVICES_GL847;
     fe.regs = {
         { 0x00, 0x9d },
         { 0x01, 0x91 },
-        { 0x02, 0x00 },
-        { 0x03, 0x00 },
-        { 0x20, 0x00 },
-        { 0x21, 0x3f },
-        { 0x22, 0x00 },
-        { 0x24, 0x00 },
-        { 0x25, 0x00 },
-        { 0x26, 0x00 },
-        { 0x28, 0x32 },
-        { 0x29, 0x04 },
-        { 0x2a, 0x00 },
+        { 0x02, 0x32 },
+        { 0x03, 0x04 },
+        { 0x04, 0x00 },
+        { 0x05, 0x00 },
+        { 0x06, 0x3f },
+        { 0x07, 0x00 },
     };
-    fe.reg2 = {0x00, 0x00, 0x00};
     s_frontends->push_back(fe);
 
 
     fe = Genesys_Frontend();
     fe.id = AdcId::CANON_LIDE_700F;
-    fe.layout = wolfson_layout;
-    fe.layout.type = FrontendType::WOLFSON_GL847;
+    fe.layout = analog_devices;
+    fe.layout.type = FrontendType::ANALOG_DEVICES_GL847;
     fe.regs = {
         { 0x00, 0x9d },
         { 0x01, 0x9e },
-        { 0x02, 0x00 },
-        { 0x03, 0x00 },
-        { 0x20, 0x00 },
-        { 0x21, 0x3f },
-        { 0x22, 0x00 },
-        { 0x24, 0x00 },
-        { 0x25, 0x00 },
-        { 0x26, 0x00 },
-        { 0x28, 0x2f },
-        { 0x29, 0x04 },
-        { 0x2a, 0x00 },
+        { 0x02, 0x2f },
+        { 0x03, 0x04 },
+        { 0x04, 0x00 },
+        { 0x05, 0x00 },
+        { 0x06, 0x3f },
+        { 0x07, 0x00 },
     };
-    fe.reg2 = {0x00, 0x00, 0x00};
     s_frontends->push_back(fe);
 
 

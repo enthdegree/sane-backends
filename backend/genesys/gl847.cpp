@@ -271,45 +271,6 @@ static void gl847_send_slope_table(Genesys_Device* dev, int table_nr,
     dev->interface->write_ahb(0x10000000 + 0x4000 * table_nr, steps * 2, table.data());
 }
 
-/**
- * Set register values of Analog Device type frontend
- * */
-static void gl847_set_ad_fe(Genesys_Device* dev, uint8_t set)
-{
-    DBG_HELPER(dbg);
-  int i;
-
-    // wait for FE to be ready
-    auto status = scanner_read_status(*dev);
-    while (status.is_front_end_busy) {
-        dev->interface->sleep_ms(10);
-        status = scanner_read_status(*dev);
-    };
-
-  if (set == AFE_INIT)
-    {
-        DBG(DBG_proc, "%s(): setting DAC %u\n", __func__,
-            static_cast<unsigned>(dev->model->adc_id));
-
-      dev->frontend = dev->frontend_initial;
-    }
-
-    // reset DAC
-    dev->interface->write_fe_register(0x00, 0x80);
-
-    // write them to analog frontend
-    dev->interface->write_fe_register(0x00, dev->frontend.regs.get_value(0x00));
-
-    dev->interface->write_fe_register(0x01, dev->frontend.regs.get_value(0x01));
-
-    for (i = 0; i < 3; i++) {
-        dev->interface->write_fe_register(0x02 + i, dev->frontend.get_gain(i));
-    }
-    for (i = 0; i < 3; i++) {
-        dev->interface->write_fe_register(0x05 + i, dev->frontend.get_offset(i));
-    }
-}
-
 // Set values of analog frontend
 void CommandSetGl847::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set) const
 {
@@ -322,13 +283,27 @@ void CommandSetGl847::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
     uint8_t val = dev->interface->read_register(REG_0x04);
     uint8_t frontend_type = val & REG_0x04_FESET;
 
-    // route to AD devices
-    if (frontend_type == 0x02) {
-        gl847_set_ad_fe(dev, set);
-        return;
+    if (frontend_type != 0x02) {
+        throw SaneException("unsupported frontend type %d", frontend_type);
     }
 
-    throw SaneException("unsupported frontend type %d", frontend_type);
+    // wait for FE to be ready
+    auto status = scanner_read_status(*dev);
+    while (status.is_front_end_busy) {
+        dev->interface->sleep_ms(10);
+        status = scanner_read_status(*dev);
+    }
+
+    if (set == AFE_INIT) {
+        dev->frontend = dev->frontend_initial;
+    }
+
+    // reset DAC
+    dev->interface->write_fe_register(0x00, 0x80);
+
+    for (const auto& reg : dev->frontend.regs) {
+        dev->interface->write_fe_register(reg.address, reg.value);
+    }
 }
 
 

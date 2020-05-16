@@ -1351,7 +1351,7 @@ std::uint8_t compute_frontend_gain(float value, float target_value,
         case FrontendType::WOLFSON_GL841:
             return compute_frontend_gain_wolfson_gl841(value, target_value);
         case FrontendType::WOLFSON_GL846:
-        case FrontendType::WOLFSON_GL847:
+        case FrontendType::ANALOG_DEVICES_GL847:
         case FrontendType::WOLFSON_GL124:
             return compute_frontend_gain_wolfson_gl846_gl847_gl124(value, target_value);
         default:

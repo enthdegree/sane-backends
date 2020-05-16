@@ -5276,7 +5276,12 @@ static void probe_genesys_devices()
     config.values = nullptr;
   config.count = 0;
 
-    TIE(sanei_configure_attach(GENESYS_CONFIG_FILE, &config, config_attach_genesys));
+    auto status = sanei_configure_attach(GENESYS_CONFIG_FILE, &config, config_attach_genesys);
+    if (status == SANE_STATUS_ACCESS_DENIED) {
+        dbg.vlog(DBG_error0, "Critical error: Couldn't access configuration file '%s'",
+                 GENESYS_CONFIG_FILE);
+    }
+    TIE(status);
 
     DBG(DBG_info, "%s: %zu devices currently attached\n", __func__, s_devices->size());
 }

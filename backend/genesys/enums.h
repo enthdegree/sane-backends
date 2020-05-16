@@ -483,6 +483,16 @@ enum class ModelFlag : unsigned
     // perform lamp warmup
     WARMUP = 1 << 4,
 
+    // whether to disable offset and gain calibration
+    DISABLE_ADC_CALIBRATION = 1 << 5,
+
+    // whether to disable exposure calibration (this currently is only done on CIS
+    // scanners)
+    DISABLE_EXPOSURE_CALIBRATION = 1 << 6,
+
+    // whether to disable shading calibration completely
+    DISABLE_SHADING_CALIBRATION = 1 << 7,
+
     // do dark calibration
     DARK_CALIBRATION = 1 << 8,
 

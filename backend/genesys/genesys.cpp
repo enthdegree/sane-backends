@@ -3536,17 +3536,10 @@ static void genesys_save_calibration(Genesys_Device* dev, const Genesys_Sensor& 
 #endif
 }
 
-/**
- * does the calibration process for a flatbed scanner
- * - offset calibration
- * - gain calibration
- * - shading calibration
- * @param dev device to calibrate
- */
 static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
-  uint32_t pixels_per_line;
+    uint32_t pixels_per_line;
 
     unsigned coarse_res = sensor.optical_res;
     if (dev->settings.yres <= sensor.optical_res / 2) {
@@ -3565,16 +3558,19 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
 
     auto local_reg = dev->initial_regs;
 
-    // do offset calibration if needed
-    dev->interface->record_progress_message("offset_calibration");
-    dev->cmd_set->offset_calibration(dev, sensor, local_reg);
+    if (!has_flag(dev->model->flags, ModelFlag::DISABLE_ADC_CALIBRATION)) {
+        // do ADC calibration first.
+        dev->interface->record_progress_message("offset_calibration");
+        dev->cmd_set->offset_calibration(dev, sensor, local_reg);
 
-    dev->interface->record_progress_message("coarse_gain_calibration");
-    dev->cmd_set->coarse_gain_calibration(dev, sensor, local_reg, coarse_res);
+        dev->interface->record_progress_message("coarse_gain_calibration");
+        dev->cmd_set->coarse_gain_calibration(dev, sensor, local_reg, coarse_res);
+    }
 
-  if (dev->model->is_cis)
+    if (dev->model->is_cis &&
+        !has_flag(dev->model->flags, ModelFlag::DISABLE_EXPOSURE_CALIBRATION))
     {
-      /* the afe now sends valid data for doing led calibration */
+        // ADC now sends correct data, we can configure the exposure for the LEDs
         dev->interface->record_progress_message("led_calibration");
         switch (dev->model->asic_type) {
             case AsicType::GL124:
@@ -3595,13 +3591,14 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
             }
         }
 
+        if (!has_flag(dev->model->flags, ModelFlag::DISABLE_ADC_CALIBRATION)) {
+            // recalibrate ADC again for the new LED exposure
+            dev->interface->record_progress_message("offset_calibration");
+            dev->cmd_set->offset_calibration(dev, sensor, local_reg);
 
-        // calibrate afe again to match new exposure
-        dev->interface->record_progress_message("offset_calibration");
-        dev->cmd_set->offset_calibration(dev, sensor, local_reg);
-
-        dev->interface->record_progress_message("coarse_gain_calibration");
-        dev->cmd_set->coarse_gain_calibration(dev, sensor, local_reg, coarse_res);
+            dev->interface->record_progress_message("coarse_gain_calibration");
+            dev->cmd_set->coarse_gain_calibration(dev, sensor, local_reg, coarse_res);
+        }
     }
 
   /* we always use sensor pixel number when the ASIC can't handle multi-segments sensor */
@@ -3617,33 +3614,35 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
     dev->interface->record_progress_message("sanei_genesys_init_shading_data");
     sanei_genesys_init_shading_data(dev, sensor, pixels_per_line);
 
-  if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
-      dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
-  {
+    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
+        dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
+    {
         dev->cmd_set->move_to_ta(dev);
-  }
+    }
 
     // shading calibration
-    if (has_flag(dev->model->flags, ModelFlag::DARK_WHITE_CALIBRATION)) {
-        dev->interface->record_progress_message("genesys_dark_white_shading_calibration");
-        genesys_dark_white_shading_calibration(dev, sensor, local_reg);
-    } else {
-        DBG(DBG_proc, "%s : genesys_dark_shading_calibration local_reg ", __func__);
-        debug_dump(DBG_proc, local_reg);
+    if (!has_flag(dev->model->flags, ModelFlag::DISABLE_SHADING_CALIBRATION)) {
+        if (has_flag(dev->model->flags, ModelFlag::DARK_WHITE_CALIBRATION)) {
+            dev->interface->record_progress_message("genesys_dark_white_shading_calibration");
+            genesys_dark_white_shading_calibration(dev, sensor, local_reg);
+        } else {
+            DBG(DBG_proc, "%s : genesys_dark_shading_calibration local_reg ", __func__);
+            debug_dump(DBG_proc, local_reg);
 
-        if (has_flag(dev->model->flags, ModelFlag::DARK_CALIBRATION)) {
-            dev->interface->record_progress_message("genesys_dark_shading_calibration");
-            genesys_dark_shading_calibration(dev, sensor, local_reg);
-            genesys_repark_sensor_before_shading(dev);
-        }
+            if (has_flag(dev->model->flags, ModelFlag::DARK_CALIBRATION)) {
+                dev->interface->record_progress_message("genesys_dark_shading_calibration");
+                genesys_dark_shading_calibration(dev, sensor, local_reg);
+                genesys_repark_sensor_before_shading(dev);
+            }
 
-        dev->interface->record_progress_message("genesys_white_shading_calibration");
-        genesys_white_shading_calibration(dev, sensor, local_reg);
+            dev->interface->record_progress_message("genesys_white_shading_calibration");
+            genesys_white_shading_calibration(dev, sensor, local_reg);
 
-        genesys_repark_sensor_after_white_shading(dev);
+            genesys_repark_sensor_after_white_shading(dev);
 
-        if (!has_flag(dev->model->flags, ModelFlag::DARK_CALIBRATION)) {
-            genesys_dummy_dark_shading(dev, sensor);
+            if (!has_flag(dev->model->flags, ModelFlag::DARK_CALIBRATION)) {
+                genesys_dummy_dark_shading(dev, sensor);
+            }
         }
     }
 
@@ -3672,15 +3671,7 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
     // first step, load document
     dev->cmd_set->load_document(dev);
 
-  /* led, offset and gain calibration are influenced by scan
-   * settings. So we set it to sensor resolution */
-  dev->settings.xres = sensor.optical_res;
-  /* XP200 needs to calibrate a full and half sensor's resolution */
-    if (dev->model->sensor_id == SensorId::CIS_XP200 &&
-        dev->settings.xres <= sensor.optical_res / 2)
-    {
-        dev->settings.xres /= 2;
-    }
+    unsigned coarse_res = sensor.optical_res;
 
   /* the afe needs to sends valid data even before calibration */
 
@@ -3692,14 +3683,31 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
         throw;
     }
 
-  if (dev->model->is_cis)
-    {
-        dev->cmd_set->led_calibration(dev, sensor, local_reg);
+    if (!has_flag(dev->model->flags, ModelFlag::DISABLE_ADC_CALIBRATION)) {
+        // do ADC calibration first.
+        dev->interface->record_progress_message("offset_calibration");
+        dev->cmd_set->offset_calibration(dev, sensor, local_reg);
+
+        dev->interface->record_progress_message("coarse_gain_calibration");
+        dev->cmd_set->coarse_gain_calibration(dev, sensor, local_reg, coarse_res);
     }
 
-    dev->cmd_set->offset_calibration(dev, sensor, local_reg);
+    if (dev->model->is_cis &&
+        !has_flag(dev->model->flags, ModelFlag::DISABLE_EXPOSURE_CALIBRATION))
+    {
+        // ADC now sends correct data, we can configure the exposure for the LEDs
+        dev->interface->record_progress_message("led_calibration");
+        dev->cmd_set->led_calibration(dev, sensor, local_reg);
 
-    dev->cmd_set->coarse_gain_calibration(dev, sensor, local_reg, sensor.optical_res);
+        if (!has_flag(dev->model->flags, ModelFlag::DISABLE_ADC_CALIBRATION)) {
+            // recalibrate ADC again for the new LED exposure
+            dev->interface->record_progress_message("offset_calibration");
+            dev->cmd_set->offset_calibration(dev, sensor, local_reg);
+
+            dev->interface->record_progress_message("coarse_gain_calibration");
+            dev->cmd_set->coarse_gain_calibration(dev, sensor, local_reg, coarse_res);
+        }
+    }
 
   /* search for a full width black strip and then do a 16 bit scan to
    * gather black shading data */
@@ -3940,9 +3948,13 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
   /* try to use cached calibration first */
   if (!genesys_restore_calibration (dev, sensor))
     {
-       /* calibration : sheetfed scanners can't calibrate before each scan */
-       /* and also those who have the NO_CALIBRATION flag                  */
-        if (!has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION) && !dev->model->is_sheetfed) {
+        // calibration : sheetfed scanners can't calibrate before each scan.
+        // also don't run calibration for those scanners where all passes are disabled
+        bool shading_disabled =
+                has_flag(dev->model->flags, ModelFlag::DISABLE_ADC_CALIBRATION) &&
+                has_flag(dev->model->flags, ModelFlag::DISABLE_EXPOSURE_CALIBRATION) &&
+                has_flag(dev->model->flags, ModelFlag::DISABLE_SHADING_CALIBRATION);
+        if (!shading_disabled && !dev->model->is_sheetfed) {
             genesys_scanner_calibration(dev, sensor);
           genesys_save_calibration (dev, sensor);
 	}
@@ -3980,7 +3992,7 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
   /* GL124 is using SHDAREA, so we have to wait for scan to be set up before
    * sending shading data */
     if (dev->cmd_set->has_send_shading_data() &&
-        !has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION))
+        !has_flag(dev->model->flags, ModelFlag::DISABLE_SHADING_CALIBRATION))
     {
         genesys_send_shading_coefficient(dev, sensor);
     }

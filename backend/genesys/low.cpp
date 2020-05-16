@@ -335,29 +335,6 @@ void debug_print_status(DebugMessageHelper& dbg, Status val)
     dbg.vlog(DBG_info, "status=%s\n", str.str().c_str());
 }
 
-#if 0
-/* returns pixels per line from register set */
-/*candidate for moving into chip specific files?*/
-static int
-genesys_pixels_per_line (Genesys_Register_Set * reg)
-{
-    int pixels_per_line;
-
-    pixels_per_line = reg->get8(0x32) * 256 + reg->get8(0x33);
-    pixels_per_line -= (reg->get8(0x30) * 256 + reg->get8(0x31));
-
-    return pixels_per_line;
-}
-
-/* returns dpiset from register set */
-/*candidate for moving into chip specific files?*/
-static int
-genesys_dpiset (Genesys_Register_Set * reg)
-{
-    return reg->get8(0x2c) * 256 + reg->get8(0x2d);
-}
-#endif
-
 /** read the number of valid words in scanner's RAM
  * ie registers 42-43-44
  */
@@ -1270,7 +1247,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
     }
 
     if (session.use_host_side_calib &&
-        !has_flag(dev->model->flags, ModelFlag::NO_CALIBRATION) &&
+        !has_flag(dev->model->flags, ModelFlag::DISABLE_SHADING_CALIBRATION) &&
         !has_flag(session.params.flags, ScanFlag::DISABLE_SHADING))
     {
         dev->pipeline.push_node<ImagePipelineNodeCalibrate>(dev->dark_average_data,

@@ -1719,7 +1719,9 @@ void genesys_init_usb_device_tables()
     model.adc_id = AdcId::WOLFSON_XP300;
     model.gpio_id = GpioId::DP665;
     model.motor_id = MotorId::ROADWARRIOR;
-    model.flags = ModelFlag::NO_CALIBRATION |
+    model.flags = ModelFlag::DISABLE_ADC_CALIBRATION |
+                  ModelFlag::DISABLE_EXPOSURE_CALIBRATION |
+                  ModelFlag::DISABLE_SHADING_CALIBRATION |
                   ModelFlag::CUSTOM_GAMMA |
                   ModelFlag::UNTESTED;
     model.buttons = GENESYS_HAS_SCAN_SW | GENESYS_HAS_PAGE_LOADED_SW;
@@ -2724,7 +2726,9 @@ void genesys_init_usb_device_tables()
                   ModelFlag::GAMMA_14BIT |
                   ModelFlag::DARK_CALIBRATION |
                   ModelFlag::CUSTOM_GAMMA |
-                  ModelFlag::NO_CALIBRATION;
+                  ModelFlag::DISABLE_ADC_CALIBRATION |
+                  ModelFlag::DISABLE_EXPOSURE_CALIBRATION |
+                  ModelFlag::DISABLE_SHADING_CALIBRATION;
 
     model.buttons = GENESYS_HAS_NO_BUTTONS;
     model.search_lines = 100;

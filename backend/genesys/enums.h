@@ -565,7 +565,7 @@ enum class ScanFlag : unsigned
     ENABLE_LEDADD = 1 << 10,
     REVERSE = 1 << 12,
 
-    // (unused): the scanner should return head to home position automatically after scan.
+    // the scanner should return head to home position automatically after scan.
     AUTO_GO_HOME = 1 << 13,
 };
 

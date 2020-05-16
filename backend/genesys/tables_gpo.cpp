@@ -188,10 +188,15 @@ void genesys_init_gpo_tables()
     gpo = Genesys_Gpo();
     gpo.id = GpioId::CANON_LIDE_200;
     gpo.regs = {
-        { 0x6c, 0xfb }, // 0xfb when idle , 0xf9/0xe9 (1200) when scanning
+        { 0x6b, 0x02 },
+        { 0x6c, 0xf9 }, // 0xfb when idle , 0xf9/0xe9 (1200) when scanning
         { 0x6d, 0x20 },
         { 0x6e, 0xff },
         { 0x6f, 0x00 },
+        { 0xa6, 0x04 },
+        { 0xa7, 0x04 },
+        { 0xa8, 0x00 },
+        { 0xa9, 0x00 },
     };
     s_gpo->push_back(gpo);
 
@@ -199,10 +204,15 @@ void genesys_init_gpo_tables()
     gpo = Genesys_Gpo();
     gpo.id = GpioId::CANON_LIDE_700F;
     gpo.regs = {
+        { 0x6b, 0x06 },
         { 0x6c, 0xdb },
         { 0x6d, 0xff },
         { 0x6e, 0xff },
         { 0x6f, 0x80 },
+        { 0xa6, 0x15 },
+        { 0xa7, 0x07 },
+        { 0xa8, 0x20 },
+        { 0xa9, 0x10 },
     };
     s_gpo->push_back(gpo);
 

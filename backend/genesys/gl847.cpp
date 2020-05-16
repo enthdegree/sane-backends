@@ -53,27 +53,6 @@
 namespace genesys {
 namespace gl847 {
 
-struct Gpio_Profile
-{
-    GpioId gpio_id;
-    std::uint8_t r6b;
-    std::uint8_t r6c;
-    std::uint8_t r6d;
-    std::uint8_t r6e;
-    std::uint8_t r6f;
-    std::uint8_t ra6;
-    std::uint8_t ra7;
-    std::uint8_t ra8;
-    std::uint8_t ra9;
-};
-
-static Gpio_Profile gpios[] =
-{
-    { GpioId::CANON_LIDE_200, 0x02, 0xf9, 0x20, 0xff, 0x00, 0x04, 0x04, 0x00, 0x00},
-    { GpioId::CANON_LIDE_700F, 0x06, 0xdb, 0xff, 0xff, 0x80, 0x15, 0x07, 0x20, 0x10},
-    { GpioId::UNKNOWN, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-};
-
 /**
  * compute the step multiplier used
  */
@@ -911,31 +890,29 @@ SensorExposure CommandSetGl847::led_calibration(Genesys_Device* dev, const Genes
 static void gl847_init_gpio(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
-  int idx=0;
 
-  /* search GPIO profile */
-    while(gpios[idx].gpio_id != GpioId::UNKNOWN && dev->model->gpio_id != gpios[idx].gpio_id) {
-      idx++;
-    }
-    if (gpios[idx].gpio_id == GpioId::UNKNOWN) {
-        throw SaneException("failed to find GPIO profile for sensor_id=%d",
-                            static_cast<unsigned>(dev->model->sensor_id));
+    std::vector<std::uint16_t> order1 = { 0xa7, 0xa6, 0x6e };
+    std::vector<std::uint16_t> order2 = { 0x6b, 0x6c, 0x6d, 0x6e, 0x6f, 0xa8, 0xa9 };
+
+    for (auto addr : order1) {
+        dev->interface->write_register(addr, dev->gpo.regs.find_reg(addr).value);
     }
 
-    dev->interface->write_register(REG_0xA7, gpios[idx].ra7);
-    dev->interface->write_register(REG_0xA6, gpios[idx].ra6);
+    dev->interface->write_register(REG_0x6C, 0x00); // FIXME: Likely not needed
 
-    dev->interface->write_register(REG_0x6E, gpios[idx].r6e);
-    dev->interface->write_register(REG_0x6C, 0x00);
+    for (auto addr : order2) {
+        dev->interface->write_register(addr, dev->gpo.regs.find_reg(addr).value);
+    }
 
-    dev->interface->write_register(REG_0x6B, gpios[idx].r6b);
-    dev->interface->write_register(REG_0x6C, gpios[idx].r6c);
-    dev->interface->write_register(REG_0x6D, gpios[idx].r6d);
-    dev->interface->write_register(REG_0x6E, gpios[idx].r6e);
-    dev->interface->write_register(REG_0x6F, gpios[idx].r6f);
-
-    dev->interface->write_register(REG_0xA8, gpios[idx].ra8);
-    dev->interface->write_register(REG_0xA9, gpios[idx].ra9);
+    for (const auto& reg : dev->gpo.regs) {
+        if (std::find(order1.begin(), order1.end(), reg.address) != order1.end()) {
+            continue;
+        }
+        if (std::find(order2.begin(), order2.end(), reg.address) != order2.end()) {
+            continue;
+        }
+        dev->interface->write_register(reg.address, reg.value);
+    }
 }
 
 /**

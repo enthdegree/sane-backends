@@ -3675,12 +3675,6 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
   /* led, offset and gain calibration are influenced by scan
    * settings. So we set it to sensor resolution */
   dev->settings.xres = sensor.optical_res;
-  /* XP200 needs to calibrate a full and half sensor's resolution */
-    if (dev->model->sensor_id == SensorId::CIS_XP200 &&
-        dev->settings.xres <= sensor.optical_res / 2)
-    {
-        dev->settings.xres /= 2;
-    }
 
   /* the afe needs to sends valid data even before calibration */
 

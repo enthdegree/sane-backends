@@ -483,9 +483,6 @@ enum class ModelFlag : unsigned
     // perform lamp warmup
     WARMUP = 1 << 4,
 
-    // repark head and check for lock by moving without scanning
-    REPARK = 1 << 7,
-
     // do dark calibration
     DARK_CALIBRATION = 1 << 8,
 

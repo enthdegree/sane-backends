@@ -1218,7 +1218,7 @@ void scanner_search_strip(Genesys_Device& dev, bool forward, bool black)
     scanner_stop_action(dev);
 
     unsigned pass = 0;
-    if (DBG_LEVEL >= DBG_data) {
+    if (dbg_log_image_data()) {
         char title[80];
         std::sprintf(title, "gl_search_strip_%s_%s%02d.pnm",
                      black ? "black" : "white", forward ? "fwd" : "bwd", pass);
@@ -1240,7 +1240,7 @@ void scanner_search_strip(Genesys_Device& dev, bool forward, bool black)
 
         scanner_stop_action(dev);
 
-        if (DBG_LEVEL >= DBG_data) {
+        if (dbg_log_image_data()) {
             char title[80];
             std::sprintf(title, "gl_search_strip_%s_%s%02d.pnm",
                          black ? "black" : "white",
@@ -1529,7 +1529,7 @@ void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& senso
         first_line = read_unshuffled_image_from_scanner(&dev, session, session.output_total_bytes);
     }
 
-    if (DBG_LEVEL >= DBG_data) {
+    if (dbg_log_image_data()) {
         char fn[40];
         std::snprintf(fn, 40, "gl843_bottom_offset_%03d_%03d_%03d.pnm",
                       bottom[0], bottom[1], bottom[2]);
@@ -1605,7 +1605,7 @@ void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& senso
             second_line = read_unshuffled_image_from_scanner(&dev, session, session.output_total_bytes);
         }
 
-        if (DBG_LEVEL >= DBG_data) {
+        if (dbg_log_image_data()) {
             char title[100];
             std::snprintf(title, 100, "lines: %d pixels_per_line: %d offsets[0..2]: %d %d %d\n",
                           lines, output_pixels,
@@ -1637,7 +1637,7 @@ void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& senso
         }
     }
 
-    if (DBG_LEVEL >= DBG_data) {
+    if (dbg_log_image_data()) {
         sanei_genesys_write_file("gl_offset_all_desc.txt",
                                  reinterpret_cast<const std::uint8_t*>(debug_image_info.data()),
                                  debug_image_info.size());
@@ -1828,7 +1828,7 @@ void scanner_coarse_gain_calibration(Genesys_Device& dev, const Genesys_Sensor& 
         scanner_stop_action_no_move(dev, regs);
     }
 
-    if (DBG_LEVEL >= DBG_data) {
+    if (dbg_log_image_data()) {
         sanei_genesys_write_pnm_file("gl_coarse_gain.pnm", image);
     }
 
@@ -2085,7 +2085,7 @@ SensorExposure scanner_led_calibration(Genesys_Device& dev, const Genesys_Sensor
 
         scanner_stop_action(dev);
 
-        if (DBG_LEVEL >= DBG_data) {
+        if (dbg_log_image_data()) {
             char fn[30];
             std::snprintf(fn, 30, "gl_led_%02d.pnm", i_test);
             sanei_genesys_write_pnm_file(fn, image);
@@ -2382,7 +2382,7 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
                                     dev->calib_session.params.lines, pixels_per_line * channels,
                                     0.5f);
 
-    if (DBG_LEVEL >= DBG_data) {
+    if (dbg_log_image_data()) {
         sanei_genesys_write_pnm_file16((log_filename_prefix + "_shading.pnm").c_str(),
                                        calibration_data.data(),
                                        channels, pixels_per_line, dev->calib_session.params.lines);
@@ -2595,19 +2595,15 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
 
     dev->cmd_set->end_scan(dev, &local_reg, true);
 
-  if (DBG_LEVEL >= DBG_data)
-    {
-      if (dev->model->is_cis)
-        {
-          sanei_genesys_write_pnm_file("gl_black_white_shading.pnm", calibration_data.data(),
-                                       16, 1, pixels_per_line*channels,
-                                       dev->calib_session.params.lines);
-        }
-      else
-        {
-          sanei_genesys_write_pnm_file("gl_black_white_shading.pnm", calibration_data.data(),
-                                       16, channels, pixels_per_line,
-                                       dev->calib_session.params.lines);
+    if (dbg_log_image_data()) {
+        if (dev->model->is_cis) {
+            sanei_genesys_write_pnm_file("gl_black_white_shading.pnm", calibration_data.data(),
+                                         16, 1, pixels_per_line*channels,
+                                         dev->calib_session.params.lines);
+        } else {
+            sanei_genesys_write_pnm_file("gl_black_white_shading.pnm", calibration_data.data(),
+                                         16, channels, pixels_per_line,
+                                         dev->calib_session.params.lines);
         }
     }
 
@@ -2678,7 +2674,7 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
         *average_white++ = white_sum;
     }
 
-    if (DBG_LEVEL >= DBG_data) {
+    if (dbg_log_image_data()) {
         sanei_genesys_write_pnm_file16("gl_white_average.pnm", dev->white_average_data.data(),
                                        channels, out_pixels_per_line, 1);
         sanei_genesys_write_pnm_file16("gl_dark_average.pnm", dev->dark_average_data.data(),
@@ -3854,7 +3850,7 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
         first_average /= total_pixels;
         second_average /= total_pixels;
 
-        if (DBG_LEVEL >= DBG_data) {
+        if (dbg_log_image_data()) {
             sanei_genesys_write_pnm_file("gl_warmup1.pnm", first_line.data(),
                                          dev->session.params.depth, channels,
                                          total_size / (lines * channels), lines);
@@ -5461,9 +5457,9 @@ static void genesys_buffer_image(Genesys_Scanner *s)
   dev->total_bytes_read = 0;
 
   /* update params */
-  s->params.lines = total / s->params.bytes_per_line;
-  if (DBG_LEVEL >= DBG_io2)
-    {
+    s->params.lines = total / s->params.bytes_per_line;
+
+    if (dbg_log_image_data()) {
       sanei_genesys_write_pnm_file("gl_unprocessed.pnm", dev->img_buffer.data(), s->params.depth,
                                    s->params.format==SANE_FRAME_RGB ? 3 : 1,
                                    s->params.pixels_per_line, s->params.lines);

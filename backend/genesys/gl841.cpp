@@ -1816,7 +1816,7 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
 
       sanei_genesys_read_data_from_scanner(dev, line.data(), total_size);
       scanner_stop_action(*dev);
-      if (DBG_LEVEL >= DBG_data) {
+      if (dbg_log_image_data()) {
           char fn[30];
           std::snprintf(fn, 30, "gl841_offset_%02d.pnm", turn);
           sanei_genesys_write_pnm_file(fn, line.data(), 8, 3, num_pixels, 1);
@@ -1959,7 +1959,7 @@ void CommandSetGl841::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
         first_line = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes);
 
-        if (DBG_LEVEL >= DBG_data) {
+        if (dbg_log_image_data()) {
             char fn[30];
             std::snprintf(fn, 30, "gl841_offset1_%02d.pnm", turn);
             sanei_genesys_write_pnm_file(fn, first_line);
@@ -2054,7 +2054,7 @@ void CommandSetGl841::offset_calibration(Genesys_Device* dev, const Genesys_Sens
         dev->cmd_set->begin_scan(dev, calib_sensor, &regs, true);
         second_line = read_unshuffled_image_from_scanner(dev, session, session.output_total_bytes);
 
-        if (DBG_LEVEL >= DBG_data) {
+        if (dbg_log_image_data()) {
             char fn[30];
             std::snprintf(fn, 30, "gl841_offset2_%02d.pnm", turn);
             sanei_genesys_write_pnm_file(fn, second_line);

@@ -1174,7 +1174,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
                 session.buffer_size_read, read_data_from_usb);
     }
 
-    if (DBG_LEVEL >= DBG_io2) {
+    if (dbg_log_image_data()) {
         dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
                                                         std::to_string(s_pipeline_index) +
                                                         "_0_before_swap.pnm");
@@ -1190,7 +1190,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
     }
 #endif
 
-    if (DBG_LEVEL >= DBG_io2) {
+    if (dbg_log_image_data()) {
         dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
                                                         std::to_string(s_pipeline_index) +
                                                         "_1_after_swap.pnm");
@@ -1219,7 +1219,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
                     session.color_shift_lines_b);
     }
 
-    if (DBG_LEVEL >= DBG_io2) {
+    if (dbg_log_image_data()) {
         dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
                                                         std::to_string(s_pipeline_index) +
                                                         "_2_after_shift.pnm");
@@ -1230,7 +1230,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
         dev->pipeline.push_node<ImagePipelineNodePixelShiftLines>(shifts);
     }
 
-    if (DBG_LEVEL >= DBG_io2) {
+    if (dbg_log_image_data()) {
         dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
                                                         std::to_string(s_pipeline_index) +
                                                         "_3_after_stagger.pnm");
@@ -1245,7 +1245,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
                                                             session.params.startx *
                                                                 dev->calib_session.params.channels);
 
-        if (DBG_LEVEL >= DBG_io2) {
+        if (dbg_log_image_data()) {
             dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
                                                             std::to_string(s_pipeline_index) +
                                                             "_4_after_calibrate.pnm");

@@ -282,6 +282,109 @@ void test_node_swap_16bit_endian()
     ASSERT_EQ(out_data, expected_data);
 }
 
+void test_node_invert_16_bits()
+{
+    using Data16 = std::vector<std::uint16_t>;
+    using Data = std::vector<std::uint8_t>;
+
+    Data16 in_data = {
+        0x1020, 0x3011, 0x2131,
+        0x1222, 0x3213, 0x2333,
+        0x1424, 0x3415, 0x2525,
+        0x1626, 0x3617, 0x2737,
+    };
+
+    Data in_data_8bit;
+    in_data_8bit.resize(in_data.size() * 2);
+    std::memcpy(in_data_8bit.data(), in_data.data(), in_data_8bit.size());
+
+    ImagePipelineStack stack;
+    stack.push_first_node<ImagePipelineNodeArraySource>(4, 1, PixelFormat::RGB161616,
+                                                        std::move(in_data_8bit));
+    stack.push_node<ImagePipelineNodeInvert>();
+
+    ASSERT_EQ(stack.get_output_width(), 4u);
+    ASSERT_EQ(stack.get_output_height(), 1u);
+    ASSERT_EQ(stack.get_output_row_bytes(), 24u);
+    ASSERT_EQ(stack.get_output_format(), PixelFormat::RGB161616);
+
+    auto out_data_8bit = stack.get_all_data();
+    Data16 out_data;
+    out_data.resize(out_data_8bit.size() / 2);
+    std::memcpy(out_data.data(), out_data_8bit.data(), out_data_8bit.size());
+
+    Data16 expected_data = {
+        0xefdf, 0xcfee, 0xdece,
+        0xeddd, 0xcdec, 0xdccc,
+        0xebdb, 0xcbea, 0xdada,
+        0xe9d9, 0xc9e8, 0xd8c8,
+    };
+
+    ASSERT_EQ(out_data, expected_data);
+}
+
+void test_node_invert_8_bits()
+{
+    using Data = std::vector<std::uint8_t>;
+
+    Data in_data = {
+        0x10, 0x20, 0x30, 0x11, 0x21, 0x31,
+        0x12, 0x22, 0x32, 0x13, 0x23, 0x33,
+        0x14, 0x24, 0x34, 0x15, 0x25, 0x35,
+        0x16, 0x26, 0x36, 0x17, 0x27, 0x37,
+    };
+
+    ImagePipelineStack stack;
+    stack.push_first_node<ImagePipelineNodeArraySource>(8, 1, PixelFormat::RGB888,
+                                                        std::move(in_data));
+    stack.push_node<ImagePipelineNodeInvert>();
+
+    ASSERT_EQ(stack.get_output_width(), 8u);
+    ASSERT_EQ(stack.get_output_height(), 1u);
+    ASSERT_EQ(stack.get_output_row_bytes(), 24u);
+    ASSERT_EQ(stack.get_output_format(), PixelFormat::RGB888);
+
+    auto out_data = stack.get_all_data();
+
+    Data expected_data = {
+        0xef, 0xdf, 0xcf, 0xee, 0xde, 0xce,
+        0xed, 0xdd, 0xcd, 0xec, 0xdc, 0xcc,
+        0xeb, 0xdb, 0xcb, 0xea, 0xda, 0xca,
+        0xe9, 0xd9, 0xc9, 0xe8, 0xd8, 0xc8,
+    };
+
+    ASSERT_EQ(out_data, expected_data);
+}
+
+void test_node_invert_1_bits()
+{
+    using Data = std::vector<std::uint8_t>;
+
+    Data in_data = {
+        0x10, 0x20, 0x30, 0x11, 0x21, 0x31,
+        0x16, 0x26, 0x36, 0x17, 0x27, 0x37,
+    };
+
+    ImagePipelineStack stack;
+    stack.push_first_node<ImagePipelineNodeArraySource>(32, 1, PixelFormat::RGB111,
+                                                        std::move(in_data));
+    stack.push_node<ImagePipelineNodeInvert>();
+
+    ASSERT_EQ(stack.get_output_width(), 32u);
+    ASSERT_EQ(stack.get_output_height(), 1u);
+    ASSERT_EQ(stack.get_output_row_bytes(), 12u);
+    ASSERT_EQ(stack.get_output_format(), PixelFormat::RGB111);
+
+    auto out_data = stack.get_all_data();
+
+    Data expected_data = {
+        0xef, 0xdf, 0xcf, 0xee, 0xde, 0xce,
+        0xe9, 0xd9, 0xc9, 0xe8, 0xd8, 0xc8,
+    };
+
+    ASSERT_EQ(out_data, expected_data);
+}
+
 void test_node_merge_mono_lines()
 {
     using Data = std::vector<std::uint8_t>;
@@ -490,6 +593,9 @@ void test_image_pipeline()
     test_node_deinterleave_lines_i8();
     test_node_deinterleave_lines_rgb888();
     test_node_swap_16bit_endian();
+    test_node_invert_16_bits();
+    test_node_invert_8_bits();
+    test_node_invert_1_bits();
     test_node_merge_mono_lines();
     test_node_split_mono_lines();
     test_node_component_shift_lines();

@@ -319,6 +319,49 @@ bool ImagePipelineNodeSwap16BitEndian::get_next_row_data(std::uint8_t* out_data)
     return got_data;
 }
 
+ImagePipelineNodeInvert::ImagePipelineNodeInvert(ImagePipelineNode& source) :
+    source_(source)
+{
+}
+
+bool ImagePipelineNodeInvert::get_next_row_data(std::uint8_t* out_data)
+{
+    bool got_data = source_.get_next_row_data(out_data);
+    auto num_values = get_width() * get_pixel_channels(source_.get_format());
+    auto depth = get_pixel_format_depth(source_.get_format());
+
+    switch (depth) {
+        case 16: {
+            auto* data = reinterpret_cast<std::uint16_t*>(out_data);
+            for (std::size_t i = 0; i < num_values; ++i) {
+                *data = 0xffff - *data;
+                data++;
+            }
+            break;
+        }
+        case 8: {
+            auto* data = out_data;
+            for (std::size_t i = 0; i < num_values; ++i) {
+                *data = 0xff - *data;
+                data++;
+            }
+            break;
+        }
+        case 1: {
+            auto* data = out_data;
+            for (std::size_t i = 0; i < num_values; ++i) {
+                *data = ~*data;
+                data++;
+            }
+            break;
+        }
+        default:
+            throw SaneException("Unsupported pixel depth");
+    }
+
+    return got_data;
+}
+
 ImagePipelineNodeMergeMonoLines::ImagePipelineNodeMergeMonoLines(ImagePipelineNode& source,
                                                                  ColorOrder color_order) :
     source_(source),

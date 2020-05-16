@@ -2348,7 +2348,7 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
 
     dev->cmd_set->end_scan(dev, &local_reg, true);
 
-    if (has_flag(dev->model->flags, ModelFlag::INVERTED_16BIT_DATA)) {
+    if (has_flag(dev->model->flags, ModelFlag::SWAP_16BIT_DATA)) {
         for (std::size_t i = 0; i < size / 2; ++i) {
             auto value = calibration_data[i];
             value = ((value >> 8) & 0xff) | ((value << 8) & 0xff00);

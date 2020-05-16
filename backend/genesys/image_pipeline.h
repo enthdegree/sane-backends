@@ -301,7 +301,7 @@ public:
                                        std::size_t pixels_per_chunk);
 };
 
-// A pipeline that swaps bytes in 16-bit components on big-endian systems
+// A pipeline that swaps bytes in 16-bit components and does nothing otherwise.
 class ImagePipelineNodeSwap16BitEndian : public ImagePipelineNode
 {
 public:
@@ -318,6 +318,23 @@ public:
 private:
     ImagePipelineNode& source_;
     bool needs_swapping_ = false;
+};
+
+class ImagePipelineNodeInvert : public ImagePipelineNode
+{
+public:
+    ImagePipelineNodeInvert(ImagePipelineNode& source);
+
+    std::size_t get_width() const override { return source_.get_width(); }
+    std::size_t get_height() const override { return source_.get_height(); }
+    PixelFormat get_format() const override { return source_.get_format(); }
+
+    bool eof() const override { return source_.eof(); }
+
+    bool get_next_row_data(std::uint8_t* out_data) override;
+
+private:
+    ImagePipelineNode& source_;
 };
 
 // A pipeline node that merges 3 mono lines into a color channel

@@ -354,11 +354,8 @@ static void gl846_set_adi_fe(Genesys_Device* dev, uint8_t set)
         status = scanner_read_status(*dev);
     };
 
-  if (set == AFE_INIT)
-    {
-        DBG(DBG_proc, "%s(): setting DAC %u\n", __func__,
-            static_cast<unsigned>(dev->model->adc_id));
-      dev->frontend = dev->frontend_initial;
+    if (set == AFE_INIT) {
+        dev->frontend = dev->frontend_initial;
     }
 
     // write them to analog frontend
@@ -497,7 +494,6 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
             dist *= 2;
         }
     }
-    DBG(DBG_io2, "%s: acceleration distance=%d\n", __func__, dist);
 
     // check for overflow
     if (dist < feedl) {
@@ -507,7 +503,6 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
     }
 
     reg->set24(REG_FEEDL, feedl);
-    DBG(DBG_io, "%s: feedl=%d\n", __func__, feedl);
 
     unsigned ccdlmt = (reg->get8(REG_0x0C) & REG_0x0C_CCDLMT) + 1;
     unsigned tgtime = 1 << (reg->get8(REG_0x1C) & REG_0x1C_TGTIME);
@@ -562,10 +557,7 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
                                  &z1,
                                  &z2);
 
-    DBG(DBG_info, "%s: z1 = %d\n", __func__, z1);
     reg->set24(REG_0x60, z1 | (static_cast<unsigned>(motor_profile.step_type) << (16 + REG_0x60S_STEPSEL)));
-
-    DBG(DBG_info, "%s: z2 = %d\n", __func__, z2);
     reg->set24(REG_0x63, z2 | (static_cast<unsigned>(motor_profile.step_type) << (16 + REG_0x63S_FSTPSEL)));
 
     reg->set8_mask(REG_0x1E, scan_dummy, 0x0f);
@@ -694,10 +686,7 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   /* MAXWD is expressed in 4 words unit */
     // BUG: we shouldn't multiply by channels here
     reg->set24(REG_MAXWD, (session.output_line_bytes_raw * session.params.channels >> 2));
-
     reg->set16(REG_LPERIOD, exposure_time);
-  DBG (DBG_io2, "%s: exposure_time used=%d\n", __func__, exposure_time);
-
     reg->set8(0x34, sensor.dummy_pixel);
 }
 
@@ -728,10 +717,6 @@ void CommandSetGl846::init_regs_for_scan_session(Genesys_Device* dev, const Gene
 
     exposure_time = sensor.exposure_lperiod;
     const auto& motor_profile = get_motor_profile(dev->motor.profiles, exposure_time, session);
-
-  DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
-    DBG(DBG_info, "%s : scan_step_type=%d\n", __func__,
-        static_cast<unsigned>(motor_profile.step_type));
 
   /* we enable true gray for cis scanners only, and just when doing
    * scan since color calibration is OK for this mode

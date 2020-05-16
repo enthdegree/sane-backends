@@ -101,8 +101,6 @@ std::uint8_t ScannerInterfaceUsb::read_register(std::uint16_t address)
         usb_dev_.control_msg(REQUEST_TYPE_IN, REQUEST_REGISTER, VALUE_READ_REGISTER, INDEX,
                              1, &value);
     }
-
-    DBG(DBG_proc, "%s (0x%02x, 0x%02x) completed\n", __func__, address, value);
     return value;
 }
 

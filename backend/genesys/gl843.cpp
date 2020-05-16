@@ -671,10 +671,7 @@ void CommandSetGl843::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
                                set == AFE_POWER_SAVE ? "powersave" : "huh?");
     (void) sensor;
 
-  if (set == AFE_INIT)
-    {
-        DBG(DBG_proc, "%s(): setting DAC %u\n", __func__,
-            static_cast<unsigned>(dev->model->adc_id));
+    if (set == AFE_INIT) {
         dev->frontend = dev->frontend_initial;
     }
 
@@ -688,8 +685,6 @@ void CommandSetGl843::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
     if (fe_type != 0) {
         throw SaneException(SANE_STATUS_UNSUPPORTED, "unsupported frontend type %d", fe_type);
     }
-
-  DBG(DBG_proc, "%s(): frontend reset complete\n", __func__);
 
     for (unsigned i = 1; i <= 3; i++) {
         dev->interface->write_fe_register(i, dev->frontend.regs.get_value(0x00 + i));
@@ -742,7 +737,6 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     }
 
     reg->set24(REG_LINCNT, scan_lines);
-    DBG(DBG_io, "%s: lincnt=%d\n", __func__, scan_lines);
 
     reg->set8(REG_0x02, 0);
     sanei_genesys_set_motor_power(*reg, true);
@@ -818,7 +812,6 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     if (use_fast_fed) {
         dist += (fast_table.steps_count / step_multiplier) * 2;
     }
-    DBG(DBG_io2, "%s: acceleration distance=%d\n", __func__, dist);
 
   /* get sure when don't insane value : XXX STEF XXX in this case we should
    * fall back to single table move */
@@ -829,7 +822,6 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     }
 
     reg->set24(REG_FEEDL, feedl);
-  DBG(DBG_io, "%s: feedl=%d\n", __func__, feedl);
 
     // doesn't seem to matter that much
     std::uint32_t z1, z2;
@@ -848,10 +840,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     }
 
     reg->set24(REG_Z1MOD, z1);
-  DBG(DBG_info, "%s: z1 = %d\n", __func__, z1);
-
     reg->set24(REG_Z2MOD, z2);
-  DBG(DBG_info, "%s: z2 = %d\n", __func__, z2);
 
     reg->set8_mask(REG_0x1E, scan_dummy, 0x0f);
 
@@ -1044,10 +1033,7 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
   /* nousedspace = (mem_bank_range * 1024 / 256 -1 ) * 4; */
     // BUG: the division by ccd_size_divisor likely does not make sense
     reg->set24(REG_MAXWD, (session.output_line_bytes / session.ccd_size_divisor) >> 1);
-
     reg->set16(REG_LPERIOD, exposure / tgtime);
-  DBG(DBG_io2, "%s: exposure used=%d\n", __func__, exposure/tgtime);
-
     reg->set8(REG_DUMMY, sensor.dummy_pixel);
 }
 
@@ -1086,10 +1072,6 @@ void CommandSetGl843::init_regs_for_scan_session(Genesys_Device* dev, const Gene
       throw std::runtime_error("Exposure not defined in sensor definition");
   }
     const auto& motor_profile = get_motor_profile(dev->motor.profiles, exposure, session);
-
-  DBG(DBG_info, "%s : exposure=%d pixels\n", __func__, exposure);
-    DBG(DBG_info, "%s : scan_step_type=%d\n", __func__,
-        static_cast<unsigned>(motor_profile.step_type));
 
     // now _LOGICAL_ optical values used are known, setup registers
     gl843_init_optical_regs_scan(dev, sensor, reg, exposure, session);
@@ -1259,8 +1241,6 @@ void CommandSetGl843::detect_document_end(Genesys_Device* dev) const
             auto skip_lines = scan_end_lines - output_lines;
 
             if (remaining_lines > skip_lines) {
-                DBG(DBG_io, "%s: skip_lines=%zu\n", __func__, skip_lines);
-
                 remaining_lines -= skip_lines;
                 dev->get_pipeline_source().set_remaining_bytes(remaining_lines *
                                                                dev->session.output_line_bytes_raw);

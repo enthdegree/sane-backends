@@ -225,10 +225,7 @@ void CommandSetGl842::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
                                set == AFE_POWER_SAVE ? "powersave" : "huh?");
     (void) sensor;
 
-  if (set == AFE_INIT)
-    {
-        DBG(DBG_proc, "%s(): setting DAC %u\n", __func__,
-            static_cast<unsigned>(dev->model->adc_id));
+    if (set == AFE_INIT) {
         dev->frontend = dev->frontend_initial;
     }
 
@@ -242,8 +239,6 @@ void CommandSetGl842::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
     if (fe_type != 0) {
         throw SaneException(SANE_STATUS_UNSUPPORTED, "unsupported frontend type %d", fe_type);
     }
-
-  DBG(DBG_proc, "%s(): frontend reset complete\n", __func__);
 
     for (unsigned i = 1; i <= 3; i++) {
         dev->interface->write_fe_register(i, dev->frontend.regs.get_value(0x00 + i));
@@ -367,7 +362,6 @@ static void gl842_init_motor_regs_scan(Genesys_Device* dev,
     if (use_fast_fed) {
         dist += (fast_table.steps_count / step_multiplier) * 2;
     }
-    DBG(DBG_io2, "%s: acceleration distance=%d\n", __func__, dist);
 
     // make sure when don't insane value : XXX STEF XXX in this case we should
     // fall back to single table move
@@ -549,10 +543,6 @@ void CommandSetGl842::init_regs_for_scan_session(Genesys_Device* dev, const Gene
         throw std::runtime_error("Exposure not defined in sensor definition");
     }
     const auto& motor_profile = get_motor_profile(dev->motor.profiles, exposure, session);
-
-    DBG(DBG_info, "%s : exposure=%d pixels\n", __func__, exposure);
-    DBG(DBG_info, "%s : scan_step_type=%d\n", __func__,
-        static_cast<unsigned>(motor_profile.step_type));
 
     // now _LOGICAL_ optical values used are known, setup registers
     gl842_init_optical_regs_scan(dev, sensor, reg, exposure, session);

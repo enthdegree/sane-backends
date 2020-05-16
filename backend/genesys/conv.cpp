@@ -146,9 +146,7 @@ void genesys_gray_lineart(Genesys_Device* dev,
 {
     DBG_HELPER(dbg);
     std::size_t y;
-
-    DBG(DBG_io2, "%s: converting %zu lines of %zu pixels\n", __func__, lines, pixels);
-  DBG(DBG_io2, "%s: threshold=%d\n", __func__, threshold);
+    (void) threshold;
 
   for (y = 0; y < lines; y++)
     {

@@ -458,7 +458,6 @@ static int get_cksel(SensorId sensor_id, int required, unsigned channels)
             sensor.matches_channel_count(channels))
         {
             unsigned cksel = sensor.ccd_pixels_per_system_pixel();
-            DBG(DBG_io, "%s: match found for %d (cksel=%d)\n", __func__, required, cksel);
             return cksel;
         }
     }
@@ -723,8 +722,6 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
   /* but head has moved due to shading calibration => dev->scanhead_position_primary */
   if (feedl > 0)
     {
-      DBG(DBG_info, "%s: initial move=%d\n", __func__, feedl);
-
       /* TODO clean up this when I'll fully understand.
        * for now, special casing each motor */
         switch (dev->model->motor_id) {
@@ -819,7 +816,6 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
 	feedl = 0;
     }
 
-  DBG(DBG_info, "%s: final move=%d\n", __func__, feedl);
     regs->set24(REG_FEEDL, feedl);
 
   regs->find_reg(0x65).value = motor->mtrpwm;
@@ -1104,12 +1100,9 @@ static void gl646_set_ad_fe(Genesys_Device* dev, uint8_t set)
     DBG_HELPER(dbg);
   int i;
 
-  if (set == AFE_INIT)
-    {
-        DBG(DBG_proc, "%s(): setting DAC %u\n", __func__,
-            static_cast<unsigned>(dev->model->adc_id));
+    if (set == AFE_INIT) {
 
-      dev->frontend = dev->frontend_initial;
+        dev->frontend = dev->frontend_initial;
 
         // write them to analog frontend
         dev->interface->write_fe_register(0x00, dev->frontend.regs.get_value(0x00));
@@ -1221,11 +1214,8 @@ static void gl646_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint
     }
 
   /* initialize analog frontend */
-  if (set == AFE_INIT)
-    {
-        DBG(DBG_proc, "%s(): setting DAC %u\n", __func__,
-            static_cast<unsigned>(dev->model->adc_id));
-      dev->frontend = dev->frontend_initial;
+    if (set == AFE_INIT) {
+        dev->frontend = dev->frontend_initial;
 
         // reset only done on init
         dev->interface->write_fe_register(0x04, 0x80);
@@ -1566,9 +1556,8 @@ void CommandSetGl646::eject_document(Genesys_Device* dev) const
     // home sensor is set when document is inserted
     if (status.is_at_home) {
         dev->document = false;
-      DBG(DBG_info, "%s: no more document to eject\n", __func__);
-      DBG(DBG_proc, "%s: end\n", __func__);
-      return;
+        DBG(DBG_info, "%s: no more document to eject\n", __func__);
+        return;
     }
 
     // there is a document inserted, eject it
@@ -1794,8 +1783,7 @@ void CommandSetGl646::move_back_home(Genesys_Device* dev, bool wait_until_home) 
 
   /* registers are restored to an iddl state, give up if no head to park */
     if (dev->model->is_sheetfed) {
-      DBG(DBG_proc, "%s: end \n", __func__);
-      return;
+        return;
     }
 
     // starts scan
@@ -1828,7 +1816,6 @@ void CommandSetGl646::move_back_home(Genesys_Device* dev, bool wait_until_home) 
 
             if (status.is_at_home) {
 	      DBG(DBG_info, "%s: reached home position\n", __func__);
-	      DBG(DBG_proc, "%s: end\n", __func__);
                 dev->interface->sleep_ms(500);
                 dev->set_head_pos_zero(ScanHeadId::PRIMARY);
                 return;
@@ -1907,9 +1894,6 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     dev->reg.find_reg(0x02).value |= REG_0x02_ACDCDIS;	/* ease backtracking */
     dev->reg.find_reg(0x02).value &= ~REG_0x02_FASTFED;
   sanei_genesys_set_motor_power(dev->reg, false);
-
-    DBG(DBG_info, "%s:\n\tdev->settings.xres=%d\n\tdev->settings.yres=%d\n", __func__,
-        resolution, resolution);
 }
 
 bool CommandSetGl646::needs_home_before_init_regs_for_scan(Genesys_Device* dev) const
@@ -2176,7 +2160,6 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, sensor.optical_res, 3,
                                                          ScanMethod::FLATBED);
     black_pixels = (calib_sensor.black_pixels * sensor.optical_res) / calib_sensor.optical_res;
-  DBG(DBG_io2, "%s: black_pixels=%d\n", __func__, black_pixels);
 
     unsigned pixels = dev->model->x_size_calib_mm * sensor.optical_res / MM_PER_INCH;
     unsigned lines = CALIBRATION_LINES;
@@ -2245,7 +2228,7 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
 	    }
 	}
 
-      DBG(DBG_io2, "%s: pass=%d, min=%d\n", __func__, pass, min);
+      DBG(DBG_info, "%s: pass=%d, min=%d\n", __func__, pass, min);
       bottom++;
     }
   while (pass < 128 && min == 0);
@@ -2282,8 +2265,6 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
         return;
     }
 
-  DBG(DBG_proc, "%s: start\n", __func__); // TODO
-
   /* setup for a RGB scan, one full sensor's width line */
   /* resolution is the one from the final scan          */
     unsigned resolution = dev->settings.xres;
@@ -2292,8 +2273,6 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                          ScanMethod::FLATBED);
     black_pixels = (calib_sensor.black_pixels * resolution) / calib_sensor.optical_res;
-
-  DBG(DBG_io2, "%s: black_pixels=%d\n", __func__, black_pixels);
 
     unsigned pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
     unsigned lines = CALIBRATION_LINES;
@@ -2342,7 +2321,7 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
         sanei_genesys_write_pnm_file(title, first_line.data(), 8, channels, pixels, lines);
     }
     bottomavg = dark_average(first_line.data(), pixels, lines, channels, black_pixels);
-  DBG(DBG_io2, "%s: bottom avg=%d\n", __func__, bottomavg);
+    DBG(DBG_info, "%s: bottom avg=%d\n", __func__, bottomavg);
 
   /* now top value */
   top = 231;
@@ -2358,7 +2337,7 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
         sanei_genesys_write_pnm_file (title, second_line.data(), 8, channels, pixels, lines);
     }
     topavg = dark_average(second_line.data(), pixels, lines, channels, black_pixels);
-  DBG(DBG_io2, "%s: top avg=%d\n", __func__, topavg);
+    DBG(DBG_info, "%s: top avg=%d\n", __func__, topavg);
 
     if (is_testing_mode()) {
         return;
@@ -2534,7 +2513,7 @@ void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys
                 dev->frontend.set_gain(k, dev->frontend.get_gain(k) + 1);
             }
 
-            DBG(DBG_proc, "%s: channel %d, average = %.2f, gain = %d\n", __func__, k, average[k],
+            DBG(DBG_info, "%s: channel %d, average = %.2f, gain = %d\n", __func__, k, average[k],
                 dev->frontend.get_gain(k));
         }
     }
@@ -2715,9 +2694,6 @@ void CommandSetGl646::init(Genesys_Device* dev) const
         } catch (...) {
             dev->interface->bulk_read_data(0x45, dev->control, len);
         }
-        DBG(DBG_info, "%s: control read=0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x\n", __func__,
-            dev->control[0], dev->control[1], dev->control[2], dev->control[3], dev->control[4],
-            dev->control[5]);
       sanei_usb_set_timeout (30 * 1000);
     }
   else
@@ -2762,8 +2738,6 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
     size *= bpp * session.params.channels;
   data.clear();
   data.resize(size);
-
-    DBG(DBG_io, "%s: allocated %zu bytes of memory for %d lines\n", __func__, size, lines);
 
     // initialize frontend
     gl646_set_fe(dev, sensor, AFE_SET, session.params.xres);
@@ -2993,16 +2967,11 @@ void CommandSetGl646::update_hardware_sensors(Genesys_Scanner* session) const
             case GpioId::HP3670:
             case GpioId::HP2400:
 	  /* test if XPA is plugged-in */
-	  if ((value & 0x40) == 0)
-	    {
-	      DBG(DBG_io, "%s: enabling XPA\n", __func__);
-	      session->opt[OPT_SOURCE].cap &= ~SANE_CAP_INACTIVE;
-	    }
-	  else
-	    {
-	      DBG(DBG_io, "%s: disabling XPA\n", __func__);
-	      session->opt[OPT_SOURCE].cap |= SANE_CAP_INACTIVE;
-	    }
+            if ((value & 0x40) == 0) {
+                session->opt[OPT_SOURCE].cap &= ~SANE_CAP_INACTIVE;
+            } else {
+                session->opt[OPT_SOURCE].cap |= SANE_CAP_INACTIVE;
+            }
       break;
             default:
                 throw SaneException(SANE_STATUS_UNSUPPORTED, "unknown gpo type");
@@ -3060,8 +3029,6 @@ static void write_control(Genesys_Device* dev, const Genesys_Sensor& sensor, int
       break;
     }
 
-  DBG(DBG_info, "%s: control write=0x%02x 0x%02x 0x%02x 0x%02x\n", __func__, control[0], control[1],
-      control[2], control[3]);
     dev->interface->write_buffer(0x3c, addr, control, 4);
 }
 

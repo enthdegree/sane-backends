@@ -378,14 +378,11 @@ static void gl841_set_lide80_fe(Genesys_Device* dev, uint8_t set)
 {
     DBG_HELPER(dbg);
 
-  if (set == AFE_INIT)
-    {
-        DBG(DBG_proc, "%s(): setting DAC %u\n", __func__,
-            static_cast<unsigned>(dev->model->adc_id));
+    if (set == AFE_INIT) {
+        dev->frontend = dev->frontend_initial;
 
-      dev->frontend = dev->frontend_initial;
-
-        // write them to analog frontend
+        // BUG: the following code does not make sense. The addresses are different than AFE_SET
+        // case
         dev->interface->write_fe_register(0x00, dev->frontend.regs.get_value(0x00));
         dev->interface->write_fe_register(0x03, dev->frontend.regs.get_value(0x01));
         dev->interface->write_fe_register(0x06, dev->frontend.regs.get_value(0x02));
@@ -410,11 +407,7 @@ static void gl841_set_ad_fe(Genesys_Device* dev, uint8_t set)
         return;
     }
 
-  if (set == AFE_INIT)
-    {
-        DBG(DBG_proc, "%s(): setting DAC %u\n", __func__,
-            static_cast<unsigned>(dev->model->adc_id));
-
+    if (set == AFE_INIT) {
       dev->frontend = dev->frontend_initial;
 
         // write them to analog frontend
@@ -473,15 +466,11 @@ void CommandSetGl841::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
         throw SaneException("unsupported frontend type %d", frontend_type);
     }
 
-  if (set == AFE_INIT)
-    {
-        DBG(DBG_proc, "%s(): setting DAC %u\n", __func__,
-            static_cast<unsigned>(dev->model->adc_id));
-      dev->frontend = dev->frontend_initial;
+    if (set == AFE_INIT) {
+        dev->frontend = dev->frontend_initial;
 
         // reset only done on init
         dev->interface->write_fe_register(0x04, 0x80);
-      DBG(DBG_proc, "%s(): frontend reset complete\n", __func__);
     }
 
 
@@ -691,8 +680,6 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
                                         0,
                                         0);
 
-    DBG(DBG_info, "%s : fast_exposure=%d pixels\n", __func__, fast_exposure);
-
     {
         std::vector<uint16_t> table;
         table.resize(256, 0xffff);
@@ -772,10 +759,7 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
         (feed_steps - (slow_table.steps_count >> static_cast<unsigned>(motor_profile.step_type)))
         + slow_table.pixeltime_sum;
 
-	DBG(DBG_info, "%s: Time for slow move: %d\n", __func__, slow_time);
-	DBG(DBG_info, "%s: Time for fast move: %d\n", __func__, fast_time);
-
-	use_fast_fed = fast_time < slow_time;
+        use_fast_fed = fast_time < slow_time;
     }
 
     if (use_fast_fed) {
@@ -1113,24 +1097,20 @@ dummy \ scanned lines
                                         motor_profile.step_type,
                                         session.pixel_startx,
                                         session.optical_pixels);
-  DBG(DBG_info, "%s : exposure_time=%d pixels\n", __func__, exposure_time);
 
     gl841_init_optical_regs_scan(dev, sensor, reg, exposure_time, session);
 
     move = session.params.starty;
-  DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
 
   /* subtract current head position */
     move -= (dev->head_pos(ScanHeadId::PRIMARY) * session.params.yres) / dev->motor.base_ydpi;
-  DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
 
   if (move < 0)
       move = 0;
 
   /* round it */
 /* the move is not affected by dummy -- pierre */
-/*  move = ((move + dummy) / (dummy + 1)) * (dummy + 1);
-    DBG(DBG_info, "%s: move=%d steps\n", __func__, move);*/
+/*  move = ((move + dummy) / (dummy + 1)) * (dummy + 1);*/
 
     if (has_flag(session.params.flags, ScanFlag::SINGLE_LINE)) {
         gl841_init_motor_regs_off(reg, session.optical_line_count);
@@ -1197,7 +1177,6 @@ ScanSession CommandSetGl841::calculate_scan_session(const Genesys_Device* dev,
         dev->model->sensor_id != SensorId::CIS_CANON_LIDE_80)
     {
         // on Lide 80 the LEDADD bit results in only red LED array being lit
-        DBG(DBG_io, "%s: activating LEDADD\n", __func__);
         flags |= ScanFlag::ENABLE_LEDADD;
     }
 
@@ -1400,7 +1379,6 @@ void CommandSetGl841::eject_document(Genesys_Device* dev) const
 
     if (!dev->model->is_sheetfed) {
       DBG(DBG_proc, "%s: there is no \"eject sheet\"-concept for non sheet fed\n", __func__);
-      DBG(DBG_proc, "%s: finished\n", __func__);
       return;
     }
 
@@ -1449,10 +1427,9 @@ void CommandSetGl841::eject_document(Genesys_Device* dev) const
 	{
 
             if (!gl841_get_paper_sensor(dev)) {
-	      DBG(DBG_info, "%s: reached home position\n", __func__);
-	      DBG(DBG_proc, "%s: finished\n", __func__);
-	      break;
-	    }
+                DBG(DBG_info, "%s: reached home position\n", __func__);
+                break;
+            }
           dev->interface->sleep_ms(100);
 	  --loop;
 	}
@@ -1587,8 +1564,6 @@ void CommandSetGl841::detect_document_end(Genesys_Device* dev) const
             auto skip_lines = scan_end_lines - output_lines;
 
             if (remaining_lines > skip_lines) {
-                DBG(DBG_io, "%s: skip_lines=%zu\n", __func__, skip_lines);
-
                 remaining_lines -= skip_lines;
                 dev->get_pipeline_source().set_remaining_bytes(remaining_lines *
                                                                dev->session.output_line_bytes_raw);
@@ -2321,7 +2296,6 @@ void CommandSetGl841::send_shading_data(Genesys_Device* dev, const Genesys_Senso
     // calibration. Currently only cases handled are full and half ccd resolution.
     unsigned beginpixel = dev->session.params.startx * dev->session.optical_resolution /
             dev->session.params.xres;
-    DBG(DBG_io2, "%s: ORIGIN PIXEL=%d\n", __func__, beginpixel);
     beginpixel *= 4;
     beginpixel /= sensor.shading_factor;
 

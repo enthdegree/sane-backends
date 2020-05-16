@@ -439,16 +439,15 @@ SANE_Int sanei_genesys_exposure_time2(Genesys_Device * dev, float ydpi,
 
   int exposure = exposure_by_ccd;
 
-  if (exposure < exposure_by_motor)
-    exposure = exposure_by_motor;
+    if (exposure < exposure_by_motor) {
+        exposure = exposure_by_motor;
+    }
 
-  if (exposure < exposure_by_led && dev->model->is_cis)
-    exposure = exposure_by_led;
+    if (exposure < exposure_by_led && dev->model->is_cis) {
+        exposure = exposure_by_led;
+    }
 
-    DBG(DBG_info, "%s: ydpi=%d, step=%d, endpixel=%d led=%d => exposure=%d\n", __func__,
-        static_cast<int>(ydpi), static_cast<unsigned>(step_type), endpixel,
-        exposure_by_led, exposure);
-  return exposure;
+    return exposure;
 }
 
 
@@ -1417,8 +1416,6 @@ void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& senso
     unsigned start_pixel = 0;
     unsigned black_pixels = (sensor.black_pixels * sensor.optical_res) / sensor.optical_res;
 
-    DBG(DBG_io2, "%s: black_pixels=%d\n", __func__, black_pixels);
-
     unsigned channels = 3;
     unsigned lines = 1;
     unsigned resolution = sensor.optical_res;
@@ -1538,7 +1535,7 @@ void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& senso
 
     for (unsigned ch = 0; ch < 3; ch++) {
         bottomavg[ch] = dark_average_channel(first_line, black_pixels, ch);
-        DBG(DBG_io2, "%s: bottom avg %d=%d\n", __func__, ch, bottomavg[ch]);
+        DBG(DBG_info, "%s: bottom avg %d=%d\n", __func__, ch, bottomavg[ch]);
     }
 
     // now top value
@@ -1567,7 +1564,7 @@ void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& senso
 
     for (unsigned ch = 0; ch < 3; ch++){
         topavg[ch] = dark_average_channel(second_line, black_pixels, ch);
-        DBG(DBG_io2, "%s: top avg %d=%d\n", __func__, ch, topavg[ch]);
+        DBG(DBG_info, "%s: top avg %d=%d\n", __func__, ch, topavg[ch]);
     }
 
     unsigned pass = 0;
@@ -3815,8 +3812,6 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
   std::vector<uint8_t> second_line(total_size);
 
     do {
-        DBG(DBG_info, "%s: one more loop\n", __func__);
-
         first_line = second_line;
 
         dev->cmd_set->begin_scan(dev, sensor, &dev->reg, false);
@@ -3862,9 +3857,10 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
         DBG(DBG_info, "%s: average 1 = %.2f, average 2 = %.2f\n", __func__, first_average,
             second_average);
 
-        if (second_average > 0 &&
-            std::fabs(first_average - second_average) / second_average < 0.005)
+        float average_difference = std::fabs(first_average - second_average) / second_average;
+        if (second_average > 0 && average_difference < 0.005)
         {
+            dbg.vlog(DBG_info, "difference: %f, exiting", average_difference);
             break;
         }
 

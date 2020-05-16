@@ -386,7 +386,6 @@ static void gl124_send_slope_table(Genesys_Device* dev, int table_nr,
 {
     DBG_HELPER_ARGS(dbg, "table_nr = %d, steps = %d", table_nr, steps);
   int i;
-  char msg[10000];
 
   /* sanity check */
   if(table_nr<0 || table_nr>4)
@@ -399,15 +398,6 @@ static void gl124_send_slope_table(Genesys_Device* dev, int table_nr,
     {
       table[i * 2] = slope_table[i] & 0xff;
       table[i * 2 + 1] = slope_table[i] >> 8;
-    }
-
-  if (DBG_LEVEL >= DBG_io)
-    {
-        std::sprintf(msg, "write slope %d (%d)=", table_nr, steps);
-        for (i = 0; i < steps; i++) {
-            std::sprintf(msg + std::strlen(msg), ",%d", slope_table[i]);
-        }
-      DBG (DBG_io, "%s: %s\n", __func__, msg);
     }
 
     if (dev->interface->is_mock()) {
@@ -428,12 +418,8 @@ static void gl124_set_ti_fe(Genesys_Device* dev, uint8_t set)
     DBG_HELPER(dbg);
   int i;
 
-  if (set == AFE_INIT)
-    {
-        DBG(DBG_proc, "%s: setting DAC %u\n", __func__,
-            static_cast<unsigned>(dev->model->adc_id));
-
-      dev->frontend = dev->frontend_initial;
+    if (set == AFE_INIT) {
+        dev->frontend = dev->frontend_initial;
     }
 
     // start writing to DAC
@@ -472,11 +458,8 @@ void CommandSetGl124::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
     (void) sensor;
   uint8_t val;
 
-  if (set == AFE_INIT)
-    {
-        DBG(DBG_proc, "%s(): setting DAC %u\n", __func__,
-            static_cast<unsigned>(dev->model->adc_id));
-      dev->frontend = dev->frontend_initial;
+    if (set == AFE_INIT) {
+        dev->frontend = dev->frontend_initial;
     }
 
     val = dev->interface->read_register(REG_0x0A);
@@ -564,11 +547,8 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
       linesel=0;
     }
 
-    DBG(DBG_io2, "%s: final yres=%d, linesel=%d\n", __func__, yres, linesel);
-
   lincnt=scan_lines*(linesel+1);
     reg->set24(REG_LINCNT, lincnt);
-  DBG (DBG_io, "%s: lincnt=%d\n", __func__, lincnt);
 
   /* compute register 02 value */
     uint8_t r02 = REG_0x02_NOTHOME;
@@ -633,7 +613,6 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
     if (use_fast_fed) {
         dist += fast_table.steps_count * 2;
     }
-  DBG (DBG_io2, "%s: acceleration distance=%d\n", __func__, dist);
 
   /* get sure we don't use insane value */
     if (dist < feedl) {
@@ -643,7 +622,6 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
     }
 
     reg->set24(REG_FEEDL, feedl);
-  DBG (DBG_io, "%s: feedl=%d\n", __func__, feedl);
 
   /* doesn't seem to matter that much */
     sanei_genesys_calculate_zmod(use_fast_fed,
@@ -656,10 +634,7 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
                                   &z2);
 
     reg->set24(REG_Z1MOD, z1);
-  DBG(DBG_info, "%s: z1 = %d\n", __func__, z1);
-
     reg->set24(REG_Z2MOD, z2);
-  DBG(DBG_info, "%s: z2 = %d\n", __func__, z2);
 
   /* LINESEL */
     reg->set8_mask(REG_0x1D, linesel, REG_0x1D_LINESEL);
@@ -708,12 +683,9 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
     if ((dev->model->sensor_id != SensorId::CIS_CANON_LIDE_120) && (session.params.xres>=600)) {
         reg->find_reg(REG_0x03).value &= ~REG_0x03_AVEENB;
-      DBG (DBG_io, "%s: disabling AVEENB\n", __func__);
-    }
-  else
-    {
+    } else {
+        // BUG: the following is likely incorrect
         reg->find_reg(REG_0x03).value |= ~REG_0x03_AVEENB;
-      DBG (DBG_io, "%s: enabling AVEENB\n", __func__);
     }
 
     sanei_genesys_set_lamp_power(dev, sensor, *reg,
@@ -807,10 +779,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
     // BUG: we shouldn't multiply by channels here
     reg->set24(REG_MAXWD, session.output_line_bytes_raw / session.ccd_size_divisor * session.params.channels);
-
     reg->set24(REG_LPERIOD, exposure_time);
-  DBG (DBG_io2, "%s: exposure_time used=%d\n", __func__, exposure_time);
-
     reg->set16(REG_DUMMY, sensor.dummy_pixel);
 }
 
@@ -821,7 +790,6 @@ void CommandSetGl124::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     DBG_HELPER(dbg);
     session.assert_computed();
 
-  int move;
   int exposure_time;
 
   int dummy = 0;
@@ -851,13 +819,10 @@ void CommandSetGl124::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     // now _LOGICAL_ optical values used are known, setup registers
     gl124_init_optical_regs_scan(dev, sensor, reg, exposure_time, session);
 
-  /* add tl_y to base movement */
-    move = session.params.starty;
-  DBG(DBG_info, "%s: move=%d steps\n", __func__, move);
-
     gl124_init_motor_regs_scan(dev, sensor, reg, motor_profile, exposure_time, slope_dpi,
                                session.optical_line_count,
-                               dummy, move, session.params.scan_mode, session.params.flags);
+                               dummy, session.params.starty, session.params.scan_mode,
+                               session.params.flags);
 
   /*** prepares data reordering ***/
 
@@ -1060,7 +1025,6 @@ void CommandSetGl124::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
         move = static_cast<int>(dev->model->y_offset_calib_white);
         move = static_cast<int>((move * (dev->motor.base_ydpi/4)) / MM_PER_INCH);
     }
-  DBG (DBG_io, "%s: move=%d steps\n", __func__, move);
 
     ScanSession session;
     session.params.xres = resolution;

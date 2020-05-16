@@ -106,8 +106,14 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::CANON_LIDE_35;
     motor.base_ydpi = 1200;
-    motor.profiles.push_back({MotorSlope::create_from_steps(3500, 1300, 60), StepType::FULL, 0});
-    motor.profiles.push_back({MotorSlope::create_from_steps(3500, 1400, 60), StepType::HALF, 0});
+
+    profile = MotorProfile{MotorSlope::create_from_steps(3500, 1300, 60), StepType::FULL, 0};
+    profile.resolutions = {75, 100, 150, 200};
+    motor.profiles.push_back(profile);
+
+    profile = MotorProfile{MotorSlope::create_from_steps(3500, 1400, 60), StepType::HALF, 0};
+    profile.resolutions = {300, 600, 1200, 2400};
+    motor.profiles.push_back(profile);
     s_motors->push_back(std::move(motor));
 
 
@@ -123,32 +129,58 @@ void genesys_init_motor_tables()
     motor.id = MotorId::XP300;
     motor.base_ydpi = 300;
     // works best with GPIO10, GPIO14 off
-    motor.profiles.push_back({MotorSlope::create_from_steps(3700, 3700, 2), StepType::FULL, 0});
-    motor.profiles.push_back({MotorSlope::create_from_steps(11000, 11000, 2), StepType::HALF, 0});
+    profile = MotorProfile{MotorSlope::create_from_steps(3700, 3700, 2), StepType::FULL, 0};
+    profile.resolutions = {}; // used during fast moves
+    motor.profiles.push_back(profile);
+
+    // FIXME: this motor profile is useless
+    profile = MotorProfile{MotorSlope::create_from_steps(11000, 11000, 2), StepType::HALF, 0};
+    profile.resolutions = {75, 150, 300, 600};
+    motor.profiles.push_back(profile);
     s_motors->push_back(std::move(motor));
 
 
     motor = Genesys_Motor();
     motor.id = MotorId::DP665;
     motor.base_ydpi = 750;
-    motor.profiles.push_back({MotorSlope::create_from_steps(3000, 2500, 10), StepType::FULL, 0});
-    motor.profiles.push_back({MotorSlope::create_from_steps(11000, 11000, 2), StepType::HALF, 0});
+
+    profile = MotorProfile{MotorSlope::create_from_steps(3000, 2500, 10), StepType::FULL, 0};
+    profile.resolutions = {75, 150};
+    motor.profiles.push_back(profile);
+
+    // FIXME: this motor profile is useless
+    profile = MotorProfile{MotorSlope::create_from_steps(11000, 11000, 2), StepType::HALF, 0};
+    profile.resolutions = {300, 600, 1200};
+    motor.profiles.push_back(profile);
     s_motors->push_back(std::move(motor));
 
 
     motor = Genesys_Motor();
     motor.id = MotorId::ROADWARRIOR;
     motor.base_ydpi = 750;
-    motor.profiles.push_back({MotorSlope::create_from_steps(3000, 2600, 10), StepType::FULL, 0});
-    motor.profiles.push_back({MotorSlope::create_from_steps(11000, 11000, 2), StepType::HALF, 0});
+
+    profile = MotorProfile{MotorSlope::create_from_steps(3000, 2600, 10), StepType::FULL, 0};
+    profile.resolutions = {75, 150};
+    motor.profiles.push_back(profile);
+
+    // FIXME: this motor profile is useless
+    profile = MotorProfile{MotorSlope::create_from_steps(11000, 11000, 2), StepType::HALF, 0};
+    profile.resolutions = {300, 600, 1200};
+    motor.profiles.push_back(profile);
     s_motors->push_back(std::move(motor));
 
 
     motor = Genesys_Motor();
     motor.id = MotorId::DSMOBILE_600;
     motor.base_ydpi = 750;
-    motor.profiles.push_back({MotorSlope::create_from_steps(6666, 3700, 8), StepType::FULL, 0});
-    motor.profiles.push_back({MotorSlope::create_from_steps(6666, 3700, 8), StepType::HALF, 0});
+
+    profile = MotorProfile{MotorSlope::create_from_steps(6666, 3700, 8), StepType::FULL, 0};
+    profile.resolutions = {75, 150};
+    motor.profiles.push_back(profile);
+
+    profile = MotorProfile{MotorSlope::create_from_steps(6666, 3700, 8), StepType::HALF, 0};
+    profile.resolutions = {300, 600, 1200};
+    motor.profiles.push_back(profile);
     s_motors->push_back(std::move(motor));
 
 
@@ -385,8 +417,15 @@ void genesys_init_motor_tables()
     motor = Genesys_Motor();
     motor.id = MotorId::PLUSTEK_OPTICPRO_3600;
     motor.base_ydpi = 1200;
-    motor.profiles.push_back({MotorSlope::create_from_steps(3500, 1300, 60), StepType::FULL, 0});
-    motor.profiles.push_back({MotorSlope::create_from_steps(3500, 3250, 60), StepType::HALF, 0});
+
+    profile = MotorProfile{MotorSlope::create_from_steps(3500, 1300, 60), StepType::FULL, 0};
+    profile.resolutions = {75, 100, 150, 200};
+    motor.profiles.push_back(profile);
+
+    // FIXME: this motor profile is almost useless
+    profile = MotorProfile{MotorSlope::create_from_steps(3500, 3250, 60), StepType::HALF, 0};
+    profile.resolutions = {300, 400, 600, 1200};
+    motor.profiles.push_back(profile);
     s_motors->push_back(std::move(motor));
 
 

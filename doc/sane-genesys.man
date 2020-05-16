@@ -226,38 +226,15 @@ increase the verbosity of the output. If the debug level is set to 1 or higher,
 some debug options become available that are normally hidden. Handle them with
 care. This will print messages related to core genesys functions.
 .TP
-.B SANE_DEBUG_GENESYS_LOW
-This environment variable controls the debug level for low level functions
-common to all genesys ASICs.
-.TP
-.B SANE_DEBUG_GENESYS_GL646
-This environment variable controls the debug level for the specific GL646 code
-part.
-.TP
-.B SANE_DEBUG_GENESYS_GL841
-This environment variable controls the debug level for the specific GL841 code
-part.
-.TP
-.B SANE_DEBUG_GENESYS_GL843
-This environment variable controls the debug level for the specific GL843 code
-part.
-.TP
-.B SANE_DEBUG_GENESYS_GL847
-This environment variable controls the debug level for the specific GL847 code
-part.
-.TP
-.B SANE_DEBUG_GENESYS_GL124
-This environment variable controls the debug level for the specific GL124 code
-part.
+.B SANE_DEBUG_GENESYS_IMAGE
+If the library was compiled with debug support enabled, this environment
+variable enables logging of intermediate image data. To enable this mode,
+set the environmental variable to 1.
 
 
 Example (full and highly verbose output for gl646):
 .br
 export SANE_DEBUG_GENESYS=255
-.br
-export SANE_DEBUG_GENESYS_LOW=255
-.br
-export SANE_DEBUG_GENESYS_GL646=255
 
 .SH CREDITS
 

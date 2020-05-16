@@ -45,6 +45,7 @@
 
 #include "error.h"
 #include <cstdarg>
+#include <cstdlib>
 
 namespace genesys {
 
@@ -210,6 +211,34 @@ void DebugMessageHelper::vlog(unsigned level, const char* format, ...)
     msg.resize(msg_len, ' '); // strip the null character
 
     DBG(level, "%s: %s\n", func_, msg.c_str());
+}
+
+enum class LogImageDataStatus
+{
+    NOT_SET,
+    ENABLED,
+    DISABLED
+};
+
+static LogImageDataStatus s_log_image_data_setting = LogImageDataStatus::NOT_SET;
+
+LogImageDataStatus dbg_read_log_image_data_setting()
+{
+    auto* setting = std::getenv("SANE_DEBUG_GENESYS_IMAGE");
+    if (!setting)
+        return LogImageDataStatus::DISABLED;
+    auto setting_int = std::strtol(setting, nullptr, 10);
+    if (setting_int == 0)
+        return LogImageDataStatus::DISABLED;
+    return LogImageDataStatus::ENABLED;
+}
+
+bool dbg_log_image_data()
+{
+    if (s_log_image_data_setting == LogImageDataStatus::NOT_SET) {
+        s_log_image_data_setting = dbg_read_log_image_data_setting();
+    }
+    return s_log_image_data_setting == LogImageDataStatus::ENABLED;
 }
 
 } // namespace genesys

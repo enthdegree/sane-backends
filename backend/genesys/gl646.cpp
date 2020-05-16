@@ -2058,12 +2058,11 @@ SensorExposure CommandSetGl646::led_calibration(Genesys_Device* dev, const Genes
             return calib_sensor.exposure;
         }
 
-      if (DBG_LEVEL >= DBG_data)
-	{
-          char fn[30];
+        if (dbg_log_image_data()) {
+            char fn[30];
             std::snprintf(fn, 30, "gl646_led_%02d.pnm", turn);
-          sanei_genesys_write_pnm_file(fn, line.data(), 16, channels, pixels, 1);
-	}
+            sanei_genesys_write_pnm_file(fn, line.data(), 16, channels, pixels, 1);
+        }
 
         acceptable = true;
 
@@ -2227,9 +2226,9 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
             return;
         }
 
-        if (DBG_LEVEL >= DBG_data) {
-          char title[30];
-          std::snprintf(title, 30, "gl646_offset%03d.pnm", static_cast<int>(bottom));
+        if (dbg_log_image_data()) {
+            char title[30];
+            std::snprintf(title, 30, "gl646_offset%03d.pnm", static_cast<int>(bottom));
             sanei_genesys_write_pnm_file (title, line.data(), 8, channels, pixels, lines);
         }
 
@@ -2337,8 +2336,8 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     dev->cmd_set->init_regs_for_scan_session(dev, sensor, &dev->reg, session);
     simple_scan(dev, calib_sensor, session, false, first_line, "offset_first_line");
 
-    if (DBG_LEVEL >= DBG_data) {
-      char title[30];
+    if (dbg_log_image_data()) {
+        char title[30];
         std::snprintf(title, 30, "gl646_offset%03d.pnm", bottom);
         sanei_genesys_write_pnm_file(title, first_line.data(), 8, channels, pixels, lines);
     }
@@ -2353,8 +2352,8 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
     dev->cmd_set->init_regs_for_scan_session(dev, calib_sensor, &dev->reg, session);
     simple_scan(dev, calib_sensor, session, false, second_line, "offset_second_line");
 
-    if (DBG_LEVEL >= DBG_data) {
-      char title[30];
+    if (dbg_log_image_data()) {
+        char title[30];
         std::snprintf(title, 30, "gl646_offset%03d.pnm", top);
         sanei_genesys_write_pnm_file (title, second_line.data(), 8, channels, pixels, lines);
     }
@@ -2380,8 +2379,8 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
         simple_scan(dev, calib_sensor, session, false, second_line,
                     "offset_calibration_i");
 
-        if (DBG_LEVEL >= DBG_data) {
-          char title[30];
+        if (dbg_log_image_data()) {
+            char title[30];
             std::snprintf(title, 30, "gl646_offset%03d.pnm", dev->frontend.get_offset(1));
             sanei_genesys_write_pnm_file(title, second_line.data(), 8, channels, pixels, lines);
         }
@@ -2493,7 +2492,7 @@ void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys
         dev->cmd_set->init_regs_for_scan_session(dev, calib_sensor, &dev->reg, session);
         simple_scan(dev, calib_sensor, session, false, line, "coarse_gain_calibration");
 
-        if (DBG_LEVEL >= DBG_data) {
+        if (dbg_log_image_data()) {
             std::sprintf(title, "gl646_gain%02d.pnm", pass);
             sanei_genesys_write_pnm_file(title, line.data(), 8, channels, pixels, lines);
         }

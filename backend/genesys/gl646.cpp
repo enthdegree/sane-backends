@@ -72,27 +72,6 @@ static void write_control(Genesys_Device* dev, const Genesys_Sensor& sensor, int
 static void gl646_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set, int dpi);
 
 /**
- * sets up the scanner for a scan, registers, gamma tables, shading tables
- * and slope tables, based on the parameter struct.
- * @param dev         device to set up
- * @param regs        registers to set up
- * @param settings    settings of the scan
- * @param split       true if move before scan has to be done
- * @param xcorrection true if scanner's X geometry must be taken into account to
- * 		     compute X, ie add left margins
- * @param ycorrection true if scanner's Y geometry must be taken into account to
- * 		     compute Y, ie add top margins
- */
-static ScanSession setup_for_scan(Genesys_Device* device,
-                                  const Genesys_Sensor& sensor,
-                                  Genesys_Register_Set*regs,
-                                  Genesys_Settings settings,
-                                  bool split,
-                                  bool xcorrection,
-                                  bool ycorrection,
-                                  bool reverse);
-
-/**
  * Does a simple move of the given distance by doing a scan at lowest resolution
  * shading correction. Memory for data is allocated in this function
  * and must be freed by caller.
@@ -1919,10 +1898,31 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   settings.disable_interpolation = dev->settings.disable_interpolation;
   settings.threshold = dev->settings.threshold;
 
-    // we don't want top offset, but we need right margin to be the same than the one for the final
-    // scan
-    dev->calib_session = setup_for_scan(dev, calib_sensor, &dev->reg, settings,
-                                        true, false, false, false);
+    float start = settings.tl_x;
+    start = static_cast<float>((start * settings.xres) / MM_PER_INCH);
+
+    ScanSession session;
+    session.params.xres = settings.xres;
+    session.params.yres = settings.yres;
+    session.params.startx = static_cast<unsigned>(start);
+    session.params.starty = 0;
+    session.params.pixels = settings.pixels;
+    session.params.requested_pixels = settings.requested_pixels;
+    session.params.lines = settings.lines;
+    session.params.depth = settings.depth;
+    session.params.channels = settings.get_channels();
+    session.params.scan_method = dev->settings.scan_method;
+    session.params.scan_mode = settings.scan_mode;
+    session.params.color_filter = settings.color_filter;
+    session.params.flags = ScanFlag::NONE;
+    if (settings.scan_method == ScanMethod::TRANSPARENCY) {
+        session.params.flags |= ScanFlag::USE_XPA;
+    }
+    compute_session(dev, session, calib_sensor);
+
+    dev->cmd_set->init_regs_for_scan_session(dev, calib_sensor, &dev->reg, session);
+
+    dev->calib_session = session;
 
   /* no shading */
     dev->reg.find_reg(0x01).value &= ~REG_0x01_DVDSET;
@@ -1969,87 +1969,6 @@ void CommandSetGl646::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sens
     if (dev->settings.depth < 16) {
         regs.find_reg(0x05).value |= REG_0x05_GMMENB;
     }
-}
-
-/**
- * set up registers for the actual scan. The scan's parameters are given
- * through the device settings. It allocates the scan buffers.
- * @param dev scanner's device
- * @param regs     registers to set up
- * @param settings settings of scan
- * @param split true if move to scan area is split from scan, false is
- *              scan first moves to area
- * @param xcorrection take x geometry correction into account (fixed and detected offsets)
- * @param ycorrection take y geometry correction into account
- */
-static ScanSession setup_for_scan(Genesys_Device* dev,
-                                  const Genesys_Sensor& sensor,
-                                  Genesys_Register_Set*regs,
-                                  Genesys_Settings settings,
-                                  bool split,
-                                  bool xcorrection,
-                                  bool ycorrection,
-                                  bool reverse)
-{
-    DBG_HELPER(dbg);
-
-    debug_dump(DBG_info, dev->settings);
-
-    // compute distance to move
-    float move = 0;
-    if (!split) {
-        if (!dev->model->is_sheetfed) {
-            if (ycorrection) {
-                move = dev->model->y_offset;
-            }
-
-            // add tl_y to base movement
-        }
-        move += settings.tl_y;
-
-        if (move < 0) {
-            DBG(DBG_error, "%s: overriding negative move value %f\n", __func__, move);
-            move = 0;
-        }
-    }
-    move = static_cast<float>((move * dev->motor.base_ydpi) / MM_PER_INCH);
-    DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
-
-    float start = settings.tl_x;
-    if (xcorrection) {
-        if (settings.scan_method == ScanMethod::FLATBED) {
-            start += dev->model->x_offset;
-        } else {
-            start += dev->model->x_offset_ta;
-        }
-    }
-    start = static_cast<float>((start * settings.xres) / MM_PER_INCH);
-
-    ScanSession session;
-    session.params.xres = settings.xres;
-    session.params.yres = settings.yres;
-    session.params.startx = static_cast<unsigned>(start);
-    session.params.starty = static_cast<unsigned>(move);
-    session.params.pixels = settings.pixels;
-    session.params.requested_pixels = settings.requested_pixels;
-    session.params.lines = settings.lines;
-    session.params.depth = settings.depth;
-    session.params.channels = settings.get_channels();
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = settings.scan_mode;
-    session.params.color_filter = settings.color_filter;
-    session.params.flags = ScanFlag::NONE;
-    if (settings.scan_method == ScanMethod::TRANSPARENCY) {
-        session.params.flags |= ScanFlag::USE_XPA;
-    }
-    if (reverse) {
-        session.params.flags |= ScanFlag::REVERSE;
-    }
-    compute_session(dev, session, sensor);
-
-    dev->cmd_set->init_regs_for_scan_session(dev, sensor, regs, session);
-
-    return session;
 }
 
 /**
@@ -2814,8 +2733,29 @@ void CommandSetGl646::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
   settings.disable_interpolation = 0;
   settings.threshold = 0;
 
-    // setup for scan
-    setup_for_scan(dev, local_sensor, &dev->reg, settings, true, false, false, false);
+    float start = settings.tl_x;
+    start = static_cast<float>((start * settings.xres) / MM_PER_INCH);
+
+    ScanSession session;
+    session.params.xres = settings.xres;
+    session.params.yres = settings.yres;
+    session.params.startx = static_cast<unsigned>(start);
+    session.params.starty = 0;
+    session.params.pixels = settings.pixels;
+    session.params.requested_pixels = settings.requested_pixels;
+    session.params.lines = settings.lines;
+    session.params.depth = settings.depth;
+    session.params.channels = settings.get_channels();
+    session.params.scan_method = dev->settings.scan_method;
+    session.params.scan_mode = settings.scan_mode;
+    session.params.color_filter = settings.color_filter;
+    session.params.flags = ScanFlag::NONE;
+    if (settings.scan_method == ScanMethod::TRANSPARENCY) {
+        session.params.flags |= ScanFlag::USE_XPA;
+    }
+    compute_session(dev, session, local_sensor);
+
+    dev->cmd_set->init_regs_for_scan_session(dev, local_sensor, &dev->reg, session);
 
   /* we are not going to move, so clear these bits */
     dev->reg.find_reg(0x02).value &= ~(REG_0x02_FASTFED | REG_0x02_AGOHOME);
@@ -2864,7 +2804,33 @@ static void gl646_repark_head(Genesys_Device* dev)
     const auto& sensor = sanei_genesys_find_sensor(dev, settings.xres, 3,
                                                    dev->model->default_method);
 
-    setup_for_scan(dev, sensor, &dev->reg, settings, false, false, false, false);
+    float move = settings.tl_y;
+    move = static_cast<float>((move * dev->motor.base_ydpi) / MM_PER_INCH);
+    DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
+
+    float start = settings.tl_x;
+    start = static_cast<float>((start * settings.xres) / MM_PER_INCH);
+
+    ScanSession session;
+    session.params.xres = settings.xres;
+    session.params.yres = settings.yres;
+    session.params.startx = static_cast<unsigned>(start);
+    session.params.starty = static_cast<unsigned>(move);
+    session.params.pixels = settings.pixels;
+    session.params.requested_pixels = settings.requested_pixels;
+    session.params.lines = settings.lines;
+    session.params.depth = settings.depth;
+    session.params.channels = settings.get_channels();
+    session.params.scan_method = dev->settings.scan_method;
+    session.params.scan_mode = settings.scan_mode;
+    session.params.color_filter = settings.color_filter;
+    session.params.flags = ScanFlag::NONE;
+    if (settings.scan_method == ScanMethod::TRANSPARENCY) {
+        session.params.flags |= ScanFlag::USE_XPA;
+    }
+    compute_session(dev, session, sensor);
+
+    dev->cmd_set->init_regs_for_scan_session(dev, sensor, &dev->reg, session);
 
   /* TODO seems wrong ... no effective scan */
     regs_set_optical_off(dev->model->asic_type, dev->reg);
@@ -3054,22 +3020,58 @@ void CommandSetGl646::move_to_ta(Genesys_Device* dev) const
  * @param data pointer for the data
  */
 static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                        Genesys_Settings settings, bool move, bool forward,
+                        Genesys_Settings settings, bool do_move, bool forward,
                         bool shading, std::vector<uint8_t>& data,
                         const char* scan_identifier)
 {
-    DBG_HELPER_ARGS(dbg, "move=%d, forward=%d, shading=%d", move, forward, shading);
-  unsigned int size, lines, x, y, bpp;
-    bool split;
+    DBG_HELPER_ARGS(dbg, "move=%d, forward=%d, shading=%d", do_move, forward, shading);
+    unsigned lines, bpp;
 
   /* round up to multiple of 3 in case of CIS scanner */
     if (dev->model->is_cis) {
       settings.lines = ((settings.lines + 2) / 3) * 3;
     }
 
-  /* setup for move then scan */
-    split = !(move && settings.tl_y > 0);
-    setup_for_scan(dev, sensor, &dev->reg, settings, split, false, false, !forward);
+    auto* regs = &dev->reg;
+    // compute distance to move
+    float move = 0;
+    if (do_move && settings.tl_y > 0) {
+        move += settings.tl_y;
+
+        if (move < 0) {
+            DBG(DBG_error, "%s: overriding negative move value %f\n", __func__, move);
+            move = 0;
+        }
+    }
+    move = static_cast<float>((move * dev->motor.base_ydpi) / MM_PER_INCH);
+    DBG(DBG_info, "%s: move=%f steps\n", __func__, move);
+
+    float start = settings.tl_x;
+    start = static_cast<float>((start * settings.xres) / MM_PER_INCH);
+
+    ScanSession session;
+    session.params.xres = settings.xres;
+    session.params.yres = settings.yres;
+    session.params.startx = static_cast<unsigned>(start);
+    session.params.starty = static_cast<unsigned>(move);
+    session.params.pixels = settings.pixels;
+    session.params.requested_pixels = settings.requested_pixels;
+    session.params.lines = settings.lines;
+    session.params.depth = settings.depth;
+    session.params.channels = settings.get_channels();
+    session.params.scan_method = dev->settings.scan_method;
+    session.params.scan_mode = settings.scan_mode;
+    session.params.color_filter = settings.color_filter;
+    session.params.flags = ScanFlag::NONE;
+    if (settings.scan_method == ScanMethod::TRANSPARENCY) {
+        session.params.flags |= ScanFlag::USE_XPA;
+    }
+    if (!forward) {
+        session.params.flags |= ScanFlag::REVERSE;
+    }
+    compute_session(dev, session, sensor);
+
+    dev->cmd_set->init_regs_for_scan_session(dev, sensor, regs, session);
 
   /* allocate memory fo scan : LINCNT may have been adjusted for CCD reordering */
     if (dev->model->is_cis) {
@@ -3077,23 +3079,21 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
     } else {
         lines = dev->reg.get24(REG_LINCNT) + 1;
     }
-  size = lines * settings.pixels;
-    if (settings.depth == 16) {
+
+    std::size_t size = lines * session.params.pixels;
+    if (session.params.depth == 16) {
         bpp = 2;
     } else {
         bpp = 1;
     }
-    size *= bpp * settings.get_channels();
+    size *= bpp * session.params.channels;
   data.clear();
   data.resize(size);
 
-  DBG(DBG_io, "%s: allocated %d bytes of memory for %d lines\n", __func__, size, lines);
-
-  /* put back real line number in settings */
-  settings.lines = lines;
+    DBG(DBG_io, "%s: allocated %zu bytes of memory for %d lines\n", __func__, size, lines);
 
     // initialize frontend
-    gl646_set_fe(dev, sensor, AFE_SET, settings.xres);
+    gl646_set_fe(dev, sensor, AFE_SET, session.params.xres);
 
   /* no shading correction and not watch dog for simple scan */
     dev->reg.find_reg(0x01).value &= ~(REG_0x01_DVDSET | REG_0x01_DOGENB);
@@ -3115,7 +3115,7 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
     }
 
   /* no automatic go home when using XPA */
-  if (settings.scan_method == ScanMethod::TRANSPARENCY) {
+    if (session.params.scan_method == ScanMethod::TRANSPARENCY) {
         dev->reg.find_reg(0x02).value &= ~REG_0x02_AGOHOME;
     }
 
@@ -3136,46 +3136,38 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
     sanei_genesys_read_data_from_scanner(dev, data.data(), size);
 
   /* in case of CIS scanner, we must reorder data */
-    if (dev->model->is_cis && settings.scan_mode == ScanColorMode::COLOR_SINGLE_PASS) {
-      /* alloc one line sized working buffer */
-      std::vector<uint8_t> buffer(settings.pixels * 3 * bpp);
+    if (dev->model->is_cis && session.params.scan_mode == ScanColorMode::COLOR_SINGLE_PASS) {
+        auto pixels_count = session.params.pixels;
 
-      /* reorder one line of data and put it back to buffer */
-      if (bpp == 1)
-	{
-	  for (y = 0; y < lines; y++)
-	    {
-	      /* reorder line */
-	      for (x = 0; x < settings.pixels; x++)
-		{
-                  buffer[x * 3] = data[y * settings.pixels * 3 + x];
-                  buffer[x * 3 + 1] = data[y * settings.pixels * 3 + settings.pixels + x];
-                  buffer[x * 3 + 2] = data[y * settings.pixels * 3 + 2 * settings.pixels + x];
-		}
-	      /* copy line back */
-              memcpy (data.data() + settings.pixels * 3 * y, buffer.data(),
-		      settings.pixels * 3);
-	    }
-	}
-      else
-	{
-	  for (y = 0; y < lines; y++)
-	    {
-	      /* reorder line */
-	      for (x = 0; x < settings.pixels; x++)
-		{
-                  buffer[x * 6] = data[y * settings.pixels * 6 + x * 2];
-                  buffer[x * 6 + 1] = data[y * settings.pixels * 6 + x * 2 + 1];
-                  buffer[x * 6 + 2] = data[y * settings.pixels * 6 + 2 * settings.pixels + x * 2];
-                  buffer[x * 6 + 3] = data[y * settings.pixels * 6 + 2 * settings.pixels + x * 2 + 1];
-                  buffer[x * 6 + 4] = data[y * settings.pixels * 6 + 4 * settings.pixels + x * 2];
-                  buffer[x * 6 + 5] = data[y * settings.pixels * 6 + 4 * settings.pixels + x * 2 + 1];
-		}
-	      /* copy line back */
-              memcpy (data.data() + settings.pixels * 6 * y, buffer.data(),
-		      settings.pixels * 6);
-	    }
-	}
+        std::vector<uint8_t> buffer(pixels_count * 3 * bpp);
+
+        if (bpp == 1) {
+            for (unsigned y = 0; y < lines; y++) {
+                // reorder line
+                for (unsigned x = 0; x < pixels_count; x++) {
+                    buffer[x * 3] = data[y * pixels_count * 3 + x];
+                    buffer[x * 3 + 1] = data[y * pixels_count * 3 + pixels_count + x];
+                    buffer[x * 3 + 2] = data[y * pixels_count * 3 + 2 * pixels_count + x];
+                }
+                // copy line back
+                std::memcpy(data.data() + pixels_count * 3 * y, buffer.data(), pixels_count * 3);
+            }
+        } else {
+            for (unsigned y = 0; y < lines; y++) {
+                // reorder line
+                auto pixels_count = session.params.pixels;
+                for (unsigned x = 0; x < pixels_count; x++) {
+                    buffer[x * 6] = data[y * pixels_count * 6 + x * 2];
+                    buffer[x * 6 + 1] = data[y * pixels_count * 6 + x * 2 + 1];
+                    buffer[x * 6 + 2] = data[y * pixels_count * 6 + 2 * pixels_count + x * 2];
+                    buffer[x * 6 + 3] = data[y * pixels_count * 6 + 2 * pixels_count + x * 2 + 1];
+                    buffer[x * 6 + 4] = data[y * pixels_count * 6 + 4 * pixels_count + x * 2];
+                    buffer[x * 6 + 5] = data[y * pixels_count * 6 + 4 * pixels_count + x * 2 + 1];
+                }
+                // copy line back
+                std::memcpy(data.data() + pixels_count * 6 * y, buffer.data(),pixels_count * 6);
+            }
+        }
     }
 
     // end scan , waiting the motor to stop if needed (if moving), but without ejecting doc

@@ -225,6 +225,11 @@ variable controls the debug level for this backend.  Higher debug levels
 increase the verbosity of the output. If the debug level is set to 1 or higher,
 some debug options become available that are normally hidden. Handle them with
 care. This will print messages related to core genesys functions.
+.TP
+.B SANE_DEBUG_GENESYS_IMAGE
+If the library was compiled with debug support enabled, this environment
+variable enables logging of intermediate image data. To enable this mode,
+set the environmental variable to 1.
 
 
 Example (full and highly verbose output for gl646):

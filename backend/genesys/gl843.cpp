@@ -775,9 +775,8 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     reg->set8(REG_0x02, reg02);
 
     // scan and backtracking slope table
-    auto scan_table = sanei_genesys_slope_table(dev->model->asic_type, scan_yres, exposure,
-                                                dev->motor.base_ydpi, step_multiplier,
-                                                motor_profile);
+    auto scan_table = create_slope_table(dev->model->asic_type, dev->motor, scan_yres, exposure,
+                                         step_multiplier, motor_profile);
 
     gl843_send_slope_table(dev, SCAN_TABLE, scan_table.table, scan_table.steps_count);
     gl843_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table, scan_table.steps_count);

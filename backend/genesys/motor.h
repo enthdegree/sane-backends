@@ -134,9 +134,9 @@ struct MotorSlopeTable
 
 unsigned get_slope_table_max_size(AsicType asic_type);
 
-MotorSlopeTable create_slope_table(const MotorSlope& slope, unsigned target_speed_w,
-                                   StepType step_type, unsigned steps_alignment,
-                                   unsigned min_size, unsigned max_size);
+MotorSlopeTable create_slope_table_for_speed(const MotorSlope& slope, unsigned target_speed_w,
+                                             StepType step_type, unsigned steps_alignment,
+                                             unsigned min_size, unsigned max_size);
 
 std::ostream& operator<<(std::ostream& out, const MotorSlope& slope);
 

@@ -135,7 +135,7 @@ void test_create_slope_table_small_full_step()
     slope.max_speed_w = 2632;
     slope.acceleration = 1.2e-8;
 
-    auto table = create_slope_table(slope, 5000, StepType::FULL, 4, 8, max_table_size);
+    auto table = create_slope_table_for_speed(slope, 5000, StepType::FULL, 4, 8, max_table_size);
 
     std::vector<std::uint16_t> expected_table = {
         62464, 62464, 6420, 5000
@@ -146,7 +146,7 @@ void test_create_slope_table_small_full_step()
     ASSERT_EQ(table.pixeltime_sum, 156348u);
 
 
-    table = create_slope_table(slope, 3000, StepType::FULL, 4, 8, max_table_size);
+    table = create_slope_table_for_speed(slope, 3000, StepType::FULL, 4, 8, max_table_size);
 
     expected_table = {
         62464, 62464, 6420, 4552, 3720, 3223, 3000
@@ -167,7 +167,7 @@ void test_create_slope_table_small_full_step_target_speed_too_high()
     slope.max_speed_w = 2632;
     slope.acceleration = 1.2e-8;
 
-    auto table = create_slope_table(slope, 2000, StepType::FULL, 4, 8, max_table_size);
+    auto table = create_slope_table_for_speed(slope, 2000, StepType::FULL, 4, 8, max_table_size);
 
     std::vector<std::uint16_t> expected_table = {
         62464, 62464, 6420, 4552, 3720, 3223, 2883, 2632
@@ -188,7 +188,7 @@ void test_create_slope_table_small_half_step()
     slope.max_speed_w = 2632;
     slope.acceleration = 1.2e-8;
 
-    auto table = create_slope_table(slope, 5000, StepType::HALF, 4, 8, max_table_size);
+    auto table = create_slope_table_for_speed(slope, 5000, StepType::HALF, 4, 8, max_table_size);
 
     std::vector<std::uint16_t> expected_table = {
         31232, 31232, 3210, 2500
@@ -199,7 +199,7 @@ void test_create_slope_table_small_half_step()
     ASSERT_EQ(table.pixeltime_sum, 78174u);
 
 
-    table = create_slope_table(slope, 3000, StepType::HALF, 4, 8, max_table_size);
+    table = create_slope_table_for_speed(slope, 3000, StepType::HALF, 4, 8, max_table_size);
 
     expected_table = {
         31232, 31232, 3210, 2276, 1860, 1611, 1500
@@ -243,7 +243,7 @@ void test_create_slope_table_large_full_step()
     slope.max_speed_w = 1500;
     slope.acceleration = 1.013948e-9;
 
-    auto table = create_slope_table(slope, 3000, StepType::FULL, 4, 8, max_table_size);
+    auto table = create_slope_table_for_speed(slope, 3000, StepType::FULL, 4, 8, max_table_size);
 
     std::vector<std::uint16_t> expected_table = {
         54612, 54612, 20570, 15090, 12481, 10880, 9770, 8943, 8295, 7771,
@@ -259,7 +259,7 @@ void test_create_slope_table_large_full_step()
     ASSERT_EQ(table.pixeltime_sum, 412616u);
 
 
-    table = create_slope_table(slope, 1500, StepType::FULL, 4, 8, max_table_size);
+    table = create_slope_table_for_speed(slope, 1500, StepType::FULL, 4, 8, max_table_size);
 
     expected_table = {
         54612, 54612, 20570, 15090, 12481, 10880, 9770, 8943, 8295, 7771,
@@ -303,7 +303,7 @@ void test_create_slope_table_large_half_step()
     slope.max_speed_w = 1500;
     slope.acceleration = 1.013948e-9;
 
-    auto table = create_slope_table(slope, 3000, StepType::HALF, 4, 8, max_table_size);
+    auto table = create_slope_table_for_speed(slope, 3000, StepType::HALF, 4, 8, max_table_size);
 
     std::vector<std::uint16_t> expected_table = {
         27306, 27306, 10285, 7545, 6240, 5440, 4885, 4471, 4147, 3885,
@@ -319,7 +319,7 @@ void test_create_slope_table_large_half_step()
     ASSERT_EQ(table.pixeltime_sum, 206294u);
 
 
-    table = create_slope_table(slope, 1500, StepType::HALF, 4, 8, max_table_size);
+    table = create_slope_table_for_speed(slope, 1500, StepType::HALF, 4, 8, max_table_size);
 
     expected_table = {
         27306, 27306, 10285, 7545, 6240, 5440, 4885, 4471, 4147, 3885,

@@ -255,6 +255,9 @@ gl841_init_registers (Genesys_Device * dev)
             dev->reg.init_reg(addr, 0);
         }
         dev->reg.init_reg(0x5e, 0x02);
+        if (dev->model->model_id == ModelId::CANON_LIDE_60) {
+            dev->reg.init_reg(0x66, 0xff);
+        }
     }
 
     dev->reg.init_reg(0x70, 0x00); // SENSOR_DEF, overwritten in scanner_setup_sensor() below
@@ -1527,6 +1530,19 @@ void CommandSetGl841::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
         dev->interface->write_register(REG_0x6B, val);
     }
 
+    if (dev->model->model_id == ModelId::CANON_LIDE_60) {
+        if (dev->session.params.yres >= 1200) {
+            dev->interface->write_register(REG_0x6C, 0x82);
+        } else {
+            dev->interface->write_register(REG_0x6C, 0x02);
+        }
+        if (dev->session.params.yres >= 600) {
+            dev->interface->write_register(REG_0x6B, 0x01);
+        } else {
+            dev->interface->write_register(REG_0x6B, 0x03);
+        }
+    }
+
     if (dev->model->sensor_id != SensorId::CCD_PLUSTEK_OPTICPRO_3600) {
         local_reg.init_reg(0x03, reg->get8(0x03) | REG_0x03_LAMPPWR);
     } else {
@@ -2305,6 +2321,10 @@ void CommandSetGl841::asic_boot(Genesys_Device *dev, bool cold) const
 
     // FIXME: 0x0b is not set, but on all other backends we do set it
     // dev->reg.remove_reg(0x0b);
+
+    if (dev->model->model_id == ModelId::CANON_LIDE_60) {
+        dev->interface->write_0x8c(0x10, 0xa4);
+    }
 
     // FIXME: we probably don't need this
     const auto& sensor = sanei_genesys_find_sensor_any(dev);

@@ -215,41 +215,6 @@ gl847_init_registers (Genesys_Device * dev)
     sanei_genesys_set_dpihw(dev->reg, dpihw_sensor.register_dpihw);
 }
 
-/**@brief send slope table for motor movement
- * Send slope_table in machine byte order
- * @param dev device to send slope table
- * @param table_nr index of the slope table in ASIC memory
- * Must be in the [0-4] range.
- * @param slope_table pointer to 16 bit values array of the slope table
- * @param steps number of elements in the slope table
- */
-static void gl847_send_slope_table(Genesys_Device* dev, int table_nr,
-                                   const std::vector<uint16_t>& slope_table,
-                                   int steps)
-{
-    DBG_HELPER_ARGS(dbg, "table_nr = %d, steps = %d", table_nr, steps);
-  int i;
-
-  /* sanity check */
-  if(table_nr<0 || table_nr>4)
-    {
-        throw SaneException("invalid table number %d", table_nr);
-    }
-
-  std::vector<uint8_t> table(steps * 2);
-  for (i = 0; i < steps; i++)
-    {
-      table[i * 2] = slope_table[i] & 0xff;
-      table[i * 2 + 1] = slope_table[i] >> 8;
-    }
-
-    if (dev->interface->is_mock()) {
-        dev->interface->record_slope_table(table_nr, slope_table);
-    }
-    // slope table addresses are fixed
-    dev->interface->write_ahb(0x10000000 + 0x4000 * table_nr, steps * 2, table.data());
-}
-
 // Set values of analog frontend
 void CommandSetGl847::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set) const
 {
@@ -339,8 +304,8 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
     // scan and backtracking slope table
     auto scan_table = create_slope_table(dev->model->asic_type, dev->motor, scan_yres,
                                          scan_exposure_time, step_multiplier, motor_profile);
-    gl847_send_slope_table(dev, SCAN_TABLE, scan_table.table, scan_table.steps_count);
-    gl847_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table, scan_table.steps_count);
+    scanner_send_slope_table(dev, sensor, SCAN_TABLE, scan_table.table);
+    scanner_send_slope_table(dev, sensor, BACKTRACK_TABLE, scan_table.table);
 
     // fast table
     unsigned fast_dpi = sanei_genesys_get_lowest_ydpi(dev);
@@ -357,9 +322,9 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
     auto fast_table = create_slope_table(dev->model->asic_type, dev->motor, fast_dpi,
                                          scan_exposure_time, step_multiplier, fast_motor_profile);
 
-    gl847_send_slope_table(dev, STOP_TABLE, fast_table.table, fast_table.steps_count);
-    gl847_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.steps_count);
-    gl847_send_slope_table(dev, HOME_TABLE, fast_table.table, fast_table.steps_count);
+    scanner_send_slope_table(dev, sensor, STOP_TABLE, fast_table.table);
+    scanner_send_slope_table(dev, sensor, FAST_TABLE, fast_table.table);
+    scanner_send_slope_table(dev, sensor, HOME_TABLE, fast_table.table);
 
     // correct move distance by acceleration and deceleration amounts
     unsigned feedl = feed_steps;
@@ -367,13 +332,13 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
     if (use_fast_fed)
     {
         feedl <<= static_cast<unsigned>(fast_step_type);
-        dist = (scan_table.steps_count + 2 * fast_table.steps_count);
+        dist = (scan_table.table.size() + 2 * fast_table.table.size());
         // TODO read and decode REG_0xAB
         dist += (reg->get8(0x5e) & 31);
         dist += reg->get8(REG_FEDCNT);
     } else {
         feedl <<= static_cast<unsigned>(motor_profile.step_type);
-        dist = scan_table.steps_count;
+        dist = scan_table.table.size();
         if (has_flag(flags, ScanFlag::FEEDING)) {
             dist *= 2;
         }
@@ -410,7 +375,7 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
     val = effective | REG_0x6C_GPIO10;
     dev->interface->write_register(REG_0x6C, val);
 
-    unsigned min_restep = scan_table.steps_count / (2 * step_multiplier) - 1;
+    unsigned min_restep = scan_table.table.size() / (2 * step_multiplier) - 1;
     if (min_restep < 1) {
         min_restep = 1;
     }
@@ -422,7 +387,7 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
     sanei_genesys_calculate_zmod(use_fast_fed,
                                  scan_exposure_time * ccdlmt * tgtime,
                                  scan_table.table,
-                                 scan_table.steps_count,
+                                 scan_table.table.size(),
                                  feedl,
                                  min_restep * step_multiplier,
                                  &z1,
@@ -436,11 +401,11 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
     reg->set8(REG_0x67, REG_0x67_MTRPWM);
     reg->set8(REG_0x68, REG_0x68_FASTPWM);
 
-    reg->set8(REG_STEPNO, scan_table.steps_count / step_multiplier);
-    reg->set8(REG_FASTNO, scan_table.steps_count / step_multiplier);
-    reg->set8(REG_FSHDEC, scan_table.steps_count / step_multiplier);
-    reg->set8(REG_FMOVNO, fast_table.steps_count / step_multiplier);
-    reg->set8(REG_FMOVDEC, fast_table.steps_count / step_multiplier);
+    reg->set8(REG_STEPNO, scan_table.table.size() / step_multiplier);
+    reg->set8(REG_FASTNO, scan_table.table.size() / step_multiplier);
+    reg->set8(REG_FSHDEC, scan_table.table.size() / step_multiplier);
+    reg->set8(REG_FMOVNO, fast_table.table.size() / step_multiplier);
+    reg->set8(REG_FMOVDEC, fast_table.table.size() / step_multiplier);
 }
 
 

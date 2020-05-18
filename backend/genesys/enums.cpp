@@ -259,6 +259,7 @@ std::ostream& operator<<(std::ostream& out, MotorId id)
         case MotorId::CANON_LIDE_200: out << "CANON_LIDE_200"; break;
         case MotorId::CANON_LIDE_210: out << "CANON_LIDE_210"; break;
         case MotorId::CANON_LIDE_35: out << "CANON_LIDE_35"; break;
+        case MotorId::CANON_LIDE_60: out << "CANON_LIDE_60"; break;
         case MotorId::CANON_LIDE_700: out << "CANON_LIDE_700"; break;
         case MotorId::CANON_LIDE_80: out << "CANON_LIDE_80"; break;
         case MotorId::CANON_4400F: out << "CANON_4400F"; break;

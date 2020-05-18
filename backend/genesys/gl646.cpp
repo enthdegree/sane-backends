@@ -63,9 +63,6 @@ namespace {
 constexpr unsigned CALIBRATION_LINES = 10;
 } // namespace
 
-static void gl646_send_slope_table(Genesys_Device* dev, int table_nr,
-                                   const std::vector<uint16_t>& slope_table,
-                                   int steps);
 static void write_control(Genesys_Device* dev, const Genesys_Sensor& sensor, int resolution);
 
 
@@ -651,17 +648,17 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     // the steps count must be different by at most 128, otherwise it's impossible to construct
     // a proper backtracking curve. We're using slightly lower limit to allow at least a minimum
     // distance between accelerations (forward_steps, backward_steps)
-    if (slope_table1.steps_count > slope_table2.steps_count + 100) {
-        slope_table2.steps_count += slope_table1.steps_count - 100;
+    if (slope_table1.table.size() > slope_table2.table.size() + 100) {
+        slope_table2.expand_table(slope_table1.table.size() - 100, 1);
     }
-    if (slope_table2.steps_count > slope_table1.steps_count + 100) {
-        slope_table1.steps_count += slope_table2.steps_count - 100;
+    if (slope_table2.table.size() > slope_table1.table.size() + 100) {
+        slope_table1.expand_table(slope_table2.table.size() - 100, 1);
     }
 
-    if (slope_table1.steps_count >= slope_table2.steps_count) {
-        backward_steps += (slope_table1.steps_count - slope_table2.steps_count) * 2;
+    if (slope_table1.table.size() >= slope_table2.table.size()) {
+        backward_steps += (slope_table1.table.size() - slope_table2.table.size()) * 2;
     } else {
-        forward_steps += (slope_table2.steps_count - slope_table1.steps_count) * 2;
+        forward_steps += (slope_table2.table.size() - slope_table1.table.size()) * 2;
     }
 
     if (forward_steps > 255) {
@@ -677,8 +674,8 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
         forward_steps -= backward_steps - 255;
     }
 
-    regs->find_reg(0x21).value = slope_table1.steps_count;
-    regs->find_reg(0x24).value = slope_table2.steps_count;
+    regs->find_reg(0x21).value = slope_table1.table.size();
+    regs->find_reg(0x24).value = slope_table2.table.size();
     regs->find_reg(0x22).value = forward_steps;
     regs->find_reg(0x23).value = backward_steps;
 
@@ -801,12 +798,12 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
 
 	  if (motor->fastfed)
         {
-                feedl = feedl - 2 * slope_table2.steps_count -
-                        (slope_table1.steps_count >> step_shift);
+                feedl = feedl - 2 * slope_table2.table.size() -
+                        (slope_table1.table.size() >> step_shift);
 	    }
 	  else
 	    {
-                feedl = feedl - (slope_table1.steps_count >> step_shift);
+                feedl = feedl - (slope_table1.table.size() >> step_shift);
 	    }
 	  break;
         }
@@ -823,7 +820,7 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     sanei_genesys_calculate_zmod(regs->find_reg(0x02).value & REG_0x02_FASTFED,
                                  sensor.exposure_lperiod,
                                  slope_table1.table,
-                                 slope_table1.steps_count,
+                                 slope_table1.table.size(),
                                   move, motor->fwdbwd, &z1, &z2);
 
   /* no z1/z2 for sheetfed scanners */
@@ -833,7 +830,7 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     }
     regs->set16(REG_Z1MOD, z1);
     regs->set16(REG_Z2MOD, z2);
-    regs->find_reg(0x6b).value = slope_table2.steps_count;
+    regs->find_reg(0x6b).value = slope_table2.table.size();
   regs->find_reg(0x6c).value =
     (regs->find_reg(0x6c).value & REG_0x6C_TGTIME) | ((z1 >> 13) & 0x38) | ((z2 >> 16)
 								   & 0x07);
@@ -873,8 +870,8 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
         }
     }
 
-    gl646_send_slope_table(dev, 0, slope_table1.table, regs->get8(0x21));
-    gl646_send_slope_table(dev, 1, slope_table2.table, regs->get8(0x6b));
+    scanner_send_slope_table(dev, sensor, 0, slope_table1.table);
+    scanner_send_slope_table(dev, sensor, 1, slope_table2.table);
 }
 
 /**
@@ -1056,42 +1053,6 @@ gl646_init_regs (Genesys_Device * dev)
       break;
     }
   dev->reg.find_reg(0x6c).value = 0x00;	/* peroid times for LPeriod, expR,expG,expB, Z1MODE, Z2MODE (one period time) */
-}
-
-
-// Send slope table for motor movement slope_table in machine byte order
-static void gl646_send_slope_table(Genesys_Device* dev, int table_nr,
-                                   const std::vector<uint16_t>& slope_table,
-                                   int steps)
-{
-    DBG_HELPER_ARGS(dbg, "table_nr = %d, steps = %d)=%d .. %d", table_nr, steps, slope_table[0],
-                    slope_table[steps - 1]);
-  int dpihw;
-  int start_address;
-
-  dpihw = dev->reg.find_reg(0x05).value >> 6;
-
-  if (dpihw == 0)		/* 600 dpi */
-    start_address = 0x08000;
-  else if (dpihw == 1)		/* 1200 dpi */
-    start_address = 0x10000;
-  else if (dpihw == 2)		/* 2400 dpi */
-    start_address = 0x1f800;
-    else {
-        throw SaneException("Unexpected dpihw");
-    }
-
-  std::vector<uint8_t> table(steps * 2);
-  for (int i = 0; i < steps; i++)
-    {
-      table[i * 2] = slope_table[i] & 0xff;
-      table[i * 2 + 1] = slope_table[i] >> 8;
-    }
-
-    if (dev->interface->is_mock()) {
-        dev->interface->record_slope_table(table_nr, slope_table);
-    }
-    dev->interface->write_buffer(0x3c, start_address + table_nr * 0x100, table.data(), steps * 2);
 }
 
 // Set values of Analog Device type frontend
@@ -1445,7 +1406,8 @@ void CommandSetGl646::load_document(Genesys_Device* dev) const
     // send regs
     // start motor
     // wait e1 status to become e0
-    gl646_send_slope_table(dev, 1, slope_table.table, slope_table.steps_count);
+    const auto& sensor = sanei_genesys_find_sensor_any(dev);
+    scanner_send_slope_table(dev, sensor, 1, slope_table.table);
 
     dev->interface->write_registers(regs);
 
@@ -1601,7 +1563,9 @@ void CommandSetGl646::eject_document(Genesys_Device* dev) const
     // send regs
     // start motor
     // wait c1 status to become c8 : HOMESNR and ~MOTFLAG
-    gl646_send_slope_table(dev, 1, slope_table.table, slope_table.steps_count);
+    // FIXME: sensor is not used.
+    const auto& sensor = sanei_genesys_find_sensor_any(dev);
+    scanner_send_slope_table(dev, sensor, 1, slope_table.table);
 
     dev->interface->write_registers(regs);
 

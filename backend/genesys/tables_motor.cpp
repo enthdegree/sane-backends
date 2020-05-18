@@ -107,13 +107,40 @@ void genesys_init_motor_tables()
     motor.id = MotorId::CANON_LIDE_35;
     motor.base_ydpi = 1200;
 
-    profile = MotorProfile{MotorSlope::create_from_steps(3500, 1300, 60), StepType::FULL, 0};
-    profile.resolutions = {75, 100, 150, 200};
+    profile = MotorProfile{MotorSlope::create_from_steps(3500, 1300, 150), StepType::HALF, 0};
+    profile.resolutions = { 75, 150, 200, 300, 600 };
     motor.profiles.push_back(profile);
 
-    profile = MotorProfile{MotorSlope::create_from_steps(3500, 1400, 60), StepType::HALF, 0};
-    profile.resolutions = {300, 600, 1200, 2400};
+    profile = MotorProfile{MotorSlope::create_from_steps(3500, 1300, 150), StepType::QUARTER, 0};
+    profile.resolutions = { 1200, 2400 };
     motor.profiles.push_back(profile);
+
+    profile = MotorProfile{MotorSlope::create_from_steps(3500, 1400, 150), StepType::FULL, 0};
+    profile.resolutions = { 75, 150, 200, 300 };
+    motor.fast_profiles.push_back(profile);
+
+    profile = MotorProfile{MotorSlope::create_from_steps(6000, 3000, 100), StepType::FULL, 0};
+    profile.resolutions = { 600, 1200, 2400 };
+    motor.fast_profiles.push_back(profile);
+
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
+    motor.id = MotorId::CANON_LIDE_60;
+    motor.base_ydpi = 1200;
+
+    profile = MotorProfile{MotorSlope::create_from_steps(3500, 1400, 150), StepType::HALF, 0};
+    motor.profiles.push_back(profile);
+
+    profile = MotorProfile{MotorSlope::create_from_steps(3500, 1400, 150), StepType::FULL, 0};
+    profile.resolutions = { 75, 150, 300 };
+    motor.fast_profiles.push_back(profile);
+
+    profile = MotorProfile{MotorSlope::create_from_steps(6000, 3000, 100), StepType::FULL, 0};
+    profile.resolutions = { 600, 1200, 2400 };
+    motor.fast_profiles.push_back(profile);
+
     s_motors->push_back(std::move(motor));
 
 
@@ -122,6 +149,7 @@ void genesys_init_motor_tables()
     motor.base_ydpi = 600;
     motor.profiles.push_back({MotorSlope::create_from_steps(3500, 1300, 60), StepType::FULL, 0});
     motor.profiles.push_back({MotorSlope::create_from_steps(3500, 1300, 60), StepType::HALF, 0});
+    motor.fast_profiles.push_back({MotorSlope::create_from_steps(3500, 1300, 60), StepType::FULL, 0});
     s_motors->push_back(std::move(motor));
 
 
@@ -137,6 +165,9 @@ void genesys_init_motor_tables()
     profile = MotorProfile{MotorSlope::create_from_steps(11000, 11000, 2), StepType::HALF, 0};
     profile.resolutions = {75, 150, 300, 600};
     motor.profiles.push_back(profile);
+
+    profile = MotorProfile{MotorSlope::create_from_steps(3700, 3700, 2), StepType::FULL, 0};
+    motor.fast_profiles.push_back(profile);
     s_motors->push_back(std::move(motor));
 
 
@@ -152,6 +183,9 @@ void genesys_init_motor_tables()
     profile = MotorProfile{MotorSlope::create_from_steps(11000, 11000, 2), StepType::HALF, 0};
     profile.resolutions = {300, 600, 1200};
     motor.profiles.push_back(profile);
+
+    profile = MotorProfile{MotorSlope::create_from_steps(3000, 2500, 10), StepType::FULL, 0};
+    motor.fast_profiles.push_back(profile);
     s_motors->push_back(std::move(motor));
 
 
@@ -167,6 +201,9 @@ void genesys_init_motor_tables()
     profile = MotorProfile{MotorSlope::create_from_steps(11000, 11000, 2), StepType::HALF, 0};
     profile.resolutions = {300, 600, 1200};
     motor.profiles.push_back(profile);
+
+    profile = MotorProfile{MotorSlope::create_from_steps(3000, 2600, 10), StepType::FULL, 0};
+    motor.fast_profiles.push_back(profile);
     s_motors->push_back(std::move(motor));
 
 
@@ -181,6 +218,9 @@ void genesys_init_motor_tables()
     profile = MotorProfile{MotorSlope::create_from_steps(6666, 3700, 8), StepType::HALF, 0};
     profile.resolutions = {300, 600, 1200};
     motor.profiles.push_back(profile);
+
+    profile = MotorProfile{MotorSlope::create_from_steps(6666, 3700, 8), StepType::FULL, 0};
+    motor.fast_profiles.push_back(profile);
     s_motors->push_back(std::move(motor));
 
 
@@ -426,6 +466,9 @@ void genesys_init_motor_tables()
     profile = MotorProfile{MotorSlope::create_from_steps(3500, 3250, 60), StepType::HALF, 0};
     profile.resolutions = {300, 400, 600, 1200};
     motor.profiles.push_back(profile);
+
+    profile = MotorProfile{MotorSlope::create_from_steps(3500, 1300, 60), StepType::FULL, 0};
+    motor.fast_profiles.push_back(profile);
     s_motors->push_back(std::move(motor));
 
 

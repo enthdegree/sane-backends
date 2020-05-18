@@ -43,9 +43,11 @@
 
 #define DEBUG_DECLARE_ONLY
 
+#include "low.h"
 #include "motor.h"
 #include "utilities.h"
 #include <cmath>
+#include <numeric>
 
 namespace genesys {
 
@@ -80,12 +82,30 @@ MotorSlope MotorSlope::create_from_steps(unsigned initial_w, unsigned max_w,
     return slope;
 }
 
-void MotorSlopeTable::slice_steps(unsigned count)
+void MotorSlopeTable::slice_steps(unsigned count, unsigned step_multiplier)
 {
-    if (count >= table.size() || count > steps_count) {
-        throw SaneException("Excepssive steps count");
+    if (count > table.size() || count < step_multiplier) {
+        throw SaneException("Invalid steps count");
     }
-    steps_count = count;
+    count = align_multiple_floor(count, step_multiplier);
+    table.resize(count);
+    generate_pixeltime_sum();
+}
+
+void MotorSlopeTable::expand_table(unsigned count, unsigned step_multiplier)
+{
+    if (table.empty()) {
+        throw SaneException("Can't expand empty table");
+    }
+    count = align_multiple_ceil(count, step_multiplier);
+    table.resize(table.size() + count, table.back());
+    generate_pixeltime_sum();
+}
+
+void MotorSlopeTable::generate_pixeltime_sum()
+{
+    pixeltime_sum_ = std::accumulate(table.begin(), table.end(),
+                                     std::size_t{0}, std::plus<std::size_t>());
 }
 
 unsigned get_slope_table_max_size(AsicType asic_type)
@@ -131,26 +151,20 @@ MotorSlopeTable create_slope_table_for_speed(const MotorSlope& slope, unsigned t
             break;
         }
         table.table.push_back(current);
-        table.pixeltime_sum += current;
     }
 
     // make sure the target speed (or the max speed if target speed is too high) is present in
     // the table
     table.table.push_back(final_speed);
-    table.pixeltime_sum += table.table.back();
 
     // fill the table up to the specified size
     while (table.table.size() < max_size - 1 &&
            (table.table.size() % steps_alignment != 0 || table.table.size() < min_size))
     {
         table.table.push_back(table.table.back());
-        table.pixeltime_sum += table.table.back();
     }
 
-    table.steps_count = table.table.size();
-
-    // fill the rest of the table with the final speed
-    table.table.resize(max_size, final_speed);
+    table.generate_pixeltime_sum();
 
     return table;
 }

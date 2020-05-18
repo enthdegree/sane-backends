@@ -335,33 +335,6 @@ void sanei_genesys_init_structs (Genesys_Device * dev)
     }
 }
 
-/* Generate slope table for motor movement */
-/**
- * This function generates a slope table using the slope from the motor struct
- * truncated at the given exposure time or step count, whichever comes first.
- * The summed time of the acceleration steps is returned, and the
- * number of accerelation steps is put into used_steps.
- *
- * @param dev            Device struct
- * @param slope_table    Table to write to
- * @param step_type      Generate table for this step_type. 0=>full, 1=>half,
- *                       2=>quarter
- * @param exposure_time  Minimum exposure time of a scan line
- * @param yres           Resolution of a scan line
- * @param used_steps     Final number of steps is stored here
- * @return               Motor slope table
- * @note  all times in pixel time
- */
-MotorSlopeTable sanei_genesys_create_slope_table3(AsicType asic_type, const Genesys_Motor& motor,
-                                                  StepType step_type, int exposure_time,
-                                                  unsigned yres)
-{
-    unsigned target_speed_w = (exposure_time * yres) / motor.base_ydpi;
-
-    return create_slope_table_for_speed(motor.get_slope_with_step_type(step_type), target_speed_w,
-                                        step_type, 1, 1, get_slope_table_max_size(asic_type));
-}
-
 /** @brief computes gamma table
  * Generates a gamma table of the given length within 0 and the given
  * maximum value
@@ -430,11 +403,11 @@ void sanei_genesys_create_default_gamma_table(Genesys_Device* dev,
     Note: The enhance option of the scanners does _not_ help. It only halves
           the amount of pixels transfered.
  */
-SANE_Int sanei_genesys_exposure_time2(Genesys_Device * dev, float ydpi,
-                                      StepType step_type, int endpixel, int exposure_by_led)
+SANE_Int sanei_genesys_exposure_time2(Genesys_Device * dev, const MotorProfile& profile, float ydpi,
+                                      int endpixel, int exposure_by_led)
 {
   int exposure_by_ccd = endpixel + 32;
-    unsigned max_speed_motor_w = dev->motor.get_slope_with_step_type(step_type).max_speed_w;
+    unsigned max_speed_motor_w = profile.slope.max_speed_w;
     int exposure_by_motor = static_cast<int>((max_speed_motor_w * dev->motor.base_ydpi) / ydpi);
 
   int exposure = exposure_by_ccd;
@@ -589,6 +562,119 @@ void scanner_clear_scan_and_feed_counts(Genesys_Device& dev)
         default:
             throw SaneException("Unsupported asic type");
     }
+}
+
+void scanner_send_slope_table(Genesys_Device* dev, const Genesys_Sensor& sensor, unsigned table_nr,
+                              const std::vector<uint16_t>& slope_table)
+{
+    DBG_HELPER_ARGS(dbg, "table_nr = %d, steps = %zu", table_nr, slope_table.size());
+
+    unsigned max_table_nr = 0;
+    switch (dev->model->asic_type) {
+        case AsicType::GL646: {
+            max_table_nr = 2;
+            break;
+        }
+        case AsicType::GL841:
+        case AsicType::GL842:
+        case AsicType::GL843:
+        case AsicType::GL845:
+        case AsicType::GL846:
+        case AsicType::GL847:
+        case AsicType::GL124: {
+            max_table_nr = 4;
+            break;
+        }
+        default:
+            throw SaneException("Unsupported ASIC type");
+    }
+
+    if (table_nr > max_table_nr) {
+        throw SaneException("invalid table number %d", table_nr);
+    }
+
+    std::vector<uint8_t> table;
+    table.reserve(slope_table.size() * 2);
+    for (std::size_t i = 0; i < slope_table.size(); i++) {
+        table.push_back(slope_table[i] & 0xff);
+        table.push_back(slope_table[i] >> 8);
+    }
+    if (dev->model->asic_type == AsicType::GL841) {
+        // BUG: some motor setup setting is wrong on GL841 scanners, as they need full motor table
+        // to be written even though this is not observed in the official scanners.
+        auto max_table_size = get_slope_table_max_size(dev->model->asic_type);
+        table.reserve(max_table_size * 2);
+        while (table.size() < max_table_size * 2) {
+            table.push_back(slope_table.back() & 0xff);
+            table.push_back(slope_table.back() >> 8);
+        }
+    }
+
+    if (dev->interface->is_mock()) {
+        dev->interface->record_slope_table(table_nr, slope_table);
+    }
+
+    switch (dev->model->asic_type) {
+        case AsicType::GL646: {
+            unsigned dpihw = dev->reg.find_reg(0x05).value >> 6;
+            unsigned start_address = 0;
+            if (dpihw == 0) { // 600 dpi
+                start_address = 0x08000;
+            } else if (dpihw == 1) { // 1200 dpi
+                start_address = 0x10000;
+            } else if (dpihw == 2) { // 2400 dpi
+                start_address = 0x1f800;
+            } else {
+                throw SaneException("Unexpected dpihw");
+            }
+            dev->interface->write_buffer(0x3c, start_address + table_nr * 0x100, table.data(),
+                                         table.size());
+            break;
+        }
+        case AsicType::GL841: {
+            unsigned start_address = 0;
+            switch (sensor.register_dpihw) {
+                case 600: start_address = 0x08000; break;
+                case 1200: start_address = 0x10000; break;
+                case 2400: start_address = 0x20000; break;
+                default: throw SaneException("Unexpected dpihw");
+            }
+            dev->interface->write_buffer(0x3c, start_address + table_nr * 0x200, table.data(),
+                                         table.size());
+            break;
+        }
+        case AsicType::GL842: {
+            // slope table addresses are fixed : 0x40000,  0x48000,  0x50000,  0x58000,  0x60000
+            // XXX STEF XXX USB 1.1 ? sanei_genesys_write_0x8c (dev, 0x0f, 0x14);
+            if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200) {
+                dev->interface->write_buffer(0x3c, 0x010000 + 0x200 * table_nr, table.data(),
+                                             table.size());
+            } else {
+                dev->interface->write_gamma(0x28,  0x40000 + 0x8000 * table_nr, table.data(),
+                                            table.size());
+            }
+            break;
+        }
+        case AsicType::GL843: {
+            // slope table addresses are fixed : 0x40000,  0x48000,  0x50000,  0x58000,  0x60000
+            // XXX STEF XXX USB 1.1 ? sanei_genesys_write_0x8c (dev, 0x0f, 0x14);
+            dev->interface->write_gamma(0x28,  0x40000 + 0x8000 * table_nr, table.data(),
+                                        table.size());
+            break;
+        }
+        case AsicType::GL845:
+        case AsicType::GL846:
+        case AsicType::GL847:
+        case AsicType::GL124: {
+            // slope table addresses are fixed
+            dev->interface->write_ahb(0x10000000 + 0x4000 * table_nr, table.size(),
+                                      table.data());
+            break;
+        }
+        default:
+            throw SaneException("Unsupported ASIC type");
+    }
+
 }
 
 bool scanner_is_motor_stopped(Genesys_Device& dev)
@@ -3401,6 +3487,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
                                      target_code);
       break;
     case SensorId::CIS_CANON_LIDE_35:
+        case SensorId::CIS_CANON_LIDE_60:
       compute_averaged_planar (dev, sensor,
                                shading_data.data(),
                                pixels_per_line,

@@ -224,11 +224,9 @@ gl847_init_registers (Genesys_Device * dev)
  * @param steps number of elements in the slope table
  */
 static void gl847_send_slope_table(Genesys_Device* dev, int table_nr,
-                                   const std::vector<uint16_t>& slope_table,
-                                   int steps)
+                                   const std::vector<uint16_t>& slope_table)
 {
-    DBG_HELPER_ARGS(dbg, "table_nr = %d, steps = %d", table_nr, steps);
-  int i;
+    DBG_HELPER_ARGS(dbg, "table_nr = %d, steps = %zu", table_nr, slope_table.size());
 
   /* sanity check */
   if(table_nr<0 || table_nr>4)
@@ -236,9 +234,8 @@ static void gl847_send_slope_table(Genesys_Device* dev, int table_nr,
         throw SaneException("invalid table number %d", table_nr);
     }
 
-  std::vector<uint8_t> table(steps * 2);
-  for (i = 0; i < steps; i++)
-    {
+    std::vector<uint8_t> table(slope_table.size() * 2);
+    for (std::size_t i = 0; i < slope_table.size(); i++) {
       table[i * 2] = slope_table[i] & 0xff;
       table[i * 2 + 1] = slope_table[i] >> 8;
     }
@@ -247,7 +244,8 @@ static void gl847_send_slope_table(Genesys_Device* dev, int table_nr,
         dev->interface->record_slope_table(table_nr, slope_table);
     }
     // slope table addresses are fixed
-    dev->interface->write_ahb(0x10000000 + 0x4000 * table_nr, steps * 2, table.data());
+    dev->interface->write_ahb(0x10000000 + 0x4000 * table_nr, slope_table.size() * 2,
+                              table.data());
 }
 
 // Set values of analog frontend
@@ -339,8 +337,8 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
     // scan and backtracking slope table
     auto scan_table = create_slope_table(dev->model->asic_type, dev->motor, scan_yres,
                                          scan_exposure_time, step_multiplier, motor_profile);
-    gl847_send_slope_table(dev, SCAN_TABLE, scan_table.table, scan_table.table.size());
-    gl847_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table, scan_table.table.size());
+    gl847_send_slope_table(dev, SCAN_TABLE, scan_table.table);
+    gl847_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table);
 
     // fast table
     unsigned fast_dpi = sanei_genesys_get_lowest_ydpi(dev);
@@ -357,9 +355,9 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
     auto fast_table = create_slope_table(dev->model->asic_type, dev->motor, fast_dpi,
                                          scan_exposure_time, step_multiplier, fast_motor_profile);
 
-    gl847_send_slope_table(dev, STOP_TABLE, fast_table.table, fast_table.table.size());
-    gl847_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.table.size());
-    gl847_send_slope_table(dev, HOME_TABLE, fast_table.table, fast_table.table.size());
+    gl847_send_slope_table(dev, STOP_TABLE, fast_table.table);
+    gl847_send_slope_table(dev, FAST_TABLE, fast_table.table);
+    gl847_send_slope_table(dev, HOME_TABLE, fast_table.table);
 
     // correct move distance by acceleration and deceleration amounts
     unsigned feedl = feed_steps;

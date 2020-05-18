@@ -183,16 +183,12 @@ static void gl842_init_registers(Genesys_Device& dev)
 
 // Send slope table for motor movement slope_table in machine byte order
 static void gl842_send_slope_table(Genesys_Device* dev, int table_nr,
-                                   const std::vector<uint16_t>& slope_table,
-                                   int steps)
+                                   const std::vector<uint16_t>& slope_table)
 {
-    DBG_HELPER_ARGS(dbg, "table_nr = %d, steps = %d", table_nr, steps);
+    DBG_HELPER_ARGS(dbg, "table_nr = %d, steps = %zu", table_nr, slope_table.size());
 
-  int i;
-
-  std::vector<uint8_t> table(steps * 2);
-  for (i = 0; i < steps; i++)
-    {
+    std::vector<uint8_t> table(slope_table.size() * 2);
+    for (std::size_t i = 0; i < slope_table.size(); i++) {
       table[i * 2] = slope_table[i] & 0xff;
       table[i * 2 + 1] = slope_table[i] >> 8;
     }
@@ -204,9 +200,11 @@ static void gl842_send_slope_table(Genesys_Device* dev, int table_nr,
     // slope table addresses are fixed : 0x40000,  0x48000,  0x50000,  0x58000,  0x60000
     // XXX STEF XXX USB 1.1 ? sanei_genesys_write_0x8c (dev, 0x0f, 0x14);
     if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200) {
-        dev->interface->write_buffer(0x3c, 0x010000 + 0x200 * table_nr, table.data(), steps * 2);
+        dev->interface->write_buffer(0x3c, 0x010000 + 0x200 * table_nr, table.data(),
+                                     slope_table.size() * 2);
     } else {
-        dev->interface->write_gamma(0x28,  0x40000 + 0x8000 * table_nr, table.data(), steps * 2);
+        dev->interface->write_gamma(0x28,  0x40000 + 0x8000 * table_nr, table.data(),
+                                    slope_table.size() * 2);
     }
 }
 
@@ -322,9 +320,9 @@ static void gl842_init_motor_regs_scan(Genesys_Device* dev,
     auto scan_table = create_slope_table(dev->model->asic_type, dev->motor, scan_yres, exposure,
                                          step_multiplier, motor_profile);
 
-    gl842_send_slope_table(dev, SCAN_TABLE, scan_table.table, scan_table.table.size());
-    gl842_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table, scan_table.table.size());
-    gl842_send_slope_table(dev, STOP_TABLE, scan_table.table, scan_table.table.size());
+    gl842_send_slope_table(dev, SCAN_TABLE, scan_table.table);
+    gl842_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table);
+    gl842_send_slope_table(dev, STOP_TABLE, scan_table.table);
 
     reg->set8(REG_STEPNO, scan_table.table.size() / step_multiplier);
     reg->set8(REG_FASTNO, scan_table.table.size() / step_multiplier);
@@ -339,8 +337,8 @@ static void gl842_init_motor_regs_scan(Genesys_Device* dev,
     auto fast_table = create_slope_table_fastest(dev->model->asic_type, step_multiplier,
                                                  *fast_profile);
 
-    gl842_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.table.size());
-    gl842_send_slope_table(dev, HOME_TABLE, fast_table.table, fast_table.table.size());
+    gl842_send_slope_table(dev, FAST_TABLE, fast_table.table);
+    gl842_send_slope_table(dev, HOME_TABLE, fast_table.table);
 
     reg->set8(REG_FMOVNO, fast_table.table.size() / step_multiplier);
 

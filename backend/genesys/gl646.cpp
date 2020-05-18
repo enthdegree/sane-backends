@@ -64,8 +64,7 @@ constexpr unsigned CALIBRATION_LINES = 10;
 } // namespace
 
 static void gl646_send_slope_table(Genesys_Device* dev, int table_nr,
-                                   const std::vector<uint16_t>& slope_table,
-                                   int steps);
+                                   const std::vector<uint16_t>& slope_table);
 static void write_control(Genesys_Device* dev, const Genesys_Sensor& sensor, int resolution);
 
 
@@ -873,8 +872,8 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
         }
     }
 
-    gl646_send_slope_table(dev, 0, slope_table1.table, slope_table1.table.size());
-    gl646_send_slope_table(dev, 1, slope_table2.table, slope_table2.table.size());
+    gl646_send_slope_table(dev, 0, slope_table1.table);
+    gl646_send_slope_table(dev, 1, slope_table2.table);
 }
 
 /**
@@ -1061,11 +1060,9 @@ gl646_init_regs (Genesys_Device * dev)
 
 // Send slope table for motor movement slope_table in machine byte order
 static void gl646_send_slope_table(Genesys_Device* dev, int table_nr,
-                                   const std::vector<uint16_t>& slope_table,
-                                   int steps)
+                                   const std::vector<uint16_t>& slope_table)
 {
-    DBG_HELPER_ARGS(dbg, "table_nr = %d, steps = %d)=%d .. %d", table_nr, steps, slope_table[0],
-                    slope_table[steps - 1]);
+    DBG_HELPER_ARGS(dbg, "table_nr = %d, steps = %zu", table_nr, slope_table.size());
   int dpihw;
   int start_address;
 
@@ -1081,17 +1078,17 @@ static void gl646_send_slope_table(Genesys_Device* dev, int table_nr,
         throw SaneException("Unexpected dpihw");
     }
 
-  std::vector<uint8_t> table(steps * 2);
-  for (int i = 0; i < steps; i++)
-    {
-      table[i * 2] = slope_table[i] & 0xff;
-      table[i * 2 + 1] = slope_table[i] >> 8;
+    std::vector<uint8_t> table(slope_table.size() * 2);
+    for (std::size_t i = 0; i < slope_table.size(); i++) {
+        table[i * 2] = slope_table[i] & 0xff;
+        table[i * 2 + 1] = slope_table[i] >> 8;
     }
 
     if (dev->interface->is_mock()) {
         dev->interface->record_slope_table(table_nr, slope_table);
     }
-    dev->interface->write_buffer(0x3c, start_address + table_nr * 0x100, table.data(), steps * 2);
+    dev->interface->write_buffer(0x3c, start_address + table_nr * 0x100, table.data(),
+                                 slope_table.size() * 2);
 }
 
 // Set values of Analog Device type frontend
@@ -1445,7 +1442,7 @@ void CommandSetGl646::load_document(Genesys_Device* dev) const
     // send regs
     // start motor
     // wait e1 status to become e0
-    gl646_send_slope_table(dev, 1, slope_table.table, slope_table.table.size());
+    gl646_send_slope_table(dev, 1, slope_table.table);
 
     dev->interface->write_registers(regs);
 
@@ -1601,7 +1598,7 @@ void CommandSetGl646::eject_document(Genesys_Device* dev) const
     // send regs
     // start motor
     // wait c1 status to become c8 : HOMESNR and ~MOTFLAG
-    gl646_send_slope_table(dev, 1, slope_table.table, slope_table.table.size());
+    gl646_send_slope_table(dev, 1, slope_table.table);
 
     dev->interface->write_registers(regs);
 

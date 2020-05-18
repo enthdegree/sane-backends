@@ -593,10 +593,21 @@ void scanner_send_slope_table(Genesys_Device* dev, const Genesys_Sensor& sensor,
         throw SaneException("invalid table number %d", table_nr);
     }
 
-    std::vector<uint8_t> table(slope_table.size() * 2);
+    std::vector<uint8_t> table;
+    table.reserve(slope_table.size() * 2);
     for (std::size_t i = 0; i < slope_table.size(); i++) {
-        table[i * 2] = slope_table[i] & 0xff;
-        table[i * 2 + 1] = slope_table[i] >> 8;
+        table.push_back(slope_table[i] & 0xff);
+        table.push_back(slope_table[i] >> 8);
+    }
+    if (dev->model->asic_type == AsicType::GL841) {
+        // BUG: some motor setup setting is wrong on GL841 scanners, as they need full motor table
+        // to be written even though this is not observed in the official scanners.
+        auto max_table_size = get_slope_table_max_size(dev->model->asic_type);
+        table.reserve(max_table_size * 2);
+        while (table.size() < max_table_size * 2) {
+            table.push_back(slope_table.back() & 0xff);
+            table.push_back(slope_table.back() >> 8);
+        }
     }
 
     if (dev->interface->is_mock()) {

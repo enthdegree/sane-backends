@@ -88,6 +88,7 @@ static constexpr RegMask REG_0x04_ADTYPE = 0x30;
 static constexpr RegMask REG_0x04_FILTER = 0x0c;
 static constexpr RegMask REG_0x04_FESET = 0x03;
 
+static constexpr RegAddr REG_0x05 = 0x05;
 static constexpr RegMask REG_0x05_DPIHW = 0xc0;
 static constexpr RegMask REG_0x05_DPIHW_600 = 0x00;
 static constexpr RegMask REG_0x05_DPIHW_1200 = 0x40;

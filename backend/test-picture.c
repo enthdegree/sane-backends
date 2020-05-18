@@ -155,8 +155,8 @@ init_picture_buffer (Test_Device * test_device, SANE_Byte ** buffer,
 			  if (xfull < ppl)
 			    {
 			      if ((((SANE_Word) (xfull / p_size)) % 2)
-				  ^ !(line_count >
-				      (SANE_Word) (p_size + 0.5)))
+				  ^ (!(line_count >
+				      (SANE_Word) (p_size + 0.5))))
 				color = 0x0;
 			      else
 				color = 0x1;

@@ -129,17 +129,26 @@ AC_ARG_WITH(v4l,
              # as "$with_v4l" will be set to "no"])
 
 if test "$with_v4l" != "no" ; then
-  PKG_CHECK_MODULES(LIBV4L, libv4l1, have_libv4l1=yes, have_libv4l1=no)
+  PKG_CHECK_MODULES(LIBV4L, [libv4l1 >= 0.8.3], have_libv4l1=yes, have_libv4l1=no)
 fi
 
-AC_ARG_ENABLE(avahi,
-	AS_HELP_STRING([--enable-avahi], [enable Avahi support for saned and the net backend]),
-	[enable_avahi=$enableval], [enable_avahi=no])
-
-if test "$enable_avahi" = "yes"; then
-  PKG_CHECK_MODULES(AVAHI, [ avahi-client >= 0.6.24 ],
-                    [AC_DEFINE(WITH_AVAHI, 1, [define if Avahi support is enabled for saned and the net backend])], enable_avahi=no)
-fi
+AC_ARG_WITH(avahi,
+  AS_HELP_STRING([--with-avahi],
+    [enable Avahi support @<:@default=check@:>@]),
+  [],
+  [with_avahi=check])
+AC_DEFINE(WITH_AVAHI,
+  [0], [Define to 1 if Avahi support is available])
+AS_IF([test xno != "x$with_avahi"],
+  [PKG_CHECK_MODULES(AVAHI, [avahi-client >= 0.6.24],
+    [AC_DEFINE([WITH_AVAHI], [1])
+     with_avahi=yes
+    ],
+    [AS_IF([test xcheck != "x$with_avahi"],
+       [AC_MSG_ERROR([Avahi support requested but not found])])
+     with_avahi=no
+    ])
+  ])
 AM_CONDITIONAL([have_libavahi], [test x != "x$AVAHI_LIBS"])
 
 dnl check sane to make sure we don't have two installations
@@ -454,6 +463,28 @@ AS_IF([test xno != "x$with_libcurl"],
 AM_CONDITIONAL([have_libcurl], [test x != "x$libcurl_LIBS"])
 
 dnl ******************************************************************
+dnl Check for poppler-glib availability
+dnl ******************************************************************
+AC_ARG_WITH(poppler-glib,
+  AS_HELP_STRING([--with-poppler-glib],
+    [enable functionality that needs poppler-glib @<:@default=check@:>@]),
+  [],
+  [with_poppler_glib=check])
+AC_DEFINE(HAVE_POPPLER_GLIB,
+  [0], [Define to 1 if libpoppler-glib is available])
+AS_IF([test xno != "x$with_poppler_glib"],
+  [PKG_CHECK_MODULES(POPPLER_GLIB, [poppler-glib],
+     [AC_DEFINE([HAVE_POPPLER_GLIB], [1])
+      with_poppler_glib=yes
+     ],
+     [AS_IF([test xcheck != "x$with_poppler_glib"],
+        [AC_MSG_ERROR([poppler-glib requested but not found])])
+      with_poppler_glib=no
+     ])
+  ])
+AM_CONDITIONAL([have_poppler_glib], [test x != "x$POPPLER_GLIB_LIBS"])
+
+dnl ******************************************************************
 dnl Check for USB record/replay support
 dnl ******************************************************************
 AC_ARG_WITH(usb_record_replay,
@@ -634,7 +665,7 @@ AC_ARG_ENABLE(local-backends,
                  [turn off compilation of all backends but net]))
 
 ALL_BACKENDS="abaton agfafocus apple artec artec_eplus48u as6e \
-        avision bh canon canon630u canon_dr canon_pp cardscan \
+        avision bh canon canon630u canon_dr canon_lide70 canon_pp cardscan \
         coolscan coolscan2 coolscan3 dc25 dc210 dc240 \
         dell1600n_net dmc epjitsu epson epson2 epsonds escl fujitsu \
         genesys gphoto2 gt68xx hp hp3500 hp3900 hp4200 hp5400 \
@@ -664,13 +695,17 @@ else
   fi
 fi
 
-SANE_CHECK_BACKENDS
-
 if test "${sane_cv_use_libjpeg}" = "yes"; then
   SANEI_SANEI_JPEG_LO="../sanei/sanei_jpeg.lo"
+  saved_LIBS="${LIBS}"
+  LIBS="${JPEG_LIBS}"
+  AC_CHECK_FUNCS(jpeg_crop_scanline jpeg_skip_scanlines)
+  LIBS="${saved_LIBS}"
 fi
 AM_CONDITIONAL(HAVE_JPEG, test x$sane_cv_use_libjpeg = xyes)
 AC_SUBST(SANEI_SANEI_JPEG_LO)
+
+SANE_CHECK_BACKENDS
 
 AC_ARG_ENABLE(pnm-backend,
   AS_HELP_STRING([--enable-pnm-backend],
@@ -769,54 +804,6 @@ AC_ARG_ENABLE(parport-directio,
     fi
   ])
 
-dnl ******************************************************************
-dnl  SANE API specification format conversion support
-dnl ******************************************************************
-AC_ARG_WITH(api-spec,
-  AS_HELP_STRING([--with-api-spec],
-    [convert API spec to supported output formats @<:@default=check@:>@]),
-    [],
-    [with_api_spec=check])
-dnl  Test for all tools that may be involved.  These tests are fast and
-dnl  running them allows for the Makefile targets to be formulated such
-dnl  that any non-requested formats can be made using a one-off without
-dnl  the need to reconfigure.
-AC_PATH_PROG(MAKEINDEX, makeindex, no)
-AC_PATH_PROG(DVIPS, dvips, no)
-AC_PATH_PROG(LATEX, latex, no)
-AC_PATH_PROG(PDFLATEX, pdflatex, no)
-AC_PATH_PROG(FIG2DEV, fig2dev, no)
-AC_PATH_PROG(GS, gs, no)
-AC_PATH_PROG(DLH, dlh, no)
-AC_PATH_PROG(PPMTOGIF, ppmtogif, no)
-AS_IF([test xno != "x$with_api_spec"],
-  [dnl  Flag formats for which all required tools have been found
-   AS_IF([   test xno != "x$MAKEINDEX" \
-          && test xno != "x$DVIPS" \
-          && test xno != "x$FIG2DEV" \
-          && test xno != "x$LATEX"],       [with_api_ps=yes])
-   AS_IF([   test xno != "x$MAKEINDEX" \
-          && test xno != "x$PDFLATEX" \
-          && test xno != "x$FIG2DEV" \
-          && test xno != "x$GS"],          [with_api_pdf=yes])
-   AS_IF([   test xno != "x$MAKEINDEX" \
-          && test xno != "x$DVIPS" \
-          && test xno != "x$FIG2DEV" \
-          && test xno != "x$DLH" \
-          && test xno != "x$GS" \
-          && test xno != "x$PPMTOFIG" ],   [with_api_html=yes])
-
-   AS_IF([test xyes = "x$with_api_spec" \
-          && test xyes != "x$with_api_ps" \
-          && test xyes != "x$with_api_pdf" \
-          && test xyes != "x$with_api_html"],
-     [AC_MSG_ERROR([tools to convert the API spec are missing])
-     ])
-  ])
-AM_CONDITIONAL(WITH_API_PS, [test x$with_api_ps = xyes])
-AM_CONDITIONAL(WITH_API_PDF, [test x$with_api_pdf = xyes])
-AM_CONDITIONAL(WITH_API_HTML, [test x$with_api_html = xyes])
-
 dnl ***********************************************************************
 dnl Write output files
 dnl ***********************************************************************
@@ -865,8 +852,9 @@ else
   echo "Build saned:   no"
 fi
 echo "IPv6 support:  `eval eval echo ${ipv6}`"
-echo "Avahi support: `eval eval echo ${enable_avahi}`"
+echo "Avahi support: `eval eval echo ${with_avahi}`"
 echo "cURL support:  `eval eval echo ${with_libcurl}`"
+echo "POPPLER_GLIB support:  `eval eval echo ${with_poppler_glib}`"
 echo "SNMP support:  `eval eval echo ${with_snmp}`"
 echo "-> The following backends will be built:"
 for backend in ${BACKENDS} ; do

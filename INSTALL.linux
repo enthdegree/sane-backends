@@ -24,6 +24,8 @@ $ make install
          - libpng-dev or similar
          - libcurl4-gnutls-dev or similar
          - libxml2-dev or similar
+         - libsnmp-dev or similar
+         - libpoppler-glib-dev or similar
 
 2.2. Get the latest SANE backend from git:
       You can download "daily git snapshot" from here:

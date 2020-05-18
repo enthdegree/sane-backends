@@ -18,6 +18,7 @@ EXTRA_DIST = scanimage.man sane-config.man sane-find-scanner.man \
 # custom install/uninstall if we required man pages for every backend.
 
 BACKEND_5MANS = sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 \
+        sane-canon_lide70.5 \
 	sane-dll.5 sane-dc25.5 sane-dmc.5 sane-epson.5 sane-epson2.5 sane-epsonds.5 \
 	sane-escl.5 sane-hp.5 sane-gphoto2.5 sane-leo.5 sane-lexmark.5 \
 	sane-matsushita.5 sane-microtek.5 sane-microtek2.5 sane-mustek.5 \
@@ -40,6 +41,7 @@ BACKEND_5MANS = sane-abaton.5 sane-agfafocus.5 sane-apple.5 sane-as6e.5 \
 	sane-kvs40xx.5 sane-p5.5 sane-magicolor.5
 
 EXTRA_DIST += sane-abaton.man sane-agfafocus.man sane-apple.man sane-as6e.man \
+        sane-canon_lide70.man \
 	sane-dll.man sane-dc25.man sane-dmc.man sane-epson.man \
 	sane-epson2.man sane-epsonds.man sane-escl.man sane-hp.man sane-gphoto2.man \
 	sane-leo.man sane-lexmark.man sane-matsushita.man sane-microtek.man \
@@ -80,11 +82,10 @@ HTML_PAGES = sane-backends.html sane-backends-external.html \
 endif
 doc_DATA = $(HTML_PAGES)
 
-all: bemans $(API_SPECS) html-pages
+all: bemans html-pages
 
 dist_doc_DATA = backend-writing.txt
 nobase_dist_doc_DATA = $(BEDOCS)
-doc_DATA += $(API_SPECS)
 EXTRA_DIST += descriptions.txt releases.txt sane-logo2.jpg sane-logo.png \
   sane.png
 
@@ -151,6 +152,7 @@ DESC_FILES = descriptions/abaton.desc descriptions/agfafocus.desc \
   descriptions/artec_eplus48u.desc descriptions/as6e.desc \
   descriptions/avision.desc descriptions/bh.desc descriptions/canon630u.desc \
   descriptions/canon.desc descriptions/canon_dr.desc \
+  descriptions/canon_lide70.desc \
   descriptions/canon_pp.desc descriptions/cardscan.desc \
   descriptions/coolscan2.desc descriptions/coolscan.desc \
   descriptions/coolscan3.desc \
@@ -215,89 +217,6 @@ install-data-local: install-beman5
 uninstall-local:
 	rm -rf $(DESTDIR)$(beman5dir)/sane-*.5
 
-##  SANE API specification format conversion support
-
-API_SPECS  =
-if WITH_API_PS
-API_SPECS += sane.ps
-endif
-if WITH_API_PDF
-API_SPECS += sane.pdf
-endif
-if WITH_API_HTML
-API_SPECS += sane-html
-endif
-
-API_SPEC_INPUTS  = $(srcdir)/sane.tex
-API_SPEC_INPUTS += $(srcdir)/net.tex
-EXTRA_DIST += $(API_SPEC_INPUTS)
-
-API_SPEC_TEX_FIGS  =
-API_SPEC_TEX_FIGS += figs/area.fig
-API_SPEC_TEX_FIGS += figs/flow.fig
-API_SPEC_TEX_FIGS += figs/hierarchy.fig
-API_SPEC_TEX_FIGS += figs/image-data.fig
-API_SPEC_TEX_FIGS += figs/xfer.fig
-EXTRA_DIST += $(API_SPEC_TEX_FIGS)
-
-API_SPEC_EPS_FIGS  =
-API_SPEC_EPS_FIGS += figs/area.eps
-API_SPEC_EPS_FIGS += figs/flow.eps
-API_SPEC_EPS_FIGS += figs/hierarchy.eps
-API_SPEC_EPS_FIGS += figs/image-data.eps
-API_SPEC_EPS_FIGS += figs/xfer.eps
-
-API_SPEC_PDF_FIGS  =
-API_SPEC_PDF_FIGS += figs/area.pdf
-API_SPEC_PDF_FIGS += figs/flow.pdf
-API_SPEC_PDF_FIGS += figs/hierarchy.pdf
-API_SPEC_PDF_FIGS += figs/image-data.pdf
-API_SPEC_PDF_FIGS += figs/xfer.pdf
-
-##  These icons are referred to in the generated HTML output.
-API_SPEC_HTML_ICONS  =
-API_SPEC_HTML_ICONS += icons/contents.gif
-API_SPEC_HTML_ICONS += icons/index.gif
-API_SPEC_HTML_ICONS += icons/next.gif       icons/next_gr.gif
-API_SPEC_HTML_ICONS += icons/previous.gif   icons/previous_gr.gif
-API_SPEC_HTML_ICONS += icons/references.gif icons/references_gr.gif
-API_SPEC_HTML_ICONS += icons/up.gif         icons/up_gr.gif
-EXTRA_DIST += $(API_SPEC_HTML_ICONS)
-
-am_TEXINPUTS = TEXINPUTS="$(builddir):$(srcdir):$$TEXINPUTS"
-
-sane.ind: $(API_SPEC_INPUTS)
-	@echo Generating index for $<...
-	@touch sane.ind
-	@$(am_TEXINPUTS) $(LATEX) $< </dev/null >/dev/null && \
-	  $(MAKEINDEX) -q sane.idx && \
-	  $(am_TEXINPUTS) $(LATEX) $< </dev/null >/dev/null
-
-.fig.eps:
-	@test -d $(@D) || $(MKDIR_P) $(@D)
-	$(FIG2DEV) -L eps $< $@
-
-sane.dvi: $(API_SPEC_INPUTS) $(API_SPEC_EPS_FIGS) sane.ind
-	@echo Generating $@ from $<...
-	@$(am_TEXINPUTS) $(LATEX) $< </dev/null >/dev/null
-
-sane.ps: sane.dvi
-	@echo Generating $@ from $<...
-	@$(am_TEXINPUTS) $(DVIPS) -q $< -o $@
-
-.fig.pdf:
-	@test -d $(@D) || $(MKDIR_P) $(@D)
-	$(FIG2DEV) -L pdf $< $@
-
-sane.pdf: $(API_SPEC_INPUTS) $(API_SPEC_PDF_FIGS) sane.ind
-	@echo Generating $@ from $<...
-	@$(am_TEXINPUTS) $(PDFLATEX) $< >/dev/null
-
-sane-html: sane.dvi
-	$(am_TEXINPUTS) $(DLH) $(srcdir)/sane.tex
-
-##  ^^
-
 html-man: $(MANPAGES)
 	@for page in $(MANPAGES); do \
 	  echo "translating $${page} to $${page}.html..."; \
@@ -344,20 +263,12 @@ descriptions-external.db: $(DESC_EXT_FILES) ../tools/sane-desc
 	  > descriptions-external.db
 
 html-pages: $(HTML_PAGES)
-html-local: html-pages html-man sane-html
-
-clean-local:
-	rm -f *.toc *.aux *.log *.cp *.fn *.tp *.vr *.pg *.ky *.blg *.idx *.cb
-	rm -f *.ilg
-	rm -f $(API_SPEC_EPS_FIGS) $(API_SPEC_PDF_FIGS)
-	-rmdir figs
+html-local: html-pages html-man
 
 distclean-local:
 	rm -f $(MANPAGES)
-	rm -f *.lot *.lof *.ind
-	rm -f sane.dvi sane.ps sane-backends.html sane-backends-external.html
+	rm -f sane-backends.html sane-backends-external.html
 	rm -f sane-mfgs.html sane-mfgs-external.html
-	rm -f sane/*.html sane/*.gif
 	rm -f doxygen-sanei.conf doxygen-genesys.conf
 	-rm -rf sane sanei-html
 	for manpage in $(MANPAGES) ; do \

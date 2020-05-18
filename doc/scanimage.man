@@ -44,7 +44,7 @@ normally proceeds to acquire an image.  The image data is written to
 standard output in one of the PNM (portable aNyMaP) formats (PBM for
 black-and-white images, PGM for grayscale images, and PPM for color
 images), TIFF format (black-and-white, grayscale or color), PNG format,
-or JPEG format.
+or JPEG format (compression level 75).
 .B scanimage
 accesses image acquisition devices through the
 .B SANE

@@ -83,34 +83,105 @@ find_nodes_s(xmlNode *node)
     return (1);
 }
 
-/**
- * \fn static void print_xml_s(xmlNode *node, SANE_Status *status)
- * \brief Function that browses the xml file, node by node.
- *        If the node 'State' is found, we are expecting to found in this node the 'Idle'
- *        content (if the scanner is ready to use) and then 'status' = SANE_STATUS_GOOD.
- *        Otherwise, this means that the scanner isn't ready to use.
- */
 static void
-print_xml_s(xmlNode *node, SANE_Status *status)
+print_xml_job_status(xmlNode *node,
+                     SANE_Status *job,
+                     int *image)
 {
-    int x = 0;
-
     while (node) {
         if (node->type == XML_ELEMENT_NODE) {
             if (find_nodes_s(node)) {
-                if (strcmp((const char *)node->name, "State") == 0)
-                    x = 1;
+                if (strcmp((const char *)node->name, "JobState") == 0) {
+                    const char *state = (const char *)xmlNodeGetContent(node);
+                    if (!strcmp(state, "Processing")) {
+                        *job = SANE_STATUS_DEVICE_BUSY;
+                        DBG(10, "jobId Processing SANE_STATUS_DEVICE_BUSY\n");
+                    }
+                    else if (!strcmp(state, "Completed")) {
+                        *job = SANE_STATUS_GOOD;
+                        DBG(10, "jobId Completed SANE_STATUS_GOOD\n");
+                    }
+                    else if (strcmp((const char *)node->name, "ImagesToTransfer") == 0) {
+	                const char *state = (const char *)xmlNodeGetContent(node);
+	                *image = atoi(state);
+	            }
+                }
             }
-            if (x == 1 && strcmp((const char *)xmlNodeGetContent(node), "Idle") == 0)
-                *status = SANE_STATUS_GOOD;
         }
-        print_xml_s(node->children, status);
+        print_xml_job_status(node->children, job, image);
+        node = node->next;
+    }
+}
+
+static void
+print_xml_platen_and_adf_status(xmlNode *node,
+                                SANE_Status *platen,
+                                SANE_Status *adf,
+                                const char* jobId,
+                                SANE_Status *job,
+                                int *image)
+{
+    while (node) {
+        if (node->type == XML_ELEMENT_NODE) {
+            if (find_nodes_s(node)) {
+                if (strcmp((const char *)node->name, "State") == 0) {
+					printf ("State\t");
+                    const char *state = (const char *)xmlNodeGetContent(node);
+                    if (!strcmp(state, "Idle")) {
+			DBG(10, "Idle SANE_STATUS_GOOD\n");
+                        *platen = SANE_STATUS_GOOD;
+                    } else if (!strcmp(state, "Processing")) {
+			DBG(10, "Processing SANE_STATUS_DEVICE_BUSY\n");
+                        *platen = SANE_STATUS_DEVICE_BUSY;
+                    } else {
+			DBG(10, "%s SANE_STATUS_UNSUPPORTED\n", state);
+                        *platen = SANE_STATUS_UNSUPPORTED;
+                    }
+                }
+                // Thank's Alexander Pevzner (pzz@apevzner.com)
+                else if (adf && strcmp((const char *)node->name, "AdfState") == 0) {
+                    const char *state = (const char *)xmlNodeGetContent(node);
+                    if (!strcmp(state, "ScannerAdfLoaded")){
+			DBG(10, "ScannerAdfLoaded SANE_STATUS_GOOD\n");
+                        *adf = SANE_STATUS_GOOD;
+                    } else if (!strcmp(state, "ScannerAdfJam")) {
+                        DBG(10, "ScannerAdfJam SANE_STATUS_JAMMED\n");
+                        *adf = SANE_STATUS_JAMMED;
+                    } else if (!strcmp(state, "ScannerAdfDoorOpen")) {
+                        DBG(10, "ScannerAdfDoorOpen SANE_STATUS_COVER_OPEN\n");
+                        *adf = SANE_STATUS_COVER_OPEN;
+                    } else if (!strcmp(state, "ScannerAdfProcessing")) {
+                        /* Kyocera version */
+                        DBG(10, "ScannerAdfProcessing SANE_STATUS_NO_DOC\n");
+                        *adf = SANE_STATUS_NO_DOCS;
+                    } else if (!strcmp(state, "ScannerAdfEmpty")) {
+                        DBG(10, "ScannerAdfEmpty SANE_STATUS_NO_DOCS\n");
+                        /* Cannon TR4500, EPSON XP-7100 */
+                        *adf = SANE_STATUS_NO_DOCS;
+                    } else {
+                        DBG(10, "%s SANE_STATUS_NO_DOCS\n", state);
+                        *adf = SANE_STATUS_UNSUPPORTED;
+                    }
+                }
+                else if (jobId && job && strcmp((const char *)node->name, "JobUri") == 0) {
+                    if (strstr((const char *)xmlNodeGetContent(node), jobId)) {
+						print_xml_job_status(node, job, image);
+					}
+                }
+            }
+        }
+        print_xml_platen_and_adf_status(node->children,
+                                        platen,
+                                        adf,
+                                        jobId,
+                                        job,
+                                        image);
         node = node->next;
     }
 }
 
 /**
- * \fn SANE_Status escl_status(SANE_String_Const name)
+ * \fn SANE_Status escl_status(const ESCL_Device *device)
  * \brief Function that finally recovers the scanner status ('Idle', or not), using curl.
  *        This function is called in the 'sane_open' function and it's the equivalent of
  *        the following curl command : "curl http(s)://'ip':'port'/eSCL/ScannerStatus".
@@ -118,40 +189,45 @@ print_xml_s(xmlNode *node, SANE_Status *status)
  * \return status (if everything is OK, status = SANE_STATUS_GOOD, otherwise, SANE_STATUS_NO_MEM/SANE_STATUS_INVAL)
  */
 SANE_Status
-escl_status(SANE_String_Const name)
+escl_status(const ESCL_Device *device,
+            int source,
+            const char* jobId,
+            SANE_Status *job)
 {
-    SANE_Status status;
+    SANE_Status status = SANE_STATUS_DEVICE_BUSY;
+    SANE_Status platen= SANE_STATUS_DEVICE_BUSY;
+    SANE_Status adf= SANE_STATUS_DEVICE_BUSY;
     CURL *curl_handle = NULL;
     struct idle *var = NULL;
     xmlDoc *data = NULL;
     xmlNode *node = NULL;
     const char *scanner_status = "/eSCL/ScannerStatus";
-    char tmp[PATH_MAX] = { 0 };
+    int image = -1;
+    int pass = 0;
+reload:
 
-    if (name == NULL)
+    if (device == NULL)
         return (SANE_STATUS_NO_MEM);
+    status = SANE_STATUS_DEVICE_BUSY;
+    platen= SANE_STATUS_DEVICE_BUSY;
+    adf= SANE_STATUS_DEVICE_BUSY;
     var = (struct idle*)calloc(1, sizeof(struct idle));
     if (var == NULL)
         return (SANE_STATUS_NO_MEM);
     var->memory = malloc(1);
     var->size = 0;
     curl_handle = curl_easy_init();
-    strcpy(tmp, name);
-    strcat(tmp, scanner_status);
-    curl_easy_setopt(curl_handle, CURLOPT_URL, tmp);
-    DBG( 1, "Get Status : %s.\n", tmp);
-    if (strncmp(name, "https", 5) == 0) {
-        DBG( 1, "Ignoring safety certificates, use https\n");
-        curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 0L);
-        curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYHOST, 0L);
-    }
+
+    escl_curl_url(curl_handle, device, scanner_status);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, memory_callback_s);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)var);
-    if (curl_easy_perform(curl_handle) != CURLE_OK) {
-        DBG( 1, "The scanner didn't respond.\n");
+    CURLcode res = curl_easy_perform(curl_handle);
+    if (res != CURLE_OK) {
+        DBG( 1, "The scanner didn't respond: %s\n", curl_easy_strerror(res));
         status = SANE_STATUS_INVAL;
         goto clean_data;
     }
+    DBG( 10, "eSCL : Status : %s.\n", var->memory);
     data = xmlReadMemory(var->memory, var->size, "file.xml", NULL, 0);
     if (data == NULL) {
         status = SANE_STATUS_NO_MEM;
@@ -162,8 +238,18 @@ escl_status(SANE_String_Const name)
         status = SANE_STATUS_NO_MEM;
         goto clean;
     }
-    status = SANE_STATUS_DEVICE_BUSY;
-    print_xml_s(node, &status);
+    /* Decode Job status */
+    // Thank's Alexander Pevzner (pzz@apevzner.com)
+    print_xml_platen_and_adf_status(node, &platen, &adf, jobId, job, &image);
+    if (platen != SANE_STATUS_GOOD &&
+        platen != SANE_STATUS_UNSUPPORTED) {
+        status = platen;
+    } else if (source == PLATEN) {
+        status = platen;
+    } else {
+        status = adf;
+    }
+    DBG (10, "STATUS : %s\n", sane_strstatus(status));
 clean:
     xmlFreeDoc(data);
 clean_data:
@@ -172,5 +258,14 @@ clean_data:
     curl_easy_cleanup(curl_handle);
     free(var->memory);
     free(var);
+    if (pass == 0 &&
+        source != PLATEN &&
+        image == 0 &&
+        (status == SANE_STATUS_GOOD ||
+         status == SANE_STATUS_UNSUPPORTED ||
+         status == SANE_STATUS_DEVICE_BUSY)) {
+       pass = 1;
+       goto reload;
+    }
     return (status);
 }

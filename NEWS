@@ -1,5 +1,26 @@
 <!-- -*- Mode: markdown -*- -->
 
+## New with the next release
+
+### Backends
+
+- adds an `canon_lide70` backend
+
+### Documentation
+
+- removes the SANE Standard.  This is now maintained as a separate
+  project at https://gitlab.com/sane-project/standard.  HTML and PDF
+  versions can be found at https://sane-project.gitlab.io/standard/.
+
+### Build
+
+- removes the `--with-api-spec` option from `configure`
+- replaces the `--enable-avahi` option with an `--with-avahi` that
+  defaults to enabling if possible.  If the option is given and the
+  required support is not available, `configure` will exit with an
+  error.
+
+
 ## New with 1.0.30 (released 2020-05-17)
 
 This release fixes several security related issues and a build issue.

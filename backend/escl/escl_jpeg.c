@@ -120,7 +120,6 @@ jpeg_RW_src(j_decompress_ptr cinfo, FILE *ctx)
     if (cinfo->src == NULL) {
         cinfo->src = (struct jpeg_source_mgr *)(*cinfo->mem->alloc_small)
             ((j_common_ptr) cinfo, JPOOL_PERMANENT, sizeof(my_source_mgr));
-        src = (my_source_mgr *) cinfo->src;
     }
     src = (my_source_mgr *) cinfo->src;
     src->pub.init_source = init_source;
@@ -154,7 +153,7 @@ output_no_message(j_common_ptr __sane_unused__ cinfo)
  * \return SANE_STATUS_GOOD (if everything is OK, otherwise, SANE_STATUS_NO_MEM/SANE_STATUS_INVAL)
  */
 SANE_Status
-get_JPEG_data(capabilities_t *scanner, int *w, int *h, int *bps)
+get_JPEG_data(capabilities_t *scanner, int *width, int *height, int *bps)
 {
     int start = 0;
     struct jpeg_decompress_struct cinfo;
@@ -162,6 +161,11 @@ get_JPEG_data(capabilities_t *scanner, int *w, int *h, int *bps)
     unsigned char *surface = NULL;
     struct my_error_mgr jerr;
     int lineSize = 0;
+    JDIMENSION x_off = 0;
+    JDIMENSION y_off = 0;
+    JDIMENSION w = 0;
+    JDIMENSION h = 0;
+    int pos = 0;
 
     if (scanner->tmp == NULL)
         return (SANE_STATUS_INVAL);
@@ -174,6 +178,7 @@ get_JPEG_data(capabilities_t *scanner, int *w, int *h, int *bps)
         jpeg_destroy_decompress(&cinfo);
         if (surface != NULL)
             free(surface);
+	fseek(scanner->tmp, start, SEEK_SET);
         DBG( 1, "Escl Jpeg : Error reading jpeg\n");
         if (scanner->tmp) {
            fclose(scanner->tmp);
@@ -187,10 +192,42 @@ get_JPEG_data(capabilities_t *scanner, int *w, int *h, int *bps)
     cinfo.out_color_space = JCS_RGB;
     cinfo.quantize_colors = FALSE;
     jpeg_calc_output_dimensions(&cinfo);
-    surface = malloc(cinfo.output_width * cinfo.output_height * cinfo.output_components);
+    if (cinfo.output_width < (unsigned int)scanner->caps[scanner->source].width)
+          scanner->caps[scanner->source].width = cinfo.output_width;
+    if (scanner->caps[scanner->source].pos_x < 0)
+          scanner->caps[scanner->source].pos_x = 0;
+
+    if (cinfo.output_height < (unsigned int)scanner->caps[scanner->source].height)
+           scanner->caps[scanner->source].height = cinfo.output_height;
+    if (scanner->caps[scanner->source].pos_y < 0)
+          scanner->caps[scanner->source].pos_y = 0;
+    DBG(10, "1-JPEF Geometry [%dx%d|%dx%d]\n",
+	        scanner->caps[scanner->source].pos_x,
+	        scanner->caps[scanner->source].pos_y,
+	        scanner->caps[scanner->source].width,
+	        scanner->caps[scanner->source].height);
+    x_off = scanner->caps[scanner->source].pos_x;
+    if (x_off > (unsigned int)scanner->caps[scanner->source].width) {
+       w = scanner->caps[scanner->source].width;
+       x_off = 0;
+    }
+    else
+       w = scanner->caps[scanner->source].width - x_off;
+    y_off = scanner->caps[scanner->source].pos_y;
+    if(y_off > (unsigned int)scanner->caps[scanner->source].height) {
+       h = scanner->caps[scanner->source].height;
+       y_off = 0;
+    }
+    else
+       h = scanner->caps[scanner->source].height - y_off;
+    DBG(10, "2-JPEF Geometry [%dx%d|%dx%d]\n",
+	        x_off,
+	        y_off,
+	        w,
+	        h);
+    surface = malloc(w * h * cinfo.output_components);
     if (surface == NULL) {
         jpeg_destroy_decompress(&cinfo);
-        fseek(scanner->tmp, start, SEEK_SET);
         DBG( 1, "Escl Jpeg : Memory allocation problem\n");
         if (scanner->tmp) {
            fclose(scanner->tmp);
@@ -198,17 +235,23 @@ get_JPEG_data(capabilities_t *scanner, int *w, int *h, int *bps)
         }
         return (SANE_STATUS_NO_MEM);
     }
-    lineSize = cinfo.output_width * cinfo.output_components;
     jpeg_start_decompress(&cinfo);
-    while (cinfo.output_scanline < cinfo.output_height) {
-        rowptr[0] = (JSAMPROW)surface + (lineSize * cinfo.output_scanline);
+    if (x_off > 0 || w < cinfo.output_width)
+       jpeg_crop_scanline(&cinfo, &x_off, &w);
+    lineSize = w * cinfo.output_components;
+    if (y_off > 0)
+        jpeg_skip_scanlines(&cinfo, y_off);
+    pos = 0;
+    while (cinfo.output_scanline < (unsigned int)scanner->caps[scanner->source].height) {
+        rowptr[0] = (JSAMPROW)surface + (lineSize * pos); // ..cinfo.output_scanline);
         jpeg_read_scanlines(&cinfo, rowptr, (JDIMENSION) 1);
-    }
+       pos++;
+     }
     scanner->img_data = surface;
-    scanner->img_size = lineSize * cinfo.output_height;
+    scanner->img_size = lineSize * h;
     scanner->img_read = 0;
-    *w = cinfo.output_width;
-    *h = cinfo.output_height;
+    *width = w;
+    *height = h;
     *bps = cinfo.output_components;
     jpeg_finish_decompress(&cinfo);
     jpeg_destroy_decompress(&cinfo);
@@ -220,8 +263,8 @@ get_JPEG_data(capabilities_t *scanner, int *w, int *h, int *bps)
 
 SANE_Status
 get_JPEG_data(capabilities_t __sane_unused__ *scanner,
-              int __sane_unused__ *w,
-              int __sane_unused__ *h,
+              int __sane_unused__ *width,
+              int __sane_unused__ *height,
               int __sane_unused__ *bps)
 {
     return (SANE_STATUS_INVAL);

@@ -109,11 +109,11 @@ bool ImagePipelineNodeBufferedCallableSource::get_next_row_data(std::uint8_t* ou
 
 ImagePipelineNodeBufferedGenesysUsb::ImagePipelineNodeBufferedGenesysUsb(
         std::size_t width, std::size_t height, PixelFormat format, std::size_t total_size,
-        const FakeBufferModel& buffer_model, ProducerCallback producer) :
+        std::size_t buffer_size, ProducerCallback producer) :
     width_{width},
     height_{height},
     format_{format},
-    buffer_{total_size, buffer_model, producer}
+    buffer_{total_size, buffer_size, producer}
 {
     set_remaining_bytes(total_size);
 }
@@ -316,6 +316,49 @@ bool ImagePipelineNodeSwap16BitEndian::get_next_row_data(std::uint8_t* out_data)
             out_data += 2;
         }
     }
+    return got_data;
+}
+
+ImagePipelineNodeInvert::ImagePipelineNodeInvert(ImagePipelineNode& source) :
+    source_(source)
+{
+}
+
+bool ImagePipelineNodeInvert::get_next_row_data(std::uint8_t* out_data)
+{
+    bool got_data = source_.get_next_row_data(out_data);
+    auto num_values = get_width() * get_pixel_channels(source_.get_format());
+    auto depth = get_pixel_format_depth(source_.get_format());
+
+    switch (depth) {
+        case 16: {
+            auto* data = reinterpret_cast<std::uint16_t*>(out_data);
+            for (std::size_t i = 0; i < num_values; ++i) {
+                *data = 0xffff - *data;
+                data++;
+            }
+            break;
+        }
+        case 8: {
+            auto* data = out_data;
+            for (std::size_t i = 0; i < num_values; ++i) {
+                *data = 0xff - *data;
+                data++;
+            }
+            break;
+        }
+        case 1: {
+            auto* data = out_data;
+            for (std::size_t i = 0; i < num_values; ++i) {
+                *data = ~*data;
+                data++;
+            }
+            break;
+        }
+        default:
+            throw SaneException("Unsupported pixel depth");
+    }
+
     return got_data;
 }
 
@@ -666,16 +709,21 @@ bool ImagePipelineNodeExtract::get_next_row_data(std::uint8_t* out_data)
 
 ImagePipelineNodeCalibrate::ImagePipelineNodeCalibrate(ImagePipelineNode& source,
                                                        const std::vector<std::uint16_t>& bottom,
-                                                       const std::vector<std::uint16_t>& top) :
+                                                       const std::vector<std::uint16_t>& top,
+                                                       std::size_t x_start) :
     source_{source}
 {
-    auto size = std::min(bottom.size(), top.size());
+    std::size_t size = 0;
+    if (bottom.size() >= x_start && top.size() >= x_start) {
+        size = std::min(bottom.size() - x_start, top.size() - x_start);
+    }
+
     offset_.reserve(size);
     multiplier_.reserve(size);
 
     for (std::size_t i = 0; i < size; ++i) {
-        offset_.push_back(bottom[i] / 65535.0f);
-        multiplier_.push_back(65535.0f / (top[i] - bottom[i]));
+        offset_.push_back(bottom[i + x_start] / 65535.0f);
+        multiplier_.push_back(65535.0f / (top[i + x_start] - bottom[i + x_start]));
     }
 }
 

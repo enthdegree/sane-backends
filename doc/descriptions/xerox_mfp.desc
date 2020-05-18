@@ -38,6 +38,11 @@
 :usbid "0x0924" "0x4294"
 :status :good
 
+:model "WorkCentre 3225"
+:interface "USB"
+:usbid "0x0924" "0x42dc"
+:status :good
+
 :mfg "Dell"
 :url "http://www.dell.com/"
 

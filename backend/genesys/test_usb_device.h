@@ -50,9 +50,7 @@ namespace genesys {
 
 class TestUsbDevice : public IUsbDevice {
 public:
-    TestUsbDevice(std::uint16_t vendor, std::uint16_t product);
-    TestUsbDevice() = default;
-
+    TestUsbDevice(std::uint16_t vendor, std::uint16_t product, std::uint16_t bcd_device);
     ~TestUsbDevice() override;
 
     bool is_open() const override { return is_open_; }
@@ -65,7 +63,9 @@ public:
     void reset() override;
     void close() override;
 
-    void get_vendor_product(int& vendor, int& product) override;
+    std::uint16_t get_vendor_id() override;
+    std::uint16_t get_product_id() override;
+    std::uint16_t get_bcd_device() override;
 
     void control_msg(int rtype, int reg, int value, int index, int length,
                      std::uint8_t* data) override;
@@ -78,6 +78,7 @@ private:
     bool is_open_ = false;
     std::uint16_t vendor_ = 0;
     std::uint16_t product_ = 0;
+    std::uint16_t bcd_device_ = 0;
 };
 
 } // namespace genesys

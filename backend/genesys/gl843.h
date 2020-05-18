@@ -42,7 +42,7 @@
 */
 
 #include "genesys.h"
-#include "command_set.h"
+#include "command_set_common.h"
 
 #ifndef BACKEND_GENESYS_GL843_H
 #define BACKEND_GENESYS_GL843_H
@@ -50,7 +50,7 @@
 namespace genesys {
 namespace gl843 {
 
-class CommandSetGl843 : public CommandSet
+class CommandSetGl843 : public CommandSetCommon
 {
 public:
     ~CommandSetGl843() override = default;
@@ -60,16 +60,13 @@ public:
     void init(Genesys_Device* dev) const override;
 
     void init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                              Genesys_Register_Set* regs, int* channels,
-                              int* total_size) const override;
-
-    void init_regs_for_coarse_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                          Genesys_Register_Set& regs) const override;
+                              Genesys_Register_Set* regs) const override;
 
     void init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                Genesys_Register_Set& regs) const override;
 
-    void init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const override;
+    void init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                            Genesys_Register_Set& regs) const override;
 
     void init_regs_for_scan_session(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                     Genesys_Register_Set* reg,
@@ -85,8 +82,6 @@ public:
     void end_scan(Genesys_Device* dev, Genesys_Register_Set* regs, bool check_stop) const override;
 
     void send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor) const override;
-
-    void search_start_position(Genesys_Device* dev) const override;
 
     void offset_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
                             Genesys_Register_Set& regs) const override;
@@ -108,9 +103,6 @@ public:
     void detect_document_end(Genesys_Device* dev) const override;
 
     void eject_document(Genesys_Device* dev) const override;
-
-    void search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                      bool forward, bool black) const override;
 
     void move_to_ta(Genesys_Device* dev) const override;
 

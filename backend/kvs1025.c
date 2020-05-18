@@ -34,8 +34,8 @@
 
 #include "../include/sane/sanei_debug.h"
 
-/* SANE backend operations, see Sane standard 1.04 documents (sane_dev.pdf)
-   for details */
+/* SANE backend operations, see SANE Standard for details
+   https://sane-project.gitlab.io/standard/ */
 
 /* Init the KV-S1025 SANE backend. This function must be called before any other
    SANE function can be called. */

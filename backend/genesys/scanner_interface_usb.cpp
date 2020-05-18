@@ -101,8 +101,6 @@ std::uint8_t ScannerInterfaceUsb::read_register(std::uint16_t address)
         usb_dev_.control_msg(REQUEST_TYPE_IN, REQUEST_REGISTER, VALUE_READ_REGISTER, INDEX,
                              1, &value);
     }
-
-    DBG(DBG_proc, "%s (0x%02x, 0x%02x) completed\n", __func__, address, value);
     return value;
 }
 
@@ -213,6 +211,7 @@ static void bulk_read_data_send_header(UsbDevice& usb_dev, AsicType asic_type, s
 
     uint8_t outdata[8];
     if (asic_type == AsicType::GL124 ||
+        asic_type == AsicType::GL845 ||
         asic_type == AsicType::GL846 ||
         asic_type == AsicType::GL847)
     {
@@ -222,7 +221,9 @@ static void bulk_read_data_send_header(UsbDevice& usb_dev, AsicType asic_type, s
         outdata[2] = 0;
         outdata[3] = 0x10;
     } else if (asic_type == AsicType::GL841 ||
-               asic_type == AsicType::GL843) {
+               asic_type == AsicType::GL842 ||
+               asic_type == AsicType::GL843)
+    {
         outdata[0] = BULK_IN;
         outdata[1] = BULK_RAM;
         outdata[2] = 0x82; //
@@ -246,12 +247,13 @@ static void bulk_read_data_send_header(UsbDevice& usb_dev, AsicType asic_type, s
 
 void ScannerInterfaceUsb::bulk_read_data(std::uint8_t addr, std::uint8_t* data, std::size_t size)
 {
-    // currently supported: GL646, GL841, GL843, GL846, GL847, GL124
+    // currently supported: GL646, GL841, GL843, GL845, GL846, GL847, GL124
     DBG_HELPER(dbg);
 
     unsigned is_addr_used = 1;
     unsigned has_header_before_each_chunk = 0;
     if (dev_->model->asic_type == AsicType::GL124 ||
+        dev_->model->asic_type == AsicType::GL845 ||
         dev_->model->asic_type == AsicType::GL846 ||
         dev_->model->asic_type == AsicType::GL847)
     {
@@ -351,30 +353,21 @@ void ScannerInterfaceUsb::bulk_write_data(std::uint8_t addr, std::uint8_t* data,
 }
 
 void ScannerInterfaceUsb::write_buffer(std::uint8_t type, std::uint32_t addr, std::uint8_t* data,
-                                       std::size_t size, Flags flags)
+                                       std::size_t size)
 {
     DBG_HELPER_ARGS(dbg, "type: 0x%02x, addr: 0x%08x, size: 0x%08zx", type, addr, size);
     if (dev_->model->asic_type != AsicType::GL646 &&
         dev_->model->asic_type != AsicType::GL841 &&
+        dev_->model->asic_type != AsicType::GL842 &&
         dev_->model->asic_type != AsicType::GL843)
     {
         throw SaneException("Unsupported transfer mode");
     }
 
     if (dev_->model->asic_type == AsicType::GL843) {
-        if (flags & FLAG_SWAP_REGISTERS) {
-            if (!(flags & FLAG_SMALL_ADDRESS)) {
-                write_register(0x29, ((addr >> 20) & 0xff));
-            }
-            write_register(0x2a, ((addr >> 12) & 0xff));
-            write_register(0x2b, ((addr >> 4) & 0xff));
-        } else {
-            write_register(0x2b, ((addr >> 4) & 0xff));
-            write_register(0x2a, ((addr >> 12) & 0xff));
-            if (!(flags & FLAG_SMALL_ADDRESS)) {
-                write_register(0x29, ((addr >> 20) & 0xff));
-            }
-        }
+        write_register(0x2b, ((addr >> 4) & 0xff));
+        write_register(0x2a, ((addr >> 12) & 0xff));
+        write_register(0x29, ((addr >> 20) & 0xff));
     } else {
         write_register(0x2b, ((addr >> 4) & 0xff));
         write_register(0x2a, ((addr >> 12) & 0xff));
@@ -383,24 +376,28 @@ void ScannerInterfaceUsb::write_buffer(std::uint8_t type, std::uint32_t addr, st
 }
 
 void ScannerInterfaceUsb::write_gamma(std::uint8_t type, std::uint32_t addr, std::uint8_t* data,
-                                      std::size_t size, Flags flags)
+                                      std::size_t size)
 {
     DBG_HELPER_ARGS(dbg, "type: 0x%02x, addr: 0x%08x, size: 0x%08zx", type, addr, size);
-    if (dev_->model->asic_type != AsicType::GL646 &&
-        dev_->model->asic_type != AsicType::GL841 &&
+    if (dev_->model->asic_type != AsicType::GL841 &&
+        dev_->model->asic_type != AsicType::GL842 &&
         dev_->model->asic_type != AsicType::GL843)
     {
         throw SaneException("Unsupported transfer mode");
     }
 
-    if (flags & FLAG_SWAP_REGISTERS) {
-        write_register(0x5b, ((addr >> 12) & 0xff));
-        write_register(0x5c, ((addr >> 4) & 0xff));
-    } else {
-        write_register(0x5c, ((addr >> 4) & 0xff));
-        write_register(0x5b, ((addr >> 12) & 0xff));
-    }
+    write_register(0x5b, ((addr >> 12) & 0xff));
+    write_register(0x5c, ((addr >> 4) & 0xff));
     bulk_write_data(type, data, size);
+
+    if (dev_->model->asic_type == AsicType::GL842 ||
+        dev_->model->asic_type == AsicType::GL843)
+    {
+        // it looks like we need to reset the address so that subsequent buffer operations work.
+        // Most likely the MTRTBL register is to blame.
+        write_register(0x5b, 0);
+        write_register(0x5c, 0);
+    }
 }
 
 void ScannerInterfaceUsb::write_ahb(std::uint32_t addr, std::uint32_t size, std::uint8_t* data)

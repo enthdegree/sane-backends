@@ -72,14 +72,20 @@ std::ostream& operator<<(std::ostream& out, const SetupParams& params)
 {
     StreamStateSaver state_saver{out};
 
+    bool reverse = has_flag(params.flags, ScanFlag::REVERSE);
+
     out << "SetupParams{\n"
-        << "    xres: " << params.xres << " yres: " << params.yres << '\n'
-        << "    lines: " << params.lines << '\n'
-        << "    pixels per line (actual): " << params.pixels << '\n'
-        << "    pixels per line (requested): " << params.requested_pixels << '\n'
+        << "    xres: " << params.xres
+            << " startx: " << params.startx
+            << " pixels per line (actual): " << params.pixels
+            << " pixels per line (requested): " << params.requested_pixels << '\n'
+
+        << "    yres: " << params.yres
+            << " lines: " << params.lines
+            << " starty: " << params.starty << (reverse ? " (reverse)" : "") << '\n'
+
         << "    depth: " << params.depth << '\n'
         << "    channels: " << params.channels << '\n'
-        << "    startx: " << params.startx << " starty: " << params.starty << '\n'
         << "    scan_mode: " << params.scan_mode << '\n'
         << "    color_filter: " << params.color_filter << '\n'
         << "    flags: " << params.flags << '\n'
@@ -87,16 +93,56 @@ std::ostream& operator<<(std::ostream& out, const SetupParams& params)
     return out;
 }
 
+bool ScanSession::operator==(const ScanSession& other) const
+{
+    return params == other.params &&
+        computed == other.computed &&
+        full_resolution == other.full_resolution &&
+        optical_resolution == other.optical_resolution &&
+        optical_pixels == other.optical_pixels &&
+        optical_pixels_raw == other.optical_pixels_raw &&
+        optical_line_count == other.optical_line_count &&
+        output_resolution == other.output_resolution &&
+        output_startx == other.output_startx &&
+        output_pixels == other.output_pixels &&
+        output_channel_bytes == other.output_channel_bytes &&
+        output_line_bytes == other.output_line_bytes &&
+        output_line_bytes_raw == other.output_line_bytes_raw &&
+        output_line_bytes_requested == other.output_line_bytes_requested &&
+        output_line_count == other.output_line_count &&
+        output_total_bytes_raw == other.output_total_bytes_raw &&
+        output_total_bytes == other.output_total_bytes &&
+        num_staggered_lines == other.num_staggered_lines &&
+        max_color_shift_lines == other.max_color_shift_lines &&
+        color_shift_lines_r == other.color_shift_lines_r &&
+        color_shift_lines_g == other.color_shift_lines_g &&
+        color_shift_lines_b == other.color_shift_lines_b &&
+        segment_count == other.segment_count &&
+        pixel_startx == other.pixel_startx &&
+        pixel_endx == other.pixel_endx &&
+        pixel_count_ratio == other.pixel_count_ratio &&
+        conseq_pixel_dist == other.conseq_pixel_dist &&
+        output_segment_pixel_group_count == other.output_segment_pixel_group_count &&
+        output_segment_start_offset == other.output_segment_start_offset &&
+        buffer_size_read == other.buffer_size_read &&
+        enable_ledadd == other.enable_ledadd &&
+        use_host_side_calib == other.use_host_side_calib &&
+        pipeline_needs_reorder == other.pipeline_needs_reorder &&
+        pipeline_needs_ccd == other.pipeline_needs_ccd &&
+        pipeline_needs_shrink == other.pipeline_needs_shrink;
+}
+
 std::ostream& operator<<(std::ostream& out, const ScanSession& session)
 {
     out << "ScanSession{\n"
         << "    computed: " << session.computed << '\n'
-        << "    hwdpi_divisor: " << session.hwdpi_divisor << '\n'
-        << "    ccd_size_divisor: " << session.ccd_size_divisor << '\n'
+        << "    full_resolution: " << session.full_resolution << '\n'
         << "    optical_resolution: " << session.optical_resolution << '\n'
         << "    optical_pixels: " << session.optical_pixels << '\n'
         << "    optical_pixels_raw: " << session.optical_pixels_raw << '\n'
+        << "    optical_line_count: " << session.optical_line_count << '\n'
         << "    output_resolution: " << session.output_resolution << '\n'
+        << "    output_startx: " << session.output_startx << '\n'
         << "    output_pixels: " << session.output_pixels << '\n'
         << "    output_line_bytes: " << session.output_line_bytes << '\n'
         << "    output_line_bytes_raw: " << session.output_line_bytes_raw << '\n'
@@ -110,13 +156,13 @@ std::ostream& operator<<(std::ostream& out, const ScanSession& session)
         << "    segment_count: " << session.segment_count << '\n'
         << "    pixel_startx: " << session.pixel_startx << '\n'
         << "    pixel_endx: " << session.pixel_endx << '\n'
+        << "    pixel_count_ratio: " << session.pixel_count_ratio << '\n'
         << "    conseq_pixel_dist: " << session.conseq_pixel_dist << '\n'
         << "    output_segment_pixel_group_count: "
             << session.output_segment_pixel_group_count << '\n'
         << "    buffer_size_read: " << session.buffer_size_read << '\n'
-        << "    buffer_size_read: " << session.buffer_size_lines << '\n'
-        << "    buffer_size_shrink: " << session.buffer_size_shrink << '\n'
-        << "    buffer_size_out: " << session.buffer_size_out << '\n'
+        << "    enable_ledadd: " << session.enable_ledadd << '\n'
+        << "    use_host_side_calib: " << session.use_host_side_calib << '\n'
         << "    filters: "
             << (session.pipeline_needs_reorder ? " reorder": "")
             << (session.pipeline_needs_ccd ? " ccd": "")

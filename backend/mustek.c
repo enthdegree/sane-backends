@@ -4433,7 +4433,7 @@ init_options (Mustek_Scanner * s)
   s->opt[OPT_BRIGHTNESS].unit = SANE_UNIT_PERCENT;
   s->opt[OPT_BRIGHTNESS].constraint_type = SANE_CONSTRAINT_RANGE;
   s->opt[OPT_BRIGHTNESS].constraint.range = &percentage_range;
-  if (!s->hw->flags & MUSTEK_FLAG_THREE_PASS)
+  if (!(s->hw->flags & MUSTEK_FLAG_THREE_PASS))
     /* 1-pass scanners don't support brightness in multibit mode */
     s->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
   s->val[OPT_BRIGHTNESS].w = 0;

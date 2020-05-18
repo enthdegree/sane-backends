@@ -44,6 +44,7 @@
 #ifndef BACKEND_GENESYS_REGISTER_H
 #define BACKEND_GENESYS_REGISTER_H
 
+#include "enums.h"
 #include "utilities.h"
 
 #include <algorithm>
@@ -76,7 +77,7 @@ struct GenesysRegisterSetState
     bool is_lamp_on = false;
     bool is_xpa_on = false;
     bool is_motor_on = false;
-    bool is_xpa_motor_on = false;
+    MotorMode motor_mode = MotorMode::PRIMARY;
 };
 
 template<class Value>
@@ -412,6 +413,11 @@ public:
         for (const auto& reg : other) {
             set_value(reg.address, reg.value);
         }
+    }
+
+    bool has_reg(AddressType address) const
+    {
+        return find_reg_index(address) != -1;
     }
 
     SettingType& find_reg(AddressType address)

@@ -1,5 +1,4 @@
 :backend "escl"
-:new :yes
 :manpage "sane-escl"
 :url "https://support.apple.com/en-us/HT201311"
 :comment "The eSCL backend for sane supports AirScan/eSCL devices that announce themselves on mDNS as _uscan._utcp or _uscans._utcp"

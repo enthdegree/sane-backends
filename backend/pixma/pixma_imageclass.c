@@ -1,6 +1,6 @@
 /* SANE - Scanner Access Now Easy.
 
-   Copyright (C) 2011-2019 Rolf Bensch <rolf at bensch hyphen online dot de>
+   Copyright (C) 2011-2020 Rolf Bensch <rolf at bensch hyphen online dot de>
    Copyright (C) 2007-2009 Nicolas Martin, <nicols-guest at alioth dot debian dot org>
    Copyright (C) 2008 Dennis Lou, dlou 99 at yahoo dot com
 
@@ -105,6 +105,7 @@
 #define MF220_PID  0x27a8
 #define MF210_PID  0x27a9
 #define MF620_PID  0x27b4
+#define MF720_PID  0x27b5
 #define MF410_PID  0x27c0
 #define MF510_PID  0x27c2
 #define MF230_PID  0x27d1
@@ -122,6 +123,7 @@
 #define MF743_PID  0x27fc
 #define MF640_PID  0x27fe
 #define MF645_PID  0x27fd
+#define MF440_PID  0x2823
 
 
 enum iclass_state_t
@@ -961,6 +963,7 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon i-SENSYS MF220 Series", "MF220", MF220_PID, 600, 0, 637, 1050, PIXMA_CAP_ADFDUP),              /* max. w = 216mm */
   DEV ("Canon i-SENSYS MF210 Series", "MF210", MF210_PID, 600, 0, 637, 1050, PIXMA_CAP_ADF),                 /* max. w = 216mm */
   DEV ("Canon i-SENSYS MF620 Series", "MF620", MF620_PID, 600, 0, 637, 1050, PIXMA_CAP_ADF),
+  DEV ("Canon i-SENSYS MF720 Series", "MF720", MF720_PID, 600, 300, 637, 877, PIXMA_CAP_ADFDUP),
   DEV ("Canon i-SENSYS MF410 Series", "MF410", MF410_PID, 600, 0, 637, 1050, PIXMA_CAP_ADFDUP),              /* max. w = 216mm */
   DEV ("Canon i-SENSYS MF510 Series", "MF510", MF510_PID, 600, 0, 640, 1050, PIXMA_CAP_ADFDUP),
   DEV ("Canon i-SENSYS MF230 Series", "MF230", MF230_PID, 600, 0, 637, 1050, PIXMA_CAP_ADF),                 /* max. w = 216mm */
@@ -973,7 +976,7 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon imageCLASS MF634C", "MF632C/634C", MF634_PID, 600, 0, 637, 1050, PIXMA_CAP_ADFDUP),
   DEV ("Canon imageCLASS MF733C", "MF731C/733C", MF731_PID, 600, 0, 637, 1050, PIXMA_CAP_ADFDUP),            /* however, we need this for ethernet/wifi */
   DEV ("Canon imageCLASS D570", "D570", D570_PID, 600, 0, 640, 877, 0),
-  DEV ("Canon i-SENSYS MF110 Series", "MF110", MF110_PID, 600, 0, 640, 1050, 0),
+  DEV ("Canon i-SENSYS MF110/910 Series", "MF110", MF110_PID, 600, 0, 640, 1050, 0),
   DEV ("Canon i-SENSYS MF520 Series", "MF520", MF520_PID, 600, 0, 640, 1050, PIXMA_CAP_ADFDUP),
   DEV ("Canon i-SENSYS MF420 Series", "MF420", MF420_PID, 600, 0, 640, 1050, PIXMA_CAP_ADFDUP),
   DEV ("Canon i-SENSYS MF260 Series", "MF260", MF260_PID, 600, 0, 640, 1050, PIXMA_CAP_ADFDUP),
@@ -981,5 +984,6 @@ const pixma_config_t pixma_iclass_devices[] = {
   DEV ("Canon i-SENSYS MF741C/743C", "MF741C/743C", MF743_PID, 600, 300, 640, 1050, PIXMA_CAP_ADFDUP),       /* ADFDUP restricted to 300dpi */
   DEV ("Canon i-SENSYS MF640 Series", "MF642C/643C/644C", MF640_PID, 600, 0, 640, 1050, PIXMA_CAP_ADFDUP),
   DEV ("Canon i-SENSYS MF645C", "MF645C", MF645_PID, 600, 0, 637, 877, PIXMA_CAP_ADFDUP),                    /* max. w = 216mm */
+  DEV ("Canon i-SENSYS MF440 Series", "MF440", MF440_PID, 600, 300, 637, 877, PIXMA_CAP_ADFDUP),
   DEV (NULL, NULL, 0, 0, 0, 0, 0, 0)
 };

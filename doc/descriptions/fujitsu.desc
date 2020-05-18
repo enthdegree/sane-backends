@@ -657,3 +657,9 @@
 :status :good
 :usbid "0x04c5" "0x159f"
 :comment "small, current, WiFi not supported."
+
+:model "fi-800R"
+:interface "USB"
+:status :good
+:usbid "0x04c5" "0x15fc"
+:comment "small, current, both feed methods are supported."

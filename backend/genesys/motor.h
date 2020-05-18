@@ -44,9 +44,12 @@
 #ifndef BACKEND_GENESYS_MOTOR_H
 #define BACKEND_GENESYS_MOTOR_H
 
+#include <algorithm>
 #include <cstdint>
 #include <vector>
 #include "enums.h"
+#include "sensor.h"
+#include "value_filter.h"
 
 namespace genesys {
 
@@ -123,20 +126,47 @@ struct MotorSlope
 struct MotorSlopeTable
 {
     std::vector<std::uint16_t> table;
-    unsigned steps_count = 0;
-    unsigned pixeltime_sum = 0;
 
-    void slice_steps(unsigned count);
+    void slice_steps(unsigned count, unsigned step_multiplier);
+
+    // expands the table by the given number of steps
+    void expand_table(unsigned count, unsigned step_multiplier);
+
+    std::uint64_t pixeltime_sum() const { return pixeltime_sum_; }
+
+    void generate_pixeltime_sum();
+private:
+    std::uint64_t pixeltime_sum_ = 0;
 };
 
 unsigned get_slope_table_max_size(AsicType asic_type);
 
-MotorSlopeTable create_slope_table(const MotorSlope& slope, unsigned target_speed_w,
-                                   StepType step_type, unsigned steps_alignment,
-                                   unsigned min_size, unsigned max_size);
+MotorSlopeTable create_slope_table_for_speed(const MotorSlope& slope, unsigned target_speed_w,
+                                             StepType step_type, unsigned steps_alignment,
+                                             unsigned min_size, unsigned max_size);
 
 std::ostream& operator<<(std::ostream& out, const MotorSlope& slope);
 
+struct MotorProfile
+{
+    MotorProfile() = default;
+    MotorProfile(const MotorSlope& a_slope, StepType a_step_type, unsigned a_max_exposure) :
+        slope{a_slope}, step_type{a_step_type}, max_exposure{a_max_exposure}
+    {}
+
+    MotorSlope slope;
+    StepType step_type = StepType::FULL;
+    int motor_vref = -1;
+
+    // the resolutions this profile is good for
+    ValueFilterAny<unsigned> resolutions = VALUE_FILTER_ANY;
+    // the scan method this profile is good for. If the list is empty, good for any method.
+    ValueFilterAny<ScanMethod> scan_methods = VALUE_FILTER_ANY;
+
+    unsigned max_exposure = 0; // 0 - any exposure
+};
+
+std::ostream& operator<<(std::ostream& out, const MotorProfile& profile);
 
 struct Genesys_Motor
 {
@@ -146,27 +176,41 @@ struct Genesys_Motor
     MotorId id = MotorId::UNKNOWN;
     // motor base steps. Unit: 1/inch
     int base_ydpi = 0;
-    // maximum resolution in y-direction. Unit: 1/inch
-    int optical_ydpi = 0;
     // slopes to derive individual slopes from
-    std::vector<MotorSlope> slopes;
+    std::vector<MotorProfile> profiles;
+    // slopes to derive individual slopes from for fast moving
+    std::vector<MotorProfile> fast_profiles;
 
-    MotorSlope& get_slope(StepType step_type)
+    MotorSlope& get_slope_with_step_type(StepType step_type)
     {
-        return slopes[static_cast<unsigned>(step_type)];
+        for (auto& p : profiles) {
+            if (p.step_type == step_type)
+                return p.slope;
+        }
+        throw SaneException("No motor profile with step type");
     }
 
-    const MotorSlope& get_slope(StepType step_type) const
+    const MotorSlope& get_slope_with_step_type(StepType step_type) const
     {
-        return slopes[static_cast<unsigned>(step_type)];
+        for (const auto& p : profiles) {
+            if (p.step_type == step_type)
+                return p.slope;
+        }
+        throw SaneException("No motor profile with step type");
     }
 
     StepType max_step_type() const
     {
-        if (slopes.empty()) {
-            throw std::runtime_error("Slopes table is empty");
+        if (profiles.empty()) {
+            throw std::runtime_error("Profiles table is empty");
         }
-        return static_cast<StepType>(slopes.size() - 1);
+        StepType step_type = StepType::FULL;
+        for (const auto& p : profiles) {
+            step_type = static_cast<StepType>(
+                    std::max(static_cast<unsigned>(step_type),
+                             static_cast<unsigned>(p.step_type)));
+        }
+        return step_type;
     }
 };
 

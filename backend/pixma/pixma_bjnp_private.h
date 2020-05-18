@@ -131,13 +131,14 @@ typedef struct
   int default_port;
   char * proto_string;
   char * method_string;
+  int single_tcp_session;
 } bjnp_protocol_defs_t;
 
 bjnp_protocol_defs_t bjnp_protocol_defs[] =
 {
-  {PROTOCOL_BJNP, BJNP_PORT_SCAN,"BJNP", "bjnp"},
-  {PROTOCOL_MFNP, MFNP_PORT_SCAN,"MFNP", "mfnp"},
-  {PROTOCOL_NONE, -1, NULL, NULL}
+  {PROTOCOL_BJNP, BJNP_PORT_SCAN,"BJNP", "bjnp", SANE_FALSE},
+  {PROTOCOL_MFNP, MFNP_PORT_SCAN,"MFNP", "mfnp", SANE_TRUE},
+  {PROTOCOL_NONE, -1, NULL, NULL, SANE_FALSE}
 };
 
 /* commands */
@@ -346,9 +347,10 @@ typedef struct device_s
 {
   int open;			/* connection to scanner is opened */
 
-  /* protocol version */
+  /* protocol information */
   int protocol;
   char *protocol_string;
+  char single_tcp_session;
 
   /* sockets */
 

@@ -369,13 +369,13 @@ print_option (SANE_Device * device, int opt_num, const SANE_Option_Descriptor *o
   }
 
   /* if both of these are set, option is invalid */
-  if(opt->cap & SANE_CAP_SOFT_SELECT && opt->cap & SANE_CAP_HARD_SELECT){
+  if((opt->cap & SANE_CAP_SOFT_SELECT) && (opt->cap & SANE_CAP_HARD_SELECT)){
     fprintf (stderr, "%s: invalid option caps, SS+HS\n", prog_name);
     return;
   }
 
   /* invalid to select but not detect */
-  if(opt->cap & SANE_CAP_SOFT_SELECT && !(opt->cap & SANE_CAP_SOFT_DETECT)){
+  if((opt->cap & SANE_CAP_SOFT_SELECT) && !(opt->cap & SANE_CAP_SOFT_DETECT)){
     fprintf (stderr, "%s: invalid option caps, SS!SD\n", prog_name);
     return;
   }
@@ -609,7 +609,7 @@ print_option (SANE_Device * device, int opt_num, const SANE_Option_Descriptor *o
   else if(opt->cap & SANE_CAP_HARD_SELECT)
     fputs (" [hardware]", stdout);
 
-  else if(!(opt->cap & SANE_CAP_SOFT_SELECT) && opt->cap & SANE_CAP_SOFT_DETECT)
+  else if(!(opt->cap & SANE_CAP_SOFT_SELECT) && (opt->cap & SANE_CAP_SOFT_DETECT))
     fputs (" [read-only]", stdout);
 
   fputs ("\n        ", stdout);
@@ -987,7 +987,15 @@ set_option (SANE_Handle device, int optnum, void *valuep)
   SANE_Int info = 0;
 
   opt = sane_get_option_descriptor (device, optnum);
-  if (opt && (!SANE_OPTION_IS_ACTIVE (opt->cap)))
+  if (!opt)
+    {
+      if (verbose > 0)
+        fprintf (stderr, "%s: ignored request to set invalid option %d\n",
+                 prog_name, optnum);
+      return;
+    }
+
+  if (!SANE_OPTION_IS_ACTIVE (opt->cap))
     {
       if (verbose > 0)
 	fprintf (stderr, "%s: ignored request to set inactive option %s\n",
@@ -1229,7 +1237,9 @@ write_png_header (SANE_Frame format, int width, int height, int depth, int dpi, 
 
 #ifdef HAVE_LIBJPEG
 static void
-write_jpeg_header (SANE_Frame format, int width, int height, int dpi, FILE *ofp, struct jpeg_compress_struct *cinfo, struct jpeg_error_mgr *jerr)
+write_jpeg_header (SANE_Frame format, int width, int height, int dpi, FILE *ofp,
+                   struct jpeg_compress_struct *cinfo,
+                   struct jpeg_error_mgr *jerr)
 {
   cinfo->err = jpeg_std_error(jerr);
   jpeg_create_compress(cinfo);
@@ -2599,7 +2609,7 @@ List of available devices:", prog_name);
               ofp = fopen(output_file, "w");
               if (ofp == NULL)
                 {
-                  fprintf(stderr, "%s: could not open input file '%s', "
+                  fprintf(stderr, "%s: could not open output file '%s', "
                           "exiting\n", prog_name, output_file);
                   scanimage_exit(1);
                 }

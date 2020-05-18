@@ -43,9 +43,11 @@
 
 #define DEBUG_DECLARE_ONLY
 
+#include "low.h"
 #include "motor.h"
 #include "utilities.h"
 #include <cmath>
+#include <numeric>
 
 namespace genesys {
 
@@ -80,19 +82,38 @@ MotorSlope MotorSlope::create_from_steps(unsigned initial_w, unsigned max_w,
     return slope;
 }
 
-void MotorSlopeTable::slice_steps(unsigned count)
+void MotorSlopeTable::slice_steps(unsigned count, unsigned step_multiplier)
 {
-    if (count >= table.size() || count > steps_count) {
-        throw SaneException("Excepssive steps count");
+    if (count > table.size() || count < step_multiplier) {
+        throw SaneException("Invalid steps count");
     }
-    steps_count = count;
+    count = align_multiple_floor(count, step_multiplier);
+    table.resize(count);
+    generate_pixeltime_sum();
+}
+
+void MotorSlopeTable::expand_table(unsigned count, unsigned step_multiplier)
+{
+    if (table.empty()) {
+        throw SaneException("Can't expand empty table");
+    }
+    count = align_multiple_ceil(count, step_multiplier);
+    table.resize(table.size() + count, table.back());
+    generate_pixeltime_sum();
+}
+
+void MotorSlopeTable::generate_pixeltime_sum()
+{
+    pixeltime_sum_ = std::accumulate(table.begin(), table.end(),
+                                     std::size_t{0}, std::plus<std::size_t>());
 }
 
 unsigned get_slope_table_max_size(AsicType asic_type)
 {
     switch (asic_type) {
         case AsicType::GL646:
-        case AsicType::GL841: return 255;
+        case AsicType::GL841:
+        case AsicType::GL842: return 255;
         case AsicType::GL843:
         case AsicType::GL845:
         case AsicType::GL846:
@@ -103,9 +124,9 @@ unsigned get_slope_table_max_size(AsicType asic_type)
     }
 }
 
-MotorSlopeTable create_slope_table(const MotorSlope& slope, unsigned target_speed_w,
-                                   StepType step_type, unsigned steps_alignment,
-                                   unsigned min_size, unsigned max_size)
+MotorSlopeTable create_slope_table_for_speed(const MotorSlope& slope, unsigned target_speed_w,
+                                             StepType step_type, unsigned steps_alignment,
+                                             unsigned min_size, unsigned max_size)
 {
     DBG_HELPER_ARGS(dbg, "target_speed_w: %d, step_type: %d, steps_alignment: %d, min_size: %d",
                     target_speed_w, static_cast<unsigned>(step_type), steps_alignment, min_size);
@@ -130,26 +151,20 @@ MotorSlopeTable create_slope_table(const MotorSlope& slope, unsigned target_spee
             break;
         }
         table.table.push_back(current);
-        table.pixeltime_sum += current;
     }
 
     // make sure the target speed (or the max speed if target speed is too high) is present in
     // the table
     table.table.push_back(final_speed);
-    table.pixeltime_sum += table.table.back();
 
     // fill the table up to the specified size
     while (table.table.size() < max_size - 1 &&
            (table.table.size() % steps_alignment != 0 || table.table.size() < min_size))
     {
         table.table.push_back(table.table.back());
-        table.pixeltime_sum += table.table.back();
     }
 
-    table.steps_count = table.table.size();
-
-    // fill the rest of the table with the final speed
-    table.table.resize(max_size, final_speed);
+    table.generate_pixeltime_sum();
 
     return table;
 }
@@ -164,15 +179,30 @@ std::ostream& operator<<(std::ostream& out, const MotorSlope& slope)
     return out;
 }
 
+std::ostream& operator<<(std::ostream& out, const MotorProfile& profile)
+{
+    out << "MotorProfile{\n"
+        << "    max_exposure: " << profile.max_exposure << '\n'
+        << "    step_type: " << profile.step_type << '\n'
+        << "    motor_vref: " << profile.motor_vref << '\n'
+        << "    resolutions: " << format_indent_braced_list(4, profile.resolutions) << '\n'
+        << "    scan_methods: " << format_indent_braced_list(4, profile.scan_methods) << '\n'
+        << "    slope: " << format_indent_braced_list(4, profile.slope) << '\n'
+        << '}';
+    return out;
+}
+
 std::ostream& operator<<(std::ostream& out, const Genesys_Motor& motor)
 {
     out << "Genesys_Motor{\n"
-        << "    id: " << static_cast<unsigned>(motor.id) << '\n'
+        << "    id: " << motor.id << '\n'
         << "    base_ydpi: " << motor.base_ydpi << '\n'
-        << "    optical_ydpi: " << motor.optical_ydpi << '\n'
-        << "    slopes: "
-        << format_indent_braced_list(4, format_vector_indent_braced(4, "MotorSlope",
-                                                                    motor.slopes))
+        << "    profiles: "
+        << format_indent_braced_list(4, format_vector_indent_braced(4, "MotorProfile",
+                                                                    motor.profiles)) << '\n'
+        << "    fast_profiles: "
+        << format_indent_braced_list(4, format_vector_indent_braced(4, "MotorProfile",
+                                                                    motor.fast_profiles)) << '\n'
         << '}';
     return out;
 }

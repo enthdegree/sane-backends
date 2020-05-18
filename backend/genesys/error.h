@@ -137,7 +137,6 @@ private:
     unsigned num_exceptions_on_enter_ = 0;
 };
 
-
 #if defined(__GNUC__) || defined(__clang__)
 #define GENESYS_CURRENT_FUNCTION __PRETTY_FUNCTION__
 #elif defined(__FUNCSIG__)
@@ -148,6 +147,8 @@ private:
 
 #define DBG_HELPER(var) DebugMessageHelper var(GENESYS_CURRENT_FUNCTION)
 #define DBG_HELPER_ARGS(var, ...) DebugMessageHelper var(GENESYS_CURRENT_FUNCTION, __VA_ARGS__)
+
+bool dbg_log_image_data();
 
 template<class F>
 SANE_Status wrap_exceptions_to_status_code(const char* func, F&& function)

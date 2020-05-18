@@ -224,10 +224,12 @@ static constexpr RegShift REG_0x5ES_DECSEL = 5;
 static constexpr RegMask REG_0x5E_STOPTIM = 0x1f;
 static constexpr RegShift REG_0x5ES_STOPTIM = 0;
 
+static constexpr RegAddr REG_0x60 = 0x60;
 static constexpr RegMask REG_0x60_ZIMOD = 0x1f;
 static constexpr RegMask REG_0x61_Z1MOD = 0xff;
 static constexpr RegMask REG_0x62_Z1MOD = 0xff;
 
+static constexpr RegAddr REG_0x63 = 0x63;
 static constexpr RegMask REG_0x63_Z2MOD = 0x1f;
 static constexpr RegMask REG_0x64_Z2MOD = 0xff;
 static constexpr RegMask REG_0x65_Z2MOD = 0xff;

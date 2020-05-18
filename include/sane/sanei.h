@@ -65,9 +65,7 @@
  * This documentation is far from complete. Any help is appreciated.
  *
  * @section additional Additional documentation
- * - The SANE standard can be found at <a
- *   href="http://www.sane-project.org/html/">the SANE webserver</a>,
- *   though the PostScript version produced from the source may be more recent.
+ * - The <a href="https://sane-project.gitlab.io/standard/">SANE Standard</a>.
  * - Information on how to write a backend: <a
  *   href="../backend-writing.txt">backend-writing.txt</a>.
  * - General SANE documentation is on <a

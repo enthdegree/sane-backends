@@ -603,8 +603,12 @@
       v134 2019-02-23, MAN
          - rewrite init_vpd for scanners which fail to report
            overscan correctly
-      v135 2019-11-10, MAN
+      v135 2019-11-10, MAN (SANE 1.0.29)
          - set has_MS_lamp=0 for fi-72x0, bug #134
+      v136 2020-02-07, MAN
+         - add support for fi-800R
+         - add support for card scanning slot (Return Path)
+         - fix bug with reading hardware sensors on first invocation
 
    SANE FLOW DIAGRAM
 
@@ -654,7 +658,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 134
+#define BUILD 136
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -678,6 +682,9 @@
 #define STRING_ADFFRONT SANE_I18N("ADF Front")
 #define STRING_ADFBACK SANE_I18N("ADF Back")
 #define STRING_ADFDUPLEX SANE_I18N("ADF Duplex")
+#define STRING_CARDFRONT SANE_I18N("Card Front")
+#define STRING_CARDBACK SANE_I18N("Card Back")
+#define STRING_CARDDUPLEX SANE_I18N("Card Duplex")
 
 #define STRING_LINEART SANE_VALUE_SCAN_MODE_LINEART
 #define STRING_HALFTONE SANE_VALUE_SCAN_MODE_HALFTONE
@@ -1821,6 +1828,12 @@ init_vpd (struct fujitsu *s)
     DBG (15, "  object position halt: %d\n", s->has_op_halt);
   }
 
+  if (payload_off >= 0x7c) {
+    s->has_return_path = get_IN_return_path(in);
+    DBG (15, "  return path (card) scanning: %d\n", s->has_return_path);
+    DBG (15, "  energy star 3: %d\n", get_IN_energy_star3(in));
+  }
+
   DBG (10, "init_vpd: finish\n");
 
   return SANE_STATUS_GOOD;
@@ -2498,6 +2511,8 @@ init_user (struct fujitsu *s)
     s->source = SOURCE_FLATBED;
   else if(s->has_adf)
     s->source = SOURCE_ADF_FRONT;
+  else if(s->has_return_path)
+    s->source = SOURCE_CARD_FRONT;
 
   /* scan mode */
   if(s->can_mode[MODE_LINEART])
@@ -2875,6 +2890,16 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
         s->source_list[i++]=STRING_ADFDUPLEX;
       }
     }
+    if(s->has_return_path){
+      s->source_list[i++]=STRING_CARDFRONT;
+
+      if(s->has_back){
+        s->source_list[i++]=STRING_CARDBACK;
+      }
+      if(s->has_duplex){
+        s->source_list[i++]=STRING_CARDDUPLEX;
+      }
+    }
     s->source_list[i]=NULL;
 
     opt->name = SANE_NAME_SCAN_SOURCE;
@@ -3049,7 +3074,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint_type = SANE_CONSTRAINT_RANGE;
     opt->constraint.range = &s->paper_x_range;
 
-    if(s->has_adf){
+    if(s->has_adf || s->has_return_path){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
       if(s->source == SOURCE_FLATBED){
         opt->cap |= SANE_CAP_INACTIVE;
@@ -3076,7 +3101,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->constraint_type = SANE_CONSTRAINT_RANGE;
     opt->constraint.range = &s->paper_y_range;
 
-    if(s->has_adf){
+    if(s->has_adf || s->has_return_path){
       opt->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
       if(s->source == SOURCE_FLATBED){
         opt->cap |= SANE_CAP_INACTIVE;
@@ -4474,6 +4499,18 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
       opt->cap = SANE_CAP_INACTIVE;
   }
 
+  if(option==OPT_CARD_LOADED){
+    opt->name = "card-loaded";
+    opt->title = SANE_I18N ("Card loaded");
+    opt->desc = SANE_I18N ("Card slot contains paper");
+    opt->type = SANE_TYPE_BOOL;
+    opt->unit = SANE_UNIT_NONE;
+    if (s->has_cmd_hw_status && s->has_return_path)
+      opt->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_HARD_SELECT | SANE_CAP_ADVANCED;
+    else
+      opt->cap = SANE_CAP_INACTIVE;
+  }
+
   if(option==OPT_SLEEP){
     opt->name = "power-save";
     opt->title = SANE_I18N ("Power saving");
@@ -4696,6 +4733,15 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           }
           else if(s->source == SOURCE_ADF_DUPLEX){
             strcpy (val, STRING_ADFDUPLEX);
+          }
+          else if(s->source == SOURCE_CARD_FRONT){
+            strcpy (val, STRING_CARDFRONT);
+          }
+          else if(s->source == SOURCE_CARD_BACK){
+            strcpy (val, STRING_CARDBACK);
+          }
+          else if(s->source == SOURCE_CARD_DUPLEX){
+            strcpy (val, STRING_CARDDUPLEX);
           }
           return SANE_STATUS_GOOD;
 
@@ -5215,6 +5261,11 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           *val_p = s->hw_adf_open;
           return ret;
 
+        case OPT_CARD_LOADED:
+          ret = get_hardware_status(s,option);
+          *val_p = s->hw_card_loaded;
+          return ret;
+
         case OPT_SLEEP:
           ret = get_hardware_status(s,option);
           *val_p = s->hw_sleep;
@@ -5322,6 +5373,15 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
           }
           else if (!strcmp (val, STRING_ADFDUPLEX)) {
             tmp = SOURCE_ADF_DUPLEX;
+          }
+	  else if (!strcmp (val, STRING_CARDFRONT)) {
+            tmp = SOURCE_CARD_FRONT;
+          }
+          else if (!strcmp (val, STRING_CARDBACK)) {
+            tmp = SOURCE_CARD_BACK;
+          }
+          else if (!strcmp (val, STRING_CARDDUPLEX)) {
+            tmp = SOURCE_CARD_DUPLEX;
           }
           else{
             tmp = SOURCE_FLATBED;
@@ -5912,12 +5972,12 @@ get_hardware_status (struct fujitsu *s, SANE_Int option)
 
   /* only run this if frontend has already read the last time we got it */
   /* or if we don't care for such bookkeeping (private use) */
-  if (!option || s->hw_read[option-OPT_TOP]) {
+  if (!option || !s->hw_data_avail[option-OPT_TOP]) {
 
       DBG (15, "get_hardware_status: running\n");
 
-      /* mark all values as unread */
-      memset(s->hw_read,0,sizeof(s->hw_read));
+      /* mark all values as available */
+      memset(s->hw_data_avail,1,sizeof(s->hw_data_avail));
 
       if (s->has_cmd_hw_status){
           unsigned char cmd[GET_HW_STATUS_len];
@@ -5950,6 +6010,7 @@ get_hardware_status (struct fujitsu *s, SANE_Int option)
               s->hw_hopper = get_GHS_hopper(in);
               s->hw_omr = get_GHS_omr(in);
               s->hw_adf_open = get_GHS_adf_open(in);
+              s->hw_card_loaded = get_GHS_exit(in);
 
               s->hw_sleep = get_GHS_sleep(in);
               s->hw_send_sw = get_GHS_send_sw(in);
@@ -6015,7 +6076,7 @@ get_hardware_status (struct fujitsu *s, SANE_Int option)
   }
 
   if(option)
-    s->hw_read[option-OPT_TOP] = 1;
+    s->hw_data_avail[option-OPT_TOP] = 0;
 
   DBG (10, "get_hardware_status: finish\n");
 
@@ -6905,8 +6966,8 @@ sane_start (SANE_Handle handle)
   }
 
   /* low mem mode messes up the side marker, reset it */
-  if(s->source == SOURCE_ADF_DUPLEX && s->low_mem
-    && s->eof_tx[SIDE_FRONT] && s->eof_tx[SIDE_BACK]
+  if((s->source == SOURCE_ADF_DUPLEX || s->source == SOURCE_CARD_DUPLEX)
+    && s->low_mem && s->eof_tx[SIDE_FRONT] && s->eof_tx[SIDE_BACK]
   ){
     s->side = SIDE_BACK;
   }
@@ -6915,7 +6976,7 @@ sane_start (SANE_Handle handle)
   if(!s->started){
 
       /* load side marker */
-      if(s->source == SOURCE_ADF_BACK){
+      if(s->source == SOURCE_ADF_BACK || s->source == SOURCE_CARD_BACK){
         s->side = SIDE_BACK;
       }
       else{
@@ -6934,6 +6995,12 @@ sane_start (SANE_Handle handle)
         ret = scanner_control(s, SC_function_fb);
         if (ret != SANE_STATUS_GOOD) {
           DBG (5, "sane_start: ERROR: cannot control fb, ignoring\n");
+        }
+      }
+      else if(s->source == SOURCE_CARD_FRONT || s->source == SOURCE_CARD_BACK || s->source == SOURCE_CARD_DUPLEX){
+        ret = scanner_control(s, SC_function_rpath);
+        if (ret != SANE_STATUS_GOOD) {
+          DBG (5, "sane_start: ERROR: cannot control rp, ignoring\n");
         }
       }
       else{
@@ -7038,7 +7105,7 @@ sane_start (SANE_Handle handle)
       }
   }
   /* if already running, duplex needs to switch sides */
-  else if(s->source == SOURCE_ADF_DUPLEX){
+  else if(s->source == SOURCE_ADF_DUPLEX || s->source == SOURCE_CARD_DUPLEX){
       s->side = !s->side;
   }
 
@@ -7047,7 +7114,7 @@ sane_start (SANE_Handle handle)
   /* otherwise buffered back page will be lost */
   /* ingest paper with adf (no-op for fb) */
   /* dont call object pos or scan on back side of duplex scan */
-  if(s->side == SIDE_FRONT || s->source == SOURCE_ADF_BACK){
+  if(s->side == SIDE_FRONT || s->source == SOURCE_ADF_BACK || s->source == SOURCE_CARD_BACK){
 
       s->bytes_rx[0]=0;
       s->bytes_rx[1]=0;
@@ -7095,7 +7162,7 @@ sane_start (SANE_Handle handle)
       }
 
       /* store the number of front bytes */
-      if ( s->source != SOURCE_ADF_BACK ){
+      if ( s->source != SOURCE_ADF_BACK && s->source != SOURCE_CARD_BACK ){
         s->bytes_tot[SIDE_FRONT] = s->s_params.bytes_per_line * s->s_params.lines;
         s->buff_tot[SIDE_FRONT] = s->buffer_size;
 
@@ -7114,13 +7181,14 @@ sane_start (SANE_Handle handle)
       }
 
       /* store the number of back bytes */
-      if ( s->source == SOURCE_ADF_DUPLEX || s->source == SOURCE_ADF_BACK ){
+      if ( s->source == SOURCE_ADF_DUPLEX || s->source == SOURCE_ADF_BACK
+	|| s->source == SOURCE_CARD_DUPLEX || s->source == SOURCE_CARD_BACK ){
         s->bytes_tot[SIDE_BACK] = s->s_params.bytes_per_line * s->s_params.lines;
         s->buff_tot[SIDE_BACK] = s->bytes_tot[SIDE_BACK];
 
         /* the back buffer is normally very large, but some scanners or
          * option combinations dont need it, so we make a small one */
-        if(s->low_mem || s->source == SOURCE_ADF_BACK
+        if(s->low_mem || s->source == SOURCE_ADF_BACK || s->source == SOURCE_CARD_BACK
          || s->duplex_interlace == DUPLEX_INTERLACE_NONE)
           s->buff_tot[SIDE_BACK] = s->buffer_size;
       }
@@ -7308,13 +7376,14 @@ scanner_control (struct fujitsu *s, int function)
 
     memset(cmd,0,cmdLen);
     set_SCSI_opcode(cmd, SCANNER_CONTROL_code);
-    set_SC_function (cmd, function);
+    set_SC_function_1 (cmd, function);
+    set_SC_function_2 (cmd, function);
 
     DBG (15, "scanner_control: function %d\n",function);
 
     /* don't really need to ask for adf if that's the only option */
     /* doing so causes the 3091 to complain */
-    if(function == SC_function_adf && !s->has_flatbed){
+    if(function == SC_function_adf && !s->has_flatbed && !s->has_return_path){
       DBG (10, "scanner_control: adf function not required\n");
       return ret;
     }
@@ -7486,7 +7555,7 @@ set_window (struct fujitsu *s)
   set_WPDB_wdblen(header, SW_desc_len);
 
   /* init the window block */
-  if (s->source == SOURCE_ADF_BACK) {
+  if (s->source == SOURCE_ADF_BACK || s->source == SOURCE_CARD_BACK) {
     set_WD_wid (desc1, WD_wid_back);
   }
   else{
@@ -7675,7 +7744,7 @@ set_window (struct fujitsu *s)
   }
 
   /* when in duplex mode, copy first desc block into second */
-  if (s->source == SOURCE_ADF_DUPLEX) {
+  if (s->source == SOURCE_ADF_DUPLEX || s->source == SOURCE_CARD_DUPLEX) {
       memcpy (desc2, desc1, SW_desc_len);
 
       set_WD_wid (desc2, WD_wid_back);
@@ -7823,7 +7892,7 @@ get_pixelsize(struct fujitsu *s, int actual)
 }
 
 /*
- * Issues the SCSI OBJECT POSITION command if an ADF is in use.
+ * Issues the SCSI OBJECT POSITION command if an ADF or card scanner is in use.
  */
 static SANE_Status
 object_position (struct fujitsu *s, int action)
@@ -7880,9 +7949,9 @@ start_scan (struct fujitsu *s)
 
   DBG (10, "start_scan: start\n");
 
-  if (s->source != SOURCE_ADF_DUPLEX) {
+  if (s->source != SOURCE_ADF_DUPLEX && s->source != SOURCE_CARD_DUPLEX) {
     outLen--;
-    if(s->source == SOURCE_ADF_BACK) {
+    if(s->source == SOURCE_ADF_BACK || s->source == SOURCE_CARD_BACK) {
       out[0] = WD_wid_back;
     }
   }
@@ -7983,7 +8052,8 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 
     /* swap sides if user asked for low-mem mode, we are duplexing,
      * and there is data waiting on the other side */
-    if(s->low_mem && s->source == SOURCE_ADF_DUPLEX
+    if(s->low_mem
+      && (s->source == SOURCE_ADF_DUPLEX || s->source == SOURCE_CARD_DUPLEX)
       && (s->bytes_rx[!s->side] > s->bytes_tx[!s->side]
         || (s->eof_rx[!s->side] && !s->eof_tx[!s->side])
       )
@@ -8013,7 +8083,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
   } /* end 3091 */
 
   /* alternating jpeg duplex interlacing */
-  else if(s->source == SOURCE_ADF_DUPLEX
+  else if((s->source == SOURCE_ADF_DUPLEX || s->source == SOURCE_CARD_DUPLEX)
     && s->s_params.format == SANE_FRAME_JPEG
     && s->jpeg_interlace == JPEG_INTERLACE_ALT
   ){
@@ -8025,7 +8095,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
   } /* end alt jpeg */
 
   /* alternating pnm duplex interlacing */
-  else if(s->source == SOURCE_ADF_DUPLEX
+  else if((s->source == SOURCE_ADF_DUPLEX || s->source == SOURCE_CARD_DUPLEX)
     && s->s_params.format != SANE_FRAME_JPEG
     && s->duplex_interlace == DUPLEX_INTERLACE_ALT
   ){
@@ -8080,7 +8150,8 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 
   /* swap sides if user asked for low-mem mode, we are duplexing,
    * and there is data waiting on the other side */
-  if(s->low_mem && s->source == SOURCE_ADF_DUPLEX
+  if(s->low_mem
+    && (s->source == SOURCE_ADF_DUPLEX || s->source == SOURCE_CARD_DUPLEX)
     && (s->bytes_rx[!s->side] > s->bytes_tx[!s->side]
       || (s->eof_rx[!s->side] && !s->eof_tx[!s->side])
     )
@@ -9291,6 +9362,10 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
         DBG  (5, "Medium error: Carrier sheet\n");
         return SANE_STATUS_JAMMED;
       }
+      if (0x0c == ascq) {
+        DBG  (5, "Medium error: ADF blocked by card\n");
+        return SANE_STATUS_JAMMED;
+      }
       if (0x10 == ascq) {
         DBG  (5, "Medium error: no ink cartridge\n");
         return SANE_STATUS_IO_ERROR;
@@ -10092,7 +10167,9 @@ buffer_deskew(struct fujitsu *s, int side)
   DBG (10, "buffer_deskew: start\n");
 
   /*only find skew on first image from a page, or if first image had error */
-  if(s->side == SIDE_FRONT || s->source == SOURCE_ADF_BACK || s->deskew_stat){
+  if(s->side == SIDE_FRONT
+    || s->source == SOURCE_ADF_BACK || s->source == SOURCE_CARD_BACK
+    || s->deskew_stat){
 
     s->deskew_stat = sanei_magic_findSkew(
       &s->s_params,s->buffers[side],s->resolution_x,s->resolution_y,

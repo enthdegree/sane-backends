@@ -58,9 +58,11 @@ using TestCheckpointCallback = std::function<void(const Genesys_Device&,
 bool is_testing_mode();
 void disable_testing_mode();
 void enable_testing_mode(std::uint16_t vendor_id, std::uint16_t product_id,
+                         std::uint16_t bcd_device,
                          TestCheckpointCallback checkpoint_callback);
 std::uint16_t get_testing_vendor_id();
 std::uint16_t get_testing_product_id();
+std::uint16_t get_testing_bcd_device();
 std::string get_testing_device_name();
 TestCheckpointCallback get_testing_checkpoint_callback();
 

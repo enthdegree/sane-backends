@@ -40,9 +40,8 @@ provides some means to manage one or more other backends.
 .SH "SOFTWARE PACKAGES"
 The package
 .RB ` sane\-backends '
-contains a lot of backends, documentation (including the
-.B SANE
-standard), networking support, and the command line frontend
+contains a lot of backends, documentation, networking support, and the
+command line frontend
 .RB ` scanimage '.
 The frontends
 .RB ` xscanimage "', `" xcam "', and `" scanadf '
@@ -65,7 +64,7 @@ A name with a number in parenthesis (e.g.
 points to a manual page. In this case
 .RB ` "man 5 sane\-dll" '
 will display the page. Entries like
-.RI ` @DOCDIR@/sane.tex '
+.RI ` @DOCDIR@/README '
 are references to text files that were copied to the
 .B SANE
 documentation directory
@@ -216,6 +215,11 @@ for details.
 .B canon_dr
 The canon_dr backend supports the Canon DR-Series ADF SCSI and USB scanners. See
 .BR sane\-canon_dr (5)
+for details.
+.TP
+.B canon_lide70
+The canon_lide70 backend supports the CanoScan LiDE 70 USB scanner. See
+.BR sane\-canon_lide70 (5)
 for details.
 .TP
 .B canon_pp
@@ -665,14 +669,7 @@ The
 .B SANE
 standard defines the application programming interface (API) that is used to
 communicate between frontends and backends. It can be found at
-.I @DOCDIR@/sane.ps
-(if latex is installed on your system) and on the
-.B SANE
-website:
-.I http://www.sane\-project.org/html/
-(HTML), or
-.I http://www.sane\-project.org/sane.ps
-(Postscript).
+.I http://sane\-project.gitlab.io/standard/ .
 .PP
 There is some more information for programmers in
 .IR @DOCDIR@/backend\-writing.txt .
@@ -712,7 +709,7 @@ support dynamic loading).
 .TP
 .I @DOCDIR@/*
 .B SANE
-documentation: The standard, READMEs, text files for backends etc.
+documentation: The READMEs, text files for backends etc.
 
 .SH "PROBLEMS"
 If your device isn't found but you know that it is supported, make

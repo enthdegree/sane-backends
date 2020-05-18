@@ -11,7 +11,7 @@
 ; See doc/descriptions.txt for details.
 
 :backend "pixma"                  ; name of backend
-:version "0.27.0"                 ; version of backend (or "unmaintained")
+:version "0.27.7"                 ; version of backend (or "unmaintained")
 :manpage "sane-pixma"             ; name of manpage (if it exists)
 ;:comment "Devices marked as experimantal are disabled by default. See the manual page for how to enable them."
 
@@ -151,6 +151,18 @@
 :model "PIXMA G6080"
 :interface "USB WiFi"
 :usbid "0x04a9" "0x1866"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA G7000 Series"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x1863"
+:status :untested
+:comment "Testers needed!"
+
+:model "PIXMA GM4000 Series"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x1869"
 :status :untested
 :comment "Testers needed!"
 
@@ -902,8 +914,8 @@
 :model "PIXMA TS3300 Series"
 :interface "USB WiFi"
 :usbid "0x04a9" "0x18a2"
-:status :untested
-:comment "Testers needed!"
+:status :good
+:comment "All resolutions supported (up to 1200DPI). WiFi not working."
 
 :model "PIXMA TS5000 Series"
 :interface "USB WiFi"
@@ -1199,6 +1211,12 @@
 :status :untested
 :comment "Testers needed!"
 
+:model "i-SENSYS MF440 Series"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x2823"
+:status :complete
+:comment "Flatbed and ADF scan. All resolutions supported (up to 600DPI, ADF up to 300DPI)."
+
 :model "i-SENSYS MF510 Series"
 :interface "USB Ethernet WiFi"
 :usbid "0x04a9" "0x27c2"
@@ -1240,6 +1258,12 @@
 :usbid "0x04a9" "0x27fd"
 :status :complete
 :comment "Flatbed and ADF scan. All resolutions supported (up to 600DPI)."
+
+:model "i-SENSYS MF720 Series"
+:interface "USB Ethernet WiFi"
+:usbid "0x04a9" "0x27b5"
+:status :untested
+:comment "Testers needed!"
 
 :model "i-SENSYS MF730 Series"
 :interface "USB Ethernet WiFi"
@@ -1407,7 +1431,7 @@
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x2774"
 :status :good
-:comment "Flatbed scan. All resolutions supported (up to 600DPI). ADF buggy."
+:comment "Flatbed scan. All resolutions supported (up to 600DPI)."
 
 :model "i-SENSYS MF4800 Series"
 :interface "USB Ethernet"
@@ -1568,8 +1592,8 @@
 :model "MAXIFY MB5100 Series"
 :interface "USB Ethernet WiFi"
 :usbid "0x04a9" "0x1790"
-:status :untested
-:comment "Testers needed!"
+:status :complete
+:comment "Flatbed and ADF scan. All resolutions supported (up to 1200DPI)."
 
 :model "MAXIFY MB5300 Series"
 :interface "USB Ethernet"

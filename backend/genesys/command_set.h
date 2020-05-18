@@ -67,14 +67,12 @@ public:
     virtual void init(Genesys_Device* dev) const = 0;
 
     virtual void init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                      Genesys_Register_Set* regs, int* channels,
-                                      int* total_size) const = 0;
+                                      Genesys_Register_Set* regs) const = 0;
 
-    virtual void init_regs_for_coarse_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                                  Genesys_Register_Set& regs) const = 0;
     virtual void init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                        Genesys_Register_Set& regs) const = 0;
-    virtual void init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const = 0;
+    virtual void init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                    Genesys_Register_Set& regs) const = 0;
 
     /** Set up registers for a scan. Similar to init_regs_for_scan except that the session is
         already computed from the session
@@ -98,7 +96,6 @@ public:
      */
     virtual void send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor) const = 0;
 
-    virtual void search_start_position(Genesys_Device* dev) const = 0;
     virtual void offset_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                     Genesys_Register_Set& regs) const = 0;
     virtual void coarse_gain_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
@@ -134,11 +131,6 @@ public:
 
     /// eject document from scanner
     virtual void eject_document(Genesys_Device* dev) const = 0;
-    /**
-     * search for an black or white area in forward or reverse
-     * direction */
-    virtual void search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                              bool forward, bool black) const = 0;
 
     /// move scanning head to transparency adapter
     virtual void move_to_ta(Genesys_Device* dev) const = 0;
@@ -159,6 +151,16 @@ public:
 
     /// cold boot init function
     virtual void asic_boot(Genesys_Device* dev, bool cold) const = 0;
+
+    /// checks if specific scan head is at home position
+    virtual bool is_head_home(Genesys_Device& dev, ScanHeadId scan_head) const = 0;
+
+    /// enables or disables XPA slider motor
+    virtual void set_xpa_lamp_power(Genesys_Device& dev, bool set) const = 0;
+
+    /// enables or disables XPA slider motor
+    virtual void set_motor_mode(Genesys_Device& dev, Genesys_Register_Set& regs,
+                                MotorMode mode) const = 0;
 };
 
 } // namespace genesys

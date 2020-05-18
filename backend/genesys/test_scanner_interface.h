@@ -56,7 +56,8 @@ namespace genesys {
 class TestScannerInterface : public ScannerInterface
 {
 public:
-    TestScannerInterface(Genesys_Device* dev);
+    TestScannerInterface(Genesys_Device* dev, std::uint16_t vendor_id, std::uint16_t product_id,
+                         std::uint16_t bcd_device);
 
     ~TestScannerInterface() override;
 
@@ -74,9 +75,9 @@ public:
     void bulk_write_data(std::uint8_t addr, std::uint8_t* data, std::size_t size) override;
 
     void write_buffer(std::uint8_t type, std::uint32_t addr, std::uint8_t* data,
-                      std::size_t size, Flags flags) override;
+                      std::size_t size) override;
     void write_gamma(std::uint8_t type, std::uint32_t addr, std::uint8_t* data,
-                     std::size_t size, Flags flags) override;
+                     std::size_t size) override;
     void write_ahb(std::uint32_t addr, std::uint32_t size, std::uint8_t* data) override;
 
     std::uint16_t read_fe_register(std::uint8_t address) override;

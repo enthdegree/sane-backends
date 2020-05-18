@@ -195,15 +195,16 @@ static sanei_usb_testing_mode testing_mode = sanei_usb_testing_mode_disabled;
 
 #if WITH_USB_RECORD_REPLAY
 static int testing_development_mode = 0;
-int testing_known_commands_input_failed = 0;
-unsigned testing_last_known_seq = 0;
-SANE_String testing_record_backend = NULL;
-xmlNode* testing_append_commands_node = NULL;
+static int testing_already_opened = 0;
+static int testing_known_commands_input_failed = 0;
+static unsigned testing_last_known_seq = 0;
+static SANE_String testing_record_backend = NULL;
+static xmlNode* testing_append_commands_node = NULL;
 
 // XML file from which we read testing data
-SANE_String testing_xml_path = NULL;
-xmlDoc* testing_xml_doc = NULL;
-xmlNode* testing_xml_next_tx_node = NULL;
+static SANE_String testing_xml_path = NULL;
+static xmlDoc* testing_xml_doc = NULL;
+static xmlNode* testing_xml_next_tx_node = NULL;
 #endif // WITH_USB_RECORD_REPLAY
 
 #if defined(HAVE_LIBUSB_LEGACY) || defined(HAVE_LIBUSB)
@@ -587,9 +588,8 @@ static void sanei_xml_print_seq_if_any(xmlNode* node, const char* parent_fun)
   xmlFree(attr);
 }
 
-// Checks whether transaction should be ignored. We ignore get_descriptor and
-// set_configuration transactions. The latter is ignored because
-// set_configuration is called in sanei_usb_open outside test path.
+// Checks whether transaction should be ignored. We ignore set_configuration
+// transactions, because set_configuration is called in sanei_usb_open outside test path.
 static int sanei_xml_is_transaction_ignored(xmlNode* node)
 {
   if (xmlStrcmp(node->name, (const xmlChar*)"control_tx") != 0)
@@ -627,7 +627,8 @@ static int sanei_xml_is_transaction_ignored(xmlNode* node)
 static xmlNode* sanei_xml_skip_non_tx_nodes(xmlNode* node)
 {
   const char* known_node_names[] = {
-    "control_tx", "bulk_tx", "interrupt_tx", "debug", "known_commands_end"
+    "control_tx", "bulk_tx", "interrupt_tx",
+    "get_descriptor", "debug", "known_commands_end"
   };
 
   while (node != NULL)
@@ -660,13 +661,11 @@ static int sanei_xml_is_known_commands_end(xmlNode* node)
   return xmlStrcmp(node->name, (const xmlChar*)"known_commands_end") == 0;
 }
 
-// returns next transaction node that is not get_descriptor
 static xmlNode* sanei_xml_peek_next_tx_node()
 {
   return testing_xml_next_tx_node;
 }
 
-// returns next transaction node that is not get_descriptor
 static xmlNode* sanei_xml_get_next_tx_node()
 {
   xmlNode* next = testing_xml_next_tx_node;
@@ -1200,7 +1199,7 @@ static SANE_Status sanei_usb_testing_init()
           memset(&device, 0, sizeof(device));
           device.devname = strdup(testing_xml_path);
 
-          // other code shouldn't depend on methon because testing_mode is
+          // other code shouldn't depend on method because testing_mode is
           // sanei_usb_testing_mode_replay
           device.method = sanei_usb_method_libusb;
           device.vendor = device_id;
@@ -1303,6 +1302,18 @@ static void sanei_usb_testing_exit()
   xmlFreeDoc(testing_xml_doc);
   free(testing_xml_path);
   xmlCleanupParser();
+
+  // reset testing-related all data to initial values
+  testing_development_mode = 0;
+  testing_already_opened = 0;
+  testing_known_commands_input_failed = 0;
+  testing_last_known_seq = 0;
+  testing_record_backend = NULL;
+  testing_append_commands_node = NULL;
+
+  testing_xml_path = NULL;
+  testing_xml_doc = NULL;
+  testing_xml_next_tx_node = NULL;
 }
 #else // WITH_USB_RECORD_REPLAY
 SANE_Status sanei_usb_testing_enable_replay(SANE_String_Const path,
@@ -1848,6 +1859,11 @@ static void libusb_scan_devices(void)
 	  continue;
 	}
 
+/* macOS won't configure several USB scanners (i.e. ScanSnap 300M) because their
+ * descriptors are vendor specific.  As a result the device will get configured
+ * later during sanei_usb_open making it safe to ignore the configuration check
+ * here on these platforms. */
+#if !defined(__APPLE__)
       if (config == 0)
 	{
 	  DBG (1,
@@ -1855,6 +1871,7 @@ static void libusb_scan_devices(void)
 	       vid, pid, busno, address);
 	  continue;
 	}
+#endif
 
       ret = libusb_get_config_descriptor (dev, 0, &config0);
       if (ret < 0)
@@ -2288,22 +2305,43 @@ sanei_usb_get_endpoint (SANE_Int dn, SANE_Int ep_type)
 }
 
 #if WITH_USB_RECORD_REPLAY
+static void sanei_xml_indent_child(xmlNode* parent, unsigned indent_count)
+{
+  indent_count *= 4;
+
+  xmlChar* indent_str = malloc(indent_count + 2);
+  indent_str[0] = '\n';
+  memset(indent_str + 1, ' ', indent_count);
+  indent_str[indent_count + 1] = '\0';
+
+  xmlAddChild(parent, xmlNewText(indent_str));
+  free(indent_str);
+}
+
 static void sanei_usb_record_open(SANE_Int dn)
 {
+  if (testing_already_opened)
+    return;
+
   xmlNode* e_root = xmlNewNode(NULL, (const xmlChar*) "device_capture");
   xmlDocSetRootElement(testing_xml_doc, e_root);
   xmlNewProp(e_root, (const xmlChar*)"backend", (const xmlChar*) testing_record_backend);
 
+  sanei_xml_indent_child(e_root, 1);
   xmlNode* e_description = xmlNewChild(e_root, NULL, (const xmlChar*) "description", NULL);
   sanei_xml_set_hex_attr(e_description, "id_vendor", devices[dn].vendor);
   sanei_xml_set_hex_attr(e_description, "id_product", devices[dn].product);
 
+  sanei_xml_indent_child(e_description, 2);
   xmlNode* e_configurations = xmlNewChild(e_description, NULL,
                                           (const xmlChar*) "configurations", NULL);
+
+  sanei_xml_indent_child(e_configurations, 3);
   xmlNode* e_configuration = xmlNewChild(e_configurations, NULL,
                                          (const xmlChar*) "configuration", NULL);
   sanei_xml_set_uint_attr(e_configuration, "number", 1);
 
+  sanei_xml_indent_child(e_configuration, 4);
   xmlNode* e_interface = xmlNewChild(e_configuration, NULL, (const xmlChar*) "interface", NULL);
   sanei_xml_set_uint_attr(e_interface, "number", devices[dn].interface_nr);
 
@@ -2329,6 +2367,7 @@ static void sanei_usb_record_open(SANE_Int dn)
     {
       if (endpoints[i].ep_address)
         {
+          sanei_xml_indent_child(e_interface, 5);
           xmlNode* e_endpoint = xmlNewChild(e_interface, NULL, (const xmlChar*)"endpoint", NULL);
           xmlNewProp(e_endpoint, (const xmlChar*)"transfer_type",
                      (const xmlChar*) endpoints[i].transfer_type);
@@ -2338,10 +2377,17 @@ static void sanei_usb_record_open(SANE_Int dn)
           sanei_xml_set_hex_attr(e_endpoint, "address", endpoints[i].ep_address);
         }
     }
+  sanei_xml_indent_child(e_interface, 4);
+  sanei_xml_indent_child(e_configuration, 3);
+  sanei_xml_indent_child(e_configurations, 2);
+  sanei_xml_indent_child(e_description, 1);
+
+  sanei_xml_indent_child(e_root, 1);
   xmlNode* e_transactions = xmlNewChild(e_root, NULL, (const xmlChar*)"transactions", NULL);
 
   // add an empty node so that we have something to append to
-  testing_append_commands_node =  xmlAddChild(e_transactions, xmlNewText((const xmlChar*)""));;
+  testing_append_commands_node = xmlAddChild(e_transactions, xmlNewText((const xmlChar*)""));
+  testing_already_opened = 1;
 }
 #endif // WITH_USB_RECORD_REPLAY
 
@@ -2574,11 +2620,17 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 	  return SANE_STATUS_INVAL;
 	}
 
+/* macOS won't configure several USB scanners (i.e. ScanSnap 300M) because their
+ * descriptors are vendor specific.  As a result the device will get configured
+ * later during sanei_usb_open making it safe to ignore the configuration check
+ * here on these platforms. */
+#if !defined(__APPLE__)
       if (config == 0)
 	{
 	  DBG (1, "sanei_usb_open: device `%s' not configured?\n", devname);
 	  return SANE_STATUS_INVAL;
 	}
+#endif
 
       result = libusb_get_device_descriptor (dev, &desc);
       if (result < 0)
@@ -3851,7 +3903,7 @@ sanei_usb_replay_control_msg(SANE_Int dn, SANE_Int rtype, SANE_Int req,
   (void) dn;
 
   if (testing_known_commands_input_failed)
-    return -1;
+    return SANE_STATUS_IO_ERROR;
 
   xmlNode* node = sanei_xml_get_next_tx_node();
   if (node == NULL)
@@ -4181,6 +4233,11 @@ static int sanei_usb_replay_read_int(SANE_Int dn, SANE_Byte* buffer,
                                  __func__))
     {
       sanei_usb_record_replace_read_int(node, dn, NULL, 0, size);
+      return -1;
+    }
+
+  if (sanei_usb_check_attr(node, "error", "timeout", __func__))
+    {
       return -1;
     }
 
@@ -4723,14 +4780,66 @@ sanei_usb_set_altinterface (SANE_Int dn, SANE_Int alternate)
     }
 }
 
+#if WITH_USB_RECORD_REPLAY
+
 static SANE_Status
 sanei_usb_replay_get_descriptor(SANE_Int dn,
                                 struct sanei_usb_dev_descriptor *desc)
 {
   (void) dn;
-  (void) desc;
-  return SANE_STATUS_UNSUPPORTED;
-  // ZZTODO
+
+  if (testing_known_commands_input_failed)
+    return SANE_STATUS_IO_ERROR;
+
+  xmlNode* node = sanei_xml_get_next_tx_node();
+  if (node == NULL)
+    {
+      FAIL_TEST(__func__, "no more transactions\n");
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  if (sanei_xml_is_known_commands_end(node))
+    {
+      testing_known_commands_input_failed = 1;
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  sanei_xml_record_seq(node);
+  sanei_xml_break_if_needed(node);
+
+  if (xmlStrcmp(node->name, (const xmlChar*)"get_descriptor") != 0)
+    {
+      FAIL_TEST_TX(__func__, node, "unexpected transaction type %s\n",
+                   (const char*) node->name);
+      testing_known_commands_input_failed = 1;
+      return SANE_STATUS_IO_ERROR;
+    }
+
+  int desc_type = sanei_xml_get_prop_uint(node, "descriptor_type");
+  int bcd_usb = sanei_xml_get_prop_uint(node, "bcd_usb");
+  int bcd_dev = sanei_xml_get_prop_uint(node, "bcd_device");
+  int dev_class = sanei_xml_get_prop_uint(node, "device_class");
+  int dev_sub_class = sanei_xml_get_prop_uint(node, "device_sub_class");
+  int dev_protocol = sanei_xml_get_prop_uint(node, "device_protocol");
+  int max_packet_size = sanei_xml_get_prop_uint(node, "max_packet_size");
+
+  if (desc_type < 0 || bcd_usb < 0 || bcd_dev < 0 || dev_class < 0 ||
+      dev_sub_class < 0 || dev_protocol < 0 || max_packet_size < 0)
+  {
+      FAIL_TEST_TX(__func__, node, "get_descriptor recorded block is missing attributes\n");
+      testing_known_commands_input_failed = 1;
+      return SANE_STATUS_IO_ERROR;
+  }
+
+  desc->desc_type = desc_type;
+  desc->bcd_usb = bcd_usb;
+  desc->bcd_dev = bcd_dev;
+  desc->dev_class = dev_class;
+  desc->dev_sub_class = dev_sub_class;
+  desc->dev_protocol = dev_protocol;
+  desc->max_packet_size = max_packet_size;
+
+  return SANE_STATUS_GOOD;
 }
 
 static void
@@ -4738,9 +4847,27 @@ sanei_usb_record_get_descriptor(SANE_Int dn,
                                 struct sanei_usb_dev_descriptor *desc)
 {
   (void) dn;
-  (void) desc;
-  // ZZTODO
+
+  xmlNode* node = testing_append_commands_node;
+
+  xmlNode* e_tx = xmlNewNode(NULL, (const xmlChar*)"get_descriptor");
+
+  xmlNewProp(e_tx, (const xmlChar*)"time_usec", (const xmlChar*)"0");
+  sanei_xml_set_uint_attr(node, "seq", ++testing_last_known_seq);
+
+  sanei_xml_set_hex_attr(e_tx, "descriptor_type", desc->desc_type);
+  sanei_xml_set_hex_attr(e_tx, "bcd_usb", desc->bcd_usb);
+  sanei_xml_set_hex_attr(e_tx, "bcd_device", desc->bcd_dev);
+  sanei_xml_set_hex_attr(e_tx, "device_class", desc->dev_class);
+  sanei_xml_set_hex_attr(e_tx, "device_sub_class", desc->dev_sub_class);
+  sanei_xml_set_hex_attr(e_tx, "device_protocol", desc->dev_protocol);
+  sanei_xml_set_hex_attr(e_tx, "max_packet_size", desc->max_packet_size);
+
+  node = sanei_xml_append_command(node, 1, e_tx);
+  testing_append_commands_node = node;
 }
+
+#endif // WITH_USB_RECORD_REPLAY
 
 extern SANE_Status
 sanei_usb_get_descriptor( SANE_Int dn,
@@ -4757,7 +4884,12 @@ sanei_usb_get_descriptor( SANE_Int dn,
 
   if (testing_mode == sanei_usb_testing_mode_replay)
     {
+#if WITH_USB_RECORD_REPLAY
       return sanei_usb_replay_get_descriptor(dn, desc);
+#else
+      DBG (1, "USB record-replay mode support is missing\n");
+      return SANE_STATUS_UNSUPPORTED;
+#endif
     }
 
   DBG (5, "sanei_usb_get_descriptor\n");
@@ -4808,7 +4940,12 @@ sanei_usb_get_descriptor( SANE_Int dn,
 
   if (testing_mode == sanei_usb_testing_mode_record)
     {
+#if WITH_USB_RECORD_REPLAY
       sanei_usb_record_get_descriptor(dn, desc);
+#else
+      DBG (1, "USB record-replay mode support is missing\n");
+      return SANE_STATUS_UNSUPPORTED;
+#endif
     }
 
   return SANE_STATUS_GOOD;

@@ -2,6 +2,7 @@
 #define _HP5400_INTERNAL_H_
 
 /* sane - Scanner Access Now Easy.
+   Copyright (C) 2020 Ralph Little <skelband@gmail.com>
    (C) 2003 Thomas Soumarmon <thomas.soumarmon@cogitae.net>
    (c) 2003 Martijn van Oosterhout, kleptog@svana.org
    (c) 2002 Bertrik Sikken, bertrik@zonnet.nl
@@ -73,6 +74,9 @@
 #define CMD_SCANREQUEST  0x2505	/* This is for previews */
 #define CMD_SCANREQUEST2 0x2500	/* This is for real scans */
 #define CMD_SCANRESPONSE 0x3400
+#define CMD_GETSENSORS   0x2000
+#define CMD_READPANEL    0x2100 // Reads info from the scanner. BW/Col + Copy Count. Others, not sure.
+#define CMD_WRITEPANEL   0x2200 // Ditto for setting.
 
 /* Testing stuff to make it work */
 #define CMD_SETDPI       0x1500	/* ??? */
@@ -130,11 +134,40 @@ PACKED;
 
 struct ScanResponse
 {
-  uint16_t x1;			/* Usually 0x0000 or 0x4000 */
-  uint32_t transfersize;	/* Number of bytes to be transferred */
-  uint32_t xsize;		/* Shape of returned bitmap */
-  uint16_t ysize;		/*   Why does the X get more bytes? */
-  uint16_t pad[2];		/* Zero padding to 16 bytes??? */
+  uint16_t x1;                  /* Usually 0x0000 or 0x4000 */
+  uint32_t transfersize;        /* Number of bytes to be transferred */
+  uint32_t xsize;               /* Shape of returned bitmap */
+  uint16_t ysize;               /*   Why does the X get more bytes? */
+  uint16_t pad[2];              /* Zero padding to 16 bytes??? */
+}
+PACKED;
+
+/*
+ * Note: this is the structure of the response we get from CMD_READPANEL.
+ * We only know about two items for the moment. The rest will be ignored
+ * until we understand it better.
+ *
+ * 44 bytes in total.
+ *
+ * Since we don't know what the other things mean, I will assume that they
+ * mean the same things for Get and SET. For SET, we will have to GET, change
+ * what we wish change and SET it back otherwise goodness knows what evil
+ * we will unleash.
+ *
+ * Note that for setting, different values in the buffer seem to apply betwen the copy count
+ * and the colour/BW switch setting. I don't know what that means at the moment.
+ *
+ * I'm calling it PanelInfo because I can't think of anything better.
+ * That may change as the other values are revealed.
+ *
+ */
+struct PanelInfo
+{
+  uint32_t unknown1[10];
+  uint8_t unknown2;
+  uint8_t copycount;    // 0..99 from the LCD display.
+  uint8_t bwcolour;     // 1 or 2 from the Colour/BW leds.
+  uint8_t unknown3;
 }
 PACKED;
 
@@ -155,6 +188,22 @@ WriteByte (int iHandle, int cmd, char data);
 HP5400_SANE_STATIC
 int
 SetLamp (THWParams * pHWParams, int fLampOn);
+
+HP5400_SANE_STATIC
+int
+GetSensors (THWParams * pHWParams, uint16_t *sensorMap);
+
+HP5400_SANE_STATIC
+int
+GetPanelInfo (THWParams * pHWParams, TPanelInfo *panelInfo);
+
+HP5400_SANE_STATIC
+int
+SetCopyCount(THWParams * pHWParams, SANE_Word copyCount);
+
+HP5400_SANE_STATIC
+int
+SetColourBW(THWParams * pHWParams, SANE_Word colourBW);
 
 HP5400_SANE_STATIC
 int

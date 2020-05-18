@@ -97,7 +97,7 @@ gt68xx_calibrator_new (SANE_Int width,
   cal->white_line = (double *) malloc (width * sizeof (double));
   cal->black_line = (double *) malloc (width * sizeof (double));
 
-  if (!cal->k_white || !cal->k_black | !cal->white_line || !cal->black_line)
+  if (!cal->k_white || !cal->k_black || !cal->white_line || !cal->black_line)
     {
       DBG (5, "gt68xx_calibrator_new: no memory for calibration data\n");
       gt68xx_calibrator_free (cal);

@@ -1,5 +1,6 @@
 ;;;  epkowa.desc			-*- emacs-lisp -*- (eh, sort of)
 ;;;  Copyright (C) 2004--2015  Olaf Meeuwissen
+;;;  Copyright (C) 2019 SEIKO EPSON Corporation
 ;;;
 ;;;  This file is part of the "Image Scan!" documentation.
 ;;;
@@ -40,7 +41,7 @@
 ;;  Backend data.
 ;;
 :backend "epkowa"
-:version "iscan 2.30.1/iscan-data 1.36.0"
+:version "iscan 2.30.4/iscan-data 1.39.1"
 :url     "http://download.ebz.epson.net/dsc/search/01/search/?OSC=LX"
 
 
@@ -222,6 +223,11 @@
 :usbid     "0x04b8" "0x0147"
 :status    :complete
 :comment   "requires DFSG non-free iscan-plugin-ds-30"
+
+:model     "DS-G20000"
+:interface "USB"
+:usbid     "0x04b8" "0x015b"
+:status    :good
 
 :model     "EP-702A"
 :interface "USB"
@@ -649,6 +655,12 @@
 :usbid     "0x04b8" "0x014b"
 :status    :good
 :comment   "overseas version of the ES-G11000"
+
+:model     "Expression 12000XL"
+:interface "USB"
+:usbid     "0x04b8" "0x015b"
+:status    :good
+:comment   "overseas version of the DS-G20000"
 
 :model     "F-3200"			; product spec (JP)
 :interface "USB IEEE1394"
@@ -1198,19 +1210,25 @@
 :interface "USB"
 :usbid     "0x04b8" "0x08ad"
 :status    :good
-:comment   "network interface not supported<br>business all-in-one"
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>business all-in-one"
 
 :model     "LP-M8040A"
 :interface "USB"
 :usbid     "0x04b8" "0x08ad"
 :status    :good
-:comment   "network interface not supported<br>business all-in-one"
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>business all-in-one"
 
 :model     "LP-M8040F"
 :interface "USB"
 :usbid     "0x04b8" "0x08ad"
 :status    :good
-:comment   "network interface not supported<br>business all-in-one"
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>business all-in-one"
+
+:model     "LP-M8170"
+:interface "USB"
+:usbid     "0x04b8" "0x1111"
+:status    :good
+:comment   "network interface supported via DFSG non-free iscan-network-nt package<br>business all-in-one"
 
 :model     "M200 Series"
 :interface "USB"

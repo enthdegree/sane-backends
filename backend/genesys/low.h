@@ -108,39 +108,6 @@
 #define GENESYS_GREEN 1
 #define GENESYS_BLUE  2
 
-/* Flags */
-#define GENESYS_FLAG_UNTESTED     (1 << 0)	/**< Print a warning for these scanners */
-#define GENESYS_FLAG_14BIT_GAMMA  (1 << 1)	/**< use 14bit Gamma table instead of 12 */
-#define GENESYS_FLAG_XPA          (1 << 3)
-#define GENESYS_FLAG_SKIP_WARMUP  (1 << 4)	/**< skip genesys_warmup()              */
-/** @brief offset calibration flag
- * signals that the scanner does offset calibration. In this case off_calibration() and
- * coarse_gain_calibration() functions must be implemented
- */
-#define GENESYS_FLAG_OFFSET_CALIBRATION   (1 << 5)
-#define GENESYS_FLAG_SEARCH_START (1 << 6)	/**< do start search before scanning    */
-#define GENESYS_FLAG_REPARK       (1 << 7)	/**< repark head (and check for lock) by
-						   moving without scanning */
-#define GENESYS_FLAG_DARK_CALIBRATION (1 << 8)	/**< do dark calibration */
-
-#define GENESYS_FLAG_MUST_WAIT        (1 << 10)	/**< tells wether the scanner must wait for the head when parking */
-
-
-#define GENESYS_FLAG_HAS_UTA          (1 << 11)	/**< scanner has a transparency adapter */
-
-#define GENESYS_FLAG_DARK_WHITE_CALIBRATION (1 << 12) /**< yet another calibration method. does white and dark shading in one run, depending on a black and a white strip*/
-#define GENESYS_FLAG_CUSTOM_GAMMA     (1 << 13)       /**< allow custom gamma tables */
-#define GENESYS_FLAG_NO_CALIBRATION   (1 << 14)       /**< allow scanners to use skip the calibration, needed for sheetfed scanners */
-#define GENESYS_FLAG_SIS_SENSOR       (1 << 16)       /**< handling of multi-segments sensors in software */
-#define GENESYS_FLAG_SHADING_NO_MOVE  (1 << 17)       /**< scanner doesn't move sensor during shading calibration */
-#define GENESYS_FLAG_SHADING_REPARK   (1 << 18)       /**< repark head between shading scans */
-#define GENESYS_FLAG_FULL_HWDPI_MODE  (1 << 19)       /**< scanner always use maximum hw dpi to setup the sensor */
-// scanner has infrared transparency scanning capability
-#define GENESYS_FLAG_HAS_UTA_INFRARED (1 << 20)
-// scanner calibration is handled on the host side
-#define GENESYS_FLAG_CALIBRATION_HOST_SIDE (1 << 21)
-#define GENESYS_FLAG_16BIT_DATA_INVERTED (1 << 22)
-
 #define GENESYS_HAS_NO_BUTTONS       0              /**< scanner has no supported button */
 #define GENESYS_HAS_SCAN_SW          (1 << 0)       /**< scanner has SCAN button */
 #define GENESYS_HAS_FILE_SW          (1 << 1)       /**< scanner has FILE button */
@@ -186,66 +153,60 @@
 #define AFE_SET        2
 #define AFE_POWER_SAVE 4
 
-#define LOWORD(x)  ((uint16_t)((x) & 0xffff))
-#define HIWORD(x)  ((uint16_t)((x) >> 16))
-#define LOBYTE(x)  ((uint8_t)((x) & 0xFF))
-#define HIBYTE(x)  ((uint8_t)((x) >> 8))
-
-/* Global constants */
-/* TODO: emove this leftover of early backend days */
-#define MOTOR_SPEED_MAX		350
-#define DARK_VALUE		0
-
-#define MAX_RESOLUTIONS 13
-#define MAX_DPI 4
-
 namespace genesys {
 
-struct Genesys_USB_Device_Entry {
+class UsbDeviceEntry {
+public:
+    static constexpr std::uint16_t BCD_DEVICE_NOT_SET = 0xffff;
 
-    Genesys_USB_Device_Entry(unsigned v, unsigned p, const Genesys_Model& m) :
-        vendor(v), product(p), model(m)
+    UsbDeviceEntry(std::uint16_t vendor_id, std::uint16_t product_id,
+                   const Genesys_Model& model) :
+        vendor_{vendor_id}, product_{product_id},
+        bcd_device_{BCD_DEVICE_NOT_SET}, model_{model}
     {}
 
+    UsbDeviceEntry(std::uint16_t vendor_id, std::uint16_t product_id, std::uint16_t bcd_device,
+                   const Genesys_Model& model) :
+        vendor_{vendor_id}, product_{product_id},
+        bcd_device_{bcd_device}, model_{model}
+    {}
+
+    std::uint16_t vendor_id() const { return vendor_; }
+    std::uint16_t product_id() const { return product_; }
+    std::uint16_t bcd_device() const { return bcd_device_; }
+
+    const Genesys_Model& model() const { return model_; }
+
+    bool matches(std::uint16_t vendor_id, std::uint16_t product_id, std::uint16_t bcd_device)
+    {
+        if (vendor_ != vendor_id)
+            return false;
+        if (product_ != product_id)
+            return false;
+        if (bcd_device_ != BCD_DEVICE_NOT_SET && bcd_device != BCD_DEVICE_NOT_SET &&
+            bcd_device_ != bcd_device)
+        {
+            return false;
+        }
+        return true;
+    }
+
+private:
     // USB vendor identifier
-    std::uint16_t vendor;
+    std::uint16_t vendor_;
     // USB product identifier
-    std::uint16_t product;
+    std::uint16_t product_;
+    // USB bcdProduct identifier
+    std::uint16_t bcd_device_;
     // Scanner model information
-    Genesys_Model model;
+    Genesys_Model model_;
 };
-
-/**
- * structure for motor database
- */
-struct Motor_Profile
-{
-    MotorId motor_id;
-    int exposure;           // used only to select the wanted motor
-    StepType step_type;   // default step type for given exposure
-    MotorSlope slope;
-};
-
-extern StaticInit<std::vector<Motor_Profile>> gl843_motor_profiles;
-extern StaticInit<std::vector<Motor_Profile>> gl846_motor_profiles;
-extern StaticInit<std::vector<Motor_Profile>> gl847_motor_profiles;
-extern StaticInit<std::vector<Motor_Profile>> gl124_motor_profiles;
 
 /*--------------------------------------------------------------------------*/
 /*       common functions needed by low level specific functions            */
 /*--------------------------------------------------------------------------*/
 
-inline GenesysRegister* sanei_genesys_get_address(Genesys_Register_Set* regs, uint16_t addr)
-{
-    auto* ret = regs->find_reg_address(addr);
-    if (ret == nullptr) {
-        DBG(DBG_error, "%s: failed to find address for register 0x%02x, crash expected !\n",
-            __func__, addr);
-    }
-    return ret;
-}
-
-extern void sanei_genesys_init_cmd_set(Genesys_Device* dev);
+std::unique_ptr<CommandSet> create_cmd_set(AsicType asic_type);
 
 // reads the status of the scanner
 Status scanner_read_status(Genesys_Device& dev);
@@ -318,12 +279,8 @@ extern void sanei_genesys_set_buffer_address(Genesys_Device* dev, uint32_t addr)
 
 unsigned sanei_genesys_get_bulk_max_size(AsicType asic_type);
 
-SANE_Int sanei_genesys_exposure_time2(Genesys_Device * dev, float ydpi, StepType step_type,
+SANE_Int sanei_genesys_exposure_time2(Genesys_Device* dev, const MotorProfile& profile, float ydpi,
                                       int endpixel, int led_exposure);
-
-MotorSlopeTable sanei_genesys_create_slope_table3(AsicType asic_type, const Genesys_Motor& motor,
-                                                  StepType step_type, int exposure_time,
-                                                  unsigned yres);
 
 void sanei_genesys_create_default_gamma_table(Genesys_Device* dev,
                                               std::vector<uint16_t>& gamma_table, float gamma);
@@ -335,17 +292,39 @@ void sanei_genesys_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& s
 
 extern void sanei_genesys_stop_motor(Genesys_Device* dev);
 
-extern void sanei_genesys_search_reference_point(Genesys_Device* dev, Genesys_Sensor& sensor,
-                                                 const uint8_t* src_data, int start_pixel, int dpi,
-                                                 int width, int height);
-
 // moves the scan head by the specified steps at the motor base dpi
 void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, Direction direction);
 
 void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home);
 void scanner_move_back_home_ta(Genesys_Device& dev);
 
+/** Search for a full width black or white strip.
+    This function searches for a black or white stripe across the scanning area.
+    When searching backward, the searched area must completely be of the desired
+    color since this area will be used for calibration which scans forward.
+
+    @param dev scanner device
+    @param forward true if searching forward, false if searching backward
+    @param black true if searching for a black strip, false for a white strip
+ */
+void scanner_search_strip(Genesys_Device& dev, bool forward, bool black);
+
+bool should_calibrate_only_active_area(const Genesys_Device& dev,
+                                       const Genesys_Settings& settings);
+
+void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& sensor,
+                                Genesys_Register_Set& regs);
+
+void scanner_coarse_gain_calibration(Genesys_Device& dev, const Genesys_Sensor& sensor,
+                                     Genesys_Register_Set& regs, unsigned dpi);
+
+SensorExposure scanner_led_calibration(Genesys_Device& dev, const Genesys_Sensor& sensor,
+                                       Genesys_Register_Set& regs);
+
 void scanner_clear_scan_and_feed_counts(Genesys_Device& dev);
+
+void scanner_send_slope_table(Genesys_Device* dev, const Genesys_Sensor& sensor, unsigned table_nr,
+                              const std::vector<uint16_t>& slope_table);
 
 extern void sanei_genesys_write_file(const char* filename, const std::uint8_t* data,
                                      std::size_t length);
@@ -370,25 +349,13 @@ void regs_set_exposure(AsicType asic_type, Genesys_Register_Set& regs,
 
 void regs_set_optical_off(AsicType asic_type, Genesys_Register_Set& regs);
 
-void sanei_genesys_set_dpihw(Genesys_Register_Set& regs, const Genesys_Sensor& sensor,
-                             unsigned dpihw);
-
-inline uint16_t sanei_genesys_fixup_exposure_value(uint16_t value)
-{
-    if ((value & 0xff00) == 0) {
-        value |= 0x100;
-    }
-    if ((value & 0x00ff) == 0) {
-        value |= 0x1;
-    }
-    return value;
-}
+void sanei_genesys_set_dpihw(Genesys_Register_Set& regs, unsigned dpihw);
 
 inline SensorExposure sanei_genesys_fixup_exposure(SensorExposure exposure)
 {
-    exposure.red = sanei_genesys_fixup_exposure_value(exposure.red);
-    exposure.green = sanei_genesys_fixup_exposure_value(exposure.green);
-    exposure.blue = sanei_genesys_fixup_exposure_value(exposure.blue);
+    exposure.red = std::max<std::uint16_t>(1, exposure.red);
+    exposure.green = std::max<std::uint16_t>(1, exposure.green);
+    exposure.blue = std::max<std::uint16_t>(1, exposure.blue);
     return exposure;
 }
 
@@ -396,7 +363,7 @@ bool get_registers_gain4_bit(AsicType asic_type, const Genesys_Register_Set& reg
 
 extern void sanei_genesys_wait_for_home(Genesys_Device* dev);
 
-extern void sanei_genesys_asic_init(Genesys_Device* dev, bool cold);
+extern void sanei_genesys_asic_init(Genesys_Device* dev);
 
 void scanner_start_action(Genesys_Device& dev, bool start_motor);
 void scanner_stop_action(Genesys_Device& dev);
@@ -404,15 +371,23 @@ void scanner_stop_action_no_move(Genesys_Device& dev, Genesys_Register_Set& regs
 
 bool scanner_is_motor_stopped(Genesys_Device& dev);
 
-const Motor_Profile& sanei_genesys_get_motor_profile(const std::vector<Motor_Profile>& motors,
-                                                     MotorId motor_id, int exposure);
+void scanner_setup_sensor(Genesys_Device& dev, const Genesys_Sensor& sensor,
+                          Genesys_Register_Set& regs);
 
-MotorSlopeTable sanei_genesys_slope_table(AsicType asic_type, int dpi, int exposure, int base_dpi,
-                                          unsigned step_multiplier,
-                                          const Motor_Profile& motor_profile);
+const MotorProfile* get_motor_profile_ptr(const std::vector<MotorProfile>& profiles,
+                                          unsigned exposure,
+                                          const ScanSession& session);
+
+const MotorProfile& get_motor_profile(const std::vector<MotorProfile>& profiles,
+                                      unsigned exposure,
+                                      const ScanSession& session);
+
+MotorSlopeTable create_slope_table(AsicType asic_type, const Genesys_Motor& motor, unsigned ydpi,
+                                   unsigned exposure, unsigned step_multiplier,
+                                   const MotorProfile& motor_profile);
 
 MotorSlopeTable create_slope_table_fastest(AsicType asic_type, unsigned step_multiplier,
-                                           const Motor_Profile& motor_profile);
+                                           const MotorProfile& motor_profile);
 
 /** @brief find lowest motor resolution for the device.
  * Parses the resolution list for motor and
@@ -502,15 +477,18 @@ inline T clamp(const T& value, const T& lo, const T& hi)
 extern StaticInit<std::vector<Genesys_Sensor>> s_sensors;
 extern StaticInit<std::vector<Genesys_Frontend>> s_frontends;
 extern StaticInit<std::vector<Genesys_Gpo>> s_gpo;
+extern StaticInit<std::vector<MemoryLayout>> s_memory_layout;
 extern StaticInit<std::vector<Genesys_Motor>> s_motors;
-extern StaticInit<std::vector<Genesys_USB_Device_Entry>> s_usb_devices;
+extern StaticInit<std::vector<UsbDeviceEntry>> s_usb_devices;
 
 void genesys_init_sensor_tables();
 void genesys_init_frontend_tables();
 void genesys_init_gpo_tables();
+void genesys_init_memory_layout_tables();
 void genesys_init_motor_tables();
-void genesys_init_motor_profile_tables();
 void genesys_init_usb_device_tables();
+void verify_sensor_tables();
+void verify_usb_device_tables();
 
 template<class T>
 void debug_dump(unsigned level, const T& value)

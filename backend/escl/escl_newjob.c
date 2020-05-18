@@ -68,17 +68,10 @@ static const char settings[] =
     "   <scan:ColorMode>%s</scan:ColorMode>" \
     "   <scan:XResolution>%d</scan:XResolution>" \
     "   <scan:YResolution>%d</scan:YResolution>" \
-    "   <pwg:InputSource>Platen</pwg:InputSource>" \
+    "   <pwg:InputSource>%s</pwg:InputSource>" \
+    "   <scan:InputSource>%s</scan:InputSource>" \
+    "%s" \
     "</scan:ScanSettings>";
-
-static char formatExtJPEG[] =
-    "   <scan:DocumentFormatExt>image/jpeg</scan:DocumentFormatExt>";
-
-static char formatExtPNG[] =
-    "   <scan:DocumentFormatExt>image/png</scan:DocumentFormatExt>";
-
-static char formatExtTIFF[] =
-    "   <scan:DocumentFormatExt>image/tiff</scan:DocumentFormatExt>";
 
 /**
  * \fn static size_t download_callback(void *str, size_t size, size_t nmemb, void *userp)
@@ -122,7 +115,7 @@ download_callback(void *str, size_t size, size_t nmemb, void *userp)
 }
 
 /**
- * \fn char *escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *status)
+ * \fn char *escl_newjob (capabilities_t *scanner, const ESCL_Device *device, SANE_Status *status)
  * \brief Function that, using curl, uploads the data (composed by the scanner capabilities) to the
  *        server to download the 'job' and recover the 'new job' (char *result), in LOCATION.
  *        This function is called in the 'sane_start' function and it's the equivalent of the
@@ -131,22 +124,23 @@ download_callback(void *str, size_t size, size_t nmemb, void *userp)
  * \return result (the 'new job', situated in LOCATION)
  */
 char *
-escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *status)
+escl_newjob (capabilities_t *scanner, const ESCL_Device *device, SANE_Status *status)
 {
     CURL *curl_handle = NULL;
+    int off_x = 0, off_y = 0;
     struct uploading *upload = NULL;
     struct downloading *download = NULL;
     const char *scan_jobs = "/eSCL/ScanJobs";
     char cap_data[PATH_MAX] = { 0 };
-    char job_cmd[PATH_MAX] = { 0 };
     char *location = NULL;
     char *result = NULL;
     char *temporary = NULL;
     char *f_ext = "";
     char *format_ext = NULL;
+    char duplex_mode[1024] = { 0 };
 
     *status = SANE_STATUS_GOOD;
-    if (name == NULL || scanner == NULL) {
+    if (device == NULL || scanner == NULL) {
         *status = SANE_STATUS_NO_MEM;
         DBG( 1, "Create NewJob : the name or the scan are invalid.\n");
         return (NULL);
@@ -165,64 +159,89 @@ escl_newjob (capabilities_t *scanner, SANE_String_Const name, SANE_Status *statu
         return (NULL);
     }
     curl_handle = curl_easy_init();
-    if (scanner->format_ext == 1)
+    if (scanner->caps[scanner->source].format_ext == 1)
     {
-       if (!strcmp(scanner->default_format, "image/jpeg"))
-          format_ext = formatExtJPEG;
-       else if (!strcmp(scanner->default_format, "image/png"))
-          format_ext = formatExtPNG;
-       else if (!strcmp(scanner->default_format, "image/tiff"))
-          format_ext = formatExtTIFF;
-       else
-          format_ext = f_ext;
+        char f_ext_tmp[1024];
+        snprintf(f_ext_tmp, sizeof(f_ext_tmp),
+			"   <scan:DocumentFormatExt>%s</scan:DocumentFormatExt>",
+    			scanner->caps[scanner->source].default_format);
+        format_ext = f_ext_tmp;
     }
     else
       format_ext = f_ext;
-    DBG( 1, "Create NewJob : %s\n", scanner->default_format);
+    if(scanner->source > PLATEN && scanner->Sources[ADFDUPLEX]) {
+       snprintf(duplex_mode, sizeof(duplex_mode),
+		       "   <scan:Duplex>%s</scan:Duplex>",
+		       scanner->source == ADFDUPLEX ? "true" : "false");
+    }
+    DBG( 1, "Create NewJob : %s\n", scanner->caps[scanner->source].default_format);
+    if (scanner->caps[scanner->source].pos_x > scanner->caps[scanner->source].width)
+         off_x = (scanner->caps[scanner->source].pos_x > scanner->caps[scanner->source].width) / 2;
+    if (scanner->caps[scanner->source].pos_y > scanner->caps[scanner->source].height)
+         off_y = (scanner->caps[scanner->source].pos_y > scanner->caps[scanner->source].height) / 2;
     if (curl_handle != NULL) {
-        snprintf(cap_data, sizeof(cap_data), settings, scanner->height, scanner->width, 0, 0, scanner->default_format,
-                 format_ext,
-                 scanner->default_color, scanner->default_resolution, scanner->default_resolution);
+		char *source = (scanner->source == PLATEN ? "Platen" : "Feeder");
+        snprintf(cap_data, sizeof(cap_data), settings,
+			scanner->caps[scanner->source].height,
+			scanner->caps[scanner->source].width,
+			off_x,
+			off_y,
+			scanner->caps[scanner->source].default_format,
+			format_ext,
+			scanner->caps[scanner->source].default_color,
+			scanner->caps[scanner->source].default_resolution,
+			scanner->caps[scanner->source].default_resolution,
+			source,
+			source,
+			duplex_mode[0] == 0 ? "" : duplex_mode);
         DBG( 1, "Create NewJob : %s\n", cap_data);
         upload->read_data = strdup(cap_data);
         upload->size = strlen(cap_data);
         download->memory = malloc(1);
         download->size = 0;
-        strcpy(job_cmd, name);
-        strcat(job_cmd, scan_jobs);
-        curl_easy_setopt(curl_handle, CURLOPT_URL, job_cmd);
-        if (strncmp(name, "https", 5) == 0) {
-            curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 0L);
-            curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYHOST, 0L);
-        }
+        escl_curl_url(curl_handle, device, scan_jobs);
         curl_easy_setopt(curl_handle, CURLOPT_POST, 1L);
         curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, upload->read_data);
         curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDSIZE, upload->size);
         curl_easy_setopt(curl_handle, CURLOPT_HEADERFUNCTION, download_callback);
         curl_easy_setopt(curl_handle, CURLOPT_HEADERDATA, (void *)download);
-        if (curl_easy_perform(curl_handle) != CURLE_OK) {
-            DBG( 1, "Create NewJob : the scanner responded incorrectly.\n");
+        CURLcode res = curl_easy_perform(curl_handle);
+        if (res != CURLE_OK) {
+            DBG( 1, "Create NewJob : the scanner responded incorrectly: %s\n", curl_easy_strerror(res));
             *status = SANE_STATUS_INVAL;
         }
         else {
             if (download->memory != NULL) {
-                if (strstr(download->memory, "Location:")) {
-                    temporary = strrchr(download->memory, '/');
+                char *tmp_location = strstr(download->memory, "Location:");
+                if (tmp_location) {
+                    temporary = strchr(tmp_location, '\r');
+                    if (temporary == NULL)
+                        temporary = strchr(tmp_location, '\n');
                     if (temporary != NULL) {
-                        location = strchr(temporary, '\r');
-                        if (location == NULL)
-                            location = strchr(temporary, '\n');
-                        else {
-                            *location = '\0';
-                            result = strdup(temporary);
-                        }
-                       DBG( 1, "Create NewJob : %s\n", result);
+                       *temporary = '\0';
+                       location = strrchr(tmp_location,'/');
+                       if (location) {
+                          result = strdup(location);
+                          DBG( 1, "Create NewJob : %s\n", result);
+                          *temporary = '\n';
+                       }
+                    }
+                    if (result == NULL) {
+                        DBG( 1, "Error : Create NewJob, no location: %s\n", download->memory);
+                        *status = SANE_STATUS_INVAL;
                     }
                     free(download->memory);
                 }
                 else {
-                    DBG( 1, "Create NewJob : The creation of the failed job\n");
-                    *status = SANE_STATUS_INVAL;
+                    DBG( 1, "Create NewJob : The creation of the failed job: %s\n", download->memory);
+                    // If "409 Conflict" appear it means that there is no paper in feeder
+                    if (strstr(download->memory, "409 Conflict") != NULL)
+                        *status = SANE_STATUS_NO_DOCS;
+                    // If "503 Service Unavailable" appear, it means that device is busy (scanning in progress)
+                    else if (strstr(download->memory, "503 Service Unavailable") != NULL)
+                        *status = SANE_STATUS_DEVICE_BUSY;
+                    else
+                        *status = SANE_STATUS_INVAL;
                 }
             }
             else {

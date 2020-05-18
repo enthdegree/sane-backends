@@ -45,74 +45,12 @@
 #define BACKEND_GENESYS_GL124_H
 
 #include "genesys.h"
-#include "command_set.h"
+#include "command_set_common.h"
 
 namespace genesys {
 namespace gl124 {
 
-typedef struct
-{
-  uint8_t r31;
-  uint8_t r32;
-  uint8_t r33;
-  uint8_t r34;
-  uint8_t r35;
-  uint8_t r36;
-  uint8_t r38;
-} Gpio_layout;
-
-/** @brief gpio layout
- * describes initial gpio settings for a given model
- * registers 0x31 to 0x38
- */
-static Gpio_layout gpios[]={
-	/* LiDE 110 */
-	{ /*    0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x38 */
-		0x9f, 0x59, 0x01, 0x80, 0x5f, 0x01, 0x00
-	},
-	/* LiDE 210 */
-	{
-		0x9f, 0x59, 0x01, 0x80, 0x5f, 0x01, 0x00
-	},
-	/* LiDE 120 */
-	{
-		0x9f, 0x53, 0x01, 0x80, 0x5f, 0x01, 0x00
-	},
-};
-
-typedef struct
-{
-  uint8_t rd0;
-  uint8_t rd1;
-  uint8_t rd2;
-  uint8_t re0;
-  uint8_t re1;
-  uint8_t re2;
-  uint8_t re3;
-  uint8_t re4;
-  uint8_t re5;
-  uint8_t re6;
-  uint8_t re7;
-} Memory_layout;
-
-static Memory_layout layouts[]={
-	/* LIDE 110, 120 */
-	{    /* 0xd0 0xd1 0xd2 */
-		0x0a, 0x15, 0x20,
-	     /* 0xe0  0xe1  0xe2  0xe3  0xe4  0xe5  0xe6  0xe7 */
-		0x00, 0xac, 0x08, 0x55, 0x08, 0x56, 0x0f, 0xff
-	},
-	/* LIDE 210, 220 */
-	{
-		0x0a, 0x1f, 0x34,
-		0x01, 0x24, 0x08, 0x91, 0x08, 0x92, 0x0f, 0xff
-	}
-};
-
-static void gl124_send_slope_table(Genesys_Device* dev, int table_nr,
-                                   const std::vector<uint16_t>& slope_table, int steps);
-
-class CommandSetGl124 : public CommandSet
+class CommandSetGl124 : public CommandSetCommon
 {
 public:
     ~CommandSetGl124() override = default;
@@ -122,16 +60,13 @@ public:
     void init(Genesys_Device* dev) const override;
 
     void init_regs_for_warmup(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                              Genesys_Register_Set* regs, int* channels,
-                              int* total_size) const override;
-
-    void init_regs_for_coarse_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                          Genesys_Register_Set& regs) const override;
+                              Genesys_Register_Set* regs) const override;
 
     void init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                Genesys_Register_Set& regs) const override;
 
-    void init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor) const override;
+    void init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                            Genesys_Register_Set& regs) const override;
 
     void init_regs_for_scan_session(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                     Genesys_Register_Set* reg,
@@ -147,8 +82,6 @@ public:
     void end_scan(Genesys_Device* dev, Genesys_Register_Set* regs, bool check_stop) const override;
 
     void send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor) const override;
-
-    void search_start_position(Genesys_Device* dev) const override;
 
     void offset_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
                             Genesys_Register_Set& regs) const override;
@@ -174,9 +107,6 @@ public:
     void detect_document_end(Genesys_Device* dev) const override;
 
     void eject_document(Genesys_Device* dev) const override;
-
-    void search_strip(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                      bool forward, bool black) const override;
 
     void move_to_ta(Genesys_Device* dev) const override;
 

@@ -43,6 +43,7 @@
 #include "../include/sane/sane.h"
 
 #include <stdio.h>
+#include <math.h>
 
 #ifndef BACKEND_NAME
 #define BACKEND_NAME escl
@@ -63,6 +64,14 @@
 
 #define ESCL_CONFIG_FILE "escl.conf"
 
+
+enum {
+   PLATEN = 0,
+   ADFSIMPLEX,
+   ADFDUPLEX
+};
+
+
 typedef struct {
     int             p1_0;
     int             p2_0;
@@ -82,9 +91,11 @@ typedef struct ESCL_Device {
     int             port_nb;
     char      *ip_address;
     char *type;
+    SANE_Bool https;
+    char      *unix_socket;
 } ESCL_Device;
 
-typedef struct capabilities
+typedef struct capst
 {
     int height;
     int width;
@@ -104,6 +115,7 @@ typedef struct capabilities
     int ContentTypesSize;
     SANE_String_Const *DocumentFormats;
     int DocumentFormatsSize;
+    int format_ext;
     SANE_Int *SupportedResolutions;
     int SupportedResolutionsSize;
     SANE_String_Const *SupportedIntents;
@@ -114,11 +126,21 @@ typedef struct capabilities
     int RiskyRightMargin;
     int RiskyTopMargin;
     int RiskyBottomMargin;
+    int duplex;
+} caps_t;
+
+typedef struct capabilities
+{
+    caps_t caps[3];
+    int source;
+    SANE_String_Const *Sources;
+    int SourcesSize;
     FILE *tmp;
     unsigned char *img_data;
     long img_size;
     long img_read;
-    int format_ext;
+    size_t real_read;
+    SANE_Bool work;
 } capabilities_t;
 
 typedef struct {
@@ -148,24 +170,45 @@ enum
     OPT_TL_Y,
     OPT_BR_X,
     OPT_BR_Y,
+
+    OPT_SCAN_SOURCE,
+
     NUM_OPTIONS
 };
 
+#define PIXEL_TO_MM(pixels, dpi) SANE_FIX((double)pixels * 25.4 / (dpi))
+#define MM_TO_PIXEL(millimeters, dpi) (SANE_Word)round(SANE_UNFIX(millimeters) * (dpi) / 25.4)
+
 ESCL_Device *escl_devices(SANE_Status *status);
-SANE_Status escl_device_add(int port_nb, const char *model_name, char *ip_address, char *type);
-SANE_Status escl_status(SANE_String_Const name);
-capabilities_t *escl_capabilities(SANE_String_Const name, SANE_Status *status);
-char *escl_newjob(capabilities_t *scanner, SANE_String_Const name, SANE_Status *status);
-SANE_Status escl_scan(capabilities_t *scanner, SANE_String_Const name, char *result);
-void escl_scanner(SANE_String_Const name, char *result);
+SANE_Status escl_device_add(int port_nb, const char *model_name,
+		            char *ip_address, char *type);
+SANE_Status escl_status(const ESCL_Device *device,
+                        int source,
+                        const char* jobId,
+                        SANE_Status *job);
+capabilities_t *escl_capabilities(const ESCL_Device *device, SANE_Status *status);
+char *escl_newjob(capabilities_t *scanner, const ESCL_Device *device,
+		  SANE_Status *status);
+SANE_Status escl_scan(capabilities_t *scanner, const ESCL_Device *device,
+	              char *result);
+void escl_scanner(const ESCL_Device *device, char *result);
+
+typedef void CURL;
+void escl_curl_url(CURL *handle, const ESCL_Device *device, SANE_String_Const path);
+
+unsigned char *escl_crop_surface(capabilities_t *scanner, unsigned char *surface,
+	                      int w, int h, int bps, int *width, int *height);
 
 // JPEG
-SANE_Status get_JPEG_data(capabilities_t *scanner, int *w, int *h, int *bps);
+SANE_Status get_JPEG_data(capabilities_t *scanner, int *width, int *height, int *bps);
 
 // PNG
-SANE_Status get_PNG_data(capabilities_t *scanner, int *w, int *h, int *bps);
+SANE_Status get_PNG_data(capabilities_t *scanner, int *width, int *height, int *bps);
 
 // TIFF
-SANE_Status get_TIFF_data(capabilities_t *scanner, int *w, int *h, int *bps);
+SANE_Status get_TIFF_data(capabilities_t *scanner, int *width, int *height, int *bps);
+
+// PDF
+SANE_Status get_PDF_data(capabilities_t *scanner, int *width, int *height, int *bps);
 
 #endif

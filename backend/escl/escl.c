@@ -46,20 +46,75 @@ static int num_devices = 0;
 
 typedef struct Handled {
     struct Handled *next;
-    SANE_String_Const name;
+    ESCL_Device *device;
     char *result;
     ESCL_ScanParam param;
     SANE_Option_Descriptor opt[NUM_OPTIONS];
     Option_Value val[NUM_OPTIONS];
     capabilities_t *scanner;
-    SANE_Range x_range;
-    SANE_Range y_range;
+    SANE_Range x_range1;
+    SANE_Range x_range2;
+    SANE_Range y_range1;
+    SANE_Range y_range2;
     SANE_Bool cancel;
     SANE_Bool write_scan_data;
     SANE_Bool decompress_scan_data;
     SANE_Bool end_read;
     SANE_Parameters ps;
 } escl_sane_t;
+
+static ESCL_Device *
+escl_free_device(ESCL_Device *current)
+{
+    if (!current) return NULL;
+    free((void*)current->ip_address);
+    free((void*)current->model_name);
+    free((void*)current->type);
+    free(current->unix_socket);
+    free(current);
+    return NULL;
+}
+
+void
+escl_free_handler(escl_sane_t *handler)
+{
+    if (handler == NULL)
+        return;
+
+    escl_free_device(handler->device);
+    free(handler);
+}
+
+SANE_Status escl_parse_name(SANE_String_Const name, ESCL_Device *device);
+
+static SANE_Status
+escl_check_and_add_device(ESCL_Device *current)
+{
+    if(!current) {
+      DBG (10, "ESCL_Device *current us null.\n");
+      return (SANE_STATUS_NO_MEM);
+    }
+    if (!current->ip_address) {
+      DBG (10, "Ip Address allocation failure.\n");
+      return (SANE_STATUS_NO_MEM);
+    }
+    if (current->port_nb == 0) {
+      DBG (10, "No port defined.\n");
+      return (SANE_STATUS_NO_MEM);
+    }
+    if (!current->model_name) {
+      DBG (10, "Modele Name allocation failure.\n");
+      return (SANE_STATUS_NO_MEM);
+    }
+    if (!current->type) {
+      DBG (10, "Scanner Type allocation failure.\n");
+      return (SANE_STATUS_NO_MEM);
+    }
+    ++num_devices;
+    current->next = list_devices_primary;
+    list_devices_primary = current;
+    return (SANE_STATUS_GOOD);
+}
 
 /**
  * \fn static SANE_Status escl_add_in_list(ESCL_Device *current)
@@ -72,10 +127,18 @@ typedef struct Handled {
 static SANE_Status
 escl_add_in_list(ESCL_Device *current)
 {
-    ++num_devices;
-    current->next = list_devices_primary;
-    list_devices_primary = current;
-    return (SANE_STATUS_GOOD);
+    if(!current) {
+      DBG (10, "ESCL_Device *current us null.\n");
+      return (SANE_STATUS_NO_MEM);
+    }
+
+    if (SANE_STATUS_GOOD ==
+        escl_check_and_add_device(current)) {
+        list_devices_primary = current;
+        return (SANE_STATUS_GOOD);
+    }
+    current = escl_free_device(current);
+    return (SANE_STATUS_NO_MEM);
 }
 
 /**
@@ -89,19 +152,44 @@ escl_add_in_list(ESCL_Device *current)
 SANE_Status
 escl_device_add(int port_nb, const char *model_name, char *ip_address, char *type)
 {
+    char tmp[PATH_MAX] = { 0 };
+    char *model = NULL;
     ESCL_Device *current = NULL;
     DBG (10, "escl_device_add\n");
     for (current = list_devices_primary; current; current = current->next) {
-        if (strcmp(current->ip_address, ip_address) == 0 && current->port_nb == port_nb
-            && strcmp(current->type, type) == 0)
-            return (SANE_STATUS_GOOD);
+	if (strcmp(current->ip_address, ip_address) == 0)
+           {
+	      if (strcmp(current->type, type))
+                {
+                  if(!strcmp(type, "_uscans._tcp") ||
+                     !strcmp(type, "https"))
+                    {
+                       free (current->type);
+                       current->type = strdup(type);
+                       current->port_nb = port_nb;
+                       current->https = SANE_TRUE;
+                    }
+	          return (SANE_STATUS_GOOD);
+                }
+              else if (current->port_nb == port_nb)
+	        return (SANE_STATUS_GOOD);
+           }
     }
-    current = malloc(sizeof(*current));
-    if (current == NULL)
-        return (SANE_STATUS_NO_MEM);
-    memset(current, 0, sizeof(*current));
+    current = (ESCL_Device*)calloc(1, sizeof(*current));
+    if (current == NULL) {
+       DBG (10, "New device allocation failure.\n");
+       return (SANE_STATUS_NO_MEM);
+    }
     current->port_nb = port_nb;
-    current->model_name = strdup(model_name);
+
+    if (strcmp(type, "_uscan._tcp") != 0 && strcmp(type, "http") != 0) {
+        snprintf(tmp, sizeof(tmp), "%s SSL", model_name);
+        current->https = SANE_TRUE;
+    } else {
+        current->https = SANE_FALSE;
+    }
+    model = (char*)(tmp[0] != 0 ? tmp : model_name);
+    current->model_name = strdup(model);
     current->ip_address = strdup(ip_address);
     current->type = strdup(type);
     return escl_add_in_list(current);
@@ -121,11 +209,49 @@ max_string_size(const SANE_String_Const strings[])
     int i = 0;
 
     for (i = 0; strings[i]; ++i) {
-        size_t size = strlen (strings[i]);
-        if (size > max_size)
-            max_size = size;
+	size_t size = strlen (strings[i]);
+	if (size > max_size)
+	    max_size = size;
     }
     return (max_size + 1);
+}
+
+static char *
+get_vendor(char *search)
+{
+	if(strcasestr(search, "Epson"))
+		return strdup("Epson");
+	else if(strcasestr(search, "Fujitsu"))
+		return strdup("Fujitsu");
+	else if(strcasestr(search, "HP"))
+		return strdup("HP");
+	else if(strcasestr(search, "Canon"))
+		return strdup("Canon");
+	else if(strcasestr(search, "Lexmark"))
+		return strdup("Lexmark");
+	else if(strcasestr(search, "Samsung"))
+		return strdup("Samsung");
+	else if(strcasestr(search, "Xerox"))
+		return strdup("Xerox");
+	else if(strcasestr(search, "OKI"))
+		return strdup("OKI");
+	else if(strcasestr(search, "Hewlett Packard"))
+		return strdup("Hewlett Packard");
+	else if(strcasestr(search, "IBM"))
+		return strdup("IBM");
+	else if(strcasestr(search, "Mustek"))
+		return strdup("Mustek");
+	else if(strcasestr(search, "Ricoh"))
+		return strdup("Ricoh");
+	else if(strcasestr(search, "Sharp"))
+		return strdup("Sharp");
+	else if(strcasestr(search, "UMAX"))
+		return strdup("UMAX");
+	else if(strcasestr(search, "PINT"))
+		return strdup("PINT");
+	else if(strcasestr(search, "Brother"))
+		return strdup("Brother");
+	return NULL;
 }
 
 /**
@@ -142,19 +268,61 @@ max_string_size(const SANE_String_Const strings[])
 static SANE_Device *
 convertFromESCLDev(ESCL_Device *cdev)
 {
+    char *tmp;
+    int len, lv = 0;
+    char unix_path[PATH_MAX+7] = { 0 };
     SANE_Device *sdev = (SANE_Device*) calloc(1, sizeof(SANE_Device));
-    char tmp[PATH_MAX] = { 0 };
+    if (!sdev) {
+       DBG (10, "Sane_Device allocation failure.\n");
+       return NULL;
+    }
 
-    if (strcmp(cdev->type, "_uscan._tcp") == 0 || strcmp(cdev->type, "http") == 0)
-        snprintf(tmp, sizeof(tmp), "http://%s:%d", cdev->ip_address, cdev->port_nb);
-    else
-        snprintf(tmp, sizeof(tmp), "https://%s:%d", cdev->ip_address, cdev->port_nb);
+    if (cdev->unix_socket && strlen(cdev->unix_socket)) {
+        snprintf(unix_path, sizeof(unix_path), "unix:%s:", cdev->unix_socket);
+    }
+    len = snprintf(NULL, 0, "%shttp%s://%s:%d",
+             unix_path, cdev->https ? "s" : "", cdev->ip_address, cdev->port_nb);
+    len++;
+    tmp = (char *)malloc(len);
+    if (!tmp) {
+        DBG (10, "Name allocation failure.\n");
+        goto freedev;
+    }
+    snprintf(tmp, len, "%shttp%s://%s:%d",
+             unix_path, cdev->https ? "s" : "", cdev->ip_address, cdev->port_nb);
+    sdev->name = tmp;
+
     DBG( 1, "Escl add device : %s\n", tmp);
-    sdev->name = strdup(tmp);
-    sdev->model = strdup(cdev->model_name);
-    sdev->vendor = strdup("ESCL");
+    sdev->vendor = get_vendor(cdev->model_name);
+
+    if (!sdev->vendor)
+       sdev->vendor = strdup("ESCL");
+    else
+       lv = strlen(sdev->vendor) + 1;
+    if (!sdev->vendor) {
+       DBG (10, "Vendor allocation failure.\n");
+       goto freemodel;
+    }
+    sdev->model = strdup(lv + cdev->model_name);
+    if (!sdev->model) {
+       DBG (10, "Model allocation failure.\n");
+       goto freename;
+    }
     sdev->type = strdup("flatbed scanner");
+    if (!sdev->type) {
+       DBG (10, "Scanner Type allocation failure.\n");
+       goto freevendor;
+    }
     return (sdev);
+freevendor:
+    free((void*)sdev->vendor);
+freemodel:
+    free((void*)sdev->model);
+freename:
+    free((void*)sdev->name);
+freedev:
+    free((void*)sdev);
+    return NULL;
 }
 
 /**
@@ -174,9 +342,9 @@ sane_init(SANE_Int *version_code, SANE_Auth_Callback __sane_unused__ authorize)
     SANE_Status status = SANE_STATUS_GOOD;
     curl_global_init(CURL_GLOBAL_ALL);
     if (version_code != NULL)
-        *version_code = SANE_VERSION_CODE(1, 0, 0);
+	*version_code = SANE_VERSION_CODE(1, 0, 0);
     if (status != SANE_STATUS_GOOD)
-        return (status);
+	return (status);
     return (SANE_STATUS_GOOD);
 }
 
@@ -194,12 +362,12 @@ sane_exit(void)
     ESCL_Device *next = NULL;
 
     while (list_devices_primary != NULL) {
-        next = list_devices_primary->next;
-        free(list_devices_primary);
-        list_devices_primary = next;
+	next = list_devices_primary->next;
+	free(list_devices_primary);
+	list_devices_primary = next;
     }
     if (devlist)
-        free (devlist);
+	free (devlist);
     list_devices_primary = NULL;
     devlist = NULL;
     curl_global_cleanup();
@@ -218,44 +386,85 @@ static SANE_Status
 attach_one_config(SANEI_Config __sane_unused__ *config, const char *line)
 {
     int port = 0;
-    static int count = 0;
+    SANE_Status status;
     static ESCL_Device *escl_device = NULL;
 
-    if (strncmp(line, "[device]", 8) == 0) {
-        count = 0;
+    if (strncmp(line, "device", 6) == 0) {
+        char *name_str = NULL;
+        char *opt_model = NULL;
+
+        line = sanei_config_get_string(line + 6, &name_str);
+        DBG (10, "New Escl_Device URL [%s].\n", (name_str ? name_str : "VIDE"));
+        if (!name_str || !*name_str) {
+            DBG (1, "Escl_Device URL missing.\n");
+            return SANE_STATUS_INVAL;
+        }
+        if (*line) {
+            line = sanei_config_get_string(line, &opt_model);
+            DBG (10, "New Escl_Device model [%s].\n", opt_model);
+        }
+
+        escl_free_device(escl_device);
         escl_device = (ESCL_Device*)calloc(1, sizeof(ESCL_Device));
+        if (!escl_device) {
+           DBG (10, "New Escl_Device allocation failure.\n");
+           free(name_str);
+           return (SANE_STATUS_NO_MEM);
+        }
+        status = escl_parse_name(name_str, escl_device);
+        free(name_str);
+        if (status != SANE_STATUS_GOOD) {
+            escl_free_device(escl_device);
+            escl_device = NULL;
+            return status;
+        }
+        escl_device->model_name = opt_model ? opt_model : strdup("Unknown model");
+        escl_device->type = strdup("flatbed scanner");
+    }
+
+    if (strncmp(line, "[device]", 8) == 0) {
+	escl_device = escl_free_device(escl_device);
+	escl_device = (ESCL_Device*)calloc(1, sizeof(ESCL_Device));
+	if (!escl_device) {
+	   DBG (10, "New Escl_Device allocation failure.");
+	   return (SANE_STATUS_NO_MEM);
+	}
     }
     if (strncmp(line, "ip", 2) == 0) {
-        const char *ip_space = sanei_config_skip_whitespace(line + 2);
-        if (escl_device != NULL && ip_space != NULL) {
-            count++;
-            escl_device->ip_address = strdup(ip_space);
-        }
+	const char *ip_space = sanei_config_skip_whitespace(line + 2);
+	DBG (10, "New Escl_Device IP [%s].", (ip_space ? ip_space : "VIDE"));
+	if (escl_device != NULL && ip_space != NULL) {
+	    DBG (10, "New Escl_Device IP Affected.");
+	    escl_device->ip_address = strdup(ip_space);
+	}
     }
     if (sscanf(line, "port %i", &port) == 1 && port != 0) {
-        const char *port_space = sanei_config_skip_whitespace(line + 4);
-        if (escl_device != NULL && port_space != NULL) {
-            count++;
-            escl_device->port_nb = port;
-        }
+	DBG (10, "New Escl_Device PORT [%d].", port);
+	if (escl_device != NULL) {
+	    DBG (10, "New Escl_Device PORT Affected.");
+	    escl_device->port_nb = port;
+	}
     }
     if (strncmp(line, "model", 5) == 0) {
-        const char *model_space = sanei_config_skip_whitespace(line + 5);
-        if (escl_device != NULL && model_space != NULL) {
-            count++;
-            escl_device->model_name = strdup(model_space);
-        }
+	const char *model_space = sanei_config_skip_whitespace(line + 5);
+	DBG (10, "New Escl_Device MODEL [%s].", (model_space ? model_space : "VIDE"));
+	if (escl_device != NULL && model_space != NULL) {
+	    DBG (10, "New Escl_Device MODEL Affected.");
+	    escl_device->model_name = strdup(model_space);
+	}
     }
     if (strncmp(line, "type", 4) == 0) {
-        const char *type_space = sanei_config_skip_whitespace(line + 4);
-        if (escl_device != NULL && type_space != NULL) {
-            count++;
-            escl_device->type = strdup(type_space);
-        }
+	const char *type_space = sanei_config_skip_whitespace(line + 4);
+	DBG (10, "New Escl_Device TYPE [%s].", (type_space ? type_space : "VIDE"));
+	if (escl_device != NULL && type_space != NULL) {
+	    DBG (10, "New Escl_Device TYPE Affected.");
+	    escl_device->type = strdup(type_space);
+	}
     }
-    if (count == 4)
-        return (escl_add_in_list(escl_device));
-    return (SANE_STATUS_GOOD);
+    status = escl_check_and_add_device(escl_device);
+    if (status == SANE_STATUS_GOOD)
+       escl_device = NULL;
+    return status;
 }
 
 /**
@@ -269,7 +478,7 @@ SANE_Status
 sane_get_devices(const SANE_Device ***device_list, SANE_Bool local_only)
 {
     if (local_only)             /* eSCL is a network-only protocol */
-        return (device_list ? SANE_STATUS_GOOD : SANE_STATUS_INVAL);
+	return (device_list ? SANE_STATUS_GOOD : SANE_STATUS_INVAL);
 
     DBG (10, "escl sane_get_devices\n");
     ESCL_Device *dev = NULL;
@@ -277,27 +486,44 @@ sane_get_devices(const SANE_Device ***device_list, SANE_Bool local_only)
     SANE_Status status;
 
     if (device_list == NULL)
-        return (SANE_STATUS_INVAL);
+	return (SANE_STATUS_INVAL);
     status = sanei_configure_attach(ESCL_CONFIG_FILE, NULL, attach_one_config);
     if (status != SANE_STATUS_GOOD)
-        return (status);
+	return (status);
     escl_devices(&status);
     if (status != SANE_STATUS_GOOD)
-        return (status);
+	return (status);
     if (devlist)
-        free(devlist);
+	free(devlist);
     devlist = (const SANE_Device **) calloc (num_devices + 1, sizeof (devlist[0]));
     if (devlist == NULL)
-        return (SANE_STATUS_NO_MEM);
+	return (SANE_STATUS_NO_MEM);
     int i = 0;
     for (dev = list_devices_primary; i < num_devices; dev = dev->next) {
-        SANE_Device *s_dev = convertFromESCLDev(dev);
-        devlist[i] = s_dev;
-        i++;
+	SANE_Device *s_dev = convertFromESCLDev(dev);
+	devlist[i] = s_dev;
+	i++;
     }
     devlist[i] = 0;
     *device_list = devlist;
     return (devlist) ? SANE_STATUS_GOOD : SANE_STATUS_NO_MEM;
+}
+
+/* Returns the length of the longest string, including the terminating
+ * character. */
+static size_t
+_source_size_max (SANE_String_Const * sources)
+{
+  size_t size = 0;
+
+  while(*sources)
+   {
+      size_t t = strlen (*sources) + 1;
+      if (t > size)
+          size = t;
+      sources++;
+   }
+  return size;
 }
 
 /**
@@ -309,26 +535,51 @@ sane_get_devices(const SANE_Device ***device_list, SANE_Bool local_only)
  * \return status (if everything is OK, status = SANE_STATUS_GOOD)
  */
 static SANE_Status
-init_options(SANE_String_Const name, escl_sane_t *s)
+init_options(SANE_String_Const name_source, escl_sane_t *s)
 {
     DBG (10, "escl init_options\n");
+
     SANE_Status status = SANE_STATUS_GOOD;
     int i = 0;
-
-    if (name == NULL)
-        return (SANE_STATUS_INVAL);
+    if (!s->scanner) return SANE_STATUS_INVAL;
+    if (name_source) {
+	   int source = s->scanner->source;
+	   DBG (10, "escl init_options name [%s]\n", name_source);
+	   if (!strcmp(name_source, SANE_I18N ("ADF Duplex")))
+	       s->scanner->source = ADFDUPLEX;
+	   else if (!strncmp(name_source, "A", 1) ||
+	            !strcmp(name_source, SANE_I18N ("ADF")))
+	       s->scanner->source = ADFSIMPLEX;
+	   else
+	       s->scanner->source = PLATEN;
+	   if (source == s->scanner->source) return status;
+    }
+    else
+	   s->scanner->source = PLATEN;
     memset (s->opt, 0, sizeof (s->opt));
     memset (s->val, 0, sizeof (s->val));
     for (i = 0; i < NUM_OPTIONS; ++i) {
-        s->opt[i].size = sizeof (SANE_Word);
-        s->opt[i].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+	   s->opt[i].size = sizeof (SANE_Word);
+	   s->opt[i].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
     }
-    s->x_range.min = 0;
-    s->x_range.max = s->scanner->MaxWidth - s->scanner->MinWidth;
-    s->x_range.quant = 1;
-    s->y_range.min = 0;
-    s->y_range.max = s->scanner->MaxHeight - s->scanner->MinHeight;
-    s->y_range.quant = 1;
+    s->x_range1.min = 0;
+    s->x_range1.max =
+	    PIXEL_TO_MM((s->scanner->caps[s->scanner->source].MaxWidth -
+		         s->scanner->caps[s->scanner->source].MinWidth),
+			300.0);
+    s->x_range1.quant = 0;
+    s->x_range2.min = PIXEL_TO_MM(s->scanner->caps[s->scanner->source].MinWidth, 300.0);
+    s->x_range2.max = PIXEL_TO_MM(s->scanner->caps[s->scanner->source].MaxWidth, 300.0);
+    s->x_range2.quant = 0;
+    s->y_range1.min = 0;
+    s->y_range1.max =
+	    PIXEL_TO_MM((s->scanner->caps[s->scanner->source].MaxHeight -
+	                 s->scanner->caps[s->scanner->source].MinHeight),
+			300.0);
+    s->y_range1.quant = 0;
+    s->y_range2.min = PIXEL_TO_MM(s->scanner->caps[s->scanner->source].MinHeight, 300.0);
+    s->y_range2.max = PIXEL_TO_MM(s->scanner->caps[s->scanner->source].MaxHeight, 300.0);
+    s->y_range2.quant = 0;
     s->opt[OPT_NUM_OPTS].title = SANE_TITLE_NUM_OPTIONS;
     s->opt[OPT_NUM_OPTS].desc = SANE_DESC_NUM_OPTIONS;
     s->opt[OPT_NUM_OPTS].type = SANE_TYPE_INT;
@@ -347,10 +598,18 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_MODE].type = SANE_TYPE_STRING;
     s->opt[OPT_MODE].unit = SANE_UNIT_NONE;
     s->opt[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
-    s->opt[OPT_MODE].constraint.string_list = s->scanner->ColorModes;
-    s->val[OPT_MODE].s = (char *)strdup(s->scanner->ColorModes[0]);
-    s->opt[OPT_MODE].size = max_string_size(s->scanner->ColorModes);
-    s->scanner->default_color = (char *)strdup(s->scanner->ColorModes[0]);
+    s->opt[OPT_MODE].constraint.string_list = s->scanner->caps[s->scanner->source].ColorModes;
+    s->val[OPT_MODE].s = (char *)strdup(s->scanner->caps[s->scanner->source].ColorModes[0]);
+    if (!s->val[OPT_MODE].s) {
+       DBG (10, "Color Mode Default allocation failure.\n");
+       return (SANE_STATUS_NO_MEM);
+    }
+    s->opt[OPT_MODE].size = max_string_size(s->scanner->caps[s->scanner->source].ColorModes);
+    s->scanner->caps[s->scanner->source].default_color = (char *)strdup(s->scanner->caps[s->scanner->source].ColorModes[0]);
+    if (!s->scanner->caps[s->scanner->source].default_color) {
+       DBG (10, "Color Mode Default allocation failure.\n");
+       return (SANE_STATUS_NO_MEM);
+    }
 
     s->opt[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
     s->opt[OPT_RESOLUTION].title = SANE_TITLE_SCAN_RESOLUTION;
@@ -358,9 +617,9 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_RESOLUTION].type = SANE_TYPE_INT;
     s->opt[OPT_RESOLUTION].unit = SANE_UNIT_DPI;
     s->opt[OPT_RESOLUTION].constraint_type = SANE_CONSTRAINT_WORD_LIST;
-    s->opt[OPT_RESOLUTION].constraint.word_list = s->scanner->SupportedResolutions;
-    s->val[OPT_RESOLUTION].w = s->scanner->SupportedResolutions[1];
-    s->scanner->default_resolution = s->scanner->SupportedResolutions[1];
+    s->opt[OPT_RESOLUTION].constraint.word_list = s->scanner->caps[s->scanner->source].SupportedResolutions;
+    s->val[OPT_RESOLUTION].w = s->scanner->caps[s->scanner->source].SupportedResolutions[1];
+    s->scanner->caps[s->scanner->source].default_resolution = s->scanner->caps[s->scanner->source].SupportedResolutions[1];
 
     s->opt[OPT_PREVIEW].name = SANE_NAME_PREVIEW;
     s->opt[OPT_PREVIEW].title = SANE_TITLE_PREVIEW;
@@ -376,7 +635,7 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->val[OPT_GRAY_PREVIEW].w = SANE_FALSE;
 
     s->opt[OPT_GEOMETRY_GROUP].title = SANE_TITLE_GEOMETRY;
-    s->opt[OPT_GEOMETRY_GROUP].desc = "";
+    s->opt[OPT_GEOMETRY_GROUP].desc = SANE_DESC_GEOMETRY;
     s->opt[OPT_GEOMETRY_GROUP].type = SANE_TYPE_GROUP;
     s->opt[OPT_GEOMETRY_GROUP].cap = SANE_CAP_ADVANCED;
     s->opt[OPT_GEOMETRY_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
@@ -385,38 +644,105 @@ init_options(SANE_String_Const name, escl_sane_t *s)
     s->opt[OPT_TL_X].title = SANE_TITLE_SCAN_TL_X;
     s->opt[OPT_TL_X].desc = SANE_DESC_SCAN_TL_X;
     s->opt[OPT_TL_X].type = SANE_TYPE_FIXED;
-    s->opt[OPT_TL_X].unit = SANE_UNIT_PIXEL;
+    s->opt[OPT_TL_X].size = sizeof(SANE_Fixed);
+    s->opt[OPT_TL_X].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    s->opt[OPT_TL_X].unit = SANE_UNIT_MM;
     s->opt[OPT_TL_X].constraint_type = SANE_CONSTRAINT_RANGE;
-    s->opt[OPT_TL_X].constraint.range = &s->x_range;
-    s->val[OPT_TL_X].w = s->scanner->RiskyLeftMargin;
+    s->opt[OPT_TL_X].constraint.range = &s->x_range1;
+    s->val[OPT_TL_X].w = s->x_range1.min;
 
     s->opt[OPT_TL_Y].name = SANE_NAME_SCAN_TL_Y;
     s->opt[OPT_TL_Y].title = SANE_TITLE_SCAN_TL_Y;
     s->opt[OPT_TL_Y].desc = SANE_DESC_SCAN_TL_Y;
     s->opt[OPT_TL_Y].type = SANE_TYPE_FIXED;
-    s->opt[OPT_TL_Y].unit = SANE_UNIT_PIXEL;
+    s->opt[OPT_TL_Y].size = sizeof(SANE_Fixed);
+    s->opt[OPT_TL_Y].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    s->opt[OPT_TL_Y].unit = SANE_UNIT_MM;
     s->opt[OPT_TL_Y].constraint_type = SANE_CONSTRAINT_RANGE;
-    s->opt[OPT_TL_Y].constraint.range = &s->y_range;
-    s->val[OPT_TL_Y].w = s->scanner->RiskyTopMargin;
+    s->opt[OPT_TL_Y].constraint.range = &s->y_range1;
+    s->val[OPT_TL_Y].w = s->y_range1.min;
 
     s->opt[OPT_BR_X].name = SANE_NAME_SCAN_BR_X;
     s->opt[OPT_BR_X].title = SANE_TITLE_SCAN_BR_X;
     s->opt[OPT_BR_X].desc = SANE_DESC_SCAN_BR_X;
     s->opt[OPT_BR_X].type = SANE_TYPE_FIXED;
-    s->opt[OPT_BR_X].unit = SANE_UNIT_PIXEL;
+    s->opt[OPT_BR_X].size = sizeof(SANE_Fixed);
+    s->opt[OPT_BR_X].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    s->opt[OPT_BR_X].unit = SANE_UNIT_MM;
     s->opt[OPT_BR_X].constraint_type = SANE_CONSTRAINT_RANGE;
-    s->opt[OPT_BR_X].constraint.range = &s->x_range;
-    s->val[OPT_BR_X].w = s->scanner->MaxWidth;
+    s->opt[OPT_BR_X].constraint.range = &s->x_range2;
+    s->val[OPT_BR_X].w = s->x_range2.max;
 
     s->opt[OPT_BR_Y].name = SANE_NAME_SCAN_BR_Y;
     s->opt[OPT_BR_Y].title = SANE_TITLE_SCAN_BR_Y;
     s->opt[OPT_BR_Y].desc = SANE_DESC_SCAN_BR_Y;
     s->opt[OPT_BR_Y].type = SANE_TYPE_FIXED;
-    s->opt[OPT_BR_Y].unit = SANE_UNIT_PIXEL;
+    s->opt[OPT_BR_Y].size = sizeof(SANE_Fixed);
+    s->opt[OPT_BR_Y].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    s->opt[OPT_BR_Y].unit = SANE_UNIT_MM;
     s->opt[OPT_BR_Y].constraint_type = SANE_CONSTRAINT_RANGE;
-    s->opt[OPT_BR_Y].constraint.range = &s->y_range;
-    s->val[OPT_BR_Y].w = s->scanner->MaxHeight;
+    s->opt[OPT_BR_Y].constraint.range = &s->y_range2;
+    s->val[OPT_BR_Y].w = s->y_range2.max;
+
+	/* OPT_SCAN_SOURCE */
+    s->opt[OPT_SCAN_SOURCE].name = SANE_NAME_SCAN_SOURCE;
+    s->opt[OPT_SCAN_SOURCE].title = SANE_TITLE_SCAN_SOURCE;
+    s->opt[OPT_SCAN_SOURCE].desc = SANE_DESC_SCAN_SOURCE;
+    s->opt[OPT_SCAN_SOURCE].type = SANE_TYPE_STRING;
+    s->opt[OPT_SCAN_SOURCE].size = _source_size_max(s->scanner->Sources);
+    s->opt[OPT_SCAN_SOURCE].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+    s->opt[OPT_SCAN_SOURCE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
+    s->opt[OPT_SCAN_SOURCE].constraint.string_list = s->scanner->Sources;
+    if (s->val[OPT_SCAN_SOURCE].s)
+       free (s->val[OPT_SCAN_SOURCE].s);
+    s->val[OPT_SCAN_SOURCE].s = strdup (s->scanner->Sources[s->scanner->source]);
     return (status);
+}
+
+SANE_Status
+escl_parse_name(SANE_String_Const name, ESCL_Device *device)
+{
+    SANE_String_Const host = NULL;
+    SANE_String_Const port_str = NULL;
+    DBG(10, "escl_parse_name\n");
+    if (name == NULL || device == NULL) {
+        return SANE_STATUS_INVAL;
+    }
+
+    if (strncmp(name, "unix:", 5) == 0) {
+        SANE_String_Const socket = name + 5;
+        name = strchr(socket, ':');
+        if (name == NULL)
+            return SANE_STATUS_INVAL;
+        device->unix_socket = strndup(socket, name - socket);
+        name++;
+    }
+
+    if (strncmp(name, "https://", 8) == 0) {
+        device->https = SANE_TRUE;
+        host = name + 8;
+    } else if (strncmp(name, "http://", 7) == 0) {
+        device->https = SANE_FALSE;
+        host = name + 7;
+    } else {
+        DBG(1, "Unknown URL scheme in %s", name);
+        return SANE_STATUS_INVAL;
+    }
+
+    port_str = strchr(host, ':');
+    if (port_str == NULL) {
+        DBG(1, "Port missing from URL: %s", name);
+        return SANE_STATUS_INVAL;
+    }
+    port_str++;
+    device->port_nb = atoi(port_str);
+    if (device->port_nb < 1 || device->port_nb > 65535) {
+        DBG(1, "Invalid port number in URL: %s", name);
+        return SANE_STATUS_INVAL;
+    }
+
+    device->ip_address = strndup(host, port_str - host - 1);
+    return SANE_STATUS_GOOD;
 }
 
 /**
@@ -437,28 +763,45 @@ sane_open(SANE_String_Const name, SANE_Handle *h)
 
     if (name == NULL)
         return (SANE_STATUS_INVAL);
-    status = escl_status(name);
-    if (status != SANE_STATUS_GOOD)
-        return (status);
+
+    ESCL_Device *device = calloc(1, sizeof(ESCL_Device));
+    if (device == NULL) {
+        DBG (10, "Handle device allocation failure.\n");
+        return SANE_STATUS_NO_MEM;
+    }
+    status = escl_parse_name(name, device);
+    if (status != SANE_STATUS_GOOD) {
+        escl_free_device(device);
+        return status;
+    }
+
     handler = (escl_sane_t *)calloc(1, sizeof(escl_sane_t));
-    if (handler == NULL)
+    if (handler == NULL) {
+        escl_free_device(device);
         return (SANE_STATUS_NO_MEM);
-    handler->name = strdup(name);
-    handler->scanner = escl_capabilities(name, &status);
-    if (status != SANE_STATUS_GOOD)
+    }
+    handler->device = device;  // Handler owns device now.
+    handler->scanner = escl_capabilities(device, &status);
+    if (status != SANE_STATUS_GOOD) {
+        escl_free_handler(handler);
         return (status);
-    status = init_options(name, handler);
-    if (status != SANE_STATUS_GOOD)
+    }
+    status = init_options(NULL, handler);
+    if (status != SANE_STATUS_GOOD) {
+        escl_free_handler(handler);
         return (status);
+    }
     handler->ps.depth = 8;
     handler->ps.last_frame = SANE_TRUE;
     handler->ps.format = SANE_FRAME_RGB;
-    handler->ps.pixels_per_line = handler->val[OPT_BR_X].w;
-    handler->ps.lines = handler->val[OPT_BR_Y].w;
+    handler->ps.pixels_per_line = MM_TO_PIXEL(handler->val[OPT_BR_X].w, 300.0);
+    handler->ps.lines = MM_TO_PIXEL(handler->val[OPT_BR_Y].w, 300.0);
     handler->ps.bytes_per_line = handler->ps.pixels_per_line * 3;
     status = sane_get_parameters(handler, 0);
-    if (status != SANE_STATUS_GOOD)
+    if (status != SANE_STATUS_GOOD) {
+        escl_free_handler(handler);
         return (status);
+    }
     handler->cancel = SANE_FALSE;
     handler->write_scan_data = SANE_FALSE;
     handler->decompress_scan_data = SANE_FALSE;
@@ -483,8 +826,11 @@ sane_cancel(SANE_Handle h)
       fclose(handler->scanner->tmp);
       handler->scanner->tmp = NULL;
     }
+    handler->scanner->work = SANE_FALSE;
     handler->cancel = SANE_TRUE;
-    escl_scanner(handler->name, handler->result);
+    escl_scanner(handler->device, handler->result);
+    free(handler->result);
+    handler->result = NULL;
 }
 
 /**
@@ -497,7 +843,7 @@ sane_close(SANE_Handle h)
 {
     DBG (10, "escl sane_close\n");
     if (h != NULL) {
-        free(h);
+        escl_free_handler(h);
         h = NULL;
     }
 }
@@ -517,8 +863,8 @@ sane_get_option_descriptor(SANE_Handle h, SANE_Int n)
     escl_sane_t *s = h;
 
     if ((unsigned) n >= NUM_OPTIONS || n < 0)
-        return (0);
-    return (s->opt + n);
+	return (0);
+    return (&s->opt[n]);
 }
 
 /**
@@ -541,60 +887,90 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v, SANE_Int 
     escl_sane_t *handler = h;
 
     if (i)
-        *i = 0;
+	*i = 0;
     if (n >= NUM_OPTIONS || n < 0)
-        return (SANE_STATUS_INVAL);
+	return (SANE_STATUS_INVAL);
     if (a == SANE_ACTION_GET_VALUE) {
-        switch (n) {
-        case OPT_NUM_OPTS:
-        case OPT_RESOLUTION:
-        case OPT_TL_X:
-        case OPT_TL_Y:
-        case OPT_BR_X:
-        case OPT_BR_Y:
-        case OPT_PREVIEW:
-        case OPT_GRAY_PREVIEW:
-            *(SANE_Word *) v = handler->val[n].w;
-            break;
-        case OPT_MODE:
-            strcpy (v, handler->val[n].s);
-            break;
-        case OPT_MODE_GROUP:
-        default:
-            break;
-        }
-        return (SANE_STATUS_GOOD);
+	switch (n) {
+	case OPT_TL_X:
+	case OPT_TL_Y:
+	case OPT_BR_X:
+	case OPT_BR_Y:
+	case OPT_NUM_OPTS:
+	case OPT_RESOLUTION:
+	case OPT_PREVIEW:
+	case OPT_GRAY_PREVIEW:
+	    *(SANE_Word *) v = handler->val[n].w;
+	    break;
+	case OPT_SCAN_SOURCE:
+	case OPT_MODE:
+	    strcpy (v, handler->val[n].s);
+	    break;
+	case OPT_MODE_GROUP:
+	default:
+	    break;
+	}
+	return (SANE_STATUS_GOOD);
     }
     if (a == SANE_ACTION_SET_VALUE) {
-        switch (n) {
-        case OPT_TL_X:
-        case OPT_TL_Y:
-        case OPT_BR_X:
-        case OPT_BR_Y:
-        case OPT_PREVIEW:
-        case OPT_GRAY_PREVIEW:
-            handler->val[n].w = *(SANE_Word *) v;
-            if (i && handler->val[n].w != *(SANE_Word *) v)
-                *i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS | SANE_INFO_INEXACT;
-            handler->val[n].w = *(SANE_Word *) v;
-            break;
-        case OPT_RESOLUTION:
-            handler->val[n].w = *(SANE_Word *) v;
-            if (i)
-                *i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS | SANE_INFO_INEXACT;
-            break;
-        case OPT_MODE:
-            if (handler->val[n].s)
-                free (handler->val[n].s);
-            handler->val[n].s = strdup (v);
-            if (i)
-                *i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS | SANE_INFO_INEXACT;
-            break;
-        default:
-            break;
-        }
+	switch (n) {
+	case OPT_TL_X:
+	case OPT_TL_Y:
+	case OPT_BR_X:
+	case OPT_BR_Y:
+	case OPT_NUM_OPTS:
+	case OPT_RESOLUTION:
+	case OPT_PREVIEW:
+	case OPT_GRAY_PREVIEW:
+	    handler->val[n].w = *(SANE_Word *) v;
+	    if (i)
+		*i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS | SANE_INFO_INEXACT;
+	    break;
+	case OPT_SCAN_SOURCE:
+	    DBG(10, "SET OPT_SCAN_SOURCE(%s)\n", (SANE_String_Const)v);
+	    init_options((SANE_String_Const)v, handler);
+	    if (i)
+		*i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS | SANE_INFO_INEXACT;
+	    break;
+	case OPT_MODE:
+	    if (handler->val[n].s)
+		free (handler->val[n].s);
+	    handler->val[n].s = strdup (v);
+	    if (!handler->val[n].s) {
+	      DBG (10, "OPT_MODE allocation failure.\n");
+	      return (SANE_STATUS_NO_MEM);
+	    }
+	    if (i)
+		*i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS | SANE_INFO_INEXACT;
+	    break;
+	default:
+	    break;
+	}
     }
     return (SANE_STATUS_GOOD);
+}
+
+static SANE_Bool
+_go_next_page(SANE_Status status,
+              SANE_Status job)
+{
+   // Thank's Alexander Pevzner (pzz@apevzner.com)
+   SANE_Status st = SANE_STATUS_NO_DOCS;
+   switch (status) {
+      case SANE_STATUS_GOOD:
+      case SANE_STATUS_UNSUPPORTED:
+      case SANE_STATUS_DEVICE_BUSY: {
+         DBG(10, "eSCL : Test next page\n");
+         if (job != SANE_STATUS_GOOD) {
+            DBG(10, "eSCL : Go next page\n");
+            st = SANE_STATUS_GOOD;
+         }
+         break;
+      }
+      default:
+         DBG(10, "eSCL : No next page\n");
+   }
+   return st;
 }
 
 /**
@@ -614,70 +990,137 @@ sane_start(SANE_Handle h)
     int he = 0;
     int bps = 0;
 
-    if (handler->name == NULL)
+    if (handler->device == NULL) {
+        DBG(1, "Missing handler device.\n");
         return (SANE_STATUS_INVAL);
+    }
     handler->cancel = SANE_FALSE;
     handler->write_scan_data = SANE_FALSE;
     handler->decompress_scan_data = SANE_FALSE;
     handler->end_read = SANE_FALSE;
-    handler->scanner->height = handler->val[OPT_BR_Y].w;
-    handler->scanner->width = handler->val[OPT_BR_X].w;
-    handler->scanner->pos_x = handler->val[OPT_TL_X].w;
-    handler->scanner->pos_y = handler->val[OPT_TL_Y].w;
-    if(handler->scanner->default_color)
-       free(handler->scanner->default_color);
-    if (handler->val[OPT_PREVIEW].w == SANE_TRUE)
-    {
-       int i = 0, val = 9999;;
-       if (handler->val[OPT_GRAY_PREVIEW].w == SANE_TRUE ||
-           !strncasecmp(handler->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY, 3))
-          handler->scanner->default_color = strdup("Grayscale8");
-       else
-          handler->scanner->default_color = strdup("RGB24");
-       for (i = 1; i < handler->scanner->SupportedResolutionsSize; i++)
+    if (handler->scanner->work == SANE_FALSE) {
+       SANE_Status st = escl_status(handler->device,
+                                    handler->scanner->source,
+                                    NULL,
+                                    NULL);
+       if (st != SANE_STATUS_GOOD)
+          return st;
+       if(handler->scanner->caps[handler->scanner->source].default_color)
+          free(handler->scanner->caps[handler->scanner->source].default_color);
+       if (handler->val[OPT_PREVIEW].w == SANE_TRUE)
        {
-          if (val > handler->scanner->SupportedResolutions[i])
-              val = handler->scanner->SupportedResolutions[i];
+          int i = 0, val = 9999;;
+          if (handler->val[OPT_GRAY_PREVIEW].w == SANE_TRUE ||
+	      !strcasecmp(handler->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY))
+	     handler->scanner->caps[handler->scanner->source].default_color =
+	          strdup("Grayscale8");
+          else
+	     handler->scanner->caps[handler->scanner->source].default_color =
+	          strdup("RGB24");
+          if (!handler->scanner->caps[handler->scanner->source].default_color) {
+	     DBG (10, "Default Color allocation failure.\n");
+	     return (SANE_STATUS_NO_MEM);
+	  }
+          for (i = 1; i < handler->scanner->caps[handler->scanner->source].SupportedResolutionsSize; i++)
+          {
+	     if (val > handler->scanner->caps[handler->scanner->source].SupportedResolutions[i])
+	         val = handler->scanner->caps[handler->scanner->source].SupportedResolutions[i];
+          }
+          handler->scanner->caps[handler->scanner->source].default_resolution = val;
        }
-       handler->scanner->default_resolution = val;
+       else
+       {
+          handler->scanner->caps[handler->scanner->source].default_resolution =
+	     handler->val[OPT_RESOLUTION].w;
+          if (!strcasecmp(handler->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY))
+	     handler->scanner->caps[handler->scanner->source].default_color = strdup("Grayscale8");
+          else if (!strcasecmp(handler->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART))
+	     handler->scanner->caps[handler->scanner->source].default_color =
+	         strdup("BlackAndWhite1");
+          else
+	     handler->scanner->caps[handler->scanner->source].default_color =
+	         strdup("RGB24");
+       }
+       handler->scanner->caps[handler->scanner->source].height =
+            MM_TO_PIXEL(handler->val[OPT_BR_Y].w, 300.0);
+       handler->scanner->caps[handler->scanner->source].width =
+            MM_TO_PIXEL(handler->val[OPT_BR_X].w, 300.0);;
+       if (handler->x_range1.min == handler->val[OPT_TL_X].w)
+           handler->scanner->caps[handler->scanner->source].pos_x = 0;
+       else
+           handler->scanner->caps[handler->scanner->source].pos_x =
+               MM_TO_PIXEL((handler->val[OPT_TL_X].w - handler->x_range1.min),
+               300.0);
+       if (handler->y_range1.min == handler->val[OPT_TL_X].w)
+           handler->scanner->caps[handler->scanner->source].pos_y = 0;
+       else
+           handler->scanner->caps[handler->scanner->source].pos_y =
+               MM_TO_PIXEL((handler->val[OPT_TL_Y].w - handler->y_range1.min),
+               300.0);
+       DBG(10, "Calculate Size Image [%dx%d|%dx%d]\n",
+	        handler->scanner->caps[handler->scanner->source].pos_x,
+	        handler->scanner->caps[handler->scanner->source].pos_y,
+	        handler->scanner->caps[handler->scanner->source].width,
+	        handler->scanner->caps[handler->scanner->source].height);
+       if (!handler->scanner->caps[handler->scanner->source].default_color) {
+          DBG (10, "Default Color allocation failure.\n");
+          return (SANE_STATUS_NO_MEM);
+       }
+       handler->result = escl_newjob(handler->scanner, handler->device, &status);
+       if (status != SANE_STATUS_GOOD)
+          return (status);
     }
     else
     {
-    handler->scanner->default_resolution = handler->val[OPT_RESOLUTION].w;
-    if (!strncasecmp(handler->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY, 3))
-       handler->scanner->default_color = strdup("Grayscale8");
-    else
-       handler->scanner->default_color = strdup("RGB24");
+       SANE_Status job = SANE_STATUS_UNSUPPORTED;
+       SANE_Status st = escl_status(handler->device,
+                                       handler->scanner->source,
+                                       handler->result,
+                                       &job);
+       DBG(10, "eSCL : command returned status %s\n", sane_strstatus(st));
+       if (_go_next_page(st, job) != SANE_STATUS_GOOD)
+       {
+         handler->scanner->work = SANE_FALSE;
+         return SANE_STATUS_NO_DOCS;
+       }
     }
-    handler->result = escl_newjob(handler->scanner, handler->name, &status);
+    status = escl_scan(handler->scanner, handler->device, handler->result);
     if (status != SANE_STATUS_GOOD)
-        return (status);
-    status = escl_scan(handler->scanner, handler->name, handler->result);
-    if (status != SANE_STATUS_GOOD)
-        return (status);
-    if (!strcmp(handler->scanner->default_format, "image/jpeg"))
+       return (status);
+    if (!strcmp(handler->scanner->caps[handler->scanner->source].default_format, "image/jpeg"))
     {
        status = get_JPEG_data(handler->scanner, &w, &he, &bps);
     }
-    else if (!strcmp(handler->scanner->default_format, "image/png"))
+    else if (!strcmp(handler->scanner->caps[handler->scanner->source].default_format, "image/png"))
     {
        status = get_PNG_data(handler->scanner, &w, &he, &bps);
     }
-    else if (!strcmp(handler->scanner->default_format, "image/tiff"))
+    else if (!strcmp(handler->scanner->caps[handler->scanner->source].default_format, "image/tiff"))
     {
        status = get_TIFF_data(handler->scanner, &w, &he, &bps);
     }
-    else
-      return SANE_STATUS_INVAL;
+    else if (!strcmp(handler->scanner->caps[handler->scanner->source].default_format, "application/pdf"))
+    {
+       status = get_PDF_data(handler->scanner, &w, &he, &bps);
+    }
+    else {
+       DBG(10, "Unknow image format\n");
+       return SANE_STATUS_INVAL;
+    }
+
+    DBG(10, "2-Size Image (%ld)[%dx%d|%dx%d]\n", handler->scanner->img_size, 0, 0, w, he);
 
     if (status != SANE_STATUS_GOOD)
-        return (status);
+       return (status);
     handler->ps.depth = 8;
     handler->ps.pixels_per_line = w;
     handler->ps.lines = he;
     handler->ps.bytes_per_line = w * bps;
     handler->ps.last_frame = SANE_TRUE;
     handler->ps.format = SANE_FRAME_RGB;
+    handler->scanner->work = SANE_FALSE;
+//    DBG(10, "NEXT Frame [%s]\n", (handler->ps.last_frame ? "Non" : "Oui"));
+    DBG(10, "Real Size Image [%dx%d|%dx%d]\n", 0, 0, w, he);
     return (status);
 }
 
@@ -700,7 +1143,7 @@ sane_get_parameters(SANE_Handle h, SANE_Parameters *p)
         return (status);
     if (p != NULL) {
         p->depth = 8;
-        p->last_frame = SANE_TRUE;
+        p->last_frame = handler->ps.last_frame;
         p->format = SANE_FRAME_RGB;
         p->pixels_per_line = handler->ps.pixels_per_line;
         p->lines = handler->ps.lines;
@@ -729,6 +1172,7 @@ sane_read(SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *len)
 
     if (!handler | !buf | !len)
         return (SANE_STATUS_INVAL);
+
     if (handler->cancel)
         return (SANE_STATUS_CANCELLED);
     if (!handler->write_scan_data)
@@ -756,10 +1200,23 @@ sane_read(SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *len)
         }
     }
     else {
+        SANE_Status job = SANE_STATUS_UNSUPPORTED;
         *len = 0;
         free(handler->scanner->img_data);
         handler->scanner->img_data = NULL;
-        return (SANE_STATUS_EOF);
+        if (handler->scanner->source != PLATEN) {
+	      SANE_Bool next_page = SANE_FALSE;
+          SANE_Status st = escl_status(handler->device,
+                                       handler->scanner->source,
+                                       handler->result,
+                                       &job);
+          DBG(10, "eSCL : command returned status %s\n", sane_strstatus(st));
+          if (_go_next_page(st, job) == SANE_STATUS_GOOD)
+	     next_page = SANE_TRUE;
+          handler->scanner->work = SANE_TRUE;
+          handler->ps.last_frame = !next_page;
+        }
+        return SANE_STATUS_EOF;
     }
     return (SANE_STATUS_GOOD);
 }
@@ -774,4 +1231,40 @@ SANE_Status
 sane_set_io_mode(SANE_Handle __sane_unused__ handle, SANE_Bool __sane_unused__ non_blocking)
 {
     return (SANE_STATUS_UNSUPPORTED);
+}
+
+/**
+ * \fn void escl_curl_url(CURL *handle, const ESCL_Device *device, SANE_String_Const path)
+ * \brief Uses the device info in 'device' and the path from 'path' to construct
+ *        a full URL.  Sets this URL and any necessary connection options into
+ *        'handle'.
+ */
+void
+escl_curl_url(CURL *handle, const ESCL_Device *device, SANE_String_Const path)
+{
+    int url_len;
+    char *url;
+
+    url_len = snprintf(NULL, 0, "%s://%s:%d%s",
+                       (device->https ? "https" : "http"), device->ip_address,
+                       device->port_nb, path);
+    url_len++;
+    url = (char *)malloc(url_len);
+    snprintf(url, url_len, "%s://%s:%d%s",
+             (device->https ? "https" : "http"), device->ip_address,
+             device->port_nb, path);
+
+    DBG( 1, "escl_curl_url: URL: %s\n", url );
+    curl_easy_setopt(handle, CURLOPT_URL, url);
+    free(url);
+    if (device->https) {
+        DBG( 1, "Ignoring safety certificates, use https\n");
+        curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, 0L);
+        curl_easy_setopt(handle, CURLOPT_SSL_VERIFYHOST, 0L);
+    }
+    if (device->unix_socket != NULL) {
+        DBG( 1, "Using local socket %s\n", device->unix_socket );
+        curl_easy_setopt(handle, CURLOPT_UNIX_SOCKET_PATH,
+                         device->unix_socket);
+    }
 }

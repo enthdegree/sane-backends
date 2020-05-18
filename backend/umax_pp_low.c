@@ -935,7 +935,7 @@ sanei_umax_pp_initPort (int port, const char *name)
   char strmodes[160];
 #  endif
 # endif
-# ifdef HAVE_DEV_PPBUS_PP_H
+# ifdef HAVE_DEV_PPBUS_PPI_H
   int found = 0;
   int fd;
 # endif

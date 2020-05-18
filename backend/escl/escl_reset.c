@@ -31,13 +31,22 @@
 
 #include <curl/curl.h>
 
+static size_t
+write_callback(void __sane_unused__*str,
+               size_t __sane_unused__ size,
+               size_t nmemb,
+               void __sane_unused__ *userp)
+{
+    return nmemb;
+}
+
 /**
- * \fn void escl_scanner(SANE_String_Const name, char *result)
+ * \fn void escl_scanner(const ESCL_Device *device, char *result)
  * \brief Function that resets the scanner after each scan, using curl.
  *        This function is called in the 'sane_cancel' function.
  */
 void
-escl_scanner(SANE_String_Const name, char *result)
+escl_scanner(const ESCL_Device *device, char *result)
 {
     CURL *curl_handle = NULL;
     const char *scan_jobs = "/eSCL/ScanJobs";
@@ -46,30 +55,25 @@ escl_scanner(SANE_String_Const name, char *result)
     int i = 0;
     long answer = 0;
 
-    if (name == NULL || result == NULL)
+    if (device == NULL || result == NULL)
         return;
 CURL_CALL:
     curl_handle = curl_easy_init();
     if (curl_handle != NULL) {
-        strcpy(scan_cmd, name);
-        strcat(scan_cmd, scan_jobs);
-        strcat(scan_cmd, result);
-        strcat(scan_cmd, scanner_start);
-        curl_easy_setopt(curl_handle, CURLOPT_URL, scan_cmd);
-        DBG( 1, "Reset Job : %s.\n", scan_cmd);
-        if (strncmp(name, "https", 5) == 0) {
-            DBG( 1, "Ignoring safety certificates, use https\n");
-            curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYPEER, 0L);
-            curl_easy_setopt(curl_handle, CURLOPT_SSL_VERIFYHOST, 0L);
-        }
+        snprintf(scan_cmd, sizeof(scan_cmd), "%s%s%s",
+                 scan_jobs, result, scanner_start);
+        escl_curl_url(curl_handle, device, scan_cmd);
+        curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, write_callback);
         if (curl_easy_perform(curl_handle) == CURLE_OK) {
             curl_easy_getinfo(curl_handle, CURLINFO_RESPONSE_CODE, &answer);
-            if (i < 3 && answer == 503) {
-                curl_easy_cleanup(curl_handle);
-                i++;
-                goto CURL_CALL;
-            }
+            i++;
+            if (i >= 15) return;
         }
         curl_easy_cleanup(curl_handle);
+        if (SANE_STATUS_GOOD != escl_status(device,
+                                            PLATEN,
+                                            NULL,
+                                            NULL))
+            goto CURL_CALL;
     }
 }

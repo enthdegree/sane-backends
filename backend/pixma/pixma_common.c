@@ -48,10 +48,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <ctype.h>
 #include <math.h>		/* pow(C90) */
 
 #include <sys/time.h>		/* gettimeofday(4.3BSD) */
 #include <unistd.h>		/* usleep */
+
+#if defined(HAVE_LIBXML2)
+# include <libxml/parser.h>
+#else
+# error "The pixma backend requires libxml2"
+#endif
 
 #include "pixma_rename.h"
 #include "pixma_common.h"
@@ -137,6 +144,24 @@ pixma_hexdump (int level, const void *d_, unsigned len)
           u8tohex (d[ofs + c], p);
           p[2] = ' ';
           p += 3;
+          if (c == 7)
+            {
+              p[0] = ' ';
+              p++;
+            }
+        }
+      for (c = 0; c < 4; c++)
+        {
+          p[0] = ' ';
+          p++;
+        }
+      for (c = 0; c != 16 && (ofs + c) < plen; c++)
+        {
+          if (isprint(d[ofs + c]))
+            p[0] = d[ofs + c];
+          else
+            p[0] = '.';
+          p++;
           if (c == 7)
             {
               p[0] = ' ';
@@ -335,7 +360,7 @@ pixma_r_to_ir (uint8_t * gptr, uint8_t * sptr, unsigned w, unsigned c)
 
 /* convert 24/48 bit RGB to 8/16 bit grayscale
  *
- * Formular: g = (R + G + B) / 3
+ * Formular: Y' = 0,2126 R' + 0,7152 G' + 0,0722 B'
  *
  * sptr: source color scale buffer
  * gptr: destination gray scale buffer
@@ -345,19 +370,28 @@ pixma_r_to_ir (uint8_t * gptr, uint8_t * sptr, unsigned w, unsigned c)
 uint8_t *
 pixma_rgb_to_gray (uint8_t * gptr, uint8_t * sptr, unsigned w, unsigned c)
 {
-  unsigned i, j, g;
+  unsigned i, g;
 
   /* PDBG (pixma_dbg (4, "*pixma_rgb_to_gray*****\n")); */
 
   for (i = 0; i < w; i++)
     {
-      for (j = 0, g = 0; j < 3; j++)
-        {
-          g += *sptr++;
-          if (c == 6) g += (*sptr++ << 8);      /* 48 bit RGB: high byte */
-        }
+      if (c == 6)
+        { /* 48 bit RGB */
+          unsigned r = sptr[0] + (sptr[1] << 8);
+          unsigned y = sptr[2] + (sptr[3] << 8);
+          unsigned b = sptr[4] + (sptr[5] << 8);
 
-      g /= 3;                                   /* 8 or 16 bit gray */
+          g = (r * 2126) + (y * 7152) + (b * 722);
+          sptr += 6;
+        }
+      else
+        { /* 24 bit RGB */
+          g = (sptr[0] * 2126) + (sptr[1] * 7152) + (sptr[2] * 722);
+          sptr += 3;
+        }
+      g /= 10000;                               /* 8 and 16 bit gray */
+
       *gptr++ = g;
       if (c == 6) *gptr++ = (g >> 8);           /* 16 bit gray: high byte */
     }
@@ -1184,4 +1218,98 @@ pixma_get_device_status (pixma_t * s, pixma_device_status_t * status)
     return PIXMA_EINVAL;
   memset (status, 0, sizeof (*status));
   return s->ops->get_status (s, status);
+}
+
+static const char *
+format_xml_response(const char *resp_details)
+{
+  if (strcmp(resp_details, "DeviceBusy") == 0)
+    /* https://cromwell-intl.com/open-source/canon-pixma-printer-scanner.html */
+    return "DeviceBusy - Device not initialized (yet). " \
+      "Please check the USB power, try a different port or install the Ink Cartridges if the device supports them.";
+  else if (strcmp(resp_details, "ScannerCarriageLockError") == 0)
+    return "ScannerCarriageLockError - Please consult the manual to unlock the Carriage Lock.";
+  else if (strcmp(resp_details, "PCScanning") == 0)
+    return "PCScanning - Previous scan attempt was not completed. Try disconnecting and reconnecting the scanner. " \
+      "If the problem persists, consider reporting it as a bug at http://www.sane-project.org/bugs.html.";
+  else if (strcmp(resp_details, "DeviceCheckError") == 0)
+    return "DeviceCheckError - Device detected a fault. Contact the repair center.";
+  else
+    return resp_details;
+}
+
+int
+pixma_parse_xml_response(const char *xml_message)
+{
+  int status = PIXMA_EPROTO;
+  xmlDoc *doc = NULL;
+  xmlNode *node = NULL;
+  xmlChar *content = NULL;
+
+  doc = xmlReadMemory(xml_message, strlen(xml_message), "mem:device-resp.xml", NULL, 0);
+  if (doc == NULL) {
+    PDBG(pixma_dbg(10, "unable to parse xml response\n"));
+    status = PIXMA_EINVAL;
+    goto clean;
+  }
+
+  node = xmlDocGetRootElement(doc);
+  if (node == NULL) {
+    status = PIXMA_EPROTO;
+    goto clean;
+  }
+
+  /* /cmd */
+  for (; node; node = node->next) {
+    if (strcmp((const char*)node->name, "cmd") == 0)
+      break;
+  }
+  if (!node) {
+    status = PIXMA_EPROTO;
+    goto clean;
+  }
+
+  /* /cmd/contents */
+  for (node = node->children; node; node = node->next) {
+    if (strcmp((const char*)node->name, "contents") == 0)
+      break;
+  }
+  if (!node) {
+    status = PIXMA_EPROTO;
+    goto clean;
+  }
+
+  /* /cmd/contents/param_set */
+  for (node = node->children; node; node = node->next) {
+    if (strcmp((const char*)node->name, "param_set") == 0)
+      break;
+  }
+  if (!node) {
+    status = PIXMA_EPROTO;
+    goto clean;
+  }
+
+  /* /cmd/contents/param_set/response... */
+  for (node = node->children; node; node = node->next)
+  {
+    if (strcmp((const char*)node->name, "response") == 0) {
+      content = xmlNodeGetContent(node);
+      if (strcmp((const char*)content, "OK") == 0)
+        status = PIXMA_STATUS_OK;
+      else
+        status = PIXMA_EINVAL;
+      xmlFree(content);
+    } else if (strcmp((const char*)node->name, "response_detail") == 0) {
+      content = xmlNodeGetContent(node);
+      if (strlen((const char*)content) > 0) {
+        PDBG(pixma_dbg(0, "device response: %s\n",
+                      format_xml_response((const char*)content)));
+      }
+      xmlFree(content);
+    }
+  }
+
+clean:
+  xmlFreeDoc(doc);
+  return status;
 }

@@ -177,17 +177,10 @@ gl841_init_registers (Genesys_Device * dev)
         dev->reg.init_reg(0x1f, 0x04);
     }
     dev->reg.init_reg(0x20, 0x20);
-    dev->reg.init_reg(0x21, 0x00);
-    dev->reg.init_reg(0x22, 0x00);
-    dev->reg.init_reg(0x23, 0x00);
-    dev->reg.init_reg(0x24, 0x00);
-    if (dev->model->model_id == ModelId::CANON_LIDE_80) {
-        dev->reg.init_reg(0x20, 0x02);
-        dev->reg.init_reg(0x21, 0x10);
-        dev->reg.init_reg(0x22, 0x20);
-        dev->reg.init_reg(0x23, 0x20);
-        dev->reg.init_reg(0x24, 0x10);
-    }
+    dev->reg.init_reg(0x21, 0x01);
+    dev->reg.init_reg(0x22, 0x01);
+    dev->reg.init_reg(0x23, 0x01);
+    dev->reg.init_reg(0x24, 0x01);
     dev->reg.init_reg(0x25, 0x00);
     dev->reg.init_reg(0x26, 0x00);
     dev->reg.init_reg(0x27, 0x00);

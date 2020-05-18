@@ -873,8 +873,8 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
         }
     }
 
-    gl646_send_slope_table(dev, 0, slope_table1.table, regs->get8(0x21));
-    gl646_send_slope_table(dev, 1, slope_table2.table, regs->get8(0x6b));
+    gl646_send_slope_table(dev, 0, slope_table1.table, slope_table1.steps_count);
+    gl646_send_slope_table(dev, 1, slope_table2.table, slope_table2.steps_count);
 }
 
 /**

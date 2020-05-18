@@ -63,8 +63,8 @@ namespace gl841 {
 
 
 static int gl841_exposure_time(Genesys_Device *dev, const Genesys_Sensor& sensor,
+                               const MotorProfile& profile,
                                float slope_dpi,
-                               StepType scan_step_type,
                                int start,
                                int used_pixels);
 
@@ -643,18 +643,12 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
 
     unsigned step_multiplier = 2;
 
-    unsigned int fast_exposure;
     int use_fast_fed = 0;
     unsigned int fast_time;
     unsigned int slow_time;
     unsigned int feedl;
     unsigned int min_restep = 0x20;
 
-    fast_exposure = gl841_exposure_time(dev, sensor,
-                                        dev->motor.base_ydpi / 4,
-                                        StepType::FULL,
-                                        0,
-                                        0);
 
 /*
   we calculate both tables for SCAN. the fast slope step count depends on
@@ -666,6 +660,9 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
     if (fast_profile == nullptr) {
         fast_profile = &motor_profile;
     }
+
+    unsigned fast_exposure = gl841_exposure_time(dev, sensor, *fast_profile,
+                                                dev->motor.base_ydpi / 4, 0, 0);
 
     auto slow_table = create_slope_table(dev->model->asic_type, dev->motor, scan_yres,
                                          scan_exposure_time, step_multiplier, motor_profile);
@@ -978,25 +975,17 @@ gl841_get_led_exposure(Genesys_Device * dev, const Genesys_Sensor& sensor)
 /** @brief compute exposure time
  * Compute exposure time for the device and the given scan resolution
  */
-static int
-gl841_exposure_time(Genesys_Device *dev, const Genesys_Sensor& sensor,
-                    float slope_dpi,
-                    StepType scan_step_type,
-                    int start,
-                    int used_pixels)
+static int gl841_exposure_time(Genesys_Device *dev, const Genesys_Sensor& sensor,
+                               const MotorProfile& profile, float slope_dpi,
+                               int start,
+                               int used_pixels)
 {
-int exposure_time = 0;
 int led_exposure;
 
   led_exposure=gl841_get_led_exposure(dev, sensor);
-  exposure_time = sanei_genesys_exposure_time2(
-      dev,
-      slope_dpi,
-      scan_step_type,
-      start+used_pixels,/*+tgtime? currently done in sanei_genesys_exposure_time2 with tgtime = 32 pixel*/
-      led_exposure);
-
-  return exposure_time;
+    return sanei_genesys_exposure_time2(dev, profile, slope_dpi,
+                                        start + used_pixels,/*+tgtime? currently done in sanei_genesys_exposure_time2 with tgtime = 32 pixel*/
+                                        led_exposure);
 }
 
 void CommandSetGl841::init_regs_for_scan_session(Genesys_Device* dev, const Genesys_Sensor& sensor,
@@ -1052,11 +1041,8 @@ dummy \ scanned lines
 
     const auto& motor_profile = get_motor_profile(dev->motor.profiles, 0, session);
 
-    exposure_time = gl841_exposure_time(dev, sensor,
-                    slope_dpi,
-                                        motor_profile.step_type,
-                                        session.pixel_startx,
-                                        session.optical_pixels);
+    exposure_time = gl841_exposure_time(dev, sensor, motor_profile, slope_dpi,
+                                        session.pixel_startx, session.optical_pixels);
 
     gl841_init_optical_regs_scan(dev, sensor, reg, exposure_time, session);
 

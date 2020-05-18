@@ -403,11 +403,11 @@ void sanei_genesys_create_default_gamma_table(Genesys_Device* dev,
     Note: The enhance option of the scanners does _not_ help. It only halves
           the amount of pixels transfered.
  */
-SANE_Int sanei_genesys_exposure_time2(Genesys_Device * dev, float ydpi,
-                                      StepType step_type, int endpixel, int exposure_by_led)
+SANE_Int sanei_genesys_exposure_time2(Genesys_Device * dev, const MotorProfile& profile, float ydpi,
+                                      int endpixel, int exposure_by_led)
 {
   int exposure_by_ccd = endpixel + 32;
-    unsigned max_speed_motor_w = dev->motor.get_slope_with_step_type(step_type).max_speed_w;
+    unsigned max_speed_motor_w = profile.slope.max_speed_w;
     int exposure_by_motor = static_cast<int>((max_speed_motor_w * dev->motor.base_ydpi) / ydpi);
 
   int exposure = exposure_by_ccd;

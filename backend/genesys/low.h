@@ -279,7 +279,7 @@ extern void sanei_genesys_set_buffer_address(Genesys_Device* dev, uint32_t addr)
 
 unsigned sanei_genesys_get_bulk_max_size(AsicType asic_type);
 
-SANE_Int sanei_genesys_exposure_time2(Genesys_Device * dev, float ydpi, StepType step_type,
+SANE_Int sanei_genesys_exposure_time2(Genesys_Device* dev, const MotorProfile& profile, float ydpi,
                                       int endpixel, int led_exposure);
 
 void sanei_genesys_create_default_gamma_table(Genesys_Device* dev,

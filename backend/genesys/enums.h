@@ -398,6 +398,7 @@ enum class MotorId : unsigned
     CANON_LIDE_200,
     CANON_LIDE_210,
     CANON_LIDE_35,
+    CANON_LIDE_60,
     CANON_LIDE_700,
     CANON_LIDE_80,
     CANON_4400F,

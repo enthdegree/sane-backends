@@ -651,6 +651,7 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
   allowed to use.
  */
 
+    // At least in LiDE 50, 60 the fast movement table is counted in full steps.
     const auto* fast_profile = get_motor_profile_ptr(dev->motor.fast_profiles, 0, session);
     if (fast_profile == nullptr) {
         fast_profile = &motor_profile;

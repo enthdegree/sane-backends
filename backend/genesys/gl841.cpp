@@ -656,9 +656,6 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
                                         0,
                                         0);
 
-    /* motor frequency table */
-    gl841_write_freq(dev, scan_yres);
-
 /*
   we calculate both tables for SCAN. the fast slope step count depends on
   how many steps we need for slow acceleration and how much steps we are
@@ -773,14 +770,10 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
     scanner_send_slope_table(dev, sensor, 0, slow_table.table);
     scanner_send_slope_table(dev, sensor, 1, back_table.table);
     scanner_send_slope_table(dev, sensor, 2, slow_table.table);
+    scanner_send_slope_table(dev, sensor, 3, fast_table.table);
+    scanner_send_slope_table(dev, sensor, 4, fast_table.table);
 
-    if (use_fast_fed) {
-        scanner_send_slope_table(dev, sensor, 3, fast_table.table);
-    }
-
-    if (has_flag(flags, ScanFlag::AUTO_GO_HOME)) {
-        scanner_send_slope_table(dev, sensor, 4, fast_table.table);
-    }
+    gl841_write_freq(dev, scan_yres);
 
 /* now reg 0x21 and 0x24 are available, we can calculate reg 0x22 and 0x23,
    reg 0x60-0x62 and reg 0x63-0x65

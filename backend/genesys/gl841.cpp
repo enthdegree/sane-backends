@@ -804,7 +804,7 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
     reg->find_reg(REG_0x1E).value &= REG_0x1E_WDTIME;
     reg->find_reg(REG_0x1E).value |= scan_dummy;
     reg->set8(0x67, 0x3f | (static_cast<unsigned>(motor_profile.step_type) << 6));
-    reg->set8(0x68, 0x3f);
+    reg->set8(0x68, 0x3f | (static_cast<unsigned>(fast_profile->step_type) << 6));
     reg->set8(REG_STEPNO, slow_table.table.size() / step_multiplier);
     reg->set8(REG_FASTNO, back_table.table.size() / step_multiplier);
     reg->set8(0x69, slow_table.table.size() / step_multiplier);

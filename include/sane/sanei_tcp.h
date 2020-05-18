@@ -31,7 +31,7 @@
 
 extern SANE_Status sanei_tcp_open(const char *host, int port, int *fdp);
 extern void sanei_tcp_close(int fd);
-extern ssize_t sanei_tcp_write(int fd, const u_char * buf, int count);
-extern ssize_t sanei_tcp_read(int fd, u_char * buf, int count);
+extern ssize_t sanei_tcp_write(int fd, const u_char * buf, size_t count);
+extern ssize_t sanei_tcp_read(int fd, u_char * buf, size_t count);
 
 #endif /* sanei_tcp_h */

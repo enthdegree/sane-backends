@@ -1232,16 +1232,18 @@ sane_start(SANE_Handle handle)
 	if (s->line_buffer == NULL)
 		return SANE_STATUS_NO_MEM;
 
-	/* ring buffer for front page, twice bsz */
+	/* transfer buffer size, bsz */
 	/* XXX read value from scanner */
-	status = eds_ring_init(&s->front, (65536 * 4) * 2);
+	s->bsz = (65536 * 4);
+
+	/* ring buffer for front page */
+	status = eds_ring_init(&s->front, s->bsz * 2);
 	if (status != SANE_STATUS_GOOD) {
 		return status;
 	}
 
-	/* transfer buffer, bsz */
-	/* XXX read value from scanner */
-	s->buf = realloc(s->buf, 65536 * 4);
+	/* transfer buffer */
+	s->buf = realloc(s->buf, s->bsz);
 	if (s->buf == NULL)
 		return SANE_STATUS_NO_MEM;
 

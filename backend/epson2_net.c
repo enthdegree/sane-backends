@@ -32,11 +32,12 @@
 
 #include "sane/sanei_debug.h"
 
-static int
+static ssize_t
 sanei_epson_net_read_raw(Epson_Scanner *s, unsigned char *buf, ssize_t wanted,
 		       SANE_Status *status)
 {
-	int ready, read = -1;
+	int ready;
+	ssize_t read = -1;
 	fd_set readable;
 	struct timeval tv;
 
@@ -62,111 +63,136 @@ sanei_epson_net_read_raw(Epson_Scanner *s, unsigned char *buf, ssize_t wanted,
 	return read;
 }
 
-int
+static ssize_t
+sanei_epson_net_read_buf(Epson_Scanner *s, unsigned char *buf, ssize_t wanted,
+		       SANE_Status * status)
+{
+	ssize_t read = 0;
+
+	DBG(23, "%s: reading up to %lu from buffer at %p, %lu available\n",
+		__func__, (u_long) wanted, s->netptr, (u_long) s->netlen);
+
+	if ((size_t) wanted > s->netlen) {
+		*status = SANE_STATUS_IO_ERROR;
+		wanted = s->netlen;
+	}
+
+	memcpy(buf, s->netptr, wanted);
+	read = wanted;
+
+	s->netptr += read;
+	s->netlen -= read;
+
+	if (s->netlen == 0) {
+		DBG(23, "%s: freeing %p\n", __func__, s->netbuf);
+		free(s->netbuf);
+		s->netbuf = s->netptr = NULL;
+		s->netlen = 0;
+	}
+
+	return read;
+}
+
+ssize_t
 sanei_epson_net_read(Epson_Scanner *s, unsigned char *buf, ssize_t wanted,
 		       SANE_Status * status)
 {
-	ssize_t size;
-	ssize_t read = 0;
-	unsigned char header[12];
-
-	/* read from buffer, if available */
-	if (s->netptr != s->netbuf) {
-		DBG(23, "reading %lu from buffer at %p, %lu available\n",
-			(u_long) wanted, s->netptr, (u_long) s->netlen);
-
-		memcpy(buf, s->netptr, wanted);
-		read = wanted;
-
-		s->netlen -= wanted;
-
-		if (s->netlen == 0) {
-			DBG(23, "%s: freeing %p\n", __func__, s->netbuf);
-			free(s->netbuf);
-			s->netbuf = s->netptr = NULL;
-			s->netlen = 0;
-		}
-
-		return read;
-	}
-
-	/* receive net header */
-	size = sanei_epson_net_read_raw(s, header, 12, status);
-	if (size != 12) {
+	if (wanted < 0) {
+		*status = SANE_STATUS_INVAL;
 		return 0;
 	}
 
+	size_t size;
+	ssize_t read = 0;
+	unsigned char header[12];
+
+	/* read from remainder of buffer */
+	if (s->netptr) {
+		return sanei_epson_net_read_buf(s, buf, wanted, status);
+	}
+
+	/* receive net header */
+	read = sanei_epson_net_read_raw(s, header, 12, status);
+	if (read != 12) {
+		return 0;
+	}
+
+	/* validate header */
 	if (header[0] != 'I' || header[1] != 'S') {
 		DBG(1, "header mismatch: %02X %02x\n", header[0], header[1]);
 		*status = SANE_STATUS_IO_ERROR;
 		return 0;
 	}
 
+	/* parse payload size */
 	size = be32atoh(&header[6]);
-
-	DBG(23, "%s: wanted = %lu, available = %lu\n", __func__,
-		(u_long) wanted, (u_long) size);
 
 	*status = SANE_STATUS_GOOD;
 
-	if (size == wanted) {
+	if (!s->netbuf) {
+		DBG(15, "%s: direct read\n", __func__);
+		DBG(23, "%s: wanted = %lu, available = %lu\n", __func__,
+			(u_long) wanted, (u_long) size);
 
-		DBG(15, "%s: full read\n", __func__);
-
-		read = sanei_epson_net_read_raw(s, buf, size, status);
-
-		if (s->netbuf) {
-			free(s->netbuf);
-			s->netbuf = NULL;
-			s->netlen = 0;
+		if ((size_t) wanted > size) {
+			wanted = size;
 		}
 
-		if (read < 0) {
-			return 0;
-		}
-
-/*	} else if (wanted < size && s->netlen == size) { */
+		read = sanei_epson_net_read_raw(s, buf, wanted, status);
 	} else {
-		DBG(23, "%s: partial read\n", __func__);
+		DBG(15, "%s: buffered read\n", __func__);
+		DBG(23, "%s: bufferable = %lu, available = %lu\n", __func__,
+			(u_long) s->netlen, (u_long) size);
 
-		read = sanei_epson_net_read_raw(s, s->netbuf, size, status);
-		if (read != size) {
-			return 0;
+		if (s->netlen > size) {
+			s->netlen = size;
 		}
 
-		s->netlen = size - wanted;
-		s->netptr += wanted;
-		read = wanted;
+		/* fill buffer */
+		read = sanei_epson_net_read_raw(s, s->netbuf, s->netlen, status);
+		s->netptr = s->netbuf;
+		s->netlen = (read > 0 ? read : 0);
 
-		DBG(23, "0,4 %02x %02x\n", s->netbuf[0], s->netbuf[4]);
-		DBG(23, "storing %lu to buffer at %p, next read at %p, %lu bytes left\n",
-			(u_long) size, s->netbuf, s->netptr, (u_long) s->netlen);
-
-		memcpy(buf, s->netbuf, wanted);
+		/* copy wanted part */
+		read = sanei_epson_net_read_buf(s, buf, wanted, status);
 	}
 
 	return read;
 }
 
-
-int
+size_t
 sanei_epson_net_write(Epson_Scanner *s, unsigned int cmd, const unsigned char *buf,
 			size_t buf_size, size_t reply_len, SANE_Status *status)
 {
 	unsigned char *h1, *h2, *payload;
 	unsigned char *packet = malloc(12 + 8 + buf_size);
 
-	/* XXX check allocation failure */
+	if (!packet) {
+		*status = SANE_STATUS_NO_MEM;
+		return 0;
+	}
 
 	h1 = packet;
 	h2 = packet + 12;
 	payload = packet + 12 + 8;
 
 	if (reply_len) {
-		s->netbuf = s->netptr = malloc(reply_len);
+		if (s->netbuf) {
+			DBG(23, "%s, freeing %p, %ld bytes unprocessed\n",
+				__func__, s->netbuf, (u_long) s->netlen);
+			free(s->netbuf);
+			s->netbuf = s->netptr = NULL;
+			s->netlen = 0;
+		}
+		s->netbuf = malloc(reply_len);
+		if (!s->netbuf) {
+			free(packet);
+			*status = SANE_STATUS_NO_MEM;
+			return 0;
+		}
 		s->netlen = reply_len;
-		DBG(24, "allocated %lu bytes at %p\n",
-			(u_long) reply_len, s->netbuf);
+		DBG(24, "%s: allocated %lu bytes at %p\n", __func__,
+			(u_long) s->netlen, s->netbuf);
 	}
 
 	DBG(24, "%s: cmd = %04x, buf = %p, buf_size = %lu, reply_len = %lu\n",

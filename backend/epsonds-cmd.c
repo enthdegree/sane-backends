@@ -117,7 +117,7 @@ esci2_check_header(const char *cmd, const char *buf, unsigned int *more)
 		return 0;
 	}
 
-	err = sscanf(&buf[5], "%x#", more);
+	err = sscanf(&buf[5], "%7x#", more);
 	if (err != 1) {
 		DBG(1, "cannot decode length from header\n");
 		return 0;
@@ -193,6 +193,8 @@ static SANE_Status esci2_cmd(epsonds_scanner* s,
 
 			ssize_t read = eds_recv(s, pbuf, more, &status);
 			if (read != more) {
+				free(pbuf);
+				return SANE_STATUS_IO_ERROR;
 			}
 
 			/* parse the received data block */
@@ -255,18 +257,20 @@ static int decode_value(char *buf, int len)
 }
 
 /* h000 */
-static char *decode_binary(char *buf)
+static char *decode_binary(char *buf, int len)
 {
 	char tmp[6];
 	int hl;
 
 	memcpy(tmp, buf, 4);
 	tmp[4] = '\0';
+	len -= 4;
 
 	if (buf[0] != 'h')
 		return NULL;
 
 	hl = strtol(tmp + 1, NULL, 16);
+	if (hl > len) hl = len;
 	if (hl) {
 
 		char *v = malloc(hl + 1);
@@ -279,9 +283,9 @@ static char *decode_binary(char *buf)
 	return NULL;
 }
 
-static char *decode_string(char *buf)
+static char *decode_string(char *buf, int len)
 {
-	char *p, *s = decode_binary(buf);
+	char *p, *s = decode_binary(buf, len);
 	if (s == NULL)
 		return NULL;
 
@@ -326,20 +330,20 @@ static SANE_Status info_cb(void *userdata, char *token, int len)
 
 	if (strncmp("PRD", token, 3) == 0) {
 		free(s->hw->model);
-		s->hw->model = decode_string(value);
+		s->hw->model = decode_string(value, len);
 		s->hw->sane.model = s->hw->model;
 		DBG(1, " product: %s\n", s->hw->model);
 		/* we will free the string later */
 	}
 
 	if (strncmp("VER", token, 3) == 0) {
-		char *v = decode_string(value);
+		char *v = decode_string(value, len);
 		DBG(1, " version: %s\n", v);
 		free(v);
 	}
 
 	if (strncmp("S/N", token, 3) == 0) {
-		char *v = decode_string(value);
+		char *v = decode_string(value, len);
 		DBG(1, "  serial: %s\n", v);
 		free(v);
 	}
@@ -874,6 +878,11 @@ esci2_img(struct epsonds_scanner *s, SANE_Int *length)
 	 */
 	if (!more) {
 		return parse_status;
+	}
+
+	/* more data than was accounted for in s->buf */
+	if (more > s->bsz) {
+		return SANE_STATUS_IO_ERROR;
 	}
 
 	/* ALWAYS read image data */

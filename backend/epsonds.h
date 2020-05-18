@@ -160,6 +160,7 @@ struct epsonds_scanner
 	Option_Value val[NUM_OPTIONS];
 	SANE_Parameters params;
 
+	size_t bsz;		/* transfer buffer size */
 	SANE_Byte *buf, *line_buffer;
 	ring_buffer *current, front, back;
 

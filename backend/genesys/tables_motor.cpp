@@ -115,7 +115,12 @@ void genesys_init_motor_tables()
     profile.resolutions = { 1200, 2400 };
     motor.profiles.push_back(profile);
 
-    profile = MotorProfile{MotorSlope::create_from_steps(3500, 2000, 150), StepType::FULL, 0};
+    profile = MotorProfile{MotorSlope::create_from_steps(3500, 1400, 150), StepType::FULL, 0};
+    profile.resolutions = { 75, 150, 200, 300 };
+    motor.fast_profiles.push_back(profile);
+
+    profile = MotorProfile{MotorSlope::create_from_steps(6000, 3000, 100), StepType::FULL, 0};
+    profile.resolutions = { 600, 1200, 2400 };
     motor.fast_profiles.push_back(profile);
 
     s_motors->push_back(std::move(motor));

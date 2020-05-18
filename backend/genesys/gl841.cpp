@@ -753,11 +753,11 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
 	    fast_exposure / 4 *
         (feed_steps - fast_table.table.size()*2 -
          (slow_table.table.size() >> static_cast<unsigned>(motor_profile.step_type)))
-        + fast_table.pixeltime_sum*2 + slow_table.pixeltime_sum;
+        + fast_table.pixeltime_sum() * 2 + slow_table.pixeltime_sum();
 	slow_time =
 	    (scan_exposure_time * scan_yres) / dev->motor.base_ydpi *
         (feed_steps - (slow_table.table.size() >> static_cast<unsigned>(motor_profile.step_type)))
-        + slow_table.pixeltime_sum;
+        + slow_table.pixeltime_sum();
 
         use_fast_fed = fast_time < slow_time;
     }

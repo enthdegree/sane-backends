@@ -46,7 +46,7 @@ void test_create_slope_table3()
     auto table = sanei_genesys_create_slope_table3(asic_type, motor, StepType::FULL, 10000,
                                                    motor.base_ydpi);
 
-    ASSERT_EQ(table.pixeltime_sum, 10000u);
+    ASSERT_EQ(table.pixeltime_sum(), 10000u);
     ASSERT_EQ(table.table.size(), 1u);
 
     std::vector<std::uint16_t> expected_steps = {
@@ -57,7 +57,7 @@ void test_create_slope_table3()
     table = sanei_genesys_create_slope_table3(asic_type, motor, StepType::FULL, 2000,
                                               motor.base_ydpi);
 
-    ASSERT_EQ(table.pixeltime_sum, 33830u);
+    ASSERT_EQ(table.pixeltime_sum(), 33830u);
     ASSERT_EQ(table.table.size(), 7u);
 
     expected_steps = {
@@ -68,7 +68,7 @@ void test_create_slope_table3()
     table = sanei_genesys_create_slope_table3(asic_type, motor, StepType::HALF, 10000,
                                               motor.base_ydpi);
 
-    ASSERT_EQ(table.pixeltime_sum, 5000u);
+    ASSERT_EQ(table.pixeltime_sum(), 5000u);
     ASSERT_EQ(table.table.size(), 1u);
 
     expected_steps = {
@@ -79,7 +79,7 @@ void test_create_slope_table3()
     table = sanei_genesys_create_slope_table3(asic_type, motor, StepType::HALF, 2000,
                                               motor.base_ydpi);
 
-    ASSERT_EQ(table.pixeltime_sum, 16914u);
+    ASSERT_EQ(table.pixeltime_sum(), 16914u);
     ASSERT_EQ(table.table.size(), 7u);
 
     expected_steps = {
@@ -90,7 +90,7 @@ void test_create_slope_table3()
     table = sanei_genesys_create_slope_table3(asic_type, motor, StepType::QUARTER, 10000,
                                               motor.base_ydpi);
 
-    ASSERT_EQ(table.pixeltime_sum, 2500u);
+    ASSERT_EQ(table.pixeltime_sum(), 2500u);
     ASSERT_EQ(table.table.size(), 1u);
 
     expected_steps = {
@@ -101,7 +101,7 @@ void test_create_slope_table3()
     table = sanei_genesys_create_slope_table3(asic_type, motor, StepType::QUARTER, 2000,
                                               motor.base_ydpi);
 
-    ASSERT_EQ(table.pixeltime_sum, 7680u);
+    ASSERT_EQ(table.pixeltime_sum(), 7680u);
     ASSERT_EQ(table.table.size(), 6u);
 
     expected_steps = {
@@ -127,7 +127,7 @@ void test_create_slope_table_small_full_step()
     };
     ASSERT_EQ(table.table, expected_table);
     ASSERT_EQ(table.table.size(), 8u);
-    ASSERT_EQ(table.pixeltime_sum, 156348u);
+    ASSERT_EQ(table.pixeltime_sum(), 156348u);
 
 
     table = create_slope_table_for_speed(slope, 3000, StepType::FULL, 4, 8, max_table_size);
@@ -137,7 +137,7 @@ void test_create_slope_table_small_full_step()
     };
     ASSERT_EQ(table.table, expected_table);
     ASSERT_EQ(table.table.size(), 8u);
-    ASSERT_EQ(table.pixeltime_sum, 148843u);
+    ASSERT_EQ(table.pixeltime_sum(), 148843u);
 }
 
 void test_create_slope_table_small_full_step_target_speed_too_high()
@@ -157,7 +157,7 @@ void test_create_slope_table_small_full_step_target_speed_too_high()
     };
     ASSERT_EQ(table.table, expected_table);
     ASSERT_EQ(table.table.size(), 8u);
-    ASSERT_EQ(table.pixeltime_sum, 148358u);
+    ASSERT_EQ(table.pixeltime_sum(), 148358u);
 }
 
 void test_create_slope_table_small_half_step()
@@ -177,7 +177,7 @@ void test_create_slope_table_small_half_step()
     };
     ASSERT_EQ(table.table, expected_table);
     ASSERT_EQ(table.table.size(), 8u);
-    ASSERT_EQ(table.pixeltime_sum, 78174u);
+    ASSERT_EQ(table.pixeltime_sum(), 78174u);
 
 
     table = create_slope_table_for_speed(slope, 3000, StepType::HALF, 4, 8, max_table_size);
@@ -187,7 +187,7 @@ void test_create_slope_table_small_half_step()
     };
     ASSERT_EQ(table.table, expected_table);
     ASSERT_EQ(table.table.size(), 8u);
-    ASSERT_EQ(table.pixeltime_sum, 74421u);
+    ASSERT_EQ(table.pixeltime_sum(), 74421u);
 }
 
 void test_create_slope_table_large_full_step()
@@ -235,7 +235,7 @@ void test_create_slope_table_large_full_step()
     };
     ASSERT_EQ(table.table, expected_table);
     ASSERT_EQ(table.table.size(), 60u);
-    ASSERT_EQ(table.pixeltime_sum, 412616u);
+    ASSERT_EQ(table.pixeltime_sum(), 412616u);
 
 
     table = create_slope_table_for_speed(slope, 1500, StepType::FULL, 4, 8, max_table_size);
@@ -267,7 +267,7 @@ void test_create_slope_table_large_full_step()
     };
     ASSERT_EQ(table.table, expected_table);
     ASSERT_EQ(table.table.size(), 224u);
-    ASSERT_EQ(table.pixeltime_sum, 734910u);
+    ASSERT_EQ(table.pixeltime_sum(), 734910u);
 }
 
 void test_create_slope_table_large_half_step()
@@ -293,7 +293,7 @@ void test_create_slope_table_large_half_step()
     };
     ASSERT_EQ(table.table, expected_table);
     ASSERT_EQ(table.table.size(), 60u);
-    ASSERT_EQ(table.pixeltime_sum, 206294u);
+    ASSERT_EQ(table.pixeltime_sum(), 206294u);
 
 
     table = create_slope_table_for_speed(slope, 1500, StepType::HALF, 4, 8, max_table_size);
@@ -325,7 +325,7 @@ void test_create_slope_table_large_half_step()
     };
     ASSERT_EQ(table.table, expected_table);
     ASSERT_EQ(table.table.size(), 224u);
-    ASSERT_EQ(table.pixeltime_sum, 367399u);
+    ASSERT_EQ(table.pixeltime_sum(), 367399u);
 }
 
 void test_motor()

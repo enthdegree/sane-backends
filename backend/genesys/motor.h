@@ -126,12 +126,17 @@ struct MotorSlope
 struct MotorSlopeTable
 {
     std::vector<std::uint16_t> table;
-    unsigned pixeltime_sum = 0;
 
     void slice_steps(unsigned count);
 
     // expands the table by the given number of steps
     void expand_table(unsigned count);
+
+    std::uint64_t pixeltime_sum() const { return pixeltime_sum_; }
+
+    void generate_pixeltime_sum();
+private:
+    std::uint64_t pixeltime_sum_ = 0;
 };
 
 unsigned get_slope_table_max_size(AsicType asic_type);

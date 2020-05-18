@@ -46,6 +46,7 @@
 #include "motor.h"
 #include "utilities.h"
 #include <cmath>
+#include <numeric>
 
 namespace genesys {
 
@@ -86,6 +87,7 @@ void MotorSlopeTable::slice_steps(unsigned count)
         throw SaneException("Excessive steps count");
     }
     table.resize(count);
+    generate_pixeltime_sum();
 }
 
 void MotorSlopeTable::expand_table(unsigned count)
@@ -94,6 +96,13 @@ void MotorSlopeTable::expand_table(unsigned count)
         throw SaneException("Can't expand empty table");
     }
     table.resize(table.size() + count, table.back());
+    generate_pixeltime_sum();
+}
+
+void MotorSlopeTable::generate_pixeltime_sum()
+{
+    pixeltime_sum_ = std::accumulate(table.begin(), table.end(),
+                                     std::size_t{0}, std::plus<std::size_t>());
 }
 
 unsigned get_slope_table_max_size(AsicType asic_type)
@@ -139,21 +148,20 @@ MotorSlopeTable create_slope_table_for_speed(const MotorSlope& slope, unsigned t
             break;
         }
         table.table.push_back(current);
-        table.pixeltime_sum += current;
     }
 
     // make sure the target speed (or the max speed if target speed is too high) is present in
     // the table
     table.table.push_back(final_speed);
-    table.pixeltime_sum += table.table.back();
 
     // fill the table up to the specified size
     while (table.table.size() < max_size - 1 &&
            (table.table.size() % steps_alignment != 0 || table.table.size() < min_size))
     {
         table.table.push_back(table.table.back());
-        table.pixeltime_sum += table.table.back();
     }
+
+    table.generate_pixeltime_sum();
 
     return table;
 }

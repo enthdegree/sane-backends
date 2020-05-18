@@ -97,7 +97,7 @@ bool ScanSession::operator==(const ScanSession& other) const
 {
     return params == other.params &&
         computed == other.computed &&
-        ccd_size_divisor == other.ccd_size_divisor &&
+        full_resolution == other.full_resolution &&
         optical_resolution == other.optical_resolution &&
         optical_pixels == other.optical_pixels &&
         optical_pixels_raw == other.optical_pixels_raw &&
@@ -136,7 +136,7 @@ std::ostream& operator<<(std::ostream& out, const ScanSession& session)
 {
     out << "ScanSession{\n"
         << "    computed: " << session.computed << '\n'
-        << "    ccd_size_divisor: " << session.ccd_size_divisor << '\n'
+        << "    full_resolution: " << session.full_resolution << '\n'
         << "    optical_resolution: " << session.optical_resolution << '\n'
         << "    optical_pixels: " << session.optical_pixels << '\n'
         << "    optical_pixels_raw: " << session.optical_pixels_raw << '\n'

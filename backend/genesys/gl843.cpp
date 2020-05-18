@@ -871,7 +871,6 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
  * @param pixels logical number of pixels to use
  * @param channels number of color channles used (1 or 3)
  * @param depth bit depth of the scan (1, 8 or 16 bits)
- * @param ccd_size_divisor true specifies how much x coordinates must be shrunk
  * @param color_filter to choose the color channel used in gray scans
  * @param flags to drive specific settings such no calibration, XPA use ...
  */
@@ -1006,8 +1005,9 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
   /* MAXWD is expressed in 2 words unit */
   /* nousedspace = (mem_bank_range * 1024 / 256 -1 ) * 4; */
-    // BUG: the division by ccd_size_divisor likely does not make sense
-    reg->set24(REG_MAXWD, (session.output_line_bytes / session.ccd_size_divisor) >> 1);
+    // BUG: the division by optical and full resolution factor likely does not make sense
+    reg->set24(REG_MAXWD, (session.output_line_bytes *
+                           session.optical_resolution / session.full_resolution) >> 1);
     reg->set16(REG_LPERIOD, exposure / tgtime);
     reg->set8(REG_DUMMY, sensor.dummy_pixel);
 }

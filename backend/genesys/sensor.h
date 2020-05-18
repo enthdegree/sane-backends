@@ -260,6 +260,11 @@ struct Genesys_Sensor {
     // pixel, see ccd_pixels_per_system_pixel()
     unsigned full_resolution = 0;
 
+    // sensor resolution in pixel values that are read by the chip. Many scanners make low
+    // resolutions faster by configuring the timings in such a way that 1/2 or 1/4 of pixel values
+    // that are read. If zero, then it is equal to `full_resolution`.
+    unsigned optical_resolution = 0;
+
     // the resolution list that the sensor is usable at.
     ValueFilterAny<unsigned> resolutions = VALUE_FILTER_ANY;
 
@@ -276,9 +281,6 @@ struct Genesys_Sensor {
     // The scanner may be setup to use a custom dpiset value that does not correspond to any actual
     // resolution. The value zero does not set the override.
     unsigned register_dpiset = 0;
-
-    // CCD may present itself as half or quarter-size CCD on certain resolutions
-    int ccd_size_divisor = 1;
 
     // The resolution to use for shading calibration
     unsigned shading_resolution = 0;
@@ -331,11 +333,11 @@ struct Genesys_Sensor {
     // red, green and blue gamma coefficient for default gamma tables
     AssignableArray<float, 3> gamma;
 
-    std::function<unsigned(const Genesys_Sensor&, unsigned)> get_ccd_size_divisor_fun;
-
-    unsigned get_ccd_size_divisor_for_dpi(unsigned xres) const
+    unsigned get_optical_resolution() const
     {
-        return get_ccd_size_divisor_fun(*this, xres);
+        if (optical_resolution != 0)
+            return optical_resolution;
+        return full_resolution;
     }
 
     // how many CCD pixels are processed per system pixel time. This corresponds to CKSEL + 1
@@ -362,10 +364,10 @@ struct Genesys_Sensor {
     {
         return sensor_id == other.sensor_id &&
             full_resolution == other.full_resolution &&
+            optical_resolution == other.optical_resolution &&
             resolutions == other.resolutions &&
             method == other.method &&
             shading_resolution == other.shading_resolution &&
-            ccd_size_divisor == other.ccd_size_divisor &&
             shading_factor == other.shading_factor &&
             shading_pixel_offset == other.shading_pixel_offset &&
             pixel_count_ratio == other.pixel_count_ratio &&
@@ -394,7 +396,6 @@ void serialize(Stream& str, Genesys_Sensor& x)
     serialize(str, x.resolutions);
     serialize(str, x.method);
     serialize(str, x.shading_resolution);
-    serialize(str, x.ccd_size_divisor);
     serialize(str, x.shading_factor);
     serialize(str, x.shading_pixel_offset);
     serialize(str, x.output_pixel_offset);

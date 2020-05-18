@@ -1803,8 +1803,6 @@ void CommandSetGl646::move_back_home(Genesys_Device* dev, bool wait_until_home) 
  * init registers for shading calibration
  * we assume that scanner's head is on an area suiting shading calibration.
  * We scan a full scan width area by the shading line number for the device
- * at either at full sensor's resolution or half depending upon ccd_size_divisor
- * @param dev scanner's device
  */
 void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                             Genesys_Register_Set& regs) const
@@ -1815,10 +1813,9 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
   /* fill settings for scan : always a color scan */
   int channels = 3;
 
-    unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
     unsigned cksel = get_cksel(dev->model->sensor_id, dev->settings.xres, channels);
 
-    unsigned resolution = sensor.full_resolution / ccd_size_divisor / cksel;
+    unsigned resolution = sensor.get_optical_resolution() / cksel;
     // FIXME: we select wrong calibration sensor
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, dev->settings.xres, channels,
                                                          dev->settings.scan_method);

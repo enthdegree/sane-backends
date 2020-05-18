@@ -609,22 +609,6 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
     reg->set16(REG_FMOVDEC, fast_table.table.size());
 }
 
-/** @brief setup optical related registers
- * start and pixels are expressed in optical sensor resolution coordinate
- * space.
- * @param dev scanner device to use
- * @param reg registers to set up
- * @param exposure_time exposure time to use
- * @param used_res scanning resolution used, may differ from
- *        scan's one
- * @param start logical start pixel coordinate
- * @param pixels logical number of pixels to use
- * @param channels number of color channels (currently 1 or 3)
- * @param depth bit depth of the scan (1, 8 or 16)
- * @param ccd_size_divisor whether sensor's timings are such that x coordinates must be halved
- * @param color_filter color channel to use as gray data
- * @param flags optical flags (@see )
- */
 static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                          Genesys_Register_Set* reg, unsigned int exposure_time,
                                          const ScanSession& session)
@@ -743,7 +727,8 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     // MAXWD is expressed in 2 words unit
 
     // BUG: we shouldn't multiply by channels here
-    reg->set24(REG_MAXWD, session.output_line_bytes_raw / session.ccd_size_divisor * session.params.channels);
+    reg->set24(REG_MAXWD, session.output_line_bytes_raw * session.params.channels *
+                              session.optical_resolution / session.full_resolution);
     reg->set24(REG_LPERIOD, exposure_time);
     reg->set16(REG_DUMMY, sensor.dummy_pixel);
 }
@@ -819,7 +804,7 @@ ScanSession CommandSetGl124::calculate_scan_session(const Genesys_Device* dev,
 
     float start = dev->model->x_offset;
     start += settings.tl_x;
-    start /= sensor.get_ccd_size_divisor_for_dpi(settings.xres);
+    start /= sensor.full_resolution / sensor.get_optical_resolution();
     start = static_cast<float>((start * settings.xres) / MM_PER_INCH);
 
     ScanSession session;

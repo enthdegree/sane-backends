@@ -1524,12 +1524,10 @@ void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& senso
 
         if (should_calibrate_only_active_area(dev, dev.settings)) {
             float offset = dev.model->x_offset_ta;
-            offset /= calib_sensor->get_ccd_size_divisor_for_dpi(resolution);
-            start_pixel = static_cast<int>((offset * resolution) / MM_PER_INCH);
+            start_pixel = static_cast<int>((offset * calib_sensor->get_optical_resolution()) / MM_PER_INCH);
 
             float size = dev.model->x_size_ta;
-            size /= calib_sensor->get_ccd_size_divisor_for_dpi(resolution);
-            target_pixels = static_cast<int>((size * resolution) / MM_PER_INCH);
+            target_pixels = static_cast<int>((size * calib_sensor->get_optical_resolution()) / MM_PER_INCH);
         }
 
         if (dev.model->model_id == ModelId::CANON_4400F &&
@@ -2867,8 +2865,7 @@ compute_averaged_planar (Genesys_Device * dev, const Genesys_Sensor& sensor,
  */
   res = dev->settings.xres;
 
-    if (sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres) > 1)
-    {
+    if (sensor.full_resolution > sensor.get_optical_resolution()) {
         res *= 2;
     }
 
@@ -3158,7 +3155,7 @@ compute_shifted_coefficients (Genesys_Device * dev,
     auto cmat = color_order_to_cmat(color_order);
 
   x = dev->settings.xres;
-    if (sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres) > 1) {
+    if (sensor.full_resolution > sensor.get_optical_resolution()) {
         x *= 2;	// scanner is using half-ccd mode
     }
     basepixels = sensor.full_resolution / x; // this should be evenly dividable

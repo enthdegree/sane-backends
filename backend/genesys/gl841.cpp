@@ -656,18 +656,6 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
                                         0,
                                         0);
 
-    {
-        std::vector<uint16_t> table;
-        table.resize(256, 0xffff);
-
-        scanner_send_slope_table(dev, sensor, 0, table);
-        scanner_send_slope_table(dev, sensor, 1, table);
-        scanner_send_slope_table(dev, sensor, 2, table);
-        scanner_send_slope_table(dev, sensor, 3, table);
-        scanner_send_slope_table(dev, sensor, 4, table);
-    }
-
-
     /* motor frequency table */
     gl841_write_freq(dev, scan_yres);
 

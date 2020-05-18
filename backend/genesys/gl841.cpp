@@ -660,9 +660,6 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
     auto slow_table = create_slope_table(dev->model->asic_type, dev->motor, scan_yres,
                                          scan_exposure_time, step_multiplier, motor_profile);
 
-    auto back_table = create_slope_table_fastest(dev->model->asic_type, step_multiplier,
-                                                 *fast_profile);
-
     if (feed_steps < (slow_table.table.size() >> static_cast<unsigned>(motor_profile.step_type))) {
 	/*TODO: what should we do here?? go back to exposure calculation?*/
         feed_steps = slow_table.table.size() >> static_cast<unsigned>(motor_profile.step_type);
@@ -758,7 +755,7 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
     }
 
     scanner_send_slope_table(dev, sensor, 0, slow_table.table);
-    scanner_send_slope_table(dev, sensor, 1, back_table.table);
+    scanner_send_slope_table(dev, sensor, 1, slow_table.table);
     scanner_send_slope_table(dev, sensor, 2, slow_table.table);
     scanner_send_slope_table(dev, sensor, 3, fast_table.table);
     scanner_send_slope_table(dev, sensor, 4, fast_table.table);
@@ -775,14 +772,14 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
         min_restep = slow_table.table.size() * 2 + 2;
     }
 /* steps of table 1*/
-    if (min_restep < back_table.table.size() * 2 + 2) {
-        min_restep = back_table.table.size() * 2 + 2;
+    if (min_restep < slow_table.table.size() * 2 + 2) {
+        min_restep = slow_table.table.size() * 2 + 2;
     }
 /* steps of table 0*/
     reg->set8(REG_FWDSTEP, min_restep - slow_table.table.size()*2);
 
 /* steps of table 1*/
-    reg->set8(REG_BWDSTEP, min_restep - back_table.table.size()*2);
+    reg->set8(REG_BWDSTEP, min_restep - slow_table.table.size()*2);
 
 /*
   for z1/z2:
@@ -806,7 +803,7 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
     reg->set8(0x67, 0x3f | (static_cast<unsigned>(motor_profile.step_type) << 6));
     reg->set8(0x68, 0x3f | (static_cast<unsigned>(fast_profile->step_type) << 6));
     reg->set8(REG_STEPNO, slow_table.table.size() / step_multiplier);
-    reg->set8(REG_FASTNO, back_table.table.size() / step_multiplier);
+    reg->set8(REG_FASTNO, slow_table.table.size() / step_multiplier);
     reg->set8(0x69, slow_table.table.size() / step_multiplier);
     reg->set8(0x6a, fast_table.table.size() / step_multiplier);
     reg->set8(0x5f, fast_table.table.size() / step_multiplier);

@@ -121,7 +121,7 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Sensor& sensor)
 {
     out << "Genesys_Sensor{\n"
         << "    sensor_id: " << static_cast<unsigned>(sensor.sensor_id) << '\n'
-        << "    optical_res: " << sensor.optical_res << '\n'
+        << "    full_resolution: " << sensor.full_resolution << '\n'
         << "    resolutions: " << format_indent_braced_list(4, sensor.resolutions) << '\n'
         << "    channels: " << format_vector_unsigned(4, sensor.channels) << '\n'
         << "    method: " << sensor.method << '\n'

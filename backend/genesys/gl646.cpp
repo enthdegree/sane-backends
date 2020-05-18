@@ -600,7 +600,7 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
             break;
     }
 
-    sanei_genesys_set_dpihw(*regs, sensor.optical_res);
+    sanei_genesys_set_dpihw(*regs, sensor.full_resolution);
 
   /* gamma enable for scans */
     if (has_flag(dev->model->flags, ModelFlag::GAMMA_14BIT)) {
@@ -932,7 +932,7 @@ gl646_init_regs (Genesys_Device * dev)
   const auto& sensor = sanei_genesys_find_sensor_any(dev);
 
   dev->reg.find_reg(0x05).value = 0x00;	/* 12 bits gamma, disable gamma, 24 clocks/pixel */
-    sanei_genesys_set_dpihw(dev->reg, sensor.optical_res);
+    sanei_genesys_set_dpihw(dev->reg, sensor.full_resolution);
 
     if (has_flag(dev->model->flags, ModelFlag::GAMMA_14BIT)) {
         dev->reg.find_reg(0x05).value |= REG_0x05_GMM14BIT;
@@ -1116,8 +1116,7 @@ static void gl646_wm_hp3670(Genesys_Device* dev, const Genesys_Sensor& sensor, u
     default:			/* AFE_SET */
       /* mode setup */
       i = dev->frontend.regs.get_value(0x03);
-      if (dpi > sensor.optical_res / 2)
-	{
+            if (dpi > sensor.full_resolution / 2) {
       /* fe_reg_0x03 must be 0x12 for 1200 dpi in WOLFSON_HP3670.
        * WOLFSON_HP2400 in 1200 dpi mode works well with
 	   * fe_reg_0x03 set to 0x32 or 0x12 but not to 0x02 */
@@ -1819,7 +1818,7 @@ void CommandSetGl646::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     unsigned ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres);
     unsigned cksel = get_cksel(dev->model->sensor_id, dev->settings.xres, channels);
 
-    unsigned resolution = sensor.optical_res / ccd_size_divisor / cksel;
+    unsigned resolution = sensor.full_resolution / ccd_size_divisor / cksel;
     // FIXME: we select wrong calibration sensor
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, dev->settings.xres, channels,
                                                          dev->settings.scan_method);
@@ -1951,11 +1950,11 @@ SensorExposure CommandSetGl646::led_calibration(Genesys_Device* dev, const Genes
     }
 
     // offset calibration is always done in color mode
-    unsigned pixels = dev->model->x_size_calib_mm * sensor.optical_res / MM_PER_INCH;
+    unsigned pixels = dev->model->x_size_calib_mm * sensor.full_resolution / MM_PER_INCH;
 
     ScanSession session;
-    session.params.xres = sensor.optical_res;
-    session.params.yres = sensor.optical_res;
+    session.params.xres = sensor.full_resolution;
+    session.params.yres = sensor.full_resolution;
     session.params.startx = 0;
     session.params.starty = 0;
     session.params.pixels = pixels;
@@ -2121,11 +2120,11 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
   channels = 3;
 
     // FIXME: maybe reuse `sensor`
-    const auto& calib_sensor = sanei_genesys_find_sensor(dev, sensor.optical_res, 3,
+    const auto& calib_sensor = sanei_genesys_find_sensor(dev, sensor.full_resolution, 3,
                                                          ScanMethod::FLATBED);
-    black_pixels = (calib_sensor.black_pixels * sensor.optical_res) / calib_sensor.optical_res;
+    black_pixels = (calib_sensor.black_pixels * sensor.full_resolution) / calib_sensor.full_resolution;
 
-    unsigned pixels = dev->model->x_size_calib_mm * sensor.optical_res / MM_PER_INCH;
+    unsigned pixels = dev->model->x_size_calib_mm * sensor.full_resolution / MM_PER_INCH;
     unsigned lines = CALIBRATION_LINES;
 
     if (dev->model->is_cis) {
@@ -2133,8 +2132,8 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
     }
 
     ScanSession session;
-    session.params.xres = sensor.optical_res;
-    session.params.yres = sensor.optical_res;
+    session.params.xres = sensor.full_resolution;
+    session.params.yres = sensor.full_resolution;
     session.params.startx = 0;
     session.params.starty = 0;
     session.params.pixels = pixels;
@@ -2236,7 +2235,7 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
     const auto& calib_sensor = sanei_genesys_find_sensor(dev, resolution, channels,
                                                          ScanMethod::FLATBED);
-    black_pixels = (calib_sensor.black_pixels * resolution) / calib_sensor.optical_res;
+    black_pixels = (calib_sensor.black_pixels * resolution) / calib_sensor.full_resolution;
 
     unsigned pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
     unsigned lines = CALIBRATION_LINES;
@@ -2579,7 +2578,7 @@ void CommandSetGl646::init(Genesys_Device* dev) const
 
         // Init shading data
         sanei_genesys_init_shading_data(dev, sensor,
-                                        dev->model->x_size_calib_mm * sensor.optical_res /
+                                        dev->model->x_size_calib_mm * sensor.full_resolution /
                                             MM_PER_INCH);
 
         dev->initial_regs = dev->reg;
@@ -2635,7 +2634,7 @@ void CommandSetGl646::init(Genesys_Device* dev) const
     if (dev->model->gpio_id != GpioId::HP3670 &&
         dev->model->gpio_id != GpioId::HP2400)
     {
-      switch (sensor.optical_res)
+      switch (sensor.full_resolution)
 	{
 	case 600:
 	  addr = 0x08200;
@@ -2957,7 +2956,7 @@ static void write_control(Genesys_Device* dev, const Genesys_Sensor& sensor, int
 
   /* MD6471/G2410/HP2300 and XP200 read/write data from an undocumented memory area which
    * is after the second slope table */
-  switch (sensor.optical_res)
+  switch (sensor.full_resolution)
     {
     case 600:
       addr = 0x08200;

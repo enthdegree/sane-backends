@@ -277,7 +277,7 @@ static void gl842_init_motor_regs_scan(Genesys_Device* dev,
     // disable backtracking if needed
     if (has_flag(flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE) ||
         (scan_yres >= 2400) ||
-        (scan_yres >= sensor.optical_res))
+        (scan_yres >= sensor.full_resolution))
     {
         reg02 |= REG_0x02_ACDCDIS;
     }
@@ -857,7 +857,7 @@ void CommandSetGl842::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     ScanSession session;
     session.params.xres = resolution;
     session.params.yres = resolution;
-    session.params.startx = (num_pixels / 2) * resolution / calib_sensor.optical_res;
+    session.params.startx = (num_pixels / 2) * resolution / calib_sensor.full_resolution;
     session.params.starty = 0;
     session.params.pixels = num_pixels;
     session.params.lines = 1;

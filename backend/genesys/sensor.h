@@ -258,7 +258,7 @@ struct Genesys_Sensor {
 
     // sensor resolution in CCD pixels. Note that we may read more than one CCD pixel per logical
     // pixel, see ccd_pixels_per_system_pixel()
-    unsigned optical_res = 0;
+    unsigned full_resolution = 0;
 
     // the resolution list that the sensor is usable at.
     ValueFilterAny<unsigned> resolutions = VALUE_FILTER_ANY;
@@ -361,7 +361,7 @@ struct Genesys_Sensor {
     bool operator==(const Genesys_Sensor& other) const
     {
         return sensor_id == other.sensor_id &&
-            optical_res == other.optical_res &&
+            full_resolution == other.full_resolution &&
             resolutions == other.resolutions &&
             method == other.method &&
             shading_resolution == other.shading_resolution &&
@@ -390,7 +390,7 @@ template<class Stream>
 void serialize(Stream& str, Genesys_Sensor& x)
 {
     serialize(str, x.sensor_id);
-    serialize(str, x.optical_res);
+    serialize(str, x.full_resolution);
     serialize(str, x.resolutions);
     serialize(str, x.method);
     serialize(str, x.shading_resolution);

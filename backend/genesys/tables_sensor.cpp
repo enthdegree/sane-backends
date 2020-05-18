@@ -50,7 +50,7 @@ namespace genesys {
 
 inline unsigned get_sensor_optical_with_ccd_divisor(const Genesys_Sensor& sensor, unsigned xres)
 {
-    unsigned hwres = sensor.optical_res / sensor.get_ccd_size_divisor_for_dpi(xres);
+    unsigned hwres = sensor.full_resolution / sensor.get_ccd_size_divisor_for_dpi(xres);
 
     if (xres <= hwres / 4) {
         return hwres / 4;
@@ -63,10 +63,10 @@ inline unsigned get_sensor_optical_with_ccd_divisor(const Genesys_Sensor& sensor
 
 inline unsigned default_get_ccd_size_divisor_for_dpi(const Genesys_Sensor& sensor, unsigned xres)
 {
-    if (sensor.ccd_size_divisor >= 4 && xres * 4 <= static_cast<unsigned>(sensor.optical_res)) {
+    if (sensor.ccd_size_divisor >= 4 && xres * 4 <= static_cast<unsigned>(sensor.full_resolution)) {
         return 4;
     }
-    if (sensor.ccd_size_divisor >= 2 && xres * 2 <= static_cast<unsigned>(sensor.optical_res)) {
+    if (sensor.ccd_size_divisor >= 2 && xres * 2 <= static_cast<unsigned>(sensor.full_resolution)) {
         return 2;
     }
     return 1;
@@ -97,7 +97,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_UMAX; // gl646
-    sensor.optical_res = 1200;
+    sensor.full_resolution = 1200;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 64;
     sensor.fau_gain_white_ref = 210;
@@ -140,7 +140,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_ST12; // gl646
-    sensor.optical_res = 600;
+    sensor.full_resolution = 600;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 85;
     sensor.fau_gain_white_ref = 210;
@@ -181,7 +181,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_ST24; // gl646
-    sensor.optical_res = 1200;
+    sensor.full_resolution = 1200;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 64;
     sensor.fau_gain_white_ref = 210;
@@ -224,7 +224,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_5345; // gl646
-    sensor.optical_res = 1200;
+    sensor.full_resolution = 1200;
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 16;
@@ -346,7 +346,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_HP2400; // gl646
-    sensor.optical_res = 1200;
+    sensor.full_resolution = 1200;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 15;
     sensor.fau_gain_white_ref = 210;
@@ -438,7 +438,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_HP2300; // gl646
-    sensor.optical_res = 600;
+    sensor.full_resolution = 600;
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 20;
@@ -514,7 +514,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_CANON_LIDE_35; // gl841
-    sensor.optical_res = 1200;
+    sensor.full_resolution = 1200;
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 87;
@@ -563,7 +563,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_CANON_LIDE_60; // gl841
-    sensor.optical_res = 1200;
+    sensor.full_resolution = 1200;
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 87;
@@ -612,7 +612,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_XP200; // gl646
-    sensor.optical_res = 600;
+    sensor.full_resolution = 600;
     sensor.black_pixels = 5;
     sensor.dummy_pixel = 38;
     sensor.fau_gain_white_ref = 200;
@@ -666,7 +666,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_HP3670; // gl646
-    sensor.optical_res = 1200;
+    sensor.full_resolution = 1200;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 16;
     sensor.fau_gain_white_ref = 210;
@@ -767,7 +767,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_DP665; // gl841
-    sensor.optical_res = 600;
+    sensor.full_resolution = 600;
     sensor.register_dpihw = 600;
     sensor.shading_resolution = 600;
     sensor.black_pixels = 27;
@@ -810,7 +810,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_ROADWARRIOR; // gl841
-    sensor.optical_res = 600;
+    sensor.full_resolution = 600;
     sensor.register_dpihw = 600;
     sensor.shading_resolution = 600;
     sensor.black_pixels = 27;
@@ -854,7 +854,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_DSMOBILE600; // gl841
-    sensor.optical_res = 600;
+    sensor.full_resolution = 600;
     sensor.register_dpihw = 600;
     sensor.shading_resolution = 600;
     sensor.black_pixels = 28;
@@ -897,7 +897,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_XP300; // gl841
-    sensor.optical_res = 600;
+    sensor.full_resolution = 600;
     sensor.register_dpihw = 1200; // FIXME: could be incorrect, but previous code used this value
     sensor.shading_resolution = 600;
     sensor.black_pixels = 27;
@@ -940,7 +940,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_DOCKETPORT_487; // gl841
-    sensor.optical_res = 600;
+    sensor.full_resolution = 600;
     sensor.register_dpihw = 600;
     sensor.shading_resolution = 600;
     sensor.black_pixels = 27;
@@ -983,10 +983,10 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_DP685; // gl841
-    sensor.optical_res = 600;
+    sensor.full_resolution = 600;
     sensor.register_dpihw = 600;
     sensor.shading_resolution = 600;
-    sensor.optical_res = 600;
+    sensor.full_resolution = 600;
     sensor.black_pixels = 27;
     sensor.dummy_pixel = 27;
     sensor.fau_gain_white_ref = 210;
@@ -1027,7 +1027,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_CANON_LIDE_200; // gl847
-    sensor.optical_res = 4800;
+    sensor.full_resolution = 4800;
     sensor.black_pixels = 87*4;
     sensor.dummy_pixel = 16*4;
     sensor.fau_gain_white_ref = 210;
@@ -1189,7 +1189,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_CANON_LIDE_700F; // gl847
-    sensor.optical_res = 4800;
+    sensor.full_resolution = 4800;
     sensor.black_pixels = 73*8; // black pixels 73 at 600 dpi
     sensor.dummy_pixel = 16*8;
     sensor.fau_gain_white_ref = 210;
@@ -1333,7 +1333,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_CANON_LIDE_100; // gl847
-    sensor.optical_res = 2400;
+    sensor.full_resolution = 2400;
     sensor.black_pixels = 87*4;
     sensor.dummy_pixel = 16*4;
     sensor.fau_gain_white_ref = 210;
@@ -1464,7 +1464,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_KVSS080; // gl843
-    sensor.optical_res = 600;
+    sensor.full_resolution = 600;
     sensor.register_dpihw = 600;
     sensor.shading_resolution = 600;
     sensor.black_pixels = 38;
@@ -1532,7 +1532,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_G4050; // gl843
-    sensor.optical_res = 4800;
+    sensor.full_resolution = 4800;
     sensor.black_pixels = 50*8;
     // 31 at 600 dpi dummy_pixels 58 at 1200
     sensor.dummy_pixel = 58;
@@ -1660,7 +1660,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_HP_4850C; // gl843
-    sensor.optical_res = 4800;
+    sensor.full_resolution = 4800;
     sensor.black_pixels = 100;
     sensor.dummy_pixel = 58;
     sensor.fau_gain_white_ref = 160;
@@ -1783,7 +1783,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_CANON_4400F; // gl843
-    sensor.optical_res = 4800;
+    sensor.full_resolution = 4800;
     sensor.register_dpihw = 4800;
     sensor.ccd_size_divisor = 4;
     sensor.black_pixels = 50*8;
@@ -1907,7 +1907,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_CANON_8400F; // gl843
-    sensor.optical_res = 3200;
+    sensor.full_resolution = 3200;
     sensor.register_dpihw = 4800;
     sensor.ccd_size_divisor = 1;
     sensor.black_pixels = 50*8;
@@ -2068,7 +2068,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_CANON_8600F; // gl843
-    sensor.optical_res = 4800;
+    sensor.full_resolution = 4800;
     sensor.register_dpihw = 4800;
     sensor.ccd_size_divisor = 4;
     sensor.black_pixels = 31;
@@ -2241,7 +2241,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_HP_N6310; // gl847
-    sensor.optical_res = 2400;
+    sensor.full_resolution = 2400;
     // sensor.ccd_size_divisor = 2; Possibly half CCD, needs checking
     sensor.black_pixels = 96;
     sensor.dummy_pixel = 26;
@@ -2304,7 +2304,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_CANON_LIDE_110; // gl124
-    sensor.optical_res = 2400;
+    sensor.full_resolution = 2400;
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 16;
@@ -2473,7 +2473,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_CANON_LIDE_120; // gl124
-    sensor.optical_res = 2400;
+    sensor.full_resolution = 2400;
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 16;
@@ -2643,7 +2643,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_CANON_LIDE_210; // gl124
-    sensor.optical_res = 4800;
+    sensor.full_resolution = 4800;
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 16;
@@ -2838,7 +2838,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_CANON_LIDE_220; // gl124
-    sensor.optical_res = 4800;
+    sensor.full_resolution = 4800;
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 16;
@@ -3033,7 +3033,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_PLUSTEK_OPTICPRO_3600; // gl841
-    sensor.optical_res = 1200;
+    sensor.full_resolution = 1200;
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 87;
@@ -3081,7 +3081,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_PLUSTEK_OPTICFILM_7200; // gl842
-    sensor.optical_res = 7200;
+    sensor.full_resolution = 7200;
     sensor.register_dpihw = 1200;
     sensor.black_pixels = 88; // TODO
     sensor.dummy_pixel = 19;
@@ -3134,7 +3134,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_PLUSTEK_OPTICFILM_7200I; // gl843
-    sensor.optical_res = 7200;
+    sensor.full_resolution = 7200;
     sensor.register_dpihw = 1200;
     sensor.black_pixels = 88; // TODO
     sensor.dummy_pixel = 20;
@@ -3221,7 +3221,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_PLUSTEK_OPTICFILM_7300; // gl843
-    sensor.optical_res = 7200;
+    sensor.full_resolution = 7200;
     sensor.method = ScanMethod::TRANSPARENCY;
     sensor.register_dpihw = 1200;
     sensor.black_pixels = 88; // TODO
@@ -3295,7 +3295,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_PLUSTEK_OPTICFILM_7400; // gl845
-    sensor.optical_res = 7200;
+    sensor.full_resolution = 7200;
     sensor.method = ScanMethod::TRANSPARENCY;
     sensor.register_dpihw = 1200;
     sensor.black_pixels = 88; // TODO
@@ -3347,7 +3347,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_PLUSTEK_OPTICFILM_7500I; // gl843
-    sensor.optical_res = 7200;
+    sensor.full_resolution = 7200;
     sensor.register_dpihw = 1200;
     sensor.black_pixels = 88; // TODO
     sensor.dummy_pixel = 20;
@@ -3427,7 +3427,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_PLUSTEK_OPTICFILM_8200I; // gl845
-    sensor.optical_res = 7200;
+    sensor.full_resolution = 7200;
     sensor.method = ScanMethod::TRANSPARENCY;
     sensor.register_dpihw = 1200;
     sensor.black_pixels = 88; // TODO
@@ -3489,7 +3489,7 @@ void genesys_init_sensor_tables()
     sensor.exposure_lperiod = 11000;
     sensor.segment_size = 5136;
     sensor.segment_order = {0, 1};
-    sensor.optical_res = 1200;
+    sensor.full_resolution = 1200;
     sensor.black_pixels = 31;
     sensor.dummy_pixel = 31;
     sensor.fau_gain_white_ref = 210;
@@ -3544,7 +3544,7 @@ void genesys_init_sensor_tables()
     sensor.sensor_id = SensorId::CCD_PLUSTEK_OPTICBOOK_3800; // gl845
     sensor.resolutions = { 75, 100, 150, 300, 600, 1200 };
     sensor.exposure_lperiod = 11000;
-    sensor.optical_res = 1200;
+    sensor.full_resolution = 1200;
     sensor.black_pixels = 31;
     sensor.dummy_pixel = 31;
     sensor.fau_gain_white_ref = 210;
@@ -3594,7 +3594,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_CANON_LIDE_80; // gl841
-    sensor.optical_res = 1200; // real hardware limit is 2400
+    sensor.full_resolution = 1200; // real hardware limit is 2400
     sensor.register_dpihw = 1200;
     sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 20;

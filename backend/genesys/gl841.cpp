@@ -189,8 +189,8 @@ gl841_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x2c, 0x00);
     dev->reg.init_reg(0x2d, 0x00);
     if (dev->model->model_id == ModelId::CANON_LIDE_80) {
-        dev->reg.init_reg(0x2c, sensor.optical_res >> 8);
-        dev->reg.init_reg(0x2d, sensor.optical_res & 0xff);
+        dev->reg.init_reg(0x2c, sensor.full_resolution >> 8);
+        dev->reg.init_reg(0x2d, sensor.full_resolution & 0xff);
     }
     dev->reg.init_reg(0x2e, 0x80);
     dev->reg.init_reg(0x2f, 0x80);
@@ -2160,7 +2160,7 @@ void CommandSetGl841::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     }
 
     ScanSession session;
-    session.params.xres = sensor.optical_res;
+    session.params.xres = sensor.full_resolution;
     session.params.yres = dev->settings.yres;
     session.params.startx = sensor.dummy_pixel;
     session.params.starty = 0;

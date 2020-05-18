@@ -367,7 +367,7 @@ gl124_init_registers (Genesys_Device * dev)
 
     // fine tune upon device description
     const auto& sensor = sanei_genesys_find_sensor_any(dev);
-    const auto& dpihw_sensor = sanei_genesys_find_sensor(dev, sensor.optical_res,
+    const auto& dpihw_sensor = sanei_genesys_find_sensor(dev, sensor.full_resolution,
                                                          3, ScanMethod::FLATBED);
     sanei_genesys_set_dpihw(dev->reg, dpihw_sensor.register_dpihw);
 }
@@ -528,7 +528,7 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
         r02 |= REG_0x02_AGOHOME;
     }
 
-    if (has_flag(flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE) || (yres >= sensor.optical_res))
+    if (has_flag(flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE) || (yres >= sensor.full_resolution))
     {
         r02 |= REG_0x02_ACDCDIS;
     }
@@ -1230,11 +1230,11 @@ void CommandSetGl124::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     }
 
     ScanSession session;
-    session.params.xres = sensor.optical_res;
+    session.params.xres = sensor.full_resolution;
     session.params.yres = dev->motor.base_ydpi;
-    session.params.startx = dev->model->x_size_calib_mm * sensor.optical_res / MM_PER_INCH / 4;
+    session.params.startx = dev->model->x_size_calib_mm * sensor.full_resolution / MM_PER_INCH / 4;
     session.params.starty = 0;
-    session.params.pixels = dev->model->x_size_calib_mm * sensor.optical_res / MM_PER_INCH / 2;
+    session.params.pixels = dev->model->x_size_calib_mm * sensor.full_resolution / MM_PER_INCH / 2;
     session.params.lines = 1;
     session.params.depth = dev->model->bpp_color_values.front();
     session.params.channels = 3;

@@ -198,7 +198,7 @@ void genesys_deskew(Genesys_Scanner *s, const Genesys_Sensor& sensor)
       bg=0xff;
     }
     TIE(sanei_magic_findSkew(&s->params, dev->img_buffer.data(),
-                             sensor.optical_res, sensor.optical_res,
+                             sensor.full_resolution, sensor.full_resolution,
                              &x, &y, &slope));
 
     DBG(DBG_info, "%s: slope=%f => %f\n", __func__, slope, slope * 180 / M_PI);

@@ -645,7 +645,6 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
     unsigned int feedl;
     unsigned int min_restep = 0x20;
 
-
 /*
   we calculate both tables for SCAN. the fast slope step count depends on
   how many steps we need for slow acceleration and how much steps we are
@@ -656,9 +655,6 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
     if (fast_profile == nullptr) {
         fast_profile = &motor_profile;
     }
-
-    unsigned fast_exposure = gl841_exposure_time(dev, sensor, *fast_profile,
-                                                dev->motor.base_ydpi / 4, 0, 0);
 
     auto slow_table = create_slope_table(dev->model->asic_type, dev->motor, scan_yres,
                                          scan_exposure_time, step_multiplier, motor_profile);
@@ -704,7 +700,7 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
 /*NOTE: fast_exposure is per base_ydpi/4*/
 /*we use full steps as base unit here*/
 	fast_time =
-	    fast_exposure / 4 *
+        (fast_table.table.back() << static_cast<unsigned>(fast_profile->step_type)) / 4 *
         (feed_steps - fast_table.table.size()*2 -
          (slow_table.table.size() >> static_cast<unsigned>(motor_profile.step_type)))
         + fast_table.pixeltime_sum() * 2 + slow_table.pixeltime_sum();

@@ -1527,7 +1527,9 @@ void CommandSetGl841::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
         dev->interface->write_register(REG_0x6B, val);
     }
 
-    if (dev->model->model_id == ModelId::CANON_LIDE_60) {
+    if (dev->model->model_id == ModelId::CANON_LIDE_50 ||
+        dev->model->model_id == ModelId::CANON_LIDE_60)
+    {
         if (dev->session.params.yres >= 1200) {
             dev->interface->write_register(REG_0x6C, 0x82);
         } else {

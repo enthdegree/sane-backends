@@ -82,10 +82,18 @@ MotorSlope MotorSlope::create_from_steps(unsigned initial_w, unsigned max_w,
 
 void MotorSlopeTable::slice_steps(unsigned count)
 {
-    if (count >= table.size() || count > steps_count) {
-        throw SaneException("Excepssive steps count");
+    if (count > table.size()) {
+        throw SaneException("Excessive steps count");
     }
-    steps_count = count;
+    table.resize(count);
+}
+
+void MotorSlopeTable::expand_table(unsigned count)
+{
+    if (table.empty()) {
+        throw SaneException("Can't expand empty table");
+    }
+    table.resize(table.size() + count, table.back());
 }
 
 unsigned get_slope_table_max_size(AsicType asic_type)
@@ -146,11 +154,6 @@ MotorSlopeTable create_slope_table_for_speed(const MotorSlope& slope, unsigned t
         table.table.push_back(table.table.back());
         table.pixeltime_sum += table.table.back();
     }
-
-    table.steps_count = table.table.size();
-
-    // fill the rest of the table with the final speed
-    table.table.resize(max_size, final_speed);
 
     return table;
 }

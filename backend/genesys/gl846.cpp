@@ -447,13 +447,13 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
     auto scan_table = create_slope_table(dev->model->asic_type, dev->motor, scan_yres,
                                          scan_exposure_time, step_multiplier, motor_profile);
 
-    gl846_send_slope_table(dev, SCAN_TABLE, scan_table.table, scan_table.steps_count);
-    gl846_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table, scan_table.steps_count);
-    gl846_send_slope_table(dev, STOP_TABLE, scan_table.table, scan_table.steps_count);
+    gl846_send_slope_table(dev, SCAN_TABLE, scan_table.table, scan_table.table.size());
+    gl846_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table, scan_table.table.size());
+    gl846_send_slope_table(dev, STOP_TABLE, scan_table.table, scan_table.table.size());
 
-    reg->set8(REG_STEPNO, scan_table.steps_count / step_multiplier);
-    reg->set8(REG_FASTNO, scan_table.steps_count / step_multiplier);
-    reg->set8(REG_FSHDEC, scan_table.steps_count / step_multiplier);
+    reg->set8(REG_STEPNO, scan_table.table.size() / step_multiplier);
+    reg->set8(REG_FASTNO, scan_table.table.size() / step_multiplier);
+    reg->set8(REG_FSHDEC, scan_table.table.size() / step_multiplier);
 
     // fast table
     const auto* fast_profile = get_motor_profile_ptr(dev->motor.fast_profiles, 0, session);
@@ -464,11 +464,11 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
     auto fast_table = create_slope_table_fastest(dev->model->asic_type, step_multiplier,
                                                  *fast_profile);
 
-    gl846_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.steps_count);
-    gl846_send_slope_table(dev, HOME_TABLE, fast_table.table, fast_table.steps_count);
+    gl846_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.table.size());
+    gl846_send_slope_table(dev, HOME_TABLE, fast_table.table, fast_table.table.size());
 
-    reg->set8(REG_FMOVNO, fast_table.steps_count / step_multiplier);
-    reg->set8(REG_FMOVDEC, fast_table.steps_count / step_multiplier);
+    reg->set8(REG_FMOVNO, fast_table.table.size() / step_multiplier);
+    reg->set8(REG_FMOVDEC, fast_table.table.size() / step_multiplier);
 
     if (motor_profile.motor_vref != -1 && fast_profile->motor_vref != 1) {
         std::uint8_t vref = 0;
@@ -483,13 +483,13 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
     unsigned dist = 0;
     if (use_fast_fed) {
         feedl <<= static_cast<unsigned>(fast_profile->step_type);
-        dist = (scan_table.steps_count + 2 * fast_table.steps_count);
+        dist = (scan_table.table.size() + 2 * fast_table.table.size());
         // TODO read and decode REG_0xAB
         dist += (reg->get8(0x5e) & 31);
         dist += reg->get8(REG_FEDCNT);
     } else {
         feedl <<= static_cast<unsigned>(motor_profile.step_type);
-        dist = scan_table.steps_count;
+        dist = scan_table.table.size();
         if (has_flag(flags, ScanFlag::FEEDING)) {
             dist *= 2;
         }
@@ -539,7 +539,7 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
     dev->interface->write_register(REG_0x6C, val);
   */
 
-    unsigned min_restep = (scan_table.steps_count / step_multiplier) / 2 - 1;
+    unsigned min_restep = (scan_table.table.size() / step_multiplier) / 2 - 1;
     if (min_restep < 1) {
         min_restep = 1;
     }
@@ -551,7 +551,7 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
     sanei_genesys_calculate_zmod(use_fast_fed,
                                  scan_exposure_time * ccdlmt * tgtime,
                                  scan_table.table,
-                                 scan_table.steps_count,
+                                 scan_table.table.size(),
                                  feedl,
                                  min_restep * step_multiplier,
                                  &z1,

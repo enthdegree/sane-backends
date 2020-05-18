@@ -339,8 +339,8 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
     // scan and backtracking slope table
     auto scan_table = create_slope_table(dev->model->asic_type, dev->motor, scan_yres,
                                          scan_exposure_time, step_multiplier, motor_profile);
-    gl847_send_slope_table(dev, SCAN_TABLE, scan_table.table, scan_table.steps_count);
-    gl847_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table, scan_table.steps_count);
+    gl847_send_slope_table(dev, SCAN_TABLE, scan_table.table, scan_table.table.size());
+    gl847_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table, scan_table.table.size());
 
     // fast table
     unsigned fast_dpi = sanei_genesys_get_lowest_ydpi(dev);
@@ -357,9 +357,9 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
     auto fast_table = create_slope_table(dev->model->asic_type, dev->motor, fast_dpi,
                                          scan_exposure_time, step_multiplier, fast_motor_profile);
 
-    gl847_send_slope_table(dev, STOP_TABLE, fast_table.table, fast_table.steps_count);
-    gl847_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.steps_count);
-    gl847_send_slope_table(dev, HOME_TABLE, fast_table.table, fast_table.steps_count);
+    gl847_send_slope_table(dev, STOP_TABLE, fast_table.table, fast_table.table.size());
+    gl847_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.table.size());
+    gl847_send_slope_table(dev, HOME_TABLE, fast_table.table, fast_table.table.size());
 
     // correct move distance by acceleration and deceleration amounts
     unsigned feedl = feed_steps;
@@ -367,13 +367,13 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
     if (use_fast_fed)
     {
         feedl <<= static_cast<unsigned>(fast_step_type);
-        dist = (scan_table.steps_count + 2 * fast_table.steps_count);
+        dist = (scan_table.table.size() + 2 * fast_table.table.size());
         // TODO read and decode REG_0xAB
         dist += (reg->get8(0x5e) & 31);
         dist += reg->get8(REG_FEDCNT);
     } else {
         feedl <<= static_cast<unsigned>(motor_profile.step_type);
-        dist = scan_table.steps_count;
+        dist = scan_table.table.size();
         if (has_flag(flags, ScanFlag::FEEDING)) {
             dist *= 2;
         }
@@ -410,7 +410,7 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
     val = effective | REG_0x6C_GPIO10;
     dev->interface->write_register(REG_0x6C, val);
 
-    unsigned min_restep = scan_table.steps_count / (2 * step_multiplier) - 1;
+    unsigned min_restep = scan_table.table.size() / (2 * step_multiplier) - 1;
     if (min_restep < 1) {
         min_restep = 1;
     }
@@ -422,7 +422,7 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
     sanei_genesys_calculate_zmod(use_fast_fed,
                                  scan_exposure_time * ccdlmt * tgtime,
                                  scan_table.table,
-                                 scan_table.steps_count,
+                                 scan_table.table.size(),
                                  feedl,
                                  min_restep * step_multiplier,
                                  &z1,
@@ -436,11 +436,11 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
     reg->set8(REG_0x67, REG_0x67_MTRPWM);
     reg->set8(REG_0x68, REG_0x68_FASTPWM);
 
-    reg->set8(REG_STEPNO, scan_table.steps_count / step_multiplier);
-    reg->set8(REG_FASTNO, scan_table.steps_count / step_multiplier);
-    reg->set8(REG_FSHDEC, scan_table.steps_count / step_multiplier);
-    reg->set8(REG_FMOVNO, fast_table.steps_count / step_multiplier);
-    reg->set8(REG_FMOVDEC, fast_table.steps_count / step_multiplier);
+    reg->set8(REG_STEPNO, scan_table.table.size() / step_multiplier);
+    reg->set8(REG_FASTNO, scan_table.table.size() / step_multiplier);
+    reg->set8(REG_FSHDEC, scan_table.table.size() / step_multiplier);
+    reg->set8(REG_FMOVNO, fast_table.table.size() / step_multiplier);
+    reg->set8(REG_FMOVDEC, fast_table.table.size() / step_multiplier);
 }
 
 

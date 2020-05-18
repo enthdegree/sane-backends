@@ -605,7 +605,7 @@ static void gl841_init_motor_regs_feed(Genesys_Device* dev, const Genesys_Sensor
                                                         StepType::FULL, fast_exposure,
                                                         dev->motor.base_ydpi / 4);
 
-    feedl = feed_steps - fast_table.steps_count * 2;
+    feedl = feed_steps - fast_table.table.size() * 2;
     use_fast_fed = 1;
 
     reg->set8(0x3d, (feedl >> 16) & 0xf);
@@ -641,15 +641,15 @@ static void gl841_init_motor_regs_feed(Genesys_Device* dev, const Genesys_Sensor
         reg->find_reg(0x02).value &= ~REG_0x02_MTRREV;
     }
 
-    gl841_send_slope_table(dev, sensor, 3, fast_table.table, fast_table.steps_count);
+    gl841_send_slope_table(dev, sensor, 3, fast_table.table, fast_table.table.size());
 
     reg->set8(0x67, 0x3f);
     reg->set8(0x68, 0x3f);
     reg->set8(REG_STEPNO, 0);
     reg->set8(REG_FASTNO, 0);
     reg->set8(0x69, 0);
-    reg->set8(0x6a, (fast_table.steps_count >> 1) + (fast_table.steps_count & 1));
-    reg->set8(0x5f, (fast_table.steps_count >> 1) + (fast_table.steps_count & 1));
+    reg->set8(0x6a, (fast_table.table.size() >> 1) + (fast_table.table.size() & 1));
+    reg->set8(0x5f, (fast_table.table.size() >> 1) + (fast_table.table.size() & 1));
 }
 
 static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
@@ -708,9 +708,9 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
     auto back_table = sanei_genesys_create_slope_table3(dev->model->asic_type, dev->motor,
                                                         motor_profile.step_type, 0, scan_yres);
 
-    if (feed_steps < (slow_table.steps_count >> static_cast<unsigned>(motor_profile.step_type))) {
+    if (feed_steps < (slow_table.table.size() >> static_cast<unsigned>(motor_profile.step_type))) {
 	/*TODO: what should we do here?? go back to exposure calculation?*/
-        feed_steps = slow_table.steps_count >> static_cast<unsigned>(motor_profile.step_type);
+        feed_steps = slow_table.table.size() >> static_cast<unsigned>(motor_profile.step_type);
     }
 
     auto fast_table = sanei_genesys_create_slope_table3(dev->model->asic_type, dev->motor,
@@ -718,12 +718,12 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
                                                         dev->motor.base_ydpi / 4);
 
     unsigned max_fast_slope_steps_count = 1;
-    if (feed_steps > (slow_table.steps_count >> static_cast<unsigned>(motor_profile.step_type)) + 2) {
+    if (feed_steps > (slow_table.table.size() >> static_cast<unsigned>(motor_profile.step_type)) + 2) {
         max_fast_slope_steps_count = (feed_steps -
-            (slow_table.steps_count >> static_cast<unsigned>(motor_profile.step_type))) / 2;
+            (slow_table.table.size() >> static_cast<unsigned>(motor_profile.step_type))) / 2;
     }
 
-    if (fast_table.steps_count > max_fast_slope_steps_count) {
+    if (fast_table.table.size() > max_fast_slope_steps_count) {
         fast_table.slice_steps(max_fast_slope_steps_count);
     }
 
@@ -735,8 +735,8 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
 	   2-feed mode */
 	use_fast_fed = 0;
       }
-    else if (feed_steps < fast_table.steps_count * 2 +
-             (slow_table.steps_count >> static_cast<unsigned>(motor_profile.step_type)))
+    else if (feed_steps < fast_table.table.size() * 2 +
+             (slow_table.table.size() >> static_cast<unsigned>(motor_profile.step_type)))
     {
         use_fast_fed = 0;
         DBG(DBG_info, "%s: feed too short, slow move forced.\n", __func__);
@@ -751,24 +751,24 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
 /*we use full steps as base unit here*/
 	fast_time =
 	    fast_exposure / 4 *
-        (feed_steps - fast_table.steps_count*2 -
-         (slow_table.steps_count >> static_cast<unsigned>(motor_profile.step_type)))
+        (feed_steps - fast_table.table.size()*2 -
+         (slow_table.table.size() >> static_cast<unsigned>(motor_profile.step_type)))
         + fast_table.pixeltime_sum*2 + slow_table.pixeltime_sum;
 	slow_time =
 	    (scan_exposure_time * scan_yres) / dev->motor.base_ydpi *
-        (feed_steps - (slow_table.steps_count >> static_cast<unsigned>(motor_profile.step_type)))
+        (feed_steps - (slow_table.table.size() >> static_cast<unsigned>(motor_profile.step_type)))
         + slow_table.pixeltime_sum;
 
         use_fast_fed = fast_time < slow_time;
     }
 
     if (use_fast_fed) {
-        feedl = feed_steps - fast_table.steps_count * 2 -
-                (slow_table.steps_count >> static_cast<unsigned>(motor_profile.step_type));
-    } else if ((feed_steps << static_cast<unsigned>(motor_profile.step_type)) < slow_table.steps_count) {
+        feedl = feed_steps - fast_table.table.size() * 2 -
+                (slow_table.table.size() >> static_cast<unsigned>(motor_profile.step_type));
+    } else if ((feed_steps << static_cast<unsigned>(motor_profile.step_type)) < slow_table.table.size()) {
         feedl = 0;
     } else {
-        feedl = (feed_steps << static_cast<unsigned>(motor_profile.step_type)) - slow_table.steps_count;
+        feedl = (feed_steps << static_cast<unsigned>(motor_profile.step_type)) - slow_table.table.size();
     }
     DBG(DBG_info, "%s: Decided to use %s mode\n", __func__, use_fast_fed?"fast feed":"slow feed");
 
@@ -803,16 +803,16 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
         reg->find_reg(0x02).value &= ~0x40;
     }
 
-    gl841_send_slope_table(dev, sensor, 0, slow_table.table, slow_table.steps_count);
-    gl841_send_slope_table(dev, sensor, 1, back_table.table, back_table.steps_count);
-    gl841_send_slope_table(dev, sensor, 2, slow_table.table, slow_table.steps_count);
+    gl841_send_slope_table(dev, sensor, 0, slow_table.table, slow_table.table.size());
+    gl841_send_slope_table(dev, sensor, 1, back_table.table, back_table.table.size());
+    gl841_send_slope_table(dev, sensor, 2, slow_table.table, slow_table.table.size());
 
     if (use_fast_fed) {
-        gl841_send_slope_table(dev, sensor, 3, fast_table.table, fast_table.steps_count);
+        gl841_send_slope_table(dev, sensor, 3, fast_table.table, fast_table.table.size());
     }
 
     if (has_flag(flags, ScanFlag::AUTO_GO_HOME)) {
-        gl841_send_slope_table(dev, sensor, 4, fast_table.table, fast_table.steps_count);
+        gl841_send_slope_table(dev, sensor, 4, fast_table.table, fast_table.table.size());
     }
 
 /* now reg 0x21 and 0x24 are available, we can calculate reg 0x22 and 0x23,
@@ -821,18 +821,18 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
    2*STEPNO+FWDSTEP=2*FASTNO+BWDSTEP
 */
 /* steps of table 0*/
-    if (min_restep < slow_table.steps_count * 2 + 2) {
-        min_restep = slow_table.steps_count * 2 + 2;
+    if (min_restep < slow_table.table.size() * 2 + 2) {
+        min_restep = slow_table.table.size() * 2 + 2;
     }
 /* steps of table 1*/
-    if (min_restep < back_table.steps_count * 2 + 2) {
-        min_restep = back_table.steps_count * 2 + 2;
+    if (min_restep < back_table.table.size() * 2 + 2) {
+        min_restep = back_table.table.size() * 2 + 2;
     }
 /* steps of table 0*/
-    reg->set8(REG_FWDSTEP, min_restep - slow_table.steps_count*2);
+    reg->set8(REG_FWDSTEP, min_restep - slow_table.table.size()*2);
 
 /* steps of table 1*/
-    reg->set8(REG_BWDSTEP, min_restep - back_table.steps_count*2);
+    reg->set8(REG_BWDSTEP, min_restep - back_table.table.size()*2);
 
 /*
   for z1/z2:
@@ -855,11 +855,11 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
     reg->find_reg(REG_0x1E).value |= scan_dummy;
     reg->set8(0x67, 0x3f | (static_cast<unsigned>(motor_profile.step_type) << 6));
     reg->set8(0x68, 0x3f);
-    reg->set8(REG_STEPNO, (slow_table.steps_count >> 1) + (slow_table.steps_count & 1));
-    reg->set8(REG_FASTNO, (back_table.steps_count >> 1) + (back_table.steps_count & 1));
-    reg->set8(0x69, (slow_table.steps_count >> 1) + (slow_table.steps_count & 1));
-    reg->set8(0x6a, (fast_table.steps_count >> 1) + (fast_table.steps_count & 1));
-    reg->set8(0x5f, (fast_table.steps_count >> 1) + (fast_table.steps_count & 1));
+    reg->set8(REG_STEPNO, (slow_table.table.size() >> 1) + (slow_table.table.size() & 1));
+    reg->set8(REG_FASTNO, (back_table.table.size() >> 1) + (back_table.table.size() & 1));
+    reg->set8(0x69, (slow_table.table.size() >> 1) + (slow_table.table.size() & 1));
+    reg->set8(0x6a, (fast_table.table.size() >> 1) + (fast_table.table.size() & 1));
+    reg->set8(0x5f, (fast_table.table.size() >> 1) + (fast_table.table.size() & 1));
 }
 
 static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,

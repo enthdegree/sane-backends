@@ -772,13 +772,13 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     auto scan_table = create_slope_table(dev->model->asic_type, dev->motor, scan_yres, exposure,
                                          step_multiplier, motor_profile);
 
-    gl843_send_slope_table(dev, SCAN_TABLE, scan_table.table, scan_table.steps_count);
-    gl843_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table, scan_table.steps_count);
-    gl843_send_slope_table(dev, STOP_TABLE, scan_table.table, scan_table.steps_count);
+    gl843_send_slope_table(dev, SCAN_TABLE, scan_table.table, scan_table.table.size());
+    gl843_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table, scan_table.table.size());
+    gl843_send_slope_table(dev, STOP_TABLE, scan_table.table, scan_table.table.size());
 
-    reg->set8(REG_STEPNO, scan_table.steps_count / step_multiplier);
-    reg->set8(REG_FASTNO, scan_table.steps_count / step_multiplier);
-    reg->set8(REG_FSHDEC, scan_table.steps_count / step_multiplier);
+    reg->set8(REG_STEPNO, scan_table.table.size() / step_multiplier);
+    reg->set8(REG_FASTNO, scan_table.table.size() / step_multiplier);
+    reg->set8(REG_FSHDEC, scan_table.table.size() / step_multiplier);
 
     // fast table
     const auto* fast_profile = get_motor_profile_ptr(dev->motor.fast_profiles, 0, session);
@@ -789,10 +789,10 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     auto fast_table = create_slope_table_fastest(dev->model->asic_type, step_multiplier,
                                                  *fast_profile);
 
-    gl843_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.steps_count);
-    gl843_send_slope_table(dev, HOME_TABLE, fast_table.table, fast_table.steps_count);
+    gl843_send_slope_table(dev, FAST_TABLE, fast_table.table, fast_table.table.size());
+    gl843_send_slope_table(dev, HOME_TABLE, fast_table.table, fast_table.table.size());
 
-    reg->set8(REG_FMOVNO, fast_table.steps_count / step_multiplier);
+    reg->set8(REG_FMOVNO, fast_table.table.size() / step_multiplier);
 
     if (motor_profile.motor_vref != -1 && fast_profile->motor_vref != 1) {
         std::uint8_t vref = 0;
@@ -807,10 +807,10 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
   feedl=feed_steps;
     feedl <<= static_cast<unsigned>(motor_profile.step_type);
 
-    dist = scan_table.steps_count / step_multiplier;
+    dist = scan_table.table.size() / step_multiplier;
 
     if (use_fast_fed) {
-        dist += (fast_table.steps_count / step_multiplier) * 2;
+        dist += (fast_table.table.size() / step_multiplier) * 2;
     }
 
   /* get sure when don't insane value : XXX STEF XXX in this case we should
@@ -828,9 +828,9 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     sanei_genesys_calculate_zmod(use_fast_fed,
                                  exposure,
                                  scan_table.table,
-                                 scan_table.steps_count / step_multiplier,
+                                 scan_table.table.size() / step_multiplier,
                                  feedl,
-                                 scan_table.steps_count / step_multiplier,
+                                 scan_table.table.size() / step_multiplier,
                                   &z1,
                                   &z2);
   if(scan_yres>600)
@@ -848,7 +848,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     reg->set8_mask(REG_0x68, static_cast<unsigned>(fast_profile->step_type) << REG_0x68S_FSTPSEL, 0xc0);
 
     // steps for STOP table
-    reg->set8(REG_FMOVDEC, fast_table.steps_count / step_multiplier);
+    reg->set8(REG_FMOVDEC, fast_table.table.size() / step_multiplier);
 
     if (dev->model->model_id == ModelId::PANASONIC_KV_SS080 ||
         dev->model->model_id == ModelId::HP_SCANJET_4850C ||

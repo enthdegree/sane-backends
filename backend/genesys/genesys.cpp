@@ -617,7 +617,7 @@ void scanner_send_slope_table(Genesys_Device* dev, const Genesys_Sensor& sensor,
                 throw SaneException("Unexpected dpihw");
             }
             dev->interface->write_buffer(0x3c, start_address + table_nr * 0x100, table.data(),
-                                         slope_table.size() * 2);
+                                         table.size());
             break;
         }
         case AsicType::GL841: {
@@ -629,7 +629,7 @@ void scanner_send_slope_table(Genesys_Device* dev, const Genesys_Sensor& sensor,
                 default: throw SaneException("Unexpected dpihw");
             }
             dev->interface->write_buffer(0x3c, start_address + table_nr * 0x200, table.data(),
-                                         slope_table.size() * 2);
+                                         table.size());
             break;
         }
         case AsicType::GL842: {
@@ -637,10 +637,10 @@ void scanner_send_slope_table(Genesys_Device* dev, const Genesys_Sensor& sensor,
             // XXX STEF XXX USB 1.1 ? sanei_genesys_write_0x8c (dev, 0x0f, 0x14);
             if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200) {
                 dev->interface->write_buffer(0x3c, 0x010000 + 0x200 * table_nr, table.data(),
-                                             slope_table.size() * 2);
+                                             table.size());
             } else {
                 dev->interface->write_gamma(0x28,  0x40000 + 0x8000 * table_nr, table.data(),
-                                            slope_table.size() * 2);
+                                            table.size());
             }
             break;
         }
@@ -648,7 +648,7 @@ void scanner_send_slope_table(Genesys_Device* dev, const Genesys_Sensor& sensor,
             // slope table addresses are fixed : 0x40000,  0x48000,  0x50000,  0x58000,  0x60000
             // XXX STEF XXX USB 1.1 ? sanei_genesys_write_0x8c (dev, 0x0f, 0x14);
             dev->interface->write_gamma(0x28,  0x40000 + 0x8000 * table_nr, table.data(),
-                                        slope_table.size() * 2);
+                                        table.size());
             break;
         }
         case AsicType::GL845:
@@ -656,7 +656,7 @@ void scanner_send_slope_table(Genesys_Device* dev, const Genesys_Sensor& sensor,
         case AsicType::GL847:
         case AsicType::GL124: {
             // slope table addresses are fixed
-            dev->interface->write_ahb(0x10000000 + 0x4000 * table_nr, slope_table.size() * 2,
+            dev->interface->write_ahb(0x10000000 + 0x4000 * table_nr, table.size(),
                                       table.data());
             break;
         }

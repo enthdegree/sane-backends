@@ -372,38 +372,6 @@ gl124_init_registers (Genesys_Device * dev)
     sanei_genesys_set_dpihw(dev->reg, dpihw_sensor.register_dpihw);
 }
 
-/**@brief send slope table for motor movement
- * Send slope_table in machine byte order
- * @param dev device to send slope table
- * @param table_nr index of the slope table in ASIC memory
- * Must be in the [0-4] range.
- * @param slope_table pointer to 16 bit values array of the slope table
- * @param steps number of elemnts in the slope table
- */
-static void gl124_send_slope_table(Genesys_Device* dev, int table_nr,
-                                   const std::vector<uint16_t>& slope_table)
-{
-    DBG_HELPER_ARGS(dbg, "table_nr = %d, steps = %zu", table_nr, slope_table.size());
-
-  /* sanity check */
-  if(table_nr<0 || table_nr>4)
-    {
-        throw SaneException("invalid table number");
-    }
-
-    std::vector<uint8_t> table(slope_table.size() * 2);
-    for (std::size_t i = 0; i < slope_table.size(); i++) {
-        table[i * 2] = slope_table[i] & 0xff;
-        table[i * 2 + 1] = slope_table[i] >> 8;
-    }
-
-    if (dev->interface->is_mock()) {
-        dev->interface->record_slope_table(table_nr, slope_table);
-    }
-    // slope table addresses are fixed
-    dev->interface->write_ahb(0x10000000 + 0x4000 * table_nr, slope_table.size() * 2, table.data());
-}
-
 /** @brief * Set register values of 'special' ti type frontend
  * Registers value are taken from the frontend register data
  * set.
@@ -576,8 +544,8 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
   /* scan and backtracking slope table */
     auto scan_table = create_slope_table(dev->model->asic_type, dev->motor, yres,
                                          scan_exposure_time, 1, motor_profile);
-    gl124_send_slope_table(dev, SCAN_TABLE, scan_table.table);
-    gl124_send_slope_table(dev, BACKTRACK_TABLE, scan_table.table);
+    scanner_send_slope_table(dev, sensor, SCAN_TABLE, scan_table.table);
+    scanner_send_slope_table(dev, sensor, BACKTRACK_TABLE, scan_table.table);
 
     reg->set16(REG_STEPNO, scan_table.table.size());
 
@@ -592,8 +560,8 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
     */
     auto fast_table = create_slope_table(dev->model->asic_type, dev->motor, fast_dpi,
                                          scan_exposure_time, 1, motor_profile);
-    gl124_send_slope_table(dev, STOP_TABLE, fast_table.table);
-    gl124_send_slope_table(dev, FAST_TABLE, fast_table.table);
+    scanner_send_slope_table(dev, sensor, STOP_TABLE, fast_table.table);
+    scanner_send_slope_table(dev, sensor, FAST_TABLE, fast_table.table);
 
     reg->set16(REG_FASTNO, fast_table.table.size());
     reg->set16(REG_FSHDEC, fast_table.table.size());

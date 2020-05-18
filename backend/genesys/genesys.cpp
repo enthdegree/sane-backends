@@ -591,6 +591,108 @@ void scanner_clear_scan_and_feed_counts(Genesys_Device& dev)
     }
 }
 
+void scanner_send_slope_table(Genesys_Device* dev, const Genesys_Sensor& sensor, unsigned table_nr,
+                              const std::vector<uint16_t>& slope_table)
+{
+    DBG_HELPER_ARGS(dbg, "table_nr = %d, steps = %zu", table_nr, slope_table.size());
+
+    unsigned max_table_nr = 0;
+    switch (dev->model->asic_type) {
+        case AsicType::GL646: {
+            max_table_nr = 2;
+            break;
+        }
+        case AsicType::GL841:
+        case AsicType::GL842:
+        case AsicType::GL843:
+        case AsicType::GL845:
+        case AsicType::GL846:
+        case AsicType::GL847:
+        case AsicType::GL124: {
+            max_table_nr = 4;
+            break;
+        }
+        default:
+            throw SaneException("Unsupported ASIC type");
+    }
+
+    if (table_nr > max_table_nr) {
+        throw SaneException("invalid table number %d", table_nr);
+    }
+
+    std::vector<uint8_t> table(slope_table.size() * 2);
+    for (std::size_t i = 0; i < slope_table.size(); i++) {
+        table[i * 2] = slope_table[i] & 0xff;
+        table[i * 2 + 1] = slope_table[i] >> 8;
+    }
+
+    if (dev->interface->is_mock()) {
+        dev->interface->record_slope_table(table_nr, slope_table);
+    }
+
+    switch (dev->model->asic_type) {
+        case AsicType::GL646: {
+            unsigned dpihw = dev->reg.find_reg(0x05).value >> 6;
+            unsigned start_address = 0;
+            if (dpihw == 0) { // 600 dpi
+                start_address = 0x08000;
+            } else if (dpihw == 1) { // 1200 dpi
+                start_address = 0x10000;
+            } else if (dpihw == 2) { // 2400 dpi
+                start_address = 0x1f800;
+            } else {
+                throw SaneException("Unexpected dpihw");
+            }
+            dev->interface->write_buffer(0x3c, start_address + table_nr * 0x100, table.data(),
+                                         slope_table.size() * 2);
+            break;
+        }
+        case AsicType::GL841: {
+            unsigned start_address = 0;
+            switch (sensor.register_dpihw) {
+                case 600: start_address = 0x08000; break;
+                case 1200: start_address = 0x10000; break;
+                case 2400: start_address = 0x20000; break;
+                default: throw SaneException("Unexpected dpihw");
+            }
+            dev->interface->write_buffer(0x3c, start_address + table_nr * 0x200, table.data(),
+                                         slope_table.size() * 2);
+            break;
+        }
+        case AsicType::GL842: {
+            // slope table addresses are fixed : 0x40000,  0x48000,  0x50000,  0x58000,  0x60000
+            // XXX STEF XXX USB 1.1 ? sanei_genesys_write_0x8c (dev, 0x0f, 0x14);
+            if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200) {
+                dev->interface->write_buffer(0x3c, 0x010000 + 0x200 * table_nr, table.data(),
+                                             slope_table.size() * 2);
+            } else {
+                dev->interface->write_gamma(0x28,  0x40000 + 0x8000 * table_nr, table.data(),
+                                            slope_table.size() * 2);
+            }
+            break;
+        }
+        case AsicType::GL843: {
+            // slope table addresses are fixed : 0x40000,  0x48000,  0x50000,  0x58000,  0x60000
+            // XXX STEF XXX USB 1.1 ? sanei_genesys_write_0x8c (dev, 0x0f, 0x14);
+            dev->interface->write_gamma(0x28,  0x40000 + 0x8000 * table_nr, table.data(),
+                                        slope_table.size() * 2);
+            break;
+        }
+        case AsicType::GL845:
+        case AsicType::GL846:
+        case AsicType::GL847:
+        case AsicType::GL124: {
+            // slope table addresses are fixed
+            dev->interface->write_ahb(0x10000000 + 0x4000 * table_nr, slope_table.size() * 2,
+                                      table.data());
+            break;
+        }
+        default:
+            throw SaneException("Unsupported ASIC type");
+    }
+
+}
+
 bool scanner_is_motor_stopped(Genesys_Device& dev)
 {
     switch (dev.model->asic_type) {

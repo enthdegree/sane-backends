@@ -327,6 +327,9 @@ SensorExposure scanner_led_calibration(Genesys_Device& dev, const Genesys_Sensor
 
 void scanner_clear_scan_and_feed_counts(Genesys_Device& dev);
 
+void scanner_send_slope_table(Genesys_Device* dev, const Genesys_Sensor& sensor, unsigned table_nr,
+                              const std::vector<uint16_t>& slope_table);
+
 extern void sanei_genesys_write_file(const char* filename, const std::uint8_t* data,
                                      std::size_t length);
 

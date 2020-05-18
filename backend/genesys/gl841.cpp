@@ -485,12 +485,12 @@ static void gl841_init_motor_regs_off(Genesys_Register_Set* reg, unsigned int sc
     reg->set8(0x67, 0x3f);
     reg->set8(0x68, 0x3f);
 
-    reg->set8(REG_STEPNO, 0);
-    reg->set8(REG_FASTNO, 0);
+    reg->set8(REG_STEPNO, 1);
+    reg->set8(REG_FASTNO, 1);
 
-    reg->set8(0x69, 0);
-    reg->set8(0x6a, 0);
-    reg->set8(0x5f, 0);
+    reg->set8(0x69, 1);
+    reg->set8(0x6a, 1);
+    reg->set8(0x5f, 1);
 }
 
 /** @brief write motor table frequency
@@ -610,9 +610,9 @@ static void gl841_init_motor_regs_feed(Genesys_Device* dev, const Genesys_Sensor
 
     reg->set8(0x67, 0x3f);
     reg->set8(0x68, 0x3f);
-    reg->set8(REG_STEPNO, 0);
-    reg->set8(REG_FASTNO, 0);
-    reg->set8(0x69, 0);
+    reg->set8(REG_STEPNO, 1);
+    reg->set8(REG_FASTNO, 1);
+    reg->set8(0x69, 1);
     reg->set8(0x6a, fast_table.table.size() / step_multiplier);
     reg->set8(0x5f, fast_table.table.size() / step_multiplier);
 }

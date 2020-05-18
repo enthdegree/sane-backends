@@ -210,7 +210,7 @@ gl847_init_registers (Genesys_Device * dev)
     }
 
     const auto& sensor = sanei_genesys_find_sensor_any(dev);
-    const auto& dpihw_sensor = sanei_genesys_find_sensor(dev, sensor.optical_res,
+    const auto& dpihw_sensor = sanei_genesys_find_sensor(dev, sensor.full_resolution,
                                                          3, ScanMethod::FLATBED);
     sanei_genesys_set_dpihw(dev->reg, dpihw_sensor.register_dpihw);
 }
@@ -291,7 +291,7 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
         reg02 |= REG_0x02_AGOHOME | REG_0x02_NOTHOME;
     }
 
-    if (has_flag(flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE) || (scan_yres >= sensor.optical_res)) {
+    if (has_flag(flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE) || (scan_yres >= sensor.full_resolution)) {
         reg02 |= REG_0x02_ACDCDIS;
     }
     if (has_flag(flags, ScanFlag::REVERSE)) {
@@ -779,7 +779,7 @@ void CommandSetGl847::send_shading_data(Genesys_Device* dev, const Genesys_Senso
 
     // we're using SHDAREA, thus we only need to upload part of the line
     unsigned offset = dev->session.pixel_count_ratio.apply(
-                dev->session.params.startx * sensor.optical_res / dev->session.params.xres);
+                dev->session.params.startx * sensor.full_resolution / dev->session.params.xres);
     unsigned pixels = dev->session.pixel_count_ratio.apply(dev->session.optical_pixels_raw);
 
     // turn pixel value into bytes 2x16 bits words

@@ -121,13 +121,13 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Sensor& sensor)
 {
     out << "Genesys_Sensor{\n"
         << "    sensor_id: " << static_cast<unsigned>(sensor.sensor_id) << '\n'
-        << "    optical_res: " << sensor.optical_res << '\n'
+        << "    full_resolution: " << sensor.full_resolution << '\n'
+        << "    optical_resolution: " << sensor.get_optical_resolution() << '\n'
         << "    resolutions: " << format_indent_braced_list(4, sensor.resolutions) << '\n'
         << "    channels: " << format_vector_unsigned(4, sensor.channels) << '\n'
         << "    method: " << sensor.method << '\n'
         << "    register_dpihw: " << sensor.register_dpihw << '\n'
         << "    register_dpiset: " << sensor.register_dpiset << '\n'
-        << "    ccd_size_divisor: " << sensor.ccd_size_divisor << '\n'
         << "    shading_factor: " << sensor.shading_factor << '\n'
         << "    shading_pixel_offset: " << sensor.shading_pixel_offset << '\n'
         << "    pixel_count_ratio: " << sensor.pixel_count_ratio << '\n'

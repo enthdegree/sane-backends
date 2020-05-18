@@ -123,7 +123,7 @@ gl843_init_registers (Genesys_Device * dev)
         initial_scan_method = ScanMethod::TRANSPARENCY;
     }
     const auto& sensor = sanei_genesys_find_sensor_any(dev);
-    const auto& dpihw_sensor = sanei_genesys_find_sensor(dev, sensor.optical_res,
+    const auto& dpihw_sensor = sanei_genesys_find_sensor(dev, sensor.full_resolution,
                                                          3, initial_scan_method);
     sanei_genesys_set_dpihw(dev->reg, dpihw_sensor.register_dpihw);
 
@@ -729,9 +729,9 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     }
 
   /* disable backtracking */
-    if (has_flag(flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE)
-      ||(scan_yres>=2400 && dev->model->model_id != ModelId::CANON_4400F)
-      ||(scan_yres>=sensor.optical_res))
+    if (has_flag(flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE) ||
+        (scan_yres>=2400 && dev->model->model_id != ModelId::CANON_4400F) ||
+        (scan_yres>=sensor.full_resolution))
     {
         reg02 |= REG_0x02_ACDCDIS;
     }
@@ -836,7 +836,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
         // FIXME: take this information from motor struct
         std::uint8_t reg_vref = reg->get8(0x80);
         reg_vref = 0x50;
-        unsigned coeff = sensor.optical_res / scan_yres;
+        unsigned coeff = sensor.full_resolution / scan_yres;
         if (dev->model->motor_id == MotorId::KVSS080) {
             if (coeff >= 1) {
                 reg_vref |= 0x05;
@@ -871,7 +871,6 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
  * @param pixels logical number of pixels to use
  * @param channels number of color channles used (1 or 3)
  * @param depth bit depth of the scan (1, 8 or 16 bits)
- * @param ccd_size_divisor true specifies how much x coordinates must be shrunk
  * @param color_filter to choose the color channel used in gray scans
  * @param flags to drive specific settings such no calibration, XPA use ...
  */
@@ -1006,8 +1005,9 @@ static void gl843_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
   /* MAXWD is expressed in 2 words unit */
   /* nousedspace = (mem_bank_range * 1024 / 256 -1 ) * 4; */
-    // BUG: the division by ccd_size_divisor likely does not make sense
-    reg->set24(REG_MAXWD, (session.output_line_bytes / session.ccd_size_divisor) >> 1);
+    // BUG: the division by optical and full resolution factor likely does not make sense
+    reg->set24(REG_MAXWD, (session.output_line_bytes *
+                           session.optical_resolution / session.full_resolution) >> 1);
     reg->set16(REG_LPERIOD, exposure / tgtime);
     reg->set8(REG_DUMMY, sensor.dummy_pixel);
 }
@@ -1539,7 +1539,7 @@ void CommandSetGl843::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     ScanSession session;
     session.params.xres = resolution;
     session.params.yres = resolution;
-    session.params.startx = (num_pixels / 2) * resolution / calib_sensor.optical_res;
+    session.params.startx = (num_pixels / 2) * resolution / calib_sensor.full_resolution;
     session.params.starty = 0;
     session.params.pixels = num_pixels;
     session.params.lines = 1;

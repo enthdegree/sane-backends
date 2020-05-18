@@ -1498,13 +1498,13 @@ void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& senso
         }
     }
 
-    unsigned target_pixels = dev.model->x_size_calib_mm * sensor.optical_res / MM_PER_INCH;
+    unsigned target_pixels = dev.model->x_size_calib_mm * sensor.full_resolution / MM_PER_INCH;
     unsigned start_pixel = 0;
-    unsigned black_pixels = (sensor.black_pixels * sensor.optical_res) / sensor.optical_res;
+    unsigned black_pixels = (sensor.black_pixels * sensor.full_resolution) / sensor.full_resolution;
 
     unsigned channels = 3;
     unsigned lines = 1;
-    unsigned resolution = sensor.optical_res;
+    unsigned resolution = sensor.full_resolution;
 
     const Genesys_Sensor* calib_sensor = &sensor;
     if (dev.model->asic_type == AsicType::GL843) {
@@ -1514,7 +1514,7 @@ void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& senso
         const auto& dpihw_sensor = sanei_genesys_find_sensor(&dev, dev.settings.xres, channels,
                                                              dev.settings.scan_method);
         resolution = dpihw_sensor.shading_resolution;
-        unsigned factor = sensor.optical_res / resolution;
+        unsigned factor = sensor.full_resolution / resolution;
 
         calib_sensor = &sanei_genesys_find_sensor(&dev, resolution, channels,
                                                   dev.settings.scan_method);
@@ -1524,12 +1524,10 @@ void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& senso
 
         if (should_calibrate_only_active_area(dev, dev.settings)) {
             float offset = dev.model->x_offset_ta;
-            offset /= calib_sensor->get_ccd_size_divisor_for_dpi(resolution);
-            start_pixel = static_cast<int>((offset * resolution) / MM_PER_INCH);
+            start_pixel = static_cast<int>((offset * calib_sensor->get_optical_resolution()) / MM_PER_INCH);
 
             float size = dev.model->x_size_ta;
-            size /= calib_sensor->get_ccd_size_divisor_for_dpi(resolution);
-            target_pixels = static_cast<int>((size * resolution) / MM_PER_INCH);
+            target_pixels = static_cast<int>((size * calib_sensor->get_optical_resolution()) / MM_PER_INCH);
         }
 
         if (dev.model->model_id == ModelId::CANON_4400F &&
@@ -1794,7 +1792,7 @@ void scanner_coarse_gain_calibration(Genesys_Device& dev, const Genesys_Sensor& 
     // coarse gain calibration is always done in color mode
     unsigned channels = 3;
 
-    unsigned resolution = sensor.optical_res;
+    unsigned resolution = sensor.full_resolution;
     if (dev.model->asic_type == AsicType::GL841) {
         const auto& dpihw_sensor = sanei_genesys_find_sensor(&dev, dev.settings.xres, channels,
                                                              dev.settings.scan_method);
@@ -1818,7 +1816,7 @@ void scanner_coarse_gain_calibration(Genesys_Device& dev, const Genesys_Sensor& 
         dev.model->asic_type == AsicType::GL847 ||
         dev.model->asic_type == AsicType::GL124)
     {
-        if (dev.settings.xres < sensor.optical_res) {
+        if (dev.settings.xres < sensor.full_resolution) {
             coeff = 0.9f;
         }
     }
@@ -2385,7 +2383,7 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
 
     // BUG: we are using wrong pixel number here
     unsigned start_offset =
-            dev->calib_session.params.startx * sensor.optical_res / dev->calib_session.params.xres;
+            dev->calib_session.params.startx * sensor.full_resolution / dev->calib_session.params.xres;
     unsigned out_pixels_per_line = pixels_per_line + start_offset;
 
     // FIXME: we set this during both dark and white calibration. A cleaner approach should
@@ -2509,7 +2507,7 @@ static void genesys_dummy_dark_shading(Genesys_Device* dev, const Genesys_Sensor
 
     // BUG: we are using wrong pixel number here
     unsigned start_offset =
-            dev->calib_session.params.startx * sensor.optical_res / dev->calib_session.params.xres;
+            dev->calib_session.params.startx * sensor.full_resolution / dev->calib_session.params.xres;
 
     unsigned out_pixels_per_line = pixels_per_line + start_offset;
 
@@ -2519,8 +2517,7 @@ static void genesys_dummy_dark_shading(Genesys_Device* dev, const Genesys_Sensor
 
   /* we average values on 'the left' where CCD pixels are under casing and
      give darkest values. We then use these as dummy dark calibration */
-  if (dev->settings.xres <= sensor.optical_res / 2)
-    {
+    if (dev->settings.xres <= sensor.full_resolution / 2) {
       skip = 4;
       xend = 36;
     }
@@ -2636,7 +2633,7 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
 
     // BUG: we are using wrong pixel number here
     unsigned start_offset =
-            dev->calib_session.params.startx * sensor.optical_res / dev->calib_session.params.xres;
+            dev->calib_session.params.startx * sensor.full_resolution / dev->calib_session.params.xres;
 
     unsigned out_pixels_per_line = pixels_per_line + start_offset;
 
@@ -2868,13 +2865,12 @@ compute_averaged_planar (Genesys_Device * dev, const Genesys_Sensor& sensor,
  */
   res = dev->settings.xres;
 
-    if (sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres) > 1)
-    {
+    if (sensor.full_resolution > sensor.get_optical_resolution()) {
         res *= 2;
     }
 
-  /* this should be evenly dividable */
-  basepixels = sensor.optical_res / res;
+    // this should be evenly dividable
+    basepixels = sensor.full_resolution / res;
 
   /* gl841 supports 1/1 1/2 1/3 1/4 1/5 1/6 1/8 1/10 1/12 1/15 averaging */
   if (basepixels < 1)
@@ -3159,9 +3155,10 @@ compute_shifted_coefficients (Genesys_Device * dev,
     auto cmat = color_order_to_cmat(color_order);
 
   x = dev->settings.xres;
-  if (sensor.get_ccd_size_divisor_for_dpi(dev->settings.xres) > 1)
-    x *= 2;							/* scanner is using half-ccd mode */
-  basepixels = sensor.optical_res / x;			/*this should be evenly dividable */
+    if (sensor.full_resolution > sensor.get_optical_resolution()) {
+        x *= 2;	// scanner is using half-ccd mode
+    }
+    basepixels = sensor.full_resolution / x; // this should be evenly dividable
 
       /* gl841 supports 1/1 1/2 1/3 1/4 1/5 1/6 1/8 1/10 1/12 1/15 averaging */
       if (basepixels < 1)
@@ -3247,7 +3244,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
 
     // BUG: we are using wrong pixel number here
     unsigned start_offset =
-            dev->calib_session.params.startx * sensor.optical_res / dev->calib_session.params.xres;
+            dev->calib_session.params.startx * sensor.full_resolution / dev->calib_session.params.xres;
 
     if (dev->model->asic_type == AsicType::GL842 ||
         dev->model->asic_type == AsicType::GL843)
@@ -3315,13 +3312,10 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
     }
 
   /* compute avg factor */
-  if(dev->settings.xres>sensor.optical_res)
-    {
-      factor=1;
-    }
-  else
-    {
-      factor=sensor.optical_res/dev->settings.xres;
+    if (dev->settings.xres > sensor.full_resolution) {
+        factor = 1;
+    } else {
+        factor = sensor.full_resolution / dev->settings.xres;
     }
 
   /* for GL646, shading data is planar if REG_0x01_FASTMOD is set and
@@ -3370,10 +3364,9 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
     case SensorId::CCD_HP2300:
       target_code = 0xdc00;
       o = 2;
-      if(dev->settings.xres<=sensor.optical_res/2)
-       {
-          o = o - sensor.dummy_pixel / 2;
-       }
+            if (dev->settings.xres <= sensor.full_resolution / 2) {
+                o = o - sensor.dummy_pixel / 2;
+            }
       compute_coefficients (dev,
                 shading_data.data(),
 			    pixels_per_line,
@@ -3386,7 +3379,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
     case SensorId::CCD_5345:
       target_code = 0xe000;
       o = 4;
-      if(dev->settings.xres<=sensor.optical_res/2)
+      if(dev->settings.xres<=sensor.full_resolution/2)
        {
           o = o - sensor.dummy_pixel;
        }
@@ -3628,8 +3621,8 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
     DBG_HELPER(dbg);
     uint32_t pixels_per_line;
 
-    unsigned coarse_res = sensor.optical_res;
-    if (dev->settings.yres <= sensor.optical_res / 2) {
+    unsigned coarse_res = sensor.full_resolution;
+    if (dev->settings.yres <= sensor.full_resolution / 2) {
         coarse_res /= 2;
     }
 
@@ -3758,7 +3751,7 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
     // first step, load document
     dev->cmd_set->load_document(dev);
 
-    unsigned coarse_res = sensor.optical_res;
+    unsigned coarse_res = sensor.full_resolution;
 
   /* the afe needs to sends valid data even before calibration */
 
@@ -3862,7 +3855,7 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
     dev->cmd_set->eject_document(dev);
 
     // restore settings
-    dev->settings.xres = sensor.optical_res;
+    dev->settings.xres = sensor.full_resolution;
 }
 
 /**
@@ -4347,10 +4340,10 @@ static void calc_parameters(Genesys_Scanner* s)
   const auto& sensor = sanei_genesys_find_sensor_any(s->dev);
 
     // hardware settings
-    if (static_cast<unsigned>(s->resolution) > sensor.optical_res &&
+    if (static_cast<unsigned>(s->resolution) > sensor.full_resolution &&
         s->dev->settings.disable_interpolation)
     {
-        s->dev->settings.xres = sensor.optical_res;
+        s->dev->settings.xres = sensor.full_resolution;
     } else {
         s->dev->settings.xres = s->resolution;
     }

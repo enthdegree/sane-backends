@@ -212,11 +212,10 @@ struct ScanSession {
     // whether the session setup has been computed via compute_session()
     bool computed = false;
 
-    // specifies the reduction (if any) of CCD effective dpi which is performed by latching the
-    // data coming from CCD in such a way that 1/2 or 3/4 of pixel data is ignored.
-    unsigned ccd_size_divisor = 1;
+    // specifies the full resolution of the sensor that is being used.
+    unsigned full_resolution = 0;
 
-    // the optical resolution of the scanner.
+    // the optical resolution of the sensor that is being used.
     unsigned optical_resolution = 0;
 
     // the number of pixels at the optical resolution, not including segmentation overhead.
@@ -230,7 +229,6 @@ struct ScanSession {
     unsigned optical_line_count = 0;
 
     // the resolution of the output data.
-    // gl843-only
     unsigned output_resolution = 0;
 
     // the offset in pixels from the beginning of output data
@@ -343,7 +341,7 @@ void serialize(Stream& str, ScanSession& x)
     serialize(str, x.params);
     serialize_newline(str);
     serialize(str, x.computed);
-    serialize(str, x.ccd_size_divisor);
+    serialize(str, x.full_resolution);
     serialize(str, x.optical_resolution);
     serialize(str, x.optical_pixels);
     serialize(str, x.optical_pixels_raw);

@@ -48,45 +48,6 @@
 
 namespace genesys {
 
-inline unsigned get_sensor_optical_with_ccd_divisor(const Genesys_Sensor& sensor, unsigned xres)
-{
-    unsigned hwres = sensor.optical_res / sensor.get_ccd_size_divisor_for_dpi(xres);
-
-    if (xres <= hwres / 4) {
-        return hwres / 4;
-    }
-    if (xres <= hwres / 2) {
-        return hwres / 2;
-    }
-    return hwres;
-}
-
-inline unsigned default_get_ccd_size_divisor_for_dpi(const Genesys_Sensor& sensor, unsigned xres)
-{
-    if (sensor.ccd_size_divisor >= 4 && xres * 4 <= static_cast<unsigned>(sensor.optical_res)) {
-        return 4;
-    }
-    if (sensor.ccd_size_divisor >= 2 && xres * 2 <= static_cast<unsigned>(sensor.optical_res)) {
-        return 2;
-    }
-    return 1;
-}
-
-inline unsigned get_ccd_size_divisor_exact(const Genesys_Sensor& sensor, unsigned xres)
-{
-    (void) xres;
-    return sensor.ccd_size_divisor;
-}
-
-inline unsigned get_ccd_size_divisor_gl124(const Genesys_Sensor& sensor, unsigned xres)
-{
-    // we have 2 domains for ccd: xres below or above half ccd max dpi
-    if (xres <= 300 && sensor.ccd_size_divisor > 1) {
-        return 2;
-    }
-    return 1;
-}
-
 StaticInit<std::vector<Genesys_Sensor>> s_sensors;
 
 void genesys_init_sensor_tables()
@@ -97,7 +58,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_UMAX; // gl646
-    sensor.optical_res = 1200;
+    sensor.full_resolution = 1200;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 64;
     sensor.fau_gain_white_ref = 210;
@@ -112,7 +73,6 @@ void genesys_init_sensor_tables()
         { 0x5b, 0x00 }, { 0x5c, 0x00 }, { 0x5d, 0x00 }, { 0x5e, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     {
         struct CustomSensorSettings
         {
@@ -140,7 +100,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_ST12; // gl646
-    sensor.optical_res = 600;
+    sensor.full_resolution = 600;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 85;
     sensor.fau_gain_white_ref = 210;
@@ -155,7 +115,6 @@ void genesys_init_sensor_tables()
         { 0x5b, 0x00 }, { 0x5c, 0x00 }, { 0x5d, 0x00 }, { 0x5e, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     {
         struct CustomSensorSettings
         {
@@ -181,7 +140,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_ST24; // gl646
-    sensor.optical_res = 1200;
+    sensor.full_resolution = 1200;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 64;
     sensor.fau_gain_white_ref = 210;
@@ -196,7 +155,6 @@ void genesys_init_sensor_tables()
         { 0x5b, 0x00 }, { 0x5c, 0x00 }, { 0x5d, 0x00 }, { 0x5e, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     {
         struct CustomSensorSettings
         {
@@ -224,8 +182,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_5345; // gl646
-    sensor.optical_res = 1200;
-    sensor.ccd_size_divisor = 2;
+    sensor.full_resolution = 1200;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 16;
     sensor.fau_gain_white_ref = 190;
@@ -233,21 +190,20 @@ void genesys_init_sensor_tables()
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
     sensor.stagger_config = StaggerConfig{ 1200, 4 }; // FIXME: may be incorrect
     sensor.gamma = { 2.38f, 2.35f, 2.34f };
-    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
 
     {
         struct CustomSensorSettings {
             ValueFilterAny<unsigned> resolutions;
+            unsigned optical_resolution;
             unsigned register_dpiset;
             unsigned exposure_lperiod;
-            unsigned ccd_size_divisor;
             Ratio pixel_count_ratio;
             int output_pixel_offset;
             GenesysRegisterSettingSet custom_regs;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 50 }, 100, 12000, 2, Ratio{1, 2}, 0, {
+            { { 50 }, 600, 100, 12000, Ratio{1, 2}, 0, {
                     { 0x08, 0x00 }, { 0x09, 0x05 }, { 0x0a, 0x06 }, { 0x0b, 0x08 },
                     { 0x16, 0x0b }, { 0x17, 0x0a }, { 0x18, 0x28 }, { 0x19, 0x2a },
                     { 0x1a, 0x00 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x03 },
@@ -256,7 +212,7 @@ void genesys_init_sensor_tables()
                     { 0x5b, 0x00 }, { 0x5c, 0x00 }, { 0x5d, 0x00 }, { 0x5e, 0x00 }
                 }
             },
-            { { 75 }, 150, 11000, 2, Ratio{1, 2}, 1, {
+            { { 75 }, 600, 150, 11000, Ratio{1, 2}, 1, {
                     { 0x08, 0x00 }, { 0x09, 0x05 }, { 0x0a, 0x06 }, { 0x0b, 0x08 },
                     { 0x16, 0x0b }, { 0x17, 0x0a }, { 0x18, 0x28 }, { 0x19, 0x2a },
                     { 0x1a, 0x00 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x03 },
@@ -265,7 +221,7 @@ void genesys_init_sensor_tables()
                     { 0x5b, 0x00 }, { 0x5c, 0x00 }, { 0x5d, 0x00 }, { 0x5e, 0x00 }
                 }
             },
-            { { 100 }, 200, 11000, 2, Ratio{1, 2}, 1, {
+            { { 100 }, 600, 200, 11000, Ratio{1, 2}, 1, {
                     { 0x08, 0x00 }, { 0x09, 0x05 }, { 0x0a, 0x06 }, { 0x0b, 0x08 },
                     { 0x16, 0x0b }, { 0x17, 0x0a }, { 0x18, 0x28 }, { 0x19, 0x2a },
                     { 0x1a, 0x00 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x03 },
@@ -274,7 +230,7 @@ void genesys_init_sensor_tables()
                     { 0x5b, 0x00 }, { 0x5c, 0x00 }, { 0x5d, 0x00 }, { 0x5e, 0x00 }
                 }
             },
-            { { 150 }, 300, 11000, 2, Ratio{1, 2}, 2, {
+            { { 150 }, 600, 300, 11000, Ratio{1, 2}, 2, {
                     { 0x08, 0x00 }, { 0x09, 0x05 }, { 0x0a, 0x06 }, { 0x0b, 0x08 },
                     { 0x16, 0x0b }, { 0x17, 0x0a }, { 0x18, 0x28 }, { 0x19, 0x2a },
                     { 0x1a, 0x00 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x03 },
@@ -283,7 +239,7 @@ void genesys_init_sensor_tables()
                     { 0x5b, 0x00 }, { 0x5c, 0x00 }, { 0x5d, 0x00 }, { 0x5e, 0x00 }
                 }
             },
-            { { 200 }, 400, 11000, 2, Ratio{1, 2}, 2, {
+            { { 200 }, 600, 400, 11000, Ratio{1, 2}, 2, {
                     { 0x08, 0x00 }, { 0x09, 0x05 }, { 0x0a, 0x06 }, { 0x0b, 0x08 },
                     { 0x16, 0x0b }, { 0x17, 0x0a }, { 0x18, 0x28 }, { 0x19, 0x2a },
                     { 0x1a, 0x00 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x03 },
@@ -292,7 +248,7 @@ void genesys_init_sensor_tables()
                     { 0x5b, 0x00 }, { 0x5c, 0x00 }, { 0x5d, 0x00 }, { 0x5e, 0x00 }
                 }
             },
-            { { 300 }, 600, 11000, 2, Ratio{1, 2}, 4, {
+            { { 300 }, 600, 600, 11000, Ratio{1, 2}, 4, {
                     { 0x08, 0x00 }, { 0x09, 0x05 }, { 0x0a, 0x06 }, { 0x0b, 0x08 },
                     { 0x16, 0x0b }, { 0x17, 0x0a }, { 0x18, 0x28 }, { 0x19, 0x2a },
                     { 0x1a, 0x00 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x03 },
@@ -301,7 +257,7 @@ void genesys_init_sensor_tables()
                     { 0x5b, 0x00 }, { 0x5c, 0x00 }, { 0x5d, 0x00 }, { 0x5e, 0x00 }
                 }
             },
-            { { 400 }, 800, 11000, 2, Ratio{1, 2}, 5, {
+            { { 400 }, 600, 800, 11000, Ratio{1, 2}, 5, {
                     { 0x08, 0x00 }, { 0x09, 0x05 }, { 0x0a, 0x06 }, { 0x0b, 0x08 },
                     { 0x16, 0x0b }, { 0x17, 0x0a }, { 0x18, 0x28 }, { 0x19, 0x2a },
                     { 0x1a, 0x00 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x03 },
@@ -310,7 +266,7 @@ void genesys_init_sensor_tables()
                     { 0x5b, 0x00 }, { 0x5c, 0x00 }, { 0x5d, 0x00 }, { 0x5e, 0x00 }
                 }
             },
-            { { 600 }, 1200, 11000, 2, Ratio{1, 2}, 8, {
+            { { 600 }, 600, 1200, 11000, Ratio{1, 2}, 8, {
                     { 0x08, 0x00 }, { 0x09, 0x05 }, { 0x0a, 0x06 }, { 0x0b, 0x08 },
                     { 0x16, 0x0b }, { 0x17, 0x0a }, { 0x18, 0x28 }, { 0x19, 0x2a },
                     { 0x1a, 0x00 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x03 },
@@ -319,7 +275,7 @@ void genesys_init_sensor_tables()
                     { 0x5b, 0x00 }, { 0x5c, 0x00 }, { 0x5d, 0x00 }, { 0x5e, 0x00 }
                 }
             },
-            { { 1200 }, 1200, 11000, 1, Ratio{1, 1}, 16, {
+            { { 1200 }, 1200, 1200, 11000, Ratio{1, 1}, 16, {
                     { 0x08, 0x0d }, { 0x09, 0x0f }, { 0x0a, 0x11 }, { 0x0b, 0x13 },
                     { 0x16, 0x0b }, { 0x17, 0x0a }, { 0x18, 0x30 }, { 0x19, 0x2a },
                     { 0x1a, 0x00 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x03 },
@@ -333,9 +289,9 @@ void genesys_init_sensor_tables()
         for (const CustomSensorSettings& setting : custom_settings)
         {
             sensor.resolutions = setting.resolutions;
+            sensor.optical_resolution = setting.optical_resolution;
             sensor.register_dpiset = setting.register_dpiset;
             sensor.exposure_lperiod = setting.exposure_lperiod;
-            sensor.ccd_size_divisor = setting.ccd_size_divisor;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;
             sensor.output_pixel_offset = setting.output_pixel_offset;
             sensor.custom_regs = setting.custom_regs;
@@ -346,7 +302,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_HP2400; // gl646
-    sensor.optical_res = 1200;
+    sensor.full_resolution = 1200;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 15;
     sensor.fau_gain_white_ref = 210;
@@ -354,7 +310,6 @@ void genesys_init_sensor_tables()
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
     sensor.stagger_config = StaggerConfig{1200, 4}; // FIXME: may be incorrect
     sensor.gamma = { 2.1f, 2.1f, 2.1f };
-    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
 
     {
         struct CustomSensorSettings {
@@ -438,29 +393,27 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_HP2300; // gl646
-    sensor.optical_res = 600;
-    sensor.ccd_size_divisor = 2;
+    sensor.full_resolution = 600;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 20;
     sensor.fau_gain_white_ref = 180;
     sensor.gain_white_ref = 180;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
     sensor.gamma = { 2.1f, 2.1f, 2.1f };
-    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
 
     {
         struct CustomSensorSettings {
             ValueFilterAny<unsigned> resolutions;
+            unsigned optical_resolution;
             unsigned register_dpiset;
             unsigned exposure_lperiod;
-            unsigned ccd_size_divisor;
             Ratio pixel_count_ratio;
             int output_pixel_offset;
             GenesysRegisterSettingSet custom_regs;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 75 }, 150, 4480, 2, Ratio{1, 2}, 2, {
+            { { 75 }, 300, 150, 4480, Ratio{1, 2}, 2, {
                     { 0x08, 0x16 }, { 0x09, 0x00 }, { 0x0a, 0x01 }, { 0x0b, 0x03 },
                     { 0x16, 0xb7 }, { 0x17, 0x0a }, { 0x18, 0x20 }, { 0x19, 0x2a },
                     { 0x1a, 0x6a }, { 0x1b, 0x8a }, { 0x1c, 0x00 }, { 0x1d, 0x85 },
@@ -469,7 +422,7 @@ void genesys_init_sensor_tables()
                     { 0x5b, 0x06 }, { 0x5c, 0x0b }, { 0x5d, 0x10 }, { 0x5e, 0x16 }
                 }
             },
-            { { 150 }, 300, 4350, 2, Ratio{1, 2}, 5, {
+            { { 150 }, 300, 300, 4350, Ratio{1, 2}, 5, {
                     { 0x08, 0x16 }, { 0x09, 0x00 }, { 0x0a, 0x01 }, { 0x0b, 0x03 },
                     { 0x16, 0xb7 }, { 0x17, 0x0a }, { 0x18, 0x20 }, { 0x19, 0x2a },
                     { 0x1a, 0x6a }, { 0x1b, 0x8a }, { 0x1c, 0x00 }, { 0x1d, 0x85 },
@@ -478,7 +431,7 @@ void genesys_init_sensor_tables()
                     { 0x5b, 0x06 }, { 0x5c, 0x0b }, { 0x5d, 0x10 }, { 0x5e, 0x16 }
                 }
             },
-            { { 300 }, 600, 4350, 2, Ratio{1, 2}, 10, {
+            { { 300 }, 300, 600, 4350, Ratio{1, 2}, 10, {
                     { 0x08, 0x16 }, { 0x09, 0x00 }, { 0x0a, 0x01 }, { 0x0b, 0x03 },
                     { 0x16, 0xb7 }, { 0x17, 0x0a }, { 0x18, 0x20 }, { 0x19, 0x2a },
                     { 0x1a, 0x6a }, { 0x1b, 0x8a }, { 0x1c, 0x00 }, { 0x1d, 0x85 },
@@ -487,7 +440,7 @@ void genesys_init_sensor_tables()
                     { 0x5b, 0x06 }, { 0x5c, 0x0b }, { 0x5d, 0x10 }, { 0x5e, 0x16 }
                 }
             },
-            { { 600 }, 600, 8700, 1, Ratio{1, 1}, 20, {
+            { { 600 }, 600, 600, 8700, Ratio{1, 1}, 20, {
                     { 0x08, 0x01 }, { 0x09, 0x03 }, { 0x0a, 0x04 }, { 0x0b, 0x06 },
                     { 0x16, 0xb7 }, { 0x17, 0x0a }, { 0x18, 0x20 }, { 0x19, 0x2a },
                     { 0x1a, 0x6a }, { 0x1b, 0x8a }, { 0x1c, 0x00 }, { 0x1d, 0x05 },
@@ -501,9 +454,9 @@ void genesys_init_sensor_tables()
         for (const CustomSensorSettings& setting : custom_settings)
         {
             sensor.resolutions = setting.resolutions;
+            sensor.optical_resolution = setting.optical_resolution;
             sensor.register_dpiset = setting.register_dpiset;
             sensor.exposure_lperiod = setting.exposure_lperiod;
-            sensor.ccd_size_divisor = setting.ccd_size_divisor;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;
             sensor.output_pixel_offset = setting.output_pixel_offset;
             sensor.custom_regs = setting.custom_regs;
@@ -514,8 +467,8 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_CANON_LIDE_35; // gl841
-    sensor.optical_res = 1200;
-    sensor.ccd_size_divisor = 2;
+    sensor.full_resolution = 1200;
+    sensor.register_dpihw = 1200;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 87;
     sensor.fau_gain_white_ref = 0;
@@ -529,30 +482,29 @@ void genesys_init_sensor_tables()
         { 0x70, 0x00 }, { 0x71, 0x00 }, { 0x72, 0x00 }, { 0x73, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     {
         struct CustomSensorSettings
         {
             ValueFilterAny<unsigned> resolutions;
-            unsigned register_dpihw;
+            unsigned optical_resolution;
             unsigned register_dpiset;
             unsigned shading_resolution;
             int output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 75 }, 1200, 150, 600, 11 },
-            { { 100 }, 1200, 200, 600, 14 },
-            { { 150 }, 1200, 300, 600, 22 },
-            { { 200 }, 1200, 400, 600, 29 },
-            { { 300 }, 1200, 600, 600, 44 },
-            { { 600 }, 1200, 1200, 600, 88 },
+            { { 75 }, 600, 150, 600, 11 },
+            { { 100 }, 600, 200, 600, 14 },
+            { { 150 }, 600, 300, 600, 22 },
+            { { 200 }, 600, 400, 600, 29 },
+            { { 300 }, 600, 600, 600, 44 },
+            { { 600 }, 600, 1200, 600, 88 },
             { { 1200 }, 1200, 1200, 1200, 88 },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
-            sensor.register_dpihw = setting.register_dpihw;
+            sensor.optical_resolution = setting.optical_resolution;
             sensor.register_dpiset = setting.register_dpiset;
             sensor.shading_resolution = setting.shading_resolution;
             sensor.output_pixel_offset = setting.output_pixel_offset;
@@ -563,8 +515,8 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_CANON_LIDE_60; // gl841
-    sensor.optical_res = 1200;
-    sensor.ccd_size_divisor = 2;
+    sensor.full_resolution = 1200;
+    sensor.register_dpihw = 1200;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 87;
     sensor.fau_gain_white_ref = 0;
@@ -578,30 +530,29 @@ void genesys_init_sensor_tables()
         { 0x70, 0x00 }, { 0x71, 0x00 }, { 0x72, 0x00 }, { 0x73, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     {
         struct CustomSensorSettings
         {
             ValueFilterAny<unsigned> resolutions;
-            unsigned register_dpihw;
+            unsigned optical_resolution;
             unsigned register_dpiset;
             unsigned shading_resolution;
             int output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 75 }, 1200, 150, 600, 11 },
-            { { 100 }, 1200, 200, 600, 14 },
-            { { 150 }, 1200, 300, 600, 22 },
-            { { 200 }, 1200, 400, 600, 29 },
-            { { 300 }, 1200, 600, 600, 44 },
-            { { 600 }, 1200, 1200, 600, 88 },
+            { { 75 }, 600, 150, 600, 11 },
+            { { 100 }, 600, 200, 600, 14 },
+            { { 150 }, 600, 300, 600, 22 },
+            { { 200 }, 600, 400, 600, 29 },
+            { { 300 }, 600, 600, 600, 44 },
+            { { 600 }, 600, 1200, 600, 88 },
             { { 1200 }, 1200, 1200, 1200, 88 },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
-            sensor.register_dpihw = setting.register_dpihw;
+            sensor.optical_resolution = setting.optical_resolution;
             sensor.register_dpiset = setting.register_dpiset;
             sensor.shading_resolution = setting.shading_resolution;
             sensor.output_pixel_offset = setting.output_pixel_offset;
@@ -612,7 +563,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_XP200; // gl646
-    sensor.optical_res = 600;
+    sensor.full_resolution = 600;
     sensor.black_pixels = 5;
     sensor.dummy_pixel = 38;
     sensor.fau_gain_white_ref = 200;
@@ -627,7 +578,6 @@ void genesys_init_sensor_tables()
         { 0x5b, 0x00 }, { 0x5c, 0x00 }, { 0x5d, 0x00 }, { 0x5e, 0x00 }
     };
     sensor.gamma = { 2.1f, 2.1f, 2.1f };
-    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
 
     {
         struct CustomSensorSettings {
@@ -666,7 +616,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_HP3670; // gl646
-    sensor.optical_res = 1200;
+    sensor.full_resolution = 1200;
     sensor.black_pixels = 48;
     sensor.dummy_pixel = 16;
     sensor.fau_gain_white_ref = 210;
@@ -674,7 +624,6 @@ void genesys_init_sensor_tables()
     sensor.exposure = { 0, 0, 0 };
     sensor.stagger_config = StaggerConfig{1200, 4}; // FIXME: may be incorrect
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
 
     {
         struct CustomSensorSettings {
@@ -767,7 +716,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_DP665; // gl841
-    sensor.optical_res = 600;
+    sensor.full_resolution = 600;
     sensor.register_dpihw = 600;
     sensor.shading_resolution = 600;
     sensor.black_pixels = 27;
@@ -783,7 +732,6 @@ void genesys_init_sensor_tables()
         { 0x70, 0x00 }, { 0x71, 0x00 }, { 0x72, 0x00 }, { 0x73, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     {
         struct CustomSensorSettings
         {
@@ -810,7 +758,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_ROADWARRIOR; // gl841
-    sensor.optical_res = 600;
+    sensor.full_resolution = 600;
     sensor.register_dpihw = 600;
     sensor.shading_resolution = 600;
     sensor.black_pixels = 27;
@@ -826,7 +774,6 @@ void genesys_init_sensor_tables()
         { 0x70, 0x00 }, { 0x71, 0x00 }, { 0x72, 0x00 }, { 0x73, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     {
         struct CustomSensorSettings
         {
@@ -854,7 +801,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_DSMOBILE600; // gl841
-    sensor.optical_res = 600;
+    sensor.full_resolution = 600;
     sensor.register_dpihw = 600;
     sensor.shading_resolution = 600;
     sensor.black_pixels = 28;
@@ -870,7 +817,6 @@ void genesys_init_sensor_tables()
         { 0x70, 0x00 }, { 0x71, 0x00 }, { 0x72, 0x00 }, { 0x73, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     {
         struct CustomSensorSettings
         {
@@ -897,7 +843,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_XP300; // gl841
-    sensor.optical_res = 600;
+    sensor.full_resolution = 600;
     sensor.register_dpihw = 1200; // FIXME: could be incorrect, but previous code used this value
     sensor.shading_resolution = 600;
     sensor.black_pixels = 27;
@@ -913,7 +859,6 @@ void genesys_init_sensor_tables()
         { 0x70, 0x00 }, { 0x71, 0x00 }, { 0x72, 0x00 }, { 0x73, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     {
         struct CustomSensorSettings
         {
@@ -940,7 +885,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_DOCKETPORT_487; // gl841
-    sensor.optical_res = 600;
+    sensor.full_resolution = 600;
     sensor.register_dpihw = 600;
     sensor.shading_resolution = 600;
     sensor.black_pixels = 27;
@@ -956,7 +901,6 @@ void genesys_init_sensor_tables()
         { 0x70, 0x00 }, { 0x71, 0x00 }, { 0x72, 0x00 }, { 0x73, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     {
         struct CustomSensorSettings
         {
@@ -983,10 +927,10 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_DP685; // gl841
-    sensor.optical_res = 600;
+    sensor.full_resolution = 600;
     sensor.register_dpihw = 600;
     sensor.shading_resolution = 600;
-    sensor.optical_res = 600;
+    sensor.full_resolution = 600;
     sensor.black_pixels = 27;
     sensor.dummy_pixel = 27;
     sensor.fau_gain_white_ref = 210;
@@ -1000,7 +944,6 @@ void genesys_init_sensor_tables()
         { 0x70, 0x00 }, { 0x71, 0x00 }, { 0x72, 0x00 }, { 0x73, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     {
         struct CustomSensorSettings
         {
@@ -1027,14 +970,13 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_CANON_LIDE_200; // gl847
-    sensor.optical_res = 4800;
+    sensor.full_resolution = 4800;
     sensor.black_pixels = 87*4;
     sensor.dummy_pixel = 16*4;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
     sensor.gamma = { 2.2f, 2.2f, 2.2f };
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
     {
         struct CustomSensorSettings {
@@ -1189,13 +1131,12 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_CANON_LIDE_700F; // gl847
-    sensor.optical_res = 4800;
+    sensor.full_resolution = 4800;
     sensor.black_pixels = 73*8; // black pixels 73 at 600 dpi
     sensor.dummy_pixel = 16*8;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
     {
         struct CustomSensorSettings {
@@ -1333,14 +1274,13 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_CANON_LIDE_100; // gl847
-    sensor.optical_res = 2400;
+    sensor.full_resolution = 2400;
     sensor.black_pixels = 87*4;
     sensor.dummy_pixel = 16*4;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x01c1, 0x0126, 0x00e5 };
     sensor.gamma = { 2.2f, 2.2f, 2.2f };
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
     {
         struct CustomSensorSettings {
@@ -1464,7 +1404,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_KVSS080; // gl843
-    sensor.optical_res = 600;
+    sensor.full_resolution = 600;
     sensor.register_dpihw = 600;
     sensor.shading_resolution = 600;
     sensor.black_pixels = 38;
@@ -1502,7 +1442,6 @@ void genesys_init_sensor_tables()
         { 0x7d, 0x90 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     {
         struct CustomSensorSettings
         {
@@ -1532,7 +1471,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_G4050; // gl843
-    sensor.optical_res = 4800;
+    sensor.full_resolution = 4800;
     sensor.black_pixels = 50*8;
     // 31 at 600 dpi dummy_pixels 58 at 1200
     sensor.dummy_pixel = 58;
@@ -1542,7 +1481,6 @@ void genesys_init_sensor_tables()
     sensor.stagger_config = StaggerConfig{ 2400, 4 }; // FIXME: may be incorrect
     sensor.custom_regs = {};
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
     {
         struct CustomSensorSettings {
@@ -1660,7 +1598,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_HP_4850C; // gl843
-    sensor.optical_res = 4800;
+    sensor.full_resolution = 4800;
     sensor.black_pixels = 100;
     sensor.dummy_pixel = 58;
     sensor.fau_gain_white_ref = 160;
@@ -1669,7 +1607,6 @@ void genesys_init_sensor_tables()
     sensor.stagger_config = StaggerConfig{ 2400, 4 }; // FIXME: may be incorrect
     sensor.custom_regs = {};
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
     {
         struct CustomSensorSettings {
@@ -1783,9 +1720,8 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_CANON_4400F; // gl843
-    sensor.optical_res = 4800;
+    sensor.full_resolution = 4800;
     sensor.register_dpihw = 4800;
-    sensor.ccd_size_divisor = 4;
     sensor.black_pixels = 50*8;
     // 31 at 600 dpi, 58 at 1200 dpi
     sensor.dummy_pixel = 20;
@@ -1794,11 +1730,11 @@ void genesys_init_sensor_tables()
     sensor.exposure = { 0x9c40, 0x9c40, 0x9c40 };
     sensor.stagger_config = StaggerConfig{4800, 8};
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
     {
         struct CustomSensorSettings {
             ValueFilterAny<unsigned> resolutions;
+            unsigned optical_resolution;
             unsigned register_dpiset;
             int exposure_lperiod;
             bool use_host_side_calib;
@@ -1809,7 +1745,7 @@ void genesys_init_sensor_tables()
         };
 
         CustomSensorSettings custom_settings[] = {
-            {   { 300 }, 1200, 11640, false, 197, { ScanMethod::FLATBED }, {
+            {   { 300 }, 1200, 1200, 11640, false, 197, { ScanMethod::FLATBED }, {
                     { 0x16, 0x13 }, { 0x17, 0x0a }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x6b },
                     { 0x52, 0x0a }, { 0x53, 0x0d }, { 0x54, 0x00 }, { 0x55, 0x03 },
@@ -1821,7 +1757,7 @@ void genesys_init_sensor_tables()
                     { 0x9e, 0x2d },
                 }, {}
             },
-            {   { 600 }, 2400, 11640, false, 392, { ScanMethod::FLATBED }, {
+            {   { 600 }, 1200, 2400, 11640, false, 392, { ScanMethod::FLATBED }, {
                     { 0x16, 0x13 }, { 0x17, 0x0a }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x6b },
                     { 0x52, 0x0a }, { 0x53, 0x0d }, { 0x54, 0x00 }, { 0x55, 0x03 },
@@ -1833,7 +1769,7 @@ void genesys_init_sensor_tables()
                     { 0x9e, 0x2d },
                 }, {}
             },
-            {   { 1200 }, 4800, 11640, false, 794, { ScanMethod::FLATBED }, {
+            {   { 1200 }, 1200, 4800, 11640, false, 794, { ScanMethod::FLATBED }, {
                     { 0x16, 0x13 }, { 0x17, 0x0a }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x6b },
                     { 0x52, 0x0a }, { 0x53, 0x0d }, { 0x54, 0x00 }, { 0x55, 0x03 },
@@ -1845,7 +1781,7 @@ void genesys_init_sensor_tables()
                     { 0x9e, 0x2d },
                 }, {}
             },
-            {   { 1200 }, 4800, 33300, true, 5, { ScanMethod::TRANSPARENCY }, {
+            {   { 1200 }, 1200, 4800, 33300, true, 5, { ScanMethod::TRANSPARENCY }, {
                     { 0x16, 0x13 }, { 0x17, 0x0a }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x6b },
                     { 0x52, 0x0a }, { 0x53, 0x0d }, { 0x54, 0x00 }, { 0x55, 0x03 },
@@ -1857,7 +1793,7 @@ void genesys_init_sensor_tables()
                     { 0x9e, 0x2d },
                 }, {}
             },
-            {   { 2400 }, 4800, 33300, true, 10, { ScanMethod::TRANSPARENCY }, {
+            {   { 2400 }, 2400, 4800, 33300, true, 10, { ScanMethod::TRANSPARENCY }, {
                     { 0x16, 0x13 }, { 0x17, 0x15 }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x01 }, { 0x1d, 0x75 },
                     { 0x52, 0x0b }, { 0x53, 0x0d }, { 0x54, 0x00 }, { 0x55, 0x03 },
@@ -1871,7 +1807,7 @@ void genesys_init_sensor_tables()
                     { 0x03, 0x1f },
                 }
             },
-            {   { 4800 }, 4800, 33300, true, -2063, { ScanMethod::TRANSPARENCY }, {
+            {   { 4800 }, 4800, 4800, 33300, true, -2063, { ScanMethod::TRANSPARENCY }, {
                     { 0x16, 0x13 }, { 0x17, 0x15 }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x61 }, { 0x1d, 0x75 },
                     { 0x52, 0x02 }, { 0x53, 0x05 }, { 0x54, 0x08 }, { 0x55, 0x0b },
@@ -1890,6 +1826,7 @@ void genesys_init_sensor_tables()
             for (auto method : setting.methods) {
                 for (auto resolution : setting.resolutions.values()) {
                     sensor.resolutions = { resolution };
+                    sensor.optical_resolution = setting.optical_resolution;
                     sensor.register_dpiset = setting.register_dpiset;
                     sensor.shading_resolution = resolution;
                     sensor.exposure_lperiod = setting.exposure_lperiod;
@@ -1907,9 +1844,8 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_CANON_8400F; // gl843
-    sensor.optical_res = 3200;
+    sensor.full_resolution = 3200;
     sensor.register_dpihw = 4800;
-    sensor.ccd_size_divisor = 1;
     sensor.black_pixels = 50*8;
     // 31 at 600 dpi, 58 at 1200 dpi
     sensor.dummy_pixel = 20;
@@ -1919,7 +1855,6 @@ void genesys_init_sensor_tables()
     sensor.stagger_config = StaggerConfig{ 3200, 6 };
     sensor.custom_regs = {};
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
     {
         struct CustomSensorSettings {
@@ -2068,9 +2003,8 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_CANON_8600F; // gl843
-    sensor.optical_res = 4800;
+    sensor.full_resolution = 4800;
     sensor.register_dpihw = 4800;
-    sensor.ccd_size_divisor = 4;
     sensor.black_pixels = 31;
     sensor.dummy_pixel = 20;
     sensor.fau_gain_white_ref = 160;
@@ -2079,11 +2013,11 @@ void genesys_init_sensor_tables()
     sensor.stagger_config = StaggerConfig{4800, 8};
     sensor.custom_regs = {};
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
 
     {
         struct CustomSensorSettings {
             ValueFilterAny<unsigned> resolutions;
+            unsigned optical_resolution;
             unsigned register_dpiset;
             int exposure_lperiod;
             int output_pixel_offset;
@@ -2093,7 +2027,7 @@ void genesys_init_sensor_tables()
         };
 
         CustomSensorSettings custom_settings[] = {
-            {   { 300 }, 1200, 24000, 1, { ScanMethod::FLATBED }, {
+            {   { 300 }, 1200, 1200, 24000, 1, { ScanMethod::FLATBED }, {
                     { 0x0c, 0x00 },
                     { 0x16, 0x13 }, { 0x17, 0x0a }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x6b },
@@ -2108,7 +2042,7 @@ void genesys_init_sensor_tables()
                 },
                 {},
             },
-            {   { 600 }, 2400, 24000, 2, { ScanMethod::FLATBED }, {
+            {   { 600 }, 1200, 2400, 24000, 2, { ScanMethod::FLATBED }, {
                     { 0x0c, 0x00 },
                     { 0x16, 0x13 }, { 0x17, 0x0a }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x6b },
@@ -2123,7 +2057,7 @@ void genesys_init_sensor_tables()
                 },
                 {},
             },
-            {   { 1200 }, 4800, 24000, 5, { ScanMethod::FLATBED }, {
+            {   { 1200 }, 1200, 4800, 24000, 5, { ScanMethod::FLATBED }, {
                     { 0x0c, 0x00 },
                     { 0x16, 0x13 }, { 0x17, 0x0a }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x6b },
@@ -2138,8 +2072,8 @@ void genesys_init_sensor_tables()
                 },
                 {},
             },
-            {   { 300 }, 1200, 45000, 6, { ScanMethod::TRANSPARENCY,
-                                           ScanMethod::TRANSPARENCY_INFRARED }, {
+            {   { 300 }, 1200, 1200, 45000, 6, { ScanMethod::TRANSPARENCY,
+                                                 ScanMethod::TRANSPARENCY_INFRARED }, {
                     { 0x0c, 0x00 },
                     { 0x16, 0x13 }, { 0x17, 0x0a }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x6b },
@@ -2154,8 +2088,8 @@ void genesys_init_sensor_tables()
                 },
                 {},
             },
-            {   { 600 }, 2400, 45000, 11, { ScanMethod::TRANSPARENCY,
-                                           ScanMethod::TRANSPARENCY_INFRARED }, {
+            {   { 600 }, 1200, 2400, 45000, 11, { ScanMethod::TRANSPARENCY,
+                                                  ScanMethod::TRANSPARENCY_INFRARED }, {
                     { 0x0c, 0x00 },
                     { 0x16, 0x13 }, { 0x17, 0x0a }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x6b },
@@ -2170,8 +2104,8 @@ void genesys_init_sensor_tables()
                 },
                 {},
             },
-            {   { 1200 }, 4800, 45000, 23, { ScanMethod::TRANSPARENCY,
-                                            ScanMethod::TRANSPARENCY_INFRARED }, {
+            {   { 1200 }, 1200, 4800, 45000, 23, { ScanMethod::TRANSPARENCY,
+                                                   ScanMethod::TRANSPARENCY_INFRARED }, {
                     { 0x0c, 0x00 },
                     { 0x16, 0x13 }, { 0x17, 0x0a }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x6b },
@@ -2186,8 +2120,8 @@ void genesys_init_sensor_tables()
                 },
                 {},
             },
-            {   { 2400 }, 4800, 45000, 10, { ScanMethod::TRANSPARENCY,
-                                             ScanMethod::TRANSPARENCY_INFRARED }, {
+            {   { 2400 }, 2400, 4800, 45000, 10, { ScanMethod::TRANSPARENCY,
+                                                   ScanMethod::TRANSPARENCY_INFRARED }, {
                     { 0x0c, 0x00 },
                     { 0x16, 0x13 }, { 0x17, 0x15 }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x01 }, { 0x1d, 0x75 },
@@ -2202,8 +2136,8 @@ void genesys_init_sensor_tables()
                 },
                 {},
             },
-            {   { 4800 }, 4800, 45000, -1982, { ScanMethod::TRANSPARENCY,
-                                                ScanMethod::TRANSPARENCY_INFRARED }, {
+            {   { 4800 }, 4800, 4800, 45000, -1982, { ScanMethod::TRANSPARENCY,
+                                                      ScanMethod::TRANSPARENCY_INFRARED }, {
                     { 0x0c, 0x00 },
                     { 0x16, 0x13 }, { 0x17, 0x15 }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x61 }, { 0x1d, 0x75 },
@@ -2225,6 +2159,7 @@ void genesys_init_sensor_tables()
             for (auto method : setting.methods) {
                 for (auto resolution : setting.resolutions.values()) {
                     sensor.resolutions = { resolution };
+                    sensor.optical_resolution = setting.optical_resolution;
                     sensor.register_dpiset = setting.register_dpiset;
                     sensor.shading_resolution = resolution;
                     sensor.output_pixel_offset = setting.output_pixel_offset;
@@ -2241,8 +2176,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_HP_N6310; // gl847
-    sensor.optical_res = 2400;
-    // sensor.ccd_size_divisor = 2; Possibly half CCD, needs checking
+    sensor.full_resolution = 2400;
     sensor.black_pixels = 96;
     sensor.dummy_pixel = 26;
     sensor.pixel_count_ratio = Ratio{1, 4};
@@ -2269,7 +2203,6 @@ void genesys_init_sensor_tables()
         { 0x5a, 0x40 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     {
         struct CustomSensorSettings
         {
@@ -2304,19 +2237,18 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_CANON_LIDE_110; // gl124
-    sensor.optical_res = 2400;
-    sensor.ccd_size_divisor = 2;
+    sensor.full_resolution = 2400;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 16;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
     sensor.gamma = { 2.2f, 2.2f, 2.2f };
-    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_gl124;
 
     {
         struct CustomSensorSettings {
             ValueFilterAny<unsigned> resolutions;
+            unsigned optical_resolution;
             unsigned register_dpihw;
             unsigned register_dpiset;
             unsigned shading_resolution;
@@ -2329,24 +2261,7 @@ void genesys_init_sensor_tables()
         };
 
         CustomSensorSettings custom_settings[] = {
-            {   { 75 }, 600, 150, 300, 4608, { 462, 609, 453 }, Ratio{1, 4}, 4, std::vector<unsigned>{}, {
-                    { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
-                    { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x01 }, { 0x20, 0x0c },
-                    { 0x52, 0x00 }, { 0x53, 0x02 }, { 0x54, 0x04 }, { 0x55, 0x06 },
-                    { 0x56, 0x04 }, { 0x57, 0x04 }, { 0x58, 0x04 }, { 0x59, 0x04 },
-                    { 0x5a, 0x1a }, { 0x5b, 0x00 }, { 0x5c, 0xc0 },
-                    { 0x61, 0x20 },
-                    { 0x70, 0x06 }, { 0x71, 0x08 }, { 0x72, 0x08 }, { 0x73, 0x0a },
-                    { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x1e },
-                    { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
-                    { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
-                    { 0x88, 0x00 }, { 0x89, 0x65 },
-                    { 0x93, 0x00 }, { 0x94, 0x0a }, { 0x95, 0x18 },
-                    { 0x96, 0x00 }, { 0x97, 0x9a },
-                    { 0x98, 0x21 },
-                }
-            },
-            {   { 100 }, 600, 200, 300, 4608, { 462, 609, 453 }, Ratio{1, 4}, 3,
+            {   { 75 }, 1200, 600, 150, 300, 4608, { 462, 609, 453 }, Ratio{1, 4}, 4,
                 std::vector<unsigned>{}, {
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x01 }, { 0x20, 0x0c },
@@ -2364,7 +2279,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x21 },
                 }
             },
-            {   { 150 }, 600, 300, 300, 4608, { 462, 609, 453 }, Ratio{1, 4}, 2,
+            {   { 100 }, 1200, 600, 200, 300, 4608, { 462, 609, 453 }, Ratio{1, 4}, 3,
                 std::vector<unsigned>{}, {
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x01 }, { 0x20, 0x0c },
@@ -2382,7 +2297,25 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x21 },
                 }
             },
-            {   { 300 }, 600, 600, 300, 4608, { 462, 609, 453 }, Ratio{1, 4}, 1,
+            {   { 150 }, 1200, 600, 300, 300, 4608, { 462, 609, 453 }, Ratio{1, 4}, 2,
+                std::vector<unsigned>{}, {
+                    { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
+                    { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x01 }, { 0x20, 0x0c },
+                    { 0x52, 0x00 }, { 0x53, 0x02 }, { 0x54, 0x04 }, { 0x55, 0x06 },
+                    { 0x56, 0x04 }, { 0x57, 0x04 }, { 0x58, 0x04 }, { 0x59, 0x04 },
+                    { 0x5a, 0x1a }, { 0x5b, 0x00 }, { 0x5c, 0xc0 },
+                    { 0x61, 0x20 },
+                    { 0x70, 0x06 }, { 0x71, 0x08 }, { 0x72, 0x08 }, { 0x73, 0x0a },
+                    { 0x74, 0x00 }, { 0x75, 0x00 }, { 0x76, 0x1e },
+                    { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x9f },
+                    { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
+                    { 0x88, 0x00 }, { 0x89, 0x65 },
+                    { 0x93, 0x00 }, { 0x94, 0x0a }, { 0x95, 0x18 },
+                    { 0x96, 0x00 }, { 0x97, 0x9a },
+                    { 0x98, 0x21 },
+                }
+            },
+            {   { 300 }, 1200, 600, 600, 300, 4608, { 462, 609, 453 }, Ratio{1, 4}, 1,
                 std::vector<unsigned>{}, {
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x00 }, { 0x20, 0x0c },
@@ -2400,7 +2333,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x21 },
                 }
             },
-            {   { 600 }, 600, 600, 600, 5360, { 823, 1117, 805 }, Ratio{1, 4}, 1,
+            {   { 600 }, 2400, 600, 600, 600, 5360, { 823, 1117, 805 }, Ratio{1, 4}, 1,
                 std::vector<unsigned>{}, {
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x00 }, { 0x20, 0x0a },
@@ -2418,7 +2351,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x21 },
                 },
             },
-            {   { 1200 }, 1200, 1200, 1200, 10528, { 6071, 6670, 6042 }, Ratio{1, 4}, 1,
+            {   { 1200 }, 2400, 1200, 1200, 1200, 10528, { 6071, 6670, 6042 }, Ratio{1, 4}, 1,
                 { 0, 1 }, {
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x00 },{ 0x20, 0x08 },
@@ -2436,7 +2369,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x22 },
                 }
             },
-            {   { 2400 }, 2400, 2400, 2400, 20864, { 7451, 8661, 7405 }, Ratio{1, 4}, 1,
+            {   { 2400 }, 2400, 2400, 2400, 2400, 20864, { 7451, 8661, 7405 }, Ratio{1, 4}, 1,
                 { 0, 2, 1, 3 }, {
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x00 }, { 0x20, 0x06 },
@@ -2458,6 +2391,7 @@ void genesys_init_sensor_tables()
 
         for (const auto& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
+            sensor.optical_resolution = setting.optical_resolution;
             sensor.register_dpihw = setting.register_dpihw;
             sensor.register_dpiset = setting.register_dpiset;
             sensor.shading_resolution = setting.shading_resolution;
@@ -2473,19 +2407,18 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_CANON_LIDE_120; // gl124
-    sensor.optical_res = 2400;
-    sensor.ccd_size_divisor = 2;
+    sensor.full_resolution = 2400;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 16;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
     sensor.gamma = { 2.2f, 2.2f, 2.2f };
-    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_gl124;
 
     {
         struct CustomSensorSettings {
             ValueFilterAny<unsigned> resolutions;
+            unsigned optical_resolution;
             unsigned register_dpihw;
             unsigned register_dpiset;
             unsigned shading_resolution;
@@ -2498,7 +2431,7 @@ void genesys_init_sensor_tables()
         };
 
         CustomSensorSettings custom_settings[] = {
-            {   { 75 }, 600, 150, 300, 4608, { 1244, 1294, 1144 }, Ratio{1, 4}, 4,
+            {   { 75 }, 1200, 600, 150, 300, 4608, { 1244, 1294, 1144 }, Ratio{1, 4}, 4,
                 std::vector<unsigned>{}, {
                     { 0x16, 0x15 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x00 }, { 0x20, 0x02 },
@@ -2516,7 +2449,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x21 },
                 },
             },
-            {   { 100 }, 600, 200, 300, 4608, { 1244, 1294, 1144 }, Ratio{1, 4}, 3,
+            {   { 100 }, 1200, 600, 200, 300, 4608, { 1244, 1294, 1144 }, Ratio{1, 4}, 3,
                 std::vector<unsigned>{}, {
                     { 0x16, 0x15 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x00 }, { 0x20, 0x02 },
@@ -2534,7 +2467,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x21 },
                 },
             },
-            {   { 150 }, 600, 300, 300, 4608, { 1244, 1294, 1144 }, Ratio{1, 4}, 2,
+            {   { 150 }, 1200, 600, 300, 300, 4608, { 1244, 1294, 1144 }, Ratio{1, 4}, 2,
                 std::vector<unsigned>{}, {
                     { 0x16, 0x15 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x00 }, { 0x20, 0x02 },
@@ -2552,7 +2485,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x21 },
                 },
             },
-            {   { 300 }, 600, 600, 300, 4608, { 1244, 1294, 1144 }, Ratio{1, 4}, 1,
+            {   { 300 }, 1200, 600, 600, 300, 4608, { 1244, 1294, 1144 }, Ratio{1, 4}, 1,
                 std::vector<unsigned>{}, {
                     { 0x16, 0x15 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x00 }, { 0x20, 0x02 },
@@ -2570,7 +2503,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x21 },
                 },
             },
-            {   { 600 }, 600, 600, 600, 5360, { 2394, 2444, 2144 }, Ratio{1, 4}, 1,
+            {   { 600 }, 2400, 600, 600, 600, 5360, { 2394, 2444, 2144 }, Ratio{1, 4}, 1,
                 std::vector<unsigned>{}, {
                     { 0x16, 0x11 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x00 }, { 0x20, 0x02 },
@@ -2588,7 +2521,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x21 },
                 },
             },
-            {   { 1200 }, 1200, 1200, 1200, 10528, { 4694, 4644, 4094 }, Ratio{1, 2}, 1,
+            {   { 1200 }, 2400, 1200, 1200, 1200, 10528, { 4694, 4644, 4094 }, Ratio{1, 2}, 1,
                 std::vector<unsigned>{}, {
                     { 0x16, 0x15 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x00 }, { 0x20, 0x02 },
@@ -2606,7 +2539,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x21 },
                 },
             },
-            {   { 2400 }, 2400, 2400, 2400, 20864, { 8944, 8144, 7994 }, Ratio{1, 1}, 1,
+            {   { 2400 }, 2400, 2400, 2400, 2400, 20864, { 8944, 8144, 7994 }, Ratio{1, 1}, 1,
                 std::vector<unsigned>{}, {
                     { 0x16, 0x11 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x00 }, { 0x20, 0x02 },
@@ -2628,6 +2561,7 @@ void genesys_init_sensor_tables()
 
         for (const auto& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
+            sensor.optical_resolution = setting.optical_resolution;
             sensor.register_dpihw = setting.register_dpihw;
             sensor.register_dpiset = setting.register_dpiset;
             sensor.shading_resolution = setting.shading_resolution;
@@ -2643,19 +2577,18 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_CANON_LIDE_210; // gl124
-    sensor.optical_res = 4800;
-    sensor.ccd_size_divisor = 2;
+    sensor.full_resolution = 4800;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 16;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
     sensor.gamma = { 2.2f, 2.2f, 2.2f };
-    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_gl124;
 
     {
         struct CustomSensorSettings {
             ValueFilterAny<unsigned> resolutions;
+            unsigned optical_resolution;
             unsigned register_dpihw;
             unsigned register_dpiset;
             unsigned shading_resolution;
@@ -2668,7 +2601,7 @@ void genesys_init_sensor_tables()
         };
 
         CustomSensorSettings custom_settings[] = {
-            {   { 75 }, 600, 150, 300, 2768, { 388, 574, 393 }, Ratio{1, 8}, 4,
+            {   { 75 }, 2400, 600, 150, 300, 2768, { 388, 574, 393 }, Ratio{1, 8}, 4,
                 std::vector<unsigned>{}, {
                     // { 0x16, 0x00 }, // FIXME: check if default value is different
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
@@ -2687,7 +2620,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x21 },
                 }
             },
-            {   { 100 }, 600, 200, 300, 2768, { 388, 574, 393 }, Ratio{1, 8}, 3,
+            {   { 100 }, 2400, 600, 200, 300, 2768, { 388, 574, 393 }, Ratio{1, 8}, 3,
                 std::vector<unsigned>{}, {
                     // { 0x16, 0x00 }, // FIXME: check if default value is different
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
@@ -2706,7 +2639,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x21 },
                 }
             },
-            {   { 150 }, 600, 300, 300, 2768, { 388, 574, 393 }, Ratio{1, 8}, 2,
+            {   { 150 }, 2400, 600, 300, 300, 2768, { 388, 574, 393 }, Ratio{1, 8}, 2,
                 std::vector<unsigned>{}, {
                     // { 0x16, 0x00 }, // FIXME: check if default value is different
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
@@ -2725,7 +2658,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x21 },
                 }
             },
-            {   { 300 }, 600, 600, 300, 2768, { 388, 574, 393 }, Ratio{1, 8}, 1,
+            {   { 300 }, 2400, 600, 600, 300, 2768, { 388, 574, 393 }, Ratio{1, 8}, 1,
                 std::vector<unsigned>{}, {
                     // { 0x16, 0x00 }, // FIXME: check if default value is different
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
@@ -2744,7 +2677,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x21 },
                 }
             },
-            {   { 600 }, 600, 600, 600, 5360, { 388, 574, 393 }, Ratio{1, 8}, 1,
+            {   { 600 }, 4800, 600, 600, 600, 5360, { 388, 574, 393 }, Ratio{1, 8}, 1,
                 std::vector<unsigned>{}, {
                     // { 0x16, 0x00 }, // FIXME: check if default value is different
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
@@ -2763,7 +2696,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x21 },
                 }
             },
-            {   { 1200 }, 1200, 1200, 1200, 10528, { 388, 574, 393 }, Ratio{1, 8}, 1, {0, 1}, {
+            {   { 1200 }, 4800, 1200, 1200, 1200, 10528, { 388, 574, 393 }, Ratio{1, 8}, 1, {0, 1}, {
                     // { 0x16, 0x00 }, // FIXME: check if default value is different
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x01 }, { 0x20, 0x08 },
@@ -2781,7 +2714,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x22 },
                 },
             },
-            {   { 2400 }, 2400, 2400, 2400, 20864, { 6839, 8401, 6859 }, Ratio{1, 8}, 1,
+            {   { 2400 }, 4800, 2400, 2400, 2400, 20864, { 6839, 8401, 6859 }, Ratio{1, 8}, 1,
                 {0, 2, 1, 3}, {
                     // { 0x16, 0x00 }, // FIXME: check if default value is different
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
@@ -2800,7 +2733,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x24 },
                 },
             },
-            {   { 4800 }, 4800, 4800, 4800, 41536, { 9735, 14661, 11345 }, Ratio{1, 8}, 1,
+            {   { 4800 }, 4800, 4800, 4800, 4800, 41536, { 9735, 14661, 11345 }, Ratio{1, 8}, 1,
                 { 0, 2, 4, 6, 1, 3, 5, 7 }, {
                     // { 0x16, 0x00 }, // FIXME: check if default value is different
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
@@ -2823,6 +2756,7 @@ void genesys_init_sensor_tables()
 
         for (const auto& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
+            sensor.optical_resolution = setting.optical_resolution;
             sensor.register_dpihw = setting.register_dpihw;
             sensor.register_dpiset = setting.register_dpiset;
             sensor.shading_resolution = setting.shading_resolution;
@@ -2838,19 +2772,18 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_CANON_LIDE_220; // gl124
-    sensor.optical_res = 4800;
-    sensor.ccd_size_divisor = 2;
+    sensor.full_resolution = 4800;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 16;
     sensor.fau_gain_white_ref = 210;
     sensor.gain_white_ref = 200;
     sensor.exposure = { 0x0000, 0x0000, 0x0000 };
     sensor.gamma = { 2.2f, 2.2f, 2.2f };
-    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_gl124;
 
     {
         struct CustomSensorSettings {
             ValueFilterAny<unsigned> resolutions;
+            unsigned optical_resolution;
             unsigned register_dpihw;
             unsigned register_dpiset;
             unsigned shading_resolution;
@@ -2863,7 +2796,7 @@ void genesys_init_sensor_tables()
         };
 
         CustomSensorSettings custom_settings[] = {
-            {   { 75 }, 600, 150, 300, 2768, { 388, 574, 393 }, Ratio{1, 8}, 4,
+            {   { 75 }, 2400, 600, 150, 300, 2768, { 388, 574, 393 }, Ratio{1, 8}, 4,
                 std::vector<unsigned>{}, {
                     // { 0x16, 0x00 }, // FIXME: check if default value is different
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
@@ -2882,7 +2815,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x21 },
                 }
             },
-            {   { 100 }, 600, 200, 300, 2768, { 388, 574, 393 }, Ratio{1, 8}, 3,
+            {   { 100 }, 2400, 600, 200, 300, 2768, { 388, 574, 393 }, Ratio{1, 8}, 3,
                 std::vector<unsigned>{}, {
                     // { 0x16, 0x00 }, // FIXME: check if default value is different
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
@@ -2901,7 +2834,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x21 },
                 }
             },
-            {   { 150 }, 600, 300, 300, 2768, { 388, 574, 393 }, Ratio{1, 8}, 2,
+            {   { 150 }, 2400, 600, 300, 300, 2768, { 388, 574, 393 }, Ratio{1, 8}, 2,
                 std::vector<unsigned>{}, {
                     // { 0x16, 0x00 }, // FIXME: check if default value is different
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
@@ -2920,7 +2853,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x21 },
                 }
             },
-            {   { 300 }, 600, 600, 300, 2768, { 388, 574, 393 }, Ratio{1, 8}, 1,
+            {   { 300 }, 2400, 600, 600, 300, 2768, { 388, 574, 393 }, Ratio{1, 8}, 1,
                 std::vector<unsigned>{}, {
                     // { 0x16, 0x00 }, // FIXME: check if default value is different
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
@@ -2939,7 +2872,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x21 },
                 }
             },
-            {   { 600 }, 600, 600, 600, 5360, { 388, 574, 393 }, Ratio{1, 8}, 1,
+            {   { 600 }, 4800, 600, 600, 600, 5360, { 388, 574, 393 }, Ratio{1, 8}, 1,
                 std::vector<unsigned>{}, {
                     // { 0x16, 0x00 }, // FIXME: check if default value is different
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
@@ -2958,7 +2891,8 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x21 },
                 }
             },
-            {   { 1200 }, 1200, 1200, 1200, 10528, { 388, 574, 393 }, Ratio{1, 8}, 1, {0, 1}, {
+            {   { 1200 }, 4800, 1200, 1200, 1200, 10528, { 388, 574, 393 }, Ratio{1, 8}, 1,
+                {0, 1}, {
                     // { 0x16, 0x00 }, // FIXME: check if default value is different
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x02 }, { 0x1d, 0x01 }, { 0x20, 0x08 },
@@ -2976,7 +2910,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x22 },
                 }
             },
-            {   { 2400 }, 2400, 2400, 2400, 20864, { 6839, 8401, 6859 }, Ratio{1, 8}, 1,
+            {   { 2400 }, 4800, 2400, 2400, 2400, 20864, { 6839, 8401, 6859 }, Ratio{1, 8}, 1,
                 {0, 2, 1, 3}, {
                     // { 0x16, 0x00 }, // FIXME: check if default value is different
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
@@ -2995,7 +2929,7 @@ void genesys_init_sensor_tables()
                     { 0x98, 0x24 },
                 },
             },
-            {   { 4800 }, 4800, 4800, 4800, 41536, { 9735, 14661, 11345 }, Ratio{1, 8}, 1,
+            {   { 4800 }, 4800, 4800, 4800, 4800, 41536, { 9735, 14661, 11345 }, Ratio{1, 8}, 1,
                 { 0, 2, 4, 6, 1, 3, 5, 7 }, {
                     // { 0x16, 0x00 }, // FIXME: check if default value is different
                     { 0x16, 0x10 }, { 0x17, 0x04 }, { 0x18, 0x00 }, { 0x19, 0x01 },
@@ -3018,6 +2952,7 @@ void genesys_init_sensor_tables()
 
         for (const auto& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
+            sensor.optical_resolution = setting.optical_resolution;
             sensor.register_dpihw = setting.register_dpihw;
             sensor.register_dpiset = setting.register_dpiset;
             sensor.shading_resolution = setting.shading_resolution;
@@ -3033,8 +2968,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_PLUSTEK_OPTICPRO_3600; // gl841
-    sensor.optical_res = 1200;
-    sensor.ccd_size_divisor = 2;
+    sensor.full_resolution = 1200;
     sensor.black_pixels = 87;
     sensor.dummy_pixel = 87;
     sensor.fau_gain_white_ref = 210;
@@ -3048,28 +2982,29 @@ void genesys_init_sensor_tables()
         { 0x70, 0x00 }, { 0x71, 0x00 }, { 0x72, 0x00 }, { 0x73, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     {
         struct CustomSensorSettings
         {
             ValueFilterAny<unsigned> resolutions;
+            unsigned optical_resolution;
             unsigned register_dpihw;
             unsigned register_dpiset;
             int output_pixel_offset;
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 75 }, 600, 150, 11 },
-            { { 100 }, 600, 200, 14 },
-            { { 150 }, 600, 300, 22 },
-            { { 200 }, 600, 400, 29 },
-            { { 300 }, 600, 600, 44 },
-            { { 600 }, 600, 1200, 88 },
-            { { 1200 }, 1200, 1200, 88 },
+            { { 75 }, 600, 600, 150, 11 },
+            { { 100 }, 600, 600, 200, 14 },
+            { { 150 }, 600, 600, 300, 22 },
+            { { 200 }, 600, 600, 400, 29 },
+            { { 300 }, 600, 600, 600, 44 },
+            { { 600 }, 600, 600, 1200, 88 },
+            { { 1200 }, 1200, 1200, 1200, 88 },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
+            sensor.optical_resolution = setting.optical_resolution;
             sensor.register_dpihw = setting.register_dpihw;
             sensor.register_dpiset = setting.register_dpiset;
             sensor.shading_resolution = setting.register_dpihw;
@@ -3081,7 +3016,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_PLUSTEK_OPTICFILM_7200; // gl842
-    sensor.optical_res = 7200;
+    sensor.full_resolution = 7200;
     sensor.register_dpihw = 1200;
     sensor.black_pixels = 88; // TODO
     sensor.dummy_pixel = 19;
@@ -3102,7 +3037,6 @@ void genesys_init_sensor_tables()
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x00 }, { 0x7d, 0x00 }, { 0x7f, 0x01 }
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
     {
         struct CustomSensorSettings
         {
@@ -3134,7 +3068,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_PLUSTEK_OPTICFILM_7200I; // gl843
-    sensor.optical_res = 7200;
+    sensor.full_resolution = 7200;
     sensor.register_dpihw = 1200;
     sensor.black_pixels = 88; // TODO
     sensor.dummy_pixel = 20;
@@ -3173,13 +3107,11 @@ void genesys_init_sensor_tables()
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
     {
         struct CustomSensorSettings
         {
             ValueFilterAny<unsigned> resolutions;
             ScanMethod method;
-            unsigned ccd_size_divisor;
             unsigned shading_resolution;
             Ratio pixel_count_ratio;
             int output_pixel_offset;
@@ -3189,26 +3121,25 @@ void genesys_init_sensor_tables()
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 900 }, ScanMethod::TRANSPARENCY, 1, 900, Ratio{8, 8}, 2, 0x2538, 150, {} },
-            { { 1800 }, ScanMethod::TRANSPARENCY, 1, 1800, Ratio{4, 4}, 5, 0x2538, 300, {} },
-            { { 3600 }, ScanMethod::TRANSPARENCY, 1, 3600, Ratio{2, 2}, 10, 0x2538, 600, {} },
-            { { 7200 }, ScanMethod::TRANSPARENCY, 1, 7200, Ratio{1, 1}, 20, 0x19c8, 1200, {
+            { { 900 }, ScanMethod::TRANSPARENCY, 900, Ratio{8, 8}, 2, 0x2538, 150, {} },
+            { { 1800 }, ScanMethod::TRANSPARENCY, 1800, Ratio{4, 4}, 5, 0x2538, 300, {} },
+            { { 3600 }, ScanMethod::TRANSPARENCY, 3600, Ratio{2, 2}, 10, 0x2538, 600, {} },
+            { { 7200 }, ScanMethod::TRANSPARENCY, 7200, Ratio{1, 1}, 20, 0x19c8, 1200, {
                     { 0x02, 0x1b },
                     { 0x03, 0x14 },
                     { 0x04, 0x20 },
                 }
             },
-            { { 900 }, ScanMethod::TRANSPARENCY_INFRARED, 1, 900, Ratio{8, 8}, 2, 0x1f54, 150, {} },
-            { { 1800 }, ScanMethod::TRANSPARENCY_INFRARED, 1, 1800, Ratio{4, 4}, 5, 0x1f54, 300, {} },
-            { { 3600 }, ScanMethod::TRANSPARENCY_INFRARED, 1, 3600, Ratio{2, 2}, 10, 0x1f54, 600, {} },
-            { { 7200 }, ScanMethod::TRANSPARENCY_INFRARED, 1, 7200, Ratio{1, 1}, 20, 0x1f54, 1200, {} },
+            { { 900 }, ScanMethod::TRANSPARENCY_INFRARED, 900, Ratio{8, 8}, 2, 0x1f54, 150, {} },
+            { { 1800 }, ScanMethod::TRANSPARENCY_INFRARED, 1800, Ratio{4, 4}, 5, 0x1f54, 300, {} },
+            { { 3600 }, ScanMethod::TRANSPARENCY_INFRARED, 3600, Ratio{2, 2}, 10, 0x1f54, 600, {} },
+            { { 7200 }, ScanMethod::TRANSPARENCY_INFRARED, 7200, Ratio{1, 1}, 20, 0x1f54, 1200, {} },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.method = setting.method;
             sensor.shading_resolution = setting.shading_resolution;
-            sensor.ccd_size_divisor = setting.ccd_size_divisor;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;
             sensor.output_pixel_offset = setting.output_pixel_offset;
             sensor.exposure_lperiod = setting.exposure_lperiod;
@@ -3221,7 +3152,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_PLUSTEK_OPTICFILM_7300; // gl843
-    sensor.optical_res = 7200;
+    sensor.full_resolution = 7200;
     sensor.method = ScanMethod::TRANSPARENCY;
     sensor.register_dpihw = 1200;
     sensor.black_pixels = 88; // TODO
@@ -3262,12 +3193,10 @@ void genesys_init_sensor_tables()
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
     {
         struct CustomSensorSettings
         {
             ValueFilterAny<unsigned> resolutions;
-            unsigned ccd_size_divisor;
             unsigned shading_resolution;
             Ratio pixel_count_ratio;
             int output_pixel_offset;
@@ -3275,15 +3204,14 @@ void genesys_init_sensor_tables()
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 900 }, 1, 900, Ratio{8, 8}, 2, 150 },
-            { { 1800 }, 1, 1800, Ratio{4, 4}, 5, 300 },
-            { { 3600 }, 1, 3600, Ratio{2, 2}, 10, 600 },
-            { { 7200 }, 1, 7200, Ratio{1, 1}, 20, 1200 },
+            { { 900 }, 900, Ratio{8, 8}, 2, 150 },
+            { { 1800 }, 1800, Ratio{4, 4}, 5, 300 },
+            { { 3600 }, 3600, Ratio{2, 2}, 10, 600 },
+            { { 7200 }, 7200, Ratio{1, 1}, 20, 1200 },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
-            sensor.ccd_size_divisor = setting.ccd_size_divisor;
             sensor.shading_resolution = setting.shading_resolution;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;
             sensor.output_pixel_offset = setting.output_pixel_offset;
@@ -3295,7 +3223,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_PLUSTEK_OPTICFILM_7400; // gl845
-    sensor.optical_res = 7200;
+    sensor.full_resolution = 7200;
     sensor.method = ScanMethod::TRANSPARENCY;
     sensor.register_dpihw = 1200;
     sensor.black_pixels = 88; // TODO
@@ -3319,7 +3247,6 @@ void genesys_init_sensor_tables()
         { 0x87, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
     {
         struct CustomSensorSettings
         {
@@ -3347,7 +3274,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_PLUSTEK_OPTICFILM_7500I; // gl843
-    sensor.optical_res = 7200;
+    sensor.full_resolution = 7200;
     sensor.register_dpihw = 1200;
     sensor.black_pixels = 88; // TODO
     sensor.dummy_pixel = 20;
@@ -3386,13 +3313,11 @@ void genesys_init_sensor_tables()
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
     {
         struct CustomSensorSettings
         {
             ValueFilterAny<unsigned> resolutions;
             ScanMethod method;
-            unsigned ccd_size_divisor;
             unsigned shading_resolution;
             Ratio pixel_count_ratio;
             int output_pixel_offset;
@@ -3401,20 +3326,19 @@ void genesys_init_sensor_tables()
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 900 }, ScanMethod::TRANSPARENCY, 1, 900, Ratio{8, 8}, 2, 0x2f44, 150 },
-            { { 1800 }, ScanMethod::TRANSPARENCY, 1, 1800, Ratio{4, 4}, 5, 0x2f44, 300 },
-            { { 3600 }, ScanMethod::TRANSPARENCY, 1, 3600, Ratio{2, 2}, 10, 0x2f44, 600 },
-            { { 7200 }, ScanMethod::TRANSPARENCY, 1, 7200, Ratio{1, 1}, 20, 0x2f44, 1200 },
-            { { 900 }, ScanMethod::TRANSPARENCY_INFRARED, 1, 900, Ratio{8, 8}, 2, 0x2af8, 150 },
-            { { 1800 }, ScanMethod::TRANSPARENCY_INFRARED, 1, 1800, Ratio{4, 4}, 5, 0x2af8, 300 },
-            { { 3600 }, ScanMethod::TRANSPARENCY_INFRARED, 1, 3600, Ratio{2, 2}, 10, 0x2af8, 600 },
-            { { 7200 }, ScanMethod::TRANSPARENCY_INFRARED, 1, 7200, Ratio{1, 1}, 20, 0x2af8, 1200 },
+            { { 900 }, ScanMethod::TRANSPARENCY, 900, Ratio{8, 8}, 2, 0x2f44, 150 },
+            { { 1800 }, ScanMethod::TRANSPARENCY, 1800, Ratio{4, 4}, 5, 0x2f44, 300 },
+            { { 3600 }, ScanMethod::TRANSPARENCY, 3600, Ratio{2, 2}, 10, 0x2f44, 600 },
+            { { 7200 }, ScanMethod::TRANSPARENCY, 7200, Ratio{1, 1}, 20, 0x2f44, 1200 },
+            { { 900 }, ScanMethod::TRANSPARENCY_INFRARED, 900, Ratio{8, 8}, 2, 0x2af8, 150 },
+            { { 1800 }, ScanMethod::TRANSPARENCY_INFRARED, 1800, Ratio{4, 4}, 5, 0x2af8, 300 },
+            { { 3600 }, ScanMethod::TRANSPARENCY_INFRARED, 3600, Ratio{2, 2}, 10, 0x2af8, 600 },
+            { { 7200 }, ScanMethod::TRANSPARENCY_INFRARED, 7200, Ratio{1, 1}, 20, 0x2af8, 1200 },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
             sensor.method = setting.method;
-            sensor.ccd_size_divisor = setting.ccd_size_divisor;
             sensor.shading_resolution = setting.shading_resolution;
             sensor.pixel_count_ratio = setting.pixel_count_ratio;
             sensor.output_pixel_offset = setting.output_pixel_offset;
@@ -3427,7 +3351,7 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_PLUSTEK_OPTICFILM_8200I; // gl845
-    sensor.optical_res = 7200;
+    sensor.full_resolution = 7200;
     sensor.method = ScanMethod::TRANSPARENCY;
     sensor.register_dpihw = 1200;
     sensor.black_pixels = 88; // TODO
@@ -3451,7 +3375,6 @@ void genesys_init_sensor_tables()
         { 0x87, 0x00 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_ccd_size_divisor_fun = get_ccd_size_divisor_exact;
     {
         struct CustomSensorSettings
         {
@@ -3489,7 +3412,7 @@ void genesys_init_sensor_tables()
     sensor.exposure_lperiod = 11000;
     sensor.segment_size = 5136;
     sensor.segment_order = {0, 1};
-    sensor.optical_res = 1200;
+    sensor.full_resolution = 1200;
     sensor.black_pixels = 31;
     sensor.dummy_pixel = 31;
     sensor.fau_gain_white_ref = 210;
@@ -3505,7 +3428,6 @@ void genesys_init_sensor_tables()
         { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 },
     };
     sensor.gamma = { 1.7f, 1.7f, 1.7f };
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     {
         struct CustomSensorSettings
         {
@@ -3544,7 +3466,7 @@ void genesys_init_sensor_tables()
     sensor.sensor_id = SensorId::CCD_PLUSTEK_OPTICBOOK_3800; // gl845
     sensor.resolutions = { 75, 100, 150, 300, 600, 1200 };
     sensor.exposure_lperiod = 11000;
-    sensor.optical_res = 1200;
+    sensor.full_resolution = 1200;
     sensor.black_pixels = 31;
     sensor.dummy_pixel = 31;
     sensor.fau_gain_white_ref = 210;
@@ -3562,7 +3484,6 @@ void genesys_init_sensor_tables()
         { 0x87, 0x02 },
     };
     sensor.gamma = { 1.7f, 1.7f, 1.7f };
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     {
         struct CustomSensorSettings
         {
@@ -3594,9 +3515,8 @@ void genesys_init_sensor_tables()
 
     sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_CANON_LIDE_80; // gl841
-    sensor.optical_res = 1200; // real hardware limit is 2400
+    sensor.full_resolution = 1200; // real hardware limit is 2400
     sensor.register_dpihw = 1200;
-    sensor.ccd_size_divisor = 2;
     sensor.black_pixels = 20;
     sensor.dummy_pixel = 6;
     sensor.fau_gain_white_ref = 150;
@@ -3611,11 +3531,11 @@ void genesys_init_sensor_tables()
         { 0x70, 0x00 }, { 0x71, 0x05 }, { 0x72, 0x07 }, { 0x73, 0x09 },
     };
     sensor.gamma = { 1.0f, 1.0f, 1.0f };
-    sensor.get_ccd_size_divisor_fun = default_get_ccd_size_divisor_for_dpi;
     {
         struct CustomSensorSettings
         {
             ValueFilterAny<unsigned> resolutions;
+            unsigned optical_resolution;
             unsigned register_dpiset;
             unsigned shading_resolution;
             unsigned shading_factor;
@@ -3623,17 +3543,18 @@ void genesys_init_sensor_tables()
         };
 
         CustomSensorSettings custom_settings[] = {
-            { { 75 }, 150, 600, 8, 2 },
-            { { 100 }, 200, 600, 6, 3 },
-            { { 150 }, 300, 600, 4, 4 },
-            { { 200 }, 400, 600, 3, 6 },
-            { { 300 }, 600, 600, 2, 9 },
-            { { 600 }, 1200, 600, 1, 17 },
-            { { 1200 }, 1200, 1200, 1, 35 },
+            { { 75 }, 600, 150, 600, 8, 2 },
+            { { 100 }, 600, 200, 600, 6, 3 },
+            { { 150 }, 600, 300, 600, 4, 4 },
+            { { 200 }, 600, 400, 600, 3, 6 },
+            { { 300 }, 600, 600, 600, 2, 9 },
+            { { 600 }, 600, 1200, 600, 1, 17 },
+            { { 1200 }, 1200, 1200, 1200, 1, 35 },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
             sensor.resolutions = setting.resolutions;
+            sensor.optical_resolution = setting.optical_resolution;
             sensor.register_dpiset = setting.register_dpiset;
             sensor.shading_resolution = setting.shading_resolution;
             sensor.shading_factor = setting.shading_factor;
@@ -3654,6 +3575,10 @@ void verify_sensor_tables()
             throw SaneException("Unknown asic for sensor");
         }
         auto asic_type = sensor_to_asic[sensor.sensor_id];
+
+        if (sensor.full_resolution == 0) {
+            throw SaneException("full_resolution is not defined");
+        }
 
         if (sensor.register_dpiset == 0) {
             throw SaneException("register_dpiset is not defined");

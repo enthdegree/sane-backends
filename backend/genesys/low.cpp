@@ -808,8 +808,8 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
                                    const Genesys_Sensor& sensor)
 {
     if (dev->model->asic_type == AsicType::GL646) {
-        s.pixel_startx += s.output_startx * sensor.optical_res / s.params.xres;
-        s.pixel_endx = s.pixel_startx + s.optical_pixels * s.ccd_size_divisor;
+        s.pixel_startx += s.output_startx * sensor.full_resolution / s.params.xres;
+        s.pixel_endx = s.pixel_startx + s.optical_pixels * s.full_resolution / s.optical_resolution;
 
     } else if (dev->model->asic_type == AsicType::GL841 ||
                dev->model->asic_type == AsicType::GL842 ||
@@ -823,7 +823,7 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
                dev->model->asic_type == AsicType::GL847 ||
                dev->model->asic_type == AsicType::GL124)
     {
-        s.pixel_startx = s.output_startx * sensor.optical_res / s.params.xres;
+        s.pixel_startx = s.output_startx * sensor.full_resolution / s.params.xres;
         s.pixel_endx = s.pixel_startx + s.optical_pixels_raw;
     }
 
@@ -896,12 +896,11 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     }
 
     // compute optical and output resolutions
-
-    s.ccd_size_divisor = sensor.get_ccd_size_divisor_for_dpi(s.params.xres);
-    s.pixel_count_ratio = sensor.pixel_count_ratio;
-
-    s.optical_resolution = sensor.optical_res / s.ccd_size_divisor;
+    s.full_resolution = sensor.full_resolution;
+    s.optical_resolution = sensor.get_optical_resolution();
     s.output_resolution = s.params.xres;
+
+    s.pixel_count_ratio = sensor.pixel_count_ratio;
 
     if (s.output_resolution > s.optical_resolution) {
         throw std::runtime_error("output resolution higher than optical resolution");
@@ -923,7 +922,8 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     if (dev->model->asic_type == AsicType::GL843) {
         // ensure the number of optical pixels is divisible by 2.
         // In quarter-CCD mode optical_pixels is 4x larger than the actual physical number
-        s.optical_pixels = align_int_up(s.optical_pixels, 2 * s.ccd_size_divisor);
+        s.optical_pixels = align_int_up(s.optical_pixels,
+                                        2 * s.full_resolution / s.optical_resolution);
 
         if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200 ||
             dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I ||
@@ -1005,7 +1005,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
         }
 
         s.output_line_bytes_raw = multiply_by_depth_ceil(
-                    (s.optical_pixels_raw * s.output_resolution) / sensor.optical_res / s.segment_count,
+                    (s.optical_pixels_raw * s.output_resolution) / sensor.full_resolution / s.segment_count,
                     s.params.depth);
     }
 
@@ -1019,7 +1019,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
         if (dev->model->is_cis) {
             s.output_line_bytes_raw = s.output_channel_bytes;
         }
-        s.conseq_pixel_dist = s.output_pixels / s.ccd_size_divisor / s.segment_count;
+        s.conseq_pixel_dist = s.output_pixels / (s.full_resolution / s.optical_resolution) / s.segment_count;
     }
 
     if (dev->model->asic_type == AsicType::GL842 ||
@@ -1034,7 +1034,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
         dev->model->asic_type == AsicType::GL843)
     {
         s.output_segment_pixel_group_count = s.output_pixels /
-                (s.ccd_size_divisor * s.segment_count);
+                (s.full_resolution / s.optical_resolution * s.segment_count);
     }
     if (dev->model->asic_type == AsicType::GL845 ||
         dev->model->asic_type == AsicType::GL846 ||
@@ -1086,8 +1086,9 @@ static std::size_t get_usb_buffer_read_size(AsicType asic, const ScanSession& se
             return 1;
 
         case AsicType::GL124:
-            // BUG: we shouldn't multiply by channels here nor divide by ccd_size_divisor
-            return session.output_line_bytes_raw / session.ccd_size_divisor * session.params.channels;
+            // BUG: we shouldn't multiply by channels here nor adjuct by resolution factor
+            return session.output_line_bytes_raw * session.optical_resolution / session.full_resolution
+                    * session.params.channels;
 
         case AsicType::GL845:
         case AsicType::GL846:

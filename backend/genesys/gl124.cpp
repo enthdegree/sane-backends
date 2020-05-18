@@ -367,7 +367,7 @@ gl124_init_registers (Genesys_Device * dev)
 
     // fine tune upon device description
     const auto& sensor = sanei_genesys_find_sensor_any(dev);
-    const auto& dpihw_sensor = sanei_genesys_find_sensor(dev, sensor.optical_res,
+    const auto& dpihw_sensor = sanei_genesys_find_sensor(dev, sensor.full_resolution,
                                                          3, ScanMethod::FLATBED);
     sanei_genesys_set_dpihw(dev->reg, dpihw_sensor.register_dpihw);
 }
@@ -528,7 +528,7 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
         r02 |= REG_0x02_AGOHOME;
     }
 
-    if (has_flag(flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE) || (yres >= sensor.optical_res))
+    if (has_flag(flags, ScanFlag::DISABLE_BUFFER_FULL_MOVE) || (yres >= sensor.full_resolution))
     {
         r02 |= REG_0x02_ACDCDIS;
     }
@@ -609,22 +609,6 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
     reg->set16(REG_FMOVDEC, fast_table.table.size());
 }
 
-/** @brief setup optical related registers
- * start and pixels are expressed in optical sensor resolution coordinate
- * space.
- * @param dev scanner device to use
- * @param reg registers to set up
- * @param exposure_time exposure time to use
- * @param used_res scanning resolution used, may differ from
- *        scan's one
- * @param start logical start pixel coordinate
- * @param pixels logical number of pixels to use
- * @param channels number of color channels (currently 1 or 3)
- * @param depth bit depth of the scan (1, 8 or 16)
- * @param ccd_size_divisor whether sensor's timings are such that x coordinates must be halved
- * @param color_filter color channel to use as gray data
- * @param flags optical flags (@see )
- */
 static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                          Genesys_Register_Set* reg, unsigned int exposure_time,
                                          const ScanSession& session)
@@ -743,7 +727,8 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     // MAXWD is expressed in 2 words unit
 
     // BUG: we shouldn't multiply by channels here
-    reg->set24(REG_MAXWD, session.output_line_bytes_raw / session.ccd_size_divisor * session.params.channels);
+    reg->set24(REG_MAXWD, session.output_line_bytes_raw * session.params.channels *
+                              session.optical_resolution / session.full_resolution);
     reg->set24(REG_LPERIOD, exposure_time);
     reg->set16(REG_DUMMY, sensor.dummy_pixel);
 }
@@ -819,7 +804,7 @@ ScanSession CommandSetGl124::calculate_scan_session(const Genesys_Device* dev,
 
     float start = dev->model->x_offset;
     start += settings.tl_x;
-    start /= sensor.get_ccd_size_divisor_for_dpi(settings.xres);
+    start /= sensor.full_resolution / sensor.get_optical_resolution();
     start = static_cast<float>((start * settings.xres) / MM_PER_INCH);
 
     ScanSession session;
@@ -1230,11 +1215,11 @@ void CommandSetGl124::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
     }
 
     ScanSession session;
-    session.params.xres = sensor.optical_res;
+    session.params.xres = sensor.full_resolution;
     session.params.yres = dev->motor.base_ydpi;
-    session.params.startx = dev->model->x_size_calib_mm * sensor.optical_res / MM_PER_INCH / 4;
+    session.params.startx = dev->model->x_size_calib_mm * sensor.full_resolution / MM_PER_INCH / 4;
     session.params.starty = 0;
-    session.params.pixels = dev->model->x_size_calib_mm * sensor.optical_res / MM_PER_INCH / 2;
+    session.params.pixels = dev->model->x_size_calib_mm * sensor.full_resolution / MM_PER_INCH / 2;
     session.params.lines = 1;
     session.params.depth = dev->model->bpp_color_values.front();
     session.params.channels = 3;

@@ -614,7 +614,7 @@ static void gl841_init_motor_regs_feed(Genesys_Device* dev, const Genesys_Sensor
     reg->set8(REG_FASTNO, 1);
     reg->set8(0x69, 1);
     reg->set8(0x6a, fast_table.table.size() / step_multiplier);
-    reg->set8(0x5f, fast_table.table.size() / step_multiplier);
+    reg->set8(0x5f, 1);
 }
 
 static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,

@@ -1093,7 +1093,7 @@ void genesys_init_usb_device_tables()
 
     model.is_cis = true;
     model.is_sheetfed = false;
-    model.sensor_id = SensorId::CIS_CANON_LIDE_35;
+    model.sensor_id = SensorId::CIS_CANON_LIDE_60;
     model.adc_id = AdcId::CANON_LIDE_35;
     model.gpio_id = GpioId::CANON_LIDE_35;
     model.motor_id = MotorId::CANON_LIDE_35;

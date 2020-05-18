@@ -273,6 +273,7 @@ enum class SensorId : unsigned
     CCD_UMAX,
     CCD_XP300,
     CIS_CANON_LIDE_35,
+    CIS_CANON_LIDE_60,
     CIS_CANON_LIDE_80,
     CIS_CANON_LIDE_100,
     CIS_CANON_LIDE_110,

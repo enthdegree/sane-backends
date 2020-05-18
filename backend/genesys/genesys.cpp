@@ -3487,6 +3487,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
                                      target_code);
       break;
     case SensorId::CIS_CANON_LIDE_35:
+        case SensorId::CIS_CANON_LIDE_60:
       compute_averaged_planar (dev, sensor,
                                shading_data.data(),
                                pixels_per_line,

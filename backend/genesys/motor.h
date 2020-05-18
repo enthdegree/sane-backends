@@ -127,10 +127,10 @@ struct MotorSlopeTable
 {
     std::vector<std::uint16_t> table;
 
-    void slice_steps(unsigned count);
+    void slice_steps(unsigned count, unsigned step_multiplier);
 
     // expands the table by the given number of steps
-    void expand_table(unsigned count);
+    void expand_table(unsigned count, unsigned step_multiplier);
 
     std::uint64_t pixeltime_sum() const { return pixeltime_sum_; }
 

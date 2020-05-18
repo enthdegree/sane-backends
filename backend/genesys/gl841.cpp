@@ -681,14 +681,14 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
     auto fast_table = create_slope_table_fastest(dev->model->asic_type, step_multiplier,
                                                  *fast_profile);
 
-    unsigned max_fast_slope_steps_count = 1;
+    unsigned max_fast_slope_steps_count = step_multiplier;
     if (feed_steps > (slow_table.table.size() >> static_cast<unsigned>(motor_profile.step_type)) + 2) {
         max_fast_slope_steps_count = (feed_steps -
             (slow_table.table.size() >> static_cast<unsigned>(motor_profile.step_type))) / 2;
     }
 
     if (fast_table.table.size() > max_fast_slope_steps_count) {
-        fast_table.slice_steps(max_fast_slope_steps_count);
+        fast_table.slice_steps(max_fast_slope_steps_count, step_multiplier);
     }
 
     /* fast fed special cases handling */

@@ -649,10 +649,10 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     // a proper backtracking curve. We're using slightly lower limit to allow at least a minimum
     // distance between accelerations (forward_steps, backward_steps)
     if (slope_table1.table.size() > slope_table2.table.size() + 100) {
-        slope_table2.expand_table(slope_table1.table.size() - 100);
+        slope_table2.expand_table(slope_table1.table.size() - 100, 1);
     }
     if (slope_table2.table.size() > slope_table1.table.size() + 100) {
-        slope_table1.expand_table(slope_table2.table.size() - 100);
+        slope_table1.expand_table(slope_table2.table.size() - 100, 1);
     }
 
     if (slope_table1.table.size() >= slope_table2.table.size()) {

@@ -43,6 +43,7 @@
 
 #define DEBUG_DECLARE_ONLY
 
+#include "low.h"
 #include "motor.h"
 #include "utilities.h"
 #include <cmath>
@@ -81,20 +82,22 @@ MotorSlope MotorSlope::create_from_steps(unsigned initial_w, unsigned max_w,
     return slope;
 }
 
-void MotorSlopeTable::slice_steps(unsigned count)
+void MotorSlopeTable::slice_steps(unsigned count, unsigned step_multiplier)
 {
-    if (count > table.size()) {
-        throw SaneException("Excessive steps count");
+    if (count > table.size() || count < step_multiplier) {
+        throw SaneException("Invalid steps count");
     }
+    count = align_multiple_floor(count, step_multiplier);
     table.resize(count);
     generate_pixeltime_sum();
 }
 
-void MotorSlopeTable::expand_table(unsigned count)
+void MotorSlopeTable::expand_table(unsigned count, unsigned step_multiplier)
 {
     if (table.empty()) {
         throw SaneException("Can't expand empty table");
     }
+    count = align_multiple_ceil(count, step_multiplier);
     table.resize(table.size() + count, table.back());
     generate_pixeltime_sum();
 }

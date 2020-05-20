@@ -169,6 +169,55 @@ std::ostream& operator<<(std::ostream& out, ModelId id)
     return out;
 }
 
+std::ostream& operator<<(std::ostream& out, SensorId id)
+{
+    switch (id) {
+        case SensorId::CCD_5345: out << "CCD_5345"; break;
+        case SensorId::CCD_CANON_4400F: out << "CCD_CANON_4400F"; break;
+        case SensorId::CCD_CANON_8400F: out << "CCD_CANON_8400F"; break;
+        case SensorId::CCD_CANON_8600F: out << "CCD_CANON_8600F"; break;
+        case SensorId::CCD_DP665: out << "CCD_DP665"; break;
+        case SensorId::CCD_DP685: out << "CCD_DP685"; break;
+        case SensorId::CCD_DSMOBILE600: out << "CCD_DSMOBILE600"; break;
+        case SensorId::CCD_DOCKETPORT_487: out << "CCD_DOCKETPORT_487"; break;
+        case SensorId::CCD_G4050: out << "CCD_G4050"; break;
+        case SensorId::CCD_HP2300: out << "CCD_HP2300"; break;
+        case SensorId::CCD_HP2400: out << "CCD_HP2400"; break;
+        case SensorId::CCD_HP3670: out << "CCD_HP3670"; break;
+        case SensorId::CCD_HP_N6310: out << "CCD_HP_N6310"; break;
+        case SensorId::CCD_HP_4850C: out << "CCD_HP_4850C"; break;
+        case SensorId::CCD_IMG101: out << "CCD_IMG101"; break;
+        case SensorId::CCD_KVSS080: out << "CCD_KVSS080"; break;
+        case SensorId::CCD_PLUSTEK_OPTICBOOK_3800: out << "CCD_PLUSTEK_OPTICBOOK_3800"; break;
+        case SensorId::CCD_PLUSTEK_OPTICFILM_7200: out << "CCD_PLUSTEK_OPTICFILM_7200"; break;
+        case SensorId::CCD_PLUSTEK_OPTICFILM_7200I: out << "CCD_PLUSTEK_OPTICFILM_7200I"; break;
+        case SensorId::CCD_PLUSTEK_OPTICFILM_7300: out << "CCD_PLUSTEK_OPTICFILM_7300"; break;
+        case SensorId::CCD_PLUSTEK_OPTICFILM_7400: out << "CCD_PLUSTEK_OPTICFILM_7400"; break;
+        case SensorId::CCD_PLUSTEK_OPTICFILM_7500I: out << "CCD_PLUSTEK_OPTICFILM_7500I"; break;
+        case SensorId::CCD_PLUSTEK_OPTICFILM_8200I: out << "CCD_PLUSTEK_OPTICFILM_8200I"; break;
+        case SensorId::CCD_PLUSTEK_OPTICPRO_3600: out << "CCD_PLUSTEK_OPTICPRO_3600"; break;
+        case SensorId::CCD_ROADWARRIOR: out << "CCD_ROADWARRIOR"; break;
+        case SensorId::CCD_ST12: out << "CCD_ST12"; break;
+        case SensorId::CCD_ST24: out << "CCD_ST24"; break;
+        case SensorId::CCD_UMAX: out << "CCD_UMAX"; break;
+        case SensorId::CCD_XP300: out << "CCD_XP300"; break;
+        case SensorId::CIS_CANON_LIDE_35: out << "CIS_CANON_LIDE_35"; break;
+        case SensorId::CIS_CANON_LIDE_60: out << "CIS_CANON_LIDE_60"; break;
+        case SensorId::CIS_CANON_LIDE_80: out << "CIS_CANON_LIDE_80"; break;
+        case SensorId::CIS_CANON_LIDE_100: out << "CIS_CANON_LIDE_100"; break;
+        case SensorId::CIS_CANON_LIDE_110: out << "CIS_CANON_LIDE_110"; break;
+        case SensorId::CIS_CANON_LIDE_120: out << "CIS_CANON_LIDE_120"; break;
+        case SensorId::CIS_CANON_LIDE_200: out << "CIS_CANON_LIDE_200"; break;
+        case SensorId::CIS_CANON_LIDE_210: out << "CIS_CANON_LIDE_210"; break;
+        case SensorId::CIS_CANON_LIDE_220: out << "CIS_CANON_LIDE_220"; break;
+        case SensorId::CIS_CANON_LIDE_700F: out << "CIS_CANON_LIDE_700F"; break;
+        case SensorId::CIS_XP200: out << "CIS_XP200"; break;
+        default:
+            out << static_cast<unsigned>(id); break;
+    }
+    return out;
+}
+
 std::ostream& operator<<(std::ostream& out, AdcId id)
 {
     switch (id) {

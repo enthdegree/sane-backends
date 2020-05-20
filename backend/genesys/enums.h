@@ -298,6 +298,8 @@ inline void serialize(std::ostream& str, SensorId& x)
     serialize(str, value);
 }
 
+std::ostream& operator<<(std::ostream& out, SensorId id);
+
 
 enum class AdcId : unsigned
 {

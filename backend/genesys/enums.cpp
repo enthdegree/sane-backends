@@ -236,6 +236,7 @@ std::ostream& operator<<(std::ostream& out, AdcId id)
         case AdcId::IMG101: out << "IMG101"; break;
         case AdcId::KVSS080: out << "KVSS080"; break;
         case AdcId::PLUSTEK_OPTICBOOK_3800: out << "PLUSTEK_OPTICBOOK_3800"; break;
+        case AdcId::PLUSTEK_OPTICFILM_7200: out << "PLUSTEK_OPTICFILM_7200"; break;
         case AdcId::PLUSTEK_OPTICFILM_7200I: out << "PLUSTEK_OPTICFILM_7200I"; break;
         case AdcId::PLUSTEK_OPTICFILM_7300: out << "PLUSTEK_OPTICFILM_7300"; break;
         case AdcId::PLUSTEK_OPTICFILM_7400: out << "PLUSTEK_OPTICFILM_7400"; break;
@@ -324,6 +325,7 @@ std::ostream& operator<<(std::ostream& out, MotorId id)
         case MotorId::KVSS080: out << "KVSS080"; break;
         case MotorId::MD_5345: out << "MD_5345"; break;
         case MotorId::PLUSTEK_OPTICBOOK_3800: out << "PLUSTEK_OPTICBOOK_3800"; break;
+        case MotorId::PLUSTEK_OPTICFILM_7200: out << "PLUSTEK_OPTICFILM_7200"; break;
         case MotorId::PLUSTEK_OPTICFILM_7200I: out << "PLUSTEK_OPTICFILM_7200I"; break;
         case MotorId::PLUSTEK_OPTICFILM_7300: out << "PLUSTEK_OPTICFILM_7300"; break;
         case MotorId::PLUSTEK_OPTICFILM_7400: out << "PLUSTEK_OPTICFILM_7400"; break;

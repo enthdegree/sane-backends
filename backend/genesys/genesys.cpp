@@ -4248,62 +4248,53 @@ static unsigned pick_resolution(const std::vector<unsigned>& resolutions, unsign
     return best_res;
 }
 
-static void calc_parameters(Genesys_Scanner* s)
+static Genesys_Settings calculate_scan_settings(Genesys_Scanner* s)
 {
     DBG_HELPER(dbg);
 
-    auto* dev = s->dev;
+    const auto* dev = s->dev;
+    Genesys_Settings settings;
+    settings.scan_method = s->scan_method;
+    settings.scan_mode = option_string_to_scan_color_mode(s->mode);
 
-    float tl_x = 0, tl_y = 0, br_x = 0, br_y = 0;
-
-    tl_x = fixed_to_float(s->pos_top_left_x);
-    tl_y = fixed_to_float(s->pos_top_left_y);
-    br_x = fixed_to_float(s->pos_bottom_right_x);
-    br_y = fixed_to_float(s->pos_bottom_right_y);
-
-    s->params.last_frame = true;	/* only single pass scanning supported */
-
-    if (s->mode == SANE_VALUE_SCAN_MODE_GRAY || s->mode == SANE_VALUE_SCAN_MODE_LINEART) {
-        s->params.format = SANE_FRAME_GRAY;
-    } else {
-        s->params.format = SANE_FRAME_RGB;
+    settings.depth = s->bit_depth;
+    if (settings.depth > 8) {
+        settings.depth = 16;
     }
+    settings.disable_interpolation = s->disable_interpolation;
 
-    if (s->mode == SANE_VALUE_SCAN_MODE_LINEART) {
-        s->params.depth = 1;
-    } else {
-        s->params.depth = s->bit_depth;
-    }
-
-    dev->settings.scan_method = s->scan_method;
-    const auto& resolutions = dev->model->get_resolution_settings(dev->settings.scan_method);
-
-    dev->settings.depth = s->bit_depth;
-    dev->settings.disable_interpolation = s->disable_interpolation;
+    const auto& resolutions = dev->model->get_resolution_settings(settings.scan_method);
 
     // FIXME: use correct sensor
     const auto& sensor = sanei_genesys_find_sensor_any(dev);
 
     // hardware settings
     if (static_cast<unsigned>(s->resolution) > sensor.full_resolution &&
-        dev->settings.disable_interpolation)
+        settings.disable_interpolation)
     {
-        dev->settings.xres = sensor.full_resolution;
+        settings.xres = sensor.full_resolution;
     } else {
-        dev->settings.xres = s->resolution;
+        settings.xres = s->resolution;
     }
-    dev->settings.yres = s->resolution;
+    settings.yres = s->resolution;
 
-    dev->settings.xres = pick_resolution(resolutions.resolutions_x, dev->settings.xres, "X");
-    dev->settings.yres = pick_resolution(resolutions.resolutions_y, dev->settings.yres, "Y");
+    settings.xres = pick_resolution(resolutions.resolutions_x, settings.xres, "X");
+    settings.yres = pick_resolution(resolutions.resolutions_y, settings.yres, "Y");
 
-    s->params.lines = static_cast<unsigned>(((br_y - tl_y) * dev->settings.yres) /
+    settings.tl_x = fixed_to_float(s->pos_top_left_x);
+    settings.tl_y = fixed_to_float(s->pos_top_left_y);
+    float br_x = fixed_to_float(s->pos_bottom_right_x);
+    float br_y = fixed_to_float(s->pos_bottom_right_y);
+
+    settings.lines = static_cast<unsigned>(((br_y - settings.tl_y) * settings.yres) /
                                             MM_PER_INCH);
-    unsigned pixels_per_line = static_cast<unsigned>(((br_x - tl_x) * dev->settings.xres) /
+
+
+    unsigned pixels_per_line = static_cast<unsigned>(((br_x - settings.tl_x) * settings.xres) /
                                                      MM_PER_INCH);
 
-  /* we need an even pixels number
-   * TODO invert test logic or generalize behaviour across all ASICs */
+    // we need an even pixels number
+    // TODO invert test logic or generalize behaviour across all ASICs
     if (has_flag(dev->model->flags, ModelFlag::SIS_SENSOR) ||
         dev->model->asic_type == AsicType::GL847 ||
         dev->model->asic_type == AsicType::GL124 ||
@@ -4311,9 +4302,9 @@ static void calc_parameters(Genesys_Scanner* s)
         dev->model->asic_type == AsicType::GL846 ||
         dev->model->asic_type == AsicType::GL843)
     {
-        if (dev->settings.xres <= 1200) {
+        if (settings.xres <= 1200) {
             pixels_per_line = (pixels_per_line / 4) * 4;
-        } else if (dev->settings.xres < dev->settings.yres) {
+        } else if (settings.xres < settings.yres) {
             // BUG: this is an artifact of the fact that the resolution was twice as large than
             // the actual resolution when scanning above the supported scanner X resolution
             pixels_per_line = (pixels_per_line / 8) * 8;
@@ -4322,14 +4313,14 @@ static void calc_parameters(Genesys_Scanner* s)
         }
     }
 
-  /* corner case for true lineart for sensor with several segments
-   * or when xres is doubled to match yres */
-    if (dev->settings.xres >= 1200 && (
+    // corner case for true lineart for sensor with several segments or when xres is doubled
+    // to match yres */
+    if (settings.xres >= 1200 && (
                 dev->model->asic_type == AsicType::GL124 ||
                 dev->model->asic_type == AsicType::GL847 ||
                 dev->session.params.xres < dev->session.params.yres))
     {
-        if (dev->settings.xres < dev->settings.yres) {
+        if (settings.xres < settings.yres) {
             // FIXME: this is an artifact of the fact that the resolution was twice as large than
             // the actual resolution when scanning above the supported scanner X resolution
             pixels_per_line = (pixels_per_line / 8) * 8;
@@ -4338,67 +4329,97 @@ static void calc_parameters(Genesys_Scanner* s)
         }
     }
 
-    unsigned xres_factor = s->resolution / dev->settings.xres;
-
-    unsigned bytes_per_line = 0;
-
-    if (s->params.depth > 8) {
-        s->params.depth = 16;
-        bytes_per_line = 2 * pixels_per_line;
-    } else if (s->params.depth == 1) {
+    if (s->mode == SANE_VALUE_SCAN_MODE_LINEART || settings.depth == 1) {
         // round down pixel number. This will is lossy operation, at most 7 pixels will be lost
         pixels_per_line = (pixels_per_line / 8) * 8;
-        bytes_per_line = pixels_per_line / 8;
-    } else {
-        bytes_per_line = pixels_per_line;
     }
 
-    if (s->params.format == SANE_FRAME_RGB) {
-        bytes_per_line *= 3;
-    }
-
-    dev->settings.scan_mode = option_string_to_scan_color_mode(s->mode);
-
-    dev->settings.lines = s->params.lines;
-    dev->settings.pixels = pixels_per_line;
-    dev->settings.requested_pixels = pixels_per_line * xres_factor;
-    s->params.pixels_per_line = pixels_per_line * xres_factor;
-    s->params.bytes_per_line = bytes_per_line * xres_factor;
-    dev->settings.tl_x = tl_x;
-    dev->settings.tl_y = tl_y;
-
-    dev->settings.threshold = static_cast<int>(2.55f * (fixed_to_float(s->threshold)));
+    unsigned xres_factor = s->resolution / settings.xres;
+    settings.pixels = pixels_per_line;
+    settings.requested_pixels = pixels_per_line * xres_factor;
 
     if (s->color_filter == "Red") {
-        dev->settings.color_filter = ColorFilter::RED;
+        settings.color_filter = ColorFilter::RED;
     } else if (s->color_filter == "Green") {
-        dev->settings.color_filter = ColorFilter::GREEN;
+        settings.color_filter = ColorFilter::GREEN;
     } else if (s->color_filter == "Blue") {
-        dev->settings.color_filter = ColorFilter::BLUE;
+        settings.color_filter = ColorFilter::BLUE;
     } else {
-        dev->settings.color_filter = ColorFilter::NONE;
+        settings.color_filter = ColorFilter::NONE;
     }
 
     if (s->color_filter == "None") {
-        dev->settings.true_gray = 1;
+        settings.true_gray = 1;
     } else {
-        dev->settings.true_gray = 0;
+        settings.true_gray = 0;
     }
 
-    dev->settings.threshold_curve = s->threshold_curve;
+    settings.threshold = static_cast<int>(2.55f * (fixed_to_float(s->threshold)));
+    settings.threshold_curve = s->threshold_curve;
 
     // brigthness and contrast only for for 8 bit scans
     if (s->bit_depth <= 8) {
-        dev->settings.contrast = (s->contrast * 127) / 100;
-        dev->settings.brightness = (s->brightness * 127) / 100;
+        settings.contrast = (s->contrast * 127) / 100;
+        settings.brightness = (s->brightness * 127) / 100;
     } else {
-        dev->settings.contrast=0;
-        dev->settings.brightness=0;
+        settings.contrast = 0;
+        settings.brightness = 0;
     }
 
-    dev->settings.expiration_time = s->expiration_time;
+    settings.expiration_time = s->expiration_time;
+
+    return settings;
 }
 
+static SANE_Parameters calculate_scan_parameters(const Genesys_Settings& settings,
+                                                 int resolution)
+{
+    DBG_HELPER(dbg);
+    SANE_Parameters params;
+    if (settings.scan_mode == ScanColorMode::GRAY ||
+        settings.scan_mode == ScanColorMode::LINEART)
+    {
+        params.format = SANE_FRAME_GRAY;
+    } else {
+        params.format = SANE_FRAME_RGB;
+    }
+    // only single-pass scanning supported
+    params.last_frame = true;
+
+    params.depth = settings.depth;
+    if (settings.scan_mode == ScanColorMode::LINEART) {
+        params.depth = 1;
+    }
+
+    unsigned bytes_per_line = 0;
+    if (params.depth == 16) {
+        bytes_per_line = 2 * settings.pixels;
+    } else if (params.depth == 1) {
+        bytes_per_line = settings.pixels / 8;
+    } else {
+        bytes_per_line = settings.pixels;
+    }
+
+    if (params.format == SANE_FRAME_RGB) {
+        bytes_per_line *= 3;
+    }
+
+    unsigned xres_factor = resolution / settings.xres;
+
+    params.lines = settings.lines;
+    params.pixels_per_line = settings.pixels * xres_factor;
+    params.bytes_per_line = bytes_per_line * xres_factor;
+
+    return params;
+}
+
+static void calc_parameters(Genesys_Scanner* s)
+{
+    DBG_HELPER(dbg);
+
+    s->dev->settings = calculate_scan_settings(s);
+    s->params = calculate_scan_parameters(s->dev->settings, s->resolution);
+}
 
 static void create_bpp_list (Genesys_Scanner * s, const std::vector<unsigned>& bpp)
 {

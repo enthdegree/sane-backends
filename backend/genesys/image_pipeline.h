@@ -414,8 +414,6 @@ private:
 class ImagePipelineNodePixelShiftLines : public ImagePipelineNode
 {
 public:
-    constexpr static std::size_t MAX_SHIFTS = 2;
-
     ImagePipelineNodePixelShiftLines(ImagePipelineNode& source,
                                      const std::vector<std::size_t>& shifts);
 

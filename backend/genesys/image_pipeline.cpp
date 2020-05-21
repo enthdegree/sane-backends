@@ -542,17 +542,6 @@ ImagePipelineNodePixelShiftLines::ImagePipelineNodePixelShiftLines(
     pixel_shifts_{shifts},
     buffer_{get_row_bytes()}
 {
-    DBG_HELPER(dbg);
-    DBG(DBG_proc, "%s: shifts={", __func__);
-    for (auto el : pixel_shifts_) {
-        DBG(DBG_proc, " %zu", el);
-    }
-    DBG(DBG_proc, " }\n");
-
-    if (pixel_shifts_.size() > MAX_SHIFTS) {
-        throw SaneException("Unsupported number of shift configurations %zu", pixel_shifts_.size());
-    }
-
     extra_height_ = *std::max_element(pixel_shifts_.begin(), pixel_shifts_.end());
     height_ = source_.get_height();
     if (extra_height_ > height_) {
@@ -577,7 +566,8 @@ bool ImagePipelineNodePixelShiftLines::get_next_row_data(std::uint8_t* out_data)
     auto format = get_format();
     auto shift_count = pixel_shifts_.size();
 
-    std::array<std::uint8_t*, MAX_SHIFTS> rows;
+    std::vector<std::uint8_t*> rows;
+    rows.resize(shift_count, nullptr);
 
     for (std::size_t irow = 0; irow < shift_count; ++irow) {
         rows[irow] = buffer_.get_row_ptr(pixel_shifts_[irow]);

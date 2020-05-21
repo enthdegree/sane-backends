@@ -74,7 +74,6 @@
 #include "test_scanner_interface.h"
 #include "test_settings.h"
 #include "../include/sane/sanei_config.h"
-#include "../include/sane/sanei_magic.h"
 
 #include <array>
 #include <cmath>
@@ -130,12 +129,6 @@ static SANE_String_Const cis_color_filter_list[] = {
   SANE_I18N ("Blue"),
   SANE_I18N ("None"),
     nullptr
-};
-
-static SANE_Range swdespeck_range = {
-  1,
-  9,
-  1
 };
 
 static SANE_Range time_range = {
@@ -4449,20 +4442,6 @@ static void calc_parameters(Genesys_Scanner* s)
     // threshold curve for dynamic rasterization
     s->dev->settings.threshold_curve = s->threshold_curve;
 
-  /* some digital processing requires the whole picture to be buffered */
-  /* no digital processing takes place when doing preview, or when bit depth is
-   * higher than 8 bits */
-    if ((s->swdespeck || s->swcrop || s->swdeskew || s->swderotate ||(fixed_to_float(s->swskip)>0))
-        && (!s->preview)
-        && (s->bit_depth <= 8))
-    {
-        s->dev->buffer_image = true;
-    }
-  else
-    {
-        s->dev->buffer_image = false;
-    }
-
   /* brigthness and contrast only for for 8 bit scans */
   if(s->bit_depth <= 8)
     {
@@ -4853,61 +4832,6 @@ static void init_options(Genesys_Scanner* s)
    * memory than used by the full scanned image and may fail at high
    * resolution
    */
-  /* software deskew */
-  s->opt[OPT_SWDESKEW].name = "swdeskew";
-  s->opt[OPT_SWDESKEW].title = "Software deskew";
-  s->opt[OPT_SWDESKEW].desc = "Request backend to rotate skewed pages digitally";
-  s->opt[OPT_SWDESKEW].type = SANE_TYPE_BOOL;
-  s->opt[OPT_SWDESKEW].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
-  s->swdeskew = false;
-
-  /* software deskew */
-  s->opt[OPT_SWDESPECK].name = "swdespeck";
-  s->opt[OPT_SWDESPECK].title = "Software despeck";
-  s->opt[OPT_SWDESPECK].desc = "Request backend to remove lone dots digitally";
-  s->opt[OPT_SWDESPECK].type = SANE_TYPE_BOOL;
-  s->opt[OPT_SWDESPECK].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
-  s->swdespeck = false;
-
-  /* software despeckle radius */
-  s->opt[OPT_DESPECK].name = "despeck";
-  s->opt[OPT_DESPECK].title = "Software despeckle diameter";
-  s->opt[OPT_DESPECK].desc = "Maximum diameter of lone dots to remove from scan";
-  s->opt[OPT_DESPECK].type = SANE_TYPE_INT;
-  s->opt[OPT_DESPECK].unit = SANE_UNIT_NONE;
-  s->opt[OPT_DESPECK].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_DESPECK].constraint.range = &swdespeck_range;
-  s->opt[OPT_DESPECK].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED | SANE_CAP_INACTIVE;
-  s->despeck = 1;
-
-  /* crop by software */
-  s->opt[OPT_SWCROP].name = "swcrop";
-  s->opt[OPT_SWCROP].title = SANE_I18N ("Software crop");
-  s->opt[OPT_SWCROP].desc = SANE_I18N ("Request backend to remove border from pages digitally");
-  s->opt[OPT_SWCROP].type = SANE_TYPE_BOOL;
-  s->opt[OPT_SWCROP].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
-  s->opt[OPT_SWCROP].unit = SANE_UNIT_NONE;
-  s->swcrop = false;
-
-  /* Software blank page skip */
-  s->opt[OPT_SWSKIP].name = "swskip";
-  s->opt[OPT_SWSKIP].title = SANE_I18N ("Software blank skip percentage");
-  s->opt[OPT_SWSKIP].desc = SANE_I18N("Request driver to discard pages with low numbers of dark pixels");
-  s->opt[OPT_SWSKIP].type = SANE_TYPE_FIXED;
-  s->opt[OPT_SWSKIP].unit = SANE_UNIT_PERCENT;
-  s->opt[OPT_SWSKIP].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_SWSKIP].constraint.range = &(percentage_range);
-  s->opt[OPT_SWSKIP].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
-  s->swskip = 0;    // disable by default
-
-  /* Software Derotate */
-  s->opt[OPT_SWDEROTATE].name = "swderotate";
-  s->opt[OPT_SWDEROTATE].title = SANE_I18N ("Software derotate");
-  s->opt[OPT_SWDEROTATE].desc = SANE_I18N("Request driver to detect and correct 90 degree image rotation");
-  s->opt[OPT_SWDEROTATE].type = SANE_TYPE_BOOL;
-  s->opt[OPT_SWDEROTATE].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
-  s->opt[OPT_SWDEROTATE].unit = SANE_UNIT_NONE;
-  s->swderotate = false;
 
   /* Software brightness */
   s->opt[OPT_BRIGHTNESS].name = SANE_NAME_BRIGHTNESS;
@@ -5446,114 +5370,6 @@ static void write_calibration(Genesys_Device::Calibration& calibration, const st
     write_calibration(str, calibration);
 }
 
-/** @brief buffer scanned picture
- * In order to allow digital processing, we must be able to put all the
- * scanned picture in a buffer.
- */
-static void genesys_buffer_image(Genesys_Scanner *s)
-{
-    DBG_HELPER(dbg);
-  size_t maximum;     /**> maximum bytes size of the scan */
-  size_t len;	      /**> length of scanned data read */
-  size_t total;	      /**> total of butes read */
-  size_t size;	      /**> size of image buffer */
-  size_t read_size;   /**> size of reads */
-  int lines;	      /** number of lines of the scan */
-  Genesys_Device *dev = s->dev;
-
-  /* compute maximum number of lines for the scan */
-  if (s->params.lines > 0)
-    {
-      lines = s->params.lines;
-    }
-  else
-    {
-        lines = static_cast<int>((dev->model->y_size * dev->settings.yres) / MM_PER_INCH);
-    }
-  DBG(DBG_info, "%s: buffering %d lines of %d bytes\n", __func__, lines,
-      s->params.bytes_per_line);
-
-  /* maximum bytes to read */
-  maximum = s->params.bytes_per_line * lines;
-    if (s->dev->settings.scan_mode == ScanColorMode::LINEART) {
-      maximum *= 8;
-    }
-
-  /* initial size of the read buffer */
-  size =
-    ((2048 * 2048) / s->params.bytes_per_line) * s->params.bytes_per_line;
-
-  /* read size */
-  read_size = size / 2;
-
-  dev->img_buffer.resize(size);
-
-  /* loop reading data until we reach maximum or EOF */
-    total = 0;
-    while (total < maximum) {
-      len = size - maximum;
-      if (len > read_size)
-	{
-	  len = read_size;
-	}
-
-        try {
-            genesys_read_ordered_data(dev, dev->img_buffer.data() + total, &len);
-        } catch (const SaneException& e) {
-            if (e.status() == SANE_STATUS_EOF) {
-                // ideally we shouldn't end up here, but because computations are duplicated and
-                // slightly different everywhere in the genesys backend, we have no other choice
-                break;
-            }
-            throw;
-        }
-      total += len;
-
-        // do we need to enlarge read buffer ?
-        if (total + read_size > size) {
-            size += read_size;
-            dev->img_buffer.resize(size);
-        }
-    }
-
-  /* since digital processing is going to take place,
-   * issue head parking command so that the head move while
-   * computing so we can save time
-   */
-    if (!dev->model->is_sheetfed && !dev->parking) {
-        dev->cmd_set->move_back_home(dev, has_flag(dev->model->flags, ModelFlag::MUST_WAIT));
-        dev->parking = !has_flag(s->dev->model->flags, ModelFlag::MUST_WAIT);
-    }
-
-  /* in case of dynamic lineart, we have buffered gray data which
-   * must be converted to lineart first */
-    if (s->dev->settings.scan_mode == ScanColorMode::LINEART) {
-      total/=8;
-      std::vector<uint8_t> lineart(total);
-
-      genesys_gray_lineart (dev,
-                            dev->img_buffer.data(),
-                            lineart.data(),
-                            dev->settings.pixels,
-                            (total*8)/dev->settings.pixels,
-                            dev->settings.threshold);
-      dev->img_buffer = lineart;
-    }
-
-  /* update counters */
-  dev->total_bytes_to_read = total;
-  dev->total_bytes_read = 0;
-
-  /* update params */
-    s->params.lines = total / s->params.bytes_per_line;
-
-    if (dbg_log_image_data()) {
-      sanei_genesys_write_pnm_file("gl_unprocessed.pnm", dev->img_buffer.data(), s->params.depth,
-                                   s->params.format==SANE_FRAME_RGB ? 3 : 1,
-                                   s->params.pixels_per_line, s->params.lines);
-    }
-}
-
 /* -------------------------- SANE API functions ------------------------- */
 
 void sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
@@ -5578,9 +5394,6 @@ void sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
     if (!is_testing_mode()) {
         sanei_usb_init();
     }
-
-  /* init sanei_magic */
-  sanei_magic_init();
 
   s_scanners.init();
   s_devices.init();
@@ -5991,24 +5804,6 @@ static void get_option_value(Genesys_Scanner* s, int option, void* val)
     case OPT_LAMP_OFF_TIME:
         *reinterpret_cast<SANE_Word*>(val) = s->lamp_off_time;
         break;
-    case OPT_SWDESKEW:
-        *reinterpret_cast<SANE_Word*>(val) = s->swdeskew;
-        break;
-    case OPT_SWCROP:
-        *reinterpret_cast<SANE_Word*>(val) = s->swcrop;
-        break;
-    case OPT_SWDESPECK:
-        *reinterpret_cast<SANE_Word*>(val) = s->swdespeck;
-        break;
-    case OPT_SWDEROTATE:
-        *reinterpret_cast<SANE_Word*>(val) = s->swderotate;
-        break;
-    case OPT_SWSKIP:
-        *reinterpret_cast<SANE_Word*>(val) = s->swskip;
-        break;
-    case OPT_DESPECK:
-        *reinterpret_cast<SANE_Word*>(val) = s->despeck;
-        break;
     case OPT_CONTRAST:
         *reinterpret_cast<SANE_Word*>(val) = s->contrast;
         break;
@@ -6212,31 +6007,6 @@ static void set_option_value(Genesys_Scanner* s, int option, void *val, SANE_Int
         calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
-    case OPT_SWCROP:
-        s->swcrop = *reinterpret_cast<SANE_Word*>(val);
-        calc_parameters(s);
-        *myinfo |= SANE_INFO_RELOAD_PARAMS;
-        break;
-    case OPT_SWDESKEW:
-        s->swdeskew = *reinterpret_cast<SANE_Word*>(val);
-        calc_parameters(s);
-        *myinfo |= SANE_INFO_RELOAD_PARAMS;
-        break;
-    case OPT_DESPECK:
-        s->despeck = *reinterpret_cast<SANE_Word*>(val);
-        calc_parameters(s);
-        *myinfo |= SANE_INFO_RELOAD_PARAMS;
-        break;
-    case OPT_SWDEROTATE:
-        s->swderotate = *reinterpret_cast<SANE_Word*>(val);
-        calc_parameters(s);
-        *myinfo |= SANE_INFO_RELOAD_PARAMS;
-        break;
-    case OPT_SWSKIP:
-        s->swskip = *reinterpret_cast<SANE_Word*>(val);
-        calc_parameters(s);
-        *myinfo |= SANE_INFO_RELOAD_PARAMS;
-        break;
     case OPT_DISABLE_INTERPOLATION:
         s->disable_interpolation = *reinterpret_cast<SANE_Word*>(val);
         calc_parameters(s);
@@ -6262,38 +6032,14 @@ static void set_option_value(Genesys_Scanner* s, int option, void *val, SANE_Int
         calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
-    case OPT_SWDESPECK:
-        s->swdespeck = *reinterpret_cast<SANE_Word*>(val);
-        if (s->swdespeck) {
-            ENABLE(OPT_DESPECK);
-        } else {
-            DISABLE(OPT_DESPECK);
-        }
-        calc_parameters(s);
-      *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
-      break;
     /* software enhancement functions only apply to 8 or 1 bits data */
     case OPT_BIT_DEPTH:
         s->bit_depth = *reinterpret_cast<SANE_Word*>(val);
         if(s->bit_depth>8)
         {
-          DISABLE(OPT_SWDESKEW);
-          DISABLE(OPT_SWDESPECK);
-          DISABLE(OPT_SWCROP);
-          DISABLE(OPT_DESPECK);
-          DISABLE(OPT_SWDEROTATE);
-          DISABLE(OPT_SWSKIP);
           DISABLE(OPT_CONTRAST);
           DISABLE(OPT_BRIGHTNESS);
-        }
-      else
-        {
-          ENABLE(OPT_SWDESKEW);
-          ENABLE(OPT_SWDESPECK);
-          ENABLE(OPT_SWCROP);
-          ENABLE(OPT_DESPECK);
-          ENABLE(OPT_SWDEROTATE);
-          ENABLE(OPT_SWSKIP);
+            } else {
           ENABLE(OPT_CONTRAST);
           ENABLE(OPT_BRIGHTNESS);
         }
@@ -6586,7 +6332,7 @@ void sane_get_parameters_impl(SANE_Handle handle, SANE_Parameters* params)
        * don't know the real document height.
        * We don't do that doing buffering image for digital processing
        */
-        if (s->dev->model->is_sheetfed && !s->dev->buffer_image &&
+        if (s->dev->model->is_sheetfed &&
             s->pos_bottom_right_y == s->opt[OPT_BR_Y].constraint.range->max)
         {
 	  params->lines = -1;
@@ -6644,52 +6390,6 @@ void sane_start_impl(SANE_Handle handle)
         s->dev->binarize_buffer.alloc(s->dev->settings.pixels);
         s->dev->local_buffer.clear();
         s->dev->local_buffer.alloc(s->dev->binarize_buffer.size() * 8);
-    }
-
-  /* if one of the software enhancement option is selected,
-   * we do the scan internally, process picture then put it an internal
-   * buffer. Since cropping may change scan parameters, we recompute them
-   * at the end */
-  if (s->dev->buffer_image)
-    {
-        genesys_buffer_image(s);
-
-      /* check if we need to skip this page, sheetfed scanners
-       * can go to next doc while flatbed ones can't */
-        if (s->swskip > 0 && IS_ACTIVE(OPT_SWSKIP)) {
-            auto status = sanei_magic_isBlank(&s->params,
-                                              s->dev->img_buffer.data(),
-                                              fixed_to_float(s->swskip));
-
-            if (status == SANE_STATUS_NO_DOCS && s->dev->model->is_sheetfed) {
-                DBG(DBG_info, "%s: blank page, recurse\n", __func__);
-                sane_start(handle);
-                return;
-            }
-
-            if (status != SANE_STATUS_GOOD) {
-                throw SaneException(status);
-            }
-        }
-
-        if (s->swdeskew) {
-            const auto& sensor = sanei_genesys_find_sensor(s->dev, s->dev->settings.xres,
-                                                           s->dev->settings.get_channels(),
-                                                           s->dev->settings.scan_method);
-            catch_all_exceptions(__func__, [&](){ genesys_deskew(s, sensor); });
-        }
-
-        if (s->swdespeck) {
-            catch_all_exceptions(__func__, [&](){ genesys_despeck(s); });
-        }
-
-        if(s->swcrop) {
-            catch_all_exceptions(__func__, [&](){ genesys_crop(s); });
-        }
-
-        if(s->swderotate) {
-            catch_all_exceptions(__func__, [&](){ genesys_derotate(s); });
-        }
     }
 }
 
@@ -6754,65 +6454,46 @@ void sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_
 
   local_len = max_len;
 
-  /* in case of image processing, all data has been stored in
-   * buffer_image. So read data from it if it exists, else from scanner */
-  if(!dev->buffer_image)
-    {
-      /* dynamic lineart is another kind of digital processing that needs
-       * another layer of buffering on top of genesys_read_ordered_data */
-        if (dev->settings.scan_mode == ScanColorMode::LINEART) {
-          /* if buffer is empty, fill it with genesys_read_ordered_data */
-          if(dev->binarize_buffer.avail() == 0)
-            {
-              /* store gray data */
-              local_len=dev->local_buffer.size();
-              dev->local_buffer.reset();
-                genesys_read_ordered_data(dev, dev->local_buffer.get_write_pos(local_len),
-                                          &local_len);
-              dev->local_buffer.produce(local_len);
+    // dynamic lineart is another kind of digital processing that needs
+    // another layer of buffering on top of genesys_read_ordered_data
+    if (dev->settings.scan_mode == ScanColorMode::LINEART) {
+        // if buffer is empty, fill it with genesys_read_ordered_data
+        if (dev->binarize_buffer.avail() == 0) {
+            // store gray data
+            local_len=dev->local_buffer.size();
+            dev->local_buffer.reset();
+            genesys_read_ordered_data(dev, dev->local_buffer.get_write_pos(local_len),
+                                        &local_len);
+            dev->local_buffer.produce(local_len);
 
-                dev->binarize_buffer.reset();
-                if (!is_testing_mode()) {
-                    genesys_gray_lineart(dev, dev->local_buffer.get_read_pos(),
-                                         dev->binarize_buffer.get_write_pos(local_len / 8),
-                                         dev->settings.pixels,
-                                         local_len / dev->settings.pixels,
-                                         dev->settings.threshold);
-                }
-                dev->binarize_buffer.produce(local_len / 8);
+            dev->binarize_buffer.reset();
+            if (!is_testing_mode()) {
+                genesys_gray_lineart(dev, dev->local_buffer.get_read_pos(),
+                                     dev->binarize_buffer.get_write_pos(local_len / 8),
+                                     dev->settings.pixels,
+                                     local_len / dev->settings.pixels,
+                                     dev->settings.threshold);
             }
+            dev->binarize_buffer.produce(local_len / 8);
+        }
 
-          /* return data from lineart buffer if any, up to the available amount */
-          local_len = max_len;
-          if (static_cast<std::size_t>(max_len) > dev->binarize_buffer.avail())
-            {
-              local_len=dev->binarize_buffer.avail();
-            }
-          if(local_len)
-            {
-              memcpy(buf, dev->binarize_buffer.get_read_pos(), local_len);
-              dev->binarize_buffer.consume(local_len);
-            }
+        // return data from lineart buffer if any, up to the available amount
+        local_len = max_len;
+        if (static_cast<std::size_t>(max_len) > dev->binarize_buffer.avail()) {
+            local_len=dev->binarize_buffer.avail();
         }
-      else
-        {
-            // most usual case, direct read of data from scanner */
-            genesys_read_ordered_data(dev, buf, &local_len);
+        if (local_len) {
+            std::memcpy(buf, dev->binarize_buffer.get_read_pos(), local_len);
+            dev->binarize_buffer.consume(local_len);
         }
-    }
-  else /* read data from buffer */
-    {
-      if(dev->total_bytes_read+local_len>dev->total_bytes_to_read)
-        {
-          local_len=dev->total_bytes_to_read-dev->total_bytes_read;
-        }
-      memcpy(buf, dev->img_buffer.data() + dev->total_bytes_read, local_len);
-      dev->total_bytes_read+=local_len;
+    } else {
+        // most usual case, direct read of data from scanner */
+        genesys_read_ordered_data(dev, buf, &local_len);
     }
 
   *len = local_len;
     if (local_len > static_cast<std::size_t>(max_len)) {
-      fprintf (stderr, "[genesys] sane_read: returning incorrect length!!\n");
+        dbg.log(DBG_error, "error: returning incorrect length");
     }
   DBG(DBG_proc, "%s: %d bytes returned\n", __func__, *len);
 }

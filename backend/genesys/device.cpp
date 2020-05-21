@@ -270,7 +270,6 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev)
         << "    line_count: " << dev.line_count << '\n'
         << "    segment_order: "
         << format_indent_braced_list(4, format_vector_unsigned(4, dev.segment_order)) << '\n'
-        << "    buffer_image: " << dev.buffer_image << '\n'
         << "    img_buffer.size(): " << dev.img_buffer.size() << '\n'
         << '}';
     return out;

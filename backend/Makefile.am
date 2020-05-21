@@ -578,7 +578,10 @@ libgenesys_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=genesys
 nodist_libsane_genesys_la_SOURCES = genesys-s.cpp
 libsane_genesys_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=genesys
 libsane_genesys_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
-libsane_genesys_la_LIBADD = $(COMMON_LIBS) libgenesys.la  ../sanei/sanei_magic.lo ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo sane_strstatus.lo ../sanei/sanei_usb.lo $(MATH_LIB) $(USB_LIBS) $(RESMGR_LIBS)
+libsane_genesys_la_LIBADD = $(COMMON_LIBS) libgenesys.la \
+    ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo \
+    ../sanei/sanei_config.lo sane_strstatus.lo ../sanei/sanei_usb.lo \
+    $(MATH_LIB) $(USB_LIBS) $(RESMGR_LIBS)
 EXTRA_DIST += genesys.conf.in
 
 libgphoto2_i_la_SOURCES = gphoto2.c gphoto2.h

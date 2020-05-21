@@ -45,7 +45,6 @@
 #define DEBUG_DECLARE_ONLY
 
 #include "conv.h"
-#include "sane/sanei_magic.h"
 
 namespace genesys {
 
@@ -153,84 +152,6 @@ void genesys_gray_lineart(Genesys_Device* dev,
       binarize_line (dev, src_data + y * pixels, dst_data, pixels);
       dst_data += pixels / 8;
     }
-}
-
-/** Look in image for likely left/right/bottom paper edges, then crop image.
- */
-void genesys_crop(Genesys_Scanner* s)
-{
-    DBG_HELPER(dbg);
-  Genesys_Device *dev = s->dev;
-  int top = 0;
-  int bottom = 0;
-  int left = 0;
-  int right = 0;
-
-    // first find edges if any
-    TIE(sanei_magic_findEdges(&s->params, dev->img_buffer.data(),
-                              dev->settings.xres, dev->settings.yres,
-                              &top, &bottom, &left, &right));
-
-  DBG (DBG_io, "%s: t:%d b:%d l:%d r:%d\n", __func__, top, bottom, left,
-       right);
-
-    // now crop the image
-    TIE(sanei_magic_crop (&(s->params), dev->img_buffer.data(), top, bottom, left, right));
-
-  /* update counters to new image size */
-  dev->total_bytes_to_read = s->params.bytes_per_line * s->params.lines;
-}
-
-/** Look in image for likely upper and left paper edges, then rotate
- * image so that upper left corner of paper is upper left of image.
- */
-void genesys_deskew(Genesys_Scanner *s, const Genesys_Sensor& sensor)
-{
-    DBG_HELPER(dbg);
-  Genesys_Device *dev = s->dev;
-
-  int x = 0, y = 0, bg;
-  double slope = 0;
-
-  bg=0;
-  if(s->params.format==SANE_FRAME_GRAY && s->params.depth == 1)
-    {
-      bg=0xff;
-    }
-    TIE(sanei_magic_findSkew(&s->params, dev->img_buffer.data(),
-                             sensor.full_resolution, sensor.full_resolution,
-                             &x, &y, &slope));
-
-    DBG(DBG_info, "%s: slope=%f => %f\n", __func__, slope, slope * 180 / M_PI);
-
-    // rotate image slope is in [-PI/2,PI/2]. Positive values rotate trigonometric direction wise
-    TIE(sanei_magic_rotate(&s->params, dev->img_buffer.data(),
-                           x, y, slope, bg));
-}
-
-/** remove lone dots
- */
-void genesys_despeck(Genesys_Scanner* s)
-{
-    DBG_HELPER(dbg);
-    TIE(sanei_magic_despeck(&s->params, s->dev->img_buffer.data(), s->despeck));
-}
-
-/** Look if image needs rotation and apply it
- * */
-void genesys_derotate(Genesys_Scanner* s)
-{
-    DBG_HELPER(dbg);
-  int angle = 0;
-
-    TIE(sanei_magic_findTurn(&s->params, s->dev->img_buffer.data(),
-                             s->resolution, s->resolution, &angle));
-
-    // apply rotation angle found
-    TIE(sanei_magic_turn(&s->params, s->dev->img_buffer.data(), angle));
-
-    // update counters to new image size
-    s->dev->total_bytes_to_read = s->params.bytes_per_line * s->params.lines;
 }
 
 } // namespace genesys

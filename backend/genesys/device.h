@@ -353,9 +353,6 @@ struct Genesys_Device
     // an buffer that allows reading from `pipeline` in chunks of any size
     ImageBuffer pipeline_buffer;
 
-    // when true the scanned picture is first buffered to allow software image enhancements
-    bool buffer_image = false;
-
     // image buffer where the scanned picture is stored
     std::vector<std::uint8_t> img_buffer;
 

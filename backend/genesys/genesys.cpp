@@ -4141,33 +4141,6 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
         throw SaneException(SANE_STATUS_EOF, "nothing more to scan: EOF");
     }
 
-/* convert data */
-/*
-  0. fill_read_buffer
--------------- read_buffer ----------------------
-  1a). (opt)uncis                    (assumes color components to be laid out
-                                    planar)
-  1b). (opt)reverse_RGB              (assumes pixels to be BGR or BBGGRR))
--------------- lines_buffer ----------------------
-  2a). (opt)line_distance_correction (assumes RGB or RRGGBB)
-  2b). (opt)unstagger                (assumes pixels to be depth*channels/8
-                                      bytes long, unshrinked)
-------------- shrink_buffer ---------------------
-  3. (opt)shrink_lines             (assumes component separation in pixels)
--------------- out_buffer -----------------------
-  4. memcpy to destination (for lineart with bit reversal)
-*/
-/*FIXME: for lineart we need sub byte addressing in buffers, or conversion to
-  bytes at 0. and back to bits at 4.
-Problems with the first approach:
-  - its not clear how to check if we need to output an incomplete byte
-    because it is the last one.
- */
-/*FIXME: add lineart support for gl646. in the meantime add logic to convert
-  from gray to lineart at the end? would suffer the above problem,
-  total_bytes_to_read and total_bytes_read help in that case.
- */
-
     if (is_testing_mode()) {
         if (dev->total_bytes_read + *len > dev->total_bytes_to_read) {
             *len = dev->total_bytes_to_read - dev->total_bytes_read;
@@ -4181,7 +4154,6 @@ Problems with the first approach:
         std::size_t size = dev->read_buffer.size() - dev->read_buffer.avail();
 
         dev->pipeline_buffer.get_data(size, dev->read_buffer.get_write_pos(size));
-
         dev->read_buffer.produce(size);
 
         bytes = std::min(dev->read_buffer.avail(), *len);

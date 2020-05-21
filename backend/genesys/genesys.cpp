@@ -185,7 +185,7 @@ static const SANE_Range expiration_range = {
   1		/* quantization */
 };
 
-const Genesys_Sensor& sanei_genesys_find_sensor_any(Genesys_Device* dev)
+const Genesys_Sensor& sanei_genesys_find_sensor_any(const Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
     for (const auto& sensor : *s_sensors) {
@@ -196,7 +196,7 @@ const Genesys_Sensor& sanei_genesys_find_sensor_any(Genesys_Device* dev)
     throw std::runtime_error("Given device does not have sensor defined");
 }
 
-Genesys_Sensor* find_sensor_impl(Genesys_Device* dev, unsigned dpi, unsigned channels,
+Genesys_Sensor* find_sensor_impl(const Genesys_Device* dev, unsigned dpi, unsigned channels,
                                  ScanMethod scan_method)
 {
     DBG_HELPER_ARGS(dbg, "dpi: %d, channels: %d, scan_method: %d", dpi, channels,
@@ -211,7 +211,7 @@ Genesys_Sensor* find_sensor_impl(Genesys_Device* dev, unsigned dpi, unsigned cha
     return nullptr;
 }
 
-bool sanei_genesys_has_sensor(Genesys_Device* dev, unsigned dpi, unsigned channels,
+bool sanei_genesys_has_sensor(const Genesys_Device* dev, unsigned dpi, unsigned channels,
                               ScanMethod scan_method)
 {
     DBG_HELPER_ARGS(dbg, "dpi: %d, channels: %d, scan_method: %d", dpi, channels,
@@ -219,8 +219,8 @@ bool sanei_genesys_has_sensor(Genesys_Device* dev, unsigned dpi, unsigned channe
     return find_sensor_impl(dev, dpi, channels, scan_method) != nullptr;
 }
 
-const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, unsigned dpi, unsigned channels,
-                                                ScanMethod scan_method)
+const Genesys_Sensor& sanei_genesys_find_sensor(const Genesys_Device* dev, unsigned dpi,
+                                                unsigned channels, ScanMethod scan_method)
 {
     DBG_HELPER_ARGS(dbg, "dpi: %d, channels: %d, scan_method: %d", dpi, channels,
                     static_cast<unsigned>(scan_method));
@@ -244,12 +244,14 @@ Genesys_Sensor& sanei_genesys_find_sensor_for_write(Genesys_Device* dev, unsigne
 
 
 std::vector<std::reference_wrapper<const Genesys_Sensor>>
-    sanei_genesys_find_sensors_all(Genesys_Device* dev, ScanMethod scan_method)
+    sanei_genesys_find_sensors_all(const Genesys_Device* dev, ScanMethod scan_method)
 {
     DBG_HELPER_ARGS(dbg, "scan_method: %d", static_cast<unsigned>(scan_method));
     std::vector<std::reference_wrapper<const Genesys_Sensor>> ret;
-    for (const Genesys_Sensor& sensor : sanei_genesys_find_sensors_all_for_write(dev, scan_method)) {
-        ret.push_back(sensor);
+    for (auto& sensor : *s_sensors) {
+        if (dev->model->sensor_id == sensor.sensor_id && sensor.method == scan_method) {
+            ret.push_back(sensor);
+        }
     }
     return ret;
 }

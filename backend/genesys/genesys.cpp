@@ -4371,8 +4371,7 @@ static Genesys_Settings calculate_scan_settings(Genesys_Scanner* s)
     return settings;
 }
 
-static SANE_Parameters calculate_scan_parameters(const Genesys_Settings& settings,
-                                                 int resolution)
+static SANE_Parameters calculate_scan_parameters(const Genesys_Settings& settings)
 {
     DBG_HELPER(dbg);
     SANE_Parameters params;
@@ -4393,22 +4392,20 @@ static SANE_Parameters calculate_scan_parameters(const Genesys_Settings& setting
 
     unsigned bytes_per_line = 0;
     if (params.depth == 16) {
-        bytes_per_line = 2 * settings.pixels;
+        bytes_per_line = 2 * settings.requested_pixels;
     } else if (params.depth == 1) {
-        bytes_per_line = settings.pixels / 8;
+        bytes_per_line = settings.requested_pixels / 8;
     } else {
-        bytes_per_line = settings.pixels;
+        bytes_per_line = settings.requested_pixels;
     }
 
     if (params.format == SANE_FRAME_RGB) {
         bytes_per_line *= 3;
     }
 
-    unsigned xres_factor = resolution / settings.xres;
-
     params.lines = settings.lines;
-    params.pixels_per_line = settings.pixels * xres_factor;
-    params.bytes_per_line = bytes_per_line * xres_factor;
+    params.pixels_per_line = settings.requested_pixels;
+    params.bytes_per_line = bytes_per_line;
 
     return params;
 }
@@ -4418,7 +4415,7 @@ static void calc_parameters(Genesys_Scanner* s)
     DBG_HELPER(dbg);
 
     s->dev->settings = calculate_scan_settings(s);
-    s->params = calculate_scan_parameters(s->dev->settings, s->resolution);
+    s->params = calculate_scan_parameters(s->dev->settings);
 }
 
 static void create_bpp_list (Genesys_Scanner * s, const std::vector<unsigned>& bpp)

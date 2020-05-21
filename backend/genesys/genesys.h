@@ -107,12 +107,6 @@ enum Genesys_Option
   OPT_GAMMA_VECTOR_R,
   OPT_GAMMA_VECTOR_G,
   OPT_GAMMA_VECTOR_B,
-  OPT_SWDESKEW,
-  OPT_SWCROP,
-  OPT_SWDESPECK,
-  OPT_DESPECK,
-  OPT_SWSKIP,
-  OPT_SWDEROTATE,
   OPT_BRIGHTNESS,
   OPT_CONTRAST,
 
@@ -213,18 +207,12 @@ struct Genesys_Scanner
     // Option values
     SANE_Word bit_depth = 0;
     SANE_Word resolution = 0;
-    bool preview = false;
+    bool preview = false; // TODO: currently not used
     SANE_Word threshold = 0;
     SANE_Word threshold_curve = 0;
     bool disable_interpolation = false;
     bool lamp_off = false;
     SANE_Word lamp_off_time = 0;
-    bool swdeskew = false;
-    bool swcrop = false;
-    bool swdespeck = false;
-    bool swderotate = false;
-    SANE_Word swskip = 0;
-    SANE_Word despeck = 0;
     SANE_Word contrast = 0;
     SANE_Word brightness = 0;
     SANE_Word expiration_time = 0;

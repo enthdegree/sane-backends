@@ -147,7 +147,8 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Sensor& sensor)
         << "    segment_size: " << sensor.segment_size << '\n'
         << "    segment_order: "
         << format_indent_braced_list(4, format_vector_unsigned(4, sensor.segment_order)) << '\n'
-        << "    stagger_y: " << format_indent_braced_list(4, sensor.stagger_y) << '\n'
+        << "    stagger_x: " << sensor.stagger_x << '\n'
+        << "    stagger_y: " << sensor.stagger_y << '\n'
         << "    use_host_side_calib: " << sensor.use_host_side_calib << '\n'
         << "    custom_regs: " << format_indent_braced_list(4, sensor.custom_regs) << '\n'
         << "    custom_fe_regs: " << format_indent_braced_list(4, sensor.custom_fe_regs) << '\n'

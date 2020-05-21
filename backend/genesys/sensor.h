@@ -86,6 +86,7 @@ public:
         return *std::max_element(shifts_.begin(), shifts_.end());
     }
 
+    bool empty() const { return shifts_.empty(); }
     const std::vector<std::size_t>& shifts() const { return shifts_; }
 
     bool operator==(const StaggerConfig& other) const
@@ -316,8 +317,12 @@ struct Genesys_Sensor {
     // only on gl843
     std::vector<unsigned> segment_order;
 
-    // some CCDs use two arrays of pixels for double resolution. On such CCDs when scanning at
-    // high-enough resolution, every other pixel column is shifted
+    // some CCDs use multiple arrays of pixels for double or quadruple resolution. This can result
+    // in the following effects on the output:
+    //  - every n-th column may be shifted in a vertical direction.
+    //  - the columns themselves may be reordered in arbitrary order and may require shifting
+    //    in X direction.
+    StaggerConfig stagger_x;
     StaggerConfig stagger_y;
 
     // True if calibration should be performed on host-side
@@ -376,6 +381,7 @@ struct Genesys_Sensor {
             exposure_lperiod == other.exposure_lperiod &&
             segment_size == other.segment_size &&
             segment_order == other.segment_order &&
+            stagger_x == other.stagger_x &&
             stagger_y == other.stagger_y &&
             use_host_side_calib == other.use_host_side_calib &&
             custom_regs == other.custom_regs &&
@@ -409,6 +415,8 @@ void serialize(Stream& str, Genesys_Sensor& x)
     serialize(str, x.segment_size);
     serialize_newline(str);
     serialize(str, x.segment_order);
+    serialize_newline(str);
+    serialize(str, x.stagger_x);
     serialize_newline(str);
     serialize(str, x.stagger_y);
     serialize_newline(str);

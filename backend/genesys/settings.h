@@ -276,6 +276,8 @@ struct ScanSession {
     // actual line shift of the blue color
     unsigned color_shift_lines_b = 0;
 
+    // The shifts that need to be applied to the output pixels in x direction.
+    StaggerConfig stagger_x;
     // The shifts that need to be applied to the output pixels in y direction.
     StaggerConfig stagger_y;
 
@@ -365,6 +367,7 @@ void serialize(Stream& str, ScanSession& x)
     serialize(str, x.color_shift_lines_r);
     serialize(str, x.color_shift_lines_g);
     serialize(str, x.color_shift_lines_b);
+    serialize(str, x.stagger_x);
     serialize(str, x.stagger_y);
     serialize(str, x.segment_count);
     serialize(str, x.pixel_startx);

@@ -349,7 +349,8 @@ bool ImagePipelineNodeInvert::get_next_row_data(std::uint8_t* out_data)
         }
         case 1: {
             auto* data = out_data;
-            for (std::size_t i = 0; i < num_values; ++i) {
+            auto num_bytes = (num_values + 7) / 8;
+            for (std::size_t i = 0; i < num_bytes; ++i) {
                 *data = ~*data;
                 data++;
             }

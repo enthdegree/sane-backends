@@ -4107,33 +4107,6 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
     }
 }
 
-static void genesys_fill_read_buffer(Genesys_Device* dev)
-{
-    DBG_HELPER(dbg);
-
-  /* for sheetfed scanner, we must check is document is shorter than
-   * the requested scan */
-    if (dev->model->is_sheetfed) {
-        dev->cmd_set->detect_document_end(dev);
-    }
-
-    std::size_t size = dev->read_buffer.size() - dev->read_buffer.avail();
-
-  /* due to sensors and motors, not all data can be directly used. It
-   * may have to be read from another intermediate buffer and then processed.
-   * There are currently 3 intermediate stages:
-   * - handling of odd/even sensors
-   * - handling of line interpolation for motors that can't have low
-   *   enough dpi
-   * - handling of multi-segments sensors
-   *
-   * This is also the place where full duplex data will be handled.
-   */
-    dev->pipeline_buffer.get_data(size, dev->read_buffer.get_write_pos(size));
-
-    dev->read_buffer.produce(size);
-}
-
 /* this function does the effective data read in a manner that suits
    the scanner. It does data reordering and resizing if need.
    It also manages EOF and I/O errors, and line distance correction.
@@ -4144,7 +4117,6 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
     DBG_HELPER(dbg);
     size_t bytes = 0;
   uint8_t *work_buffer_src;
-  Genesys_Buffer *src_buffer;
 
     if (!dev->read_active) {
       *len = 0;
@@ -4202,14 +4174,19 @@ Problems with the first approach:
         }
         dev->total_bytes_read += *len;
     } else {
-        genesys_fill_read_buffer(dev);
+        if (dev->model->is_sheetfed) {
+            dev->cmd_set->detect_document_end(dev);
+        }
 
-        src_buffer = &(dev->read_buffer);
+        std::size_t size = dev->read_buffer.size() - dev->read_buffer.avail();
 
-        /* move data to destination */
-        bytes = std::min(src_buffer->avail(), *len);
+        dev->pipeline_buffer.get_data(size, dev->read_buffer.get_write_pos(size));
 
-        work_buffer_src = src_buffer->get_read_pos();
+        dev->read_buffer.produce(size);
+
+        bytes = std::min(dev->read_buffer.avail(), *len);
+
+        work_buffer_src = dev->read_buffer.get_read_pos();
 
         std::memcpy(destination, work_buffer_src, bytes);
         *len = bytes;
@@ -4223,7 +4200,7 @@ Problems with the first approach:
         /* count bytes sent to frontend */
         dev->total_bytes_read += *len;
 
-        src_buffer->consume(bytes);
+        dev->read_buffer.consume(bytes);
     }
 
   /* end scan if all needed data have been read */

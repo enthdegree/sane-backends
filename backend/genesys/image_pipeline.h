@@ -393,7 +393,7 @@ public:
                                          unsigned shift_r, unsigned shift_g, unsigned shift_b);
 
     std::size_t get_width() const override { return source_.get_width(); }
-    std::size_t get_height() const override { return source_.get_height() - extra_height_; }
+    std::size_t get_height() const override { return height_; }
     PixelFormat get_format() const override { return source_.get_format(); }
 
     bool eof() const override { return source_.eof(); }
@@ -403,6 +403,7 @@ public:
 private:
     ImagePipelineNode& source_;
     std::size_t extra_height_ = 0;
+    std::size_t height_ = 0;
 
     std::array<unsigned, 3> channel_shifts_;
 
@@ -419,7 +420,7 @@ public:
                                      const std::vector<std::size_t>& shifts);
 
     std::size_t get_width() const override { return source_.get_width(); }
-    std::size_t get_height() const override { return source_.get_height() - extra_height_; }
+    std::size_t get_height() const override { return height_; }
     PixelFormat get_format() const override { return source_.get_format(); }
 
     bool eof() const override { return source_.eof(); }
@@ -429,6 +430,7 @@ public:
 private:
     ImagePipelineNode& source_;
     std::size_t extra_height_ = 0;
+    std::size_t height_ = 0;
 
     std::vector<std::size_t> pixel_shifts_;
 

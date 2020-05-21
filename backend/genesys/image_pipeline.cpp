@@ -349,7 +349,8 @@ bool ImagePipelineNodeInvert::get_next_row_data(std::uint8_t* out_data)
         }
         case 1: {
             auto* data = out_data;
-            for (std::size_t i = 0; i < num_values; ++i) {
+            auto num_bytes = (num_values + 7) / 8;
+            for (std::size_t i = 0; i < num_bytes; ++i) {
                 *data = ~*data;
                 data++;
             }
@@ -499,6 +500,12 @@ ImagePipelineNodeComponentShiftLines::ImagePipelineNodeComponentShiftLines(
                                 static_cast<unsigned>(source.get_format()));
     }
     extra_height_ = *std::max_element(channel_shifts_.begin(), channel_shifts_.end());
+    height_ = source_.get_height();
+    if (extra_height_ > height_) {
+        height_ = 0;
+    } else {
+        height_ -= extra_height_;
+    }
 }
 
 bool ImagePipelineNodeComponentShiftLines::get_next_row_data(std::uint8_t* out_data)
@@ -547,6 +554,12 @@ ImagePipelineNodePixelShiftLines::ImagePipelineNodePixelShiftLines(
     }
 
     extra_height_ = *std::max_element(pixel_shifts_.begin(), pixel_shifts_.end());
+    height_ = source_.get_height();
+    if (extra_height_ > height_) {
+        height_ = 0;
+    } else {
+        height_ -= extra_height_;
+    }
 }
 
 bool ImagePipelineNodePixelShiftLines::get_next_row_data(std::uint8_t* out_data)

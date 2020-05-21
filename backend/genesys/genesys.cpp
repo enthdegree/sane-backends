@@ -4371,9 +4371,15 @@ static Genesys_Settings calculate_scan_settings(Genesys_Scanner* s)
     return settings;
 }
 
-static SANE_Parameters calculate_scan_parameters(const Genesys_Settings& settings)
+static SANE_Parameters calculate_scan_parameters(const Genesys_Device& dev,
+                                                 const Genesys_Settings& settings)
 {
     DBG_HELPER(dbg);
+
+    auto sensor = sanei_genesys_find_sensor(&dev, settings.xres, settings.get_channels(),
+                                            settings.scan_method);
+    auto session = dev.cmd_set->calculate_scan_session(&dev, sensor, settings);
+
     SANE_Parameters params;
     if (settings.scan_mode == ScanColorMode::GRAY ||
         settings.scan_mode == ScanColorMode::LINEART)
@@ -4390,13 +4396,23 @@ static SANE_Parameters calculate_scan_parameters(const Genesys_Settings& setting
         params.depth = 1;
     }
 
+    // FIXME: add the data needed to perform the data conversion to the format used by the user
+    // to ScanSession.
+    unsigned pixels_per_line = settings.requested_pixels;
+    unsigned pixels_per_line_session = session.output_pixels * settings.requested_pixels / settings.pixels;
+    if (pixels_per_line != pixels_per_line_session) {
+        dbg.vlog(DBG_info, "The number of scanned pixels does not match "
+                 "the number of requested pixels (%d vs %d), image will be stretched",
+                 pixels_per_line_session, pixels_per_line);
+    }
+
     unsigned bytes_per_line = 0;
     if (params.depth == 16) {
-        bytes_per_line = 2 * settings.requested_pixels;
+        bytes_per_line = 2 * pixels_per_line;
     } else if (params.depth == 1) {
-        bytes_per_line = settings.requested_pixels / 8;
+        bytes_per_line = pixels_per_line / 8;
     } else {
-        bytes_per_line = settings.requested_pixels;
+        bytes_per_line = pixels_per_line;
     }
 
     if (params.format == SANE_FRAME_RGB) {
@@ -4404,7 +4420,7 @@ static SANE_Parameters calculate_scan_parameters(const Genesys_Settings& setting
     }
 
     params.lines = settings.lines;
-    params.pixels_per_line = settings.requested_pixels;
+    params.pixels_per_line = pixels_per_line;
     params.bytes_per_line = bytes_per_line;
 
     return params;
@@ -4415,7 +4431,7 @@ static void calc_parameters(Genesys_Scanner* s)
     DBG_HELPER(dbg);
 
     s->dev->settings = calculate_scan_settings(s);
-    s->params = calculate_scan_parameters(s->dev->settings);
+    s->params = calculate_scan_parameters(*s->dev, s->dev->settings);
 }
 
 static void create_bpp_list (Genesys_Scanner * s, const std::vector<unsigned>& bpp)
@@ -5559,11 +5575,11 @@ static void sane_open_impl(SANE_String_Const devicename, SANE_Handle * handle)
         sanei_genesys_init_structs (dev);
     }
 
+    dev->cmd_set = create_cmd_set(dev->model->asic_type);
+
     init_options(s);
 
     DBG_INIT();
-
-    dev->cmd_set = create_cmd_set(dev->model->asic_type);
 
     // FIXME: we create sensor tables for the sensor, this should happen when we know which sensor
     // we will select

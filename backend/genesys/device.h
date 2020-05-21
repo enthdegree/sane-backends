@@ -344,17 +344,11 @@ struct Genesys_Device
     // array describing the order of the sub-segments of the sensor
     std::vector<unsigned> segment_order;
 
-    // buffer to handle even/odd data
-    Genesys_Buffer oe_buffer = {};
-
     // stores information about how the input image should be processed
     ImagePipelineStack pipeline;
 
     // an buffer that allows reading from `pipeline` in chunks of any size
     ImageBuffer pipeline_buffer;
-
-    // image buffer where the scanned picture is stored
-    std::vector<std::uint8_t> img_buffer;
 
     ImagePipelineNodeBytesSource& get_pipeline_source();
 

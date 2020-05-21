@@ -6514,7 +6514,6 @@ void sane_cancel_impl(SANE_Handle handle)
 
     s->scanning = false;
     s->dev->read_active = false;
-  s->dev->img_buffer.clear();
 
   /* no need to end scan if we are parking the head */
     if (!s->dev->parking) {

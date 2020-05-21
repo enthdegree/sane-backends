@@ -261,7 +261,6 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev)
         << "    read_buffer.size(): " << dev.read_buffer.size() << '\n'
         << "    binarize_buffer.size(): " << dev.binarize_buffer.size() << '\n'
         << "    local_buffer.size(): " << dev.local_buffer.size() << '\n'
-        << "    oe_buffer.size(): " << dev.oe_buffer.size() << '\n'
         << "    total_bytes_read: " << dev.total_bytes_read << '\n'
         << "    total_bytes_to_read: " << dev.total_bytes_to_read << '\n'
         << "    session: " << format_indent_braced_list(4, dev.session) << '\n'
@@ -270,7 +269,6 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev)
         << "    line_count: " << dev.line_count << '\n'
         << "    segment_order: "
         << format_indent_braced_list(4, format_vector_unsigned(4, dev.segment_order)) << '\n'
-        << "    img_buffer.size(): " << dev.img_buffer.size() << '\n'
         << '}';
     return out;
 }

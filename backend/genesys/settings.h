@@ -47,6 +47,7 @@
 #include "enums.h"
 #include "serialize.h"
 #include "utilities.h"
+#include "sensor.h"
 
 namespace genesys {
 
@@ -261,7 +262,7 @@ struct ScanSession {
     unsigned output_total_bytes = 0;
 
     // the number of staggered lines (i.e. lines that overlap during scanning due to line being
-    // thinner than the CCD element)
+    // thinner than the CCD element). Computed according to stagger_y.
     unsigned num_staggered_lines = 0;
 
     // the number of lines that color channels shift due to different physical positions of
@@ -274,6 +275,9 @@ struct ScanSession {
     unsigned color_shift_lines_g = 0;
     // actual line shift of the blue color
     unsigned color_shift_lines_b = 0;
+
+    // The shifts that need to be applied to the output pixels in y direction.
+    StaggerConfig stagger_y;
 
     // the number of scanner segments used in the current scan
     unsigned segment_count = 1;
@@ -361,6 +365,7 @@ void serialize(Stream& str, ScanSession& x)
     serialize(str, x.color_shift_lines_r);
     serialize(str, x.color_shift_lines_g);
     serialize(str, x.color_shift_lines_b);
+    serialize(str, x.stagger_y);
     serialize(str, x.segment_count);
     serialize(str, x.pixel_startx);
     serialize(str, x.pixel_endx);

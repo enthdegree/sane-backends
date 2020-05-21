@@ -840,8 +840,7 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
     }
 
     if (dev->model->asic_type == AsicType::GL646) {
-        if (sensor.stagger_config.stagger_at_resolution(s.params.xres, s.params.yres) > 0 &&
-            (s.pixel_startx & 1) == 0)
+        if (sensor.stagger_y.max_shift() > 0 && (s.pixel_startx & 1) == 0)
         {
             s.pixel_startx++;
             s.pixel_endx++;
@@ -945,11 +944,11 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     s.output_startx = static_cast<unsigned>(
                 static_cast<int>(s.params.startx) + sensor.output_pixel_offset);
 
+    s.stagger_y = sensor.stagger_y;
+
     s.num_staggered_lines = 0;
-    if (!has_flag(s.params.flags, ScanFlag::IGNORE_STAGGER_OFFSET))
-    {
-        s.num_staggered_lines = sensor.stagger_config.stagger_at_resolution(s.params.xres,
-                                                                            s.params.yres);
+    if (!has_flag(s.params.flags, ScanFlag::IGNORE_STAGGER_OFFSET)) {
+        s.num_staggered_lines = s.stagger_y.max_shift() * s.params.yres / s.params.xres;
     }
 
     s.color_shift_lines_r = dev->model->ld_shift_r;
@@ -1237,8 +1236,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
     }
 
     if (session.num_staggered_lines > 0) {
-        std::vector<std::size_t> shifts{0, session.num_staggered_lines};
-        dev->pipeline.push_node<ImagePipelineNodePixelShiftLines>(shifts);
+        dev->pipeline.push_node<ImagePipelineNodePixelShiftLines>(session.stagger_y.shifts());
 
         if (dbg_log_image_data()) {
             dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +

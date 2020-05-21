@@ -117,6 +117,7 @@ bool ScanSession::operator==(const ScanSession& other) const
         color_shift_lines_r == other.color_shift_lines_r &&
         color_shift_lines_g == other.color_shift_lines_g &&
         color_shift_lines_b == other.color_shift_lines_b &&
+        stagger_y == other.stagger_y &&
         segment_count == other.segment_count &&
         pixel_startx == other.pixel_startx &&
         pixel_endx == other.pixel_endx &&
@@ -153,6 +154,7 @@ std::ostream& operator<<(std::ostream& out, const ScanSession& session)
         << "    color_shift_lines_b: " << session.color_shift_lines_b << '\n'
         << "    max_color_shift_lines: " << session.max_color_shift_lines << '\n'
         << "    enable_ledadd: " << session.enable_ledadd << '\n'
+        << "    stagger_y: " << session.stagger_y << '\n'
         << "    segment_count: " << session.segment_count << '\n'
         << "    pixel_startx: " << session.pixel_startx << '\n'
         << "    pixel_endx: " << session.pixel_endx << '\n'

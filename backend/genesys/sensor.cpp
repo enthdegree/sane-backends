@@ -51,10 +51,16 @@ namespace genesys {
 
 std::ostream& operator<<(std::ostream& out, const StaggerConfig& config)
 {
-    out << "StaggerConfig{\n"
-        << "    min_resolution: " << config.min_resolution() << '\n'
-        << "    lines_at_min: " << config.lines_at_min() << '\n'
-        << "}";
+    if (config.shifts().empty()) {
+        out << "StaggerConfig{}";
+        return out;
+    }
+
+    out << "StaggerConfig{ " << config.shifts().front();
+    for (auto it = std::next(config.shifts().begin()); it != config.shifts().end(); ++it) {
+        out << ", " << *it;
+    }
+    out << " }";
     return out;
 }
 
@@ -141,7 +147,7 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Sensor& sensor)
         << "    segment_size: " << sensor.segment_size << '\n'
         << "    segment_order: "
         << format_indent_braced_list(4, format_vector_unsigned(4, sensor.segment_order)) << '\n'
-        << "    stagger_config: " << format_indent_braced_list(4, sensor.stagger_config) << '\n'
+        << "    stagger_y: " << format_indent_braced_list(4, sensor.stagger_y) << '\n'
         << "    use_host_side_calib: " << sensor.use_host_side_calib << '\n'
         << "    custom_regs: " << format_indent_braced_list(4, sensor.custom_regs) << '\n'
         << "    custom_fe_regs: " << format_indent_braced_list(4, sensor.custom_fe_regs) << '\n'

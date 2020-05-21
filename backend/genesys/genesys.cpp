@@ -6812,7 +6812,7 @@ void sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_
 
   *len = local_len;
     if (local_len > static_cast<std::size_t>(max_len)) {
-      fprintf (stderr, "[genesys] sane_read: returning incorrect length!!\n");
+        dbg.log(DBG_error, "error: returning incorrect length");
     }
   DBG(DBG_proc, "%s: %d bytes returned\n", __func__, *len);
 }

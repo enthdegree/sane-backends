@@ -146,7 +146,7 @@ struct SetupParams {
 
     ColorFilter color_filter = static_cast<ColorFilter>(NOT_SET);
 
-    ScanFlag flags;
+    ScanFlag flags = ScanFlag::NONE;
 
     unsigned get_requested_pixels() const
     {

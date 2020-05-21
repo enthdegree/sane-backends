@@ -840,8 +840,7 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
     }
 
     if (dev->model->asic_type == AsicType::GL646) {
-        if (sensor.stagger_config.stagger_at_resolution(s.params.xres, s.params.yres) > 0 &&
-            (s.pixel_startx & 1) == 0)
+        if (sensor.stagger_y.max_shift() > 0 && (s.pixel_startx & 1) == 0)
         {
             s.pixel_startx++;
             s.pixel_endx++;
@@ -945,11 +944,12 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     s.output_startx = static_cast<unsigned>(
                 static_cast<int>(s.params.startx) + sensor.output_pixel_offset);
 
+    s.stagger_x = sensor.stagger_x;
+    s.stagger_y = sensor.stagger_y;
+
     s.num_staggered_lines = 0;
-    if (!has_flag(s.params.flags, ScanFlag::IGNORE_STAGGER_OFFSET))
-    {
-        s.num_staggered_lines = sensor.stagger_config.stagger_at_resolution(s.params.xres,
-                                                                            s.params.yres);
+    if (!has_flag(s.params.flags, ScanFlag::IGNORE_STAGGER_OFFSET)) {
+        s.num_staggered_lines = s.stagger_y.max_shift() * s.params.yres / s.params.xres;
     }
 
     s.color_shift_lines_r = dev->model->ld_shift_r;
@@ -1236,14 +1236,25 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
         }
     }
 
-    if (session.num_staggered_lines > 0) {
-        std::vector<std::size_t> shifts{0, session.num_staggered_lines};
-        dev->pipeline.push_node<ImagePipelineNodePixelShiftLines>(shifts);
+    if (!session.stagger_x.empty()) {
+        // FIXME: the image will be scaled to requested pixel count without regard to the reduction
+        // of image size in this step.
+        dev->pipeline.push_node<ImagePipelineNodePixelShiftColumns>(session.stagger_x.shifts());
 
         if (dbg_log_image_data()) {
             dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
                                                             std::to_string(s_pipeline_index) +
-                                                            "_7_after_unstagger.pnm");
+                                                            "_7_after_x_unstagger.pnm");
+        }
+    }
+
+    if (session.num_staggered_lines > 0) {
+        dev->pipeline.push_node<ImagePipelineNodePixelShiftLines>(session.stagger_y.shifts());
+
+        if (dbg_log_image_data()) {
+            dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
+                                                            std::to_string(s_pipeline_index) +
+                                                            "_8_after_y_unstagger.pnm");
         }
     }
 
@@ -1259,11 +1270,11 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
         if (dbg_log_image_data()) {
             dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
                                                             std::to_string(s_pipeline_index) +
-                                                            "_8_after_calibrate.pnm");
+                                                            "_9_after_calibrate.pnm");
         }
     }
 
-    if (session.output_pixels != session.params.get_requested_pixels()) {
+    if (dev->pipeline.get_output_width() != session.params.get_requested_pixels()) {
         dev->pipeline.push_node<ImagePipelineNodeScaleRows>(session.params.get_requested_pixels());
     }
 

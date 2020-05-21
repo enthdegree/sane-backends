@@ -480,7 +480,7 @@ void test_node_component_shift_lines()
     ASSERT_EQ(out_data, expected_data);
 }
 
-void test_node_pixel_shift_lines()
+void test_node_pixel_shift_lines_2lines()
 {
     using Data = std::vector<std::uint8_t>;
 
@@ -508,6 +508,261 @@ void test_node_pixel_shift_lines()
         0x14, 0x24, 0x34, 0x1d, 0x2d, 0x3d, 0x16, 0x26, 0x36, 0x1f, 0x2f, 0x3f,
     };
 
+    ASSERT_EQ(out_data, expected_data);
+}
+
+void test_node_pixel_shift_lines_4lines()
+{
+    using Data = std::vector<std::uint8_t>;
+
+    Data in_data = {
+        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b,
+        0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b,
+        0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b,
+        0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b,
+        0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b,
+        0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5a, 0x5b,
+        0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6a, 0x6b,
+        0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7a, 0x7b,
+        0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b,
+    };
+
+    ImagePipelineStack stack;
+    stack.push_first_node<ImagePipelineNodeArraySource>(12, 9, PixelFormat::I8,
+                                                        std::move(in_data));
+    stack.push_node<ImagePipelineNodePixelShiftLines>(std::vector<std::size_t>{0, 2, 1, 3});
+
+    ASSERT_EQ(stack.get_output_width(), 12u);
+    ASSERT_EQ(stack.get_output_height(), 6u);
+    ASSERT_EQ(stack.get_output_row_bytes(), 12u);
+    ASSERT_EQ(stack.get_output_format(), PixelFormat::I8);
+
+    auto out_data = stack.get_all_data();
+
+    Data expected_data = {
+        0x00, 0x21, 0x12, 0x33, 0x04, 0x25, 0x16, 0x37, 0x08, 0x29, 0x1a, 0x3b,
+        0x10, 0x31, 0x22, 0x43, 0x14, 0x35, 0x26, 0x47, 0x18, 0x39, 0x2a, 0x4b,
+        0x20, 0x41, 0x32, 0x53, 0x24, 0x45, 0x36, 0x57, 0x28, 0x49, 0x3a, 0x5b,
+        0x30, 0x51, 0x42, 0x63, 0x34, 0x55, 0x46, 0x67, 0x38, 0x59, 0x4a, 0x6b,
+        0x40, 0x61, 0x52, 0x73, 0x44, 0x65, 0x56, 0x77, 0x48, 0x69, 0x5a, 0x7b,
+        0x50, 0x71, 0x62, 0x83, 0x54, 0x75, 0x66, 0x87, 0x58, 0x79, 0x6a, 0x8b,
+    };
+
+    ASSERT_EQ(out_data, expected_data);
+}
+
+void test_node_pixel_shift_columns_compute_max_width()
+{
+    ASSERT_EQ(compute_pixel_shift_extra_width(12, {0, 1, 2, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(13, {0, 1, 2, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(14, {0, 1, 2, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(15, {0, 1, 2, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(16, {0, 1, 2, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(17, {0, 1, 2, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(18, {0, 1, 2, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(19, {0, 1, 2, 3}), 0u);
+
+    ASSERT_EQ(compute_pixel_shift_extra_width(12, {1, 1, 2, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(13, {1, 1, 2, 3}), 1u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(14, {1, 1, 2, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(15, {1, 1, 2, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(16, {1, 1, 2, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(17, {1, 1, 2, 3}), 1u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(18, {1, 1, 2, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(19, {1, 1, 2, 3}), 0u);
+
+    ASSERT_EQ(compute_pixel_shift_extra_width(12, {2, 1, 2, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(13, {2, 1, 2, 3}), 1u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(14, {2, 1, 2, 3}), 2u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(15, {2, 1, 2, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(16, {2, 1, 2, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(17, {2, 1, 2, 3}), 1u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(18, {2, 1, 2, 3}), 2u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(19, {2, 1, 2, 3}), 0u);
+
+    ASSERT_EQ(compute_pixel_shift_extra_width(12, {3, 1, 2, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(13, {3, 1, 2, 3}), 1u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(14, {3, 1, 2, 3}), 2u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(15, {3, 1, 2, 3}), 3u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(16, {3, 1, 2, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(17, {3, 1, 2, 3}), 1u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(18, {3, 1, 2, 3}), 2u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(19, {3, 1, 2, 3}), 3u);
+
+    ASSERT_EQ(compute_pixel_shift_extra_width(12, {7, 1, 2, 3}), 4u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(13, {7, 1, 2, 3}), 5u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(14, {7, 1, 2, 3}), 6u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(15, {7, 1, 2, 3}), 7u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(16, {7, 1, 2, 3}), 4u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(17, {7, 1, 2, 3}), 5u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(18, {7, 1, 2, 3}), 6u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(19, {7, 1, 2, 3}), 7u);
+
+    ASSERT_EQ(compute_pixel_shift_extra_width(12, {0, 1, 3, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(13, {0, 1, 3, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(14, {0, 1, 3, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(15, {0, 1, 3, 3}), 1u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(16, {0, 1, 3, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(17, {0, 1, 3, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(18, {0, 1, 3, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(19, {0, 1, 3, 3}), 1u);
+
+    ASSERT_EQ(compute_pixel_shift_extra_width(12, {0, 1, 4, 3}), 2u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(13, {0, 1, 4, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(14, {0, 1, 4, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(15, {0, 1, 4, 3}), 1u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(16, {0, 1, 4, 3}), 2u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(17, {0, 1, 4, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(18, {0, 1, 4, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(19, {0, 1, 4, 3}), 1u);
+
+    ASSERT_EQ(compute_pixel_shift_extra_width(12, {0, 1, 5, 3}), 2u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(13, {0, 1, 5, 3}), 3u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(14, {0, 1, 5, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(15, {0, 1, 5, 3}), 1u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(16, {0, 1, 5, 3}), 2u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(17, {0, 1, 5, 3}), 3u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(18, {0, 1, 5, 3}), 0u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(19, {0, 1, 5, 3}), 1u);
+
+    ASSERT_EQ(compute_pixel_shift_extra_width(12, {0, 1, 9, 3}), 6u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(13, {0, 1, 9, 3}), 7u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(14, {0, 1, 9, 3}), 4u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(15, {0, 1, 9, 3}), 5u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(16, {0, 1, 9, 3}), 6u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(17, {0, 1, 9, 3}), 7u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(18, {0, 1, 9, 3}), 4u);
+    ASSERT_EQ(compute_pixel_shift_extra_width(19, {0, 1, 9, 3}), 5u);
+}
+
+void test_node_pixel_shift_columns_no_switch()
+{
+    using Data = std::vector<std::uint8_t>;
+
+    Data in_data = {
+        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b,
+        0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b,
+    };
+
+    ImagePipelineStack stack;
+    stack.push_first_node<ImagePipelineNodeArraySource>(12, 2, PixelFormat::I8, in_data);
+    stack.push_node<ImagePipelineNodePixelShiftColumns>(std::vector<std::size_t>{0, 1, 2, 3});
+
+    ASSERT_EQ(stack.get_output_width(), 12u);
+    ASSERT_EQ(stack.get_output_height(), 2u);
+    ASSERT_EQ(stack.get_output_row_bytes(), 12u);
+    ASSERT_EQ(stack.get_output_format(), PixelFormat::I8);
+
+    auto out_data = stack.get_all_data();
+
+    ASSERT_EQ(out_data, in_data);
+}
+
+void test_node_pixel_shift_columns_group_switch_pixel_multiple()
+{
+    using Data = std::vector<std::uint8_t>;
+
+    Data in_data = {
+        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b,
+        0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b,
+    };
+
+    ImagePipelineStack stack;
+    stack.push_first_node<ImagePipelineNodeArraySource>(12, 2, PixelFormat::I8, in_data);
+    stack.push_node<ImagePipelineNodePixelShiftColumns>(std::vector<std::size_t>{3, 1, 2, 0});
+
+    ASSERT_EQ(stack.get_output_width(), 12u);
+    ASSERT_EQ(stack.get_output_height(), 2u);
+    ASSERT_EQ(stack.get_output_row_bytes(), 12u);
+    ASSERT_EQ(stack.get_output_format(), PixelFormat::I8);
+
+    auto out_data = stack.get_all_data();
+
+    Data expected_data = {
+        0x03, 0x01, 0x02, 0x00, 0x07, 0x05, 0x06, 0x04, 0x0b, 0x09, 0x0a, 0x08,
+        0x13, 0x11, 0x12, 0x10, 0x17, 0x15, 0x16, 0x14, 0x1b, 0x19, 0x1a, 0x18,
+    };
+    ASSERT_EQ(out_data, expected_data);
+}
+
+void test_node_pixel_shift_columns_group_switch_pixel_not_multiple()
+{
+    using Data = std::vector<std::uint8_t>;
+
+    Data in_data = {
+        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c,
+        0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c,
+    };
+
+    ImagePipelineStack stack;
+    stack.push_first_node<ImagePipelineNodeArraySource>(13, 2, PixelFormat::I8, in_data);
+    stack.push_node<ImagePipelineNodePixelShiftColumns>(std::vector<std::size_t>{3, 1, 2, 0});
+
+    ASSERT_EQ(stack.get_output_width(), 12u);
+    ASSERT_EQ(stack.get_output_height(), 2u);
+    ASSERT_EQ(stack.get_output_row_bytes(), 12u);
+    ASSERT_EQ(stack.get_output_format(), PixelFormat::I8);
+
+    auto out_data = stack.get_all_data();
+
+    Data expected_data = {
+        0x03, 0x01, 0x02, 0x00, 0x07, 0x05, 0x06, 0x04, 0x0b, 0x09, 0x0a, 0x08,
+        0x13, 0x11, 0x12, 0x10, 0x17, 0x15, 0x16, 0x14, 0x1b, 0x19, 0x1a, 0x18,
+    };
+    ASSERT_EQ(out_data, expected_data);
+}
+
+void test_node_pixel_shift_columns_group_switch_pixel_large_offsets_multiple()
+{
+    using Data = std::vector<std::uint8_t>;
+
+    Data in_data = {
+        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b,
+        0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b,
+    };
+
+    ImagePipelineStack stack;
+    stack.push_first_node<ImagePipelineNodeArraySource>(12, 2, PixelFormat::I8, in_data);
+    stack.push_node<ImagePipelineNodePixelShiftColumns>(std::vector<std::size_t>{7, 1, 5, 0});
+
+    ASSERT_EQ(stack.get_output_width(), 8u);
+    ASSERT_EQ(stack.get_output_height(), 2u);
+    ASSERT_EQ(stack.get_output_row_bytes(), 8u);
+    ASSERT_EQ(stack.get_output_format(), PixelFormat::I8);
+
+    auto out_data = stack.get_all_data();
+
+    Data expected_data = {
+        0x07, 0x01, 0x05, 0x00, 0x0b, 0x05, 0x09, 0x04,
+        0x17, 0x11, 0x15, 0x10, 0x1b, 0x15, 0x19, 0x14,
+    };
+    ASSERT_EQ(out_data, expected_data);
+}
+
+void test_node_pixel_shift_columns_group_switch_pixel_large_offsets_not_multiple()
+{
+    using Data = std::vector<std::uint8_t>;
+
+    Data in_data = {
+        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c,
+        0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c,
+    };
+
+    ImagePipelineStack stack;
+    stack.push_first_node<ImagePipelineNodeArraySource>(13, 2, PixelFormat::I8, in_data);
+    stack.push_node<ImagePipelineNodePixelShiftColumns>(std::vector<std::size_t>{7, 1, 5, 0});
+
+    ASSERT_EQ(stack.get_output_width(), 8u);
+    ASSERT_EQ(stack.get_output_height(), 2u);
+    ASSERT_EQ(stack.get_output_row_bytes(), 8u);
+    ASSERT_EQ(stack.get_output_format(), PixelFormat::I8);
+
+    auto out_data = stack.get_all_data();
+
+    Data expected_data = {
+        0x07, 0x01, 0x05, 0x00, 0x0b, 0x05, 0x09, 0x04,
+        0x17, 0x11, 0x15, 0x10, 0x1b, 0x15, 0x19, 0x14,
+    };
     ASSERT_EQ(out_data, expected_data);
 }
 
@@ -599,7 +854,14 @@ void test_image_pipeline()
     test_node_merge_mono_lines();
     test_node_split_mono_lines();
     test_node_component_shift_lines();
-    test_node_pixel_shift_lines();
+    test_node_pixel_shift_columns_no_switch();
+    test_node_pixel_shift_columns_group_switch_pixel_multiple();
+    test_node_pixel_shift_columns_group_switch_pixel_not_multiple();
+    test_node_pixel_shift_columns_group_switch_pixel_large_offsets_multiple();
+    test_node_pixel_shift_columns_group_switch_pixel_large_offsets_not_multiple();
+    test_node_pixel_shift_lines_2lines();
+    test_node_pixel_shift_lines_4lines();
+    test_node_pixel_shift_columns_compute_max_width();
     test_node_calibrate_8bit();
     test_node_calibrate_16bit();
 }

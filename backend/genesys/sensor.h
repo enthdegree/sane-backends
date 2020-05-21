@@ -73,31 +73,29 @@ class StaggerConfig
 {
 public:
     StaggerConfig() = default;
-    StaggerConfig(unsigned min_resolution, unsigned lines_at_min) :
-        min_resolution_{min_resolution},
-        lines_at_min_{lines_at_min}
+    explicit StaggerConfig(std::initializer_list<std::size_t> shifts) :
+        shifts_{shifts}
     {
     }
 
-    unsigned stagger_at_resolution(unsigned xresolution, unsigned yresolution) const
+    std::size_t max_shift() const
     {
-        if (min_resolution_ == 0 || xresolution < min_resolution_)
+        if (shifts_.empty()) {
             return 0;
-        return yresolution / min_resolution_ * lines_at_min_;
+        }
+        return *std::max_element(shifts_.begin(), shifts_.end());
     }
 
-    unsigned min_resolution() const { return min_resolution_; }
-    unsigned lines_at_min() const { return lines_at_min_; }
+    bool empty() const { return shifts_.empty(); }
+    const std::vector<std::size_t>& shifts() const { return shifts_; }
 
     bool operator==(const StaggerConfig& other) const
     {
-        return min_resolution_ == other.min_resolution_ &&
-                lines_at_min_ == other.lines_at_min_;
+        return shifts_ == other.shifts_;
     }
 
 private:
-    unsigned min_resolution_ = 0;
-    unsigned lines_at_min_ = 0;
+    std::vector<std::size_t> shifts_;
 
     template<class Stream>
     friend void serialize(Stream& str, StaggerConfig& x);
@@ -106,8 +104,7 @@ private:
 template<class Stream>
 void serialize(Stream& str, StaggerConfig& x)
 {
-    serialize(str, x.min_resolution_);
-    serialize(str, x.lines_at_min_);
+    serialize(str, x.shifts_);
 }
 
 std::ostream& operator<<(std::ostream& out, const StaggerConfig& config);
@@ -320,9 +317,13 @@ struct Genesys_Sensor {
     // only on gl843
     std::vector<unsigned> segment_order;
 
-    // some CCDs use two arrays of pixels for double resolution. On such CCDs when scanning at
-    // high-enough resolution, every other pixel column is shifted
-    StaggerConfig stagger_config;
+    // some CCDs use multiple arrays of pixels for double or quadruple resolution. This can result
+    // in the following effects on the output:
+    //  - every n-th column may be shifted in a vertical direction.
+    //  - the columns themselves may be reordered in arbitrary order and may require shifting
+    //    in X direction.
+    StaggerConfig stagger_x;
+    StaggerConfig stagger_y;
 
     // True if calibration should be performed on host-side
     bool use_host_side_calib = false;
@@ -380,7 +381,8 @@ struct Genesys_Sensor {
             exposure_lperiod == other.exposure_lperiod &&
             segment_size == other.segment_size &&
             segment_order == other.segment_order &&
-            stagger_config == other.stagger_config &&
+            stagger_x == other.stagger_x &&
+            stagger_y == other.stagger_y &&
             use_host_side_calib == other.use_host_side_calib &&
             custom_regs == other.custom_regs &&
             custom_fe_regs == other.custom_fe_regs &&
@@ -414,7 +416,9 @@ void serialize(Stream& str, Genesys_Sensor& x)
     serialize_newline(str);
     serialize(str, x.segment_order);
     serialize_newline(str);
-    serialize(str, x.stagger_config);
+    serialize(str, x.stagger_x);
+    serialize_newline(str);
+    serialize(str, x.stagger_y);
     serialize_newline(str);
     serialize(str, x.use_host_side_calib);
     serialize_newline(str);

@@ -410,12 +410,11 @@ private:
     RowBuffer buffer_;
 };
 
-// A pipeline node that shifts pixels across lines by the given offsets (performs unstaggering)
+// A pipeline node that shifts pixels across lines by the given offsets (performs vertical
+// unstaggering)
 class ImagePipelineNodePixelShiftLines : public ImagePipelineNode
 {
 public:
-    constexpr static std::size_t MAX_SHIFTS = 2;
-
     ImagePipelineNodePixelShiftLines(ImagePipelineNode& source,
                                      const std::vector<std::size_t>& shifts);
 
@@ -436,6 +435,37 @@ private:
 
     RowBuffer buffer_;
 };
+
+// A pipeline node that shifts pixels across columns by the given offsets. Each row is divided
+// into pixel groups of shifts.size() pixels. For each output group starting at position xgroup,
+// the i-th pixel will be set to the input pixel at position xgroup + shifts[i].
+class ImagePipelineNodePixelShiftColumns : public ImagePipelineNode
+{
+public:
+    ImagePipelineNodePixelShiftColumns(ImagePipelineNode& source,
+                                       const std::vector<std::size_t>& shifts);
+
+    std::size_t get_width() const override { return width_; }
+    std::size_t get_height() const override { return source_.get_height(); }
+    PixelFormat get_format() const override { return source_.get_format(); }
+
+    bool eof() const override { return source_.eof(); }
+
+    bool get_next_row_data(std::uint8_t* out_data) override;
+
+private:
+    ImagePipelineNode& source_;
+    std::size_t width_ = 0;
+    std::size_t extra_width_ = 0;
+
+    std::vector<std::size_t> pixel_shifts_;
+
+    std::vector<std::uint8_t> temp_buffer_;
+};
+
+// exposed for tests
+std::size_t compute_pixel_shift_extra_width(std::size_t source_width,
+                                            const std::vector<std::size_t>& shifts);
 
 // A pipeline node that extracts a sub-image from the image. Padding and cropping is done as needed.
 // The class can't pad to the left of the image currently, as only positive offsets are accepted.

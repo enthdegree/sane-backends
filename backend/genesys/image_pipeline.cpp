@@ -582,6 +582,63 @@ bool ImagePipelineNodePixelShiftLines::get_next_row_data(std::uint8_t* out_data)
     return got_data;
 }
 
+ImagePipelineNodePixelShiftColumns::ImagePipelineNodePixelShiftColumns(
+        ImagePipelineNode& source, const std::vector<std::size_t>& shifts) :
+    source_(source),
+    pixel_shifts_{shifts}
+{
+    width_ = source_.get_width();
+    extra_width_ = compute_pixel_shift_extra_width(width_, pixel_shifts_);
+    if (extra_width_ > width_) {
+        width_ = 0;
+    } else {
+        width_ -= extra_width_;
+    }
+    temp_buffer_.resize(source_.get_row_bytes());
+}
+
+bool ImagePipelineNodePixelShiftColumns::get_next_row_data(std::uint8_t* out_data)
+{
+    if (width_ == 0) {
+        throw SaneException("Attempt to read zero-width line");
+    }
+    bool got_data = source_.get_next_row_data(temp_buffer_.data());
+
+    auto format = get_format();
+    auto shift_count = pixel_shifts_.size();
+
+    for (std::size_t x = 0, width = get_width(); x < width; x += shift_count) {
+        for (std::size_t ishift = 0; ishift < shift_count && x + ishift < width; ishift++) {
+            RawPixel pixel = get_raw_pixel_from_row(temp_buffer_.data(), x + pixel_shifts_[ishift],
+                                                    format);
+            set_raw_pixel_to_row(out_data, x + ishift, pixel, format);
+        }
+    }
+    return got_data;
+}
+
+
+std::size_t compute_pixel_shift_extra_width(std::size_t source_width,
+                                            const std::vector<std::size_t>& shifts)
+{
+    // we iterate across pixel shifts and find the pixel that needs the maximum shift according to
+    // source_width.
+    int group_size = shifts.size();
+    int non_filled_group = source_width % shifts.size();
+    int extra_width = 0;
+
+    for (int i = 0; i < group_size; ++i) {
+        int shift_groups = shifts[i] / group_size;
+        int shift_rem = shifts[i] % group_size;
+
+        if (shift_rem < non_filled_group) {
+            shift_groups--;
+        }
+        extra_width = std::max(extra_width, shift_groups * group_size + non_filled_group - i);
+    }
+    return extra_width;
+}
+
 ImagePipelineNodeExtract::ImagePipelineNodeExtract(ImagePipelineNode& source,
                                                    std::size_t offset_x, std::size_t offset_y,
                                                    std::size_t width, std::size_t height) :

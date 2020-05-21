@@ -225,16 +225,16 @@ extern void sanei_genesys_write_ahb(Genesys_Device* dev, uint32_t addr, uint32_t
 
 extern void sanei_genesys_init_structs (Genesys_Device * dev);
 
-const Genesys_Sensor& sanei_genesys_find_sensor_any(Genesys_Device* dev);
-const Genesys_Sensor& sanei_genesys_find_sensor(Genesys_Device* dev, unsigned dpi,
+const Genesys_Sensor& sanei_genesys_find_sensor_any(const Genesys_Device* dev);
+const Genesys_Sensor& sanei_genesys_find_sensor(const Genesys_Device* dev, unsigned dpi,
                                                 unsigned channels, ScanMethod scan_method);
-bool sanei_genesys_has_sensor(Genesys_Device* dev, unsigned dpi, unsigned channels,
+bool sanei_genesys_has_sensor(const Genesys_Device* dev, unsigned dpi, unsigned channels,
                               ScanMethod scan_method);
 Genesys_Sensor& sanei_genesys_find_sensor_for_write(Genesys_Device* dev, unsigned dpi,
                                                     unsigned channels, ScanMethod scan_method);
 
 std::vector<std::reference_wrapper<const Genesys_Sensor>>
-    sanei_genesys_find_sensors_all(Genesys_Device* dev, ScanMethod scan_method);
+    sanei_genesys_find_sensors_all(const Genesys_Device* dev, ScanMethod scan_method);
 std::vector<std::reference_wrapper<Genesys_Sensor>>
     sanei_genesys_find_sensors_all_for_write(Genesys_Device* dev, ScanMethod scan_method);
 

@@ -199,7 +199,19 @@ private:
 };
 
 
-void build_checkpoint(const genesys::Genesys_Device& dev,
+void print_params(const SANE_Parameters& params, std::stringstream& out)
+{
+    out << "\n\n================\n"
+        << "Scan params:\n"
+        << "format: " << params.format << "\n"
+        << "last_frame: " << params.last_frame << "\n"
+        << "bytes_per_line: " << params.bytes_per_line << "\n"
+        << "pixels_per_line: " << params.pixels_per_line << "\n"
+        << "lines: " << params.lines << "\n"
+        << "depth: " << params.depth << "\n";
+}
+
+void print_checkpoint(const genesys::Genesys_Device& dev,
                       genesys::TestScannerInterface& iface,
                       const std::string& checkpoint_name,
                       std::stringstream& out)
@@ -240,15 +252,15 @@ void build_checkpoint(const genesys::Genesys_Device& dev,
 
 void run_single_test_scan(const TestConfig& config, std::stringstream& out)
 {
-    auto build_checkpoint_wrapper = [&](const genesys::Genesys_Device& dev,
+    auto print_checkpoint_wrapper = [&](const genesys::Genesys_Device& dev,
                                         genesys::TestScannerInterface& iface,
                                         const std::string& checkpoint_name)
     {
-        build_checkpoint(dev, iface, checkpoint_name, out);
+        print_checkpoint(dev, iface, checkpoint_name, out);
     };
 
     genesys::enable_testing_mode(config.vendor_id, config.product_id, config.bcd_device,
-                                 build_checkpoint_wrapper);
+                                 print_checkpoint_wrapper);
 
     SANE_Handle handle;
 
@@ -273,6 +285,8 @@ void run_single_test_scan(const TestConfig& config, std::stringstream& out)
 
     SANE_Parameters params;
     TIE(sane_get_parameters(handle, &params));
+
+    print_params(params, out);
 
     int buffer_size = 1024 * 1024;
     std::vector<std::uint8_t> buffer;

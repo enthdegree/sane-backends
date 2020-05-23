@@ -82,6 +82,11 @@ private:
 void convert_pixel_row_format(const std::uint8_t* in_data, PixelFormat in_format,
                               std::uint8_t* out_data, PixelFormat out_format, std::size_t count);
 
+void write_tiff_file(const std::string& filename, const void* data, int depth,
+                     int channels, int pixels_per_line, int lines);
+
+void write_tiff_file(const std::string& filename, const Image& image);
+
 } // namespace genesys
 
 #endif // ifndef BACKEND_GENESYS_IMAGE_H

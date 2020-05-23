@@ -106,116 +106,6 @@ void sanei_genesys_write_file(const char* filename, const std::uint8_t* data, st
     std::fclose(out);
 }
 
-// Write data to a pnm file (e.g. calibration). For debugging only
-// data is RGB or grey, with little endian byte order
-void sanei_genesys_write_pnm_file(const char* filename, const std::uint8_t* data, int depth,
-                                  int channels, int pixels_per_line, int lines)
-{
-    DBG_HELPER_ARGS(dbg, "depth=%d, channels=%d, ppl=%d, lines=%d", depth, channels,
-                    pixels_per_line, lines);
-  int count;
-
-    std::FILE* out = std::fopen(filename, "w");
-  if (!out)
-    {
-        throw SaneException("could not open %s for writing: %s\n", filename, strerror(errno));
-    }
-  if(depth==1)
-    {
-      fprintf (out, "P4\n%d\n%d\n", pixels_per_line, lines);
-    }
-  else
-    {
-        std::fprintf(out, "P%c\n%d\n%d\n%d\n", channels == 1 ? '5' : '6', pixels_per_line, lines,
-                     static_cast<int>(std::pow(static_cast<double>(2),
-                                               static_cast<double>(depth - 1))));
-    }
-  if (channels == 3)
-    {
-      for (count = 0; count < (pixels_per_line * lines * 3); count++)
-	{
-	  if (depth == 16)
-	    fputc (*(data + 1), out);
-	  fputc (*(data++), out);
-	  if (depth == 16)
-	    data++;
-	}
-    }
-  else
-    {
-      if (depth==1)
-        {
-          pixels_per_line/=8;
-        }
-      for (count = 0; count < (pixels_per_line * lines); count++)
-	{
-          switch (depth)
-            {
-              case 8:
-	        fputc (*(data + count), out);
-                break;
-              case 16:
-	        fputc (*(data + 1), out);
-	        fputc (*(data), out);
-	        data += 2;
-                break;
-              default:
-                fputc(data[count], out);
-                break;
-            }
-	}
-    }
-    std::fclose(out);
-}
-
-void sanei_genesys_write_pnm_file16(const char* filename, const uint16_t* data, unsigned channels,
-                                    unsigned pixels_per_line, unsigned lines)
-{
-    DBG_HELPER_ARGS(dbg, "channels=%d, ppl=%d, lines=%d", channels,
-                    pixels_per_line, lines);
-
-    std::FILE* out = std::fopen(filename, "w");
-    if (!out) {
-        throw SaneException("could not open %s for writing: %s\n", filename, strerror(errno));
-    }
-    std::fprintf(out, "P%c\n%d\n%d\n%d\n", channels == 1 ? '5' : '6',
-                 pixels_per_line, lines, 256 * 256 - 1);
-
-    for (unsigned count = 0; count < (pixels_per_line * lines * channels); count++) {
-        fputc(*data >> 8, out);
-        fputc(*data & 0xff, out);
-        data++;
-    }
-    std::fclose(out);
-}
-
-bool is_supported_write_pnm_file_image_format(PixelFormat format)
-{
-    switch (format) {
-        case PixelFormat::I1:
-        case PixelFormat::RGB111:
-        case PixelFormat::I8:
-        case PixelFormat::RGB888:
-        case PixelFormat::I16:
-        case PixelFormat::RGB161616:
-            return true;
-        default:
-            return false;
-    }
-}
-
-void sanei_genesys_write_pnm_file(const char* filename, const Image& image)
-{
-    if (!is_supported_write_pnm_file_image_format(image.get_format())) {
-        throw SaneException("Unsupported format %d", static_cast<unsigned>(image.get_format()));
-    }
-
-    sanei_genesys_write_pnm_file(filename, image.get_row_ptr(0),
-                                 get_pixel_format_depth(image.get_format()),
-                                 get_pixel_channels(image.get_format()),
-                                 image.get_width(), image.get_height());
-}
-
 /* ------------------------------------------------------------------------ */
 /*                  Read and write RAM, registers and AFE                   */
 /* ------------------------------------------------------------------------ */
@@ -1140,7 +1030,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
         if (dbg_log_image_data()) {
             dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
                                                             std::to_string(s_pipeline_index) +
-                                                            "_0_from_usb.pnm");
+                                                            "_0_from_usb.tiff");
         }
 
         auto output_width = session.output_segment_pixel_group_count * session.segment_count;
@@ -1151,7 +1041,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
         if (dbg_log_image_data()) {
             dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
                                                             std::to_string(s_pipeline_index) +
-                                                            "_1_after_desegment.pnm");
+                                                            "_1_after_desegment.tiff");
         }
     } else {
         auto read_bytes_left_after_deseg = session.output_line_bytes * session.output_line_count;
@@ -1165,7 +1055,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
         if (dbg_log_image_data()) {
             dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
                                                             std::to_string(s_pipeline_index) +
-                                                            "_0_from_usb.pnm");
+                                                            "_0_from_usb.tiff");
         }
     }
 
@@ -1184,7 +1074,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
             if (dbg_log_image_data()) {
                 dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
                                                                 std::to_string(s_pipeline_index) +
-                                                                "_2_after_swap.pnm");
+                                                                "_2_after_swap.tiff");
             }
         }
     }
@@ -1195,7 +1085,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
         if (dbg_log_image_data()) {
             dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
                                                             std::to_string(s_pipeline_index) +
-                                                            "_3_after_invert.pnm");
+                                                            "_3_after_invert.tiff");
         }
     }
 
@@ -1205,7 +1095,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
         if (dbg_log_image_data()) {
             dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
                                                             std::to_string(s_pipeline_index) +
-                                                            "_4_after_merge_mono.pnm");
+                                                            "_4_after_merge_mono.tiff");
         }
     }
 
@@ -1220,7 +1110,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
     if (dbg_log_image_data()) {
         dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
                                                         std::to_string(s_pipeline_index) +
-                                                        "_5_after_format.pnm");
+                                                        "_5_after_format.tiff");
     }
 
     if (session.max_color_shift_lines > 0 && session.params.channels == 3) {
@@ -1232,7 +1122,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
         if (dbg_log_image_data()) {
             dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
                                                             std::to_string(s_pipeline_index) +
-                                                            "_6_after_color_unshift.pnm");
+                                                            "_6_after_color_unshift.tiff");
         }
     }
 
@@ -1244,7 +1134,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
         if (dbg_log_image_data()) {
             dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
                                                             std::to_string(s_pipeline_index) +
-                                                            "_7_after_x_unstagger.pnm");
+                                                            "_7_after_x_unstagger.tiff");
         }
     }
 
@@ -1254,7 +1144,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
         if (dbg_log_image_data()) {
             dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
                                                             std::to_string(s_pipeline_index) +
-                                                            "_8_after_y_unstagger.pnm");
+                                                            "_8_after_y_unstagger.tiff");
         }
     }
 
@@ -1270,7 +1160,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
         if (dbg_log_image_data()) {
             dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
                                                             std::to_string(s_pipeline_index) +
-                                                            "_9_after_calibrate.pnm");
+                                                            "_9_after_calibrate.tiff");
         }
     }
 

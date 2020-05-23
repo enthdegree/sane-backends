@@ -11,7 +11,7 @@ TEST_LDADD = \
   ../../../lib/liblib.la \
   ../../../backend/libgenesys.la \
   ../../../backend/sane_strstatus.lo \
-  $(MATH_LIB) $(USB_LIBS) $(XML_LIBS) $(PTHREAD_LIBS)
+  $(MATH_LIB) $(TIFF_LIBS) $(USB_LIBS) $(XML_LIBS) $(PTHREAD_LIBS)
 
 check_PROGRAMS = genesys_unit_tests genesys_session_config_tests
 TESTS = genesys_unit_tests

@@ -75,18 +75,6 @@ public:
     virtual bool get_next_row_data(std::uint8_t* out_data) = 0;
 };
 
-class ImagePipelineNodeBytesSource : public ImagePipelineNode
-{
-public:
-    std::size_t remaining_bytes() const { return remaining_bytes_; }
-    void set_remaining_bytes(std::size_t bytes) { remaining_bytes_ = bytes; }
-
-    std::size_t consume_remaining_bytes(std::size_t bytes);
-
-private:
-    std::size_t remaining_bytes_ = 0;
-};
-
 // A pipeline node that produces data from a callable
 class ImagePipelineNodeCallableSource : public ImagePipelineNode
 {
@@ -118,7 +106,7 @@ private:
 };
 
 // A pipeline node that produces data from a callable requesting fixed-size chunks.
-class ImagePipelineNodeBufferedCallableSource : public ImagePipelineNodeBytesSource
+class ImagePipelineNodeBufferedCallableSource : public ImagePipelineNode
 {
 public:
     using ProducerCallback = std::function<bool(std::size_t size, std::uint8_t* out_data)>;
@@ -135,8 +123,9 @@ public:
 
     bool get_next_row_data(std::uint8_t* out_data) override;
 
-    std::size_t buffer_size() const { return buffer_.size(); }
-    std::size_t buffer_available() const { return buffer_.available(); }
+    std::size_t remaining_bytes() const { return buffer_.remaining_size(); }
+    void set_remaining_bytes(std::size_t bytes) { buffer_.set_remaining_size(bytes); }
+    void set_last_read_multiple(std::size_t bytes) { buffer_.set_last_read_multiple(bytes); }
 
 private:
     ProducerCallback producer_;
@@ -148,36 +137,6 @@ private:
     std::size_t curr_row_ = 0;
 
     ImageBuffer buffer_;
-};
-
-class ImagePipelineNodeBufferedGenesysUsb : public ImagePipelineNodeBytesSource
-{
-public:
-    using ProducerCallback = std::function<void(std::size_t size, std::uint8_t* out_data)>;
-
-    ImagePipelineNodeBufferedGenesysUsb(std::size_t width, std::size_t height,
-                                        PixelFormat format, std::size_t total_size,
-                                        std::size_t buffer_size, ProducerCallback producer);
-
-    std::size_t get_width() const override { return width_; }
-    std::size_t get_height() const override { return height_; }
-    PixelFormat get_format() const override { return format_; }
-
-    bool eof() const override { return eof_; }
-
-    bool get_next_row_data(std::uint8_t* out_data) override;
-
-    std::size_t buffer_available() const { return buffer_.available(); }
-
-private:
-    ProducerCallback producer_;
-    std::size_t width_ = 0;
-    std::size_t height_ = 0;
-    PixelFormat format_ = PixelFormat::UNKNOWN;
-
-    bool eof_ = false;
-
-    ImageBufferGenesysUsb buffer_;
 };
 
 // A pipeline node that produces data from the given array.

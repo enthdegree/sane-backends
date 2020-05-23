@@ -32,54 +32,139 @@
 
 namespace genesys {
 
-void test_image_buffer_genesys_usb()
+
+void test_image_buffer_exact_reads()
 {
     std::vector<std::size_t> requests;
 
-    auto on_read_usb = [&](std::size_t x, std::uint8_t* data)
+    auto on_read = [&](std::size_t x, std::uint8_t* data)
     {
         (void) data;
         requests.push_back(x);
+        return true;
     };
 
-    ImageBufferGenesysUsb buffer{1086780, 453120, on_read_usb};
+    ImageBuffer buffer{1000, on_read};
+    buffer.set_remaining_size(2500);
 
     std::vector<std::uint8_t> dummy;
-    dummy.resize(1086780);
+    dummy.resize(1000);
 
-    ASSERT_TRUE(buffer.get_data(453120, dummy.data()));
-    ASSERT_TRUE(buffer.get_data(453120, dummy.data()));
-    ASSERT_TRUE(buffer.get_data(180550, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(1000, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(1000, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(500, dummy.data()));
 
     std::vector<std::size_t> expected = {
-        453120, 453120, 180736
+        1000, 1000, 500
     };
     ASSERT_EQ(requests, expected);
 }
 
-void test_image_buffer_genesys_usb_capped_remaining_bytes()
+void test_image_buffer_smaller_reads()
 {
     std::vector<std::size_t> requests;
 
-    auto on_read_usb = [&](std::size_t x, std::uint8_t* data)
+    auto on_read = [&](std::size_t x, std::uint8_t* data)
     {
         (void) data;
         requests.push_back(x);
+        return true;
     };
 
-    ImageBufferGenesysUsb buffer{1086780, 453120, on_read_usb};
+    ImageBuffer buffer{1000, on_read};
+    buffer.set_remaining_size(2500);
 
     std::vector<std::uint8_t> dummy;
-    dummy.resize(1086780);
+    dummy.resize(700);
 
-    ASSERT_TRUE(buffer.get_data(453120, dummy.data()));
-    ASSERT_TRUE(buffer.get_data(453120, dummy.data()));
-    buffer.set_remaining_size(10000);
-    ASSERT_FALSE(buffer.get_data(56640, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(600, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(600, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(600, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(700, dummy.data()));
 
     std::vector<std::size_t> expected = {
-        // note that the sizes are rounded-up to 256 bytes
-        453120, 453120, 10240
+        1000, 1000, 500
+    };
+    ASSERT_EQ(requests, expected);
+}
+
+void test_image_buffer_larger_reads()
+{
+    std::vector<std::size_t> requests;
+
+    auto on_read = [&](std::size_t x, std::uint8_t* data)
+    {
+        (void) data;
+        requests.push_back(x);
+        return true;
+    };
+
+    ImageBuffer buffer{1000, on_read};
+    buffer.set_remaining_size(2500);
+
+    std::vector<std::uint8_t> dummy;
+    dummy.resize(2500);
+
+    ASSERT_TRUE(buffer.get_data(2500, dummy.data()));
+
+    std::vector<std::size_t> expected = {
+        1000, 1000, 500
+    };
+    ASSERT_EQ(requests, expected);
+}
+
+void test_image_buffer_uncapped_remaining_bytes()
+{
+    std::vector<std::size_t> requests;
+    unsigned request_count = 0;
+    auto on_read = [&](std::size_t x, std::uint8_t* data)
+    {
+        (void) data;
+        requests.push_back(x);
+        request_count++;
+        return request_count < 4;
+    };
+
+    ImageBuffer buffer{1000, on_read};
+
+    std::vector<std::uint8_t> dummy;
+    dummy.resize(3000);
+
+    ASSERT_TRUE(buffer.get_data(3000, dummy.data()));
+    ASSERT_FALSE(buffer.get_data(3000, dummy.data()));
+
+    std::vector<std::size_t> expected = {
+        1000, 1000, 1000, 1000
+    };
+    ASSERT_EQ(requests, expected);
+}
+
+void test_image_buffer_capped_remaining_bytes()
+{
+    std::vector<std::size_t> requests;
+
+    auto on_read = [&](std::size_t x, std::uint8_t* data)
+    {
+        (void) data;
+        requests.push_back(x);
+        return true;
+    };
+
+    ImageBuffer buffer{1000, on_read};
+    buffer.set_remaining_size(10000);
+    buffer.set_last_read_multiple(16);
+
+    std::vector<std::uint8_t> dummy;
+    dummy.resize(2000);
+
+    ASSERT_TRUE(buffer.get_data(2000, dummy.data()));
+    ASSERT_TRUE(buffer.get_data(2000, dummy.data()));
+    buffer.set_remaining_size(100);
+    ASSERT_FALSE(buffer.get_data(200, dummy.data()));
+
+    std::vector<std::size_t> expected = {
+        // note that the sizes are rounded-up to 16 bytes
+        1000, 1000, 1000, 1000, 112
     };
     ASSERT_EQ(requests, expected);
 }
@@ -840,8 +925,11 @@ void test_node_calibrate_16bit()
 
 void test_image_pipeline()
 {
-    test_image_buffer_genesys_usb();
-    test_image_buffer_genesys_usb_capped_remaining_bytes();
+    test_image_buffer_exact_reads();
+    test_image_buffer_smaller_reads();
+    test_image_buffer_larger_reads();
+    test_image_buffer_uncapped_remaining_bytes();
+    test_image_buffer_capped_remaining_bytes();
     test_node_buffered_callable_source();
     test_node_format_convert();
     test_node_desegment_1_line();

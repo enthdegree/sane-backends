@@ -114,9 +114,9 @@ void Genesys_Device::clear()
     dark_average_data.clear();
 }
 
-ImagePipelineNodeBytesSource& Genesys_Device::get_pipeline_source()
+ImagePipelineNodeBufferedCallableSource& Genesys_Device::get_pipeline_source()
 {
-    return static_cast<ImagePipelineNodeBytesSource&>(pipeline.front());
+    return static_cast<ImagePipelineNodeBufferedCallableSource&>(pipeline.front());
 }
 
 bool Genesys_Device::is_head_pos_known(ScanHeadId scan_head) const

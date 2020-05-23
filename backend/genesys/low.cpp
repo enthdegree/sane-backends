@@ -1009,9 +1009,16 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
     } else {
         auto read_bytes_left_after_deseg = session.output_line_bytes * session.output_line_count;
 
-        dev->pipeline.push_first_node<ImagePipelineNodeBufferedGenesysUsb>(
-                width, lines, format, read_bytes_left_after_deseg,
-                session.buffer_size_read, read_data_from_usb);
+        // historical code always aligned reads to 256 bytes. Need to check which actual devices
+        // need this, because anything with session.segment_count > 1 has used non-aligned reads
+        auto buffer_size = align_multiple_floor(session.buffer_size_read, 256);
+
+        auto node = std::unique_ptr<ImagePipelineNodeBufferedCallableSource>(
+            new ImagePipelineNodeBufferedCallableSource(width, lines, format,
+                                                        buffer_size, read_data_from_usb));
+        node->set_remaining_bytes(read_bytes_left_after_deseg);
+        dev->pipeline.push_first_node(std::move(node));
+
         if (dbg_log_image_data()) {
             dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
                                                             std::to_string(s_pipeline_index) +

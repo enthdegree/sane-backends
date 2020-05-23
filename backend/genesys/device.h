@@ -350,7 +350,7 @@ struct Genesys_Device
     // an buffer that allows reading from `pipeline` in chunks of any size
     ImageBuffer pipeline_buffer;
 
-    ImagePipelineNodeBytesSource& get_pipeline_source();
+    ImagePipelineNodeBufferedCallableSource& get_pipeline_source();
 
     std::unique_ptr<ScannerInterface> interface;
 

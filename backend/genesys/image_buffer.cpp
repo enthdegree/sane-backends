@@ -45,13 +45,13 @@
 
 #include "image_buffer.h"
 #include "image.h"
+#include "utilities.h"
 
 namespace genesys {
 
 ImageBuffer::ImageBuffer(std::size_t size, ProducerCallback producer) :
     producer_{producer},
-    size_{size},
-    buffer_offset_{size}
+    size_{size}
 {
     buffer_.resize(size_);
 }
@@ -81,10 +81,28 @@ bool ImageBuffer::get_data(std::size_t size, std::uint8_t* out_data)
     bool got_data = true;
     do {
         buffer_offset_ = 0;
-        got_data &= producer_(size_, buffer_.data());
+
+        std::size_t size_to_read = size_;
+        if (remaining_size_ != BUFFER_SIZE_UNSET) {
+            size_to_read = std::min<std::uint64_t>(size_to_read, remaining_size_);
+            remaining_size_ -= size_to_read;
+        }
+
+        std::size_t aligned_size_to_read = size_to_read;
+        if (remaining_size_ == 0 && last_read_multiple_ != BUFFER_SIZE_UNSET) {
+            aligned_size_to_read = align_multiple_ceil(size_to_read, last_read_multiple_);
+        }
+
+        got_data &= producer_(aligned_size_to_read, buffer_.data());
+        curr_size_ = size_to_read;
 
         copy_buffer();
-    } while(out_data < out_data_end && got_data);
+
+        if (remaining_size_ == 0 && out_data < out_data_end) {
+            got_data = false;
+        }
+
+    } while (out_data < out_data_end && got_data);
 
     return got_data;
 }

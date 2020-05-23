@@ -56,18 +56,30 @@ class ImageBuffer
 {
 public:
     using ProducerCallback = std::function<bool(std::size_t size, std::uint8_t* out_data)>;
+    static constexpr std::uint64_t BUFFER_SIZE_UNSET = std::numeric_limits<std::uint64_t>::max();
 
     ImageBuffer() {}
     ImageBuffer(std::size_t size, ProducerCallback producer);
 
-    std::size_t size() const { return size_; }
-    std::size_t available() const { return size_ - buffer_offset_; }
+    std::size_t available() const { return curr_size_ - buffer_offset_; }
+
+    // allows adjusting the amount of data left so that we don't do a full size read from the
+    // producer on the last iteration. Set to BUFFER_SIZE_UNSET to ignore buffer size.
+    std::uint64_t remaining_size() const { return remaining_size_; }
+    void set_remaining_size(std::uint64_t bytes) { remaining_size_ = bytes; }
+
+    // May be used to force the last read to be rounded up of a certain number of bytes
+    void set_last_read_multiple(std::uint64_t bytes) { last_read_multiple_ = bytes; }
 
     bool get_data(std::size_t size, std::uint8_t* out_data);
 
 private:
     ProducerCallback producer_;
     std::size_t size_ = 0;
+    std::size_t curr_size_ = 0;
+
+    std::uint64_t remaining_size_ = BUFFER_SIZE_UNSET;
+    std::uint64_t last_read_multiple_ = BUFFER_SIZE_UNSET;
 
     std::size_t buffer_offset_ = 0;
     std::vector<std::uint8_t> buffer_;

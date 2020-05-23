@@ -87,6 +87,7 @@ public:
     }
 
     bool empty() const { return shifts_.empty(); }
+    std::size_t size() const { return shifts_.size(); }
     const std::vector<std::size_t>& shifts() const { return shifts_; }
 
     bool operator==(const StaggerConfig& other) const

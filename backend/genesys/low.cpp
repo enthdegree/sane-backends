@@ -827,6 +827,12 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
         s.pixel_endx = s.pixel_startx + s.optical_pixels_raw;
     }
 
+    // align pixels to correct boundary for unstaggering
+    unsigned needed_x_alignment = std::max(s.stagger_x.size(), s.stagger_y.size());
+    unsigned aligned_pixel_startx = align_multiple_floor(s.pixel_startx, needed_x_alignment);
+    s.pixel_endx -= s.pixel_startx - aligned_pixel_startx;
+    s.pixel_startx = aligned_pixel_startx;
+
     s.pixel_startx = sensor.pixel_count_ratio.apply(s.pixel_startx);
     s.pixel_endx = sensor.pixel_count_ratio.apply(s.pixel_endx);
 
@@ -837,49 +843,6 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
     {
         s.pixel_startx = align_multiple_floor(s.pixel_startx, sensor.pixel_count_ratio.divisor());
         s.pixel_endx = align_multiple_floor(s.pixel_endx, sensor.pixel_count_ratio.divisor());
-    }
-
-    if (dev->model->asic_type == AsicType::GL646) {
-        if (sensor.stagger_y.max_shift() > 0 && (s.pixel_startx & 1) == 0)
-        {
-            s.pixel_startx++;
-            s.pixel_endx++;
-        }
-    } else if (dev->model->asic_type == AsicType::GL841 ||
-               dev->model->asic_type == AsicType::GL842 ||
-               dev->model->asic_type == AsicType::GL843)
-    {
-        // in case of stagger we have to start at an odd coordinate
-        // FIXME: we should probably just configure the image pipeline accordingly
-        bool stagger_starts_even = false;
-        if (dev->model->model_id == ModelId::CANON_4400F ||
-            dev->model->model_id == ModelId::CANON_8400F)
-        {
-            stagger_starts_even = true;
-        }
-
-        if (s.num_staggered_lines > 0) {
-            if (!stagger_starts_even && (s.pixel_startx & 1) == 0) {
-                s.pixel_startx++;
-                s.pixel_endx++;
-            } else if (stagger_starts_even && (s.pixel_startx & 1) != 0) {
-                s.pixel_startx++;
-                s.pixel_endx++;
-            }
-        }
-    } else if (dev->model->asic_type == AsicType::GL845 ||
-               dev->model->asic_type == AsicType::GL846 ||
-               dev->model->asic_type == AsicType::GL847)
-    {
-        if (s.num_staggered_lines > 0 && (s.pixel_startx & 1) == 0) {
-            s.pixel_startx++;
-            s.pixel_endx++;
-        }
-    } else if (dev->model->asic_type == AsicType::GL124) {
-        if (s.num_staggered_lines > 0 && (s.pixel_startx & 1) == 0) {
-            s.pixel_startx++;
-            s.pixel_endx++;
-        }
     }
 }
 

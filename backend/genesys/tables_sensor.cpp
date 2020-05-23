@@ -275,7 +275,7 @@ void genesys_init_sensor_tables()
                     { 0x5b, 0x00 }, { 0x5c, 0x00 }, { 0x5d, 0x00 }, { 0x5e, 0x00 }
                 }
             },
-            {   { 1200 }, 1200, 1200, 11000, Ratio{1, 1}, 16, StaggerConfig{0, 4}, {
+            {   { 1200 }, 1200, 1200, 11000, Ratio{1, 1}, 16, StaggerConfig{4, 0}, {
                     { 0x08, 0x0d }, { 0x09, 0x0f }, { 0x0a, 0x11 }, { 0x0b, 0x13 },
                     { 0x16, 0x0b }, { 0x17, 0x0a }, { 0x18, 0x30 }, { 0x19, 0x2a },
                     { 0x1a, 0x00 }, { 0x1b, 0x00 }, { 0x1c, 0x00 }, { 0x1d, 0x03 },
@@ -368,7 +368,7 @@ void genesys_init_sensor_tables()
                     { 0x5b, 0x00 }, { 0x5c, 0x00 }, { 0x5d, 0x00 }, { 0x5e, 0x00 }
                 }
             },
-            { { 1200 }, 1200, 21749, Ratio{1, 1}, 15, StaggerConfig{0, 4}, {
+            { { 1200 }, 1200, 21749, Ratio{1, 1}, 15, StaggerConfig{4, 0}, {
                     { 0x08, 0x02 }, { 0x09, 0x04 }, { 0x0a, 0x00 }, { 0x0b, 0x00 },
                     { 0x16, 0xbf }, { 0x17, 0x08 }, { 0x18, 0x30 }, { 0x19, 0x2a },
                     { 0x1a, 0x00 }, { 0x1b, 0x00 }, { 0x1c, 0xc0 }, { 0x1d, 0x42 },
@@ -692,7 +692,7 @@ void genesys_init_sensor_tables()
                     { 0x5b, 0x02 }, { 0x5c, 0x0e }, { 0x5d, 0x00 }, { 0x5e, 0x00 }
                 }
             },
-            {   { 1200 }, 1200, 12750, Ratio{1, 1}, 16, StaggerConfig{0, 4}, {
+            {   { 1200 }, 1200, 12750, Ratio{1, 1}, 16, StaggerConfig{4, 0}, {
                     { 0x08, 0x0d }, { 0x09, 0x0f }, { 0x0a, 0x11 }, { 0x0b, 0x13 },
                     { 0x16, 0x2b }, { 0x17, 0x07 }, { 0x18, 0x30 }, { 0x19, 0x2a },
                     { 0x1a, 0x00 }, { 0x1b, 0x00 }, { 0x1c, 0xc0 }, { 0x1d, 0x43 },
@@ -1583,15 +1583,15 @@ void genesys_init_sensor_tables()
             {   { 1200 }, 1200, 1200, 56064, ScanMethod::FLATBED, Ratio{1, 4}, 14,
                 StaggerConfig{}, regs_1200 },
             {   { 2400 }, 2400, 2400, 56064, ScanMethod::FLATBED, Ratio{1, 2}, 29,
-                StaggerConfig{0, 4}, regs_2400 },
+                StaggerConfig{4, 0}, regs_2400 },
             {   { 4800 }, 4800, 4800, 42752, ScanMethod::FLATBED, Ratio{1, 1}, 58,
-                StaggerConfig{0, 8}, regs_4800 },
+                StaggerConfig{8, 0}, regs_4800 },
             {   { 100, 150, 200, 300, 400, 600, 1200 }, 600, 600, 15624, ScanMethod::TRANSPARENCY,
                 Ratio{1, 1}, 58, StaggerConfig{}, regs_ta_any }, // FIXME: may be incorrect
             {   { 2400 }, 600, 600, 15624, ScanMethod::TRANSPARENCY,
-                Ratio{1, 1}, 58, StaggerConfig{0, 4}, regs_ta_any }, // FIXME: may be incorrect
+                Ratio{1, 1}, 58, StaggerConfig{4, 0}, regs_ta_any }, // FIXME: may be incorrect
             {   { 4800 }, 600, 600, 15624, ScanMethod::TRANSPARENCY,
-                Ratio{1, 1}, 58, StaggerConfig{0, 8}, regs_ta_any }, // FIXME: may be incorrect
+                Ratio{1, 1}, 58, StaggerConfig{8, 0}, regs_ta_any }, // FIXME: may be incorrect
         };
 
         auto base_custom_regs = sensor.custom_regs;
@@ -2186,7 +2186,7 @@ void genesys_init_sensor_tables()
             },
             {   { 4800 }, 4800, 4800, 45000, -1982, { ScanMethod::TRANSPARENCY,
                                                       ScanMethod::TRANSPARENCY_INFRARED },
-                StaggerConfig{0, 8}, {
+                StaggerConfig{8, 0}, {
                     { 0x0c, 0x00 },
                     { 0x16, 0x13 }, { 0x17, 0x15 }, { 0x18, 0x10 }, { 0x19, 0x2a },
                     { 0x1a, 0x30 }, { 0x1b, 0x00 }, { 0x1c, 0x61 }, { 0x1d, 0x75 },
@@ -3179,7 +3179,7 @@ void genesys_init_sensor_tables()
             {   { 3600 }, ScanMethod::TRANSPARENCY, 3600, Ratio{2, 2}, 10, 0x2538, 600,
                 StaggerConfig{}, {} },
             {   { 7200 }, ScanMethod::TRANSPARENCY, 7200, Ratio{1, 1}, 20, 0x19c8, 1200,
-                StaggerConfig{0, 4}, {
+                StaggerConfig{4, 0}, {
                     { 0x02, 0x1b },
                     { 0x03, 0x14 },
                     { 0x04, 0x20 },
@@ -3192,7 +3192,7 @@ void genesys_init_sensor_tables()
             {   { 3600 }, ScanMethod::TRANSPARENCY_INFRARED, 3600, Ratio{2, 2}, 10, 0x1f54, 600,
                 StaggerConfig{}, {}},
             {   { 7200 }, ScanMethod::TRANSPARENCY_INFRARED, 7200, Ratio{1, 1}, 20, 0x1f54, 1200,
-                StaggerConfig{0, 4}, {} },
+                StaggerConfig{4, 0}, {} },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
@@ -3267,7 +3267,7 @@ void genesys_init_sensor_tables()
             { { 900 }, 900, Ratio{8, 8}, 2, 150, StaggerConfig{} },
             { { 1800 }, 1800, Ratio{4, 4}, 5, 300, StaggerConfig{} },
             { { 3600 }, 3600, Ratio{2, 2}, 10, 600, StaggerConfig{} },
-            { { 7200 }, 7200, Ratio{1, 1}, 20, 1200, StaggerConfig{0, 4} },
+            { { 7200 }, 7200, Ratio{1, 1}, 20, 1200, StaggerConfig{4, 0} },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
@@ -3321,7 +3321,7 @@ void genesys_init_sensor_tables()
             { { 1200 }, 200, 20, StaggerConfig{} },
             { { 2400 }, 400, 40, StaggerConfig{} },
             { { 3600 }, 600, 60, StaggerConfig{} },
-            { { 7200 }, 1200, 120, StaggerConfig{0, 4} },
+            { { 7200 }, 1200, 120, StaggerConfig{4, 0} },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
@@ -3395,7 +3395,7 @@ void genesys_init_sensor_tables()
             {   { 3600 }, ScanMethod::TRANSPARENCY, 3600, Ratio{2, 2}, 10, 0x2f44, 600,
                 StaggerConfig{} },
             {   { 7200 }, ScanMethod::TRANSPARENCY, 7200, Ratio{1, 1}, 20, 0x2f44, 1200,
-                StaggerConfig{0, 4} },
+                StaggerConfig{4, 0} },
             {   { 900 }, ScanMethod::TRANSPARENCY_INFRARED, 900, Ratio{8, 8}, 2, 0x2af8, 150,
                 StaggerConfig{} },
             {   { 1800 }, ScanMethod::TRANSPARENCY_INFRARED, 1800, Ratio{4, 4}, 5, 0x2af8, 300,
@@ -3403,7 +3403,7 @@ void genesys_init_sensor_tables()
             {   { 3600 }, ScanMethod::TRANSPARENCY_INFRARED, 3600, Ratio{2, 2}, 10, 0x2af8, 600,
                 StaggerConfig{} },
             {   { 7200 }, ScanMethod::TRANSPARENCY_INFRARED, 7200, Ratio{1, 1}, 20, 0x2af8, 1200,
-                StaggerConfig{0, 4} },
+                StaggerConfig{4, 0} },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {
@@ -3459,11 +3459,11 @@ void genesys_init_sensor_tables()
             { { 900 },  ScanMethod::TRANSPARENCY, 150, 15, StaggerConfig{} },
             { { 1800 }, ScanMethod::TRANSPARENCY, 300, 30, StaggerConfig{} },
             { { 3600 }, ScanMethod::TRANSPARENCY, 600, 60, StaggerConfig{} },
-            { { 7200 }, ScanMethod::TRANSPARENCY, 1200, 120, StaggerConfig{0, 4} },
+            { { 7200 }, ScanMethod::TRANSPARENCY, 1200, 120, StaggerConfig{4, 0} },
             { { 900 },  ScanMethod::TRANSPARENCY_INFRARED, 150, 15, StaggerConfig{} },
             { { 1800 }, ScanMethod::TRANSPARENCY_INFRARED, 300, 30, StaggerConfig{} },
             { { 3600 }, ScanMethod::TRANSPARENCY_INFRARED, 600, 60, StaggerConfig{} },
-            { { 7200 }, ScanMethod::TRANSPARENCY_INFRARED, 1200, 120, StaggerConfig{0, 4} },
+            { { 7200 }, ScanMethod::TRANSPARENCY_INFRARED, 1200, 120, StaggerConfig{4, 0} },
         };
 
         for (const CustomSensorSettings& setting : custom_settings) {

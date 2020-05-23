@@ -931,33 +931,6 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     debug_dump(DBG_info, s);
 }
 
-static std::size_t get_usb_buffer_read_size(AsicType asic, const ScanSession& session)
-{
-    switch (asic) {
-        case AsicType::GL646:
-            // buffer not used on this chip set
-            return 1;
-
-        case AsicType::GL124:
-            // BUG: we shouldn't multiply by channels here nor adjuct by resolution factor
-            return session.output_line_bytes_raw * session.optical_resolution / session.full_resolution
-                    * session.params.channels;
-
-        case AsicType::GL845:
-        case AsicType::GL846:
-        case AsicType::GL847:
-            // BUG: we shouldn't multiply by channels here
-            return session.output_line_bytes_raw * session.params.channels;
-
-        case AsicType::GL842:
-        case AsicType::GL843:
-            return session.output_line_bytes_raw * 2;
-
-        default:
-            throw SaneException("Unknown asic type");
-    }
-}
-
 void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
 {
     static unsigned s_pipeline_index = 0;
@@ -980,22 +953,25 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
 
     dev->pipeline.clear();
 
-    // FIXME: here we are complicating things for the time being to preserve the existing behaviour
-    // This allows to be sure that the changes to the image pipeline have not introduced
-    // regressions.
+    auto buffer_size = session.buffer_size_read;
+
+    // At least GL841 requires reads to be aligned to 2 bytes and will fail on some devices on
+    // certain circumstances.
+    buffer_size = align_multiple_ceil(buffer_size, 2);
+
+    auto node = std::unique_ptr<ImagePipelineNodeBufferedCallableSource>(
+                new ImagePipelineNodeBufferedCallableSource(
+                    width, lines, format, buffer_size, read_data_from_usb));
+    node->set_last_read_multiple(2);
+    dev->pipeline.push_first_node(std::move(node));
+
+    if (dbg_log_image_data()) {
+        dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
+                                                        std::to_string(s_pipeline_index) +
+                                                        "_0_from_usb.tiff");
+    }
 
     if (session.segment_count > 1) {
-        // BUG: we're reading one line too much
-        dev->pipeline.push_first_node<ImagePipelineNodeBufferedCallableSource>(
-                width, lines, format,
-                get_usb_buffer_read_size(dev->model->asic_type, session), read_data_from_usb);
-
-        if (dbg_log_image_data()) {
-            dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
-                                                            std::to_string(s_pipeline_index) +
-                                                            "_0_from_usb.tiff");
-        }
-
         auto output_width = session.output_segment_pixel_group_count * session.segment_count;
         dev->pipeline.push_node<ImagePipelineNodeDesegment>(output_width, dev->segment_order,
                                                             session.conseq_pixel_dist,
@@ -1006,26 +982,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
                                                             std::to_string(s_pipeline_index) +
                                                             "_1_after_desegment.tiff");
         }
-    } else {
-        auto read_bytes_left_after_deseg = session.output_line_bytes * session.output_line_count;
-
-        // historical code always aligned reads to 256 bytes. Need to check which actual devices
-        // need this, because anything with session.segment_count > 1 has used non-aligned reads
-        auto buffer_size = align_multiple_floor(session.buffer_size_read, 256);
-
-        auto node = std::unique_ptr<ImagePipelineNodeBufferedCallableSource>(
-            new ImagePipelineNodeBufferedCallableSource(width, lines, format,
-                                                        buffer_size, read_data_from_usb));
-        node->set_remaining_bytes(read_bytes_left_after_deseg);
-        dev->pipeline.push_first_node(std::move(node));
-
-        if (dbg_log_image_data()) {
-            dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
-                                                            std::to_string(s_pipeline_index) +
-                                                            "_0_from_usb.tiff");
-        }
     }
-
 
     if (depth == 16) {
         unsigned num_swaps = 0;

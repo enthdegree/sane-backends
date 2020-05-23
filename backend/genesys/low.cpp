@@ -1155,9 +1155,6 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
         }
     } else {
         auto read_bytes_left_after_deseg = session.output_line_bytes * session.output_line_count;
-        if (dev->model->asic_type == AsicType::GL646) {
-            read_bytes_left_after_deseg *= dev->model->is_cis ? session.params.channels : 1;
-        }
 
         dev->pipeline.push_first_node<ImagePipelineNodeBufferedGenesysUsb>(
                 width, lines, format, read_bytes_left_after_deseg,

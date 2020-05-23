@@ -181,7 +181,7 @@ private:
 };
 
 // A pipeline node that produces data from the given array.
-class ImagePipelineNodeArraySource : public ImagePipelineNodeBytesSource
+class ImagePipelineNodeArraySource : public ImagePipelineNode
 {
 public:
     ImagePipelineNodeArraySource(std::size_t width, std::size_t height, PixelFormat format,

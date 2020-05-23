@@ -151,7 +151,6 @@ ImagePipelineNodeArraySource::ImagePipelineNodeArraySource(std::size_t width, st
         throw SaneException("The given array is too small (%zu bytes). Need at least %zu",
                             data_.size(), size);
     }
-    set_remaining_bytes(size);
 }
 
 bool ImagePipelineNodeArraySource::get_next_row_data(std::uint8_t* out_data)
@@ -161,21 +160,11 @@ bool ImagePipelineNodeArraySource::get_next_row_data(std::uint8_t* out_data)
         return false;
     }
 
-    bool got_data = true;
-
     auto row_bytes = get_row_bytes();
-    auto bytes_to_ask = consume_remaining_bytes(row_bytes);
-    if (bytes_to_ask < row_bytes) {
-        got_data = false;
-    }
-
-    std::memcpy(out_data, data_.data() + get_row_bytes() * next_row_, bytes_to_ask);
+    std::memcpy(out_data, data_.data() + row_bytes * next_row_, row_bytes);
     next_row_++;
 
-    if (!got_data) {
-        eof_ = true;
-    }
-    return got_data;
+    return true;
 }
 
 

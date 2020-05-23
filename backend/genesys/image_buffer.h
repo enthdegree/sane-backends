@@ -85,40 +85,6 @@ private:
     std::vector<std::uint8_t> buffer_;
 };
 
-// This class is similar to ImageBuffer, but preserves historical peculiarities of buffer handling
-// in the backend to preserve exact behavior
-class ImageBufferGenesysUsb
-{
-public:
-    using ProducerCallback = std::function<void(std::size_t size, std::uint8_t* out_data)>;
-
-    ImageBufferGenesysUsb() {}
-    ImageBufferGenesysUsb(std::size_t total_size, std::size_t buffer_size,
-                          ProducerCallback producer);
-
-    std::size_t remaining_size() const { return remaining_size_; }
-
-    void set_remaining_size(std::size_t bytes) { remaining_size_ = bytes; }
-
-    std::size_t available() const { return buffer_end_ - buffer_offset_; }
-
-    bool get_data(std::size_t size, std::uint8_t* out_data);
-
-private:
-
-    std::size_t get_read_size();
-
-    std::size_t remaining_size_ = 0;
-
-    std::size_t buffer_size_ = 0;
-
-    std::size_t buffer_offset_ = 0;
-    std::size_t buffer_end_ = 0;
-    std::vector<std::uint8_t> buffer_;
-
-    ProducerCallback producer_;
-};
-
 } // namespace genesys
 
 #endif // BACKEND_GENESYS_IMAGE_BUFFER_H

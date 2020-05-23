@@ -74,7 +74,6 @@ class Image;
 
 // image_buffer.h
 class ImageBuffer;
-class ImageBufferGenesysUsb;
 
 // image_pipeline.h
 class ImagePipelineNode;

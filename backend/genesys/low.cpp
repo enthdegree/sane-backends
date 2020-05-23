@@ -987,7 +987,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
     if (session.segment_count > 1) {
         // BUG: we're reading one line too much
         dev->pipeline.push_first_node<ImagePipelineNodeBufferedCallableSource>(
-                width, lines + 1, format,
+                width, lines, format,
                 get_usb_buffer_read_size(dev->model->asic_type, session), read_data_from_usb);
 
         if (dbg_log_image_data()) {

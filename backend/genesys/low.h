@@ -443,11 +443,17 @@ inline T abs_diff(T a, T b)
 
 inline uint64_t align_multiple_floor(uint64_t x, uint64_t multiple)
 {
+    if (multiple == 0) {
+        return x;
+    }
     return (x / multiple) * multiple;
 }
 
 inline uint64_t align_multiple_ceil(uint64_t x, uint64_t multiple)
 {
+    if (multiple == 0) {
+        return x;
+    }
     return ((x + multiple - 1) / multiple) * multiple;
 }
 

@@ -77,6 +77,51 @@ inline double fixed_to_double(SANE_Word v)
 }
 
 template<class T>
+inline T abs_diff(T a, T b)
+{
+    if (a < b) {
+        return b - a;
+    } else {
+        return a - b;
+    }
+}
+
+inline std::uint64_t align_multiple_floor(std::uint64_t x, std::uint64_t multiple)
+{
+    if (multiple == 0) {
+        return x;
+    }
+    return (x / multiple) * multiple;
+}
+
+inline std::uint64_t align_multiple_ceil(std::uint64_t x, std::uint64_t multiple)
+{
+    if (multiple == 0) {
+        return x;
+    }
+    return ((x + multiple - 1) / multiple) * multiple;
+}
+
+inline std::uint64_t multiply_by_depth_ceil(std::uint64_t pixels, std::uint64_t depth)
+{
+    if (depth == 1) {
+        return (pixels / 8) + ((pixels % 8) ? 1 : 0);
+    } else {
+        return pixels * (depth / 8);
+    }
+}
+
+template<class T>
+inline T clamp(const T& value, const T& lo, const T& hi)
+{
+    if (value < lo)
+        return lo;
+    if (value > hi)
+        return hi;
+    return value;
+}
+
+template<class T>
 void compute_array_percentile_approx(T* result, const T* data,
                                      std::size_t line_count, std::size_t elements_per_line,
                                      float percentile)

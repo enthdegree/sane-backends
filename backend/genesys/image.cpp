@@ -45,6 +45,10 @@
 
 #include "image.h"
 
+#if defined(HAVE_TIFFIO_H)
+#include <tiffio.h>
+#endif
+
 #include <array>
 
 namespace genesys {
@@ -199,6 +203,70 @@ void convert_pixel_row_format(const std::uint8_t* in_data, PixelFormat in_format
         default:
             throw SaneException("Unknown pixel format %d", static_cast<unsigned>(in_format));
     }
+}
+
+void write_tiff_file(const std::string& filename, const void* data, int depth, int channels,
+                     int pixels_per_line, int lines)
+{
+    DBG_HELPER_ARGS(dbg, "depth=%d, channels=%d, ppl=%d, lines=%d", depth, channels,
+                    pixels_per_line, lines);
+#if defined(HAVE_TIFFIO_H)
+    auto image = TIFFOpen(filename.c_str(), "w");
+    if (!image) {
+        dbg.log(DBG_error, "Could not save debug image");
+        return;
+    }
+    TIFFSetField(image, TIFFTAG_IMAGEWIDTH, pixels_per_line);
+    TIFFSetField(image, TIFFTAG_IMAGELENGTH, lines);
+    TIFFSetField(image, TIFFTAG_BITSPERSAMPLE, depth);
+    TIFFSetField(image, TIFFTAG_SAMPLESPERPIXEL, channels);
+    if (channels > 1) {
+        TIFFSetField(image, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
+    } else {
+        TIFFSetField(image, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);
+    }
+    TIFFSetField(image, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
+    TIFFSetField(image, TIFFTAG_ORIENTATION, ORIENTATION_TOPLEFT);
+
+    std::size_t bytes_per_line = (pixels_per_line * channels * depth + 7) / 8;
+    const std::uint8_t* data_ptr = reinterpret_cast<const std::uint8_t*>(data);
+
+    // we don't need to handle endian because libtiff will handle that
+    for (int iline = 0; iline < lines; ++iline) {
+        const auto* line_data = data_ptr + bytes_per_line;
+        TIFFWriteScanline(image, const_cast<std::uint8_t*>(line_data), iline, 0);
+    }
+    TIFFClose(image);
+
+#else
+    dbg.log(DBG_error, "Backend has been built without TIFF library support. "
+            "Debug images will not be saved");
+#endif
+}
+
+bool is_supported_write_tiff_file_image_format(PixelFormat format)
+{
+    switch (format) {
+        case PixelFormat::I1:
+        case PixelFormat::RGB111:
+        case PixelFormat::I8:
+        case PixelFormat::RGB888:
+        case PixelFormat::I16:
+        case PixelFormat::RGB161616:
+            return true;
+        default:
+            return false;
+    }
+}
+
+void write_tiff_file(const std::string& filename, const Image& image)
+{
+    if (!is_supported_write_tiff_file_image_format(image.get_format())) {
+        throw SaneException("Unsupported format %d", static_cast<unsigned>(image.get_format()));
+    }
+
+    write_tiff_file(filename, image.get_row_ptr(0), get_pixel_format_depth(image.get_format()),
+                    get_pixel_channels(image.get_format()), image.get_width(), image.get_height());
 }
 
 } // namespace genesys

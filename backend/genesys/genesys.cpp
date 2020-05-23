@@ -1300,9 +1300,9 @@ void scanner_search_strip(Genesys_Device& dev, bool forward, bool black)
     unsigned pass = 0;
     if (dbg_log_image_data()) {
         char title[80];
-        std::sprintf(title, "gl_search_strip_%s_%s%02d.pnm",
+        std::sprintf(title, "gl_search_strip_%s_%s%02d.tiff",
                      black ? "black" : "white", forward ? "fwd" : "bwd", pass);
-        sanei_genesys_write_pnm_file(title, image);
+        write_tiff_file(title, image);
     }
 
     // loop until strip is found or maximum pass number done
@@ -1322,10 +1322,10 @@ void scanner_search_strip(Genesys_Device& dev, bool forward, bool black)
 
         if (dbg_log_image_data()) {
             char title[80];
-            std::sprintf(title, "gl_search_strip_%s_%s%02d.pnm",
+            std::sprintf(title, "gl_search_strip_%s_%s%02d.tiff",
                          black ? "black" : "white",
                          forward ? "fwd" : "bwd", static_cast<int>(pass));
-            sanei_genesys_write_pnm_file(title, image);
+            write_tiff_file(title, image);
         }
 
         unsigned white_level = 90;
@@ -1607,9 +1607,9 @@ void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& senso
 
     if (dbg_log_image_data()) {
         char fn[40];
-        std::snprintf(fn, 40, "gl843_bottom_offset_%03d_%03d_%03d.pnm",
+        std::snprintf(fn, 40, "gl843_bottom_offset_%03d_%03d_%03d.tiff",
                       bottom[0], bottom[1], bottom[2]);
-        sanei_genesys_write_pnm_file(fn, first_line);
+        write_tiff_file(fn, first_line);
     }
 
     for (unsigned ch = 0; ch < 3; ch++) {
@@ -1717,9 +1717,8 @@ void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& senso
         sanei_genesys_write_file("gl_offset_all_desc.txt",
                                  reinterpret_cast<const std::uint8_t*>(debug_image_info.data()),
                                  debug_image_info.size());
-        sanei_genesys_write_pnm_file("gl_offset_all.pnm",
-                                     debug_image.data(), session.params.depth, channels, output_pixels,
-                                     debug_image_lines);
+        write_tiff_file("gl_offset_all.tiff", debug_image.data(), session.params.depth, channels,
+                        output_pixels, debug_image_lines);
     }
 
     DBG(DBG_info, "%s: offset=(%d,%d,%d)\n", __func__,
@@ -1905,7 +1904,7 @@ void scanner_coarse_gain_calibration(Genesys_Device& dev, const Genesys_Sensor& 
     }
 
     if (dbg_log_image_data()) {
-        sanei_genesys_write_pnm_file("gl_coarse_gain.pnm", image);
+        write_tiff_file("gl_coarse_gain.tiff", image);
     }
 
     for (unsigned ch = 0; ch < channels; ch++) {
@@ -2163,8 +2162,8 @@ SensorExposure scanner_led_calibration(Genesys_Device& dev, const Genesys_Sensor
 
         if (dbg_log_image_data()) {
             char fn[30];
-            std::snprintf(fn, 30, "gl_led_%02d.pnm", i_test);
-            sanei_genesys_write_pnm_file(fn, image);
+            std::snprintf(fn, 30, "gl_led_%02d.tiff", i_test);
+            write_tiff_file(fn, image);
         }
 
         int avg[3];
@@ -2459,12 +2458,10 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
                                     0.5f);
 
     if (dbg_log_image_data()) {
-        sanei_genesys_write_pnm_file16((log_filename_prefix + "_shading.pnm").c_str(),
-                                       calibration_data.data(),
-                                       channels, pixels_per_line, dev->calib_session.params.lines);
-        sanei_genesys_write_pnm_file16((log_filename_prefix + "_average.pnm").c_str(),
-                                       out_average_data.data(),
-                                       channels, out_pixels_per_line, 1);
+        write_tiff_file(log_filename_prefix + "_shading.tiff", calibration_data.data(), 16,
+                        channels, pixels_per_line, dev->calib_session.params.lines);
+        write_tiff_file(log_filename_prefix + "_average.tiff", out_average_data.data(), 16,
+                        channels, out_pixels_per_line, 1);
     }
 }
 
@@ -2672,13 +2669,13 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
 
     if (dbg_log_image_data()) {
         if (dev->model->is_cis) {
-            sanei_genesys_write_pnm_file("gl_black_white_shading.pnm", calibration_data.data(),
-                                         16, 1, pixels_per_line*channels,
-                                         dev->calib_session.params.lines);
+            write_tiff_file("gl_black_white_shading.tiff", calibration_data.data(),
+                            16, 1, pixels_per_line*channels,
+                            dev->calib_session.params.lines);
         } else {
-            sanei_genesys_write_pnm_file("gl_black_white_shading.pnm", calibration_data.data(),
-                                         16, channels, pixels_per_line,
-                                         dev->calib_session.params.lines);
+            write_tiff_file("gl_black_white_shading.tiff", calibration_data.data(),
+                            16, channels, pixels_per_line,
+                            dev->calib_session.params.lines);
         }
     }
 
@@ -2750,10 +2747,10 @@ static void genesys_dark_white_shading_calibration(Genesys_Device* dev,
     }
 
     if (dbg_log_image_data()) {
-        sanei_genesys_write_pnm_file16("gl_white_average.pnm", dev->white_average_data.data(),
-                                       channels, out_pixels_per_line, 1);
-        sanei_genesys_write_pnm_file16("gl_dark_average.pnm", dev->dark_average_data.data(),
-                                       channels, out_pixels_per_line, 1);
+        write_tiff_file("gl_white_average.tiff", dev->white_average_data.data(), 16, channels,
+                        out_pixels_per_line, 1);
+        write_tiff_file("gl_dark_average.tiff", dev->dark_average_data.data(), 16, channels,
+                        out_pixels_per_line, 1);
     }
 }
 
@@ -3929,12 +3926,10 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
         second_average /= total_pixels;
 
         if (dbg_log_image_data()) {
-            sanei_genesys_write_pnm_file("gl_warmup1.pnm", first_line.data(),
-                                         dev->session.params.depth, channels,
-                                         total_size / (lines * channels), lines);
-            sanei_genesys_write_pnm_file("gl_warmup2.pnm", second_line.data(),
-                                         dev->session.params.depth, channels,
-                                         total_size / (lines * channels), lines);
+            write_tiff_file("gl_warmup1.tiff", first_line.data(), dev->session.params.depth,
+                            channels, total_size / (lines * channels), lines);
+            write_tiff_file("gl_warmup2.tiff", second_line.data(), dev->session.params.depth,
+                            channels, total_size / (lines * channels), lines);
         }
 
         DBG(DBG_info, "%s: average 1 = %.2f, average 2 = %.2f\n", __func__, first_average,

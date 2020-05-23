@@ -837,10 +837,8 @@ ImagePipelineNodeDebug::~ImagePipelineNodeDebug()
 
         auto format = get_format();
         buffer_.linearize();
-        sanei_genesys_write_pnm_file(path_.c_str(), buffer_.get_front_row_ptr(),
-                                     get_pixel_format_depth(format),
-                                     get_pixel_channels(format),
-                                     get_width(), buffer_.height());
+        write_tiff_file(path_, buffer_.get_front_row_ptr(), get_pixel_format_depth(format),
+                        get_pixel_channels(format), get_width(), buffer_.height());
     });
 }
 

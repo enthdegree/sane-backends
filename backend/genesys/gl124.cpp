@@ -1167,7 +1167,7 @@ void move_to_calibration_area(Genesys_Device* dev, const Genesys_Sensor& sensor,
     scanner_stop_action(*dev);
 
     if (dbg_log_image_data()) {
-        sanei_genesys_write_pnm_file("gl124_movetocalarea.pnm", image);
+        write_tiff_file("gl124_movetocalarea.tiff", image);
     }
 }
 

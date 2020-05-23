@@ -1745,8 +1745,8 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
       scanner_stop_action(*dev);
       if (dbg_log_image_data()) {
           char fn[30];
-          std::snprintf(fn, 30, "gl841_offset_%02d.pnm", turn);
-          sanei_genesys_write_pnm_file(fn, line.data(), 8, 3, num_pixels, 1);
+          std::snprintf(fn, 30, "gl841_offset_%02d.tiff", turn);
+          write_tiff_file(fn, line.data(), 8, 3, num_pixels, 1);
       }
 
       /* search for minimal value */
@@ -1888,8 +1888,8 @@ void CommandSetGl841::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
         if (dbg_log_image_data()) {
             char fn[30];
-            std::snprintf(fn, 30, "gl841_offset1_%02d.pnm", turn);
-            sanei_genesys_write_pnm_file(fn, first_line);
+            std::snprintf(fn, 30, "gl841_offset1_%02d.tiff", turn);
+            write_tiff_file(fn, first_line);
         }
 
         acceptable = true;
@@ -1983,8 +1983,8 @@ void CommandSetGl841::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
         if (dbg_log_image_data()) {
             char fn[30];
-            std::snprintf(fn, 30, "gl841_offset2_%02d.pnm", turn);
-            sanei_genesys_write_pnm_file(fn, second_line);
+            std::snprintf(fn, 30, "gl841_offset2_%02d.tiff", turn);
+            write_tiff_file(fn, second_line);
         }
 
         acceptable = true;

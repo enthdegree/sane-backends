@@ -2004,8 +2004,8 @@ SensorExposure CommandSetGl646::led_calibration(Genesys_Device* dev, const Genes
 
         if (dbg_log_image_data()) {
             char fn[30];
-            std::snprintf(fn, 30, "gl646_led_%02d.pnm", turn);
-            sanei_genesys_write_pnm_file(fn, line.data(), 16, channels, pixels, 1);
+            std::snprintf(fn, 30, "gl646_led_%02d.tiff", turn);
+            write_tiff_file(fn, line.data(), 16, channels, pixels, 1);
         }
 
         acceptable = true;
@@ -2171,8 +2171,8 @@ static void ad_fe_offset_calibration(Genesys_Device* dev, const Genesys_Sensor& 
 
         if (dbg_log_image_data()) {
             char title[30];
-            std::snprintf(title, 30, "gl646_offset%03d.pnm", static_cast<int>(bottom));
-            sanei_genesys_write_pnm_file (title, line.data(), 8, channels, pixels, lines);
+            std::snprintf(title, 30, "gl646_offset%03d.tiff", static_cast<int>(bottom));
+            write_tiff_file(title, line.data(), 8, channels, pixels, lines);
         }
 
       min = 0;
@@ -2277,8 +2277,8 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
     if (dbg_log_image_data()) {
         char title[30];
-        std::snprintf(title, 30, "gl646_offset%03d.pnm", bottom);
-        sanei_genesys_write_pnm_file(title, first_line.data(), 8, channels, pixels, lines);
+        std::snprintf(title, 30, "gl646_offset%03d.tiff", bottom);
+        write_tiff_file(title, first_line.data(), 8, channels, pixels, lines);
     }
     bottomavg = dark_average(first_line.data(), pixels, lines, channels, black_pixels);
     DBG(DBG_info, "%s: bottom avg=%d\n", __func__, bottomavg);
@@ -2293,8 +2293,8 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
     if (dbg_log_image_data()) {
         char title[30];
-        std::snprintf(title, 30, "gl646_offset%03d.pnm", top);
-        sanei_genesys_write_pnm_file (title, second_line.data(), 8, channels, pixels, lines);
+        std::snprintf(title, 30, "gl646_offset%03d.tiff", top);
+        write_tiff_file(title, second_line.data(), 8, channels, pixels, lines);
     }
     topavg = dark_average(second_line.data(), pixels, lines, channels, black_pixels);
     DBG(DBG_info, "%s: top avg=%d\n", __func__, topavg);
@@ -2320,8 +2320,8 @@ void CommandSetGl646::offset_calibration(Genesys_Device* dev, const Genesys_Sens
 
         if (dbg_log_image_data()) {
             char title[30];
-            std::snprintf(title, 30, "gl646_offset%03d.pnm", dev->frontend.get_offset(1));
-            sanei_genesys_write_pnm_file(title, second_line.data(), 8, channels, pixels, lines);
+            std::snprintf(title, 30, "gl646_offset%03d.tiff", dev->frontend.get_offset(1));
+            write_tiff_file(title, second_line.data(), 8, channels, pixels, lines);
         }
 
         avg = dark_average(second_line.data(), pixels, lines, channels, black_pixels);
@@ -2432,8 +2432,8 @@ void CommandSetGl646::coarse_gain_calibration(Genesys_Device* dev, const Genesys
         simple_scan(dev, calib_sensor, session, false, line, "coarse_gain_calibration");
 
         if (dbg_log_image_data()) {
-            std::sprintf(title, "gl646_gain%02d.pnm", pass);
-            sanei_genesys_write_pnm_file(title, line.data(), 8, channels, pixels, lines);
+            std::sprintf(title, "gl646_gain%02d.tiff", pass);
+            write_tiff_file(title, line.data(), 8, channels, pixels, lines);
         }
         pass++;
 

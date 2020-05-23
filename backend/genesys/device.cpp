@@ -102,7 +102,6 @@ Genesys_Device::~Genesys_Device()
 
 void Genesys_Device::clear()
 {
-    read_buffer.clear();
     binarize_buffer.clear();
     local_buffer.clear();
 
@@ -258,7 +257,6 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev)
         << "    read_active: " << dev.read_active << '\n'
         << "    parking: " << dev.parking << '\n'
         << "    document: " << dev.document << '\n'
-        << "    read_buffer.size(): " << dev.read_buffer.size() << '\n'
         << "    binarize_buffer.size(): " << dev.binarize_buffer.size() << '\n'
         << "    local_buffer.size(): " << dev.local_buffer.size() << '\n'
         << "    total_bytes_read: " << dev.total_bytes_read << '\n'

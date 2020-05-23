@@ -1054,9 +1054,6 @@ void CommandSetGl843::init_regs_for_scan_session(Genesys_Device* dev, const Gene
                                session.optical_line_count, dummy, session.params.starty,
                                session.params.flags);
 
-    dev->read_buffer.clear();
-    dev->read_buffer.alloc(session.buffer_size_read);
-
     build_image_pipeline(dev, session);
 
     dev->read_active = true;

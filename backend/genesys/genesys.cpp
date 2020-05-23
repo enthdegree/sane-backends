@@ -4113,7 +4113,6 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
 {
     DBG_HELPER(dbg);
     size_t bytes = 0;
-  uint8_t *work_buffer_src;
 
     if (!dev->read_active) {
       *len = 0;
@@ -4148,28 +4147,12 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
             dev->cmd_set->detect_document_end(dev);
         }
 
-        std::size_t size = dev->read_buffer.size() - dev->read_buffer.avail();
-
-        dev->pipeline_buffer.get_data(size, dev->read_buffer.get_write_pos(size));
-        dev->read_buffer.produce(size);
-
-        bytes = std::min(dev->read_buffer.avail(), *len);
-
-        work_buffer_src = dev->read_buffer.get_read_pos();
-
-        std::memcpy(destination, work_buffer_src, bytes);
-        *len = bytes;
-
-        /* avoid signaling some extra data because we have treated a full block
-        * on the last block */
         if (dev->total_bytes_read + *len > dev->total_bytes_to_read) {
             *len = dev->total_bytes_to_read - dev->total_bytes_read;
         }
 
-        /* count bytes sent to frontend */
+        dev->pipeline_buffer.get_data(*len, destination);
         dev->total_bytes_read += *len;
-
-        dev->read_buffer.consume(bytes);
     }
 
   /* end scan if all needed data have been read */

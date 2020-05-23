@@ -661,11 +661,6 @@ static unsigned align_int_up(unsigned num, unsigned alignment)
     return num;
 }
 
-std::size_t compute_session_buffer_sizes(const ScanSession& s)
-{
-    return s.output_line_bytes * (32 + s.max_color_shift_lines + s.num_staggered_lines);
-}
-
 void compute_session_pipeline(const Genesys_Device* dev, ScanSession& s)
 {
     auto channels = s.params.channels;
@@ -902,7 +897,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     s.output_total_bytes_raw = s.output_line_bytes_raw * s.output_line_count;
     s.output_total_bytes = s.output_line_bytes * s.output_line_count;
 
-    s.buffer_size_read = compute_session_buffer_sizes(s);
+    s.buffer_size_read = s.output_line_bytes_raw * 64;
     compute_session_pipeline(dev, s);
     compute_session_pixel_offsets(dev, s, sensor);
 

@@ -586,18 +586,30 @@ public:
     template<class Node, class... Args>
     void push_first_node(Args&&... args)
     {
+        push_first_node(std::unique_ptr<Node>(new Node(std::forward<Args>(args)...)));
+    }
+
+    template<class Node>
+    void push_first_node(std::unique_ptr<Node>&& node)
+    {
         if (!nodes_.empty()) {
             throw SaneException("Trying to append first node when there are existing nodes");
         }
-        nodes_.emplace_back(std::unique_ptr<Node>(new Node(std::forward<Args>(args)...)));
+        nodes_.emplace_back(std::move(node));
     }
 
     template<class Node, class... Args>
     void push_node(Args&&... args)
     {
         ensure_node_exists();
-        nodes_.emplace_back(std::unique_ptr<Node>(new Node(*nodes_.back(),
-                                                           std::forward<Args>(args)...)));
+        push_node(std::unique_ptr<Node>(new Node(*nodes_.back(), std::forward<Args>(args)...)));
+    }
+
+    template<class Node, class... Args>
+    void push_node(std::unique_ptr<Node>&& node)
+    {
+        ensure_node_exists();
+        nodes_.emplace_back(std::move(node));
     }
 
     bool get_next_row_data(std::uint8_t* out_data)

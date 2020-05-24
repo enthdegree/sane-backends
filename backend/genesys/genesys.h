@@ -113,7 +113,6 @@ enum Genesys_Option
   OPT_EXTRAS_GROUP,
   OPT_LAMP_OFF_TIME,
   OPT_LAMP_OFF,
-  OPT_DISABLE_INTERPOLATION,
   OPT_COLOR_FILTER,
   OPT_CALIBRATION_FILE,
   OPT_EXPIRATION_TIME,
@@ -206,7 +205,6 @@ struct Genesys_Scanner
     SANE_Word bit_depth = 0;
     SANE_Word resolution = 0;
     bool preview = false; // TODO: currently not used
-    bool disable_interpolation = false;
     bool lamp_off = false;
     SANE_Word lamp_off_time = 0;
     SANE_Word contrast = 0;

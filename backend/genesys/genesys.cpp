@@ -4185,25 +4185,10 @@ static Genesys_Settings calculate_scan_settings(Genesys_Scanner* s)
         settings.depth = 1;
     }
 
-    settings.disable_interpolation = s->disable_interpolation;
-
     const auto& resolutions = dev->model->get_resolution_settings(settings.scan_method);
 
-    // FIXME: use correct sensor
-    const auto& sensor = sanei_genesys_find_sensor_any(dev);
-
-    // hardware settings
-    if (static_cast<unsigned>(s->resolution) > sensor.full_resolution &&
-        settings.disable_interpolation)
-    {
-        settings.xres = sensor.full_resolution;
-    } else {
-        settings.xres = s->resolution;
-    }
-    settings.yres = s->resolution;
-
-    settings.xres = pick_resolution(resolutions.resolutions_x, settings.xres, "X");
-    settings.yres = pick_resolution(resolutions.resolutions_y, settings.yres, "Y");
+    settings.xres = pick_resolution(resolutions.resolutions_x, s->resolution, "X");
+    settings.yres = pick_resolution(resolutions.resolutions_y, s->resolution, "Y");
 
     settings.tl_x = fixed_to_float(s->pos_top_left_x);
     settings.tl_y = fixed_to_float(s->pos_top_left_y);
@@ -4725,19 +4710,6 @@ static void init_options(Genesys_Scanner* s)
   s->opt[OPT_EXTRAS_GROUP].cap = SANE_CAP_ADVANCED;
   s->opt[OPT_EXTRAS_GROUP].size = 0;
   s->opt[OPT_EXTRAS_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
-
-  /* disable_interpolation */
-  s->opt[OPT_DISABLE_INTERPOLATION].name = "disable-interpolation";
-  s->opt[OPT_DISABLE_INTERPOLATION].title =
-    SANE_I18N ("Disable interpolation");
-  s->opt[OPT_DISABLE_INTERPOLATION].desc =
-    SANE_I18N
-    ("When using high resolutions where the horizontal resolution is smaller "
-     "than the vertical resolution this disables horizontal interpolation.");
-  s->opt[OPT_DISABLE_INTERPOLATION].type = SANE_TYPE_BOOL;
-  s->opt[OPT_DISABLE_INTERPOLATION].unit = SANE_UNIT_NONE;
-  s->opt[OPT_DISABLE_INTERPOLATION].constraint_type = SANE_CONSTRAINT_NONE;
-  s->disable_interpolation = false;
 
   /* color filter */
   s->opt[OPT_COLOR_FILTER].name = "color-filter";
@@ -5628,9 +5600,6 @@ static void get_option_value(Genesys_Scanner* s, int option, void* val)
     case OPT_PREVIEW:
         *reinterpret_cast<SANE_Word*>(val) = s->preview;
         break;
-    case OPT_DISABLE_INTERPOLATION:
-        *reinterpret_cast<SANE_Word*>(val) = s->disable_interpolation;
-        break;
     case OPT_LAMP_OFF:
         *reinterpret_cast<SANE_Word*>(val) = s->lamp_off;
         break;
@@ -5828,11 +5797,6 @@ static void set_option_value(Genesys_Scanner* s, int option, void *val, SANE_Int
         break;
     case OPT_RESOLUTION:
         s->resolution = *reinterpret_cast<SANE_Word*>(val);
-        calc_parameters(s);
-        *myinfo |= SANE_INFO_RELOAD_PARAMS;
-        break;
-    case OPT_DISABLE_INTERPOLATION:
-        s->disable_interpolation = *reinterpret_cast<SANE_Word*>(val);
         calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;

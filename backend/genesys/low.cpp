@@ -653,14 +653,6 @@ void sanei_genesys_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& s
     }
 }
 
-static unsigned align_int_up(unsigned num, unsigned alignment)
-{
-    unsigned mask = alignment - 1;
-    if (num & mask)
-        num = (num & ~mask) + alignment;
-    return num;
-}
-
 void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
                                    const Genesys_Sensor& sensor)
 {
@@ -731,7 +723,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     if (dev->model->asic_type == AsicType::GL841 ||
         dev->model->asic_type == AsicType::GL842)
     {
-        s.optical_pixels = align_int_up(s.optical_pixels, 2);
+        s.optical_pixels = align_multiple_ceil(s.optical_pixels, 2);
     }
 
     if (dev->model->asic_type == AsicType::GL646 && s.params.xres == 400) {
@@ -741,8 +733,8 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     if (dev->model->asic_type == AsicType::GL843) {
         // ensure the number of optical pixels is divisible by 2.
         // In quarter-CCD mode optical_pixels is 4x larger than the actual physical number
-        s.optical_pixels = align_int_up(s.optical_pixels,
-                                        2 * s.full_resolution / s.optical_resolution);
+        s.optical_pixels = align_multiple_ceil(s.optical_pixels,
+                                               2 * s.full_resolution / s.optical_resolution);
 
         if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200 ||
             dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I ||
@@ -751,7 +743,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
             dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I ||
             dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_8200I)
         {
-            s.optical_pixels = align_int_up(s.optical_pixels, 16);
+            s.optical_pixels = align_multiple_ceil(s.optical_pixels, 16);
         }
     }
 

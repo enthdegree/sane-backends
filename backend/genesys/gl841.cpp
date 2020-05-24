@@ -1056,7 +1056,7 @@ dummy \ scanned lines
                                    session.params.flags);
   }
 
-    build_image_pipeline(dev, session);
+    setup_image_pipeline(*dev, session);
 
     dev->read_active = true;
 

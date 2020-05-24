@@ -926,28 +926,26 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     debug_dump(DBG_info, s);
 }
 
-void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
+ImagePipelineStack build_image_pipeline(const Genesys_Device& dev, const ScanSession& session,
+                                        unsigned pipeline_index, bool log_image_data)
 {
-    static unsigned s_pipeline_index = 0;
-
-    s_pipeline_index++;
-
     auto format = create_pixel_format(session.params.depth,
-                                      dev->model->is_cis ? 1 : session.params.channels,
-                                      dev->model->line_mode_color_order);
+                                      dev.model->is_cis ? 1 : session.params.channels,
+                                      dev.model->line_mode_color_order);
     auto depth = get_pixel_format_depth(format);
     auto width = get_pixels_from_row_bytes(format, session.output_line_bytes_raw);
 
-    auto read_data_from_usb = [dev](std::size_t size, std::uint8_t* data)
+    auto read_data_from_usb = [&dev](std::size_t size, std::uint8_t* data)
     {
-        dev->interface->bulk_read_data(0x45, data, size);
+        dev.interface->bulk_read_data(0x45, data, size);
         return true;
     };
 
+    auto debug_prefix = "gl_pipeline_" + std::to_string(pipeline_index);
+
+    ImagePipelineStack pipeline;
+
     auto lines = session.optical_line_count;
-
-    dev->pipeline.clear();
-
     auto buffer_size = session.buffer_size_read;
 
     // At least GL841 requires reads to be aligned to 2 bytes and will fail on some devices on
@@ -958,141 +956,132 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
                 new ImagePipelineNodeBufferedCallableSource(
                     width, lines, format, buffer_size, read_data_from_usb));
     node->set_last_read_multiple(2);
-    dev->pipeline.push_first_node(std::move(node));
+    pipeline.push_first_node(std::move(node));
 
-    if (dbg_log_image_data()) {
-        dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
-                                                        std::to_string(s_pipeline_index) +
-                                                        "_0_from_usb.tiff");
+    if (log_image_data) {
+        pipeline.push_node<ImagePipelineNodeDebug>(debug_prefix + "_0_from_usb.tiff");
     }
 
     if (session.segment_count > 1) {
         auto output_width = session.output_segment_pixel_group_count * session.segment_count;
-        dev->pipeline.push_node<ImagePipelineNodeDesegment>(output_width, dev->segment_order,
+        pipeline.push_node<ImagePipelineNodeDesegment>(output_width, dev.segment_order,
                                                             session.conseq_pixel_dist,
                                                             1, 1);
 
-        if (dbg_log_image_data()) {
-            dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
-                                                            std::to_string(s_pipeline_index) +
-                                                            "_1_after_desegment.tiff");
+        if (log_image_data) {
+            pipeline.push_node<ImagePipelineNodeDebug>(debug_prefix + "_1_after_desegment.tiff");
         }
     }
 
     if (depth == 16) {
         unsigned num_swaps = 0;
-        if (has_flag(dev->model->flags, ModelFlag::SWAP_16BIT_DATA)) {
+        if (has_flag(dev.model->flags, ModelFlag::SWAP_16BIT_DATA)) {
             num_swaps++;
         }
 #ifdef WORDS_BIGENDIAN
         num_swaps++;
 #endif
         if (num_swaps % 2 != 0) {
-            dev->pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
+            pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
 
-            if (dbg_log_image_data()) {
-                dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
-                                                                std::to_string(s_pipeline_index) +
-                                                                "_2_after_swap.tiff");
+            if (log_image_data) {
+                pipeline.push_node<ImagePipelineNodeDebug>(debug_prefix + "_2_after_swap.tiff");
             }
         }
     }
 
-    if (has_flag(dev->model->flags, ModelFlag::INVERT_PIXEL_DATA)) {
-        dev->pipeline.push_node<ImagePipelineNodeInvert>();
+    if (has_flag(dev.model->flags, ModelFlag::INVERT_PIXEL_DATA)) {
+        pipeline.push_node<ImagePipelineNodeInvert>();
 
-        if (dbg_log_image_data()) {
-            dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
-                                                            std::to_string(s_pipeline_index) +
-                                                            "_3_after_invert.tiff");
+        if (log_image_data) {
+            pipeline.push_node<ImagePipelineNodeDebug>(debug_prefix + "_3_after_invert.tiff");
         }
     }
 
-    if (dev->model->is_cis && session.params.channels == 3) {
-        dev->pipeline.push_node<ImagePipelineNodeMergeMonoLines>(dev->model->line_mode_color_order);
+    if (dev.model->is_cis && session.params.channels == 3) {
+        pipeline.push_node<ImagePipelineNodeMergeMonoLines>(dev.model->line_mode_color_order);
 
-        if (dbg_log_image_data()) {
-            dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
-                                                            std::to_string(s_pipeline_index) +
-                                                            "_4_after_merge_mono.tiff");
+        if (log_image_data) {
+            pipeline.push_node<ImagePipelineNodeDebug>(debug_prefix + "_4_after_merge_mono.tiff");
         }
     }
 
-    if (dev->pipeline.get_output_format() == PixelFormat::BGR888) {
-        dev->pipeline.push_node<ImagePipelineNodeFormatConvert>(PixelFormat::RGB888);
+    if (pipeline.get_output_format() == PixelFormat::BGR888) {
+        pipeline.push_node<ImagePipelineNodeFormatConvert>(PixelFormat::RGB888);
     }
 
-    if (dev->pipeline.get_output_format() == PixelFormat::BGR161616) {
-        dev->pipeline.push_node<ImagePipelineNodeFormatConvert>(PixelFormat::RGB161616);
+    if (pipeline.get_output_format() == PixelFormat::BGR161616) {
+        pipeline.push_node<ImagePipelineNodeFormatConvert>(PixelFormat::RGB161616);
     }
 
-    if (dbg_log_image_data()) {
-        dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
-                                                        std::to_string(s_pipeline_index) +
-                                                        "_5_after_format.tiff");
+    if (log_image_data) {
+        pipeline.push_node<ImagePipelineNodeDebug>(debug_prefix + "_5_after_format.tiff");
     }
 
     if (session.max_color_shift_lines > 0 && session.params.channels == 3) {
-        dev->pipeline.push_node<ImagePipelineNodeComponentShiftLines>(
+        pipeline.push_node<ImagePipelineNodeComponentShiftLines>(
                     session.color_shift_lines_r,
                     session.color_shift_lines_g,
                     session.color_shift_lines_b);
 
-        if (dbg_log_image_data()) {
-            dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
-                                                            std::to_string(s_pipeline_index) +
-                                                            "_6_after_color_unshift.tiff");
+        if (log_image_data) {
+            pipeline.push_node<ImagePipelineNodeDebug>(debug_prefix + "_6_after_color_unshift.tiff");
         }
     }
 
     if (!session.stagger_x.empty()) {
         // FIXME: the image will be scaled to requested pixel count without regard to the reduction
         // of image size in this step.
-        dev->pipeline.push_node<ImagePipelineNodePixelShiftColumns>(session.stagger_x.shifts());
+        pipeline.push_node<ImagePipelineNodePixelShiftColumns>(session.stagger_x.shifts());
 
-        if (dbg_log_image_data()) {
-            dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
-                                                            std::to_string(s_pipeline_index) +
-                                                            "_7_after_x_unstagger.tiff");
+        if (log_image_data) {
+            pipeline.push_node<ImagePipelineNodeDebug>(debug_prefix + "_7_after_x_unstagger.tiff");
         }
     }
 
     if (session.num_staggered_lines > 0) {
-        dev->pipeline.push_node<ImagePipelineNodePixelShiftLines>(session.stagger_y.shifts());
+        pipeline.push_node<ImagePipelineNodePixelShiftLines>(session.stagger_y.shifts());
 
-        if (dbg_log_image_data()) {
-            dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
-                                                            std::to_string(s_pipeline_index) +
-                                                            "_8_after_y_unstagger.tiff");
+        if (log_image_data) {
+            pipeline.push_node<ImagePipelineNodeDebug>(debug_prefix + "_8_after_y_unstagger.tiff");
         }
     }
 
     if (session.use_host_side_calib &&
-        !has_flag(dev->model->flags, ModelFlag::DISABLE_SHADING_CALIBRATION) &&
+        !has_flag(dev.model->flags, ModelFlag::DISABLE_SHADING_CALIBRATION) &&
         !has_flag(session.params.flags, ScanFlag::DISABLE_SHADING))
     {
-        dev->pipeline.push_node<ImagePipelineNodeCalibrate>(dev->dark_average_data,
-                                                            dev->white_average_data,
+        pipeline.push_node<ImagePipelineNodeCalibrate>(dev.dark_average_data,
+                                                            dev.white_average_data,
                                                             session.params.startx *
-                                                                dev->calib_session.params.channels);
+                                                                dev.calib_session.params.channels);
 
-        if (dbg_log_image_data()) {
-            dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
-                                                            std::to_string(s_pipeline_index) +
-                                                            "_9_after_calibrate.tiff");
+        if (log_image_data) {
+            pipeline.push_node<ImagePipelineNodeDebug>(debug_prefix + "_9_after_calibrate.tiff");
         }
     }
 
-    if (dev->pipeline.get_output_width() != session.params.get_requested_pixels()) {
-        dev->pipeline.push_node<ImagePipelineNodeScaleRows>(session.params.get_requested_pixels());
+    if (pipeline.get_output_width() != session.params.get_requested_pixels()) {
+        pipeline.push_node<ImagePipelineNodeScaleRows>(session.params.get_requested_pixels());
     }
 
-    auto read_from_pipeline = [dev](std::size_t size, std::uint8_t* out_data)
+    return pipeline;
+}
+
+void setup_image_pipeline(Genesys_Device& dev, const ScanSession& session)
+{
+    static unsigned s_pipeline_index = 0;
+
+    s_pipeline_index++;
+
+    dev.pipeline = build_image_pipeline(dev, session, s_pipeline_index, dbg_log_image_data());
+
+    auto read_from_pipeline = [&dev](std::size_t size, std::uint8_t* out_data)
     {
-        (void) size; // will be always equal to dev->pipeline.get_output_row_bytes()
-        return dev->pipeline.get_next_row_data(out_data);
+        (void) size; // will be always equal to dev.pipeline.get_output_row_bytes()
+        return dev.pipeline.get_next_row_data(out_data);
     };
-    dev->pipeline_buffer = ImageBuffer{dev->pipeline.get_output_row_bytes(),
+    dev.pipeline_buffer = ImageBuffer{dev.pipeline.get_output_row_bytes(),
                                        read_from_pipeline};
 }
 

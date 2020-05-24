@@ -46,7 +46,6 @@
 
 #include "calibration.h"
 #include "command_set.h"
-#include "buffer.h"
 #include "enums.h"
 #include "image_pipeline.h"
 #include "motor.h"
@@ -318,11 +317,6 @@ struct Genesys_Device
     // for sheetfed scanner's, is TRUE when there is a document in the scanner
     bool document = false;
 
-    // buffer for digital lineart from gray data
-    Genesys_Buffer binarize_buffer;
-    // local buffer for gray data during dynamix lineart
-    Genesys_Buffer local_buffer;
-
     // total bytes read sent to frontend
     size_t total_bytes_read = 0;
     // total bytes read to be sent to frontend
@@ -330,9 +324,6 @@ struct Genesys_Device
 
     // contains computed data for the current setup
     ScanSession session;
-
-    // look up table used in dynamic rasterization
-    unsigned char lineart_lut[256] = {};
 
     Calibration calibration_cache;
 

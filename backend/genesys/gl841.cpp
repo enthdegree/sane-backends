@@ -853,8 +853,8 @@ static void gl841_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
                                  !has_flag(session.params.flags, ScanFlag::DISABLE_LAMP));
 
     /* BW threshold */
-    reg->set8(0x2e, dev->settings.threshold);
-    reg->set8(0x2f, dev->settings.threshold);
+    reg->set8(0x2e, 0x7f);
+    reg->set8(0x2f, 0x7f);
 
 
     /* monochrome / color scan */

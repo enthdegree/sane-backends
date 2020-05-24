@@ -61,7 +61,6 @@
 #define DEBUG_NOT_STATIC
 
 #include "genesys.h"
-#include "conv.h"
 #include "gl124_registers.h"
 #include "gl841_registers.h"
 #include "gl842_registers.h"
@@ -111,8 +110,8 @@ namespace {
 static SANE_String_Const mode_list[] = {
   SANE_VALUE_SCAN_MODE_COLOR,
   SANE_VALUE_SCAN_MODE_GRAY,
-  /* SANE_TITLE_HALFTONE,  currently unused */
-  SANE_VALUE_SCAN_MODE_LINEART,
+    // SANE_TITLE_HALFTONE, not used
+    // SANE_VALUE_SCAN_MODE_LINEART, not used
     nullptr
 };
 
@@ -159,12 +158,6 @@ static const SANE_Range percentage_range = {
     float_to_fixed(0),     // minimum
     float_to_fixed(100),   // maximum
     float_to_fixed(1)      // quantization
-};
-
-static const SANE_Range threshold_curve_range = {
-  0,			/* minimum */
-  127,		        /* maximum */
-  1			/* quantization */
 };
 
 /**
@@ -422,9 +415,6 @@ SANE_Int sanei_genesys_exposure_time2(Genesys_Device * dev, const MotorProfile& 
 /* Sends a block of shading information to the scanner.
    The data is placed at address 0x0000 for color mode, gray mode and
    unconditionally for the following CCD chips: HP2300, HP2400 and HP5345
-   In the other cases (lineart, halftone on ccd chips not mentioned) the
-   addresses are 0x2a00 for dpihw==0, 0x5500 for dpihw==1 and 0xa800 for
-   dpihw==2. //Note: why this?
 
    The data needs to be of size "size", and in little endian byte order.
  */
@@ -432,7 +422,6 @@ static void genesys_send_offset_and_shading(Genesys_Device* dev, const Genesys_S
                                             uint8_t* data, int size)
 {
     DBG_HELPER_ARGS(dbg, "(size = %d)", size);
-  int dpihw;
   int start_address;
 
   /* ASIC higher than gl843 doesn't have register 2A/2B, so we route to
@@ -443,46 +432,7 @@ static void genesys_send_offset_and_shading(Genesys_Device* dev, const Genesys_S
         return;
     }
 
-  /* gl646, gl84[123] case */
-  dpihw = dev->reg.get8(0x05) >> 6;
-
-  /* TODO invert the test so only the 2 models behaving like that are
-   * tested instead of adding all the others */
-  /* many scanners send coefficient for lineart/gray like in color mode */
-  if ((dev->settings.scan_mode == ScanColorMode::LINEART ||
-       dev->settings.scan_mode == ScanColorMode::HALFTONE)
-        && dev->model->sensor_id != SensorId::CCD_PLUSTEK_OPTICBOOK_3800
-        && dev->model->sensor_id != SensorId::CCD_KVSS080
-        && dev->model->sensor_id != SensorId::CCD_G4050
-        && dev->model->sensor_id != SensorId::CCD_HP_4850C
-        && dev->model->sensor_id != SensorId::CCD_CANON_4400F
-        && dev->model->sensor_id != SensorId::CCD_CANON_8400F
-        && dev->model->sensor_id != SensorId::CCD_CANON_8600F
-        && dev->model->sensor_id != SensorId::CCD_DSMOBILE600
-        && dev->model->sensor_id != SensorId::CCD_XP300
-        && dev->model->sensor_id != SensorId::CCD_DOCKETPORT_487
-        && dev->model->sensor_id != SensorId::CCD_DP665
-        && dev->model->sensor_id != SensorId::CCD_DP685
-        && dev->model->sensor_id != SensorId::CIS_CANON_LIDE_80
-        && dev->model->sensor_id != SensorId::CCD_ROADWARRIOR
-        && dev->model->sensor_id != SensorId::CCD_HP2300
-        && dev->model->sensor_id != SensorId::CCD_HP2400
-        && dev->model->sensor_id != SensorId::CCD_HP3670
-        && dev->model->sensor_id != SensorId::CCD_5345)	/* lineart, halftone */
-    {
-        if (dpihw == 0) {		/* 600 dpi */
-            start_address = 0x02a00;
-        } else if (dpihw == 1) {	/* 1200 dpi */
-            start_address = 0x05500;
-        } else if (dpihw == 2) {	/* 2400 dpi */
-            start_address = 0x0a800;
-        } else {			/* reserved */
-            throw SaneException("unknown dpihw");
-        }
-    }
-    else { // color
-        start_address = 0x00;
-    }
+    start_address = 0x00;
 
     dev->interface->write_buffer(0x3c, start_address, data, size);
 }
@@ -4026,18 +3976,10 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
                 has_flag(dev->model->flags, ModelFlag::DISABLE_SHADING_CALIBRATION);
         if (!shading_disabled && !dev->model->is_sheetfed) {
             genesys_scanner_calibration(dev, sensor);
-          genesys_save_calibration (dev, sensor);
-	}
-      else
-	{
+            genesys_save_calibration(dev, sensor);
+        } else {
           DBG(DBG_warn, "%s: no calibration done\n", __func__);
-	}
-    }
-
-  /* build look up table for dynamic lineart */
-    if (dev->settings.scan_mode == ScanColorMode::LINEART) {
-        sanei_genesys_load_lut(dev->lineart_lut, 8, 8, 50, 205, dev->settings.threshold_curve,
-                               dev->settings.threshold-127);
+        }
     }
 
     dev->cmd_set->wait_for_motor_stop(dev);
@@ -4236,9 +4178,13 @@ static Genesys_Settings calculate_scan_settings(Genesys_Scanner* s)
     settings.scan_mode = option_string_to_scan_color_mode(s->mode);
 
     settings.depth = s->bit_depth;
+
     if (settings.depth > 8) {
         settings.depth = 16;
+    } else if (settings.depth < 8) {
+        settings.depth = 1;
     }
+
     settings.disable_interpolation = s->disable_interpolation;
 
     const auto& resolutions = dev->model->get_resolution_settings(settings.scan_method);
@@ -4307,11 +4253,6 @@ static Genesys_Settings calculate_scan_settings(Genesys_Scanner* s)
         }
     }
 
-    if (s->mode == SANE_VALUE_SCAN_MODE_LINEART || settings.depth == 1) {
-        // round down pixel number. This will is lossy operation, at most 7 pixels will be lost
-        pixels_per_line = (pixels_per_line / 8) * 8;
-    }
-
     unsigned xres_factor = s->resolution / settings.xres;
     settings.pixels = pixels_per_line;
     settings.requested_pixels = pixels_per_line * xres_factor;
@@ -4332,11 +4273,8 @@ static Genesys_Settings calculate_scan_settings(Genesys_Scanner* s)
         settings.true_gray = 0;
     }
 
-    settings.threshold = static_cast<int>(2.55f * (fixed_to_float(s->threshold)));
-    settings.threshold_curve = s->threshold_curve;
-
     // brigthness and contrast only for for 8 bit scans
-    if (s->bit_depth <= 8) {
+    if (s->bit_depth == 8) {
         settings.contrast = (s->contrast * 127) / 100;
         settings.brightness = (s->brightness * 127) / 100;
     } else {
@@ -4359,9 +4297,7 @@ static SANE_Parameters calculate_scan_parameters(const Genesys_Device& dev,
     auto session = dev.cmd_set->calculate_scan_session(&dev, sensor, settings);
 
     SANE_Parameters params;
-    if (settings.scan_mode == ScanColorMode::GRAY ||
-        settings.scan_mode == ScanColorMode::LINEART)
-    {
+    if (settings.scan_mode == ScanColorMode::GRAY) {
         params.format = SANE_FRAME_GRAY;
     } else {
         params.format = SANE_FRAME_RGB;
@@ -4370,9 +4306,6 @@ static SANE_Parameters calculate_scan_parameters(const Genesys_Device& dev,
     params.last_frame = true;
 
     params.depth = settings.depth;
-    if (settings.scan_mode == ScanColorMode::LINEART) {
-        params.depth = 1;
-    }
 
     // FIXME: add the data needed to perform the data conversion to the format used by the user
     // to ScanSession.
@@ -4387,8 +4320,6 @@ static SANE_Parameters calculate_scan_parameters(const Genesys_Device& dev,
     unsigned bytes_per_line = 0;
     if (params.depth == 16) {
         bytes_per_line = 2 * pixels_per_line;
-    } else if (params.depth == 1) {
-        bytes_per_line = pixels_per_line / 8;
     } else {
         bytes_per_line = pixels_per_line;
     }
@@ -4816,26 +4747,6 @@ static void init_options(Genesys_Scanner* s)
   s->opt[OPT_EXTRAS_GROUP].cap = SANE_CAP_ADVANCED;
   s->opt[OPT_EXTRAS_GROUP].size = 0;
   s->opt[OPT_EXTRAS_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
-
-  /* BW threshold */
-  s->opt[OPT_THRESHOLD].name = SANE_NAME_THRESHOLD;
-  s->opt[OPT_THRESHOLD].title = SANE_TITLE_THRESHOLD;
-  s->opt[OPT_THRESHOLD].desc = SANE_DESC_THRESHOLD;
-  s->opt[OPT_THRESHOLD].type = SANE_TYPE_FIXED;
-  s->opt[OPT_THRESHOLD].unit = SANE_UNIT_PERCENT;
-  s->opt[OPT_THRESHOLD].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_THRESHOLD].constraint.range = &percentage_range;
-    s->threshold = float_to_fixed(50);
-
-  /* BW threshold curve */
-  s->opt[OPT_THRESHOLD_CURVE].name = "threshold-curve";
-  s->opt[OPT_THRESHOLD_CURVE].title = SANE_I18N ("Threshold curve");
-  s->opt[OPT_THRESHOLD_CURVE].desc = SANE_I18N ("Dynamic threshold curve, from light to dark, normally 50-65");
-  s->opt[OPT_THRESHOLD_CURVE].type = SANE_TYPE_INT;
-  s->opt[OPT_THRESHOLD_CURVE].unit = SANE_UNIT_NONE;
-  s->opt[OPT_THRESHOLD_CURVE].constraint_type = SANE_CONSTRAINT_RANGE;
-  s->opt[OPT_THRESHOLD_CURVE].constraint.range = &threshold_curve_range;
-  s->threshold_curve = 50;
 
   /* disable_interpolation */
   s->opt[OPT_DISABLE_INTERPOLATION].name = "disable-interpolation";
@@ -5739,12 +5650,6 @@ static void get_option_value(Genesys_Scanner* s, int option, void* val)
     case OPT_PREVIEW:
         *reinterpret_cast<SANE_Word*>(val) = s->preview;
         break;
-    case OPT_THRESHOLD:
-        *reinterpret_cast<SANE_Word*>(val) = s->threshold;
-        break;
-    case OPT_THRESHOLD_CURVE:
-        *reinterpret_cast<SANE_Word*>(val) = s->threshold_curve;
-        break;
     case OPT_DISABLE_INTERPOLATION:
         *reinterpret_cast<SANE_Word*>(val) = s->disable_interpolation;
         break;
@@ -5948,16 +5853,6 @@ static void set_option_value(Genesys_Scanner* s, int option, void *val, SANE_Int
         calc_parameters(s);
         *myinfo |= SANE_INFO_RELOAD_PARAMS;
         break;
-    case OPT_THRESHOLD:
-        s->threshold = *reinterpret_cast<SANE_Word*>(val);
-        calc_parameters(s);
-        *myinfo |= SANE_INFO_RELOAD_PARAMS;
-        break;
-    case OPT_THRESHOLD_CURVE:
-        s->threshold_curve = *reinterpret_cast<SANE_Word*>(val);
-        calc_parameters(s);
-        *myinfo |= SANE_INFO_RELOAD_PARAMS;
-        break;
     case OPT_DISABLE_INTERPOLATION:
         s->disable_interpolation = *reinterpret_cast<SANE_Word*>(val);
         calc_parameters(s);
@@ -6009,34 +5904,21 @@ static void set_option_value(Genesys_Scanner* s, int option, void *val, SANE_Int
         }
         break;
     }
-    case OPT_MODE:
-      s->mode = reinterpret_cast<const char*>(val);
+        case OPT_MODE: {
+            s->mode = reinterpret_cast<const char*>(val);
 
-      if (s->mode == SANE_VALUE_SCAN_MODE_LINEART)
-	{
-	  ENABLE (OPT_THRESHOLD);
-	  ENABLE (OPT_THRESHOLD_CURVE);
-	  DISABLE (OPT_BIT_DEPTH);
+            if (s->mode == SANE_VALUE_SCAN_MODE_GRAY) {
                 if (dev->model->asic_type != AsicType::GL646 || !dev->model->is_cis) {
                     ENABLE(OPT_COLOR_FILTER);
                 }
-	}
-      else
-	{
-	  DISABLE (OPT_THRESHOLD);
-	  DISABLE (OPT_THRESHOLD_CURVE);
-                if (s->mode == SANE_VALUE_SCAN_MODE_GRAY) {
-                    if (dev->model->asic_type != AsicType::GL646 || !dev->model->is_cis) {
-                        ENABLE(OPT_COLOR_FILTER);
-                    }
-                    create_bpp_list(s, dev->model->bpp_gray_values);
-                    s->bit_depth = dev->model->bpp_gray_values[0];
-                } else {
-                    DISABLE(OPT_COLOR_FILTER);
-                    create_bpp_list(s, dev->model->bpp_color_values);
-                    s->bit_depth = dev->model->bpp_color_values[0];
-                }
+                create_bpp_list(s, dev->model->bpp_gray_values);
+                s->bit_depth = dev->model->bpp_gray_values[0];
+            } else {
+                DISABLE(OPT_COLOR_FILTER);
+                create_bpp_list(s, dev->model->bpp_color_values);
+                s->bit_depth = dev->model->bpp_color_values[0];
             }
+
             calc_parameters(s);
 
       /* if custom gamma, toggle gamma table options according to the mode */
@@ -6060,6 +5942,7 @@ static void set_option_value(Genesys_Scanner* s, int option, void *val, SANE_Int
 
       *myinfo |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS;
       break;
+        }
     case OPT_COLOR_FILTER:
       s->color_filter = reinterpret_cast<const char*>(val);
         calc_parameters(s);
@@ -6342,14 +6225,6 @@ void sane_start_impl(SANE_Handle handle)
     genesys_start_scan(dev, s->lamp_off);
 
     s->scanning = true;
-
-    // allocate intermediate buffer when doing dynamic lineart
-    if (dev->settings.scan_mode == ScanColorMode::LINEART) {
-        dev->binarize_buffer.clear();
-        dev->binarize_buffer.alloc(dev->settings.pixels);
-        dev->local_buffer.clear();
-        dev->local_buffer.alloc(dev->binarize_buffer.size() * 8);
-    }
 }
 
 SANE_GENESYS_API_LINKAGE
@@ -6412,42 +6287,7 @@ void sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_
 
   local_len = max_len;
 
-    // dynamic lineart is another kind of digital processing that needs
-    // another layer of buffering on top of genesys_read_ordered_data
-    if (dev->settings.scan_mode == ScanColorMode::LINEART) {
-        // if buffer is empty, fill it with genesys_read_ordered_data
-        if (dev->binarize_buffer.avail() == 0) {
-            // store gray data
-            local_len=dev->local_buffer.size();
-            dev->local_buffer.reset();
-            genesys_read_ordered_data(dev, dev->local_buffer.get_write_pos(local_len),
-                                        &local_len);
-            dev->local_buffer.produce(local_len);
-
-            dev->binarize_buffer.reset();
-            if (!is_testing_mode()) {
-                genesys_gray_lineart(dev, dev->local_buffer.get_read_pos(),
-                                     dev->binarize_buffer.get_write_pos(local_len / 8),
-                                     dev->settings.pixels,
-                                     local_len / dev->settings.pixels,
-                                     dev->settings.threshold);
-            }
-            dev->binarize_buffer.produce(local_len / 8);
-        }
-
-        // return data from lineart buffer if any, up to the available amount
-        local_len = max_len;
-        if (static_cast<std::size_t>(max_len) > dev->binarize_buffer.avail()) {
-            local_len=dev->binarize_buffer.avail();
-        }
-        if (local_len) {
-            std::memcpy(buf, dev->binarize_buffer.get_read_pos(), local_len);
-            dev->binarize_buffer.consume(local_len);
-        }
-    } else {
-        // most usual case, direct read of data from scanner */
-        genesys_read_ordered_data(dev, buf, &local_len);
-    }
+    genesys_read_ordered_data(dev, buf, &local_len);
 
   *len = local_len;
     if (local_len > static_cast<std::size_t>(max_len)) {

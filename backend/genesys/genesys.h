@@ -113,8 +113,6 @@ enum Genesys_Option
   OPT_EXTRAS_GROUP,
   OPT_LAMP_OFF_TIME,
   OPT_LAMP_OFF,
-  OPT_THRESHOLD,
-  OPT_THRESHOLD_CURVE,
   OPT_DISABLE_INTERPOLATION,
   OPT_COLOR_FILTER,
   OPT_CALIBRATION_FILE,
@@ -208,8 +206,6 @@ struct Genesys_Scanner
     SANE_Word bit_depth = 0;
     SANE_Word resolution = 0;
     bool preview = false; // TODO: currently not used
-    SANE_Word threshold = 0;
-    SANE_Word threshold_curve = 0;
     bool disable_interpolation = false;
     bool lamp_off = false;
     SANE_Word lamp_off_time = 0;

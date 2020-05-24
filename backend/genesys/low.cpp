@@ -661,11 +661,6 @@ static unsigned align_int_up(unsigned num, unsigned alignment)
     return num;
 }
 
-std::size_t compute_session_buffer_sizes(const ScanSession& s)
-{
-    return s.output_line_bytes * (32 + s.max_color_shift_lines + s.num_staggered_lines);
-}
-
 void compute_session_pipeline(const Genesys_Device* dev, ScanSession& s)
 {
     auto channels = s.params.channels;
@@ -902,7 +897,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     s.output_total_bytes_raw = s.output_line_bytes_raw * s.output_line_count;
     s.output_total_bytes = s.output_line_bytes * s.output_line_count;
 
-    s.buffer_size_read = compute_session_buffer_sizes(s);
+    s.buffer_size_read = s.output_line_bytes_raw * 64;
     compute_session_pipeline(dev, s);
     compute_session_pixel_offsets(dev, s, sensor);
 
@@ -931,33 +926,6 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     debug_dump(DBG_info, s);
 }
 
-static std::size_t get_usb_buffer_read_size(AsicType asic, const ScanSession& session)
-{
-    switch (asic) {
-        case AsicType::GL646:
-            // buffer not used on this chip set
-            return 1;
-
-        case AsicType::GL124:
-            // BUG: we shouldn't multiply by channels here nor adjuct by resolution factor
-            return session.output_line_bytes_raw * session.optical_resolution / session.full_resolution
-                    * session.params.channels;
-
-        case AsicType::GL845:
-        case AsicType::GL846:
-        case AsicType::GL847:
-            // BUG: we shouldn't multiply by channels here
-            return session.output_line_bytes_raw * session.params.channels;
-
-        case AsicType::GL842:
-        case AsicType::GL843:
-            return session.output_line_bytes_raw * 2;
-
-        default:
-            throw SaneException("Unknown asic type");
-    }
-}
-
 void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
 {
     static unsigned s_pipeline_index = 0;
@@ -980,22 +948,25 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
 
     dev->pipeline.clear();
 
-    // FIXME: here we are complicating things for the time being to preserve the existing behaviour
-    // This allows to be sure that the changes to the image pipeline have not introduced
-    // regressions.
+    auto buffer_size = session.buffer_size_read;
+
+    // At least GL841 requires reads to be aligned to 2 bytes and will fail on some devices on
+    // certain circumstances.
+    buffer_size = align_multiple_ceil(buffer_size, 2);
+
+    auto node = std::unique_ptr<ImagePipelineNodeBufferedCallableSource>(
+                new ImagePipelineNodeBufferedCallableSource(
+                    width, lines, format, buffer_size, read_data_from_usb));
+    node->set_last_read_multiple(2);
+    dev->pipeline.push_first_node(std::move(node));
+
+    if (dbg_log_image_data()) {
+        dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
+                                                        std::to_string(s_pipeline_index) +
+                                                        "_0_from_usb.tiff");
+    }
 
     if (session.segment_count > 1) {
-        // BUG: we're reading one line too much
-        dev->pipeline.push_first_node<ImagePipelineNodeBufferedCallableSource>(
-                width, lines + 1, format,
-                get_usb_buffer_read_size(dev->model->asic_type, session), read_data_from_usb);
-
-        if (dbg_log_image_data()) {
-            dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
-                                                            std::to_string(s_pipeline_index) +
-                                                            "_0_from_usb.tiff");
-        }
-
         auto output_width = session.output_segment_pixel_group_count * session.segment_count;
         dev->pipeline.push_node<ImagePipelineNodeDesegment>(output_width, dev->segment_order,
                                                             session.conseq_pixel_dist,
@@ -1006,19 +977,7 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session)
                                                             std::to_string(s_pipeline_index) +
                                                             "_1_after_desegment.tiff");
         }
-    } else {
-        auto read_bytes_left_after_deseg = session.output_line_bytes * session.output_line_count;
-
-        dev->pipeline.push_first_node<ImagePipelineNodeBufferedGenesysUsb>(
-                width, lines, format, read_bytes_left_after_deseg,
-                session.buffer_size_read, read_data_from_usb);
-        if (dbg_log_image_data()) {
-            dev->pipeline.push_node<ImagePipelineNodeDebug>("gl_pipeline_" +
-                                                            std::to_string(s_pipeline_index) +
-                                                            "_0_from_usb.tiff");
-        }
     }
-
 
     if (depth == 16) {
         unsigned num_swaps = 0;

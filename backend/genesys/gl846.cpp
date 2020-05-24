@@ -693,9 +693,6 @@ void CommandSetGl846::init_regs_for_scan_session(Genesys_Device* dev, const Gene
 
   /*** prepares data reordering ***/
 
-    dev->read_buffer.clear();
-    dev->read_buffer.alloc(session.buffer_size_read);
-
     dev->read_active = true;
 
     dev->session = session;

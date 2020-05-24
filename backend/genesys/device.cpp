@@ -102,7 +102,6 @@ Genesys_Device::~Genesys_Device()
 
 void Genesys_Device::clear()
 {
-    read_buffer.clear();
     binarize_buffer.clear();
     local_buffer.clear();
 
@@ -114,9 +113,9 @@ void Genesys_Device::clear()
     dark_average_data.clear();
 }
 
-ImagePipelineNodeBytesSource& Genesys_Device::get_pipeline_source()
+ImagePipelineNodeBufferedCallableSource& Genesys_Device::get_pipeline_source()
 {
-    return static_cast<ImagePipelineNodeBytesSource&>(pipeline.front());
+    return static_cast<ImagePipelineNodeBufferedCallableSource&>(pipeline.front());
 }
 
 bool Genesys_Device::is_head_pos_known(ScanHeadId scan_head) const
@@ -258,7 +257,6 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev)
         << "    read_active: " << dev.read_active << '\n'
         << "    parking: " << dev.parking << '\n'
         << "    document: " << dev.document << '\n'
-        << "    read_buffer.size(): " << dev.read_buffer.size() << '\n'
         << "    binarize_buffer.size(): " << dev.binarize_buffer.size() << '\n'
         << "    local_buffer.size(): " << dev.local_buffer.size() << '\n'
         << "    total_bytes_read: " << dev.total_bytes_read << '\n'

@@ -318,8 +318,6 @@ struct Genesys_Device
     // for sheetfed scanner's, is TRUE when there is a document in the scanner
     bool document = false;
 
-    Genesys_Buffer read_buffer;
-
     // buffer for digital lineart from gray data
     Genesys_Buffer binarize_buffer;
     // local buffer for gray data during dynamix lineart
@@ -350,7 +348,7 @@ struct Genesys_Device
     // an buffer that allows reading from `pipeline` in chunks of any size
     ImageBuffer pipeline_buffer;
 
-    ImagePipelineNodeBytesSource& get_pipeline_source();
+    ImagePipelineNodeBufferedCallableSource& get_pipeline_source();
 
     std::unique_ptr<ScannerInterface> interface;
 

@@ -840,9 +840,6 @@ void CommandSetGl646::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     // setup analog frontend
     gl646_set_fe(dev, sensor, AFE_SET, session.output_resolution);
 
-    dev->read_buffer.clear();
-    dev->read_buffer.alloc(session.buffer_size_read);
-
     build_image_pipeline(dev, session);
 
     dev->read_active = true;

@@ -1056,9 +1056,6 @@ dummy \ scanned lines
                                    session.params.flags);
   }
 
-    dev->read_buffer.clear();
-    dev->read_buffer.alloc(session.buffer_size_read);
-
     build_image_pipeline(dev, session);
 
     dev->read_active = true;

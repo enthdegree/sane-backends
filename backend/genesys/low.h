@@ -423,51 +423,6 @@ void build_image_pipeline(Genesys_Device* dev, const ScanSession& session);
 std::uint8_t compute_frontend_gain(float value, float target_value,
                                    FrontendType frontend_type);
 
-template<class T>
-inline T abs_diff(T a, T b)
-{
-    if (a < b) {
-        return b - a;
-    } else {
-        return a - b;
-    }
-}
-
-inline uint64_t align_multiple_floor(uint64_t x, uint64_t multiple)
-{
-    if (multiple == 0) {
-        return x;
-    }
-    return (x / multiple) * multiple;
-}
-
-inline uint64_t align_multiple_ceil(uint64_t x, uint64_t multiple)
-{
-    if (multiple == 0) {
-        return x;
-    }
-    return ((x + multiple - 1) / multiple) * multiple;
-}
-
-inline uint64_t multiply_by_depth_ceil(uint64_t pixels, uint64_t depth)
-{
-    if (depth == 1) {
-        return (pixels / 8) + ((pixels % 8) ? 1 : 0);
-    } else {
-        return pixels * (depth / 8);
-    }
-}
-
-template<class T>
-inline T clamp(const T& value, const T& lo, const T& hi)
-{
-    if (value < lo)
-        return lo;
-    if (value > hi)
-        return hi;
-    return value;
-}
-
 /*---------------------------------------------------------------------------*/
 /*                ASIC specific functions declarations                       */
 /*---------------------------------------------------------------------------*/

@@ -424,8 +424,7 @@ std::vector<TestConfig> get_all_test_configs()
         }
         model_names.insert(model.name);
 
-        for (auto scan_mode : { genesys::ScanColorMode::LINEART,
-                                genesys::ScanColorMode::GRAY,
+        for (auto scan_mode : { genesys::ScanColorMode::GRAY,
                                 genesys::ScanColorMode::COLOR_SINGLE_PASS }) {
 
             auto depth_values = model.bpp_gray_values;

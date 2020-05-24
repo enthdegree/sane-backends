@@ -81,12 +81,6 @@ struct Genesys_Settings
     // true if scan is true gray, false if monochrome scan
     int true_gray = 0;
 
-    // lineart threshold
-    int threshold = 0;
-
-    // lineart threshold curve for dynamic rasterization
-    int threshold_curve = 0;
-
     // Disable interpolation for xres<yres
     int disable_interpolation = 0;
 

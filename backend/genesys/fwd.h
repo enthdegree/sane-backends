@@ -46,9 +46,6 @@
 
 namespace genesys {
 
-// buffer.h
-struct Genesys_Buffer;
-
 // calibration.h
 struct Genesys_Calibration_Cache;
 

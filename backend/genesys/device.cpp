@@ -102,9 +102,6 @@ Genesys_Device::~Genesys_Device()
 
 void Genesys_Device::clear()
 {
-    binarize_buffer.clear();
-    local_buffer.clear();
-
     calib_file.clear();
 
     calibration_cache.clear();
@@ -257,12 +254,9 @@ std::ostream& operator<<(std::ostream& out, const Genesys_Device& dev)
         << "    read_active: " << dev.read_active << '\n'
         << "    parking: " << dev.parking << '\n'
         << "    document: " << dev.document << '\n'
-        << "    binarize_buffer.size(): " << dev.binarize_buffer.size() << '\n'
-        << "    local_buffer.size(): " << dev.local_buffer.size() << '\n'
         << "    total_bytes_read: " << dev.total_bytes_read << '\n'
         << "    total_bytes_to_read: " << dev.total_bytes_to_read << '\n'
         << "    session: " << format_indent_braced_list(4, dev.session) << '\n'
-        << "    lineart_lut: (not printed)\n"
         << "    calibration_cache: (not printed)\n"
         << "    line_count: " << dev.line_count << '\n'
         << "    segment_order: "

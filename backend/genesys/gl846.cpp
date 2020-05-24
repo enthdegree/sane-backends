@@ -579,8 +579,8 @@ static void gl846_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     reg->state.is_xpa_on = has_flag(session.params.flags, ScanFlag::USE_XPA);
 
     // BW threshold
-    reg->set8(0x2e, dev->settings.threshold);
-    reg->set8(0x2f, dev->settings.threshold);
+    reg->set8(0x2e, 0x7f);
+    reg->set8(0x2f, 0x7f);
 
   /* monochrome / color scan */
     switch (session.params.depth) {

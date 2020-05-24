@@ -641,8 +641,8 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
                                  !has_flag(session.params.flags, ScanFlag::DISABLE_LAMP));
 
     // BW threshold
-    dev->interface->write_register(REG_0x114, dev->settings.threshold);
-    dev->interface->write_register(REG_0x115, dev->settings.threshold);
+    dev->interface->write_register(REG_0x114, 0x7f);
+    dev->interface->write_register(REG_0x115, 0x7f);
 
   /* monochrome / color scan */
     switch (session.params.depth) {

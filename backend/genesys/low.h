@@ -418,7 +418,11 @@ extern void sanei_genesys_generate_gamma_buffer(Genesys_Device* dev,
 
 void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& sensor);
 
-void build_image_pipeline(Genesys_Device* dev, const ScanSession& session);
+ImagePipelineStack build_image_pipeline(const Genesys_Device& dev, const ScanSession& session,
+                                        unsigned pipeline_index, bool log_image_data);
+
+// sets up a image pipeline for device `dev`
+void setup_image_pipeline(Genesys_Device& dev, const ScanSession& session);
 
 std::uint8_t compute_frontend_gain(float value, float target_value,
                                    FrontendType frontend_type);

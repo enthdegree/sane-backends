@@ -524,7 +524,7 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     reg->set16(REG_STRPIXEL, session.pixel_startx);
     reg->set16(REG_ENDPIXEL, session.pixel_endx);
 
-    build_image_pipeline(dev, session);
+    setup_image_pipeline(*dev, session);
 
   /* MAXWD is expressed in 4 words unit */
     // BUG: we shouldn't multiply by channels here

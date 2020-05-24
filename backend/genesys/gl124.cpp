@@ -722,7 +722,7 @@ static void gl124_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
 
   dev->line_count = 0;
 
-    build_image_pipeline(dev, session);
+    setup_image_pipeline(*dev, session);
 
     // MAXWD is expressed in 2 words unit
 

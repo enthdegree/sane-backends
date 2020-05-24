@@ -521,7 +521,7 @@ void CommandSetGl842::init_regs_for_scan_session(Genesys_Device* dev, const Gene
                                session.optical_line_count, dummy, session.params.starty,
                                session.params.flags);
 
-    build_image_pipeline(dev, session);
+    setup_image_pipeline(*dev, session);
 
     dev->read_active = true;
 

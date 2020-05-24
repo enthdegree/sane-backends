@@ -524,6 +524,8 @@ class ImagePipelineStack
 {
 public:
     ImagePipelineStack() {}
+    ImagePipelineStack(ImagePipelineStack&&) = default;
+    ImagePipelineStack& operator=(ImagePipelineStack&&) = default;
     ~ImagePipelineStack() { clear(); }
 
     std::size_t get_input_width() const;

@@ -4295,6 +4295,7 @@ static SANE_Parameters calculate_scan_parameters(const Genesys_Device& dev,
     auto sensor = sanei_genesys_find_sensor(&dev, settings.xres, settings.get_channels(),
                                             settings.scan_method);
     auto session = dev.cmd_set->calculate_scan_session(&dev, sensor, settings);
+    auto pipeline = build_image_pipeline(dev, session, 0, false);
 
     SANE_Parameters params;
     if (settings.scan_mode == ScanColorMode::GRAY) {
@@ -4304,33 +4305,10 @@ static SANE_Parameters calculate_scan_parameters(const Genesys_Device& dev,
     }
     // only single-pass scanning supported
     params.last_frame = true;
-
     params.depth = settings.depth;
-
-    // FIXME: add the data needed to perform the data conversion to the format used by the user
-    // to ScanSession.
-    unsigned pixels_per_line = settings.requested_pixels;
-    unsigned pixels_per_line_session = session.output_pixels * settings.requested_pixels / settings.pixels;
-    if (pixels_per_line != pixels_per_line_session) {
-        dbg.vlog(DBG_info, "The number of scanned pixels does not match "
-                 "the number of requested pixels (%d vs %d), image will be stretched",
-                 pixels_per_line_session, pixels_per_line);
-    }
-
-    unsigned bytes_per_line = 0;
-    if (params.depth == 16) {
-        bytes_per_line = 2 * pixels_per_line;
-    } else {
-        bytes_per_line = pixels_per_line;
-    }
-
-    if (params.format == SANE_FRAME_RGB) {
-        bytes_per_line *= 3;
-    }
-
-    params.lines = settings.lines;
-    params.pixels_per_line = pixels_per_line;
-    params.bytes_per_line = bytes_per_line;
+    params.lines = pipeline.get_output_height();
+    params.pixels_per_line = pipeline.get_output_width();
+    params.bytes_per_line = pipeline.get_output_row_bytes();
 
     return params;
 }

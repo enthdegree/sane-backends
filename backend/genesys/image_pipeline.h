@@ -524,8 +524,19 @@ class ImagePipelineStack
 {
 public:
     ImagePipelineStack() {}
-    ImagePipelineStack(ImagePipelineStack&&) = default;
-    ImagePipelineStack& operator=(ImagePipelineStack&&) = default;
+    ImagePipelineStack(ImagePipelineStack&& other)
+    {
+        clear();
+        nodes_ = std::move(other.nodes_);
+    }
+
+    ImagePipelineStack& operator=(ImagePipelineStack&& other)
+    {
+        clear();
+        nodes_ = std::move(other.nodes_);
+        return *this;
+    }
+
     ~ImagePipelineStack() { clear(); }
 
     std::size_t get_input_width() const;

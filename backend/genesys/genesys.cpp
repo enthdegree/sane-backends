@@ -1491,6 +1491,16 @@ void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& senso
         }
     }
 
+    if (dev.model->model_id == ModelId::CANON_5600F) {
+        // FIXME: use same approach as for GL843 scanners
+        lines = 8;
+    }
+
+    if (dev.model->asic_type == AsicType::GL847) {
+        calib_sensor = &sanei_genesys_find_sensor(&dev, resolution, channels,
+                                                  dev.settings.scan_method);
+    }
+
     ScanFlag flags = ScanFlag::DISABLE_SHADING |
                      ScanFlag::DISABLE_GAMMA |
                      ScanFlag::SINGLE_LINE |
@@ -1562,6 +1572,10 @@ void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& senso
         scanner_stop_action_no_move(dev, regs);
     } else {
         first_line = read_unshuffled_image_from_scanner(&dev, session, session.output_total_bytes);
+
+        if (dev.model->model_id == ModelId::CANON_5600F) {
+            scanner_stop_action_no_move(dev, regs);
+        }
     }
 
     if (dbg_log_image_data()) {
@@ -1598,6 +1612,10 @@ void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& senso
         scanner_stop_action_no_move(dev, regs);
     } else {
         second_line = read_unshuffled_image_from_scanner(&dev, session, session.output_total_bytes);
+
+        if (dev.model->model_id == ModelId::CANON_5600F) {
+            scanner_stop_action_no_move(dev, regs);
+        }
     }
 
     for (unsigned ch = 0; ch < 3; ch++){
@@ -1638,6 +1656,10 @@ void scanner_offset_calibration(Genesys_Device& dev, const Genesys_Sensor& senso
             scanner_stop_action_no_move(dev, regs);
         } else {
             second_line = read_unshuffled_image_from_scanner(&dev, session, session.output_total_bytes);
+
+            if (dev.model->model_id == ModelId::CANON_5600F) {
+                scanner_stop_action_no_move(dev, regs);
+            }
         }
 
         if (dbg_log_image_data()) {
@@ -1782,7 +1804,8 @@ void scanner_coarse_gain_calibration(Genesys_Device& dev, const Genesys_Sensor& 
     const Genesys_Sensor* calib_sensor = &sensor;
     if (dev.model->asic_type == AsicType::GL841 ||
         dev.model->asic_type == AsicType::GL842 ||
-        dev.model->asic_type == AsicType::GL843)
+        dev.model->asic_type == AsicType::GL843 ||
+        dev.model->asic_type == AsicType::GL847)
     {
         calib_sensor = &sanei_genesys_find_sensor(&dev, resolution, channels,
                                                   dev.settings.scan_method);
@@ -1930,6 +1953,9 @@ void scanner_coarse_gain_calibration(Genesys_Device& dev, const Genesys_Sensor& 
             DBG(DBG_error0, "****************************************\n");
             throw SaneException(SANE_STATUS_JAMMED, "scanning head is locked");
         }
+
+        dbg.vlog(DBG_info, "gain=(%d, %d, %d)", dev.frontend.get_gain(0), dev.frontend.get_gain(1),
+                 dev.frontend.get_gain(2));
     }
 
     if (dev.model->is_cis) {
@@ -1942,10 +1968,8 @@ void scanner_coarse_gain_calibration(Genesys_Device& dev, const Genesys_Sensor& 
         dev.frontend.set_gain(2, min_gain);
     }
 
-    DBG(DBG_info, "%s: gain=(%d,%d,%d)\n", __func__,
-        dev.frontend.get_gain(0),
-        dev.frontend.get_gain(1),
-        dev.frontend.get_gain(2));
+    dbg.vlog(DBG_info, "final gain=(%d, %d, %d)", dev.frontend.get_gain(0),
+             dev.frontend.get_gain(1), dev.frontend.get_gain(2));
 
     scanner_stop_action(dev);
 
@@ -2326,10 +2350,12 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
   uint32_t pixels_per_line;
 
     if (dev->model->asic_type == AsicType::GL842 ||
-        dev->model->asic_type == AsicType::GL843)
+        dev->model->asic_type == AsicType::GL843 ||
+        dev->model->model_id == ModelId::CANON_5600F)
     {
         pixels_per_line = dev->calib_session.output_pixels;
     } else {
+        // BUG: this selects incorrect pixel number
         pixels_per_line = dev->calib_session.params.pixels;
     }
     unsigned channels = dev->calib_session.params.channels;
@@ -2354,7 +2380,8 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
     // FIXME: the current calculation is likely incorrect on non-GL843 implementations,
     // but this needs checking. Note the extra line when computing size.
     if (dev->model->asic_type == AsicType::GL842 ||
-        dev->model->asic_type == AsicType::GL843)
+        dev->model->asic_type == AsicType::GL843 ||
+        dev->model->model_id == ModelId::CANON_5600F)
     {
         size = dev->calib_session.output_total_bytes_raw;
     } else {
@@ -2404,6 +2431,12 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
             auto value = calibration_data[i];
             value = ((value >> 8) & 0xff) | ((value << 8) & 0xff00);
             calibration_data[i] = value;
+        }
+    }
+
+    if (has_flag(dev->model->flags, ModelFlag::INVERT_PIXEL_DATA)) {
+        for (std::size_t i = 0; i < size / 2; ++i) {
+            calibration_data[i] = 0xffff - calibration_data[i];
         }
     }
 
@@ -3489,6 +3522,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
     case SensorId::CIS_CANON_LIDE_120:
     case SensorId::CIS_CANON_LIDE_210:
     case SensorId::CIS_CANON_LIDE_220:
+        case SensorId::CCD_CANON_5600F:
         /* TODO store this in a data struct so we avoid
          * growing this switch */
         switch(dev->model->sensor_id)
@@ -5213,7 +5247,7 @@ static void probe_genesys_devices()
    of Genesys_Calibration_Cache as is.
 */
 static const char* CALIBRATION_IDENT = "sane_genesys";
-static const int CALIBRATION_VERSION = 30;
+static const int CALIBRATION_VERSION = 31;
 
 bool read_calibration(std::istream& str, Genesys_Device::Calibration& calibration,
                       const std::string& path)

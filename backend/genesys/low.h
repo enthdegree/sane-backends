@@ -220,6 +220,11 @@ void scanner_read_print_status(Genesys_Device& dev);
 
 void debug_print_status(DebugMessageHelper& dbg, Status status);
 
+void scanner_register_rw_clear_bits(Genesys_Device& dev, std::uint16_t address, std::uint8_t mask);
+void scanner_register_rw_set_bits(Genesys_Device& dev, std::uint16_t address, std::uint8_t mask);
+void scanner_register_rw_bits(Genesys_Device& dev, std::uint16_t address,
+                              std::uint8_t value, std::uint8_t mask);
+
 extern void sanei_genesys_write_ahb(Genesys_Device* dev, uint32_t addr, uint32_t size,
                                     uint8_t* data);
 

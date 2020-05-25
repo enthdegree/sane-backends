@@ -84,30 +84,49 @@ gl847_init_registers (Genesys_Device * dev)
     dev->reg.clear();
 
     dev->reg.init_reg(0x01, 0x82);
+    if (dev->model->model_id == ModelId::CANON_5600F) {
+        dev->reg.init_reg(0x01, 0x40);
+    }
     dev->reg.init_reg(0x02, 0x18);
     dev->reg.init_reg(0x03, 0x50);
     dev->reg.init_reg(0x04, 0x12);
+    if (dev->model->model_id == ModelId::CANON_5600F) {
+        dev->reg.init_reg(0x04, 0x20);
+    }
     dev->reg.init_reg(0x05, 0x80);
     dev->reg.init_reg(0x06, 0x50); // FASTMODE + POWERBIT
+    if (dev->model->model_id == ModelId::CANON_5600F) {
+        dev->reg.init_reg(0x06, 0xf8);
+    }
     dev->reg.init_reg(0x08, 0x10);
+    if (dev->model->model_id == ModelId::CANON_5600F) {
+        dev->reg.init_reg(0x08, 0x20);
+    }
     dev->reg.init_reg(0x09, 0x01);
+    if (dev->model->model_id == ModelId::CANON_5600F) {
+        dev->reg.init_reg(0x09, 0x00);
+    }
     dev->reg.init_reg(0x0a, 0x00);
     dev->reg.init_reg(0x0b, 0x01);
+    if (dev->model->model_id == ModelId::CANON_5600F) {
+        dev->reg.init_reg(0x0b, 0x6b);
+    }
     dev->reg.init_reg(0x0c, 0x02);
+    if (dev->model->model_id == ModelId::CANON_5600F) {
+        dev->reg.init_reg(0x0c, 0x00);
+    }
 
     // LED exposures
-    dev->reg.init_reg(0x10, 0x00);
-    dev->reg.init_reg(0x11, 0x00);
-    dev->reg.init_reg(0x12, 0x00);
-    dev->reg.init_reg(0x13, 0x00);
-    dev->reg.init_reg(0x14, 0x00);
-    dev->reg.init_reg(0x15, 0x00);
+    dev->reg.init_reg(0x10, 0x00); // exposure, overwritten in scanner_setup_sensor() below
+    dev->reg.init_reg(0x11, 0x00); // exposure, overwritten in scanner_setup_sensor() below
+    dev->reg.init_reg(0x12, 0x00); // exposure, overwritten in scanner_setup_sensor() below
+    dev->reg.init_reg(0x13, 0x00); // exposure, overwritten in scanner_setup_sensor() below
+    dev->reg.init_reg(0x14, 0x00); // exposure, overwritten in scanner_setup_sensor() below
+    dev->reg.init_reg(0x15, 0x00); // exposure, overwritten in scanner_setup_sensor() below
 
     dev->reg.init_reg(0x16, 0x10); // SENSOR_DEF
     dev->reg.init_reg(0x17, 0x08); // SENSOR_DEF
     dev->reg.init_reg(0x18, 0x00); // SENSOR_DEF
-
-    // EXPDMY
     dev->reg.init_reg(0x19, 0x50); // SENSOR_DEF
 
     dev->reg.init_reg(0x1a, 0x34); // SENSOR_DEF
@@ -115,32 +134,40 @@ gl847_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x1c, 0x02); // SENSOR_DEF
     dev->reg.init_reg(0x1d, 0x04); // SENSOR_DEF
     dev->reg.init_reg(0x1e, 0x10);
+    if (dev->model->model_id == ModelId::CANON_5600F) {
+        dev->reg.init_reg(0x1e, 0xf0);
+    }
     dev->reg.init_reg(0x1f, 0x04);
-    dev->reg.init_reg(0x20, 0x02);
-    dev->reg.init_reg(0x21, 0x10);
-    dev->reg.init_reg(0x22, 0x7f);
-    dev->reg.init_reg(0x23, 0x7f);
-    dev->reg.init_reg(0x24, 0x10);
-    dev->reg.init_reg(0x25, 0x00);
-    dev->reg.init_reg(0x26, 0x00);
-    dev->reg.init_reg(0x27, 0x00);
-    dev->reg.init_reg(0x2c, 0x09);
-    dev->reg.init_reg(0x2d, 0x60);
-    dev->reg.init_reg(0x2e, 0x80);
-    dev->reg.init_reg(0x2f, 0x80);
-    dev->reg.init_reg(0x30, 0x00);
-    dev->reg.init_reg(0x31, 0x10);
-    dev->reg.init_reg(0x32, 0x15);
-    dev->reg.init_reg(0x33, 0x0e);
-    dev->reg.init_reg(0x34, 0x40);
-    dev->reg.init_reg(0x35, 0x00);
-    dev->reg.init_reg(0x36, 0x2a);
-    dev->reg.init_reg(0x37, 0x30);
-    dev->reg.init_reg(0x38, 0x2a);
-    dev->reg.init_reg(0x39, 0xf8);
-    dev->reg.init_reg(0x3d, 0x00);
-    dev->reg.init_reg(0x3e, 0x00);
-    dev->reg.init_reg(0x3f, 0x00);
+    dev->reg.init_reg(0x20, 0x02); // BUFSEL: buffer full condition
+    dev->reg.init_reg(0x21, 0x10); // STEPNO: set during motor setup
+    dev->reg.init_reg(0x22, 0x7f); // FWDSTEP: set during motor setup
+    dev->reg.init_reg(0x23, 0x7f); // BWDSTEP: set during motor setup
+    dev->reg.init_reg(0x24, 0x10); // FASTNO: set during motor setup
+    dev->reg.init_reg(0x25, 0x00); // LINCNT: set during motor setup
+    dev->reg.init_reg(0x26, 0x00); // LINCNT: set during motor setup
+    dev->reg.init_reg(0x27, 0x00); // LINCNT: set during motor setup
+
+    dev->reg.init_reg(0x2c, 0x09); // DPISET: set during sensor setup
+    dev->reg.init_reg(0x2d, 0x60); // DPISET: set during sensor setup
+
+    dev->reg.init_reg(0x2e, 0x80); // BWHI: black/white low threshdold
+    dev->reg.init_reg(0x2f, 0x80); // BWLOW: black/white low threshold
+
+    dev->reg.init_reg(0x30, 0x00); // STRPIXEL: set during sensor setup
+    dev->reg.init_reg(0x31, 0x10); // STRPIXEL: set during sensor setup
+    dev->reg.init_reg(0x32, 0x15); // ENDPIXEL: set during sensor setup
+    dev->reg.init_reg(0x33, 0x0e); // ENDPIXEL: set during sensor setup
+
+    dev->reg.init_reg(0x34, 0x40); // DUMMY: SENSOR_DEF
+    dev->reg.init_reg(0x35, 0x00); // MAXWD: set during scan setup
+    dev->reg.init_reg(0x36, 0x2a); // MAXWD: set during scan setup
+    dev->reg.init_reg(0x37, 0x30); // MAXWD: set during scan setup
+    dev->reg.init_reg(0x38, 0x2a); // LPERIOD: SENSOR_DEF
+    dev->reg.init_reg(0x39, 0xf8); // LPERIOD: SENSOR_DEF
+    dev->reg.init_reg(0x3d, 0x00); // FEEDL: set during motor setup
+    dev->reg.init_reg(0x3e, 0x00); // FEEDL: set during motor setup
+    dev->reg.init_reg(0x3f, 0x00); // FEEDL: set during motor setup
+
     dev->reg.init_reg(0x52, 0x03); // SENSOR_DEF
     dev->reg.init_reg(0x53, 0x07); // SENSOR_DEF
     dev->reg.init_reg(0x54, 0x00); // SENSOR_DEF
@@ -150,30 +177,27 @@ gl847_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x58, 0x2a); // SENSOR_DEF
     dev->reg.init_reg(0x59, 0xe1); // SENSOR_DEF
     dev->reg.init_reg(0x5a, 0x55); // SENSOR_DEF
-    dev->reg.init_reg(0x5e, 0x41);
-    dev->reg.init_reg(0x5f, 0x40);
-    dev->reg.init_reg(0x60, 0x00);
-    dev->reg.init_reg(0x61, 0x21);
-    dev->reg.init_reg(0x62, 0x40);
-    dev->reg.init_reg(0x63, 0x00);
-    dev->reg.init_reg(0x64, 0x21);
-    dev->reg.init_reg(0x65, 0x40);
-    dev->reg.init_reg(0x67, 0x80);
-    dev->reg.init_reg(0x68, 0x80);
-    dev->reg.init_reg(0x69, 0x20);
-    dev->reg.init_reg(0x6a, 0x20);
 
-    // CK1MAP
+    dev->reg.init_reg(0x5e, 0x41); // DECSEL, STOPTIM
+    dev->reg.init_reg(0x5f, 0x40); // FMOVDEC: set during motor setup
+
+    dev->reg.init_reg(0x60, 0x00); // Z1MOD: overwritten during motor setup
+    dev->reg.init_reg(0x61, 0x21); // Z1MOD: overwritten during motor setup
+    dev->reg.init_reg(0x62, 0x40); // Z1MOD: overwritten during motor setup
+    dev->reg.init_reg(0x63, 0x00); // Z2MOD: overwritten during motor setup
+    dev->reg.init_reg(0x64, 0x21); // Z2MOD: overwritten during motor setup
+    dev->reg.init_reg(0x65, 0x40); // Z2MOD: overwritten during motor setup
+    dev->reg.init_reg(0x67, 0x80); // STEPSEL, MTRPWM: overwritten during motor setup
+    dev->reg.init_reg(0x68, 0x80); // FSTPSEL, FASTPWM: overwritten during motor setup
+    dev->reg.init_reg(0x69, 0x20); // FSHDEC: overwritten during motor setup
+    dev->reg.init_reg(0x6a, 0x20); // FMOVNO: overwritten during motor setup
+
     dev->reg.init_reg(0x74, 0x00); // SENSOR_DEF
     dev->reg.init_reg(0x75, 0x00); // SENSOR_DEF
     dev->reg.init_reg(0x76, 0x3c); // SENSOR_DEF
-
-    // CK3MAP
     dev->reg.init_reg(0x77, 0x00); // SENSOR_DEF
     dev->reg.init_reg(0x78, 0x00); // SENSOR_DEF
     dev->reg.init_reg(0x79, 0x9f); // SENSOR_DEF
-
-    // CK4MAP
     dev->reg.init_reg(0x7a, 0x00); // SENSOR_DEF
     dev->reg.init_reg(0x7b, 0x00); // SENSOR_DEF
     dev->reg.init_reg(0x7c, 0x55); // SENSOR_DEF
@@ -181,11 +205,23 @@ gl847_init_registers (Genesys_Device * dev)
     dev->reg.init_reg(0x7d, 0x00);
 
     // NOTE: autoconf is a non working option
-    dev->reg.init_reg(0x87, 0x02);
-    dev->reg.init_reg(0x9d, 0x06);
-    dev->reg.init_reg(0xa2, 0x0f);
-    dev->reg.init_reg(0xbd, 0x18);
-    dev->reg.init_reg(0xfe, 0x08);
+    dev->reg.init_reg(0x87, 0x02); // TODO: move to SENSOR_DEF
+    dev->reg.init_reg(0x9d, 0x06); // RAMDLY, MOTLAG, CMODE, STEPTIM, IFRS
+    dev->reg.init_reg(0xa2, 0x0f); // misc
+
+    if (dev->model->model_id == ModelId::CANON_5600F) {
+        dev->reg.init_reg(0xab, 0x31);
+        dev->reg.init_reg(0xbb, 0x00);
+        dev->reg.init_reg(0xbc, 0x0f);
+    }
+    dev->reg.init_reg(0xbd, 0x18); // misc
+    dev->reg.init_reg(0xfe, 0x08); // misc
+    if (dev->model->model_id == ModelId::CANON_5600F) {
+        dev->reg.init_reg(0x9e, 0x00); // sensor reg, but not in SENSOR_DEF
+        dev->reg.init_reg(0x9f, 0x00); // sensor reg, but not in SENSOR_DEF
+        dev->reg.init_reg(0xaa, 0x00); // custom data
+        dev->reg.init_reg(0xff, 0x00);
+    }
 
     // gamma[0] and gamma[256] values
     dev->reg.init_reg(0xbe, 0x00);
@@ -213,6 +249,10 @@ gl847_init_registers (Genesys_Device * dev)
     const auto& dpihw_sensor = sanei_genesys_find_sensor(dev, sensor.full_resolution,
                                                          3, ScanMethod::FLATBED);
     sanei_genesys_set_dpihw(dev->reg, dpihw_sensor.register_dpihw);
+
+    if (dev->model->model_id == ModelId::CANON_5600F) {
+        scanner_setup_sensor(*dev, sensor, dev->reg);
+    }
 }
 
 // Set values of analog frontend
@@ -224,11 +264,9 @@ void CommandSetGl847::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
 
     (void) sensor;
 
-    uint8_t val = dev->interface->read_register(REG_0x04);
-    uint8_t frontend_type = val & REG_0x04_FESET;
-
-    if (frontend_type != 0x02) {
-        throw SaneException("unsupported frontend type %d", frontend_type);
+    if (dev->model->model_id != ModelId::CANON_5600F) {
+        // FIXME: remove the following read
+        dev->interface->read_register(REG_0x04);
     }
 
     // wait for FE to be ready
@@ -242,14 +280,46 @@ void CommandSetGl847::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
         dev->frontend = dev->frontend_initial;
     }
 
-    // reset DAC
-    dev->interface->write_fe_register(0x00, 0x80);
+    if (dev->model->model_id != ModelId::CANON_5600F) {
+        // reset DAC (BUG: this does completely different thing on Analog Devices ADCs)
+        dev->interface->write_fe_register(0x00, 0x80);
+    } else {
+        if (dev->frontend.layout.type == FrontendType::WOLFSON) {
+            // reset DAC
+            dev->interface->write_fe_register(0x04, 0xff);
+        }
+    }
 
     for (const auto& reg : dev->frontend.regs) {
         dev->interface->write_fe_register(reg.address, reg.value);
     }
 }
 
+static void gl847_write_motor_phase_table(Genesys_Device& dev, unsigned ydpi)
+{
+    (void) ydpi;
+    if (dev.model->model_id == ModelId::CANON_5600F) {
+        std::vector<std::uint8_t> phase_table = {
+            0x33, 0x00, 0x33, 0x00, 0x33, 0x00, 0x33, 0x00,
+            0x32, 0x00, 0x32, 0x00, 0x32, 0x00, 0x32, 0x00,
+            0x35, 0x00, 0x35, 0x00, 0x35, 0x00, 0x35, 0x00,
+            0x38, 0x00, 0x38, 0x00, 0x38, 0x00, 0x38, 0x00,
+            0x3c, 0x00, 0x3c, 0x00, 0x3c, 0x00, 0x3c, 0x00,
+            0x18, 0x00, 0x18, 0x00, 0x18, 0x00, 0x18, 0x00,
+            0x15, 0x00, 0x15, 0x00, 0x15, 0x00, 0x15, 0x00,
+            0x12, 0x00, 0x12, 0x00, 0x12, 0x00, 0x12, 0x00,
+            0x03, 0x00, 0x03, 0x00, 0x03, 0x00, 0x03, 0x00,
+            0x02, 0x00, 0x02, 0x00, 0x02, 0x00, 0x02, 0x00,
+            0x05, 0x00, 0x05, 0x00, 0x05, 0x00, 0x05, 0x00,
+            0x08, 0x00, 0x08, 0x00, 0x08, 0x00, 0x08, 0x00,
+            0x0c, 0x00, 0x0c, 0x00, 0x0c, 0x00, 0x0c, 0x00,
+            0x28, 0x00, 0x28, 0x00, 0x28, 0x00, 0x28, 0x00,
+            0x25, 0x00, 0x25, 0x00, 0x25, 0x00, 0x25, 0x00,
+            0x22, 0x00, 0x22, 0x00, 0x22, 0x00, 0x22, 0x00,
+        };
+        dev.interface->write_ahb(0x01000a00, phase_table.size(), phase_table.data());
+    }
+}
 
 // @brief set up motor related register for scan
 static void gl847_init_motor_regs_scan(Genesys_Device* dev,
@@ -325,6 +395,8 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
     scanner_send_slope_table(dev, sensor, STOP_TABLE, fast_table.table);
     scanner_send_slope_table(dev, sensor, FAST_TABLE, fast_table.table);
     scanner_send_slope_table(dev, sensor, HOME_TABLE, fast_table.table);
+
+    gl847_write_motor_phase_table(*dev, scan_yres);
 
     // correct move distance by acceleration and deceleration amounts
     unsigned feedl = feed_steps;
@@ -441,20 +513,28 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     reg->find_reg(REG_0x01).value |= REG_0x01_SHDAREA;
 
     if (has_flag(session.params.flags, ScanFlag::DISABLE_SHADING) ||
-        has_flag(dev->model->flags, ModelFlag::DISABLE_SHADING_CALIBRATION))
+        has_flag(dev->model->flags, ModelFlag::DISABLE_SHADING_CALIBRATION) ||
+        session.use_host_side_calib)
     {
         reg->find_reg(REG_0x01).value &= ~REG_0x01_DVDSET;
-    }
-  else
-    {
+    } else {
         reg->find_reg(REG_0x01).value |= REG_0x01_DVDSET;
     }
-
     reg->find_reg(REG_0x03).value &= ~REG_0x03_AVEENB;
 
+    reg->find_reg(REG_0x03).value &= ~REG_0x03_XPASEL;
+    if (has_flag(session.params.flags, ScanFlag::USE_XPA)) {
+        reg->find_reg(REG_0x03).value |= REG_0x03_XPASEL;
+    }
     sanei_genesys_set_lamp_power(dev, sensor, *reg,
                                  !has_flag(session.params.flags, ScanFlag::DISABLE_LAMP));
     reg->state.is_xpa_on = has_flag(session.params.flags, ScanFlag::USE_XPA);
+
+    if (has_flag(session.params.flags, ScanFlag::USE_XPA)) {
+        if (dev->model->model_id == ModelId::CANON_5600F) {
+            regs_set_exposure(dev->model->asic_type, *reg, sanei_genesys_fixup_exposure({0, 0, 0}));
+        }
+    }
 
     // BW threshold
     reg->set8(0x2e, 0x7f);
@@ -490,7 +570,11 @@ static void gl847_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
                break; // should not happen
 	}
     } else {
-        reg->find_reg(REG_0x04).value |= 0x10; // mono
+        if (dev->model->model_id == ModelId::CANON_5600F) {
+            reg->find_reg(REG_0x04).value |= 0x20;
+        } else {
+            reg->find_reg(REG_0x04).value |= 0x10; // mono
+        }
     }
 
     const auto& dpihw_sensor = sanei_genesys_find_sensor(dev, session.output_resolution,
@@ -545,7 +629,13 @@ void CommandSetGl847::init_regs_for_scan_session(Genesys_Device* dev, const Gene
   int slope_dpi = 0;
   int dummy = 0;
 
-    dummy = 3 - session.params.channels;
+    if (dev->model->model_id == ModelId::CANON_LIDE_100 ||
+        dev->model->model_id == ModelId::CANON_LIDE_200 ||
+        dev->model->model_id == ModelId::CANON_LIDE_700F ||
+        dev->model->model_id == ModelId::HP_SCANJET_N6310)
+    {
+        dummy = 3 - session.params.channels;
+    }
 
 /* slope_dpi */
 /* cis color scan is effectively a gray scan with 3 gray lines per color
@@ -685,11 +775,42 @@ void CommandSetGl847::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
         dev->interface->write_register(REG_0x6C, val);
     }
 
-    // FIXME: use scanner_clear_scan_and_feed_counts()
-    val = REG_0x0D_CLRLNCNT;
-    dev->interface->write_register(REG_0x0D, val);
-    val = REG_0x0D_CLRMCNT;
-    dev->interface->write_register(REG_0x0D, val);
+    if (dev->model->model_id == ModelId::CANON_5600F) {
+        switch (dev->session.params.xres) {
+            case 75:
+            case 150:
+            case 300:
+                scanner_register_rw_bits(*dev, REG_0xA6, 0x04, 0x1c);
+                break;
+            case 600:
+                scanner_register_rw_bits(*dev, REG_0xA6, 0x18, 0x1c);
+                break;
+            case 1200:
+                scanner_register_rw_bits(*dev, REG_0xA6, 0x08, 0x1c);
+                break;
+            case 2400:
+                scanner_register_rw_bits(*dev, REG_0xA6, 0x10, 0x1c);
+                break;
+            case 4800:
+                scanner_register_rw_bits(*dev, REG_0xA6, 0x00, 0x1c);
+                break;
+            default:
+                throw SaneException("Unexpected xres");
+        }
+        dev->interface->write_register(0x6c, 0xf0);
+        dev->interface->write_register(0x6b, 0x87);
+        dev->interface->write_register(0x6d, 0x5f);
+    }
+
+    if (dev->model->model_id == ModelId::CANON_5600F) {
+        scanner_clear_scan_and_feed_counts(*dev);
+    } else {
+        // FIXME: use scanner_clear_scan_and_feed_counts()
+        val = REG_0x0D_CLRLNCNT;
+        dev->interface->write_register(REG_0x0D, val);
+        val = REG_0x0D_CLRMCNT;
+        dev->interface->write_register(REG_0x0D, val);
+    }
 
     val = dev->interface->read_register(REG_0x01);
     val |= REG_0x01_SCAN;
@@ -823,6 +944,10 @@ void CommandSetGl847::send_shading_data(Genesys_Device* dev, const Genesys_Senso
   /* base addr of data has been written in reg D0-D4 in 4K word, so AHB address
    * is 8192*reg value */
 
+    if (dev->model->model_id == ModelId::CANON_5600F) {
+        return;
+    }
+
   /* write actual color channel data */
   for(i=0;i<3;i++)
     {
@@ -869,27 +994,35 @@ static void gl847_init_gpio(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
 
-    std::vector<std::uint16_t> order1 = { 0xa7, 0xa6, 0x6e };
-    std::vector<std::uint16_t> order2 = { 0x6b, 0x6c, 0x6d, 0x6e, 0x6f, 0xa8, 0xa9 };
+    if (dev->model->model_id == ModelId::CANON_5600F) {
+        apply_registers_ordered(dev->gpo.regs, {0xa6, 0xa7, 0x6f, 0x6e},
+                                [&](const GenesysRegisterSetting& reg)
+        {
+            dev->interface->write_register(reg.address, reg.value);
+        });
+    } else {
+        std::vector<std::uint16_t> order1 = { 0xa7, 0xa6, 0x6e };
+        std::vector<std::uint16_t> order2 = { 0x6b, 0x6c, 0x6d, 0x6e, 0x6f, 0xa8, 0xa9 };
 
-    for (auto addr : order1) {
-        dev->interface->write_register(addr, dev->gpo.regs.find_reg(addr).value);
-    }
-
-    dev->interface->write_register(REG_0x6C, 0x00); // FIXME: Likely not needed
-
-    for (auto addr : order2) {
-        dev->interface->write_register(addr, dev->gpo.regs.find_reg(addr).value);
-    }
-
-    for (const auto& reg : dev->gpo.regs) {
-        if (std::find(order1.begin(), order1.end(), reg.address) != order1.end()) {
-            continue;
+        for (auto addr : order1) {
+            dev->interface->write_register(addr, dev->gpo.regs.find_reg(addr).value);
         }
-        if (std::find(order2.begin(), order2.end(), reg.address) != order2.end()) {
-            continue;
+
+        dev->interface->write_register(REG_0x6C, 0x00); // FIXME: Likely not needed
+
+        for (auto addr : order2) {
+            dev->interface->write_register(addr, dev->gpo.regs.find_reg(addr).value);
         }
-        dev->interface->write_register(reg.address, reg.value);
+
+        for (const auto& reg : dev->gpo.regs) {
+            if (std::find(order1.begin(), order1.end(), reg.address) != order1.end()) {
+                continue;
+            }
+            if (std::find(order2.begin(), order2.end(), reg.address) != order2.end()) {
+                continue;
+            }
+            dev->interface->write_register(reg.address, reg.value);
+        }
     }
 }
 
@@ -900,18 +1033,17 @@ static void gl847_init_memory_layout(Genesys_Device* dev)
 {
     DBG_HELPER(dbg);
 
-    // TODO: move to initial register list
+    // FIXME: move to initial register list
     switch (dev->model->model_id) {
         case ModelId::CANON_LIDE_100:
         case ModelId::CANON_LIDE_200:
-        case ModelId::CANON_5600F:
             dev->interface->write_register(REG_0x0B, 0x29);
             break;
         case ModelId::CANON_LIDE_700F:
             dev->interface->write_register(REG_0x0B, 0x2a);
             break;
         default:
-            throw SaneException("Unknown device");
+            break;
     }
 
     // prevent further writings by bulk write register
@@ -946,15 +1078,17 @@ void CommandSetGl847::asic_boot(Genesys_Device* dev, bool cold) const
     // Write initial registers
     dev->interface->write_registers(dev->reg);
 
-  /* Enable DRAM by setting a rising edge on bit 3 of reg 0x0b */
-    val = dev->reg.find_reg(0x0b).value & REG_0x0B_DRAMSEL;
-    val = (val | REG_0x0B_ENBDRAM);
-    dev->interface->write_register(REG_0x0B, val);
-    dev->reg.find_reg(0x0b).value = val;
+    if (dev->model->model_id != ModelId::CANON_5600F) {
+        // Enable DRAM by setting a rising edge on bit 3 of reg 0x0b
+        // The initial register write also powers on SDRAM
+        val = dev->reg.find_reg(0x0b).value & REG_0x0B_DRAMSEL;
+        val = (val | REG_0x0B_ENBDRAM);
+        dev->interface->write_register(REG_0x0B, val);
+        dev->reg.find_reg(0x0b).value = val;
 
-  /* CIS_LINE */
-    dev->reg.init_reg(0x08, REG_0x08_CIS_LINE);
-    dev->interface->write_register(0x08, dev->reg.find_reg(0x08).value);
+        // TODO: remove this write
+        dev->interface->write_register(0x08, dev->reg.find_reg(0x08).value);
+    }
 
     // set up end access
     dev->interface->write_0x8c(0x10, 0x0b);
@@ -966,8 +1100,11 @@ void CommandSetGl847::asic_boot(Genesys_Device* dev, bool cold) const
     // setup internal memory layout
     gl847_init_memory_layout (dev);
 
-    dev->reg.init_reg(0xf8, 0x01);
-    dev->interface->write_register(0xf8, dev->reg.find_reg(0xf8).value);
+    if (dev->model->model_id != ModelId::CANON_5600F) {
+        // FIXME: move to memory layout
+        dev->reg.init_reg(0xf8, 0x01);
+        dev->interface->write_register(0xf8, dev->reg.find_reg(0xf8).value);
+    }
 }
 
 /**

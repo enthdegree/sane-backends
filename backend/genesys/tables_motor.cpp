@@ -316,6 +316,34 @@ void genesys_init_motor_tables()
 
 
     motor = Genesys_Motor();
+    motor.id = MotorId::CANON_5600F;
+    motor.base_ydpi = 2400;
+
+    // FIXME: real limit is 134, but for some reason the motor can't acquire that speed.
+    profile = MotorProfile();
+    profile.slope = MotorSlope::create_from_steps(2500 * 2, 134 * 2, 1000);
+    profile.step_type = StepType::HALF;
+    profile.motor_vref = 0;
+    profile.resolutions = { 75, 150 };
+    motor.profiles.push_back(std::move(profile));
+
+    profile = MotorProfile();
+    profile.slope = MotorSlope::create_from_steps(2500 * 2, 200 * 2, 1000);
+    profile.step_type = StepType::QUARTER;
+    profile.motor_vref = 0;
+    profile.resolutions = { 300, 600, 1200, 2400, 4800 };
+    motor.profiles.push_back(std::move(profile));
+
+    profile = MotorProfile();
+    profile.slope = MotorSlope::create_from_steps(2500 * 2, 200 * 2, 1000);
+    profile.step_type = StepType::QUARTER;
+    profile.motor_vref = 0;
+    motor.fast_profiles.push_back(std::move(profile));
+
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
     motor.id = MotorId::CANON_8400F;
     motor.base_ydpi = 1600;
 

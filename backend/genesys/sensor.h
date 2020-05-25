@@ -310,8 +310,7 @@ struct Genesys_Sensor {
 
     int exposure_lperiod = -1;
 
-    // the number of pixels in a single segment.
-    // only on gl843
+    // the number of pixels in a single segment. This is counted in output resolution.
     unsigned segment_size = 0;
 
     // the order of the segments, if any, for the sensor. If the sensor is not segmented or uses

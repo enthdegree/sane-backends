@@ -894,43 +894,57 @@ void genesys_init_usb_device_tables()
 
     model.resolutions = {
         {
-            { ScanMethod::FLATBED },
-            { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100, 75 },
-            { 4800, 2400, 1200, 600, 400, 300, 200, 150, 100, 75 },
+            { ScanMethod::FLATBED, ScanMethod::TRANSPARENCY },
+            { 4800, 2400, 1200, 600, 300, /*150*/ },
+            { 4800, 2400, 1200, 600, 300, /*150*/ },
         }
     };
 
     model.bpp_gray_values = { 8, 16 };
     model.bpp_color_values = { 8, 16 };
 
-    model.x_offset = 1.1;
-    model.y_offset = 8.3;
-    model.x_size = 216.07;
-    model.y_size = 299.0;
+    model.x_offset = 1.5;
+    model.y_offset = 10.4;
+    model.x_size = 219.00;
+    model.y_size = 305.0;
 
-    model.y_offset_calib_white = 3.0;
-    model.y_size_calib_mm = 3.0;
+    model.y_offset_calib_white = 2.0;
+    model.y_size_calib_mm = 2.0;
     model.x_offset_calib_black = 0.0;
-    model.x_size_calib_mm = 217.4241;
+    model.x_size_calib_mm = 220.5;
+
+    model.x_offset_ta = 93.0;
+    model.y_offset_ta = 42.4;
+    model.x_size_ta = 35.0;
+    model.y_size_ta = 230.0;
+
+    model.y_offset_sensor_to_ta = 0;
+    model.y_offset_calib_white_ta = 21.4;
+    model.y_size_calib_ta_mm = 1.0;
 
     model.post_scan = 0.0;
     model.eject_feed = 0.0;
 
     model.ld_shift_r = 0;
-    model.ld_shift_g = 0;
-    model.ld_shift_b = 0;
+    model.ld_shift_g = 32;
+    model.ld_shift_b = 64;
 
     model.line_mode_color_order = ColorOrder::RGB;
 
-    model.is_cis = true;
+    model.is_cis = false;
     model.is_sheetfed = false;
-    model.sensor_id = SensorId::CIS_CANON_LIDE_200;
-    model.adc_id = AdcId::CANON_LIDE_200;
-    model.gpio_id = GpioId::CANON_LIDE_200;
-    model.motor_id = MotorId::CANON_LIDE_200;
-    model.flags = ModelFlag::UNTESTED |
-                  ModelFlag::SIS_SENSOR |
+    model.sensor_id = SensorId::CCD_CANON_5600F;
+    model.adc_id = AdcId::CANON_5600F;
+    model.gpio_id = GpioId::CANON_5600F;
+    model.motor_id = MotorId::CANON_5600F;
+    model.flags = ModelFlag::SIS_SENSOR |
+                  ModelFlag::INVERT_PIXEL_DATA |
+                  ModelFlag::DISABLE_ADC_CALIBRATION |
+                  ModelFlag::DISABLE_EXPOSURE_CALIBRATION |
+                  ModelFlag::HOST_SIDE_CALIBRATION_COMPLETE_SCAN |
                   ModelFlag::DARK_CALIBRATION |
+                  ModelFlag::SHADING_REPARK |
+                  ModelFlag::UTA_NO_SECONDARY_MOTOR |
                   ModelFlag::CUSTOM_GAMMA;
     model.buttons = GENESYS_HAS_SCAN_SW |
                     GENESYS_HAS_COPY_SW |

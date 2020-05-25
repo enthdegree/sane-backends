@@ -84,6 +84,7 @@ void CommandSetCommon::set_xpa_lamp_power(Genesys_Device& dev, bool set) const
     // turning off the lamp
     LampSettings settings[] = {
         {   ModelId::CANON_4400F, ScanMethod::TRANSPARENCY, {}, {} },
+        {   ModelId::CANON_5600F, ScanMethod::TRANSPARENCY, {}, {} },
         {   ModelId::CANON_8400F, ScanMethod::TRANSPARENCY, {
                 { 0xa6, 0x34, 0xf4 },
             }, {

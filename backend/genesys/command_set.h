@@ -71,8 +71,6 @@ public:
 
     virtual void init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                        Genesys_Register_Set& regs) const = 0;
-    virtual void init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                    Genesys_Register_Set& regs) const = 0;
 
     /** Set up registers for a scan. Similar to init_regs_for_scan except that the session is
         already computed from the session
@@ -131,9 +129,6 @@ public:
 
     /// eject document from scanner
     virtual void eject_document(Genesys_Device* dev) const = 0;
-
-    /// move scanning head to transparency adapter
-    virtual void move_to_ta(Genesys_Device* dev) const = 0;
 
     /// write shading data calibration to ASIC
     virtual void send_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor,

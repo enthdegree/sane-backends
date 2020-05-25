@@ -65,9 +65,6 @@ public:
     void init_regs_for_shading(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                Genesys_Register_Set& regs) const override;
 
-    void init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                            Genesys_Register_Set& regs) const override;
-
     void init_regs_for_scan_session(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                     Genesys_Register_Set* reg,
                                     const ScanSession& session) const override;
@@ -103,8 +100,6 @@ public:
     void detect_document_end(Genesys_Device* dev) const override;
 
     void eject_document(Genesys_Device* dev) const override;
-
-    void move_to_ta(Genesys_Device* dev) const override;
 
     void send_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t* data,
                            int size) const override;

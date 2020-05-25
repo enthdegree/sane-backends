@@ -899,6 +899,15 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
     dev.interface->sleep_ms(100);
 }
 
+void scanner_move_to_ta(Genesys_Device& dev)
+{
+    DBG_HELPER(dbg);
+
+    unsigned feed = static_cast<unsigned>((dev.model->y_offset_sensor_to_ta * dev.motor.base_ydpi) /
+                                           MM_PER_INCH);
+    scanner_move(dev, dev.model->default_method, feed, Direction::FORWARD);
+}
+
 void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
 {
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
@@ -2511,7 +2520,7 @@ static void genesys_repark_sensor_before_shading(Genesys_Device* dev)
         if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
             dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
         {
-            dev->cmd_set->move_to_ta(dev);
+            scanner_move_to_ta(*dev);
         }
     }
 }
@@ -3727,7 +3736,7 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        dev->cmd_set->move_to_ta(dev);
+        scanner_move_to_ta(*dev);
     }
 
     // shading calibration
@@ -3995,6 +4004,37 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
     }
 }
 
+static void init_regs_for_scan(Genesys_Device& dev, const Genesys_Sensor& sensor,
+                               Genesys_Register_Set& regs)
+{
+    DBG_HELPER(dbg);
+    debug_dump(DBG_info, dev.settings);
+
+    auto session = dev.cmd_set->calculate_scan_session(&dev, sensor, dev.settings);
+
+    if (dev.model->asic_type == AsicType::GL124 ||
+        dev.model->asic_type == AsicType::GL845 ||
+        dev.model->asic_type == AsicType::GL846 ||
+        dev.model->asic_type == AsicType::GL847)
+    {
+        /*  Fast move to scan area:
+
+            We don't move fast the whole distance since it would involve computing
+            acceleration/deceleration distance for scan resolution. So leave a remainder for it so
+            scan makes the final move tuning
+        */
+
+        if (dev.settings.get_channels() * dev.settings.yres >= 600 && session.params.starty > 700) {
+            scanner_move(dev, dev.model->default_method,
+                         static_cast<unsigned>(session.params.starty - 500),
+                         Direction::FORWARD);
+            session.params.starty = 500;
+        }
+        compute_session(&dev, session, sensor);
+    }
+
+    dev.cmd_set->init_regs_for_scan_session(&dev, sensor, &regs, session);
+}
 
 // High-level start of scanning
 static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
@@ -4020,7 +4060,7 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
         if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
             dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
         {
-            dev->cmd_set->move_to_ta(dev);
+            scanner_move_to_ta(*dev);
         }
 
         genesys_warmup_lamp(dev);
@@ -4037,7 +4077,7 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        dev->cmd_set->move_to_ta(dev);
+        scanner_move_to_ta(*dev);
     }
 
   /* load document if needed (for sheetfed scanner for instance) */
@@ -4079,10 +4119,10 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        dev->cmd_set->move_to_ta(dev);
+        scanner_move_to_ta(*dev);
     }
 
-    dev->cmd_set->init_regs_for_scan(dev, sensor, dev->reg);
+    init_regs_for_scan(*dev, sensor, dev->reg);
 
   /* no lamp during scan */
     if (lamp_off) {
@@ -6236,7 +6276,8 @@ SANE_Status sane_start(SANE_Handle handle)
     });
 }
 
-void sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* len)
+// returns SANE_STATUS_GOOD if there are more data, SANE_STATUS_EOF otherwise
+SANE_Status sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* len)
 {
     DBG_HELPER(dbg);
     Genesys_Scanner* s = reinterpret_cast<Genesys_Scanner*>(handle);
@@ -6282,7 +6323,7 @@ void sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_
             dev->cmd_set->move_back_home(dev, false);
             dev->parking = true;
         }
-        throw SaneException(SANE_STATUS_EOF);
+        return SANE_STATUS_EOF;
     }
 
   local_len = max_len;
@@ -6294,14 +6335,15 @@ void sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_
         dbg.log(DBG_error, "error: returning incorrect length");
     }
   DBG(DBG_proc, "%s: %d bytes returned\n", __func__, *len);
+    return SANE_STATUS_GOOD;
 }
 
 SANE_GENESYS_API_LINKAGE
 SANE_Status sane_read(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* len)
 {
-    return wrap_exceptions_to_status_code(__func__, [=]()
+    return wrap_exceptions_to_status_code_return(__func__, [=]()
     {
-        sane_read_impl(handle, buf, max_len, len);
+        return sane_read_impl(handle, buf, max_len, len);
     });
 }
 

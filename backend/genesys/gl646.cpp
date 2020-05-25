@@ -68,15 +68,6 @@ static void write_control(Genesys_Device* dev, const Genesys_Sensor& sensor, int
 
 static void gl646_set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t set, int dpi);
 
-/**
- * Does a simple move of the given distance by doing a scan at lowest resolution
- * shading correction. Memory for data is allocated in this function
- * and must be freed by caller.
- * @param dev device of the scanner
- * @param distance distance to move in MM
- */
-static void simple_move(Genesys_Device* dev, SANE_Int distance);
-
 static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                         const ScanSession& session, bool move,
                         std::vector<uint8_t>& data, const char* test_identifier);
@@ -1861,22 +1852,6 @@ bool CommandSetGl646::needs_home_before_init_regs_for_scan(Genesys_Device* dev) 
 }
 
 /**
- * set up registers for the actual scan. The scan's parameters are given
- * through the device settings. It allocates the scan buffers.
- */
-void CommandSetGl646::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                         Genesys_Register_Set& regs) const
-{
-    DBG_HELPER(dbg);
-
-    debug_dump(DBG_info, dev->settings);
-
-    ScanSession session = calculate_scan_session(dev, sensor, dev->settings);
-
-    init_regs_for_scan_session(dev, sensor, &regs, session);
-}
-
-/**
  * this function send gamma table to ASIC
  */
 void CommandSetGl646::send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor) const
@@ -2673,13 +2648,6 @@ void CommandSetGl646::init(Genesys_Device* dev) const
     dev->already_initialized = true;
 }
 
-void CommandSetGl646::move_to_ta(Genesys_Device* dev) const
-{
-    DBG_HELPER(dbg);
-
-    simple_move(dev, static_cast<int>(dev->model->y_offset_sensor_to_ta));
-}
-
 static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                         const ScanSession& session, bool move,
                         std::vector<uint8_t>& data, const char* scan_identifier)
@@ -2767,54 +2735,6 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
 
     // end scan , waiting the motor to stop if needed (if moving), but without ejecting doc
     end_scan_impl(dev, &dev->reg, true, false);
-}
-
-/**
- * Does a simple move of the given distance by doing a scan at lowest resolution
- * shading correction. Memory for data is allocated in this function
- * and must be freed by caller.
- * @param dev device of the scanner
- * @param distance distance to move in MM
- */
-static void simple_move(Genesys_Device* dev, SANE_Int distance)
-{
-    DBG_HELPER_ARGS(dbg, "%d mm", distance);
-
-    unsigned resolution = sanei_genesys_get_lowest_dpi(dev);
-
-    const auto& sensor = sanei_genesys_find_sensor(dev, resolution, 3, dev->model->default_method);
-
-    unsigned lines = static_cast<unsigned>((distance * resolution) / MM_PER_INCH);
-
-    // round up to multiple of 3 in case of CIS scanner
-    if (dev->model->is_cis) {
-        lines = ((lines + 2) / 3) * 3;
-    }
-
-    auto* regs = &dev->reg;
-
-    ScanSession session;
-    session.params.xres = resolution;
-    session.params.yres = resolution;
-    session.params.startx = 0;
-    session.params.starty = 0;
-    session.params.pixels = dev->model->x_size_calib_mm * resolution / MM_PER_INCH;
-    session.params.lines = lines;
-    session.params.depth = 8;
-    session.params.channels = 3;
-    session.params.scan_method = dev->settings.scan_method;
-    session.params.scan_mode = ScanColorMode::COLOR_SINGLE_PASS;
-    session.params.color_filter = ColorFilter::RED;
-    session.params.flags = ScanFlag::NONE;
-    if (dev->settings.scan_method == ScanMethod::TRANSPARENCY) {
-        session.params.flags |= ScanFlag::USE_XPA;
-    }
-    compute_session(dev, session, sensor);
-
-    dev->cmd_set->init_regs_for_scan_session(dev, sensor, regs, session);
-
-    std::vector<uint8_t> data;
-    simple_scan(dev, sensor, session, true, data, "simple_move");
 }
 
 /**

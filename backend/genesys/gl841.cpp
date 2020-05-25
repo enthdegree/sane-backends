@@ -1617,19 +1617,6 @@ void CommandSetGl841::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     dev->calib_session = session;
 }
 
-// set up registers for the actual scan
-void CommandSetGl841::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                         Genesys_Register_Set& regs) const
-{
-    DBG_HELPER(dbg);
-
-    debug_dump(DBG_info, dev->settings);
-
-    auto session = calculate_scan_session(dev, sensor, dev->settings);
-    init_regs_for_scan_session(dev, sensor, &regs, session);
-}
-
-
 // this function sends generic gamma table (ie linear ones) or the Sensor specific one if provided
 void CommandSetGl841::send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor) const
 {
@@ -2294,12 +2281,6 @@ bool CommandSetGl841::needs_home_before_init_regs_for_scan(Genesys_Device* dev) 
 void CommandSetGl841::wait_for_motor_stop(Genesys_Device* dev) const
 {
     (void) dev;
-}
-
-void CommandSetGl841::move_to_ta(Genesys_Device* dev) const
-{
-    (void) dev;
-    throw SaneException("not implemented");
 }
 
 void CommandSetGl841::asic_boot(Genesys_Device *dev, bool cold) const

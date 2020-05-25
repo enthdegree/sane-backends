@@ -352,7 +352,6 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
     }
 
     reg->set24(REG_FEEDL, feedl);
-    DBG(DBG_io ,"%s: feedl=%d\n", __func__, feedl);
 
     unsigned ccdlmt = (reg->get8(REG_0x0C) & REG_0x0C_CCDLMT) + 1;
     unsigned tgtime = 1 << (reg->get8(REG_0x1C) & REG_0x1C_TGTIME);
@@ -604,7 +603,7 @@ ScanSession CommandSetGl847::calculate_scan_session(const Genesys_Device* dev,
     if (settings.scan_method == ScanMethod::TRANSPARENCY ||
         settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        // note: move_to_ta() function has already been called and the sensor is at the
+        // note: scanner_move_to_ta() function has already been called and the sensor is at the
         // transparency adapter
         if (!dev->ignore_offsets) {
             move = dev->model->y_offset_ta - dev->model->y_offset_sensor_to_ta;
@@ -755,7 +754,7 @@ void CommandSetGl847::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        // note: move_to_ta() function has already been called and the sensor is at the
+        // note: scanner_move_to_ta() function has already been called and the sensor is at the
         // transparency adapter
         move = dev->model->y_offset_calib_white_ta - dev->model->y_offset_sensor_to_ta;
         flags |= ScanFlag::USE_XPA;
@@ -789,33 +788,6 @@ void CommandSetGl847::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
 
     dev->calib_session = session;
 }
-
-/** @brief set up registers for the actual scan
- */
-void CommandSetGl847::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                         Genesys_Register_Set& regs) const
-{
-    DBG_HELPER(dbg);
-
-    auto session = calculate_scan_session(dev, sensor, dev->settings);
-
-    /*  Fast move to scan area:
-
-        We don't move fast the whole distance since it would involve computing
-        acceleration/deceleration distance for scan resolution. So leave a remainder for it so
-        scan makes the final move tuning
-    */
-    if (dev->settings.get_channels() * dev->settings.yres >= 600 && session.params.starty > 700) {
-        scanner_move(*dev, dev->model->default_method,
-                     static_cast<unsigned>(session.params.starty - 500),
-                     Direction::FORWARD);
-        session.params.starty = 500;
-    }
-    compute_session(dev, session, sensor);
-
-    init_regs_for_scan_session(dev, sensor, &regs, session);
-}
-
 
 /**
  * Send shading calibration data. The buffer is considered to always hold values
@@ -1107,15 +1079,6 @@ void CommandSetGl847::eject_document(Genesys_Device* dev) const
 {
     (void) dev;
     throw SaneException("not implemented");
-}
-
-void CommandSetGl847::move_to_ta(Genesys_Device* dev) const
-{
-    DBG_HELPER(dbg);
-
-    unsigned feed = static_cast<unsigned>((dev->model->y_offset_sensor_to_ta * dev->motor.base_ydpi) /
-                                          MM_PER_INCH);
-    scanner_move(*dev, dev->model->default_method, feed, Direction::FORWARD);
 }
 
 } // namespace gl847

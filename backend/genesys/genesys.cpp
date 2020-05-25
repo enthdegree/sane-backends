@@ -4202,41 +4202,11 @@ static Genesys_Settings calculate_scan_settings(Genesys_Scanner* s)
     unsigned pixels_per_line = static_cast<unsigned>(((br_x - settings.tl_x) * settings.xres) /
                                                      MM_PER_INCH);
 
-    // we need an even pixels number
-    // TODO invert test logic or generalize behaviour across all ASICs
-    if (has_flag(dev->model->flags, ModelFlag::SIS_SENSOR) ||
-        dev->model->asic_type == AsicType::GL847 ||
-        dev->model->asic_type == AsicType::GL124 ||
-        dev->model->asic_type == AsicType::GL845 ||
-        dev->model->asic_type == AsicType::GL846 ||
-        dev->model->asic_type == AsicType::GL843)
-    {
-        if (settings.xres <= 1200) {
-            pixels_per_line = (pixels_per_line / 4) * 4;
-        } else if (settings.xres < settings.yres) {
-            // BUG: this is an artifact of the fact that the resolution was twice as large than
-            // the actual resolution when scanning above the supported scanner X resolution
-            pixels_per_line = (pixels_per_line / 8) * 8;
-        } else {
-            pixels_per_line = (pixels_per_line / 16) * 16;
-        }
-    }
+    const auto& sensor = sanei_genesys_find_sensor(dev, settings.xres, settings.get_channels(),
+                                                   settings.scan_method);
 
-    // corner case for true lineart for sensor with several segments or when xres is doubled
-    // to match yres */
-    if (settings.xres >= 1200 && (
-                dev->model->asic_type == AsicType::GL124 ||
-                dev->model->asic_type == AsicType::GL847 ||
-                dev->session.params.xres < dev->session.params.yres))
-    {
-        if (settings.xres < settings.yres) {
-            // FIXME: this is an artifact of the fact that the resolution was twice as large than
-            // the actual resolution when scanning above the supported scanner X resolution
-            pixels_per_line = (pixels_per_line / 8) * 8;
-        } else {
-            pixels_per_line = (pixels_per_line / 16) * 16;
-        }
-    }
+    pixels_per_line = session_adjust_output_pixels(pixels_per_line, *dev, sensor,
+                                                   settings.xres, settings.yres, true);
 
     unsigned xres_factor = s->resolution / settings.xres;
     settings.pixels = pixels_per_line;

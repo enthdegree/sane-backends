@@ -695,6 +695,89 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
     }
 }
 
+unsigned session_adjust_output_pixels(unsigned output_pixels,
+                                      const Genesys_Device& dev, const Genesys_Sensor& sensor,
+                                      unsigned output_xresolution, unsigned output_yresolution,
+                                      bool adjust_output_pixels)
+{
+    bool adjust_optical_pixels = !adjust_output_pixels;
+    if (adjust_optical_pixels) {
+        auto optical_resolution = sensor.get_optical_resolution();
+
+        // FIXME: better way would be to compute and return the required multiplier
+        unsigned optical_pixels = (output_pixels * optical_resolution) / output_xresolution;
+
+        if (dev.model->asic_type == AsicType::GL841 ||
+            dev.model->asic_type == AsicType::GL842)
+        {
+            optical_pixels = align_multiple_ceil(optical_pixels, 2);
+        }
+
+        if (dev.model->asic_type == AsicType::GL646 && output_xresolution == 400) {
+            optical_pixels = align_multiple_floor(optical_pixels, 6);
+        }
+
+        if (dev.model->asic_type == AsicType::GL843) {
+            // ensure the number of optical pixels is divisible by 2.
+            // In quarter-CCD mode optical_pixels is 4x larger than the actual physical number
+            optical_pixels = align_multiple_ceil(optical_pixels,
+                                                 2 * sensor.full_resolution / optical_resolution);
+            if (dev.model->model_id == ModelId::PLUSTEK_OPTICFILM_7200 ||
+                dev.model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I ||
+                dev.model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
+                dev.model->model_id == ModelId::PLUSTEK_OPTICFILM_7400 ||
+                dev.model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I ||
+                dev.model->model_id == ModelId::PLUSTEK_OPTICFILM_8200I)
+            {
+                optical_pixels = align_multiple_ceil(optical_pixels, 16);
+            }
+        }
+        output_pixels = (optical_pixels * output_xresolution) / optical_resolution;
+    }
+
+    if (adjust_output_pixels) {
+        // TODO: the following may no longer be needed but were applied historically.
+
+        // we need an even pixels number
+        // TODO invert test logic or generalize behaviour across all ASICs
+        if (has_flag(dev.model->flags, ModelFlag::SIS_SENSOR) ||
+            dev.model->asic_type == AsicType::GL847 ||
+            dev.model->asic_type == AsicType::GL124 ||
+            dev.model->asic_type == AsicType::GL845 ||
+            dev.model->asic_type == AsicType::GL846 ||
+            dev.model->asic_type == AsicType::GL843)
+        {
+            if (output_xresolution <= 1200) {
+                output_pixels = align_multiple_floor(output_pixels, 4);
+            } else if (output_xresolution < output_yresolution) {
+                // BUG: this is an artifact of the fact that the resolution was twice as large than
+                // the actual resolution when scanning above the supported scanner X resolution
+                output_pixels = align_multiple_floor(output_pixels, 8);
+            } else {
+                output_pixels = align_multiple_floor(output_pixels, 16);
+            }
+        }
+
+        // corner case for true lineart for sensor with several segments or when xres is doubled
+        // to match yres */
+        if (output_xresolution >= 1200 && (
+                    dev.model->asic_type == AsicType::GL124 ||
+                    dev.model->asic_type == AsicType::GL847 ||
+                    dev.session.params.xres < dev.session.params.yres))
+        {
+            if (output_xresolution < output_yresolution) {
+                // FIXME: this is an artifact of the fact that the resolution was twice as large than
+                // the actual resolution when scanning above the supported scanner X resolution
+                output_pixels = align_multiple_floor(output_pixels, 8);
+            } else {
+                output_pixels = align_multiple_floor(output_pixels, 16);
+            }
+        }
+    }
+
+    return output_pixels;
+}
+
 void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
@@ -717,39 +800,13 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
         throw std::runtime_error("output resolution higher than optical resolution");
     }
 
-    // compute the number of optical pixels that will be acquired by the chip
-    s.optical_pixels = (s.params.pixels * s.optical_resolution) / s.output_resolution;
+    s.output_pixels = session_adjust_output_pixels(s.params.pixels, *dev, sensor,
+                                                   s.params.xres, s.params.yres, false);
 
-    if (dev->model->asic_type == AsicType::GL841 ||
-        dev->model->asic_type == AsicType::GL842)
-    {
-        s.optical_pixels = align_multiple_ceil(s.optical_pixels, 2);
-    }
-
-    if (dev->model->asic_type == AsicType::GL646 && s.params.xres == 400) {
-        s.optical_pixels = align_multiple_floor(s.optical_pixels, 6);
-    }
-
-    if (dev->model->asic_type == AsicType::GL843) {
-        // ensure the number of optical pixels is divisible by 2.
-        // In quarter-CCD mode optical_pixels is 4x larger than the actual physical number
-        s.optical_pixels = align_multiple_ceil(s.optical_pixels,
-                                               2 * s.full_resolution / s.optical_resolution);
-
-        if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200 ||
-            dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200I ||
-            dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7300 ||
-            dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7400 ||
-            dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7500I ||
-            dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_8200I)
-        {
-            s.optical_pixels = align_multiple_ceil(s.optical_pixels, 16);
-        }
-    }
-
-    // after all adjustments on the optical pixels have been made, compute the number of pixels
-    // to retrieve from the chip
-    s.output_pixels = (s.optical_pixels * s.output_resolution) / s.optical_resolution;
+    // Compute the number of optical pixels that will be acquired by the chip.
+    // The necessary alignment requirements have already been computed by
+    // get_session_output_pixels_multiplier
+    s.optical_pixels = (s.output_pixels * s.optical_resolution) / s.output_resolution;
 
     if (static_cast<int>(s.params.startx) + sensor.output_pixel_offset < 0)
         throw SaneException("Invalid sensor.output_pixel_offset");

@@ -915,11 +915,9 @@ ImagePipelineStack build_image_pipeline(const Genesys_Device& dev, const ScanSes
     // certain circumstances.
     buffer_size = align_multiple_ceil(buffer_size, 2);
 
-    auto node = std::unique_ptr<ImagePipelineNodeBufferedCallableSource>(
-                new ImagePipelineNodeBufferedCallableSource(
-                    width, lines, format, buffer_size, read_data_from_usb));
-    node->set_last_read_multiple(2);
-    pipeline.push_first_node(std::move(node));
+    auto& src_node = pipeline.push_first_node<ImagePipelineNodeBufferedCallableSource>(
+                          width, lines, format, buffer_size, read_data_from_usb);
+    src_node.set_last_read_multiple(2);
 
     if (log_image_data) {
         pipeline.push_node<ImagePipelineNodeDebug>(debug_prefix + "_0_from_usb.tiff");

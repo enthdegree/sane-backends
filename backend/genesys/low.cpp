@@ -366,7 +366,7 @@ void wait_until_has_valid_words(Genesys_Device* dev)
     unsigned words = 0;
     unsigned sleep_time_ms = 10;
 
-    for (unsigned wait_ms = 0; wait_ms < 50000; wait_ms += sleep_time_ms) {
+    for (unsigned wait_ms = 0; wait_ms < 70000; wait_ms += sleep_time_ms) {
         sanei_genesys_read_valid_words(dev, &words);
         if (words != 0)
             break;

@@ -382,7 +382,6 @@ static void gl846_init_motor_regs_scan(Genesys_Device* dev,
     }
 
     reg->set24(REG_LINCNT, scan_lines);
-    DBG(DBG_io, "%s: lincnt=%d\n", __func__, scan_lines);
 
     reg->set8(REG_0x02, 0);
     sanei_genesys_set_motor_power(*reg, true);

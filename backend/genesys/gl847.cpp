@@ -352,7 +352,6 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
     }
 
     reg->set24(REG_FEEDL, feedl);
-    DBG(DBG_io ,"%s: feedl=%d\n", __func__, feedl);
 
     unsigned ccdlmt = (reg->get8(REG_0x0C) & REG_0x0C_CCDLMT) + 1;
     unsigned tgtime = 1 << (reg->get8(REG_0x1C) & REG_0x1C_TGTIME);

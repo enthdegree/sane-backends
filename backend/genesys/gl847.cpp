@@ -603,7 +603,7 @@ ScanSession CommandSetGl847::calculate_scan_session(const Genesys_Device* dev,
     if (settings.scan_method == ScanMethod::TRANSPARENCY ||
         settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        // note: move_to_ta() function has already been called and the sensor is at the
+        // note: scanner_move_to_ta() function has already been called and the sensor is at the
         // transparency adapter
         if (!dev->ignore_offsets) {
             move = dev->model->y_offset_ta - dev->model->y_offset_sensor_to_ta;
@@ -754,7 +754,7 @@ void CommandSetGl847::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        // note: move_to_ta() function has already been called and the sensor is at the
+        // note: scanner_move_to_ta() function has already been called and the sensor is at the
         // transparency adapter
         move = dev->model->y_offset_calib_white_ta - dev->model->y_offset_sensor_to_ta;
         flags |= ScanFlag::USE_XPA;
@@ -1079,15 +1079,6 @@ void CommandSetGl847::eject_document(Genesys_Device* dev) const
 {
     (void) dev;
     throw SaneException("not implemented");
-}
-
-void CommandSetGl847::move_to_ta(Genesys_Device* dev) const
-{
-    DBG_HELPER(dbg);
-
-    unsigned feed = static_cast<unsigned>((dev->model->y_offset_sensor_to_ta * dev->motor.base_ydpi) /
-                                          MM_PER_INCH);
-    scanner_move(*dev, dev->model->default_method, feed, Direction::FORWARD);
 }
 
 } // namespace gl847

@@ -899,6 +899,15 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
     dev.interface->sleep_ms(100);
 }
 
+void scanner_move_to_ta(Genesys_Device& dev)
+{
+    DBG_HELPER(dbg);
+
+    unsigned feed = static_cast<unsigned>((dev.model->y_offset_sensor_to_ta * dev.motor.base_ydpi) /
+                                           MM_PER_INCH);
+    scanner_move(dev, dev.model->default_method, feed, Direction::FORWARD);
+}
+
 void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
 {
     DBG_HELPER_ARGS(dbg, "wait_until_home = %d", wait_until_home);
@@ -2511,7 +2520,7 @@ static void genesys_repark_sensor_before_shading(Genesys_Device* dev)
         if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
             dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
         {
-            dev->cmd_set->move_to_ta(dev);
+            scanner_move_to_ta(*dev);
         }
     }
 }
@@ -3727,7 +3736,7 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        dev->cmd_set->move_to_ta(dev);
+        scanner_move_to_ta(*dev);
     }
 
     // shading calibration
@@ -4051,7 +4060,7 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
         if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
             dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
         {
-            dev->cmd_set->move_to_ta(dev);
+            scanner_move_to_ta(*dev);
         }
 
         genesys_warmup_lamp(dev);
@@ -4068,7 +4077,7 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        dev->cmd_set->move_to_ta(dev);
+        scanner_move_to_ta(*dev);
     }
 
   /* load document if needed (for sheetfed scanner for instance) */
@@ -4110,7 +4119,7 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
     if (dev->settings.scan_method == ScanMethod::TRANSPARENCY ||
         dev->settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED)
     {
-        dev->cmd_set->move_to_ta(dev);
+        scanner_move_to_ta(*dev);
     }
 
     init_regs_for_scan(*dev, sensor, dev->reg);

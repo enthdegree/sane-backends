@@ -2657,13 +2657,6 @@ void CommandSetGl646::init(Genesys_Device* dev) const
     dev->already_initialized = true;
 }
 
-void CommandSetGl646::move_to_ta(Genesys_Device* dev) const
-{
-    DBG_HELPER(dbg);
-
-    simple_move(dev, static_cast<int>(dev->model->y_offset_sensor_to_ta));
-}
-
 static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
                         const ScanSession& session, bool move,
                         std::vector<uint8_t>& data, const char* scan_identifier)

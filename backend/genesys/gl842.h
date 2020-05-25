@@ -101,8 +101,6 @@ public:
 
     void eject_document(Genesys_Device* dev) const override;
 
-    void move_to_ta(Genesys_Device* dev) const override;
-
     void send_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor, uint8_t* data,
                            int size) const override;
 

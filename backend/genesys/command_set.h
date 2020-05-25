@@ -130,9 +130,6 @@ public:
     /// eject document from scanner
     virtual void eject_document(Genesys_Device* dev) const = 0;
 
-    /// move scanning head to transparency adapter
-    virtual void move_to_ta(Genesys_Device* dev) const = 0;
-
     /// write shading data calibration to ASIC
     virtual void send_shading_data(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                    std::uint8_t* data, int size) const = 0;

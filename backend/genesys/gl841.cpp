@@ -2283,12 +2283,6 @@ void CommandSetGl841::wait_for_motor_stop(Genesys_Device* dev) const
     (void) dev;
 }
 
-void CommandSetGl841::move_to_ta(Genesys_Device* dev) const
-{
-    (void) dev;
-    throw SaneException("not implemented");
-}
-
 void CommandSetGl841::asic_boot(Genesys_Device *dev, bool cold) const
 {
     // reset ASIC in case of cold boot

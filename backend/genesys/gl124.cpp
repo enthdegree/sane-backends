@@ -1387,11 +1387,5 @@ void CommandSetGl124::eject_document(Genesys_Device* dev) const
     throw SaneException("not implemented");
 }
 
-void CommandSetGl124::move_to_ta(Genesys_Device* dev) const
-{
-    (void) dev;
-    throw SaneException("not implemented");
-}
-
 } // namespace gl124
 } // namespace genesys

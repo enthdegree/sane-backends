@@ -236,14 +236,12 @@
 :comment "300, 600, 1200, 2400, 4800 dpi resolutions are supported in both flatbed and transparency modes"
 
 :model "CanoScan 8400F"
-:url "unsupported/canon-8400f.html"
 :interface "USB"
 :usbid "0x04a9" "0x221e"
 :status :complete
 :comment "400, 800, 1600, 3200 dpi resolutions are supported in flatbed, transparency and infrared transparency scanning modes"
 
 :model "CanoScan 8600F"
-:url "unsupported/canon-8600.html"
 :interface "USB"
 :usbid "0x04a9" "0x2229"
 :status :complete

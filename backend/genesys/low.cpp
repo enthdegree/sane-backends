@@ -921,6 +921,8 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     s.buffer_size_read = s.output_line_bytes_raw * 64;
     compute_session_pixel_offsets(dev, s, sensor);
 
+    s.shading_pixel_offset = sensor.shading_pixel_offset;
+
     if (dev->model->asic_type == AsicType::GL124 ||
         dev->model->asic_type == AsicType::GL845 ||
         dev->model->asic_type == AsicType::GL846)
@@ -1071,10 +1073,10 @@ ImagePipelineStack build_image_pipeline(const Genesys_Device& dev, const ScanSes
         !has_flag(dev.model->flags, ModelFlag::DISABLE_SHADING_CALIBRATION) &&
         !has_flag(session.params.flags, ScanFlag::DISABLE_SHADING))
     {
+        unsigned offset_pixels = session.params.startx + dev.calib_session.shading_pixel_offset;
+        unsigned offset_bytes = offset_pixels * dev.calib_session.params.channels;
         pipeline.push_node<ImagePipelineNodeCalibrate>(dev.dark_average_data,
-                                                            dev.white_average_data,
-                                                            session.params.startx *
-                                                                dev.calib_session.params.channels);
+                                                       dev.white_average_data, offset_bytes);
 
         if (log_image_data) {
             pipeline.push_node<ImagePipelineNodeDebug>(debug_prefix + "_9_after_calibrate.tiff");

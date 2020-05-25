@@ -306,6 +306,10 @@ struct ScanSession {
     // Currently it's always zero.
     unsigned output_segment_start_offset = 0;
 
+    // How many pixels the shading data is offset to the right from the acquired data. Calculated
+    // in shading resolution.
+    int shading_pixel_offset = 0;
+
     // the size of the read buffer.
     size_t buffer_size_read = 0;
 
@@ -362,6 +366,7 @@ void serialize(Stream& str, ScanSession& x)
     serialize(str, x.conseq_pixel_dist);
     serialize(str, x.output_segment_pixel_group_count);
     serialize(str, x.output_segment_start_offset);
+    serialize(str, x.shading_pixel_offset);
     serialize(str, x.buffer_size_read);
     serialize(str, x.enable_ledadd);
     serialize(str, x.use_host_side_calib);

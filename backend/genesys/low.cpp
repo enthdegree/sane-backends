@@ -662,15 +662,15 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
 
     } else if (dev->model->asic_type == AsicType::GL841 ||
                dev->model->asic_type == AsicType::GL842 ||
-               dev->model->asic_type == AsicType::GL843)
+               dev->model->asic_type == AsicType::GL843 ||
+               dev->model->asic_type == AsicType::GL845 ||
+               dev->model->asic_type == AsicType::GL846 ||
+               dev->model->asic_type == AsicType::GL847)
     {
         s.pixel_startx = (s.output_startx * s.optical_resolution) / s.params.xres;
-        s.pixel_endx = s.pixel_startx + s.optical_pixels;
+        s.pixel_endx = s.pixel_startx + s.optical_pixels_raw;
 
-    } else if (dev->model->asic_type == AsicType::GL845 ||
-               dev->model->asic_type == AsicType::GL846 ||
-               dev->model->asic_type == AsicType::GL847 ||
-               dev->model->asic_type == AsicType::GL124)
+    } else if (dev->model->asic_type == AsicType::GL124)
     {
         s.pixel_startx = s.output_startx * sensor.full_resolution / s.params.xres;
         s.pixel_endx = s.pixel_startx + s.optical_pixels_raw;

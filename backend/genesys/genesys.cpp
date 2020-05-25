@@ -2415,14 +2415,6 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
     }
 }
 
-
-static void genesys_dark_shading_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                             Genesys_Register_Set& local_reg)
-{
-    DBG_HELPER(dbg);
-    genesys_shading_calibration_impl(dev, sensor, local_reg, dev->dark_average_data, true,
-                                     "gl_black");
-}
 /*
  * this function builds dummy dark calibration data so that we can
  * compute shading coefficient in a clean way
@@ -2532,12 +2524,108 @@ static void genesys_repark_sensor_after_white_shading(Genesys_Device* dev)
     }
 }
 
+static void genesys_host_shading_calibration_impl(Genesys_Device& dev, const Genesys_Sensor& sensor,
+                                                  std::vector<std::uint16_t>& out_average_data,
+                                                  bool is_dark,
+                                                  const std::string& log_filename_prefix)
+{
+    DBG_HELPER(dbg);
+
+    if (is_dark && dev.settings.scan_method == ScanMethod::TRANSPARENCY_INFRARED) {
+        // FIXME: dark shading currently not supported on infrared transparency scans
+        return;
+    }
+
+    auto local_reg = dev.reg;
+    dev.cmd_set->init_regs_for_shading(&dev, sensor, local_reg);
+
+    auto& session = dev.calib_session;
+    debug_dump(DBG_info, session);
+
+    // turn off motor and lamp power for flatbed scanners, but not for sheetfed scanners
+    // because they have a calibration sheet with a sufficient black strip
+    if (is_dark && !dev.model->is_sheetfed) {
+        sanei_genesys_set_lamp_power(&dev, sensor, local_reg, false);
+    } else {
+        sanei_genesys_set_lamp_power(&dev, sensor, local_reg, true);
+    }
+    sanei_genesys_set_motor_power(local_reg, true);
+
+    dev.interface->write_registers(local_reg);
+
+    if (is_dark) {
+        // wait some time to let lamp to get dark
+        dev.interface->sleep_ms(200);
+    } else if (has_flag(dev.model->flags, ModelFlag::DARK_CALIBRATION)) {
+        // make sure lamp is bright again
+        // FIXME: what about scanners that take a long time to warm the lamp?
+        dev.interface->sleep_ms(500);
+    }
+
+    bool start_motor = !is_dark;
+    dev.cmd_set->begin_scan(&dev, sensor, &local_reg, start_motor);
+
+    if (is_testing_mode()) {
+        dev.interface->test_checkpoint(is_dark ? "host_dark_shading_calibration"
+                                               : "host_white_shading_calibration");
+        dev.cmd_set->end_scan(&dev, &local_reg, true);
+        return;
+    }
+
+    Image image = read_unshuffled_image_from_scanner(&dev, session, session.output_total_bytes_raw);
+    scanner_stop_action(dev);
+
+    auto start_offset = session.params.startx;
+    auto out_pixels_per_line = start_offset + session.output_pixels;
+
+    // FIXME: we set this during both dark and white calibration. A cleaner approach should
+    // probably be used
+    dev.average_size = session.params.channels * out_pixels_per_line;
+
+    out_average_data.clear();
+    out_average_data.resize(dev.average_size);
+
+    std::fill(out_average_data.begin(),
+              out_average_data.begin() + start_offset * session.params.channels, 0);
+
+    compute_array_percentile_approx(out_average_data.data() +
+                                        start_offset * session.params.channels,
+                                    reinterpret_cast<std::uint16_t*>(image.get_row_ptr(0)),
+                                    session.params.lines,
+                                    session.output_pixels * session.params.channels,
+                                    0.5f);
+
+    if (dbg_log_image_data()) {
+        write_tiff_file(log_filename_prefix + "_host_shading.tiff", image);
+        write_tiff_file(log_filename_prefix + "_host_average.tiff", out_average_data.data(), 16,
+                        session.params.channels, out_pixels_per_line, 1);
+    }
+}
+
+static void genesys_dark_shading_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
+                                             Genesys_Register_Set& local_reg)
+{
+    DBG_HELPER(dbg);
+    if (has_flag(dev->model->flags, ModelFlag::HOST_SIDE_CALIBRATION_COMPLETE_SCAN)) {
+        genesys_host_shading_calibration_impl(*dev, sensor, dev->dark_average_data, true,
+                                              "gl_black");
+    } else {
+        genesys_shading_calibration_impl(dev, sensor, local_reg, dev->dark_average_data, true,
+                                         "gl_black");
+    }
+}
+
 static void genesys_white_shading_calibration(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                               Genesys_Register_Set& local_reg)
 {
     DBG_HELPER(dbg);
-    genesys_shading_calibration_impl(dev, sensor, local_reg, dev->white_average_data, false,
-                                     "gl_white");
+    if (has_flag(dev->model->flags, ModelFlag::HOST_SIDE_CALIBRATION_COMPLETE_SCAN)) {
+        genesys_host_shading_calibration_impl(*dev, sensor, dev->white_average_data, false,
+                                              "gl_white");
+    } else {
+        genesys_shading_calibration_impl(dev, sensor, local_reg, dev->white_average_data, false,
+                                         "gl_white");
+    }
 }
 
 // This calibration uses a scan over the calibration target, comprising a black and a white strip.

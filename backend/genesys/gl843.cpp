@@ -1706,15 +1706,7 @@ void CommandSetGl843::move_to_ta(Genesys_Device* dev) const
 {
     DBG_HELPER(dbg);
 
-    const auto& resolution_settings = dev->model->get_resolution_settings(dev->model->default_method);
-    float resolution = resolution_settings.get_min_resolution_y();
-
-    unsigned multiplier = 16;
-    if (dev->model->model_id == ModelId::CANON_8400F ||
-        dev->model->model_id == ModelId::CANON_4400F) {
-        multiplier = 4;
-    }
-    unsigned feed = static_cast<unsigned>(multiplier * (dev->model->y_offset_sensor_to_ta * resolution) /
+    unsigned feed = static_cast<unsigned>((dev->model->y_offset_sensor_to_ta * dev->motor.base_ydpi) /
                                           MM_PER_INCH);
     scanner_move(*dev, dev->model->default_method, feed, Direction::FORWARD);
 }

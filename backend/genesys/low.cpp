@@ -67,6 +67,7 @@
 #include "gl646.h"
 
 #include <cstdio>
+#include <chrono>
 #include <cmath>
 #include <vector>
 
@@ -409,7 +410,7 @@ Image read_unshuffled_image_from_scanner(Genesys_Device* dev, const ScanSession&
         throw SaneException("Trying to read too much data %zu (max %zu)", total_bytes, max_bytes);
     }
     if (total_bytes != max_bytes) {
-        DBG(DBG_info, "WARNING %s: trying to read not enough data (%zu, full fill %zu\n", __func__,
+        DBG(DBG_info, "WARNING %s: trying to read not enough data (%zu, full fill %zu)\n", __func__,
             total_bytes, max_bytes);
     }
 
@@ -425,19 +426,120 @@ Image read_unshuffled_image_from_scanner(Genesys_Device* dev, const ScanSession&
                                                        1, 1);
     }
 
-    if (has_flag(dev->model->flags, ModelFlag::SWAP_16BIT_DATA) && session.params.depth == 16) {
-        pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
+    if (session.params.depth == 16) {
+        unsigned num_swaps = 0;
+        if (has_flag(dev->model->flags, ModelFlag::SWAP_16BIT_DATA)) {
+            num_swaps++;
+        }
+#ifdef WORDS_BIGENDIAN
+        num_swaps++;
+#endif
+        if (num_swaps % 2 != 0) {
+            dev->pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
+        }
     }
 
     if (has_flag(dev->model->flags, ModelFlag::INVERT_PIXEL_DATA)) {
         pipeline.push_node<ImagePipelineNodeInvert>();
     }
 
-#ifdef WORDS_BIGENDIAN
-    if (session.params.depth == 16) {
-        pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
+    if (dev->model->is_cis && session.params.channels == 3) {
+        pipeline.push_node<ImagePipelineNodeMergeMonoLines>(dev->model->line_mode_color_order);
     }
+
+    if (pipeline.get_output_format() == PixelFormat::BGR888) {
+        pipeline.push_node<ImagePipelineNodeFormatConvert>(PixelFormat::RGB888);
+    }
+
+    if (pipeline.get_output_format() == PixelFormat::BGR161616) {
+        pipeline.push_node<ImagePipelineNodeFormatConvert>(PixelFormat::RGB161616);
+    }
+
+    return pipeline.get_image();
+}
+
+
+Image read_shuffled_image_from_scanner(Genesys_Device* dev, const ScanSession& session)
+{
+    DBG_HELPER(dbg);
+
+    std::size_t total_bytes = 0;
+    std::size_t pixels_per_line = 0;
+
+    if (dev->model->asic_type == AsicType::GL842 ||
+        dev->model->asic_type == AsicType::GL843 ||
+        dev->model->model_id == ModelId::CANON_5600F)
+    {
+        pixels_per_line = session.output_pixels;
+    } else {
+        // BUG: this selects incorrect pixel number
+        pixels_per_line = session.params.pixels;
+    }
+
+    // FIXME: the current calculation is likely incorrect on non-GL843 implementations,
+    // but this needs checking. Note the extra line when computing size.
+    if (dev->model->asic_type == AsicType::GL842 ||
+        dev->model->asic_type == AsicType::GL843 ||
+        dev->model->model_id == ModelId::CANON_5600F)
+    {
+        total_bytes = session.output_total_bytes_raw;
+    } else {
+        total_bytes = session.params.channels * 2 * pixels_per_line * (session.params.lines + 1);
+    }
+
+    auto format = create_pixel_format(session.params.depth,
+                                      dev->model->is_cis ? 1 : session.params.channels,
+                                      dev->model->line_mode_color_order);
+
+    // auto width = get_pixels_from_row_bytes(format, session.output_line_bytes_raw);
+    auto width = pixels_per_line;
+    auto height = session.params.lines + 1; // BUG: incorrect
+    if (dev->model->asic_type == AsicType::GL842 ||
+        dev->model->asic_type == AsicType::GL843 ||
+        dev->model->model_id == ModelId::CANON_5600F)
+    {
+        height = session.optical_line_count;
+    }
+
+    Image image(width, height, format);
+
+    auto max_bytes = image.get_row_bytes() * height;
+    if (total_bytes > max_bytes) {
+        throw SaneException("Trying to read too much data %zu (max %zu)", total_bytes, max_bytes);
+    }
+    if (total_bytes != max_bytes) {
+        DBG(DBG_info, "WARNING %s: trying to read not enough data (%zu, full fill %zu)\n", __func__,
+            total_bytes, max_bytes);
+    }
+
+    sanei_genesys_read_data_from_scanner(dev, image.get_row_ptr(0), total_bytes);
+
+    ImagePipelineStack pipeline;
+    pipeline.push_first_node<ImagePipelineNodeImageSource>(image);
+
+    if (session.segment_count > 1) {
+        auto output_width = session.output_segment_pixel_group_count * session.segment_count;
+        pipeline.push_node<ImagePipelineNodeDesegment>(output_width, dev->segment_order,
+                                                       session.conseq_pixel_dist,
+                                                       1, 1);
+    }
+
+    if (session.params.depth == 16) {
+        unsigned num_swaps = 0;
+        if (has_flag(dev->model->flags, ModelFlag::SWAP_16BIT_DATA)) {
+            num_swaps++;
+        }
+#ifdef WORDS_BIGENDIAN
+        num_swaps++;
 #endif
+        if (num_swaps % 2 != 0) {
+            dev->pipeline.push_node<ImagePipelineNodeSwap16BitEndian>();
+        }
+    }
+
+    if (has_flag(dev->model->flags, ModelFlag::INVERT_PIXEL_DATA)) {
+        pipeline.push_node<ImagePipelineNodeInvert>();
+    }
 
     if (dev->model->is_cis && session.params.channels == 3) {
         pipeline.push_node<ImagePipelineNodeMergeMonoLines>(dev->model->line_mode_color_order);
@@ -513,6 +615,9 @@ void sanei_genesys_set_lamp_power(Genesys_Device* dev, const Genesys_Sensor& sen
         if (dev->model->asic_type == AsicType::GL841) {
             regs_set_exposure(dev->model->asic_type, regs, sanei_genesys_fixup_exposure({0, 0, 0}));
             regs.set8(0x19, 0xff);
+        }
+        if (dev->model->model_id == ModelId::CANON_5600F) {
+            regs_set_exposure(dev->model->asic_type, regs, sanei_genesys_fixup_exposure({0, 0, 0}));
         }
     }
     regs.state.is_lamp_on = set;
@@ -685,7 +790,16 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
                dev->model->asic_type == AsicType::GL846 ||
                dev->model->asic_type == AsicType::GL847)
     {
-        s.pixel_startx = (s.output_startx * s.optical_resolution) / s.params.xres;
+        unsigned startx_xres = s.optical_resolution;
+        if (dev->model->model_id == ModelId::CANON_5600F) {
+            if (s.output_resolution == 1200) {
+                startx_xres /= 2;
+            }
+            if (s.output_resolution >= 2400) {
+                startx_xres /= 4;
+            }
+        }
+        s.pixel_startx = (s.output_startx * startx_xres) / s.params.xres;
         s.pixel_endx = s.pixel_startx + s.optical_pixels_raw;
 
     } else if (dev->model->asic_type == AsicType::GL124)
@@ -719,6 +833,10 @@ unsigned session_adjust_output_pixels(unsigned output_pixels,
                                       bool adjust_output_pixels)
 {
     bool adjust_optical_pixels = !adjust_output_pixels;
+    if (dev.model->model_id == ModelId::CANON_5600F) {
+        adjust_optical_pixels = true;
+        adjust_output_pixels = true;
+    }
     if (adjust_optical_pixels) {
         auto optical_resolution = sensor.get_optical_resolution();
 
@@ -873,6 +991,7 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     s.output_line_bytes_raw = s.output_line_bytes;
     s.conseq_pixel_dist = 0;
 
+    // FIXME: Use ModelFlag::SIS_SENSOR
     if ((dev->model->asic_type == AsicType::GL845 ||
          dev->model->asic_type == AsicType::GL846 ||
          dev->model->asic_type == AsicType::GL847) &&
@@ -882,18 +1001,47 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
         if (s.segment_count > 1) {
             s.conseq_pixel_dist = sensor.segment_size;
 
-            // in case of multi-segments sensor, we have to add the width of the sensor crossed by
-            // the scan area
-            unsigned extra_segment_scan_area = align_multiple_ceil(s.conseq_pixel_dist, 2);
-            extra_segment_scan_area *= s.segment_count - 1;
-            extra_segment_scan_area = s.pixel_count_ratio.apply_inverse(extra_segment_scan_area);
+            // in case of multi-segments sensor, we have expand the scan area to sensor boundary
+            if (dev->model->model_id == ModelId::CANON_5600F) {
+                unsigned startx_xres = s.optical_resolution;
+                if (dev->model->model_id == ModelId::CANON_5600F) {
+                    if (s.output_resolution == 1200) {
+                        startx_xres /= 2;
+                    }
+                    if (s.output_resolution >= 2400) {
+                        startx_xres /= 4;
+                    }
+                }
+                unsigned optical_startx = s.output_startx * startx_xres / s.params.xres;
+                unsigned optical_endx = optical_startx + s.optical_pixels;
 
-            s.optical_pixels_raw += extra_segment_scan_area;
+                unsigned multi_segment_size_output = s.segment_count * s.conseq_pixel_dist;
+                unsigned multi_segment_size_optical =
+                        (multi_segment_size_output * s.optical_resolution) / s.output_resolution;
+
+                optical_endx = align_multiple_ceil(optical_endx, multi_segment_size_optical);
+                s.optical_pixels_raw = optical_endx - optical_startx;
+                s.optical_pixels_raw = align_multiple_floor(s.optical_pixels_raw,
+                                                            4 * s.optical_resolution / s.output_resolution);
+            } else {
+                // BUG: the following code will likely scan too much. Use the CANON_5600F approach
+                unsigned extra_segment_scan_area = align_multiple_ceil(s.conseq_pixel_dist, 2);
+                extra_segment_scan_area *= s.segment_count - 1;
+                extra_segment_scan_area = s.pixel_count_ratio.apply_inverse(extra_segment_scan_area);
+
+                s.optical_pixels_raw += extra_segment_scan_area;
+            }
         }
 
-        s.output_line_bytes_raw = multiply_by_depth_ceil(
-                    (s.optical_pixels_raw * s.output_resolution) / sensor.full_resolution / s.segment_count,
-                    s.params.depth);
+        if (dev->model->model_id == ModelId::CANON_5600F) {
+            auto output_pixels_raw = (s.optical_pixels_raw * s.output_resolution) / s.optical_resolution;
+            auto output_channel_bytes_raw = multiply_by_depth_ceil(output_pixels_raw, s.params.depth);
+            s.output_line_bytes_raw = output_channel_bytes_raw * s.params.channels;
+        } else {
+            s.output_line_bytes_raw = multiply_by_depth_ceil(
+                        (s.optical_pixels_raw * s.output_resolution) / sensor.full_resolution / s.segment_count,
+                        s.params.depth);
+        }
     }
 
     if (dev->model->asic_type == AsicType::GL841) {
@@ -927,7 +1075,11 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
         dev->model->asic_type == AsicType::GL846 ||
         dev->model->asic_type == AsicType::GL847)
     {
-        s.output_segment_pixel_group_count = s.pixel_count_ratio.apply(s.optical_pixels);
+        if (dev->model->model_id == ModelId::CANON_5600F) {
+            s.output_segment_pixel_group_count = s.output_pixels / s.segment_count;
+        } else {
+            s.output_segment_pixel_group_count = s.pixel_count_ratio.apply(s.optical_pixels);
+        }
     }
 
     s.output_line_bytes_requested = multiply_by_depth_ceil(
@@ -977,7 +1129,13 @@ ImagePipelineStack build_image_pipeline(const Genesys_Device& dev, const ScanSes
 
     auto read_data_from_usb = [&dev](std::size_t size, std::uint8_t* data)
     {
+        DBG(DBG_info, "read_data_from_usb: reading %zu bytes\n", size);
+        auto begin = std::chrono::high_resolution_clock::now();
         dev.interface->bulk_read_data(0x45, data, size);
+        auto end = std::chrono::high_resolution_clock::now();
+        float us = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count();
+        float speed = size / us; // bytes/us == MB/s
+        DBG(DBG_info, "read_data_from_usb: reading %zu bytes finished %f MB/s\n", size, speed);
         return true;
     };
 

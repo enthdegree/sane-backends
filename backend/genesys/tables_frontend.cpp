@@ -584,6 +584,26 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
+    fe.id = AdcId::CANON_5600F;
+    fe.layout = wolfson_layout;
+    fe.regs = {
+        { 0x01, 0x23 },
+        { 0x02, 0x24 },
+        { 0x03, 0x2f },
+        { 0x06, 0x00 },
+        { 0x08, 0x00 },
+        { 0x09, 0x00 },
+        { 0x20, 0x60 },
+        { 0x21, 0x60 },
+        { 0x22, 0x60 },
+        { 0x28, 0x77 },
+        { 0x29, 0x77 },
+        { 0x2a, 0x77 },
+    };
+    s_frontends->push_back(fe);
+
+
+    fe = Genesys_Frontend();
     fe.id = AdcId::CANON_8400F;
     fe.layout = wolfson_layout;
     fe.regs = {

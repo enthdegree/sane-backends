@@ -174,6 +174,7 @@ std::ostream& operator<<(std::ostream& out, SensorId id)
     switch (id) {
         case SensorId::CCD_5345: out << "CCD_5345"; break;
         case SensorId::CCD_CANON_4400F: out << "CCD_CANON_4400F"; break;
+        case SensorId::CCD_CANON_5600F: out << "CCD_CANON_5600F"; break;
         case SensorId::CCD_CANON_8400F: out << "CCD_CANON_8400F"; break;
         case SensorId::CCD_CANON_8600F: out << "CCD_CANON_8600F"; break;
         case SensorId::CCD_DP665: out << "CCD_DP665"; break;
@@ -230,6 +231,7 @@ std::ostream& operator<<(std::ostream& out, AdcId id)
         case AdcId::CANON_LIDE_200: out << "CANON_LIDE_200"; break;
         case AdcId::CANON_LIDE_700F: out << "CANON_LIDE_700F"; break;
         case AdcId::CANON_4400F: out << "CANON_4400F"; break;
+        case AdcId::CANON_5600F: out << "CANON_5600F"; break;
         case AdcId::CANON_8400F: out << "CANON_8400F"; break;
         case AdcId::CANON_8600F: out << "CANON_8600F"; break;
         case AdcId::G4050: out << "G4050"; break;
@@ -270,6 +272,7 @@ std::ostream& operator<<(std::ostream& out, GpioId id)
         case GpioId::CANON_LIDE_210: out << "CANON_LIDE_210"; break;
         case GpioId::CANON_LIDE_700F: out << "CANON_LIDE_700F"; break;
         case GpioId::CANON_4400F: out << "CANON_4400F"; break;
+        case GpioId::CANON_5600F: out << "CANON_5600F"; break;
         case GpioId::CANON_8400F: out << "CANON_8400F"; break;
         case GpioId::CANON_8600F: out << "CANON_8600F"; break;
         case GpioId::DP665: out << "DP665"; break;
@@ -313,6 +316,7 @@ std::ostream& operator<<(std::ostream& out, MotorId id)
         case MotorId::CANON_LIDE_700: out << "CANON_LIDE_700"; break;
         case MotorId::CANON_LIDE_80: out << "CANON_LIDE_80"; break;
         case MotorId::CANON_4400F: out << "CANON_4400F"; break;
+        case MotorId::CANON_5600F: out << "CANON_5600F"; break;
         case MotorId::CANON_8400F: out << "CANON_8400F"; break;
         case MotorId::CANON_8600F: out << "CANON_8600F"; break;
         case MotorId::DP665: out << "DP665"; break;

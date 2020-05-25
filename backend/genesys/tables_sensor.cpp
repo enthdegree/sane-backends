@@ -1878,6 +1878,129 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
+    sensor.sensor_id = SensorId::CCD_CANON_5600F; // gl847
+    sensor.full_resolution = 4800;
+    sensor.register_dpihw = 4800;
+    sensor.black_pixels = 50*8;
+    sensor.dummy_pixel = 10;
+    sensor.fau_gain_white_ref = 160;
+    sensor.gain_white_ref = 160;
+    sensor.exposure = { 0x9c40, 0x9c40, 0x9c40 };
+    sensor.gamma = { 1.0f, 1.0f, 1.0f };
+    sensor.use_host_side_calib = true;
+    {
+        struct CustomSensorSettings {
+            ValueFilterAny<unsigned> resolutions;
+            unsigned optical_resolution;
+            unsigned register_dpihw;
+            unsigned register_dpiset;
+            int exposure_lperiod;
+            SensorExposure exposure;
+            Ratio pixel_count_ratio;
+            int output_pixel_offset;
+            unsigned segment_size;
+            std::vector<unsigned> segment_order;
+            StaggerConfig stagger_x;
+            StaggerConfig stagger_y;
+            GenesysRegisterSettingSet custom_regs;
+        };
+
+        CustomSensorSettings custom_settings[] = {
+            {   { 150 }, 2400, 600, 300, 4288, { 3983/2, 3983/2, 3983/2 }, Ratio{1, 8}, 10,
+                5418, std::vector<unsigned>{}, StaggerConfig{}, StaggerConfig{},  {
+                    { 0x16, 0x00 }, { 0x17, 0x06 }, { 0x18, 0x00 }, { 0x19, 0x2a },
+                    { 0x1a, 0x00 }, { 0x1b, 0x10 }, { 0x1c, 0x08 }, { 0x1d, 0x02 },
+                    { 0x52, 0x0e }, { 0x53, 0x00 }, { 0x54, 0x02 }, { 0x55, 0x04 },
+                    { 0x56, 0x06 }, { 0x57, 0x08 }, { 0x58, 0x52 }, { 0x59, 0x3a }, { 0x5a, 0x40 },
+                    { 0x74, 0x00 }, { 0x75, 0x33 }, { 0x76, 0x33 },
+                    { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
+                    { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 }, { 0x87, 0x00 },
+                }
+            },
+            {   { 300 }, 2400, 600, 600, 5472, { 4558/2, 4558/2, 4558/2 }, Ratio{1, 8}, 110,
+                5418, std::vector<unsigned>{}, StaggerConfig{}, StaggerConfig{}, {
+                    { 0x16, 0x00 }, { 0x17, 0x06 }, { 0x18, 0x00 }, { 0x19, 0x2a },
+                    { 0x1a, 0x00 }, { 0x1b, 0x10 }, { 0x1c, 0x08 }, { 0x1d, 0x02 },
+                    { 0x52, 0x0e }, { 0x53, 0x00 }, { 0x54, 0x02 }, { 0x55, 0x04 },
+                    { 0x56, 0x06 }, { 0x57, 0x08 }, { 0x58, 0x52 }, { 0x59, 0x3a }, { 0x5a, 0x40 },
+                    { 0x74, 0x00 }, { 0x75, 0x33 }, { 0x76, 0x33 },
+                    { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
+                    { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 }, { 0x87, 0x00 },
+                }
+            },
+            {   { 600 }, 2400, 600, 600, 10944, { 8701/2, 8701/2, 8701/2 }, Ratio{1, 4}, 155,
+                5418, std::vector<unsigned>{}, StaggerConfig{}, StaggerConfig{}, {
+                    { 0x16, 0x00 }, { 0x17, 0x06 }, { 0x18, 0x00 }, { 0x19, 0x2a },
+                    { 0x1a, 0x00 }, { 0x1b, 0x10 }, { 0x1c, 0x08 }, { 0x1d, 0x02 },
+                    { 0x52, 0x02 }, { 0x53, 0x04 }, { 0x54, 0x06 }, { 0x55, 0x08 },
+                    { 0x56, 0x0a }, { 0x57, 0x0c }, { 0x58, 0x72 }, { 0x59, 0x5a }, { 0x5a, 0x40 },
+                    { 0x74, 0x00 }, { 0x75, 0x33 }, { 0x76, 0x33 },
+                    { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
+                    { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 }, { 0x87, 0x00 },
+                }
+            },
+            {   { 1200 }, 2400, 1200, 1200, 29120, { 17120/2, 17120/2, 17120/2 }, Ratio{1, 2}, 295,
+                5418, { 1, 0 }, StaggerConfig{}, StaggerConfig{}, {
+                    { 0x16, 0x00 }, { 0x17, 0x06 }, { 0x18, 0x00 }, { 0x19, 0x2a },
+                    { 0x1a, 0x00 }, { 0x1b, 0x10 }, { 0x1c, 0x08 }, { 0x1d, 0x02 },
+                    { 0x52, 0x02 }, { 0x53, 0x04 }, { 0x54, 0x06 }, { 0x55, 0x08 },
+                    { 0x56, 0x0a }, { 0x57, 0x0c }, { 0x58, 0x72 }, { 0x59, 0x5a }, { 0x5a, 0x40 },
+                    { 0x74, 0x00 }, { 0x75, 0x33 }, { 0x76, 0x33 },
+                    { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
+                    { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 }, { 0x87, 0x00 },
+                }
+            },
+            {   { 2400 }, 2400, 2400, 2400, 43776, { 36725/2, 36725/2, 36725/2 }, Ratio{1, 1}, 600,
+                5418, { 0, 1, 2, 3 },
+                StaggerConfig{10, 15, 4, 9, 14, 19, 8, 13}, StaggerConfig{}, {
+                    { 0x16, 0x00 }, { 0x17, 0x06 }, { 0x18, 0x00 }, { 0x19, 0x2a },
+                    { 0x1a, 0x00 }, { 0x1b, 0x10 }, { 0x1c, 0x08 }, { 0x1d, 0x02 },
+                    { 0x52, 0x02 }, { 0x53, 0x04 }, { 0x54, 0x06 }, { 0x55, 0x08 },
+                    { 0x56, 0x0a }, { 0x57, 0x0c }, { 0x58, 0x72 }, { 0x59, 0x5a }, { 0x5a, 0x40 },
+                    { 0x74, 0x00 }, { 0x75, 0x33 }, { 0x76, 0x33 },
+                    { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
+                    { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 }, { 0x87, 0x00 },
+                }
+            },
+            {   { 4800 }, 4800, 4800, 4800, 43776, { 36725/2, 36725/2, 36725/2 }, Ratio{1, 1}, 1000,
+                10784, { 0, 1, 2, 3 },
+                StaggerConfig{5, 9, 6, 10, 3, 7, 16, 20, 13, 17, 14, 18, 11, 15, 24, 28},
+                StaggerConfig{6, 0}, {
+                    { 0x16, 0x00 }, { 0x17, 0x06 }, { 0x18, 0x00 }, { 0x19, 0x2a },
+                    { 0x1a, 0x00 }, { 0x1b, 0x10 }, { 0x1c, 0x08 }, { 0x1d, 0x02 },
+                    { 0x52, 0x0a }, { 0x53, 0x0c }, { 0x54, 0x0e }, { 0x55, 0x00 },
+                    { 0x56, 0x02 }, { 0x57, 0x04 }, { 0x58, 0x32 }, { 0x59, 0x1a }, { 0x5a, 0x40 },
+                    { 0x74, 0x00 }, { 0x75, 0x33 }, { 0x76, 0x33 },
+                    { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x00 },
+                    { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x55 }, { 0x87, 0x00 },
+                }
+            }
+        };
+
+        for (const auto& setting : custom_settings) {
+            for (auto method : { ScanMethod::FLATBED, ScanMethod::TRANSPARENCY }) {
+                sensor.method = method;
+                sensor.resolutions = setting.resolutions;
+                sensor.optical_resolution = setting.optical_resolution;
+                sensor.register_dpihw = setting.register_dpihw;
+                sensor.register_dpiset = setting.register_dpiset;
+                sensor.shading_resolution = setting.resolutions.values().front();
+                sensor.exposure_lperiod = setting.exposure_lperiod;
+                sensor.exposure = setting.exposure;
+                sensor.pixel_count_ratio = setting.pixel_count_ratio;
+                sensor.output_pixel_offset = setting.output_pixel_offset;
+                sensor.segment_size = setting.segment_size;
+                sensor.segment_order = setting.segment_order;
+                sensor.stagger_x = setting.stagger_x;
+                sensor.stagger_y = setting.stagger_y;
+                sensor.custom_regs = setting.custom_regs;
+                s_sensors->push_back(sensor);
+            }
+        }
+    }
+
+
+    sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CCD_CANON_8400F; // gl843
     sensor.full_resolution = 3200;
     sensor.register_dpihw = 4800;

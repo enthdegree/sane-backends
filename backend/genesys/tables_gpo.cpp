@@ -393,6 +393,22 @@ void genesys_init_gpo_tables()
 
 
     gpo = Genesys_Gpo();
+    gpo.id = GpioId::CANON_5600F;
+    gpo.regs = {
+        { 0x6b, 0x87 },
+        { 0x6c, 0xf0 },
+        { 0x6d, 0x5f },
+        { 0x6e, 0x7f },
+        { 0x6f, 0xa0 },
+        { 0xa6, 0x07 },
+        { 0xa7, 0x1c },
+        { 0xa8, 0x00 },
+        { 0xa9, 0x04 },
+    };
+    s_gpo->push_back(gpo);
+
+
+    gpo = Genesys_Gpo();
     gpo.id = GpioId::CANON_8400F;
     gpo.regs = {
         { 0x6c, 0x9a },

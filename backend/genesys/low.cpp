@@ -225,6 +225,24 @@ void debug_print_status(DebugMessageHelper& dbg, Status val)
     dbg.vlog(DBG_info, "status=%s\n", str.str().c_str());
 }
 
+void scanner_register_rw_clear_bits(Genesys_Device& dev, std::uint16_t address, std::uint8_t mask)
+{
+    scanner_register_rw_bits(dev, address, 0x00, mask);
+}
+
+void scanner_register_rw_set_bits(Genesys_Device& dev, std::uint16_t address, std::uint8_t mask)
+{
+    scanner_register_rw_bits(dev, address, mask, mask);
+}
+
+void scanner_register_rw_bits(Genesys_Device& dev, std::uint16_t address,
+                              std::uint8_t value, std::uint8_t mask)
+{
+    auto reg_value = dev.interface->read_register(address);
+    reg_value = (reg_value & ~mask) | (value & mask);
+    dev.interface->write_register(address, reg_value);
+}
+
 /** read the number of valid words in scanner's RAM
  * ie registers 42-43-44
  */

@@ -634,7 +634,7 @@ void genesys_init_usb_device_tables()
     model.x_size = 216.07;
     model.y_size = 299.0;
 
-    model.y_offset_calib_white = 1.0;
+    model.y_offset_calib_white = 0.4233334;
     model.y_size_calib_mm = 3.0;
     model.x_offset_calib_black = 0.0;
     model.x_size_calib_mm = 217.4241;
@@ -965,7 +965,7 @@ void genesys_init_usb_device_tables()
     model.x_size = 216.07;
     model.y_size = 297.0;
 
-    model.y_offset_calib_white = 1.0;
+    model.y_offset_calib_white = 0.4233334;
     model.y_size_calib_mm = 3.0;
     model.x_offset_calib_black = 0.0;
     model.x_size_calib_mm = 219.6254;
@@ -1021,7 +1021,7 @@ void genesys_init_usb_device_tables()
     model.x_size = 216.07;
     model.y_size = 299.0;
 
-    model.y_offset_calib_white = 0.0;
+    model.y_offset_calib_white = 0.4233334;
     model.y_size_calib_mm = 3.0;
     model.x_offset_calib_black = 0.0;
     model.x_size_calib_mm = 217.4241;

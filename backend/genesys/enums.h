@@ -500,6 +500,9 @@ enum class ModelFlag : unsigned
     // do dark calibration
     DARK_CALIBRATION = 1 << 8,
 
+    // host-side calibration uses a complete scan
+    HOST_SIDE_CALIBRATION_COMPLETE_SCAN = 1 << 9,
+
     // whether scanner must wait for the head while parking
     MUST_WAIT = 1 << 10,
 

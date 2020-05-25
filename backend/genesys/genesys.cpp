@@ -6236,7 +6236,8 @@ SANE_Status sane_start(SANE_Handle handle)
     });
 }
 
-void sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* len)
+// returns SANE_STATUS_GOOD if there are more data, SANE_STATUS_EOF otherwise
+SANE_Status sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* len)
 {
     DBG_HELPER(dbg);
     Genesys_Scanner* s = reinterpret_cast<Genesys_Scanner*>(handle);
@@ -6282,7 +6283,7 @@ void sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_
             dev->cmd_set->move_back_home(dev, false);
             dev->parking = true;
         }
-        throw SaneException(SANE_STATUS_EOF);
+        return SANE_STATUS_EOF;
     }
 
   local_len = max_len;
@@ -6294,14 +6295,15 @@ void sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_
         dbg.log(DBG_error, "error: returning incorrect length");
     }
   DBG(DBG_proc, "%s: %d bytes returned\n", __func__, *len);
+    return SANE_STATUS_GOOD;
 }
 
 SANE_GENESYS_API_LINKAGE
 SANE_Status sane_read(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int* len)
 {
-    return wrap_exceptions_to_status_code(__func__, [=]()
+    return wrap_exceptions_to_status_code_return(__func__, [=]()
     {
-        sane_read_impl(handle, buf, max_len, len);
+        return sane_read_impl(handle, buf, max_len, len);
     });
 }
 

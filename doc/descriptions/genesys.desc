@@ -232,8 +232,8 @@
 :model "CanoScan 5600F"
 :interface "USB"
 :usbid "0x04a9" "0x1906"
-:status :unsupported
-:comment "GL847 based, to be added to the genesys backend"
+:status :complete
+:comment "300, 600, 1200, 2400, 4800 dpi resolutions are supported in both flatbed and transparency modes"
 
 :model "CanoScan 8400F"
 :url "unsupported/canon-8400f.html"

@@ -1,5 +1,5 @@
 
-# gt68xx.conf: Configuration file for GT68XX based scanners (@PACKAGEVERSION@)
+# gt68xx.conf: Configuration file for GT68XX based scanners
 # Read man sane-gt68xx for documentation
 
 # Put the firmware file into "@DATADIR@/sane/gt68xx/".

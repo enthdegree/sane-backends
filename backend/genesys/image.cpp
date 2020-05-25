@@ -233,7 +233,7 @@ void write_tiff_file(const std::string& filename, const void* data, int depth, i
 
     // we don't need to handle endian because libtiff will handle that
     for (int iline = 0; iline < lines; ++iline) {
-        const auto* line_data = data_ptr + bytes_per_line;
+        const auto* line_data = data_ptr + bytes_per_line * iline;
         TIFFWriteScanline(image, const_cast<std::uint8_t*>(line_data), iline, 0);
     }
     TIFFClose(image);

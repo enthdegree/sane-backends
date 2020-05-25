@@ -524,8 +524,19 @@ class ImagePipelineStack
 {
 public:
     ImagePipelineStack() {}
-    ImagePipelineStack(ImagePipelineStack&&) = default;
-    ImagePipelineStack& operator=(ImagePipelineStack&&) = default;
+    ImagePipelineStack(ImagePipelineStack&& other)
+    {
+        clear();
+        nodes_ = std::move(other.nodes_);
+    }
+
+    ImagePipelineStack& operator=(ImagePipelineStack&& other)
+    {
+        clear();
+        nodes_ = std::move(other.nodes_);
+        return *this;
+    }
+
     ~ImagePipelineStack() { clear(); }
 
     std::size_t get_input_width() const;
@@ -545,32 +556,22 @@ public:
     void clear();
 
     template<class Node, class... Args>
-    void push_first_node(Args&&... args)
-    {
-        push_first_node(std::unique_ptr<Node>(new Node(std::forward<Args>(args)...)));
-    }
-
-    template<class Node>
-    void push_first_node(std::unique_ptr<Node>&& node)
+    Node& push_first_node(Args&&... args)
     {
         if (!nodes_.empty()) {
             throw SaneException("Trying to append first node when there are existing nodes");
         }
-        nodes_.emplace_back(std::move(node));
+        nodes_.emplace_back(std::unique_ptr<Node>(new Node(std::forward<Args>(args)...)));
+        return static_cast<Node&>(*nodes_.back());
     }
 
     template<class Node, class... Args>
-    void push_node(Args&&... args)
+    Node& push_node(Args&&... args)
     {
         ensure_node_exists();
-        push_node(std::unique_ptr<Node>(new Node(*nodes_.back(), std::forward<Args>(args)...)));
-    }
-
-    template<class Node, class... Args>
-    void push_node(std::unique_ptr<Node>&& node)
-    {
-        ensure_node_exists();
-        nodes_.emplace_back(std::move(node));
+        nodes_.emplace_back(std::unique_ptr<Node>(new Node(*nodes_.back(),
+                                                           std::forward<Args>(args)...)));
+        return static_cast<Node&>(*nodes_.back());
     }
 
     bool get_next_row_data(std::uint8_t* out_data)

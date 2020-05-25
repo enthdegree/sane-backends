@@ -126,6 +126,7 @@ bool ScanSession::operator==(const ScanSession& other) const
         conseq_pixel_dist == other.conseq_pixel_dist &&
         output_segment_pixel_group_count == other.output_segment_pixel_group_count &&
         output_segment_start_offset == other.output_segment_start_offset &&
+        shading_pixel_offset == other.shading_pixel_offset &&
         buffer_size_read == other.buffer_size_read &&
         enable_ledadd == other.enable_ledadd &&
         use_host_side_calib == other.use_host_side_calib;
@@ -161,6 +162,7 @@ std::ostream& operator<<(std::ostream& out, const ScanSession& session)
         << "    conseq_pixel_dist: " << session.conseq_pixel_dist << '\n'
         << "    output_segment_pixel_group_count: "
             << session.output_segment_pixel_group_count << '\n'
+        << "    shading_pixel_offset: " << session.shading_pixel_offset << '\n'
         << "    buffer_size_read: " << session.buffer_size_read << '\n'
         << "    enable_ledadd: " << session.enable_ledadd << '\n'
         << "    use_host_side_calib: " << session.use_host_side_calib << '\n'

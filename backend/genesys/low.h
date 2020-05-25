@@ -416,6 +416,11 @@ extern void sanei_genesys_generate_gamma_buffer(Genesys_Device* dev,
                                     int size,
                                     uint8_t* gamma);
 
+unsigned session_adjust_output_pixels(unsigned output_pixels,
+                                      const Genesys_Device& dev, const Genesys_Sensor& sensor,
+                                      unsigned output_xresolution, unsigned output_yresolution,
+                                      bool adjust_output_pixels);
+
 void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Sensor& sensor);
 
 ImagePipelineStack build_image_pipeline(const Genesys_Device& dev, const ScanSession& session,

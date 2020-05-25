@@ -286,7 +286,8 @@ struct Genesys_Sensor {
     // How many real pixels correspond to one shading pixel that is sent to the scanner
     unsigned shading_factor = 1;
 
-    // How many pixels the shading data is offset from the acquired data
+    // How many pixels the shading data is offset to the right from the acquired data. Calculated
+    // in shading resolution.
     int shading_pixel_offset = 0;
 
     // This defines the ratio between logical pixel coordinates and the pixel coordinates sent to

@@ -1861,22 +1861,6 @@ bool CommandSetGl646::needs_home_before_init_regs_for_scan(Genesys_Device* dev) 
 }
 
 /**
- * set up registers for the actual scan. The scan's parameters are given
- * through the device settings. It allocates the scan buffers.
- */
-void CommandSetGl646::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                         Genesys_Register_Set& regs) const
-{
-    DBG_HELPER(dbg);
-
-    debug_dump(DBG_info, dev->settings);
-
-    ScanSession session = calculate_scan_session(dev, sensor, dev->settings);
-
-    init_regs_for_scan_session(dev, sensor, &regs, session);
-}
-
-/**
  * this function send gamma table to ASIC
  */
 void CommandSetGl646::send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor) const

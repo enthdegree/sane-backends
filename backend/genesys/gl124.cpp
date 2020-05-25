@@ -1020,25 +1020,6 @@ void CommandSetGl124::wait_for_motor_stop(Genesys_Device* dev) const
     dev->interface->sleep_ms(50);
 }
 
-/** @brief set up registers for the actual scan
- */
-void CommandSetGl124::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                         Genesys_Register_Set& regs) const
-{
-    DBG_HELPER(dbg);
-    auto session = calculate_scan_session(dev, sensor, dev->settings);
-
-    if (dev->settings.get_channels() * dev->settings.yres >= 600 && session.params.starty > 700) {
-        scanner_move(*dev, dev->model->default_method,
-                     static_cast<unsigned>(session.params.starty - 500),
-                     Direction::FORWARD);
-        session.params.starty = 500;
-    }
-    compute_session(dev, session, sensor);
-
-    init_regs_for_scan_session(dev, sensor, &regs, session);
-}
-
 /**
  * Send shading calibration data. The buffer is considered to always hold values
  * for all the channels.

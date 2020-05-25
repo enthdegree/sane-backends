@@ -769,15 +769,6 @@ void CommandSetGl842::init_regs_for_shading(Genesys_Device* dev, const Genesys_S
     dev->calib_session = session;
 }
 
-void CommandSetGl842::init_regs_for_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
-                                         Genesys_Register_Set& regs) const
-{
-    DBG_HELPER(dbg);
-    ScanSession session = calculate_scan_session(dev, sensor, dev->settings);
-
-    init_regs_for_scan_session(dev, sensor, &regs, session);
-}
-
 void CommandSetGl842::send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& sensor) const
 {
     DBG_HELPER(dbg);

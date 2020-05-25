@@ -3995,6 +3995,37 @@ static void genesys_warmup_lamp(Genesys_Device* dev)
     }
 }
 
+static void init_regs_for_scan(Genesys_Device& dev, const Genesys_Sensor& sensor,
+                               Genesys_Register_Set& regs)
+{
+    DBG_HELPER(dbg);
+    debug_dump(DBG_info, dev.settings);
+
+    auto session = dev.cmd_set->calculate_scan_session(&dev, sensor, dev.settings);
+
+    if (dev.model->asic_type == AsicType::GL124 ||
+        dev.model->asic_type == AsicType::GL845 ||
+        dev.model->asic_type == AsicType::GL846 ||
+        dev.model->asic_type == AsicType::GL847)
+    {
+        /*  Fast move to scan area:
+
+            We don't move fast the whole distance since it would involve computing
+            acceleration/deceleration distance for scan resolution. So leave a remainder for it so
+            scan makes the final move tuning
+        */
+
+        if (dev.settings.get_channels() * dev.settings.yres >= 600 && session.params.starty > 700) {
+            scanner_move(dev, dev.model->default_method,
+                         static_cast<unsigned>(session.params.starty - 500),
+                         Direction::FORWARD);
+            session.params.starty = 500;
+        }
+        compute_session(&dev, session, sensor);
+    }
+
+    dev.cmd_set->init_regs_for_scan_session(&dev, sensor, &regs, session);
+}
 
 // High-level start of scanning
 static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
@@ -4082,7 +4113,7 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
         dev->cmd_set->move_to_ta(dev);
     }
 
-    dev->cmd_set->init_regs_for_scan(dev, sensor, dev->reg);
+    init_regs_for_scan(*dev, sensor, dev->reg);
 
   /* no lamp during scan */
     if (lamp_off) {

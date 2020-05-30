@@ -542,6 +542,8 @@ control_scalar_option (pixma_sane_t * ss, SANE_Int n, SANE_Action a, void *v,
   option_descriptor_t *opt = &(OPT_IN_CTX[n]);
   SANE_Word val;
 
+  /* PDBG (pixma_dbg (4, "*control_scalar_option***** n = %u, a = %u\n", n, a)); */
+
   switch (a)
     {
     case SANE_ACTION_GET_VALUE:
@@ -604,6 +606,8 @@ control_string_option (pixma_sane_t * ss, SANE_Int n, SANE_Action a, void *v,
   option_descriptor_t *opt = &(OPT_IN_CTX[n]);
   const SANE_String_Const *slist = opt->sod.constraint.string_list;
   SANE_String str = (SANE_String) v;
+
+  /* PDBG (pixma_dbg (4, "*control_string_option***** n = %u, a = %u\n", n, a)); */
 
   if (opt->sod.constraint_type == SANE_CONSTRAINT_NONE)
     {
@@ -750,10 +754,15 @@ control_option (pixma_sane_t * ss, SANE_Int n,
     case opt_gamma:
       if (a == SANE_ACTION_SET_VALUE || a == SANE_ACTION_SET_AUTO)
         {
-          /* PDBG (pixma_dbg (4, "*control_option***** gamma = %f *\n",
-                           SANE_UNFIX (OVAL (opt_gamma).w))); */
+          int table_size = SOD (opt_gamma_table).size / sizeof(SANE_Word);
+          PDBG (pixma_dbg (4, "*control_option***** gamma = %f *\n",
+                           SANE_UNFIX (OVAL (opt_gamma).w)));
+          PDBG (pixma_dbg (4, "*control_option***** table size = %d *\n",
+                           SOD (opt_gamma_table).size / sizeof (SANE_Word)));
           pixma_fill_gamma_table (SANE_UNFIX (OVAL (opt_gamma).w),
-                                  ss->gamma_table, sizeof (ss->gamma_table));
+                                  ss->gamma_table, table_size);
+          /* PDBG (pixma_hexdump (4, ss->gamma_table,
+                               table_size == 1024 ? 2048 : table_size)); */
         }
       break;
     case opt_mode:
@@ -874,7 +883,7 @@ calc_scan_param (pixma_sane_t * ss, pixma_scan_param_t * sp)
   sp->tpu_offset_added = 0;
 
   sp->gamma = SANE_UNFIX (OVAL (opt_gamma).w);
-  sp->gamma_table = (OVAL (opt_custom_gamma).b) ? ss->gamma_table : NULL;
+  sp->gamma_table = ss->gamma_table;
   sp->source = ss->source_map[OVAL (opt_source).w];
   sp->mode = ss->mode_map[OVAL (opt_mode).w];
   sp->adf_pageid = ss->page_count;
@@ -898,6 +907,8 @@ init_option_descriptors (pixma_sane_t * ss)
   int i;
 
   cfg = pixma_get_config (ss->s);
+
+  /* PDBG (pixma_dbg (4, "*init_option_descriptors*****\n")); */
 
   /* setup range for the scan area. */
   ss->xrange.min = SANE_FIX (0);
@@ -946,11 +957,14 @@ init_option_descriptors (pixma_sane_t * ss)
   /* Enable options that are available only in some scanners. */
   if (cfg->cap & PIXMA_CAP_GAMMA_TABLE)
     {
+      /* activate option gamma */
       enable_option (ss, opt_gamma, SANE_TRUE);
+      sane_control_option (ss, opt_gamma, SANE_ACTION_SET_AUTO,
+                           NULL, NULL);
+      /* activate option custom gamma table */
       enable_option (ss, opt_custom_gamma, SANE_TRUE);
       sane_control_option (ss, opt_custom_gamma, SANE_ACTION_SET_AUTO,
-			   NULL, NULL);
-      pixma_fill_gamma_table (AUTO_GAMMA, ss->gamma_table, 4096);
+                           NULL, NULL);
     }
   enable_option (ss, opt_button_controlled,
 		 ((cfg->cap & PIXMA_CAP_EVENTS) != 0));

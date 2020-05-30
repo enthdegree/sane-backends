@@ -1,4 +1,4 @@
-/* Automatically generated from pixma_sane.c */
+/* Automatically generated from pixma.c */
 
 typedef union {
   SANE_Word w;
@@ -39,13 +39,11 @@ typedef enum {
   opt_last
 } option_t;
 
-
 typedef struct {
   SANE_Option_Descriptor sod;
   option_value_t val,def;
   SANE_Word info;
 } option_descriptor_t;
-
 
 struct pixma_sane_t;
 static int build_option_descriptors(struct pixma_sane_t *ss);

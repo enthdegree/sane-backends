@@ -661,6 +661,7 @@ static SANE_Status
 control_option (pixma_sane_t * ss, SANE_Int n,
 		SANE_Action a, void *v, SANE_Int * info)
 {
+  SANE_Option_Descriptor *sod = &SOD (n);
   int result, i;
   const pixma_config_t *cfg;
   SANE_Int dummy;
@@ -678,25 +679,59 @@ control_option (pixma_sane_t * ss, SANE_Int n,
   switch (n)
     {
       case opt_gamma_table:
-        switch (a)
-          {
-          case SANE_ACTION_SET_VALUE:
-            clamp_value (ss, n, v, info);
-            for (i = 0; i != 4096; i++)
-              ss->gamma_table[i] = *((SANE_Int *) v + i);
-            break;
-          case SANE_ACTION_GET_VALUE:
-            for (i = 0; i != 4096; i++)
-              *((SANE_Int *) v + i) = ss->gamma_table[i];
-            break;
-          case SANE_ACTION_SET_AUTO:
-            pixma_fill_gamma_table (AUTO_GAMMA, ss->gamma_table,
-                  sizeof (ss->gamma_table));
-            break;
-          default:
-            return SANE_STATUS_UNSUPPORTED;
-          }
-        return SANE_STATUS_GOOD;
+        {
+          int table_size = sod->size / sizeof (SANE_Word);
+          int byte_cnt = table_size == 1024 ? 2 : 1;
+
+          switch (a)
+            {
+            case SANE_ACTION_SET_VALUE:
+              PDBG (pixma_dbg (4, "*control_option***** opt_gamma_table: SANE_ACTION_SET_VALUE with %d values ***** \n", table_size));
+              clamp_value (ss, n, v, info);
+              if (byte_cnt == 1)
+                {
+                  for (i = 0; i < table_size; i++)
+                    ss->gamma_table[i] = *((SANE_Int *) v + i);
+                }
+              else
+                {
+                  for (i = 0; i < table_size; i++)
+                    {
+                      ss->gamma_table[i * 2] = *((SANE_Int *) v + i);
+                      ss->gamma_table[i * 2 + 1] = *((uint8_t *)((SANE_Int *) v + i) + 1);
+                    }
+                }
+              /* PDBG (pixma_hexdump (4, (uint8_t *)v, table_size * 4)); */
+              /* PDBG (pixma_hexdump (4, ss->gamma_table, table_size * byte_cnt)); */
+              break;
+            case SANE_ACTION_GET_VALUE:
+              PDBG (pixma_dbg (4, "*control_option***** opt_gamma_table: SANE_ACTION_GET_VALUE ***** \n"));
+              if (byte_cnt == 1)
+                {
+                  for (i = 0; i < table_size; i++)
+                    *((SANE_Int *) v + i) = ss->gamma_table[i];
+                }
+              else
+                {
+                  for (i = 0; i < table_size; i++)
+                    {
+                      *((SANE_Int *) v + i) = ss->gamma_table[i * 2];
+                      *((uint8_t *)((SANE_Int *) v + i) + 1) = ss->gamma_table[i * 2 + 1];
+                    }
+                }
+              break;
+            case SANE_ACTION_SET_AUTO:
+              PDBG (pixma_dbg (4, "*control_option***** opt_gamma_table: SANE_ACTION_SET_AUTO with gamma=%f ***** \n",
+                               SANE_UNFIX (OVAL (opt_gamma).w)));
+              pixma_fill_gamma_table (SANE_UNFIX (OVAL (opt_gamma).w),
+                                      ss->gamma_table, table_size);
+              /* PDBG (pixma_hexdump (4, ss->gamma_table, table_size * byte_cnt)); */
+              break;
+            default:
+              return SANE_STATUS_UNSUPPORTED;
+            }
+          return SANE_STATUS_GOOD;
+        }
 
       case opt_button_update:
         if (a == SANE_ACTION_SET_VALUE)
@@ -749,6 +784,10 @@ control_option (pixma_sane_t * ss, SANE_Int n,
         {
           if (enable_option (ss, opt_gamma_table, OVAL (opt_custom_gamma).b))
             *info |= SANE_INFO_RELOAD_OPTIONS;
+          if (OVAL (opt_custom_gamma).b)
+            sane_control_option (ss, opt_gamma_table, SANE_ACTION_SET_AUTO,
+                                 NULL, NULL);
+
         }
       break;
     case opt_gamma:
@@ -758,7 +797,7 @@ control_option (pixma_sane_t * ss, SANE_Int n,
           PDBG (pixma_dbg (4, "*control_option***** gamma = %f *\n",
                            SANE_UNFIX (OVAL (opt_gamma).w)));
           PDBG (pixma_dbg (4, "*control_option***** table size = %d *\n",
-                           SOD (opt_gamma_table).size / sizeof (SANE_Word)));
+                           (int)(SOD (opt_gamma_table).size / sizeof (SANE_Word))));
           pixma_fill_gamma_table (SANE_UNFIX (OVAL (opt_gamma).w),
                                   ss->gamma_table, table_size);
           /* PDBG (pixma_hexdump (4, ss->gamma_table,
@@ -957,6 +996,24 @@ init_option_descriptors (pixma_sane_t * ss)
   /* Enable options that are available only in some scanners. */
   if (cfg->cap & PIXMA_CAP_GAMMA_TABLE)
     {
+      SANE_Option_Descriptor *sod = &SOD (opt_gamma_table);
+
+      /* some scanners have a large gamma table with 4096 entries */
+      if (cfg->cap & PIXMA_CAP_GT_4096)
+        {
+          static const SANE_Range constraint_gamma_table_4096 = { 0,0xff,0 };
+          sod->desc = SANE_I18N("Gamma-correction table with 4096 entries. In color mode this option equally affects the red, green, and blue channels simultaneously (i.e., it is an intensity gamma table).");
+          sod->size = 4096 * sizeof(SANE_Word);
+          sod->constraint.range = &constraint_gamma_table_4096;
+        }
+
+      /* PDBG (pixma_dbg (4, "*%s***** PIXMA_CAP_GAMMA_TABLE ***** \n",
+                       __func__)); */
+      /* PDBG (pixma_dbg (4, "%s: gamma_table_contraint.max = %d\n",
+                       __func__,  sod->constraint.range->max)); */
+      /* PDBG (pixma_dbg (4, "%s: gamma_table_size = %d\n",
+                       __func__,  sod->size / sizeof(SANE_Word))); */
+
       /* activate option gamma */
       enable_option (ss, opt_gamma, SANE_TRUE);
       sane_control_option (ss, opt_gamma, SANE_ACTION_SET_AUTO,
@@ -2058,15 +2115,15 @@ type group
   title Gamma
 
 type bool custom-gamma
-  default SANE_TRUE
+  default SANE_FALSE
   title @SANE_TITLE_CUSTOM_GAMMA
   desc  @SANE_DESC_CUSTOM_GAMMA
   cap soft_select soft_detect automatic inactive
 
-type int gamma-table[4096]
-  constraint (0,255,0)
+type int gamma-table[1024]
+  constraint (0,0xffff,0)
   title @SANE_TITLE_GAMMA_VECTOR
-  desc  @SANE_DESC_GAMMA_VECTOR
+  desc  Gamma-correction table with 1024 entries. In color mode this option equally affects the red, green, and blue channels simultaneously (i.e., it is an intensity gamma table).
   cap soft_select soft_detect automatic inactive
 
 type fixed gamma

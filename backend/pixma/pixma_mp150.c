@@ -85,7 +85,6 @@
    4096 = size of gamma table. 24 = header + checksum */
 #define IMAGE_BLOCK_SIZE (512*1024)
 #define CMDBUF_SIZE (4096 + 24)
-#define DEFAULT_GAMMA 2.0	/***** Gamma different from 1.0 is potentially impacting color profile generation *****/
 #define UNKNOWN_PID 0xffff
 
 
@@ -573,36 +572,39 @@ send_gamma_table (pixma_t * s)
       data[0] = (s->param->channels == 3) ? 0x10 : 0x01;
       pixma_set_be16 (0x1004, data + 2);
       if (lut)
-	      memcpy (data + 4, lut, 4096);
+        {
+          PDBG (pixma_dbg (4, "*send_gamma_table***** Use 4096 bytes from LUT ***** \n"));
+          /* PDBG (pixma_hexdump (4, lut, 4096)); */
+          memcpy (data + 4, lut, 4096);
+        }
       else
-        pixma_fill_gamma_table (DEFAULT_GAMMA, data + 4, 4096);
+        {
+          /* fallback: we should never see this */
+          PDBG (pixma_dbg (4, "*send_gamma_table***** Generate 4096 bytes Table with %f ***** \n",
+                           s->param->gamma));
+          pixma_fill_gamma_table (s->param->gamma, data + 4, 4096);
+          /* PDBG (pixma_hexdump (4, data + 4, 4096)); */
+        }
     }
   else
     {
-      /* FIXME: Gamma table for 2nd generation: 1024 * uint16_le */
-      data = pixma_newcmd (&mp->cb, cmd_gamma, 2048 + 8, 0);
+      /* Gamma table for 2nd+ generation: 1024 * uint16_le */
+      data = pixma_newcmd (&mp->cb, cmd_gamma, 1024 * 2 + 8, 0);
       data[0] = 0x10;
       pixma_set_be16 (0x0804, data + 2);
       if (lut)
         {
-          int i;
-          for (i = 0; i < 1024; i++)
-            {
-              int j = (i << 2) + (i >> 8);
-              data[4 + 2 * i + 0] = lut[j];
-              data[4 + 2 * i + 1] = lut[j];
-            }
+          PDBG (pixma_dbg (4, "*send_gamma_table***** Use 1024 * 2 bytes from LUT ***** \n"));
+          /* PDBG (pixma_hexdump (4, lut, 1024 * 2)); */
+          memcpy (data + 4, lut, 1024 * 2);
         }
       else
         {
-          int i;
-          pixma_fill_gamma_table (DEFAULT_GAMMA, data + 4, 2048);
-          for (i = 0; i < 1024; i++)
-            {
-              int j = (i << 1) + (i >> 9);
-              data[4 + 2 * i + 0] = data[4 + j];
-              data[4 + 2 * i + 1] = data[4 + j];
-            }
+          /* fallback: we should never see this */
+          PDBG (pixma_dbg (4, "*send_gamma_table***** Generate 1024 * 2 Table with %f ***** \n",
+                           s->param->gamma));
+          pixma_fill_gamma_table (s->param->gamma, data + 4, 1024);
+          /* PDBG (pixma_hexdump (4, data + 4, 1024 * 2)); */
         }
     }
   return pixma_exec (s, &mp->cb);

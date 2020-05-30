@@ -1220,8 +1220,8 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
 {
   mp150_t *mp = (mp150_t *) s->subdriver;
 
-  /* PDBG (pixma_dbg (4, "*mp150_check_param***** Initially: channels=%u, depth=%u, x=%u, y=%u, w=%u, h=%u, xs=%u, wx=%u *****\n",
-                   sp->channels, sp->depth, sp->x, sp->y, sp->w, sp->h, sp->xs, sp->wx)); */
+  /* PDBG (pixma_dbg (4, "*mp150_check_param***** Initially: channels=%u, depth=%u, x=%u, y=%u, w=%u, h=%u, xs=%u, wx=%u, gamma=%f *****\n",
+                   sp->channels, sp->depth, sp->x, sp->y, sp->w, sp->h, sp->xs, sp->wx, sp->gamma)); */
 
   /* MP150 only supports 8 bit per channel in color and grayscale mode */
   if (sp->depth != 1)

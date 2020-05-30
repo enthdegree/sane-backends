@@ -1869,8 +1869,8 @@ static int mp810_check_param (pixma_t * s, pixma_scan_param_t * sp)
   mp810_t *mp = (mp810_t *) s->subdriver;
   unsigned w_max;
 
-  /* PDBG (pixma_dbg (4, "*mp810_check_param***** Initially: channels=%u, depth=%u, x=%u, y=%u, w=%u, h=%u, xs=%u, wx=%u *****\n",
-                   sp->channels, sp->depth, sp->x, sp->y, sp->w, sp->h, sp->xs, sp->wx)); */
+  /* PDBG (pixma_dbg (4, "*mp810_check_param***** Initially: channels=%u, depth=%u, x=%u, y=%u, w=%u, h=%u, xs=%u, wx=%u, gamma=%f *****\n",
+                   sp->channels, sp->depth, sp->x, sp->y, sp->w, sp->h, sp->xs, sp->wx, sp->gamma)); */
 
   sp->channels = 3;
   sp->software_lineart = 0;

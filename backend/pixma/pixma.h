@@ -340,6 +340,9 @@ struct pixma_scan_param_t
      *  specified by subdriver will be used. */
   const uint8_t *gamma_table;
 
+  /** value for auto generated gamma table */
+  double gamma;
+
     /** \see #pixma_paper_source_t */
   pixma_paper_source_t source;
 

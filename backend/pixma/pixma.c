@@ -827,8 +827,8 @@ print_scan_param (int level, const pixma_scan_param_t * sp)
 	     sp->line_size, sp->image_size, sp->channels, sp->depth);
   pixma_dbg (level, "  dpi=%ux%u offset=(%u,%u) dimension=%ux%u\n",
 	     sp->xdpi, sp->ydpi, sp->x, sp->y, sp->w, sp->h);
-  pixma_dbg (level, "  gamma_table=%p source=%d\n", sp->gamma_table,
-	     sp->source);
+  pixma_dbg (level, "  gamma=%f gamma_table=%p source=%d\n", sp->gamma,
+       sp->gamma_table, sp->source);
   pixma_dbg (level, "  adf-wait=%d\n", sp->adf_wait);
 }
 #endif
@@ -873,6 +873,7 @@ calc_scan_param (pixma_sane_t * ss, pixma_scan_param_t * sp)
     sp->h = 1;
   sp->tpu_offset_added = 0;
 
+  sp->gamma = SANE_UNFIX (OVAL (opt_gamma).w);
   sp->gamma_table = (OVAL (opt_custom_gamma).b) ? ss->gamma_table : NULL;
   sp->source = ss->source_map[OVAL (opt_source).w];
   sp->mode = ss->mode_map[OVAL (opt_mode).w];

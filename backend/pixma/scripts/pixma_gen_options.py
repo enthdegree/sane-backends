@@ -197,23 +197,20 @@ typedef union {
     print '  ' + opt_prefix + 'last'
     print '} option_t;'
     print """
-
 typedef struct {
   SANE_Option_Descriptor sod;
   option_value_t val,def;
   SANE_Word info;
 } option_descriptor_t;
 
-
 struct pixma_sane_t;
-static int build_option_descriptors(struct pixma_sane_t *ss);
-"""
+static int build_option_descriptors(struct pixma_sane_t *ss);"""
 
 
 def genMinMaxRange(n, t, r):
     if t == 'SANE_TYPE_FIXED':
         r = ['SANE_FIX(%s)' % x for x in r]
-    print 'static const SANE_Range ' + n + ' = '
+    print 'static const SANE_Range ' + n + ' ='
     print '  { ' + r[0] + ',' + r[1] + ',' + r[2] + ' };'
 
 
@@ -371,9 +368,8 @@ int build_option_descriptors(struct pixma_sane_t *ss)
                   '%(full_code_default)s'
       sys.stdout.write(code % o)
   print
-  print '  return 0;\n'
+  print '  return 0;'
   print '}'
-  print
 
 g = Struct()
 g.ngroups = 0
@@ -381,7 +377,7 @@ opt_prefix = 'opt_'
 con_prefix = 'constraint_'
 cnameMap = createCNameMap()
 options = parseFile(sys.stdin)
-print "/* Automatically generated from pixma_sane.c */"
+print "/* Automatically generated from pixma.c */"
 if (len(sys.argv) == 2) and (sys.argv[1] == 'h'):
     genHeader(options)
 else:

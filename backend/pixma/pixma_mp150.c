@@ -573,7 +573,7 @@ send_gamma_table (pixma_t * s)
       pixma_set_be16 (0x1004, data + 2);
       if (lut)
         {
-          PDBG (pixma_dbg (4, "*send_gamma_table***** Use 4096 bytes from LUT ***** \n"));
+          /* PDBG (pixma_dbg (4, "*send_gamma_table***** Use 4096 bytes from LUT ***** \n")); */
           /* PDBG (pixma_hexdump (4, lut, 4096)); */
           memcpy (data + 4, lut, 4096);
         }
@@ -594,7 +594,7 @@ send_gamma_table (pixma_t * s)
       pixma_set_be16 (0x0804, data + 2);
       if (lut)
         {
-          PDBG (pixma_dbg (4, "*send_gamma_table***** Use 1024 * 2 bytes from LUT ***** \n"));
+          /* PDBG (pixma_dbg (4, "*send_gamma_table***** Use 1024 * 2 bytes from LUT ***** \n")); */
           /* PDBG (pixma_hexdump (4, lut, 1024 * 2)); */
           memcpy (data + 4, lut, 1024 * 2);
         }

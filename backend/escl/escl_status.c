@@ -125,7 +125,7 @@ print_xml_platen_and_adf_status(xmlNode *node,
         if (node->type == XML_ELEMENT_NODE) {
             if (find_nodes_s(node)) {
                 if (strcmp((const char *)node->name, "State") == 0) {
-	            DBG(, 10, "State\t");
+	            DBG(10, "State\t");
                     const char *state = (const char *)xmlNodeGetContent(node);
                     if (!strcmp(state, "Idle")) {
 			DBG(10, "Idle SANE_STATUS_GOOD\n");

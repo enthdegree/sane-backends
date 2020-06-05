@@ -1,6 +1,6 @@
-/* Automatically generated from pixma_sane.c */
+/* Automatically generated from pixma.c */
 static const SANE_Range constraint_gamma_table =
-  { 0,255,0 };
+  { 0,0xffff,0 };
 static const SANE_Range constraint_gamma =
   { SANE_FIX(0.3),SANE_FIX(5),SANE_FIX(0) };
 static const SANE_Range constraint_threshold =
@@ -123,17 +123,17 @@ int build_option_descriptors(struct pixma_sane_t *ss)
   sod->cap  = SANE_CAP_SOFT_SELECT|SANE_CAP_SOFT_DETECT|SANE_CAP_AUTOMATIC|SANE_CAP_INACTIVE;
   sod->constraint_type = SANE_CONSTRAINT_NONE;
   OPT_IN_CTX[opt_custom_gamma].info = 0;
-  opt->def.w = SANE_TRUE;
-  opt->val.w = SANE_TRUE;
+  opt->def.w = SANE_FALSE;
+  opt->val.w = SANE_FALSE;
 
   opt = &(OPT_IN_CTX[opt_gamma_table]);
   sod = &opt->sod;
   sod->type = SANE_TYPE_INT;
   sod->title = SANE_TITLE_GAMMA_VECTOR;
-  sod->desc = SANE_DESC_GAMMA_VECTOR;
+  sod->desc = SANE_I18N("Gamma-correction table with 1024 entries. In color mode this option equally affects the red, green, and blue channels simultaneously (i.e., it is an intensity gamma table).");
   sod->name = "gamma-table";
   sod->unit = SANE_UNIT_NONE;
-  sod->size = 4096 * sizeof(SANE_Word);
+  sod->size = 1024 * sizeof(SANE_Word);
   sod->cap  = SANE_CAP_SOFT_SELECT|SANE_CAP_SOFT_DETECT|SANE_CAP_AUTOMATIC|SANE_CAP_INACTIVE;
   sod->constraint_type = SANE_CONSTRAINT_RANGE;
   sod->constraint.range = &constraint_gamma_table;
@@ -358,5 +358,4 @@ int build_option_descriptors(struct pixma_sane_t *ss)
   opt->val.w = 0;
 
   return 0;
-
 }

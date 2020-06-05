@@ -158,6 +158,10 @@ typedef uint32_t uint32_t;
 #define PIXMA_CAP_TPUIR        ((1 << 11) | PIXMA_CAP_TPU)
 #define PIXMA_CAP_ADF_WAIT     (1 << 12)
 #define PIXMA_CAP_ADF_JPEG     (1 << 13)
+#define PIXMA_CAP_GT_4096      (1 << 14)    /* gamma table has 4096 8-bit values
+                                             * only generation 1 scanners
+                                             * usually gamma table has 1024 16-bit values
+                                             */
 #define PIXMA_CAP_EXPERIMENT   (1 << 31)
 /**@}*/
 
@@ -339,6 +343,9 @@ struct pixma_scan_param_t
     /** Gamma table. 4096 entries, 12 bit => 8 bit. If \c NULL, default gamma
      *  specified by subdriver will be used. */
   const uint8_t *gamma_table;
+
+  /** value for auto generated gamma table */
+  double gamma;
 
     /** \see #pixma_paper_source_t */
   pixma_paper_source_t source;

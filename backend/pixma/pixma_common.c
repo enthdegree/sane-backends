@@ -880,7 +880,7 @@ pixma_scan (pixma_t * s, pixma_scan_param_t * sp)
 	     sp->line_size, sp->image_size, sp->channels, sp->depth);
   pixma_dbg (3, "  dpi=%ux%u offset=(%u,%u) dimension=%ux%u\n",
 	     sp->xdpi, sp->ydpi, sp->x, sp->y, sp->w, sp->h);
-  pixma_dbg (3, "  gamma_table=%p source=%d\n", sp->gamma_table, sp->source);
+  pixma_dbg (3, "  gamma=%f gamma_table=%p source=%d\n", sp->gamma, sp->gamma_table, sp->source);
   pixma_dbg (3, "  threshold=%d threshold_curve=%d\n", sp->threshold, sp->threshold_curve);
   pixma_dbg (3, "  adf-wait=%d\n", sp->adf_wait);
   pixma_dbg (3, "  ADF page count: %d\n", sp->adf_pageid);
@@ -1186,14 +1186,35 @@ pixma_get_config (pixma_t * s)
 void
 pixma_fill_gamma_table (double gamma, uint8_t * table, unsigned n)
 {
-  int i;
+  unsigned i;
   double r_gamma = 1.0 / gamma;
-  double out_scale = 255.0;
   double in_scale = 1.0 / (n - 1);
 
-  for (i = 0; (unsigned) i != n; i++)
+  /* 8-bits gamma table
+   * for generation 1 scanners
+   */
+  if (n == 4096)
     {
-      table[i] = (int) (out_scale * pow (i * in_scale, r_gamma) + 0.5);
+      double out_scale = 255.0;
+
+      for (i = 0; (unsigned) i != n; i++)
+        {
+          table[i] = (int) (out_scale * pow (i * in_scale, r_gamma) + 0.5);
+        }
+    }
+
+  /* 16-bits gamma table */
+  else
+    {
+      double out_scale = 65535.0;
+      uint16_t value;
+
+      for (i = 0; i < n; i++)
+        {
+          value = (uint16_t) (out_scale * pow (i * in_scale, r_gamma) + 0.5);
+          table[2 * i] = (uint8_t) (value & 0xff);
+          table[2 * i + 1] = (uint8_t) (value >> 8);
+        }
     }
 }
 

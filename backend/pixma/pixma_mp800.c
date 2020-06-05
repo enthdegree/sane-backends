@@ -435,7 +435,7 @@ static int send_gamma_table (pixma_t * s)
   const uint8_t *lut = s->param->gamma_table;
   uint8_t *data;
 
-  if (mp->generation == 1)
+  if (s->cfg->cap & PIXMA_CAP_GT_4096)
   {
     data = pixma_newcmd (&mp->cb, cmd_gamma, 4096 + 8, 0);
     data[0] = (s->param->channels == 3) ? 0x10 : 0x01;

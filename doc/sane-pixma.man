@@ -1,4 +1,4 @@
-.TH "sane\-pixma" "5" "25 Mar 2020" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH "sane\-pixma" "5" "05 Jun 2020" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-pixma
 .SH NAME
 sane\-pixma \- SANE backend for Canon Multi-Function Printers and CanoScan Scanners
@@ -420,6 +420,8 @@ to "/tmp/config:" would result in directories "tmp/config", ".", and
 .SH "SEE ALSO"
 .BR sane (7),
 .BR sane\-dll (5),
+.BR scanimage (1),
+.BR gamma4scanimage (1),
 .PP
 In case of trouble with a recent Pixma model, try the latest code for
 the pixma backend, available in the Sane git repository at:

@@ -44,4 +44,3 @@
 :interface "WiFi"
 :status :good
 :comment "All resolutions supported, Flatted and ADF supported."
-

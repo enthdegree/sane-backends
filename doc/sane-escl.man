@@ -7,7 +7,22 @@ The
 .B sane\-escl
 library implements a SANE (Scanner Access Now Easy) backend that
 provides access to eSCL protocol scanners.
-
+.PP
+Currently, the following models work with this backend (This list is not exhaustive):
+.PP
+.RS
+BROTHER DCP-L2530
+.br
+CANON IR C3520
+.br
+CANON PIXMA TS3150, TS3151, TS3350, TS3351, TS3352, TR8550
+.br
+EPSON ET3740, ET4750
+.br
+HP OFFICEJET 4630
+.br
+XEROX VERSALINK C7220
+.RE
 .PP
 The "escl" backend for SANE supports AirScan/eSCL devices that announce
 themselves on mDNS as _uscan._utcp or _uscans._utcp.

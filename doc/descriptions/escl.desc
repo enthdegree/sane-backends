@@ -4,3 +4,44 @@
 :comment "The eSCL backend for sane supports AirScan/eSCL devices that announce themselves on mDNS as _uscan._utcp or _uscans._utcp"
 
 :devicetype :scanner
+
+:model "BROTHER DCP-L2530DW"
+:interface "WiFi"
+:status :good
+:comment "All resolutions supported.
+
+:model "CANON IR C3520"
+:interface "WiFi"
+:status :good
+:comment "All resolutions supported, Flatted and ADF supported."
+
+:model "CANON PIXMA TS3100 Series"
+:interface "WiFi"
+:status :good
+:comment "All resolutions supported."
+
+:model "CANON PIXMA TS3300 Series"
+:interface "WiFi"
+:status :good
+:comment "All resolutions supported."
+
+:model "CANON PIXMA TR8500 Series"
+:interface "Ethernet WiFi"
+:status :good
+:comment "All resolutions supported, Flatted and ADF supported."
+
+:model "ESON ET-3750"
+:interface "WiFi"
+:status :good
+:comment "All resolutions supported, Flatted and ADF supported."
+
+:model "ESON ET-4750"
+:interface "WiFi"
+:status :good
+:comment "All resolutions supported, Flatted and ADF supported."
+
+:model "XEROX VERSALINK C7220"
+:interface "WiFi"
+:status :good
+:comment "All resolutions supported, Flatted and ADF supported."
+

@@ -48,6 +48,9 @@
 
 #include "../include/sane/config.h"
 
+#ifdef HAVE_STDINT_H
+# include <stdint.h>
+#endif
 #include <stdlib.h>
 #include <ctype.h>
 #include <sys/types.h>

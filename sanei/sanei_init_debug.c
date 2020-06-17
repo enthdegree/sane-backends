@@ -118,7 +118,7 @@ is_socket (int fd)
 
 #if defined(S_ISSOCK)
   return S_ISSOCK(sbuf.st_mode);
-#elif defined (S_IFMT) && defined(S_IFMT)
+#elif defined (S_IFMT) && defined(S_IFSOCK)
   return (sbuf.st_mode & S_IFMT) == S_IFSOCK;
 #else
   return 0;
@@ -133,6 +133,7 @@ sanei_debug_msg
 
   if (max_level >= level)
     {
+#if defined(LOG_DEBUG)
       if (is_socket(fileno(stderr)))
 	{
 	  msg = (char *)malloc (sizeof(char) * (strlen(be) + strlen(fmt) + 4));
@@ -149,6 +150,7 @@ sanei_debug_msg
 	    }
 	}
       else
+#endif
 	{
           struct timeval tv;
           struct tm *t;

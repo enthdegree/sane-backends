@@ -142,6 +142,10 @@ posix_dlsym (void *handle, const char *func)
 # define PATH_MAX       1024
 #endif
 
+#ifndef NAME_MAX
+# define NAME_MAX FILENAME_MAX
+#endif
+
 #if defined(_WIN32) || defined(HAVE_OS2_H)
 # define DIR_SEP        ";"
 #else

@@ -92,6 +92,11 @@
 :status :untested
 :comment "Testers needed!"
 
+:model "OfficeJet Pro 8610"
+:interface "Ethernet WiFi"
+:status :good
+:comment "All resolutions supported, Flatted and ADF supported."
+
 :mfg "Ricoh"
 :url "http://support.ricoh.com/bb/html/dr_ut_e/re2/"
 

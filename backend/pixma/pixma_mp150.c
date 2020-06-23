@@ -914,7 +914,8 @@ handle_interrupt (pixma_t * s, int timeout)
       || s->cfg->pid == MX920_PID
       || s->cfg->pid == MB2300_PID
       || s->cfg->pid == MB5000_PID
-      || s->cfg->pid == MB5400_PID)
+      || s->cfg->pid == MB5400_PID
+      || s->cfg->pid == TR4500_PID)
   /* button no. in buf[7]
    * size in buf[10] 01=A4; 02=Letter; 08=10x15; 09=13x18; 0b=auto
    * format in buf[11] 01=JPEG; 02=TIFF; 03=PDF; 04=Kompakt-PDF
@@ -925,6 +926,17 @@ handle_interrupt (pixma_t * s, int timeout)
       s->events = PIXMA_EV_BUTTON1 | buf[11] | buf[10]<<8 | buf[12]<<16;    /* color scan */
     if (buf[7] & 2)
       s->events = PIXMA_EV_BUTTON2 | buf[11] | buf[10]<<8 | buf[12]<<16;    /* b/w scan */
+
+    /* some scanners provide additional information:
+     * document type in buf[6] 01=Document; 02=Photo; 03=Auto Scan
+     * ADF orientation in buf[16] 01=Portrait; 02=Landscape
+     * high nibble of target = ADF orientation
+     * high nibble of original = document type */
+    if (s->cfg->pid == TR4500_PID)
+      {
+        s->events |= (buf[6] & 0x0f) << 12;
+        s->events |= (buf[16] & 0x0f) << 4;
+      }
   }
   else if (s->cfg->pid == LIDE300_PID
            || s->cfg->pid == LIDE400_PID)

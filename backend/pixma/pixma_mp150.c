@@ -1225,19 +1225,38 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
   /* PDBG (pixma_dbg (4, "*mp150_check_param***** Initially: channels=%u, depth=%u, x=%u, y=%u, w=%u, h=%u, xs=%u, wx=%u, gamma=%f *****\n",
                    sp->channels, sp->depth, sp->x, sp->y, sp->w, sp->h, sp->xs, sp->wx, sp->gamma)); */
 
-  /* MP150 only supports 8 bit per channel in color and grayscale mode */
-  if (sp->depth != 1)
-    {
-      sp->software_lineart = 0;
-      sp->depth = 8;
-    }
-  else
-    {
-      /* software lineart */
-      sp->software_lineart = 1;
-      sp->depth = 1;
+  sp->channels = 3;
+  sp->software_lineart = 0;
+  switch (sp->mode)
+  {
+    /* standard scan modes
+     * 8 bit per channel in color and grayscale mode */
+    case PIXMA_SCAN_MODE_GRAY:
       sp->channels = 1;
-    }
+      /* fall through */
+    case PIXMA_SCAN_MODE_COLOR:
+      sp->depth = 8;
+      break;
+      /* extended scan modes for 48 bit flatbed scanners
+       * 16 bit per channel in color and grayscale mode */
+    case PIXMA_SCAN_MODE_GRAY_16:
+      sp->channels = 1;
+      sp->depth = 16;
+      break;
+    case PIXMA_SCAN_MODE_COLOR_48:
+      sp->channels = 3;
+      sp->depth = 16;
+      break;
+      /* software lineart
+       * 1 bit per channel */
+    case PIXMA_SCAN_MODE_LINEART:
+      sp->software_lineart = 1;
+      sp->channels = 1;
+      sp->depth = 1;
+      break;
+    default:
+      break;
+  }
 
   /* for software lineart w must be a multiple of 8 */
   if (sp->software_lineart == 1 && sp->w % 8)
@@ -1774,7 +1793,7 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA TR8500 Series", "TR8500", TR8500_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF | PIXMA_CAP_ADF_JPEG),
   DEVICE ("Canon PIXMA TR7500 Series", "TR7500", TR7500_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA TS9500 Series", "TS9500", TS9500_PID, 0, 1200, 0, 600, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("CanoScan LiDE 400", "LIDE400", LIDE400_PID, 300, 4800, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("CanoScan LiDE 400", "LIDE400", LIDE400_PID, 300, 4800, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_48BIT),
   DEVICE ("CanoScan LiDE 300", "LIDE300", LIDE300_PID, 300, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   /* Latest devices (2019) Generation 5 CIS */

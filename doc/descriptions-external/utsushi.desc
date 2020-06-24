@@ -282,6 +282,11 @@
 :usbid     "0x04b8" "0x112e"
 :status    :good
 
+:model     "WF-2850"
+:interface "USB"
+:usbid     "0x04b8" "0x1138"
+:status    :good
+
 :model     "WF-4720"
 :interface "USB"
 :usbid     "0x04b8" "0x1125"
@@ -295,6 +300,11 @@
 :model     "WF-6590"
 :interface "USB"
 :usbid     "0x04b8" "0x08cf"
+:status    :good
+
+:model     "WF-7720"
+:interface "USB"
+:usbid     "0x04b8" "0x112d"
 :status    :good
 
 :model     "WF-8510"
@@ -998,6 +1008,24 @@
 :status    :good
 :comment   "ET-16xxx"
 
+:model     "PID 1171"
+:interface "USB"
+:usbid     "0x04b8" "0x1171"
+:status    :good
+:comment   "WFC2xxxx"
+
+:model     "PID 1172"
+:interface "USB"
+:usbid     "0x04b8" "0x1172"
+:status    :good
+:comment   "WFC2xxxx"
+
+:model     "PID 1173"
+:interface "USB"
+:usbid     "0x04b8" "0x1173"
+:status    :good
+:comment   "WFC2xxxx"
+
 :model     "PID 1174"
 :interface "USB"
 :usbid     "0x04b8" "0x1174"
@@ -1021,3 +1049,21 @@
 :usbid     "0x04b8" "0x1177"
 :status    :good
 :comment   "ET-16xxx"
+
+:model     "PID 117A"
+:interface "USB"
+:usbid     "0x04b8" "0x117a"
+:status    :good
+:comment   "WF-48xx"
+
+:model     "PID 117B"
+:interface "USB"
+:usbid     "0x04b8" "0x117b"
+:status    :good
+:comment   "WF-48xx"
+
+:model     "PID 117C"
+:interface "USB"
+:usbid     "0x04b8" "0x117c"
+:status    :good
+:comment   "WF-48xx"

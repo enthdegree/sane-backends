@@ -393,6 +393,12 @@
 :usbid "0x04e8" "0x3469"
 :status :good
 
+:model "M288x Series"
+:interface "USB"
+:usbid "0x04e8" "0x346a"
+:status :unsupported
+:comment "M2885FW is reported to work with sane-airscan in network mode (WSD)"
+
 :model "C1860FW"
 :interface "USB"
 :usbid "0x04e8" "0x346b"

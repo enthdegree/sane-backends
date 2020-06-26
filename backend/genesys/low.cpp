@@ -1060,7 +1060,13 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
     if (dev->model->asic_type == AsicType::GL842 ||
         dev->model->asic_type == AsicType::GL843)
     {
-        s.conseq_pixel_dist = s.output_pixels / s.segment_count;
+        if (dev->model->is_cis) {
+            if (s.segment_count > 1) {
+                s.conseq_pixel_dist = sensor.segment_size;
+            }
+        } else {
+            s.conseq_pixel_dist = s.output_pixels / s.segment_count;
+        }
     }
 
     s.output_segment_pixel_group_count = 0;

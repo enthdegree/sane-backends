@@ -344,6 +344,9 @@ static void gl847_init_motor_regs_scan(Genesys_Device* dev,
     if (dev->settings.yres == 4444 && feed_steps > 100 && !has_flag(flags, ScanFlag::FEEDING)) {
         use_fast_fed = true;
     }
+    if (has_flag(dev->model->flags, ModelFlag::DISABLE_FAST_FEEDING)) {
+        use_fast_fed = false;
+    }
 
     reg->set24(REG_LINCNT, scan_lines);
 

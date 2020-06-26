@@ -710,6 +710,9 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
     if ((scan_yres >= 300 && feed_steps > 900) || (has_flag(flags, ScanFlag::FEEDING))) {
         use_fast_fed = true;
     }
+    if (has_flag(dev->model->flags, ModelFlag::DISABLE_FAST_FEEDING)) {
+        use_fast_fed = false;
+    }
 
     reg->set24(REG_LINCNT, scan_lines);
 

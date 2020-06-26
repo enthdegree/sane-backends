@@ -519,6 +519,9 @@ enum class ModelFlag : unsigned
     // allow custom gamma tables
     CUSTOM_GAMMA = 1 << 13,
 
+    // disable fast feeding mode on this scanner
+    DISABLE_FAST_FEEDING = 1 << 14,
+
     // the scanner uses multi-segment sensors that must be handled during calibration
     SIS_SENSOR = 1 << 16,
 

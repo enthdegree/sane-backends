@@ -2456,7 +2456,7 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
  * can be computed from previous calibration data (when doing offset
  * calibration ?)
  */
-static void genesys_dummy_dark_shading(Genesys_Device* dev, const Genesys_Sensor& sensor)
+static void genesys_dark_shading_by_dummy_pixel(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
   uint32_t pixels_per_line;
@@ -2535,6 +2535,11 @@ static void genesys_dummy_dark_shading(Genesys_Device* dev, const Genesys_Sensor
     }
 }
 
+static void genesys_dark_shading_by_constant(Genesys_Device& dev)
+{
+    dev.dark_average_data.clear();
+    dev.dark_average_data.resize(dev.average_size, 0x0101);
+}
 
 static void genesys_repark_sensor_before_shading(Genesys_Device* dev)
 {
@@ -3786,7 +3791,11 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
             genesys_repark_sensor_after_white_shading(dev);
 
             if (!has_flag(dev->model->flags, ModelFlag::DARK_CALIBRATION)) {
-                genesys_dummy_dark_shading(dev, sensor);
+                if (has_flag(dev->model->flags, ModelFlag::USE_CONSTANT_FOR_DARK_CALIBRATION)) {
+                    genesys_dark_shading_by_constant(*dev);
+                } else {
+                    genesys_dark_shading_by_dummy_pixel(dev, sensor);
+                }
             }
         }
     }
@@ -3894,17 +3903,9 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
     }
 
     // in case we haven't black shading data, build it from black pixels of white calibration
-    // FIXME: shouldn't we use genesys_dummy_dark_shading() ?
+    // FIXME: shouldn't we use genesys_dark_shading_by_dummy_pixel() ?
     if (!has_flag(dev->model->flags, ModelFlag::DARK_CALIBRATION)) {
-        dev->dark_average_data.clear();
-        dev->dark_average_data.resize(dev->average_size, 0x0f0f);
-      /* XXX STEF XXX
-       * with black point in white shading, build an average black
-       * pixel and use it to fill the dark_average
-       * dev->calib_pixels
-       (sensor.x_size_calib_mm * dev->settings.xres) / MM_PER_INCH,
-       dev->calib_lines,
-       */
+        genesys_dark_shading_by_constant(*dev);
     }
 
   /* send the shading coefficient when doing whole line shading

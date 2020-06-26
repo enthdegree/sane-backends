@@ -510,6 +510,9 @@ enum class ModelFlag : unsigned
     // whether scanner must wait for the head while parking
     MUST_WAIT = 1 << 10,
 
+    // use zeroes for dark calibration
+    USE_CONSTANT_FOR_DARK_CALIBRATION = 1 << 11,
+
     // do dark and white calibration in one run
     DARK_WHITE_CALIBRATION = 1 << 12,
 

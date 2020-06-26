@@ -95,8 +95,6 @@ public:
 
     void update_hardware_sensors(struct Genesys_Scanner* s) const override;
 
-    bool needs_update_home_sensor_gpio() const override { return true; }
-
     void update_home_sensor_gpio(Genesys_Device& dev) const override;
 
     void load_document(Genesys_Device* dev) const override;

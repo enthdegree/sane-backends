@@ -712,9 +712,7 @@ void scanner_stop_action(Genesys_Device& dev)
             throw SaneException("Unsupported asic type");
     }
 
-    if (dev.cmd_set->needs_update_home_sensor_gpio()) {
-        dev.cmd_set->update_home_sensor_gpio(dev);
-    }
+    dev.cmd_set->update_home_sensor_gpio(dev);
 
     if (scanner_is_motor_stopped(dev)) {
         DBG(DBG_info, "%s: already stopped\n", __func__);
@@ -868,9 +866,7 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
 
     // wait until feed count reaches the required value
     if (dev.model->model_id == ModelId::CANON_LIDE_700F) {
-        if (dev.cmd_set->needs_update_home_sensor_gpio()) {
-            dev.cmd_set->update_home_sensor_gpio(dev);
-        }
+        dev.cmd_set->update_home_sensor_gpio(dev);
     }
 
     // FIXME: should porbably wait for some timeout
@@ -948,9 +944,7 @@ void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
                      Direction::BACKWARD);
     }
 
-    if (dev.cmd_set->needs_update_home_sensor_gpio()) {
-        dev.cmd_set->update_home_sensor_gpio(dev);
-    }
+    dev.cmd_set->update_home_sensor_gpio(dev);
 
     auto status = scanner_read_reliable_status(dev);
 
@@ -1012,9 +1006,7 @@ void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
         throw;
     }
 
-    if (dev.cmd_set->needs_update_home_sensor_gpio()) {
-        dev.cmd_set->update_home_sensor_gpio(dev);
-    }
+    dev.cmd_set->update_home_sensor_gpio(dev);
 
     if (is_testing_mode()) {
         dev.interface->test_checkpoint("move_back_home");

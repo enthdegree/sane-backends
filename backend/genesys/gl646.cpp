@@ -2856,6 +2856,11 @@ void CommandSetGl646::update_hardware_sensors(Genesys_Scanner* session) const
     }
 }
 
+void CommandSetGl646::update_home_sensor_gpio(Genesys_Device& dev) const
+{
+    DBG_HELPER(dbg);
+    (void) dev;
+}
 
 static void write_control(Genesys_Device* dev, const Genesys_Sensor& sensor, int resolution)
 {

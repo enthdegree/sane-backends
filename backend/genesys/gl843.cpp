@@ -1698,6 +1698,12 @@ void CommandSetGl843::update_hardware_sensors(Genesys_Scanner* s) const
     }
 }
 
+void CommandSetGl843::update_home_sensor_gpio(Genesys_Device& dev) const
+{
+    DBG_HELPER(dbg);
+    (void) dev;
+}
+
 /**
  * Send shading calibration data. The buffer is considered to always hold values
  * for all the channels.

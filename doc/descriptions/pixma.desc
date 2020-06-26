@@ -1430,8 +1430,8 @@
 :model "i-SENSYS MF4700 Series"
 :interface "USB Ethernet"
 :usbid "0x04a9" "0x2774"
-:status :good
-:comment "Flatbed scan. All resolutions supported (up to 600DPI)."
+:status :complete
+:comment "Flatbed and ADF scan. All resolutions supported (up to 600DPI)."
 
 :model "i-SENSYS MF4800 Series"
 :interface "USB Ethernet"

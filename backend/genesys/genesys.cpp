@@ -576,7 +576,8 @@ void scanner_send_slope_table(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                          table.size());
             break;
         }
-        case AsicType::GL841: {
+        case AsicType::GL841:
+        case AsicType::GL842: {
             unsigned start_address = 0;
             switch (sensor.register_dpihw) {
                 case 600: start_address = 0x08000; break;
@@ -586,18 +587,6 @@ void scanner_send_slope_table(Genesys_Device* dev, const Genesys_Sensor& sensor,
             }
             dev->interface->write_buffer(0x3c, start_address + table_nr * 0x200, table.data(),
                                          table.size());
-            break;
-        }
-        case AsicType::GL842: {
-            // slope table addresses are fixed : 0x40000,  0x48000,  0x50000,  0x58000,  0x60000
-            // XXX STEF XXX USB 1.1 ? sanei_genesys_write_0x8c (dev, 0x0f, 0x14);
-            if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200) {
-                dev->interface->write_buffer(0x3c, 0x010000 + 0x200 * table_nr, table.data(),
-                                             table.size());
-            } else {
-                dev->interface->write_gamma(0x28,  0x40000 + 0x8000 * table_nr, table.data(),
-                                            table.size());
-            }
             break;
         }
         case AsicType::GL843: {

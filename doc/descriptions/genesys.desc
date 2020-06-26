@@ -187,6 +187,12 @@
 :status :basic
 :comment "No 2400 dpi support, slow speed at lower resolution"
 
+:model "CanoScan LiDE 90"
+:interface "USB"
+:usbid "0x04a9" "0x1900"
+:status :good
+:comment "resolutions from 300 to 2400 dpi are supported"
+
 :model "CanoScan LiDE 100"
 :interface "USB"
 :usbid "0x04a9" "0x1904"

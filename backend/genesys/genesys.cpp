@@ -544,9 +544,10 @@ void scanner_send_slope_table(Genesys_Device* dev, const Genesys_Sensor& sensor,
         table.push_back(slope_table[i] & 0xff);
         table.push_back(slope_table[i] >> 8);
     }
-    if (dev->model->asic_type == AsicType::GL841) {
-        // BUG: some motor setup setting is wrong on GL841 scanners, as they need full motor table
-        // to be written even though this is not observed in the official scanners.
+    if (dev->model->asic_type == AsicType::GL841 ||
+        dev->model->model_id == ModelId::CANON_LIDE_90)
+    {
+        // BUG: do this on all gl842 scanners
         auto max_table_size = get_slope_table_max_size(dev->model->asic_type);
         table.reserve(max_table_size * 2);
         while (table.size() < max_table_size * 2) {
@@ -3540,6 +3541,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
       break;
     case SensorId::CIS_CANON_LIDE_35:
         case SensorId::CIS_CANON_LIDE_60:
+            case SensorId::CIS_CANON_LIDE_90:
       compute_averaged_planar (dev, sensor,
                                shading_data.data(),
                                pixels_per_line,

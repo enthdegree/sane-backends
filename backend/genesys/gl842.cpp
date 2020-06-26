@@ -46,19 +46,35 @@ static void gl842_init_registers(Genesys_Device& dev)
 
     dev.reg.clear();
 
-    dev.reg.init_reg(0x01, 0x00);
-    dev.reg.init_reg(0x02, 0x78);
-    dev.reg.init_reg(0x03, 0xbf);
-    dev.reg.init_reg(0x04, 0x22);
-    dev.reg.init_reg(0x05, 0x48);
+    if (dev.model->model_id == ModelId::PLUSTEK_OPTICFILM_7200) {
+        dev.reg.init_reg(0x01, 0x00);
+        dev.reg.init_reg(0x02, 0x78);
+        dev.reg.init_reg(0x03, 0xbf);
+        dev.reg.init_reg(0x04, 0x22);
+        dev.reg.init_reg(0x05, 0x48);
 
-    dev.reg.init_reg(0x06, 0xb8);
+        dev.reg.init_reg(0x06, 0xb8);
 
-    dev.reg.init_reg(0x07, 0x00);
-    dev.reg.init_reg(0x08, 0x00);
-    dev.reg.init_reg(0x09, 0x00);
-    dev.reg.init_reg(0x0a, 0x00);
-    dev.reg.init_reg(0x0d, 0x01);
+        dev.reg.init_reg(0x07, 0x00);
+        dev.reg.init_reg(0x08, 0x00);
+        dev.reg.init_reg(0x09, 0x00);
+        dev.reg.init_reg(0x0a, 0x00);
+        dev.reg.init_reg(0x0d, 0x01);
+    } else if (dev.model->model_id == ModelId::CANON_LIDE_90) {
+        dev.reg.init_reg(0x01, 0x82);
+        dev.reg.init_reg(0x02, 0x10);
+        dev.reg.init_reg(0x03, 0x60);
+        dev.reg.init_reg(0x04, 0x10);
+        dev.reg.init_reg(0x05, 0x8c);
+
+        dev.reg.init_reg(0x06, 0x18);
+
+        //dev.reg.init_reg(0x07, 0x00);
+        dev.reg.init_reg(0x08, 0x00);
+        dev.reg.init_reg(0x09, 0x21);
+        dev.reg.init_reg(0x0a, 0x00);
+        dev.reg.init_reg(0x0d, 0x00);
+    }
 
     dev.reg.init_reg(0x10, 0x00); // exposure, overwritten in scanner_setup_sensor() below
     dev.reg.init_reg(0x11, 0x00); // exposure, overwritten in scanner_setup_sensor() below
@@ -77,14 +93,20 @@ static void gl842_init_registers(Genesys_Device& dev)
 
     // Various CCD clock settings.
     dev.reg.init_reg(0x1a, 0x00); // SENSOR_DEF
-    dev.reg.init_reg(0x1b, 0x00); // SENSOR_DEF
+    if (dev.model->model_id == ModelId::PLUSTEK_OPTICFILM_7200) {
+        dev.reg.init_reg(0x1b, 0x00); // SENSOR_DEF
+    }
     dev.reg.init_reg(0x1c, 0x00); // SENSOR_DEF
     dev.reg.init_reg(0x1d, 0x00); // SENSOR_DEF
     dev.reg.init_reg(0x1e, 0x10); // WDTIME, LINESEL: setup during sensor and motor setup
 
-    dev.reg.init_reg(0x1f, 0x01);
-
-    dev.reg.init_reg(0x20, 0x27); // BUFSEL: buffer full condition
+    if (dev.model->model_id == ModelId::PLUSTEK_OPTICFILM_7200) {
+        dev.reg.init_reg(0x1f, 0x01);
+        dev.reg.init_reg(0x20, 0x27); // BUFSEL: buffer full condition
+    } else if (dev.model->model_id == ModelId::CANON_LIDE_90) {
+        dev.reg.init_reg(0x1f, 0x02);
+        dev.reg.init_reg(0x20, 0x02); // BUFSEL: buffer full condition
+    }
 
     dev.reg.init_reg(0x21, 0x10); // STEPNO: set during motor setup
     dev.reg.init_reg(0x22, 0x10); // FWDSTEP: set during motor setup
@@ -127,7 +149,12 @@ static void gl842_init_registers(Genesys_Device& dev)
     dev.reg.init_reg(0x59, 0x00); // SENSOR_DEF
     dev.reg.init_reg(0x5a, 0x00); // SENSOR_DEF
 
-    dev.reg.init_reg(0x5e, 0x01); // DECSEL, STOPTIM
+    if (dev.model->model_id == ModelId::PLUSTEK_OPTICFILM_7200) {
+        dev.reg.init_reg(0x5e, 0x01); // DECSEL, STOPTIM
+    } else if (dev.model->model_id == ModelId::CANON_LIDE_90) {
+        dev.reg.init_reg(0x5e, 0x41); // DECSEL, STOPTIM
+        dev.reg.init_reg(0x5d, 0x20);
+    }
     dev.reg.init_reg(0x5f, 0x10); // FMOVDEC: set during motor setup
 
     dev.reg.init_reg(0x60, 0x00); // Z1MOD: overwritten during motor setup
@@ -137,8 +164,14 @@ static void gl842_init_registers(Genesys_Device& dev)
     dev.reg.init_reg(0x64, 0x00); // Z2MOD: overwritten during motor setup
     dev.reg.init_reg(0x65, 0x00); // Z2MOD: overwritten during motor setup
 
-    dev.reg.init_reg(0x67, 0x7f); // STEPSEL, MTRPWM: overwritten during motor setup
-    dev.reg.init_reg(0x68, 0x7f); // FSTPSEL, FASTPWM: overwritten during motor setup
+    if (dev.model->model_id == ModelId::PLUSTEK_OPTICFILM_7200) {
+        dev.reg.init_reg(0x67, 0x7f); // STEPSEL, MTRPWM: partially overwritten during motor setup
+        dev.reg.init_reg(0x68, 0x7f); // FSTPSEL, FASTPWM: partially overwritten during motor setup
+    } else if (dev.model->model_id == ModelId::CANON_LIDE_90) {
+        dev.reg.init_reg(0x66, 0x00); // PHFREQ
+        dev.reg.init_reg(0x67, 0x40); // STEPSEL, MTRPWM: partially overwritten during motor setup
+        dev.reg.init_reg(0x68, 0x40); // FSTPSEL, FASTPWM: partially overwritten during motor setup
+    }
     dev.reg.init_reg(0x69, 0x10); // FSHDEC: overwritten during motor setup
     dev.reg.init_reg(0x6a, 0x10); // FMOVNO: overwritten during motor setup
 
@@ -167,25 +200,31 @@ static void gl842_init_registers(Genesys_Device& dev)
     // moving in various situations.
     dev.reg.init_reg(0x80, 0x00); // MOTOR_PROFILE
 
-    dev.reg.init_reg(0x81, 0x00);
-    dev.reg.init_reg(0x82, 0x00);
-    dev.reg.init_reg(0x83, 0x00);
-    dev.reg.init_reg(0x84, 0x00);
-    dev.reg.init_reg(0x85, 0x00);
-    dev.reg.init_reg(0x86, 0x00);
-    dev.reg.init_reg(0x87, 0x00);
+    if (dev.model->model_id == ModelId::PLUSTEK_OPTICFILM_7200) {
+        dev.reg.init_reg(0x81, 0x00);
+        dev.reg.init_reg(0x82, 0x00);
+        dev.reg.init_reg(0x83, 0x00);
+        dev.reg.init_reg(0x84, 0x00);
+        dev.reg.init_reg(0x85, 0x00);
+        dev.reg.init_reg(0x86, 0x00);
+        dev.reg.init_reg(0x87, 0x00);
+    } else if (dev.model->model_id == ModelId::CANON_LIDE_90) {
+        dev.reg.init_reg(0x7e, 0x00);
+        dev.reg.init_reg(0x81, 0x00);
+        dev.reg.init_reg(0x82, 0x0f);
+        dev.reg.init_reg(0x83, 0x00);
+        dev.reg.init_reg(0x84, 0x0e);
+        dev.reg.init_reg(0x85, 0x00);
+        dev.reg.init_reg(0x86, 0x0d);
+        dev.reg.init_reg(0x87, 0x00);
+        dev.reg.init_reg(0x88, 0x00);
+        dev.reg.init_reg(0x89, 0x00);
+    }
 
     const auto& sensor = sanei_genesys_find_sensor_any(&dev);
     sanei_genesys_set_dpihw(dev.reg, sensor.register_dpihw);
 
     scanner_setup_sensor(dev, sensor, dev.reg);
-}
-
-static void gl842_set_ad_fe(Genesys_Device* dev)
-{
-    for (const auto& reg : dev->frontend.regs) {
-        dev->interface->write_fe_register(reg.address, reg.value);
-    }
 }
 
 // Set values of analog frontend
@@ -203,8 +242,10 @@ void CommandSetGl842::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
     // check analog frontend type
     // FIXME: looks like we write to that register with initial data
     uint8_t fe_type = dev->interface->read_register(REG_0x04) & REG_0x04_FESET;
-    if (fe_type == 2) {
-        gl842_set_ad_fe(dev);
+    if (fe_type == 2 || dev->model->model_id == ModelId::CANON_LIDE_90) {
+        for (const auto& reg : dev->frontend.regs) {
+            dev->interface->write_fe_register(reg.address, reg.value);
+        }
         return;
     }
     if (fe_type != 0) {
@@ -220,12 +261,6 @@ void CommandSetGl842::set_fe(Genesys_Device* dev, const Genesys_Sensor& sensor, 
 
     for (unsigned i = 0; i < 3; i++) {
         dev->interface->write_fe_register(0x20 + i, dev->frontend.get_offset(i));
-    }
-
-    if (dev->model->sensor_id == SensorId::CCD_KVSS080) {
-        for (unsigned i = 0; i < 3; i++) {
-            dev->interface->write_fe_register(0x24 + i, dev->frontend.regs.get_value(0x24 + i));
-        }
     }
 
     for (unsigned i = 0; i < 3; i++) {
@@ -482,7 +517,11 @@ static void gl842_init_optical_regs_scan(Genesys_Device* dev, const Genesys_Sens
     reg->set16(REG_STRPIXEL, session.pixel_startx);
     reg->set16(REG_ENDPIXEL, session.pixel_endx);
 
-    reg->set24(REG_MAXWD, session.output_line_bytes_raw);
+    if (dev->model->is_cis) {
+        reg->set24(REG_MAXWD, session.output_line_bytes_raw * session.params.channels);
+    } else {
+        reg->set24(REG_MAXWD, session.output_line_bytes_raw);
+    }
 
     unsigned tgtime = exposure / 65536 + 1;
     reg->set16(REG_LPERIOD, exposure / tgtime);
@@ -515,6 +554,9 @@ void CommandSetGl842::init_regs_for_scan_session(Genesys_Device* dev, const Gene
     int exposure = sensor.exposure_lperiod;
     if (exposure < 0) {
         throw std::runtime_error("Exposure not defined in sensor definition");
+    }
+    if (dev->model->model_id == ModelId::CANON_LIDE_90) {
+        exposure *= 2;
     }
     const auto& motor_profile = get_motor_profile(dev->motor.profiles, exposure, session);
 
@@ -641,6 +683,25 @@ void CommandSetGl842::begin_scan(Genesys_Device* dev, const Genesys_Sensor& sens
     }
     if (reg->state.is_xpa_on && !has_flag(dev->model->flags, ModelFlag::UTA_NO_SECONDARY_MOTOR)) {
         dev->cmd_set->set_motor_mode(*dev, *reg, MotorMode::PRIMARY_AND_SECONDARY);
+    }
+
+    if (dev->model->model_id == ModelId::CANON_LIDE_90) {
+        if (has_flag(dev->session.params.flags, ScanFlag::REVERSE)) {
+            dev->interface->write_register(REG_0x6B, 0x01);
+            dev->interface->write_register(REG_0x6C, 0x02);
+        } else {
+            dev->interface->write_register(REG_0x6B, 0x03);
+            switch (dev->session.params.xres) {
+                case 150: dev->interface->write_register(REG_0x6C, 0x74); break;
+                case 300: dev->interface->write_register(REG_0x6C, 0x38); break;
+                case 600: dev->interface->write_register(REG_0x6C, 0x1c); break;
+                case 1200: dev->interface->write_register(REG_0x6C, 0x2c); break;
+                case 2400: dev->interface->write_register(REG_0x6C, 0x0c); break;
+                default:
+                    break;
+            }
+        }
+        dev->interface->sleep_ms(100);
     }
 
     scanner_clear_scan_and_feed_counts(*dev);
@@ -902,6 +963,9 @@ void CommandSetGl842::asic_boot(Genesys_Device* dev, bool cold) const
     if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200) {
         dev->interface->write_0x8c(0x10, 0x94);
     }
+    if (dev->model->model_id == ModelId::CANON_LIDE_90) {
+        dev->interface->write_0x8c(0x10, 0xd4);
+    }
 
     // set RAM read address
     dev->interface->write_register(REG_0x2A, 0x00);
@@ -929,7 +993,11 @@ void CommandSetGl842::update_hardware_sensors(Genesys_Scanner* s) const
 void CommandSetGl842::update_home_sensor_gpio(Genesys_Device& dev) const
 {
     DBG_HELPER(dbg);
-    (void) dev;
+    if (dev.model->model_id == ModelId::CANON_LIDE_90) {
+        std::uint8_t val = dev.interface->read_register(REG_0x6C);
+        val |= 0x02;
+        dev.interface->write_register(REG_0x6C, val);
+    }
 }
 
 /**

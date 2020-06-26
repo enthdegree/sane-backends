@@ -791,7 +791,9 @@ void compute_session_pixel_offsets(const Genesys_Device* dev, ScanSession& s,
                dev->model->asic_type == AsicType::GL847)
     {
         unsigned startx_xres = s.optical_resolution;
-        if (dev->model->model_id == ModelId::CANON_5600F) {
+        if (dev->model->model_id == ModelId::CANON_5600F ||
+            dev->model->model_id == ModelId::CANON_LIDE_90)
+        {
             if (s.output_resolution == 1200) {
                 startx_xres /= 2;
             }
@@ -1044,7 +1046,9 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
         }
     }
 
-    if (dev->model->asic_type == AsicType::GL841) {
+    if (dev->model->asic_type == AsicType::GL841 ||
+        dev->model->asic_type == AsicType::GL842)
+    {
         if (dev->model->is_cis) {
             s.output_line_bytes_raw = s.output_channel_bytes;
         }
@@ -1077,6 +1081,11 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
         s.output_segment_pixel_group_count = s.output_pixels /
                 (s.full_resolution / s.optical_resolution * s.segment_count);
     }
+
+    if (dev->model->model_id == ModelId::CANON_LIDE_90) {
+        s.output_segment_pixel_group_count = s.output_pixels / s.segment_count;
+    }
+
     if (dev->model->asic_type == AsicType::GL845 ||
         dev->model->asic_type == AsicType::GL846 ||
         dev->model->asic_type == AsicType::GL847)
@@ -1093,6 +1102,10 @@ void compute_session(const Genesys_Device* dev, ScanSession& s, const Genesys_Se
 
     s.output_total_bytes_raw = s.output_line_bytes_raw * s.output_line_count;
     s.output_total_bytes = s.output_line_bytes * s.output_line_count;
+    if (dev->model->model_id == ModelId::CANON_LIDE_90) {
+        s.output_total_bytes_raw *= s.params.channels;
+        s.output_total_bytes *= s.params.channels;
+    }
 
     s.buffer_size_read = s.output_line_bytes_raw * 64;
     compute_session_pixel_offsets(dev, s, sensor);

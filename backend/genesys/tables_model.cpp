@@ -1178,6 +1178,65 @@ void genesys_init_usb_device_tables()
 
 
     model = Genesys_Model();
+    model.name = "canon-lide-90";
+    model.vendor = "Canon";
+    model.model = "LiDE 90";
+    model.model_id = ModelId::CANON_LIDE_90;
+    model.asic_type = AsicType::GL842;
+
+    model.resolutions = {
+        {
+            { ScanMethod::FLATBED },
+            { 2400, 1200, 600, 300 },
+            { 2400, 1200, 600, 300 },
+        }
+    };
+
+    model.bpp_gray_values = { 8, 16 };
+    model.bpp_color_values = { 8, 16 };
+    model.x_offset = 3.50;
+    model.y_offset = 9.0;
+    model.x_size = 219.0;
+    model.y_size = 299.0;
+
+    model.y_offset_calib_white = 0.0;
+    model.y_size_calib_mm = 2.0;
+    model.y_offset_calib_dark_white_mm = 0.0;
+    model.y_size_calib_dark_white_mm = 0.0;
+    model.x_offset_calib_black = 0.0;
+    model.x_size_calib_mm = 221.5;
+
+    model.post_scan = 0.0;
+    model.eject_feed = 0.0;
+
+    model.ld_shift_r = 0;
+    model.ld_shift_g = 0;
+    model.ld_shift_b = 0;
+
+    model.line_mode_color_order = ColorOrder::RGB;
+
+    model.is_cis = true;
+    model.is_sheetfed = false;
+    model.sensor_id = SensorId::CIS_CANON_LIDE_90;
+    model.adc_id = AdcId::CANON_LIDE_90;
+    model.gpio_id = GpioId::CANON_LIDE_90;
+    model.motor_id = MotorId::CANON_LIDE_90;
+    model.flags = ModelFlag::DISABLE_ADC_CALIBRATION |
+                  ModelFlag::HOST_SIDE_CALIBRATION_COMPLETE_SCAN |
+                  ModelFlag::USE_CONSTANT_FOR_DARK_CALIBRATION |
+                  ModelFlag::DISABLE_FAST_FEEDING |
+                  ModelFlag::SHADING_REPARK |
+                  ModelFlag::CUSTOM_GAMMA;
+    model.buttons = GENESYS_HAS_SCAN_SW |
+                    GENESYS_HAS_FILE_SW |
+                    GENESYS_HAS_EMAIL_SW |
+                    GENESYS_HAS_COPY_SW;
+    model.search_lines = 400;
+
+    s_usb_devices->emplace_back(0x04a9, 0x1900, model);
+
+
+    model = Genesys_Model();
     model.name = "hewlett-packard-scanjet-2300c";
     model.vendor = "Hewlett Packard";
     model.model = "ScanJet 2300c";

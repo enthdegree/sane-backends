@@ -145,6 +145,23 @@ void genesys_init_motor_tables()
 
 
     motor = Genesys_Motor();
+    motor.id = MotorId::CANON_LIDE_90;
+    motor.base_ydpi = 1200;
+    profile = {MotorSlope::create_from_steps(8000, 3000, 200), StepType::FULL, 0};
+    profile.resolutions = { 150, 300 };
+    motor.profiles.push_back(profile);
+
+    profile = {MotorSlope::create_from_steps(7000, 3000, 200), StepType::HALF, 0};
+    profile.resolutions = { 600, 1200 };
+    motor.profiles.push_back(profile);
+
+    profile = {MotorSlope::create_from_steps(7000, 3000, 200), StepType::QUARTER, 0};
+    profile.resolutions = { 2400 };
+    motor.profiles.push_back(profile);
+    s_motors->push_back(std::move(motor));
+
+
+    motor = Genesys_Motor();
     motor.id = MotorId::XP200;
     motor.base_ydpi = 600;
     motor.profiles.push_back({MotorSlope::create_from_steps(3500, 1300, 60), StepType::FULL, 0});

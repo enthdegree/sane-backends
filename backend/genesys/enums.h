@@ -182,6 +182,7 @@ enum class ModelId : unsigned
     CANON_LIDE_50,
     CANON_LIDE_60,
     CANON_LIDE_80,
+    CANON_LIDE_90,
     CANON_LIDE_100,
     CANON_LIDE_110,
     CANON_LIDE_120,
@@ -276,6 +277,7 @@ enum class SensorId : unsigned
     CIS_CANON_LIDE_35,
     CIS_CANON_LIDE_60,
     CIS_CANON_LIDE_80,
+    CIS_CANON_LIDE_90,
     CIS_CANON_LIDE_100,
     CIS_CANON_LIDE_110,
     CIS_CANON_LIDE_120,
@@ -308,6 +310,7 @@ enum class AdcId : unsigned
     AD_XP200,
     CANON_LIDE_35,
     CANON_LIDE_80,
+    CANON_LIDE_90,
     CANON_LIDE_110,
     CANON_LIDE_120,
     CANON_LIDE_200,
@@ -358,6 +361,7 @@ enum class GpioId : unsigned
     UNKNOWN = 0,
     CANON_LIDE_35,
     CANON_LIDE_80,
+    CANON_LIDE_90,
     CANON_LIDE_110,
     CANON_LIDE_120,
     CANON_LIDE_200,
@@ -406,6 +410,7 @@ enum class MotorId : unsigned
     CANON_LIDE_60,
     CANON_LIDE_700,
     CANON_LIDE_80,
+    CANON_LIDE_90,
     CANON_4400F,
     CANON_5600F,
     CANON_8400F,
@@ -510,11 +515,17 @@ enum class ModelFlag : unsigned
     // whether scanner must wait for the head while parking
     MUST_WAIT = 1 << 10,
 
+    // use zeroes for dark calibration
+    USE_CONSTANT_FOR_DARK_CALIBRATION = 1 << 11,
+
     // do dark and white calibration in one run
     DARK_WHITE_CALIBRATION = 1 << 12,
 
     // allow custom gamma tables
     CUSTOM_GAMMA = 1 << 13,
+
+    // disable fast feeding mode on this scanner
+    DISABLE_FAST_FEEDING = 1 << 14,
 
     // the scanner uses multi-segment sensors that must be handled during calibration
     SIS_SENSOR = 1 << 16,

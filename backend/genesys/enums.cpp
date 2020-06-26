@@ -121,6 +121,7 @@ std::ostream& operator<<(std::ostream& out, ModelId id)
         case ModelId::CANON_LIDE_50: out << "CANON_LIDE_50"; break;
         case ModelId::CANON_LIDE_60: out << "CANON_LIDE_60"; break;
         case ModelId::CANON_LIDE_80: out << "CANON_LIDE_80"; break;
+        case ModelId::CANON_LIDE_90: out << "CANON_LIDE_90"; break;
         case ModelId::CANON_LIDE_100: out << "CANON_LIDE_100"; break;
         case ModelId::CANON_LIDE_110: out << "CANON_LIDE_110"; break;
         case ModelId::CANON_LIDE_120: out << "CANON_LIDE_120"; break;
@@ -205,6 +206,7 @@ std::ostream& operator<<(std::ostream& out, SensorId id)
         case SensorId::CIS_CANON_LIDE_35: out << "CIS_CANON_LIDE_35"; break;
         case SensorId::CIS_CANON_LIDE_60: out << "CIS_CANON_LIDE_60"; break;
         case SensorId::CIS_CANON_LIDE_80: out << "CIS_CANON_LIDE_80"; break;
+        case SensorId::CIS_CANON_LIDE_90: out << "CIS_CANON_LIDE_90"; break;
         case SensorId::CIS_CANON_LIDE_100: out << "CIS_CANON_LIDE_100"; break;
         case SensorId::CIS_CANON_LIDE_110: out << "CIS_CANON_LIDE_110"; break;
         case SensorId::CIS_CANON_LIDE_120: out << "CIS_CANON_LIDE_120"; break;
@@ -226,6 +228,7 @@ std::ostream& operator<<(std::ostream& out, AdcId id)
         case AdcId::AD_XP200: out << "AD_XP200"; break;
         case AdcId::CANON_LIDE_35: out << "CANON_LIDE_35"; break;
         case AdcId::CANON_LIDE_80: out << "CANON_LIDE_80"; break;
+        case AdcId::CANON_LIDE_90: out << "CANON_LIDE_90"; break;
         case AdcId::CANON_LIDE_110: out << "CANON_LIDE_110"; break;
         case AdcId::CANON_LIDE_120: out << "CANON_LIDE_120"; break;
         case AdcId::CANON_LIDE_200: out << "CANON_LIDE_200"; break;
@@ -266,6 +269,7 @@ std::ostream& operator<<(std::ostream& out, GpioId id)
         case GpioId::UNKNOWN: out << "UNKNOWN"; break;
         case GpioId::CANON_LIDE_35: out << "CANON_LIDE_35"; break;
         case GpioId::CANON_LIDE_80: out << "CANON_LIDE_80"; break;
+        case GpioId::CANON_LIDE_90: out << "CANON_LIDE_90"; break;
         case GpioId::CANON_LIDE_110: out << "CANON_LIDE_110"; break;
         case GpioId::CANON_LIDE_120: out << "CANON_LIDE_120"; break;
         case GpioId::CANON_LIDE_200: out << "CANON_LIDE_200"; break;
@@ -306,6 +310,7 @@ std::ostream& operator<<(std::ostream& out, MotorId id)
 {
     switch (id) {
         case MotorId::UNKNOWN: out << "UNKNOWN"; break;
+        case MotorId::CANON_LIDE_90: out << "CANON_LIDE_90"; break;
         case MotorId::CANON_LIDE_100: out << "CANON_LIDE_100"; break;
         case MotorId::CANON_LIDE_110: out << "CANON_LIDE_110"; break;
         case MotorId::CANON_LIDE_120: out << "CANON_LIDE_120"; break;

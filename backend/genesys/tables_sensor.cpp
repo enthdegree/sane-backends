@@ -564,6 +564,69 @@ void genesys_init_sensor_tables()
 
 
     sensor = Genesys_Sensor();
+    sensor.sensor_id = SensorId::CIS_CANON_LIDE_90; // gl842
+    sensor.full_resolution = 2400;
+    sensor.black_pixels = 20;
+    sensor.dummy_pixel = 253;
+    sensor.fau_gain_white_ref = 150;
+    sensor.gain_white_ref = 150;
+    sensor.use_host_side_calib = true;
+    sensor.custom_regs = {
+        { 0x16, 0x20 }, { 0x17, 0x06 }, { 0x18, 0x00 }, { 0x19, 0xff },
+        { 0x1a, 0x24 }, { 0x1c, 0x00 }, { 0x1d, 0x04 },
+        { 0x52, 0x02 }, { 0x53, 0x04 }, { 0x54, 0x02 }, { 0x55, 0x04 },
+        { 0x56, 0x02 }, { 0x57, 0x04 }, { 0x58, 0x0a }, { 0x59, 0x71 }, { 0x5a, 0x55 },
+        { 0x70, 0x00 }, { 0x71, 0x05 }, { 0x72, 0x07 }, { 0x73, 0x09 },
+        { 0x74, 0x00 }, { 0x75, 0x01 }, { 0x76, 0xff },
+        { 0x77, 0x00 }, { 0x78, 0x00 }, { 0x79, 0x3f },
+        { 0x7a, 0x00 }, { 0x7b, 0x00 }, { 0x7c, 0x1e }, { 0x7d, 0x11 }, { 0x7f, 0x50 }
+    };
+    sensor.gamma = { 1.0f, 1.0f, 1.0f };
+    {
+        struct CustomSensorSettings
+        {
+            ValueFilterAny<unsigned> resolutions;
+            unsigned optical_resolution;
+            unsigned register_dpihw;
+            unsigned register_dpiset;
+            unsigned shading_resolution;
+            unsigned shading_factor;
+            int output_pixel_offset;
+            SensorExposure exposure;
+            unsigned exposure_lperiod;
+            unsigned segment_size;
+            std::vector<unsigned> segment_order;
+        };
+
+        CustomSensorSettings custom_settings[] = {
+            {   { 300 }, 300, 600, 600, 300, 2, 280, { 955, 1235, 675 }, 6500, 5152,
+                std::vector<unsigned>{} },
+            {   { 600 }, 600, 600, 600, 600, 1, 250, { 1655, 2075, 1095 }, 6536, 5152,
+                std::vector<unsigned>{} },
+            {   { 1200 }, 1200, 1200, 1200, 1200, 1, 500, { 3055, 4175, 1935 }, 12688, 5152,
+                {0, 1} },
+            {   { 2400 }, 2400, 2400, 2400, 2400, 1, 1000, { 5855, 7535, 3615 }, 21500, 5152,
+                {0, 1, 2, 3} },
+        };
+
+        for (const CustomSensorSettings& setting : custom_settings) {
+            sensor.resolutions = setting.resolutions;
+            sensor.optical_resolution = setting.optical_resolution;
+            sensor.register_dpihw = setting.register_dpihw;
+            sensor.register_dpiset = setting.register_dpiset;
+            sensor.shading_resolution = setting.shading_resolution;
+            sensor.shading_factor = setting.shading_factor;
+            sensor.output_pixel_offset = setting.output_pixel_offset;
+            sensor.exposure = setting.exposure;
+            sensor.exposure_lperiod = setting.exposure_lperiod;
+            sensor.segment_size = setting.segment_size;
+            sensor.segment_order = setting.segment_order;
+            s_sensors->push_back(sensor);
+        }
+    }
+
+
+    sensor = Genesys_Sensor();
     sensor.sensor_id = SensorId::CIS_XP200; // gl646
     sensor.full_resolution = 600;
     sensor.black_pixels = 5;
@@ -3803,7 +3866,7 @@ void verify_sensor_tables()
 
         if (asic_type == AsicType::GL842) {
             auto required_registers = {
-                0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d,
+                0x16, 0x17, 0x18, 0x19, 0x1a, 0x1c, 0x1d,
                 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5a,
                 0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7a, 0x7b, 0x7c, 0x7d,
                 0x7f

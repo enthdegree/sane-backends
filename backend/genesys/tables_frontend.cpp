@@ -220,6 +220,30 @@ void genesys_init_frontend_tables()
 
 
     fe = Genesys_Frontend();
+    fe.id = AdcId::CANON_LIDE_90;
+    fe.layout = wolfson_layout;
+    fe.layout.type = FrontendType::WOLFSON;
+    fe.regs = {
+        { 0x01, 0x23 },
+        { 0x02, 0x07 },
+        { 0x03, 0x29 },
+        { 0x06, 0x0d },
+        { 0x08, 0x00 },
+        { 0x09, 0x16 },
+        { 0x20, 0x4d },
+        { 0x21, 0x4d },
+        { 0x22, 0x4d },
+        { 0x23, 0x4d },
+        { 0x28, 0x14 },
+        { 0x29, 0x14 },
+        { 0x2a, 0x14 },
+        { 0x2b, 0x14 },
+    };
+    fe.reg2 = {0x00, 0x00, 0x00};
+    s_frontends->push_back(fe);
+
+
+    fe = Genesys_Frontend();
     fe.id = AdcId::AD_XP200;
     fe.layout = wolfson_layout;
     fe.regs = {

@@ -544,9 +544,10 @@ void scanner_send_slope_table(Genesys_Device* dev, const Genesys_Sensor& sensor,
         table.push_back(slope_table[i] & 0xff);
         table.push_back(slope_table[i] >> 8);
     }
-    if (dev->model->asic_type == AsicType::GL841) {
-        // BUG: some motor setup setting is wrong on GL841 scanners, as they need full motor table
-        // to be written even though this is not observed in the official scanners.
+    if (dev->model->asic_type == AsicType::GL841 ||
+        dev->model->model_id == ModelId::CANON_LIDE_90)
+    {
+        // BUG: do this on all gl842 scanners
         auto max_table_size = get_slope_table_max_size(dev->model->asic_type);
         table.reserve(max_table_size * 2);
         while (table.size() < max_table_size * 2) {
@@ -576,7 +577,8 @@ void scanner_send_slope_table(Genesys_Device* dev, const Genesys_Sensor& sensor,
                                          table.size());
             break;
         }
-        case AsicType::GL841: {
+        case AsicType::GL841:
+        case AsicType::GL842: {
             unsigned start_address = 0;
             switch (sensor.register_dpihw) {
                 case 600: start_address = 0x08000; break;
@@ -586,18 +588,6 @@ void scanner_send_slope_table(Genesys_Device* dev, const Genesys_Sensor& sensor,
             }
             dev->interface->write_buffer(0x3c, start_address + table_nr * 0x200, table.data(),
                                          table.size());
-            break;
-        }
-        case AsicType::GL842: {
-            // slope table addresses are fixed : 0x40000,  0x48000,  0x50000,  0x58000,  0x60000
-            // XXX STEF XXX USB 1.1 ? sanei_genesys_write_0x8c (dev, 0x0f, 0x14);
-            if (dev->model->model_id == ModelId::PLUSTEK_OPTICFILM_7200) {
-                dev->interface->write_buffer(0x3c, 0x010000 + 0x200 * table_nr, table.data(),
-                                             table.size());
-            } else {
-                dev->interface->write_gamma(0x28,  0x40000 + 0x8000 * table_nr, table.data(),
-                                            table.size());
-            }
             break;
         }
         case AsicType::GL843: {
@@ -712,9 +702,7 @@ void scanner_stop_action(Genesys_Device& dev)
             throw SaneException("Unsupported asic type");
     }
 
-    if (dev.cmd_set->needs_update_home_sensor_gpio()) {
-        dev.cmd_set->update_home_sensor_gpio(dev);
-    }
+    dev.cmd_set->update_home_sensor_gpio(dev);
 
     if (scanner_is_motor_stopped(dev)) {
         DBG(DBG_info, "%s: already stopped\n", __func__);
@@ -868,9 +856,7 @@ void scanner_move(Genesys_Device& dev, ScanMethod scan_method, unsigned steps, D
 
     // wait until feed count reaches the required value
     if (dev.model->model_id == ModelId::CANON_LIDE_700F) {
-        if (dev.cmd_set->needs_update_home_sensor_gpio()) {
-            dev.cmd_set->update_home_sensor_gpio(dev);
-        }
+        dev.cmd_set->update_home_sensor_gpio(dev);
     }
 
     // FIXME: should porbably wait for some timeout
@@ -948,9 +934,7 @@ void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
                      Direction::BACKWARD);
     }
 
-    if (dev.cmd_set->needs_update_home_sensor_gpio()) {
-        dev.cmd_set->update_home_sensor_gpio(dev);
-    }
+    dev.cmd_set->update_home_sensor_gpio(dev);
 
     auto status = scanner_read_reliable_status(dev);
 
@@ -1012,9 +996,7 @@ void scanner_move_back_home(Genesys_Device& dev, bool wait_until_home)
         throw;
     }
 
-    if (dev.cmd_set->needs_update_home_sensor_gpio()) {
-        dev.cmd_set->update_home_sensor_gpio(dev);
-    }
+    dev.cmd_set->update_home_sensor_gpio(dev);
 
     if (is_testing_mode()) {
         dev.interface->test_checkpoint("move_back_home");
@@ -2464,7 +2446,7 @@ static void genesys_shading_calibration_impl(Genesys_Device* dev, const Genesys_
  * can be computed from previous calibration data (when doing offset
  * calibration ?)
  */
-static void genesys_dummy_dark_shading(Genesys_Device* dev, const Genesys_Sensor& sensor)
+static void genesys_dark_shading_by_dummy_pixel(Genesys_Device* dev, const Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
   uint32_t pixels_per_line;
@@ -2543,6 +2525,11 @@ static void genesys_dummy_dark_shading(Genesys_Device* dev, const Genesys_Sensor
     }
 }
 
+static void genesys_dark_shading_by_constant(Genesys_Device& dev)
+{
+    dev.dark_average_data.clear();
+    dev.dark_average_data.resize(dev.average_size, 0x0101);
+}
 
 static void genesys_repark_sensor_before_shading(Genesys_Device* dev)
 {
@@ -3554,6 +3541,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
       break;
     case SensorId::CIS_CANON_LIDE_35:
         case SensorId::CIS_CANON_LIDE_60:
+            case SensorId::CIS_CANON_LIDE_90:
       compute_averaged_planar (dev, sensor,
                                shading_data.data(),
                                pixels_per_line,
@@ -3794,7 +3782,11 @@ static void genesys_flatbed_calibration(Genesys_Device* dev, Genesys_Sensor& sen
             genesys_repark_sensor_after_white_shading(dev);
 
             if (!has_flag(dev->model->flags, ModelFlag::DARK_CALIBRATION)) {
-                genesys_dummy_dark_shading(dev, sensor);
+                if (has_flag(dev->model->flags, ModelFlag::USE_CONSTANT_FOR_DARK_CALIBRATION)) {
+                    genesys_dark_shading_by_constant(*dev);
+                } else {
+                    genesys_dark_shading_by_dummy_pixel(dev, sensor);
+                }
             }
         }
     }
@@ -3902,17 +3894,9 @@ static void genesys_sheetfed_calibration(Genesys_Device* dev, Genesys_Sensor& se
     }
 
     // in case we haven't black shading data, build it from black pixels of white calibration
-    // FIXME: shouldn't we use genesys_dummy_dark_shading() ?
+    // FIXME: shouldn't we use genesys_dark_shading_by_dummy_pixel() ?
     if (!has_flag(dev->model->flags, ModelFlag::DARK_CALIBRATION)) {
-        dev->dark_average_data.clear();
-        dev->dark_average_data.resize(dev->average_size, 0x0f0f);
-      /* XXX STEF XXX
-       * with black point in white shading, build an average black
-       * pixel and use it to fill the dark_average
-       * dev->calib_pixels
-       (sensor.x_size_calib_mm * dev->settings.xres) / MM_PER_INCH,
-       dev->calib_lines,
-       */
+        genesys_dark_shading_by_constant(*dev);
     }
 
   /* send the shading coefficient when doing whole line shading

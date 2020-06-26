@@ -575,6 +575,9 @@ static void gl841_init_motor_regs_feed(Genesys_Device* dev, const Genesys_Sensor
     // BUG: fast table is counted in base_ydpi / 4
     feedl = feed_steps - fast_table.table.size() * 2;
     use_fast_fed = 1;
+    if (has_flag(dev->model->flags, ModelFlag::DISABLE_FAST_FEEDING)) {
+        use_fast_fed = false;
+    }
 
     reg->set8(0x3d, (feedl >> 16) & 0xf);
     reg->set8(0x3e, (feedl >> 8) & 0xff);
@@ -711,6 +714,10 @@ static void gl841_init_motor_regs_scan(Genesys_Device* dev, const Genesys_Sensor
         + slow_table.pixeltime_sum();
 
         use_fast_fed = fast_time < slow_time;
+    }
+
+    if (has_flag(dev->model->flags, ModelFlag::DISABLE_FAST_FEEDING)) {
+        use_fast_fed = false;
     }
 
     if (use_fast_fed) {

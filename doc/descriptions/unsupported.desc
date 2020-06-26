@@ -395,13 +395,6 @@
 :status :unsupported
 :comment "Not supported. However, a stand-alone program for FreeBSD is available."
 
-:model "CanoScan LiDE 90"
-:url "unsupported/canon-lide-90.html"
-:interface "USB"
-:usbid "0x04a9" "0x1900"
-:status :unsupported
-:comment "Unsupported. See link for details."
-
 :model "CanoScan LiDE 500F"
 :url "unsupported/canon-canoscan-lide-500f.html"
 :interface "USB"

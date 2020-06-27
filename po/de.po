@@ -9,15 +9,15 @@
 # Oliver Schwartz <Oliver.Schwartz@gmx.de>, 2002, 2004.
 # Karsten Festag <karsten.festag@gmx.de>, 2002.
 # Burkhard Lück <lueck@hube-lueck.de>, 2009.
-# Rolf Bensch <rolf at bensch hyphen online dot de>, 2012-2019.
+# Rolf Bensch <rolf@bensch-online.de>, 2012-2020.
 # Ulf Zibis <Ulf.Zibis@CoSoCo.de>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.29\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
 "POT-Creation-Date: 2020-06-27 12:18+0200\n"
-"PO-Revision-Date: 2020-01-26 16:29+0900\n"
-"Last-Translator: Ulf Zibis <Ulf.Zibis@CoSoCo.de>\n"
+"PO-Revision-Date: 2020-06-27 13:27+0200\n"
+"Last-Translator: Rolf Bensch <rolf@bensch-online.de>\n"
 "Language-Team: \n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -3023,14 +3023,14 @@ msgid "OMR or double feed detected"
 msgstr "OMR oder Double Feed erkannt"
 
 #: backend/fujitsu.c:4504
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Card loaded"
-msgstr "Seite geladen"
+msgstr "Karte geladen"
 
 #: backend/fujitsu.c:4505
 #, no-c-format
 msgid "Card slot contains paper"
-msgstr ""
+msgstr "Papier eingelegt"
 
 #: backend/fujitsu.c:4516
 #, no-c-format
@@ -3869,19 +3869,19 @@ msgid "This option reflects a front panel scanner button"
 msgstr "Diese Option spiegelt eine Frontplatten-Scannertaste wider"
 
 #: backend/hp5400_sane.c:418
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "web"
-msgstr "Webcam"
+msgstr "Web"
 
 #: backend/hp5400_sane.c:419
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Share-To-Web button"
-msgstr "Scan-Taste"
+msgstr "Teilen-Taste"
 
 #: backend/hp5400_sane.c:420
 #, no-c-format
 msgid "Scan an image and send it on the web"
-msgstr ""
+msgstr "Scannen und mit Freunden teilen"
 
 #: backend/hp5400_sane.c:426
 #, fuzzy, no-c-format
@@ -3891,117 +3891,117 @@ msgstr "Foto"
 #: backend/hp5400_sane.c:427
 #, fuzzy, no-c-format
 msgid "Reprint Photos button"
-msgstr "Warte auf Tastendruck"
+msgstr "Foto-Taste"
 
 #: backend/hp5400_sane.c:428
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "Button for reprinting photos"
-msgstr ""
+msgstr "Foto-Taste"
 
 #: backend/hp5400_sane.c:450
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "more-options"
-msgstr "Stempel Optionen"
+msgstr "Optionen"
 
 #: backend/hp5400_sane.c:451
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "More Options button"
-msgstr "Stempel Optionen"
+msgstr "Optionen-Taste"
 
 #: backend/hp5400_sane.c:452
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Button for additional options/configuration"
-msgstr "keine zusätzliche Sinnesinformation"
+msgstr "Optionen-Taste"
 
 #: backend/hp5400_sane.c:466
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "power-save"
 msgstr "Energiesparmodus"
 
 #: backend/hp5400_sane.c:467
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Power Save button"
-msgstr "Einschalt-Taste"
+msgstr "Energiesparmodus-Taste"
 
 #: backend/hp5400_sane.c:468
 #, no-c-format
 msgid "Puts the scanner in an energy-conservation mode"
-msgstr ""
+msgstr "Energiesparmodus aktivieren"
 
 #: backend/hp5400_sane.c:474
 #, no-c-format
 msgid "copies-up"
-msgstr ""
+msgstr "Anzahl vergößern"
 
 #: backend/hp5400_sane.c:475
 #, fuzzy, no-c-format
 msgid "Increase Copies button"
-msgstr "Kopieren-Taste"
+msgstr "Anzahl vergrößern Taste"
 
 #: backend/hp5400_sane.c:476
 #, no-c-format
 msgid "Increase the number of copies"
-msgstr ""
+msgstr "Anzahl der Kopien vergrößern"
 
 #: backend/hp5400_sane.c:482
 #, no-c-format
 msgid "copies-down"
-msgstr ""
+msgstr "Anzahl verringern"
 
 #: backend/hp5400_sane.c:483
 #, fuzzy, no-c-format
 msgid "Decrease Copies button"
-msgstr "Kopieren-Taste"
+msgstr "Anzahl verringern Taste"
 
 #: backend/hp5400_sane.c:484
 #, no-c-format
 msgid "Decrease the number of copies"
-msgstr ""
+msgstr "Anzahl der Kopien verringern"
 
 #: backend/hp5400_sane.c:490
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "color-bw"
-msgstr "Farbe"
+msgstr "Farbe-Monochrom"
 
 #: backend/hp5400_sane.c:491
 #, no-c-format
 msgid "Select color/BW button"
-msgstr ""
+msgstr "Farb-Monochrom-Taste"
 
 #: backend/hp5400_sane.c:492
 #, no-c-format
 msgid "Alternates between color and black/white scanning"
-msgstr ""
+msgstr "Umschalten zwischen Farb- und Monochrom-Scans"
 
 #: backend/hp5400_sane.c:498
 #, no-c-format
 msgid "color-bw-state"
-msgstr ""
+msgstr "Farb-/Monochrom Status"
 
 #: backend/hp5400_sane.c:499
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Read color/BW button state"
-msgstr "Tasten-Status"
+msgstr "Lese Status der Farb/Monochrom Taste"
 
 #: backend/hp5400_sane.c:500
 #, no-c-format
 msgid "Reads state of BW/colour panel setting"
-msgstr ""
+msgstr "Lese Farb-/Monochrom Einstellungen"
 
 #: backend/hp5400_sane.c:508
 #, no-c-format
 msgid "copies-count"
-msgstr ""
+msgstr "Anzahl"
 
 #: backend/hp5400_sane.c:509
 #, no-c-format
 msgid "Read copy count value"
-msgstr ""
+msgstr "Lese Anzahl der Kopien"
 
 #: backend/hp5400_sane.c:510
 #, no-c-format
 msgid "Reads state of copy count panel setting"
-msgstr ""
+msgstr "Lese Zähler-Einstellungen"
 
 #: backend/hp5400_sane.c:519 backend/niash.c:709
 #, no-c-format

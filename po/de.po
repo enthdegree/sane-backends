@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: sane-backends 1.0.29\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
 "POT-Creation-Date: 2020-06-27 12:18+0200\n"
-"PO-Revision-Date: 2020-06-27 13:27+0200\n"
+"PO-Revision-Date: 2020-06-27 13:37+0200\n"
 "Last-Translator: Rolf Bensch <rolf@bensch-online.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -600,7 +600,6 @@ msgstr "Gamma-Korrekturtabelle für die grüne Komponente."
 msgid "Gamma-correction table for the blue band."
 msgstr "Gamma-Korrekturtabelle für die blaue Komponente."
 
-# Alternative: des erlangten Abbilds
 #: include/sane/saneopts.h:326
 #, no-c-format
 msgid "Controls the brightness of the acquired image."
@@ -2203,7 +2202,7 @@ msgstr "ADF-Schräglaufkorrektur"
 #: backend/epsonds.c:775
 #, no-c-format
 msgid "Enables ADF skew correction"
-msgstr "aktiviert ADF-Schräglaufkorrektur"
+msgstr "Aktiviert ADF-Schräglaufkorrektur"
 
 #: backend/fujitsu.c:695 backend/hp-option.c:3330 backend/hp-option.c:3343
 #, no-c-format
@@ -5524,15 +5523,15 @@ msgid "16 bits gray"
 msgstr "16 Bit Graustufen"
 
 #: backend/pixma/pixma.c:1005
-#, fuzzy, no-c-format
+#, no-c-format
 msgid ""
 "Gamma-correction table with 4096 entries. In color mode this option "
 "equally affects the red, green, and blue channels simultaneously (i.e., "
 "it is an intensity gamma table)."
 msgstr ""
-"Gamma-Korrekturtabelle. Im Farbmodus wirkt sich diese Option auf die "
-"rote, grüne und blaue Farbkomponente aus. Es ist also eine Helligkeits-"
-"Gammatabelle."
+"Gamma-Korrekturtabelle mit 4096 Einträgen. Im Farbmodus wirkt sich diese "
+"Option auf die rote, grüne und blaue Farbkomponente aus. Es ist also "
+"eine Helligkeits-Gammatabelle."
 
 #: backend/pixma/pixma_sane_options.c:84
 #, no-c-format
@@ -5561,15 +5560,15 @@ msgstr ""
 "anderen Modellen. Zum Abbrechen drücken Sie die Taste \"GRAY\"."
 
 #: backend/pixma/pixma_sane_options.c:133
-#, fuzzy, no-c-format
+#, no-c-format
 msgid ""
 "Gamma-correction table with 1024 entries. In color mode this option "
 "equally affects the red, green, and blue channels simultaneously (i.e., "
 "it is an intensity gamma table)."
 msgstr ""
-"Gamma-Korrekturtabelle. Im Farbmodus wirkt sich diese Option auf die "
-"rote, grüne und blaue Farbkomponente aus. Es ist also eine Helligkeits-"
-"Gammatabelle."
+"Gamma-Korrekturtabelle mit 1024 Einträgen. Im Farbmodus wirkt sich diese "
+"Option auf die rote, grüne und blaue Farbkomponente aus. Es ist also "
+"eine Helligkeits-Gammatabelle."
 
 #: backend/pixma/pixma_sane_options.c:232
 #, no-c-format

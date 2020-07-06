@@ -2066,9 +2066,7 @@ static int mp810_check_param (pixma_t * s, pixma_scan_param_t * sp)
       k = MAX (sp->xdpi, 300) / sp->xdpi;
     else if (sp->source == PIXMA_SOURCE_TPU
               || sp->mode == PIXMA_SCAN_MODE_COLOR_48 || sp->mode == PIXMA_SCAN_MODE_GRAY_16)
-      /* TPU mode and 16 bit flatbed scans
-       * TODO: either the frontend (xsane) cannot handle 48 bit flatbed scans @ 75 dpi (prescan)
-       *       or there is a bug in this subdriver */
+      /* TPU mode and 16 bit flatbed scans */
       k = MAX (sp->xdpi, 150) / sp->xdpi;
     else
       /* default */

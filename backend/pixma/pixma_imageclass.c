@@ -917,7 +917,7 @@ static const pixma_scan_ops_t pixma_iclass_ops = {
             0x04a9, pid,              /* vid pid */	\
             1,                        /* iface */		\
             &pixma_iclass_ops,        /* ops */		\
-            0,                        /* min_xdpi not used in this subdriver */ \
+            0, 0,                     /* min_xdpi & min_xdpi_16 not used in this subdriver */ \
             dpi, dpi,                 /* xdpi, ydpi */	\
             0,                        /* adftpu_min_dpi not used in this subdriver */ \
             adftpu_max_dpi,           /* adftpu_max_dpi */ \

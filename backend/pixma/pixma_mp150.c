@@ -1632,6 +1632,7 @@ static const pixma_scan_ops_t pixma_mp150_ops = {
         0,                 /* iface */              \
         &pixma_mp150_ops,  /* ops */                \
         min_dpi,           /* min_xdpi */           \
+        0,                 /* min_xdpi_16 not used in this subdriver */ \
         dpi, 2*(dpi),      /* xdpi, ydpi */         \
         adftpu_min_dpi, adftpu_max_dpi,         /* adftpu_min_dpi, adftpu_max_dpi */ \
         0, 0,              /* tpuir_min_dpi & tpuir_max_dpi not used in this subdriver */  \

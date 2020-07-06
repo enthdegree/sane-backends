@@ -633,6 +633,12 @@ calc_raw_width (const mp150_t * mp, const pixma_scan_param_t * param)
   return raw_width;
 }
 
+static int
+is_gray_16 (pixma_t * s)
+{
+  return (s->param->mode == PIXMA_SCAN_MODE_GRAY_16);
+}
+
 static unsigned
 get_cis_line_size (pixma_t * s)
 {
@@ -642,7 +648,9 @@ get_cis_line_size (pixma_t * s)
                    __func__, s->param->line_size, s->param->w, s->param->wx, mp->scale));*/
 
   return (s->param->wx ? s->param->line_size / s->param->w * s->param->wx
-                       : s->param->line_size) * mp->scale;
+                       : s->param->line_size)
+         * mp->scale
+         * (is_gray_16(s) ? 3 : 1);
 }
 
 static int
@@ -707,10 +715,12 @@ send_scan_param (pixma_t * s)
       pixma_set_be32 (y, data + 0x10);
       pixma_set_be32 (wx, data + 0x14);
       pixma_set_be32 (h, data + 0x18);
-      data[0x1c] = (s->param->channels != 1) ? 0x08 : 0x04;
+      /*PDBG (pixma_dbg (4, "*send_scan_param gen. 3+ ***** Setting: channels=%hi depth=%hi ***** \n",
+                       s->param->channels, s->param->depth));*/
+      data[0x1c] = ((s->param->channels != 1) || (is_gray_16(s)) ? 0x08 : 0x04);
 
       data[0x1d] = ((s->param->software_lineart) ? 8 : s->param->depth)
-                    * s->param->channels;   /* bits per pixel */
+                    * (is_gray_16(s) ? 3 : s->param->channels); /* bits per pixel */
 
       data[0x1f] = 0x01;        /* This one also seen at 0. Don't know yet what's used for */
       data[0x20] = 0xff;
@@ -1066,7 +1076,7 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
     }
 
   /* process image sizes */
-  c = s->param->channels
+  c = (is_gray_16(s) ? 3 : s->param->channels)
       * ((s->param->software_lineart) ? 8 : s->param->depth) / 8;   /* color channels count */
   cw = c * s->param->w;                                             /* image width */
   cx = c * s->param->xs;                                            /* x-offset */
@@ -1140,6 +1150,9 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
           /* Color / Gray to Lineart convert */
           if (s->param->software_lineart)
               cptr = gptr = pixma_binarize_line (s->param, gptr, cptr, s->param->w, c);
+          /* Color to Grayscale convert for 16bit gray */
+          else if (is_gray_16(s))
+            cptr = gptr = pixma_rgb_to_gray (gptr, cptr, s->param->w, c);
           else
               cptr += cw;
         }

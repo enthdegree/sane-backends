@@ -470,7 +470,7 @@ create_dpi_list (pixma_sane_t * ss)
                 || ss->mode_map[OVAL (opt_mode).w] == PIXMA_SCAN_MODE_GRAY_16))
   { /* 48 bits flatbed */
     /*PDBG (pixma_dbg (4, "*create_dpi_list***** 48 bits flatbed mode\n"));*/
-    min_dpi = 150;
+    min_dpi = (cfg->min_xdpi_16) ? cfg->min_xdpi_16 : 75;
   }
 
   /* set j for min. dpi

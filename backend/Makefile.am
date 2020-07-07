@@ -56,6 +56,14 @@ dll-preload.h:
 	fi; \
 	echo "};" >> $@
 
+# generate options files for pixma backend
+pixma/pixma_sane_options.h:
+	@echo Generating pixma_sane_options.h from pixma.c
+	@python pixma/scripts/pixma_gen_options.py h < pixma/pixma.c > pixma/pixma_sane_options.h
+pixma/pixma_sane_options.c:
+	@echo Generating pixma_sane_options.c from pixma.c
+	@python pixma/scripts/pixma_gen_options.py < pixma/pixma.c > pixma/pixma_sane_options.c
+
 # TODO: This really belongs together with the saned sources and
 # should be installed there as well.
 EXTRA_DIST += saned.conf.in
@@ -943,7 +951,9 @@ libsane_pixma_la_LDFLAGS = $(DIST_SANELIBS_LDFLAGS)
 libsane_pixma_la_LIBADD = $(COMMON_LIBS) libpixma.la ../sanei/sanei_init_debug.lo ../sanei/sanei_constrain_value.lo ../sanei/sanei_config.lo  sane_strstatus.lo ../sanei/sanei_usb.lo ../sanei/sanei_thread.lo $(SANEI_SANEI_JPEG_LO) $(JPEG_LIBS) $(XML_LIBS) $(MATH_LIB) $(SOCKET_LIBS) $(USB_LIBS) $(SANEI_THREAD_LIBS) $(RESMGR_LIBS)
 EXTRA_DIST += pixma.conf.in
 # included in pixma.c
-EXTRA_DIST += pixma/pixma_sane_options.c pixma/pixma_sane_options.h
+BUILT_SOURCES = pixma/pixma_sane_options.c pixma/pixma_sane_options.h
+CLEANFILES += pixma/pixma_sane_options.c pixma/pixma_sane_options.h
+
 
 libplustek_la_SOURCES = plustek.c plustek.h
 libplustek_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=plustek
@@ -1213,7 +1223,7 @@ libdll_preload_la_LIBADD = ../sanei/sanei_usb.lo $(USB_LIBS) $(XML_LIBS)
 libdll_la_SOURCES =  dll.c
 libdll_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=dll
 libdll_la_LIBADD = ../sanei/sanei_usb.lo $(USB_LIBS) $(XML_LIBS)
-BUILT_SOURCES = dll-preload.h
+BUILT_SOURCES += dll-preload.h
 CLEANFILES += dll-preload.h
 
 nodist_libsane_dll_la_SOURCES =  dll-s.c

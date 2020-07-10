@@ -171,13 +171,19 @@ typedef uint32_t uint32_t;
 #define PIXMA_EV_ACTION_MASK   (0xffffff)
 #define PIXMA_EV_BUTTON1       (1 << 24)
 #define PIXMA_EV_BUTTON2       (2 << 24)
-#define PIXMA_EV_TARGET_MASK   (0xff)
-#define PIXMA_EV_ORIGINAL_MASK (0xff00)
-#define PIXMA_EV_DPI_MASK      (0xff0000)
+#define PIXMA_EV_TARGET_MASK   (0x0f)
+#define PIXMA_EV_ORIGINAL_MASK (0x0f00)
+#define PIXMA_EV_DPI_MASK      (0x0f0000)
+#define PIXMA_EV_DOC_MASK      (0xf000)
+#define PIXMA_EV_STAT_MASK     (0xf00000)
+#define PIXMA_EV_ORIENT_MASK   (0xf0)
 
 #define GET_EV_TARGET(x) (x & PIXMA_EV_TARGET_MASK)
 #define GET_EV_ORIGINAL(x) ( (x & PIXMA_EV_ORIGINAL_MASK) >> 8 )
 #define GET_EV_DPI(x) ( (x & PIXMA_EV_DPI_MASK) >> 16 )
+#define GET_EV_DOC(x) ( (x & PIXMA_EV_DOC_MASK) >> 12 )
+#define GET_EV_STAT(x) ( (x & PIXMA_EV_STAT_MASK) >> 20 )
+#define GET_EV_ORIENT(x) ( (x & PIXMA_EV_ORIENT_MASK) >> 4 )
 
 /**@}*/
 /** @} end of API group */

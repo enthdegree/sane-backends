@@ -1172,9 +1172,17 @@ static int handle_interrupt (pixma_t * s, int timeout)
    * target = format; original = size; scan-resolution = dpi */
   {
     if (buf[7] & 1)
-      s->events = PIXMA_EV_BUTTON1 | buf[11] | buf[10]<<8 | buf[12]<<16;    /* color scan */
+    {
+      /* color scan */
+      s->events = PIXMA_EV_BUTTON1 | (buf[11] & 0x0f) | (buf[10] & 0x0f) << 8
+                  | (buf[12] & 0x0f) << 16;
+    }
     if (buf[7] & 2)
-      s->events = PIXMA_EV_BUTTON2 | buf[11] | buf[10]<<8 | buf[12]<<16;    /* b/w scan */
+    {
+      /* b/w scan */
+      s->events = PIXMA_EV_BUTTON2 | (buf[11] & 0x0f) | (buf[10] & 0x0f) << 8
+                  | (buf[12] & 0x0f) << 16;
+    }
   }
   else if (s->cfg->pid == CS8800F_PID
             || s->cfg->pid == CS9000F_PID
@@ -1185,9 +1193,15 @@ static int handle_interrupt (pixma_t * s, int timeout)
   {
     if ((s->cfg->pid == CS8800F_PID && buf[1] == 0x70)
         || (s->cfg->pid != CS8800F_PID && buf[1] == 0x50))
-      s->events = PIXMA_EV_BUTTON2 | buf[1] >> 4;  /* button 2 = cancel / end scan */
+    {
+      /* button 2 = cancel / end scan */
+      s->events = PIXMA_EV_BUTTON2 | buf[1] >> 4;
+    }
     else
-      s->events = PIXMA_EV_BUTTON1 | buf[1] >> 4;  /* button 1 = start scan */
+    {
+      /* button 1 = start scan */
+      s->events = PIXMA_EV_BUTTON1 | buf[1] >> 4;
+    }
   }
   else
   /* button no. in buf[0]
@@ -1204,9 +1218,15 @@ static int handle_interrupt (pixma_t * s, int timeout)
       query_status (s);
 
     if (buf[0] & 2)
-      s->events = PIXMA_EV_BUTTON2 | buf[1] | ((buf[0] & 0xf0) << 4); /* b/w scan */
+    {
+      /* b/w scan */
+      s->events = PIXMA_EV_BUTTON2 | (buf[1] & 0x0f) | (buf[0] & 0xf0) << 4;
+    }
     if (buf[0] & 1)
-      s->events = PIXMA_EV_BUTTON1 | buf[1] | ((buf[0] & 0xf0) << 4); /* color scan */
+    {
+      /* color scan */
+      s->events = PIXMA_EV_BUTTON1 | (buf[1] & 0x0f) | (buf[0] & 0xf0) << 4;
+    }
   }
   return 1;
 }

@@ -240,10 +240,25 @@ or 1 = JPEG, 2 = TIFF, 3 = PDF, 4 = Compact PDF. For some scanners this value
 is equivalent to the number of the pressed button. Not all scanners can provide
 this data.
 .TP
-.I scan-resolution
+.I scan\-resolution
 (read only) Returns the resolution of the scan operation if the scanner
 provides that data. Known values: 1 = 75 dpi, 2 = 150 dpi, 3 = 300 dpi,
 4 = 600 dpi. Not all scanners can provide this data.
+.TP
+.I document\-type
+(read only) Returns the type of the scanned document if the scanner provides
+that data. Known values: 1 = Document, 2 = Photo, 3 = Auto scan. Not all scanners
+can provide this data.
+.TP
+.I adf\-status
+(read only) Returns the status of the document feeder if the scanner provides
+that data. Known values: 1 = ADF empty, 2 = ADF filled. Not all scanners can
+provide this data.
+.TP
+.I adf\-orientation
+(read only) Returns the scan orientation of the medium scanned from ADF if the
+scanner provides that data. Known values: 1 = Portrait, 2 = Landscape. Not all
+scanners can provide this data.
 .SH FILES
 .TP
 .I @LIBDIR@/libsane\-pixma.a

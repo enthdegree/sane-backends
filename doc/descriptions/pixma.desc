@@ -926,8 +926,8 @@
 :model "PIXMA TS5100 Series"
 :interface "USB WiFi"
 :usbid "0x04a9" "0x1825"
-:status :untested
-:comment "Testers needed!"
+:status :good
+:comment "All resolutions supported (up to 1200DPI). WiFi not working."
 
 :model "PIXMA TS5300 Series"
 :interface "USB WiFi"

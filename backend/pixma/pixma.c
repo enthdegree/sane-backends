@@ -2073,7 +2073,13 @@ sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
   return SANE_STATUS_GOOD;
 }
 
-/*
+/* CAUTION!
+ * Remove generated files pixma_sane_options.[ch] after editing SANE option
+ * descriptors below OR do a 'make clean' OR manually generate them as described
+ * below.
+ * However, make drops the circular dependency and the files won't be generated
+ * again (see merge request sane-project/backends!491).
+
 BEGIN SANE_Option_Descriptor
 
 rem -------------------------------------------

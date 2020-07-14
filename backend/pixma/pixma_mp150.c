@@ -914,7 +914,8 @@ handle_interrupt (pixma_t * s, int timeout)
       || s->cfg->pid == MX920_PID
       || s->cfg->pid == MB2300_PID
       || s->cfg->pid == MB5000_PID
-      || s->cfg->pid == MB5400_PID)
+      || s->cfg->pid == MB5400_PID
+      || s->cfg->pid == TR4500_PID)
   /* button no. in buf[7]
    * size in buf[10] 01=A4; 02=Letter; 08=10x15; 09=13x18; 0b=auto
    * format in buf[11] 01=JPEG; 02=TIFF; 03=PDF; 04=Kompakt-PDF
@@ -922,9 +923,28 @@ handle_interrupt (pixma_t * s, int timeout)
    * target = format; original = size; scan-resolution = dpi */
   {
     if (buf[7] & 1)
-      s->events = PIXMA_EV_BUTTON1 | buf[11] | buf[10]<<8 | buf[12]<<16;    /* color scan */
+    {
+      /* color scan */
+      s->events = PIXMA_EV_BUTTON1 | (buf[11] & 0x0f) | (buf[10] & 0x0f) << 8
+                  | (buf[12] & 0x0f) << 16;
+    }
     if (buf[7] & 2)
-      s->events = PIXMA_EV_BUTTON2 | buf[11] | buf[10]<<8 | buf[12]<<16;    /* b/w scan */
+    {
+      /* b/w scan */
+      s->events = PIXMA_EV_BUTTON2 | (buf[11] & 0x0f) | (buf[10] & 0x0f) << 8
+                  | (buf[12] & 0x0f) << 16;
+    }
+
+    /* some scanners provide additional information:
+     * document type in buf[6] 01=Document; 02=Photo; 03=Auto Scan
+     * ADF status in buf[8] 01 = ADF empty; 02 = ADF filled
+     * ADF orientation in buf[16] 01=Portrait; 02=Landscape */
+    if (s->cfg->pid == TR4500_PID)
+      {
+        s->events |= (buf[6] & 0x0f) << 12;
+        s->events |= (buf[8] & 0x0f) << 20;
+        s->events |= (buf[16] & 0x0f) << 4;
+      }
   }
   else if (s->cfg->pid == LIDE300_PID
            || s->cfg->pid == LIDE400_PID)
@@ -932,10 +952,16 @@ handle_interrupt (pixma_t * s, int timeout)
    * target in buf[0x13] 01=copy; 02=auto; 03=send; 05=start PDF; 06=finish PDF
    * "Finish PDF" is Button-2, all others are Button-1 */
   {
-      if (buf[0x13] == 0x06)
-        s->events = PIXMA_EV_BUTTON2 | buf[0x13];   /* button 2 = cancel / end scan */
-      else if (buf[0x13])
-        s->events = PIXMA_EV_BUTTON1 | buf[0x13];   /* button 1 = start scan */
+    if (buf[0x13] == 0x06)
+    {
+      /* button 2 = cancel / end scan */
+      s->events = PIXMA_EV_BUTTON2 | (buf[0x13] & 0x0f);
+    }
+    else if (buf[0x13])
+    {
+      /* button 1 = start scan */
+      s->events = PIXMA_EV_BUTTON1 | (buf[0x13] & 0x0f);
+    }
   }
   else
   /* button no. in buf[0]
@@ -951,9 +977,15 @@ handle_interrupt (pixma_t * s, int timeout)
     if (buf[9] & 2)
       query_status (s);
     if (buf[0] & 2)
-      s->events = PIXMA_EV_BUTTON2 | buf[1] | ((buf[0] & 0xf0) << 4);	/* b/w scan */
+    {
+      /* b/w scan */
+      s->events = PIXMA_EV_BUTTON2 | (buf[1] & 0x0f) | (buf[0] & 0xf0) << 4;
+    }
     if (buf[0] & 1)
-      s->events = PIXMA_EV_BUTTON1 | buf[1] | ((buf[0] & 0xf0) << 4);	/* color scan */
+    {
+      /* color scan */
+      s->events = PIXMA_EV_BUTTON1 | (buf[1] & 0x0f) | ((buf[0] & 0xf0) << 4);
+    }
   }
   return 1;
 }
@@ -1825,7 +1857,7 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA TR7530 Series", "TR7530", TR7530_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXUS XK50 Series", "XK50", XK50_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXUS XK70 Series", "XK70", XK70_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TR4500 Series", "TR4500", TR4500_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA TR4500 Series", "TR4500", TR4500_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF | PIXMA_CAP_ADF_JPEG),   /* ToDo: max. scan resolution = 600x1200dpi */
   DEVICE ("Canon PIXMA E4200 Series", "E4200", E4200_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA TS6200 Series", "TS6200", TS6200_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA TS6280 Series", "TS6280", TS6280_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),

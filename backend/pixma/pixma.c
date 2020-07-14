@@ -92,7 +92,7 @@
  */
 #include "pixma_sane_options.h"
 
-#define BUTTON_GROUP_SIZE ( opt_scan_resolution - opt_button_1 + 1 )
+#define BUTTON_GROUP_SIZE ( opt_adf_orientation - opt_button_1 + 1 )
 #define BUTTON_GROUP_INDEX(x) ( x - opt_button_1 )
 
 typedef struct pixma_sane_t
@@ -318,6 +318,9 @@ update_button_state (pixma_sane_t * ss, SANE_Int * info)
     OVAL (opt_original).w = GET_EV_ORIGINAL(ev);
     OVAL (opt_target).w = GET_EV_TARGET(ev);
     OVAL (opt_scan_resolution).w = GET_EV_DPI(ev);
+    OVAL (opt_document_type).w = GET_EV_DOC(ev);
+    OVAL (opt_adf_status).w = GET_EV_STAT(ev);
+    OVAL (opt_adf_orientation).w = GET_EV_ORIENT(ev);
     }
   mark_all_button_options_cached(ss);
 }
@@ -749,6 +752,9 @@ control_option (pixma_sane_t * ss, SANE_Int n,
       case opt_original:
       case opt_target:
       case opt_scan_resolution:
+      case opt_document_type:
+      case opt_adf_status:
+      case opt_adf_orientation:
         /* poll scanner if option is not cached */
         if (! ss->button_option_is_cached[ BUTTON_GROUP_INDEX(n) ] )
           update_button_state (ss, info);
@@ -2210,6 +2216,21 @@ type int target
 type int scan-resolution
   default 0
   title Scan resolution
+  cap soft_detect advanced
+
+type int document-type
+  default 0
+  title Document type
+  cap soft_detect advanced
+
+type int adf-status
+  default 0
+  title ADF status
+  cap soft_detect advanced
+
+type int adf-orientation
+  default 0
+  title ADF orientation
   cap soft_detect advanced
 
 rem -------------------------------------------

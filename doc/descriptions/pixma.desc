@@ -866,8 +866,8 @@
 :model "PIXMA TR4500 Series"
 :interface "USB WiFi"
 :usbid "0x04a9" "0x1854"
-:status :untested
-:comment "Testers needed!"
+:status :complete
+:comment "Flatbed and ADF scan. All resolutions supported (up to 600DPI)"
 
 :model "PIXMA TR7500 Series"
 :interface "USB WiFi"

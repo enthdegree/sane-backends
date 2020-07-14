@@ -955,6 +955,8 @@ $(srcdir)/pixma/pixma_sane_options.c:
 EXTRA_DIST += pixma/pixma_sane_options.c
 EXTRA_DIST += pixma/pixma_sane_options.h
 EXTRA_DIST += pixma/scripts/pixma_gen_options.py
+CLEANFILES += pixma/pixma_sane_options.c
+CLEANFILES += pixma/pixma_sane_options.h
 
 nodist_libsane_pixma_la_SOURCES = pixma-s.c
 libsane_pixma_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=pixma

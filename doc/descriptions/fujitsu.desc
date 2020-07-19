@@ -663,3 +663,13 @@
 :status :good
 :usbid "0x04c5" "0x15fc"
 :comment "small, current, both feed methods are supported."
+
+:model "fi-7900"
+:interface "USB"
+:status :good
+:usbid "0x04c5" "0x160a"
+
+:model "fi-7800"
+:interface "USB"
+:status :good
+:usbid "0x04c5" "0x160b"

@@ -1017,7 +1017,7 @@ msgstr "La lampe n'est pas prète, veuillez ré-essayer"
 #, no-c-format
 msgid "Scanner mechanism locked for transport"
 msgstr ""
-"Le méchanisme  pout vérouillé pour le transport du scanner"
+"Le méchanisme est vérouillé pour le transport du scanner"
 
 #: backend/artec_eplus48u.c:2874 backend/pnm.c:282
 #, no-c-format

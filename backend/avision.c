@@ -164,451 +164,583 @@ static Avision_HWEntry Avision_Device_List [] =
     { "AVISION", "AV100CS",
       0, 0,
       "Avision", "AV100CS",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { "AVISION", "AV100IIICS",
       0, 0,
       "Avision", "AV100IIICS",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { "AVISION", "AV100S",
       0, 0,
       "Avision", "AV100S",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { NULL, NULL,
       0x0638, 0x0A27,
       "Avision", "AV120",
-      AV_INT_STATUS},
+      AV_INT_STATUS,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="sheetfed scanner" */
     /* status="complete" */
 
     { NULL, NULL,
       0x0638, 0x0A3C,
       "Avision", "AV121",
-      AV_INT_BUTTON | AV_DOES_KEEP_WINDOW | AV_DOES_KEEP_GAMMA},
+      AV_INT_BUTTON | AV_DOES_KEEP_WINDOW | AV_DOES_KEEP_GAMMA,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="sheetfed scanner" */
     /* status="good" */
 
     { NULL, NULL,
       0x0638, 0x0A33,
       "Avision", "AV122",
-      AV_INT_BUTTON | AV_2ND_LINE_INTERLACED | AV_NO_REAR | AV_SOFT_SCALE | AV_DOES_KEEP_WINDOW | AV_DOES_KEEP_GAMMA | AV_REAR_OFFSET},
+      AV_INT_BUTTON | AV_2ND_LINE_INTERLACED | AV_NO_REAR | AV_SOFT_SCALE | AV_DOES_KEEP_WINDOW | AV_DOES_KEEP_GAMMA,
+      { 0, {0, 0}, {{0, 0}, {-12.7, 0}} }
+    },
     /* comment="sheetfed duplex scanner" */
     /* status="good" */
 
     { NULL, NULL,
       0x0638, 0x0A93,
       "Avision", "AV122 C2",
-      AV_INT_BUTTON | AV_2ND_LINE_INTERLACED | AV_NO_REAR | AV_SOFT_SCALE | AV_DOES_NOT_KEEP_WINDOW | AV_DOES_KEEP_GAMMA | AV_REAR_OFFSET},
+      AV_INT_BUTTON | AV_2ND_LINE_INTERLACED | AV_NO_REAR | AV_SOFT_SCALE | AV_DOES_NOT_KEEP_WINDOW | AV_DOES_KEEP_GAMMA,
+      { 0, {0, 0}, {{0, 0}, {-12.7, 0}} }
+    },
     /* comment="sheetfed duplex scanner" */
     /* status="good" */
 
     { NULL, NULL,
       0x0638, 0x0A24,
       "Avision", "AV210",
-      AV_INT_BUTTON  | AV_ACCEL_TABLE},
+      AV_INT_BUTTON  | AV_ACCEL_TABLE,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="sheetfed scanner" */
     /* status="complete" */
 
     { NULL, NULL,
       0x0638, 0x0A25,
       "Avision", "AV210",
-      AV_INT_BUTTON  | AV_ACCEL_TABLE | AV_NO_64BYTE_ALIGN},
+      AV_INT_BUTTON  | AV_ACCEL_TABLE | AV_NO_64BYTE_ALIGN,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="sheetfed scanner" */
     /* status="complete" */
 
     { NULL, NULL,
       0x0638, 0x0A3A,
       "Avision", "AV210C2",
-      AV_INT_BUTTON | AV_GRAY_MODES},
+      AV_INT_BUTTON | AV_GRAY_MODES,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="sheetfed scanner" */
     /* status="complete" */
 
     { NULL, NULL,
       0x0638, 0x0A2F,
       "Avision", "AV210C2-G",
-      AV_INT_BUTTON | AV_GRAY_MODES},
+      AV_INT_BUTTON | AV_GRAY_MODES,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="sheetfed scanner" */
     /* status="complete" */
 
     { NULL, NULL,
       0x0638, 0x1A35,
       "Avision", "AV210D2+",
-      AV_INT_BUTTON | AV_USE_GRAY_FILTER},
+      AV_INT_BUTTON | AV_USE_GRAY_FILTER,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="sheetfed scanner" */
     /* status="complete" */
 
     { NULL, NULL,
       0x0638, 0x0A23,
       "Avision", "AV220",
-      AV_INT_BUTTON | AV_GRAY_MODES},
+      AV_INT_BUTTON | AV_GRAY_MODES,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="duplex! sheetfed scanner" */
     /* status="complete" */
 
     { NULL, NULL,
       0x0638, 0x0A2A,
       "Avision", "AV220C2",
-      AV_INT_BUTTON | AV_CANCEL_BUTTON},
+      AV_INT_BUTTON | AV_CANCEL_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="duplex! sheetfed scanner" */
     /* status="complete" */
 
     { NULL, NULL,
       0x0638, 0x0A2B,
       "Avision", "AV220D2",
-      AV_INT_BUTTON | AV_CANCEL_BUTTON},
+      AV_INT_BUTTON | AV_CANCEL_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="duplex! sheetfed scanner" */
     /* status="complete" */
 
     { NULL, NULL,
       0x0638, 0x1A31,
       "Avision", "AV220D2+",
-      AV_INT_BUTTON | AV_CANCEL_BUTTON | AV_USE_GRAY_FILTER},
+      AV_INT_BUTTON | AV_CANCEL_BUTTON | AV_USE_GRAY_FILTER,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="duplex! sheetfed scanner" */
     /* status="complete" */
 
     { NULL, NULL,
       0x0638, 0x0A2C,
       "Avision", "AV220+",
-      AV_INT_BUTTON | AV_CANCEL_BUTTON},
+      AV_INT_BUTTON | AV_CANCEL_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="duplex! sheetfed scanner" */
     /* status="complete" */
 
     { NULL, NULL,
       0x0638, 0x0A2D,
       "Avision", "AV220C2-G",
-      AV_INT_BUTTON | AV_CANCEL_BUTTON},
+      AV_INT_BUTTON | AV_CANCEL_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="duplex! sheetfed scanner" */
     /* status="complete" */
 
     { NULL, NULL,
       0x0638, 0x0A2E,
       "Avision", "AV220C2-B",
-      AV_INT_BUTTON | AV_CANCEL_BUTTON},
+      AV_INT_BUTTON | AV_CANCEL_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="duplex! sheetfed scanner" */
     /* status="complete" */
 
     { NULL, NULL,
       0x0638, 0x0A94,
       "Avision", "AV220-G",
-      AV_INT_BUTTON | AV_2ND_LINE_INTERLACED | AV_FIRMWARE},
+      AV_INT_BUTTON | AV_2ND_LINE_INTERLACED | AV_FIRMWARE,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="duplex! sheetfed scanner" */
     /* status="complete" */
 
     { "AVISION", "AV240SC",
       0, 0,
       "Avision", "AV240SC",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { "AVISION", "AV260CS",
       0, 0,
       "Avision", "AV260CS",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { "AVISION", "AV360CS",
       0, 0,
       "Avision", "AV360CS",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { "AVISION", "AV363CS",
       0, 0,
       "Avision", "AV363CS",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { "AVISION", "AV420CS",
       0, 0,
       "Avision", "AV420CS",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { "AVISION", "AV6120",
       0, 0,
       "Avision", "AV6120",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { NULL, "AV610",
       0x0638, 0x0a18,
       "Avision", "AV610",
-      AV_GRAY_CALIB_BLUE | AV_ACCEL_TABLE | AV_NO_64BYTE_ALIGN | AV_INT_BUTTON},
+      AV_GRAY_CALIB_BLUE | AV_ACCEL_TABLE | AV_NO_64BYTE_ALIGN | AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="good" */
 
     { NULL, NULL,
       0x0638, 0x0a18,
       "Avision", "AV600U Plus",
       /* If this unit requires the AV_INT_STATUS flag, then we'll need to alter the code to deal with two different devices with the same USB id (AV610 above) */
-      AV_GRAY_CALIB_BLUE | AV_ACCEL_TABLE | AV_NO_64BYTE_ALIGN | /* AV_INT_STATUS | */ AV_INT_BUTTON},
+      AV_GRAY_CALIB_BLUE | AV_ACCEL_TABLE | AV_NO_64BYTE_ALIGN | /* AV_INT_STATUS | */ AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="good" */
 
     { NULL, NULL,
       0x0638, 0x0a5e,
       "Avision", "AV610C2",
-      AV_NO_BACKGROUND | AV_INT_BUTTON}, /* cancel button -> sense abort! */
+      AV_NO_BACKGROUND | AV_INT_BUTTON, /* cancel button -> sense abort! */
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="good" */
 
    { NULL, NULL,
      0x0638, 0x0a41,
      "Avision", "AM3000 Series",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="MFD" */
     /* status="basic" */
 
     { NULL, NULL,
       0x0638, 0x0a16,
       "Avision", "DS610CU Scancopier",
-      AV_INT_STATUS},
+      AV_INT_STATUS,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 600 dpi, A4" */
     /* status="good" */
 
     { "AVISION", "AV620CS",
       0, 0,
       "Avision", "AV620CS",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 600 dpi" */
     /* status="complete" */
 
     { "AVISION", "AV620CS Plus",
       0, 0,
       "Avision", "AV620CS Plus",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 1200 dpi" */
     /* status="complete" */
 
     { "AVISION", "AV630CS",
       0, 0,
       "Avision", "AV630CS",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 1200 dpi" */
     /* status="complete" */
 
     { "AVISION", "AV630CSL",
       0, 0,
       "Avision", "AV630CSL",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 1200 dpi" */
     /* status="untested" */
 
     { "AVISION", "AV6240",
       0, 0,
       "Avision", "AV6240",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, ??? dpi" */
     /* status="complete" */
 
     { NULL, NULL,
       0x0638, 0x0A13,
       "Avision", "AV600U",
-      AV_MULTI_CALIB_CMD | AV_ADF_BGR_ORDER_INVERT | AV_SOFT_SCALE | AV_INT_STATUS | AV_NO_BUTTON},
+      AV_MULTI_CALIB_CMD | AV_ADF_BGR_ORDER_INVERT | AV_SOFT_SCALE | AV_INT_STATUS | AV_NO_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 600 dpi" */
     /* status="good" */
 
     { "AVISION", "AV660S",
       0, 0,
       "Avision", "AV660S",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, ??? dpi" */
     /* status="untested" */
 
     { "AVISION", "AV680S",
       0, 0,
       "Avision", "AV680S",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, ??? dpi" */
     /* status="untested" */
 
     { "AVISION", "AV690U",
       0, 0,
       "Avision", "AV690U",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 2400 dpi" */
     /* status="untested" */
 
     { "AVISION", "AV800S",
       0, 0,
       "Avision", "AV800S",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, ??? dpi" */
     /* status="untested" */
 
     { "AVISION", "AV810C",
       0, 0,
       "Avision", "AV810C",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, ??? dpi" */
     /* status="untested" */
 
     { "AVISION", "AV820",
       0, 0,
       "Avision", "AV820",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, ??? dpi" */
     /* status="untested" */
 
     { "AVISION", "AV820C",
       0, 0,
       "Avision", "AV820C",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, ??? dpi" */
     /* status="complete" */
 
     { "AVISION", "AV820C Plus",
       0, 0,
       "Avision", "AV820C Plus",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, ??? dpi" */
     /* status="complete" */
 
     { "AVISION", "AV830C",
       0, 0,
       "Avision", "AV830C",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, ??? dpi" */
     /* status="complete" */
 
     { "AVISION", "AV830C Plus",
       0, 0,
       "Avision", "AV830C Plus",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, ??? dpi" */
     /* status="untested" */
 
     { "AVISION", "AV880",
       0, 0,
       "Avision", "AV880",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, ??? dpi" */
     /* status="untested" */
 
     { "AVISION", "AV880C",
       0, 0,
       "Avision", "AV880C",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, ??? dpi" */
     /* status="untested" */
 
     { "AVISION", "AV3200C",
       0, 0,
       "Avision", "AV3200C",
-      AV_NON_INTERLACED_DUPLEX_300 | AV_FASTER_WITH_FILTER},
+      AV_NON_INTERLACED_DUPLEX_300 | AV_FASTER_WITH_FILTER,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, ??? dpi" */
     /* status="complete" */
 
     { "AVISION", "AV3200SU",
       0x0638, 0x0A4E,
       "Avision", "AV3200SU",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, ??? dpi" */
     /* status="complete" */
 
     { "AVISION", "AV3730SU",
       0x0638, 0x0A4F,
       "Avision", "AV3730SU",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, ??? dpi" */
     /* status="complete" */
 
     { "AVISION", "AV3750SU",
       0x0638, 0x0A65,
       "Avision", "AV3750SU",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, ??? dpi" */
     /* status="complete" */
 
     { "AVISION", "AV3800C",
       0, 0,
       "Avision", "AV3800C",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, ??? dpi" */
     /* status="complete" */
 
     { "AVISION", "AV3850SU",
       0x0638, 0x0a66,
       "Avision", "AV3850SU",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, ??? dpi" */
     /* status="complete" */
 
     { "AVISION", "FB6000E",
       0, 0,
       "Avision", "FB6000E",
-      AV_NON_INTERLACED_DUPLEX_300},
+      AV_NON_INTERLACED_DUPLEX_300,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 1200 dpi, A3 - duplex! - zero edge!" */
     /* status="complete" */
 
     { NULL, NULL,
       0x0638, 0x0a82,
       "Avision", "FB6080E",
-      AV_NON_INTERLACED_DUPLEX_300},
+      AV_NON_INTERLACED_DUPLEX_300,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 1200 dpi, A3 - duplex! - zero edge!" */
     /* status="complete" */
 
     { NULL, NULL,
       0x0638, 0x0a84,
       "Avision", "FB2080E",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 600 dpi, zero-edge" ASIC 7 */
     /* status="basic" */
 
     { "AVISION", "AV8000S",
       0, 0,
       "Avision", "AV8000S",
-      AV_DOES_NOT_KEEP_WINDOW},
+      AV_DOES_NOT_KEEP_WINDOW,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 1200 dpi, A3" */
     /* status="complete" */
 
     { NULL, NULL,
       0x0638, 0x0a4d,
       "Avision", "AV8050U",
-      AV_NON_INTERLACED_DUPLEX_300 | AV_DOES_NOT_KEEP_GAMMA},
+      AV_NON_INTERLACED_DUPLEX_300 | AV_DOES_NOT_KEEP_GAMMA,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 1200 dpi, A3 - duplex!" */
     /* status="complete" */
 
     { "AVISION", "AV8300",
       0x0638, 0x0A40,
       "Avision", "AV8300",
-      AV_NON_INTERLACED_DUPLEX_300 | AV_DOES_NOT_KEEP_GAMMA},
+      AV_NON_INTERLACED_DUPLEX_300 | AV_DOES_NOT_KEEP_GAMMA,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 1200 dpi, A3 - duplex!" */
     /* status="complete" */
 
     { "AVISION", "AV8350",
       0x0638, 0x0A68,
       "Avision", "AV8350",
-      AV_NON_INTERLACED_DUPLEX_300 | AV_DOES_NOT_KEEP_GAMMA},
+      AV_NON_INTERLACED_DUPLEX_300 | AV_DOES_NOT_KEEP_GAMMA,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 1200 dpi, A3 - duplex!" */
     /* status="complete" */
 
     { NULL, NULL,
       0x0638, 0x0A61,
       "Avision", "IT8300",
-      AV_NON_INTERLACED_DUPLEX_300 | AV_ACCEL_TABLE},
+      AV_NON_INTERLACED_DUPLEX_300 | AV_ACCEL_TABLE,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 1200 dpi, A3 - duplex!, LCD screen, paper sensors" */
     /* status="good" */
 
     { NULL, NULL,
        0x0638, 0x0AA1,
       "Avision", "@V2500",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="" */
     /* status="untested" */
 
     { NULL, NULL,
       0x0638, 0x0A45,
       "Avision", "@V5100",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 1200 dpi, A3 - duplex!, LCD screen, paper sensors" */
     /* status="good" */
 
     { "AVISION", "AVA3",
       0, 0,
       "Avision", "AVA3",
-      AV_FORCE_A3},
+      AV_FORCE_A3,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 600 dpi, A3" */
     /* status="basic" */
 
@@ -617,21 +749,27 @@ static Avision_HWEntry Avision_Device_List [] =
     { "HP",      "ScanJet 5300C",
       0x03f0, 0x0701,
       "Hewlett-Packard", "ScanJet 5300C",
-      AV_INT_STATUS},
+      AV_INT_STATUS,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 2400 dpi - some FW revisions have x-axis image scaling problems over 1200 dpi" */
     /* status="complete" */
 
     { "HP",      "ScanJet 5370C",
       0x03f0, 0x0701,
       "Hewlett-Packard", "ScanJet 5370C",
-      AV_MULTI_CALIB_CMD | AV_INT_STATUS},
+      AV_MULTI_CALIB_CMD | AV_INT_STATUS,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 2400 dpi - some FW revisions have x-axis image scaling problems over 1200 dpi" */
     /* status="good" */
 
     { "hp",      "scanjet 7400c",
       0x03f0, 0x0801,
       "Hewlett-Packard", "ScanJet 7400c",
-      AV_LIGHT_CHECK_BOGUS | AV_NO_64BYTE_ALIGN | AV_INT_STATUS},
+      AV_LIGHT_CHECK_BOGUS | AV_NO_64BYTE_ALIGN | AV_INT_STATUS,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 2400 dpi - dual USB/SCSI interface" */
     /* status="good" */
 
@@ -639,14 +777,18 @@ static Avision_HWEntry Avision_Device_List [] =
     { "hp",      "scanjet 7450c",
       0x03f0, 0x0801,
       "Hewlett-Packard", "ScanJet 7450c",
-      AV_NO_64BYTE_ALIGN | AV_INT_STATUS},
+      AV_NO_64BYTE_ALIGN | AV_INT_STATUS,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 2400 dpi - dual USB/SCSI interface" */
     /* status="good" */
 
     { "hp",      "scanjet 7490c",
       0x03f0, 0x0801,
       "Hewlett-Packard", "ScanJet 7490c",
-      AV_NO_64BYTE_ALIGN | AV_INT_STATUS},
+      AV_NO_64BYTE_ALIGN | AV_INT_STATUS,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 1200 dpi - dual USB/SCSI interface" */
     /* status="good" */
 
@@ -654,7 +796,9 @@ static Avision_HWEntry Avision_Device_List [] =
     { "HP",      "C9930A",
       0x03f0, 0x0b01,
       "Hewlett-Packard", "ScanJet 8200",
-      AV_ADF_FLIPPING_DUPLEX | AV_FIRMWARE},
+      AV_ADF_FLIPPING_DUPLEX | AV_FIRMWARE,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 4800 (?) dpi - USB 2.0" */
     /* status="good" */
 
@@ -662,7 +806,9 @@ static Avision_HWEntry Avision_Device_List [] =
     { "HP",      "C9930A",
       0x03f0, 0x0b01,
       "Hewlett-Packard", "ScanJet 8250",
-      AV_ADF_FLIPPING_DUPLEX | AV_FIRMWARE},
+      AV_ADF_FLIPPING_DUPLEX | AV_FIRMWARE,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 4800 (?) dpi - USB 2.0" */
     /* status="good" */
 #endif
@@ -670,7 +816,9 @@ static Avision_HWEntry Avision_Device_List [] =
     { "HP", "C9930A",
       0x03f0, 0x3905,
       "Hewlett-Packard", "ScanJet 8270",
-      AV_ADF_FLIPPING_DUPLEX | AV_FIRMWARE},
+      AV_ADF_FLIPPING_DUPLEX | AV_FIRMWARE,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 4800 (?) dpi - USB 2.0" */
     /* status="good" */
 
@@ -678,7 +826,9 @@ static Avision_HWEntry Avision_Device_List [] =
     { "HP", "C9930A",
       0x03f0, 0x0b01,
       "Hewlett-Packard", "ScanJet 8290",
-      AV_ADF_FLIPPING_DUPLEX | AV_FIRMWARE},
+      AV_ADF_FLIPPING_DUPLEX | AV_FIRMWARE,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 4800 (?) dpi - USB 2.0 and SCSI - only SCSI tested so far" */
     /* status="good" */
 
@@ -686,7 +836,9 @@ static Avision_HWEntry Avision_Device_List [] =
     { "HP", "C9930A",
       0x03f0, 0x3805,
       "Hewlett-Packard", "ScanJet 8300",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 4800 (?) dpi - USB 2.0" */
     /* status="good" */
 
@@ -694,14 +846,18 @@ static Avision_HWEntry Avision_Device_List [] =
     { "HP", "C9930A",
       0x03f0, 0x3805,
       "Hewlett-Packard", "ScanJet 8350",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 4800 (?) dpi - USB 2.0" */
     /* status="good" */
 
     { "HP", "C9930A",
       0x03f0, 0x3805,
       "Hewlett-Packard", "ScanJet 8390",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 4800 (?) dpi - USB 2.0" */
     /* status="good" */
 
@@ -709,79 +865,103 @@ static Avision_HWEntry Avision_Device_List [] =
     { "Minolta", "#2882",
       0, 0,
       "Minolta", "Dimage Scan Dual I",
-      AV_FORCE_FILM | AV_NO_START_SCAN}, /* not AV_FILMSCANNER (no frame control) */
+      AV_FORCE_FILM | AV_NO_START_SCAN, /* not AV_FILMSCANNER (no frame control) */
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="basic" */
 
     { "Minolta", "#2887",
       0, 0,
       "Minolta", "Scan Multi Pro",
-      AV_FORCE_FILM | AV_NO_START_SCAN}, /* AV_FILMSCANNER (frame control)? */
+      AV_FORCE_FILM | AV_NO_START_SCAN, /* not AV_FILMSCANNER (no frame control) */
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { "MINOLTA", "FS-V1",
       0x0638, 0x026a,
       "Minolta", "Dimage Scan Dual II",
-      AV_FILMSCANNER | AV_ONE_CALIB_CMD | AV_12_BIT_MODE},
+      AV_FILMSCANNER | AV_ONE_CALIB_CMD | AV_12_BIT_MODE,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, film-scanner" */
     /* status="good" */
 
     { "MINOLTA", "Elite II",
       0x0686, 0x4004,
       "Minolta", "Elite II",
-      AV_FILMSCANNER | AV_ONE_CALIB_CMD},
+      AV_FILMSCANNER | AV_ONE_CALIB_CMD,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, film-scanner" */
     /* status="untested" */
 
     { "MINOLTA", "FS-V3",
       0x0686, 0x400d,
       "Minolta", "Dimage Scan Dual III",
-      AV_FILMSCANNER | AV_ONE_CALIB_CMD | AV_ACCEL_TABLE},
+      AV_FILMSCANNER | AV_ONE_CALIB_CMD | AV_ACCEL_TABLE,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, film-scanner" */
     /* status="good" */
 
     { "MINOLTA", "FS-V4",
       0x0686, 0x400e,
       "Minolta", "Dimage Scan Elite 5400",
-      AV_FILMSCANNER | AV_ONE_CALIB_CMD | /*AV_ACCEL_TABLE |*/ AV_NO_START_SCAN},
+      AV_FILMSCANNER | AV_ONE_CALIB_CMD | /*AV_ACCEL_TABLE |*/ AV_NO_START_SCAN,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, film-scanner" */
     /* status="good" */
 
     { "QMS", "SC-110",
       0x0638, 0x0a15,
       "Minolta-QMS", "SC-110",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="" */
     /* status="untested" */
 
     { "QMS", "SC-215",
       0x0638, 0x0a16,
       "Minolta-QMS", "SC-215",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="" */
     /* status="good" */
 
     { "MITSBISH", "MCA-ADFC",
       0, 0,
       "Mitsubishi", "MCA-ADFC",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { "MITSBISH", "MCA-S1200C",
       0, 0,
       "Mitsubishi", "S1200C",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { "MITSBISH", "MCA-S600C",
       0, 0,
       "Mitsubishi", "S600C",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { "MITSBISH", "SS600",
       0, 0,
       "Mitsubishi", "SS600",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="good" */
 
     /* The next are all untested ... */
@@ -789,209 +969,291 @@ static Avision_HWEntry Avision_Device_List [] =
     { "FCPA", "ScanPartner",
       0, 0,
       "Fujitsu", "ScanPartner",
-      AV_FUJITSU},
+      AV_FUJITSU,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { "FCPA", "ScanPartner 10",
       0, 0,
       "Fujitsu", "ScanPartner 10",
-      AV_FUJITSU},
+      AV_FUJITSU,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { "FCPA", "ScanPartner 10C",
       0, 0,
       "Fujitsu", "ScanPartner 10C",
-      AV_FUJITSU},
+      AV_FUJITSU,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { "FCPA", "ScanPartner 15C",
       0, 0,
       "Fujitsu", "ScanPartner 15C",
-      AV_FUJITSU},
+      AV_FUJITSU,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { "FCPA", "ScanPartner 300C",
       0, 0,
       "Fujitsu", "ScanPartner 300C",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { "FCPA", "ScanPartner 600C",
       0, 0,
       "Fujitsu", "ScanPartner 600C",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { "FCPA", "ScanPartner 620C",
       0, 0,
       "Fujitsu", "ScanPartner 620C",
-      AV_LIGHT_CHECK_BOGUS},
+      AV_LIGHT_CHECK_BOGUS,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="good" */
 
     { "FCPA", "ScanPartner Jr",
       0, 0,
       "Fujitsu", "ScanPartner Jr",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { "FCPA", "ScanStation",
       0, 0,
       "Fujitsu", "ScanStation",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { NULL, NULL,
       0x04c5, 0x1029,
       "Fujitsu", "fi-4010CU",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { NULL, NULL,
       0x04c5, 0x10ef,
       "Fujitsu", "fi-5015C",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="good" */
 
     { NULL, NULL,
       0x040a, 0x6001,
       "Kodak", "i30",
-      AV_INT_BUTTON | AV_GRAY_MODES},
+      AV_INT_BUTTON | AV_GRAY_MODES,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { NULL, NULL,
       0x040a, 0x6002,
       "Kodak", "i40",
-      AV_INT_BUTTON | AV_GRAY_MODES},
+      AV_INT_BUTTON | AV_GRAY_MODES,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="basic" */
 
     { NULL, NULL,
       0x040a, 0x6003,
       "Kodak", "i50",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
 #ifdef FAKE_ENTRIES_FOR_DESC_GENERATION
     { NULL, NULL,
       0x040a, 0x6003,
       "Kodak", "i55",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 #endif
 
     { NULL, NULL,
       0x040a, 0x6004,
       "Kodak", "i60",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
 #ifdef FAKE_ENTRIES_FOR_DESC_GENERATION
     { NULL, NULL,
       0x040a, 0x6004,
       "Kodak", "i65",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 #endif
 
     { NULL, NULL,
       0x040a, 0x6005,
       "Kodak", "i80",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
      /* status="good" */
+
+    { NULL, NULL,
+      0x040a, 0x6013,
+      "Kodak", "i1120",
+      AV_INT_BUTTON | AV_2ND_LINE_INTERLACED | AV_USE_GRAY_FILTER | AV_SOFT_SCALE |
+      AV_FORCE_CALIB | AV_NO_QSCAN_MODE | AV_NO_QCALIB_MODE | AV_OVERSCAN_OPTDPI |
+      AV_NO_REAR | AV_FASTFEED_ON_CANCEL | AV_GAMMA_10 | AV_MULTI_SHEET_SCAN,
+      { /* offsets */
+        -1.5, /* first sheet (should be identical for single / duplex) */
+        {2.5, -6.0}, /* front-only scan */
+        {{2.0, -14.0}, {-10.0, -2.0}} /* duplex scan */
+      }
+    },
+      /* comment="duplex sheetfed scanner" */
+      /* status="good" */
+      /* This is a Kodak OEM device manufactured by avision.
+         It uses an Avision firmware modified by Kodak, so
+         some modifications needed to be done here. */
 
     { "iVina", "1200U",
       0x0638, 0x0268,
       "iVina", "1200U",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { NULL, NULL,
       0x04a7, 0x0424,
       "Visioneer", "Strobe XP 450",
-      AV_INT_BUTTON  | AV_ACCEL_TABLE},
+      AV_INT_BUTTON  | AV_ACCEL_TABLE,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
       /* comment="sheetfed scanner" */
       /* status="complete" */
 
     { NULL, NULL,
       0x04a7, 0x0491,
       "Visioneer", "Strobe XP 450-G",
-      AV_INT_BUTTON  | AV_ACCEL_TABLE},
+      AV_INT_BUTTON  | AV_ACCEL_TABLE,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
       /* comment="sheetfed scanner" */
       /* status="complete" */
 
     { NULL, NULL,
       0x04a7, 0x0479,
       "Visioneer", "Strobe XP 470",
-      AV_INT_BUTTON  | AV_ACCEL_TABLE},
+      AV_INT_BUTTON  | AV_ACCEL_TABLE,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
       /* comment="sheetfed scanner" */
       /* status="complete" */
 
     { NULL, NULL,
       0x04a7, 0x048F,
       "Visioneer", "Strobe XP 470-G",
-      AV_INT_BUTTON  | AV_ACCEL_TABLE},
+      AV_INT_BUTTON  | AV_ACCEL_TABLE,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
       /* comment="sheetfed scanner" */
       /* status="complete" */
 
     { NULL, NULL,
       0x04a7, 0x0420,
       "Visioneer", "9320",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
       /* comment="sheetfed scanner" */
       /* status="complete" */
 
     { NULL, NULL,
       0x04a7, 0x0421,
       "Visioneer", "9450",
-      AV_MULTI_CALIB_CMD | AV_ADF_BGR_ORDER_INVERT | AV_NO_BUTTON | AV_NO_TUNE_SCAN_LENGTH},
+      AV_MULTI_CALIB_CMD | AV_ADF_BGR_ORDER_INVERT | AV_NO_BUTTON | AV_NO_TUNE_SCAN_LENGTH,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
       /* comment="sheetfed scanner" */
       /* status="complete" */
 
     { NULL, NULL,
       0x04a7, 0x047A,
       "Visioneer", "9450-G",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
       /* comment="sheetfed scanner" */
       /* status="complete" */
 
     { NULL, NULL,
       0x04a7, 0x0422,
       "Visioneer", "9550",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
       /* comment="sheetfed scanner" */
       /* status="complete" */
 
     { NULL, NULL,
       0x04a7, 0x0390,
       "Visioneer", "9650",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
       /* comment="sheetfed scanner" */
       /* status="complete" */
 
     { NULL, NULL,
       0x04a7, 0x047B,
       "Visioneer", "9650-G",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
       /* comment="sheetfed scanner" */
       /* status="complete" */
 
     { NULL, NULL,
       0x04a7, 0x0423,
       "Visioneer", "9750",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
       /* comment="sheetfed scanner" */
       /* status="complete" */
 
     { NULL, NULL,
       0x04a7, 0x0493,
       "Visioneer", "9750-G",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
       /* comment="sheetfed scanner" */
       /* status="complete" */
 
     { NULL, NULL,
       0x04a7, 0x0497,
       "Visioneer", "Patriot 430",
-      AV_INT_BUTTON | AV_2ND_LINE_INTERLACED | AV_NO_REAR | AV_SOFT_SCALE | AV_DOES_KEEP_WINDOW | AV_DOES_KEEP_GAMMA | AV_REAR_OFFSET},
+      AV_INT_BUTTON | AV_2ND_LINE_INTERLACED | AV_NO_REAR | AV_SOFT_SCALE | AV_DOES_KEEP_WINDOW | AV_DOES_KEEP_GAMMA,
+      { 0, {0, 0}, {{0, 0}, {-12.7, 0}} }
+    },
       /* comment="sheetfed scanner" */
       /* status="complete" */
 
@@ -999,7 +1261,9 @@ static Avision_HWEntry Avision_Device_List [] =
     { NULL, NULL,
       0x04a7, 0x048F,
       "Visioneer", "Patriot 470",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
       /* comment="sheetfed scanner" */
       /* status="complete" */
 #endif
@@ -1007,150 +1271,198 @@ static Avision_HWEntry Avision_Device_List [] =
     { NULL, NULL,
       0x04a7, 0x0498,
       "Visioneer", "Patriot 680",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
       /* comment="sheetfed scanner" */
       /* status="complete" */
 
     { NULL, NULL,
       0x04a7, 0x0499,
       "Visioneer", "Patriot 780",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
       /* comment="sheetfed scanner" */
       /* status="complete" */
 
     { NULL, NULL,
       0x04a7, 0x049C,
       "Xerox", "DocuMate150",
-      AV_INT_BUTTON | AV_SOFT_SCALE | AV_DOES_KEEP_WINDOW | AV_DOES_KEEP_GAMMA | AV_BACKGROUND_QUIRK},
+      AV_INT_BUTTON | AV_SOFT_SCALE | AV_DOES_KEEP_WINDOW | AV_DOES_KEEP_GAMMA | AV_BACKGROUND_QUIRK,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="good" */
 
     { NULL, NULL,
       0x04a7, 0x0477,
       "Xerox", "DocuMate152",
-      AV_INT_BUTTON | AV_2ND_LINE_INTERLACED | AV_NO_REAR | AV_SOFT_SCALE | AV_DOES_KEEP_WINDOW | AV_DOES_KEEP_GAMMA | AV_REAR_OFFSET | AV_BACKGROUND_QUIRK},
+      AV_INT_BUTTON | AV_2ND_LINE_INTERLACED | AV_NO_REAR | AV_SOFT_SCALE | AV_DOES_KEEP_WINDOW | AV_DOES_KEEP_GAMMA | AV_BACKGROUND_QUIRK,
+      { 0, {0, 0}, {{0, 0}, {-12.7, 0}} }
+    },
     /* status="good" */
 
     { NULL, NULL,
       0x04a7, 0x049D,
       "Xerox", "DocuMate162",
-      AV_INT_BUTTON | AV_2ND_LINE_INTERLACED | AV_NO_REAR | AV_SOFT_SCALE | AV_DOES_KEEP_WINDOW | AV_DOES_KEEP_GAMMA | AV_REAR_OFFSET | AV_BACKGROUND_QUIRK},
+      AV_INT_BUTTON | AV_2ND_LINE_INTERLACED | AV_NO_REAR | AV_SOFT_SCALE | AV_DOES_KEEP_WINDOW | AV_DOES_KEEP_GAMMA | AV_BACKGROUND_QUIRK,
+      { 0, {0, 0}, {{0, 0}, {-12.7, 0}} }
+    },
     /* status="good" */
 
     { NULL, NULL,
       0x04a7, 0x0448,
       "Xerox", "DocuMate250",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="good" */
 
     { NULL, NULL,
       0x04a7, 0x0490,
       "Xerox", "DocuMate250-G",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="good" */
 
     { NULL, NULL,
       0x04a7, 0x0449,
       "Xerox", "DocuMate252",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="good" */
 
     { NULL, NULL,
       0x04a7, 0x048C,
       "Xerox", "DocuMate252-G",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="good" */
 
     { NULL, NULL,
       0x04a7, 0x0476,
       "Xerox", "DocuMate232",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="good" */
 
     { NULL, NULL,
       0x04a7, 0x044c,
       "Xerox", "DocuMate262",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="good" */
 
     { NULL, NULL,
       0x04a7, 0x048D,
       "Xerox", "DocuMate262-G",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="good" */
 
     { NULL, NULL,
       0x04a7, 0x04a7,
       "Xerox", "DocuMate262i",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="good" */
 
     { NULL, NULL,
       0x04a7, 0x0475,
       "Xerox", "DocuMate272",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { NULL, NULL,
       0x04a7, 0x048E,
       "Xerox", "DocuMate272-G",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { NULL, NULL,
       0x04a7, 0x0446,
       "Xerox", "DocuMate510",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { NULL, NULL,
       0x04a7, 0x0495,
       "Xerox", "DocuMate512",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { NULL, NULL,
       0x04a7, 0x047c,
       "Xerox", "DocuMate510-G",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { NULL, NULL,
       0x04a7, 0x0447,
       "Xerox", "DocuMate520",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { NULL, NULL,
       0x04a7, 0x0492,
       "Xerox", "DocuMate520-G",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
 #ifdef FAKE_ENTRIES_FOR_DESC_GENERATION
     { NULL, NULL,
       0x04a7, 0x0498,
       "Xerox", "DocuMate632",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 #endif
 
     { NULL, NULL,
       0x04a7, 0x0478,
       "Xerox", "DocuMate752",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
     { NULL, NULL,
       0x04a7, 0x049A,
       "Xerox", "DocuMate752",
-      AV_INT_BUTTON},
+      AV_INT_BUTTON,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* status="untested" */
 
 #ifdef FAKE_ENTRIES_FOR_DESC_GENERATION
     { NULL, NULL,
       0x0638, 0x0a16,
       "OKI", "S700 Scancopier",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, 600 dpi, A4" */
     /* status="good" */
 #endif
@@ -1158,14 +1470,18 @@ static Avision_HWEntry Avision_Device_List [] =
     { "B+H", "2000F",
       0, 0,
       "Bell+Howell", "2000F",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, ??? dpi, A4" */
     /* status="basic" */
 
     { NULL, NULL,
       0x0482, 0x0335,
       "Kyocera", "FS-1016MFP",
-      0},
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
     /* comment="1 pass, ??? dpi, A4" */
     /* status="untested" */
 
@@ -1207,7 +1523,9 @@ Lexmark X4500 MFP
     { NULL, NULL,
       0, 0,
       NULL, NULL,
-      0}
+      0,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    }
   };
 
 #if 0
@@ -2584,16 +2902,156 @@ compute_parameters (Avision_Scanner* s)
     s->avdimen.bry += overscan;
   }
 
-  /* rear offset compensation */
-  if (s->avdimen.interlaced_duplex && dev->hw->feature_type & AV_REAR_OFFSET) {
-    const double offset = 0.5; /* in current affected models 1/2 inch */
-    s->avdimen.rear_offset = (int) (offset * s->avdimen.hw_yres);
-    DBG (1, "sane_compute_parameters: rear_offset: %d!\n", s->avdimen.rear_offset);
-    /* we do not limit against the bottom-y here, as rear offset always
-       applies to ADF scans, only */
-  }
-  else {
-    s->avdimen.rear_offset = 0;
+  /* ADF offset compensation
+     Calculate offsets for skipping lines later with considering overscan
+     which applies to both, front and rear. The difference needs to be cut
+     off on the other side. */
+  if (dev->adf_offset_compensation && s->avdimen.interlaced_duplex) {
+    /* ADF Duplex scan */
+
+    struct {
+      mm_offset front;
+      mm_offset rear;
+    } offsets = {{0, 0}, {0, 0}};
+
+    double overscan;
+    double bry_offset = 0;
+
+    /* top */
+    overscan = fmax(0, fmax(dev->hw->offset.duplex.front.top,
+                            dev->hw->offset.duplex.rear.top));
+
+    offsets.front.top += overscan - dev->hw->offset.duplex.front.top;
+    offsets.rear.top  += overscan - dev->hw->offset.duplex.rear.top;
+    bry_offset += overscan;
+
+    /* bottom */
+    overscan = fmax(0, fmax(dev->hw->offset.duplex.front.bottom,
+                            dev->hw->offset.duplex.rear.bottom));
+
+    offsets.front.bottom += overscan - dev->hw->offset.duplex.front.bottom;
+    offsets.rear.bottom  += overscan - dev->hw->offset.duplex.rear.bottom;
+    bry_offset += overscan;
+
+    /* first page offset */
+    if (dev->hw->feature_type & AV_MULTI_SHEET_SCAN) {
+      /* only applies to multi-sheet-scan */
+
+      if (dev->hw->offset.first > 0) {
+        /* move down:
+           - add top overscan in send_tune_scan_length (effective for all pages!)
+           - skip bottom lines at page n=0, front and rear
+           - skip top lines at page n>0, front and rear
+        */
+        if (s->page == 0) {
+          offsets.front.bottom += dev->hw->offset.first;
+          offsets.rear.bottom  += dev->hw->offset.first;
+        } else {
+          offsets.front.top += dev->hw->offset.first;
+          offsets.rear.top  += dev->hw->offset.first;
+        }
+
+      } else if (dev->hw->offset.first < 0) {
+        /* move up:
+           - add bottom overscan in send_tune_scan_length (effective for all pages!)
+           - skip top lines at page n=0, front and rear
+           - skip bottom lines at page n>0, front and rear
+        */
+        if (s->page == 0) {
+          offsets.front.top += fabs(dev->hw->offset.first);
+          offsets.rear.top  += fabs(dev->hw->offset.first);
+        } else {
+          offsets.front.bottom += fabs(dev->hw->offset.first);
+          offsets.rear.bottom  += fabs(dev->hw->offset.first);
+        }
+
+      }
+      bry_offset += fabs(dev->hw->offset.first);
+    }
+
+    /* convert to lines */
+    s->avdimen.offset.front.top    = (int) ( offsets.front.top    * s->avdimen.yres / MM_PER_INCH );
+    s->avdimen.offset.front.bottom = (int) ( offsets.front.bottom * s->avdimen.yres / MM_PER_INCH );
+    s->avdimen.offset.rear.top     = (int) ( offsets.rear.top     * s->avdimen.yres / MM_PER_INCH );
+    s->avdimen.offset.rear.bottom  = (int) ( offsets.rear.bottom  * s->avdimen.yres / MM_PER_INCH );
+
+    /* add overscan to bry (hw_lines) */
+    s->avdimen.bry += (long) ( bry_offset * s->avdimen.hw_yres / MM_PER_INCH );
+
+    DBG (1, "sane_compute_parameters: front offset: top: %d!\n",
+         s->avdimen.offset.front.top);
+    DBG (1, "sane_compute_parameters: front offset: bottom: %d!\n",
+         s->avdimen.offset.front.bottom);
+    DBG (1, "sane_compute_parameters: rear offset: top: %d!\n",
+         s->avdimen.offset.rear.top);
+    DBG (1, "sane_compute_parameters: rear offset: bottom: %d!\n",
+         s->avdimen.offset.rear.bottom);
+
+  } else if (dev->adf_offset_compensation && s->source_mode == AV_ADF) {
+    /* ADF front scan */
+
+    mm_offset offsets = {0, 0};
+    double bry_offset = 0;
+
+    /* top */
+    if (dev->hw->offset.front.top < 0)
+      offsets.top += fabs(dev->hw->offset.front.top);
+    else
+      bry_offset += dev->hw->offset.front.top;
+
+    /* bottom */
+    if (dev->hw->offset.front.bottom < 0)
+      offsets.bottom += fabs(dev->hw->offset.front.bottom);
+    else
+      bry_offset += dev->hw->offset.front.bottom;
+
+    /* first page offset */
+    if (dev->hw->feature_type & AV_MULTI_SHEET_SCAN) {
+      /* only applies to multi-sheet-scan */
+
+      if (dev->hw->offset.first > 0) {
+        /* move down:
+           - add top overscan in send_tune_scan_length (effective for all pages!)
+           - skip bottom lines at page n=0
+           - skip top lines at page n>0
+        */
+        if (s->page == 0)
+          offsets.bottom += dev->hw->offset.first;
+        else
+          offsets.top += dev->hw->offset.first;
+
+      } else if (dev->hw->offset.first < 0) {
+        /* move up:
+           - add bottom overscan in send_tune_scan_length (effective for all pages!)
+           - skip top lines at page n=0
+           - skip bottom lines at page n>0
+        */
+        if (s->page == 0)
+          offsets.top += fabs(dev->hw->offset.first);
+        else
+          offsets.bottom += fabs(dev->hw->offset.first);
+
+      }
+      bry_offset += fabs(dev->hw->offset.first);
+    }
+
+    /* convert to lines */
+    s->avdimen.offset.front.top    = (int) ( offsets.top    * s->avdimen.yres / MM_PER_INCH );
+    s->avdimen.offset.front.bottom = (int) ( offsets.bottom * s->avdimen.yres / MM_PER_INCH );
+
+    /* add overscan to bry (hw_lines) */
+    s->avdimen.bry += (long) ( bry_offset * s->avdimen.hw_yres / MM_PER_INCH );
+
+    DBG (1, "sane_compute_parameters: front offset: top: %d!\n",
+         s->avdimen.offset.front.top);
+    DBG (1, "sane_compute_parameters: front offset: bottom: %d!\n",
+         s->avdimen.offset.front.bottom);
+
+  } else {
+    s->avdimen.offset.front.top = 0;
+    s->avdimen.offset.front.bottom = 0;
+    s->avdimen.offset.rear.top = 0;
+    s->avdimen.offset.rear.bottom = 0;
   }
 
   memset (&s->params, 0, sizeof (s->params));
@@ -4367,7 +4825,10 @@ get_tune_scan_length (Avision_Scanner* s)
 static SANE_Status
 send_tune_scan_length (Avision_Scanner* s)
 {
-  int top, bottom;
+  Avision_Device* dev = s->hw;
+
+  int top, bottom, dpi;
+  double offset = 0;
 
   SANE_Status status;
   size_t size;
@@ -4387,9 +4848,33 @@ send_tune_scan_length (Avision_Scanner* s)
   set_triple (scmd.transferlen, size);
 
   /* the SPEC says optical DPI, but real world measuring suggests it is 1200
-     as in the window descriptor */
-  top = 1200 * SANE_UNFIX (s->val[OPT_OVERSCAN_TOP].w) / MM_PER_INCH;
+     as in the window descriptor.
+     MN: This is not true for at least Kodak i1120 where it is optical DPI
+  */
+  dpi = 1200;
+  if (dev->hw->feature_type & AV_OVERSCAN_OPTDPI)
+    dpi = dev->inquiry_optical_res;
+
+  top = dpi * SANE_UNFIX (s->val[OPT_OVERSCAN_TOP].w) / MM_PER_INCH;
   DBG (3, "send_tune_scan_length: top: %d\n", top);
+
+  /* top offset compensation */
+  if (dev->adf_offset_compensation) {
+    if (s->avdimen.interlaced_duplex)
+      offset += fmax(0, fmax(dev->hw->offset.duplex.front.top,
+                             dev->hw->offset.duplex.rear.top) );
+    else if (s->source_mode == AV_ADF)
+      offset += fmax(0, dev->hw->offset.front.top);
+
+    /* first page offset */
+    if (dev->hw->offset.first > 0)
+      offset += dev->hw->offset.first;
+
+    /* convert to lines */
+    int top_offset = dpi * offset / MM_PER_INCH;
+    top += top_offset;
+    DBG (3, "send_tune_scan_length: top offset: %d\n", top_offset);
+  }
 
   set_double (scmd.datatypequal, 0x0001); /* attach, 0x000 is shorten */
   set_double (payload.vertical, top);
@@ -4407,8 +4892,27 @@ send_tune_scan_length (Avision_Scanner* s)
   }
 
   scmd.datatypecode = 0x95; /* Attach/Truncate tail(right) of scan length */
-  bottom = 1200 * SANE_UNFIX (s->val[OPT_OVERSCAN_BOTTOM].w) / MM_PER_INCH;
+  bottom = dpi * SANE_UNFIX (s->val[OPT_OVERSCAN_BOTTOM].w) / MM_PER_INCH;
   DBG (3, "send_tune_scan_length: bottom: %d\n", bottom);
+
+  /* bottom offset compensation */
+  offset = 0;
+  if (dev->adf_offset_compensation) {
+    if (s->avdimen.interlaced_duplex)
+      offset += fmax(0, fmax(dev->hw->offset.duplex.front.bottom,
+                             dev->hw->offset.duplex.rear.bottom) );
+    else if (s->source_mode == AV_ADF)
+      offset += fmax(0, dev->hw->offset.front.bottom);
+
+    /* first page offset */
+    if (dev->hw->offset.first < 0)
+      offset += fabs(dev->hw->offset.first);
+
+    /* convert to lines */
+    int bottom_offset = dpi * offset / MM_PER_INCH;
+    bottom += bottom_offset;
+    DBG (3, "send_tune_scan_length: bottom offset: %d\n", bottom_offset);
+  }
 
   set_double (payload.vertical, bottom);
   /*set_double (payload.horizontal, 0); */
@@ -4975,7 +5479,7 @@ normal_calibration (Avision_Scanner* s)
     return status;
 
   /* check if need do calibration */
-  if (calib_format.flags != 1) {
+  if (calib_format.flags != 1 && !(s->hw->hw->feature_type & AV_FORCE_CALIB)) {
     DBG (1, "normal_calibration: Scanner claims no calibration needed -> skipped!\n");
     return SANE_STATUS_GOOD;
   }
@@ -4992,7 +5496,7 @@ normal_calibration (Avision_Scanner* s)
     return SANE_STATUS_NO_MEM;
 
   /* check if we need to do dark calibration (shading) */
-  if (BIT(calib_format.ability1, 3))
+  if (BIT(calib_format.ability1, 2))
     {
       DBG (1, "normal_calibration: reading dark data\n");
       /* read dark calib data */
@@ -5262,11 +5766,24 @@ send_gamma (Avision_Scanner* s)
 	      v2 = 0;
 	  }
 
-	  for (k = 0; k < gamma_values; ++ k, ++ i) {
-	    gamma_data [i] = (uint8_t)
-	      (((v1 * (gamma_values - k)) + (v2 * k) ) / (double) gamma_values);
-	  }
+          if (s->hw->hw->feature_type & AV_GAMMA_UINT16) {
+            /* Use some pointer-cast magic to use gamma_data as uint16 array
+               and write as big-endian since values get swapped */
+            ((uint16_t *)gamma_data) [i++] = (uint16_t)v1<<8;
+          } else {
+            /* interpolate gamma_values to gamma_data */
+	    for (k = 0; k < gamma_values; ++ k, ++ i) {
+	      gamma_data [i] = (uint8_t)
+	        (((v1 * (gamma_values - k)) + (v2 * k) ) / (double) gamma_values);
+	    }
+          }
+
 	}
+
+      /* with AV_GAMMA_UINT16 only every second value is filled, so double i */
+      if (s->hw->hw->feature_type & AV_GAMMA_UINT16)
+        i *= 2;
+
       /* fill the gamma table - (e.g.) if 11bit (old protocol) table */
       {
 	size_t t_i = i-1;
@@ -5599,8 +6116,10 @@ set_window (Avision_Scanner* s)
     paralen += sizeof (cmd.window.avision.type.fujitsu);
   else if (!dev->inquiry_new_protocol)
     paralen += sizeof (cmd.window.avision.type.old);
-  else
+  else if (dev->hw->feature_type & AV_MULTI_SHEET_SCAN)
     paralen += sizeof (cmd.window.avision.type.normal);
+  else
+    paralen += sizeof (cmd.window.avision.type.normal) - 1;
 
   DBG (2, "set_window: final paralen: %d\n", paralen);
 
@@ -5626,7 +6145,7 @@ set_window (Avision_Scanner* s)
 
   set_quad (cmd.window.descriptor.width,
 	    s->avdimen.hw_pixels_per_line * base_dpi_rel / s->avdimen.hw_xres + 1);
-  line_count = s->avdimen.hw_lines + 2 * s->avdimen.line_difference + s->avdimen.rear_offset;
+  line_count = s->avdimen.hw_lines + 2 * s->avdimen.line_difference;
   set_quad (cmd.window.descriptor.length,
 	    line_count * base_dpi_rel / s->avdimen.hw_yres + 1);
 
@@ -5669,6 +6188,13 @@ set_window (Avision_Scanner* s)
     DBG (3, "set_window: filling ADF bits\n");
     SET_BIT (cmd.window.avision.bitset1, 7);
 
+    if (dev->hw->feature_type & AV_MULTI_SHEET_SCAN) {
+      /* Always set bit 7 to enable single_sheet_scan option (defaults to off).
+         This removes the 1s pause between two sheets and fixes some offsets. */
+      SET_BIT(cmd.window.avision.type.normal.bitset3, 7);
+      cmd.window.avision.type.normal.single_sheet_scan = 0;
+    }
+
     /* normal, interlaced duplex scanners */
     if (dev->inquiry_duplex_interlaced) {
       DBG (3, "set_window: interlaced duplex type\n");
@@ -5696,12 +6222,14 @@ set_window (Avision_Scanner* s)
   if ( !(dev->hw->feature_type & AV_FUJITSU) )
     {
       /* quality scan option switch */
-      if (s->val[OPT_QSCAN].w == SANE_TRUE) {
+      if (s->val[OPT_QSCAN].w == SANE_TRUE &&
+          !(dev->hw->feature_type & AV_NO_QSCAN_MODE)) {
 	SET_BIT (cmd.window.avision.type.normal.bitset2, 4);
       }
 
       /* quality calibration option switch (inverted! if set == speed) */
-      if (s->val[OPT_QCALIB].w == SANE_FALSE) {
+      if (s->val[OPT_QCALIB].w == SANE_FALSE &&
+          !(dev->hw->feature_type & AV_NO_QCALIB_MODE)) {
 	SET_BIT (cmd.window.avision.type.normal.bitset2, 3);
       }
 
@@ -6174,7 +6702,8 @@ start_scan (Avision_Scanner* s)
     SET_BIT(cmd.bitset1,6);
   }
 
-  if (s->val[OPT_QSCAN].w == SANE_TRUE) {
+  if (s->val[OPT_QSCAN].w == SANE_TRUE &&
+      !(s->hw->hw->feature_type & AV_NO_QSCAN_MODE)) {
     SET_BIT(cmd.bitset1,7);
   }
 
@@ -6218,6 +6747,8 @@ do_eof (Avision_Scanner *s)
 static SANE_Status
 do_cancel (Avision_Scanner* s)
 {
+  int status, release_type = 0;
+
   DBG (3, "do_cancel:\n");
 
   s->prepared = s->scanning = SANE_FALSE;
@@ -6238,6 +6769,12 @@ do_cancel (Avision_Scanner* s)
     sanei_thread_waitpid (s->reader_pid, &exit_status);
     sanei_thread_invalidate (s->reader_pid);
   }
+
+  if (s->hw->hw->feature_type & AV_FASTFEED_ON_CANCEL)
+    release_type = 1;
+  status = release_unit (s, release_type);
+  if (status != SANE_STATUS_GOOD)
+    DBG (1, "do_cancel: release_unit failed\n");
 
   return SANE_STATUS_CANCELLED;
 }
@@ -6503,6 +7040,8 @@ init_options (Avision_Scanner* s)
   s->opt[OPT_QSCAN].type   = SANE_TYPE_BOOL;
   s->opt[OPT_QSCAN].unit   = SANE_UNIT_NONE;
   s->val[OPT_QSCAN].w      = SANE_TRUE;
+  if (dev->hw->feature_type & AV_NO_QSCAN_MODE)
+    s->opt[OPT_QSCAN].cap |= SANE_CAP_INACTIVE;
 
   /* Quality Calibration */
   s->opt[OPT_QCALIB].name  = SANE_NAME_QUALITY_CAL;
@@ -6511,6 +7050,8 @@ init_options (Avision_Scanner* s)
   s->opt[OPT_QCALIB].type  = SANE_TYPE_BOOL;
   s->opt[OPT_QCALIB].unit  = SANE_UNIT_NONE;
   s->val[OPT_QCALIB].w     = SANE_TRUE;
+  if (dev->hw->feature_type & AV_NO_QCALIB_MODE)
+    s->opt[OPT_QCALIB].cap |= SANE_CAP_INACTIVE;
 
   /* gray scale gamma vector */
   s->opt[OPT_GAMMA_VECTOR].name = SANE_NAME_GAMMA_VECTOR;
@@ -6726,6 +7267,7 @@ reader_process (void *data)
   int old;
 
   FILE* fp;
+  FILE* fp_fd = 0; /* for ADF bottom offset truncating */
   FILE* rear_fp = 0; /* used to store the deinterlaced rear data */
   FILE* raw_fp = 0; /* used to write the RAW image data for debugging */
 
@@ -6808,6 +7350,16 @@ reader_process (void *data)
   fp = fdopen (fd, "w");
   if (!fp)
     return SANE_STATUS_NO_MEM;
+
+  if (dev->adf_offset_compensation) {
+    DBG (3, "reader_process: redirecting output data to temp file for ADF offset compensation.\n");
+    fp_fd = fp;
+    fp = fopen (s->duplex_offtmp_fname, "w+");
+    if (!fp) {
+      fclose(fp_fd);
+      return SANE_STATUS_NO_MEM;
+    }
+  }
 
   /* start scan ? */
   if ((deinterlace == NONE && !((dev->hw->feature_type & AV_ADF_FLIPPING_DUPLEX) && s->source_mode == AV_ADF_DUPLEX && s->duplex_rear_valid)) ||
@@ -6914,9 +7466,9 @@ reader_process (void *data)
   }
 
   /* calculate params for the reading loop */
-  total_size = s->avdimen.hw_bytes_per_line * (s->avdimen.hw_lines +
-					       2 * s->avdimen.line_difference +
-					       s->avdimen.rear_offset);
+  total_size = s->avdimen.hw_bytes_per_line *
+               (s->avdimen.hw_lines + 2 * s->avdimen.line_difference);
+
   if (deinterlace != NONE && !s->duplex_rear_valid)
     total_size *= 2;
   DBG (3, "reader_process: total_size: %lu\n", (u_long) total_size);
@@ -7285,24 +7837,7 @@ reader_process (void *data)
       if (s->avdimen.hw_xres == s->avdimen.xres &&
 	  s->avdimen.hw_yres == s->avdimen.yres) /* No scaling */
 	{
-	  int lines, _hw_line = hw_line;
-	  uint8_t* src = out_data;
-	  /* we support cropping at the beginning and end due to rear offset */
-	  for (lines = useful_bytes / s->avdimen.hw_bytes_per_line;
-	       lines > 0; --lines, ++_hw_line, src += s->avdimen.hw_bytes_per_line)
-	  {
-	    if (deinterlace != NONE) {
-	      /* crop rear offset :-( */
-	      if ( (!s->duplex_rear_valid && _hw_line >= s->avdimen.hw_lines) ||
-		   (s->duplex_rear_valid && _hw_line < s->avdimen.rear_offset) )
-	      {
-	        DBG (7, "reader_process: skip due read offset line: %d\n", line);
-	        continue;
-	      }
-	    }
-	    fwrite (src, s->avdimen.hw_bytes_per_line, 1, fp);
-	    ++line;
-	  }
+          fwrite (out_data, useful_bytes, 1, fp);
 	}
       else /* Software scaling - watch out - this code bites back! */
 	{
@@ -7326,22 +7861,11 @@ reader_process (void *data)
 	    unsigned int v; /* accumulator */
 
 	    /* Break out if we do not have the hw source line - yet,
-	       or when we are past the end of wanted data (e.g. on the
-	       front page due to rear_offset). Also take the read_offset
-	       into account on the rear side */
-	    if (deinterlace != NONE) {
-	      if (!s->duplex_rear_valid && syy >= s->avdimen.hw_lines) {
-		DBG (7, "reader_process: skip due past intended front page lines: %d\n", sy);
-	        break;
-	      }
-	      else if (s->duplex_rear_valid) {
-		/* the beginning is to be skipped, accessed thru offset */
-		DBG (7, "reader_process: rear_offset adjusting source: %d\n", sy);
-	        sy += s->avdimen.rear_offset;
-		syy += s->avdimen.rear_offset;
-	      }
+	       or when we are past the end of wanted data */
+	    if (deinterlace != NONE && !s->duplex_rear_valid && syy >= s->avdimen.hw_lines) {
+	      DBG (7, "reader_process: skip due past intended front page lines: %d\n", sy);
+	      break;
 	    }
-
 	    if (sy >= hw_line_end || syy >= hw_line_end) {
 	      DBG (3, "reader_process: source line %d-%d not yet avail\n",
 		   sy, syy);
@@ -7496,6 +8020,35 @@ reader_process (void *data)
     }
   }
 
+  /* ADF offset compensation */
+  if (dev->adf_offset_compensation) {
+
+    long lines;
+    uint8_t* buffer;
+
+    buffer = malloc (s->params.bytes_per_line);
+    lines = ftell(fp) / s->params.bytes_per_line;
+    rewind(fp);
+
+    for (long line = 0; line < lines; line++) {
+      fread(buffer, s->params.bytes_per_line, 1, fp);
+
+      if ( (!s->duplex_rear_valid && (line < s->avdimen.offset.front.top)) ||
+           (s->duplex_rear_valid && (line < s->avdimen.offset.rear.top)) ) {
+        DBG (7, "reader_process: skip due read offset line: %ld\n", line);
+        continue;
+      }
+
+      if ( (!s->duplex_rear_valid && (line > (lines - s->avdimen.offset.front.bottom))) ||
+           (s->duplex_rear_valid && (line > (lines - s->avdimen.offset.rear.bottom))) ) {
+        DBG (7, "reader_process: skip due read offset line: %ld to %ld\n", line, lines);
+        break; /* nothing more to write, so break out here */
+      }
+
+      fwrite(buffer, s->params.bytes_per_line, 1, fp_fd);
+    }
+  }
+
   /* Eject film holder and/or release_unit - but only for
      non-duplex-rear / non-virtual scans. */
   if ((deinterlace != NONE && s->duplex_rear_valid) ||
@@ -7556,6 +8109,9 @@ reader_process (void *data)
   }
   if (rear_fp)
     fclose (rear_fp);
+
+  if (fp_fd)
+    fclose(fp_fd);
 
   if (ip_data) free (ip_data);
   if (ip_history)
@@ -7889,9 +8445,17 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
 
 	http://www.poynton.com/GammaFAQ.html
 
-     Avision's driver defaults to 2.2 though. */
+     Avision's driver defaults to 2.2 though.
+
+     MN: This is not true for at least Kodak i1120's windows driver.
+         Some real-world testing showed that a gamma of 1.0 is needed
+         for this scanner to give decent scan results. Add an option for this...
+  */
+
   {
-    const double gamma = 2.22;
+    double gamma = 2.22;
+    if (s->hw->hw->feature_type & AV_GAMMA_10)
+      gamma = 1.0;
     const double one_over_gamma = 1. / gamma;
 
     for (i = 0; i < 4; ++ i)
@@ -7944,6 +8508,29 @@ sane_open (SANE_String_Const devicename, SANE_Handle *handle)
 
   /* initialize the options */
   init_options (s);
+
+  if (dev->inquiry_duplex_interlaced &&
+      (dev->hw->offset.first != 0 ||
+       dev->hw->offset.front.top != 0 ||
+       dev->hw->offset.front.bottom != 0 ||
+       dev->hw->offset.duplex.front.top != 0 ||
+       dev->hw->offset.duplex.front.bottom != 0 ||
+       dev->hw->offset.duplex.rear.top != 0 ||
+       dev->hw->offset.duplex.rear.bottom != 0) )
+    dev->adf_offset_compensation = SANE_TRUE;
+
+  if (dev->adf_offset_compensation) {
+    strncpy(s->duplex_offtmp_fname, "/tmp/avision-offtmp-XXXXXX", PATH_MAX);
+
+    if (! mktemp(s->duplex_offtmp_fname) ) {
+      DBG (1, "sane_open: failed to generate temporary fname for ADF offset compensation temp file\n");
+      return SANE_STATUS_NO_MEM;
+    }
+    else {
+      DBG (1, "sane_open: temporary fname for ADF offset compensation temp file: %s\n",
+	   s->duplex_offtmp_fname);
+    }
+  }
 
   if (dev->inquiry_duplex_interlaced || dev->scanner_type == AV_FILM ||
       dev->hw->feature_type & AV_ADF_FLIPPING_DUPLEX) {
@@ -8054,6 +8641,11 @@ sane_close (SANE_Handle handle)
   if (*(s->duplex_rear_fname)) {
     unlink (s->duplex_rear_fname);
     *(s->duplex_rear_fname) = 0;
+  }
+
+  if (*(s->duplex_offtmp_fname)) {
+    unlink (s->duplex_offtmp_fname);
+    *(s->duplex_offtmp_fname) = 0;
   }
 
   free (handle);

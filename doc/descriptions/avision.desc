@@ -614,6 +614,12 @@
 :usbid "0x040a" "0x6005"
 :status :good
 
+:model "i1120"
+:interface "USB"
+:usbid "0x040a" "0x6013"
+:comment "duplex sheetfed scanner"
+:status :good
+
 
 :mfg "iVina"
 

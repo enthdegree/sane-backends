@@ -1161,7 +1161,6 @@ gt68xx_line_reader_free (GT68xx_Line_Reader * reader)
       return SANE_STATUS_INVAL;
     }
 
- 
   gt68xx_line_reader_free_delays (reader);
 
   if (reader->pixel_buffer)

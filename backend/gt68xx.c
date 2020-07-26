@@ -2329,7 +2329,7 @@ sane_cancel (SANE_Handle handle)
       /* some scanners don't like this command when cancelling a scan */
       sanei_usb_set_timeout (SHORT_TIMEOUT);
       gt68xx_device_fix_descriptor (s->dev);
-      //gt68xx_scanner_stop_scan (s);
+      gt68xx_scanner_stop_scan (s);
       sanei_usb_set_timeout (LONG_TIMEOUT);
 
       if (s->dev->model->flags & GT68XX_FLAG_SHEET_FED)
@@ -2344,8 +2344,10 @@ sane_cancel (SANE_Handle handle)
           gt68xx_device_carriage_home (s->dev);
         }
       if (s->gamma_table)
-        free (s->gamma_table);
-      s->gamma_table = 0;
+        {
+          free (s->gamma_table);
+          s->gamma_table = 0;
+        }
     }
   else
     {

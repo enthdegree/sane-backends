@@ -116,6 +116,12 @@ static SANE_Range int_constraint_range = {
   2
 };
 
+static SANE_Range gamma_range = {
+  0,
+  255,
+  1
+};
+
 static SANE_Range fixed_constraint_range = {
   SANE_FIX (-42.17),
   SANE_FIX (32767.9999),
@@ -183,6 +189,42 @@ static SANE_Int int_array[] = {
 static SANE_Int int_array_constraint_range[] = {
   48, 6, 4, 92, 190, 16
 };
+
+#define GAMMA_RED_SIZE 256
+#define GAMMA_GREEN_SIZE 256
+#define GAMMA_BLUE_SIZE 256
+#define GAMMA_ALL_SIZE 4096
+static SANE_Int gamma_red[GAMMA_RED_SIZE]; // initialized in init_options()
+static SANE_Int gamma_green[GAMMA_GREEN_SIZE];
+static SANE_Int gamma_blue[GAMMA_BLUE_SIZE];
+static SANE_Int gamma_all[GAMMA_ALL_SIZE];
+
+static void
+init_gamma_table(SANE_Int *tablePtr, SANE_Int count, SANE_Int max)
+{
+  for (int i=0; i<count; ++i) {
+    tablePtr[i] = (SANE_Int)(((double)i * max)/(double)count);
+  }
+}
+
+static void
+print_gamma_table(SANE_Int *tablePtr, SANE_Int count)
+{
+  char str[200];
+  str[0] = '\0';
+  DBG (5, "Gamma Table Size: %d\n", count);
+  for (int i=0; i<count; ++i) {
+    if (i%16 == 0 && strlen(str) > 0) {
+      DBG (5, "%s\n", str);
+      str[0] = '\0';
+    }
+    sprintf (str + strlen(str), " %04X", tablePtr[i]);
+  }
+  if (strlen(str) > 0) {
+    DBG (5, "%s\n", str);
+  }
+}
+
 
 static SANE_Int int_array_constraint_word_list[] = {
   -42, 0, -8, 17, 42, 42
@@ -922,6 +964,63 @@ init_options (Test_Device * test_device)
   od->constraint.range = &int_constraint_range;
   test_device->val[opt_int_array_constraint_range].wa =
     &int_array_constraint_range[0];
+
+  /* opt_gamma_red */
+  init_gamma_table(gamma_red, GAMMA_RED_SIZE, gamma_range.max);
+  od = &test_device->opt[opt_gamma_red];
+  od->name = SANE_NAME_GAMMA_VECTOR_R;
+  od->title = SANE_TITLE_GAMMA_VECTOR_R;
+  od->desc = SANE_DESC_GAMMA_VECTOR_R;
+  od->type = SANE_TYPE_INT;
+  od->unit = SANE_UNIT_NONE;
+  od->size = 256 * sizeof (SANE_Word);
+  od->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED;
+  od->constraint_type = SANE_CONSTRAINT_RANGE;
+  od->constraint.range = &gamma_range;
+  test_device->val[opt_gamma_red].wa = &gamma_red[0];
+
+  /* opt_gamma_green */
+  init_gamma_table(gamma_green, GAMMA_GREEN_SIZE, gamma_range.max);
+  od = &test_device->opt[opt_gamma_green];
+  od->name = SANE_NAME_GAMMA_VECTOR_G;
+  od->title = SANE_TITLE_GAMMA_VECTOR_G;
+  od->desc = SANE_DESC_GAMMA_VECTOR_G;
+  od->type = SANE_TYPE_INT;
+  od->unit = SANE_UNIT_NONE;
+  od->size = 256 * sizeof (SANE_Word);
+  od->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED;
+  od->constraint_type = SANE_CONSTRAINT_RANGE;
+  od->constraint.range = &gamma_range;
+  test_device->val[opt_gamma_green].wa = &gamma_green[0];
+
+  /* opt_gamma_blue */
+  init_gamma_table(gamma_blue, GAMMA_BLUE_SIZE, gamma_range.max);
+  od = &test_device->opt[opt_gamma_blue];
+  od->name = SANE_NAME_GAMMA_VECTOR_B;
+  od->title = SANE_TITLE_GAMMA_VECTOR_B;
+  od->desc = SANE_DESC_GAMMA_VECTOR_B;
+  od->type = SANE_TYPE_INT;
+  od->unit = SANE_UNIT_NONE;
+  od->size = 256 * sizeof (SANE_Word);
+  od->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED;
+  od->constraint_type = SANE_CONSTRAINT_RANGE;
+  od->constraint.range = &gamma_range;
+  test_device->val[opt_gamma_blue].wa = &gamma_blue[0];
+
+  /* opt_gamma_all */
+  init_gamma_table(gamma_all, GAMMA_ALL_SIZE, gamma_range.max);
+  print_gamma_table(gamma_all, GAMMA_ALL_SIZE);
+  od = &test_device->opt[opt_gamma_all];
+  od->name = SANE_NAME_GAMMA_VECTOR;
+  od->title = SANE_TITLE_GAMMA_VECTOR;
+  od->desc = SANE_DESC_GAMMA_VECTOR;
+  od->type = SANE_TYPE_INT;
+  od->unit = SANE_UNIT_NONE;
+  od->size = GAMMA_ALL_SIZE * sizeof (SANE_Word);
+  od->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED;
+  od->constraint_type = SANE_CONSTRAINT_RANGE;
+  od->constraint.range = &gamma_range;
+  test_device->val[opt_gamma_all].wa = &gamma_all[0];
 
   /* opt_int_array_constraint_word_list */
   od = &test_device->opt[opt_int_array_constraint_word_list];
@@ -2071,11 +2170,21 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
 	  break;
 	case opt_int_array:	/* Word array */
 	case opt_int_array_constraint_range:
+	case opt_gamma_red:
+	case opt_gamma_green:
+	case opt_gamma_blue:
+	case opt_gamma_all:
 	case opt_int_array_constraint_word_list:
 	  memcpy (test_device->val[option].wa, value,
 		  test_device->opt[option].size);
 	  DBG (4, "sane_control_option: set option %d (%s) to %p\n",
 	       option, test_device->opt[option].name, (void *) value);
+	  if (option == opt_gamma_all) {
+	      print_gamma_table(gamma_all, GAMMA_ALL_SIZE);
+	  }
+	  if (option == opt_gamma_red) {
+	      print_gamma_table(gamma_red, GAMMA_RED_SIZE);
+	  }
 	  break;
 	  /* options with side-effects */
 	case opt_print_options:
@@ -2298,6 +2407,10 @@ sane_control_option (SANE_Handle handle, SANE_Int option, SANE_Action action,
 	  break;
 	case opt_int_array:	/* Int array */
 	case opt_int_array_constraint_range:
+	case opt_gamma_red:
+	case opt_gamma_green:
+	case opt_gamma_blue:
+	case opt_gamma_all:
 	case opt_int_array_constraint_word_list:
 	  memcpy (value, test_device->val[option].wa,
 		  test_device->opt[option].size);

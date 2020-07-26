@@ -1006,6 +1006,7 @@ gt68xx_line_reader_new (GT68xx_Device * dev,
       DBG (3, "gt68xx_line_reader_new: cannot allocate line buffers: %s\n",
 	   sane_strstatus (status));
       free (reader);
+      reader = NULL;
       return status;
     }
 
@@ -1105,6 +1106,7 @@ gt68xx_line_reader_new (GT68xx_Device * dev,
 	   reader->params.depth);
       gt68xx_line_reader_free_delays (reader);
       free (reader);
+      reader = NULL;
       return SANE_STATUS_UNSUPPORTED;
     }
 
@@ -1119,6 +1121,7 @@ gt68xx_line_reader_new (GT68xx_Device * dev,
       DBG (3, "gt68xx_line_reader_new: cannot allocate pixel buffer\n");
       gt68xx_line_reader_free_delays (reader);
       free (reader);
+      reader = NULL;
       return SANE_STATUS_NO_MEM;
     }
 
@@ -1135,6 +1138,7 @@ gt68xx_line_reader_new (GT68xx_Device * dev,
       free (reader->pixel_buffer);
       gt68xx_line_reader_free_delays (reader);
       free (reader);
+      reader = NULL;
       return status;
     }
 
@@ -1150,6 +1154,14 @@ gt68xx_line_reader_free (GT68xx_Line_Reader * reader)
 
   DBG (6, "gt68xx_line_reader_free: enter\n");
 
+  if (reader == NULL)
+    {
+      DBG (3, "gt68xx_line_reader_free: already freed\n");
+      DBG (6, "gt68xx_line_reader_free: leave\n");
+      return SANE_STATUS_INVAL;
+    }
+
+ 
   gt68xx_line_reader_free_delays (reader);
 
   if (reader->pixel_buffer)
@@ -1167,6 +1179,7 @@ gt68xx_line_reader_free (GT68xx_Line_Reader * reader)
     }
 
   free (reader);
+  reader = NULL;
 
   DBG (6, "gt68xx_line_reader_free: leave\n");
   return status;

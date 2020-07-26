@@ -959,7 +959,7 @@ msgid "Operation not supported"
 msgstr "Opération non-supportée"
 
 #: backend/sane_strstatus.c:65
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Operation was canceled"
 msgstr "Opération annulée"
 
@@ -1017,7 +1017,7 @@ msgstr "La lampe n'est pas prète, veuillez ré-essayer"
 #, no-c-format
 msgid "Scanner mechanism locked for transport"
 msgstr ""
-"Le méchanisme de blocage pour le transport du scanner est vérouillé"
+"Le méchanisme est vérouillé pour le transport du scanner"
 
 #: backend/artec_eplus48u.c:2874 backend/pnm.c:282
 #, no-c-format
@@ -1027,7 +1027,7 @@ msgstr "Valeurs par défaut"
 #: backend/artec_eplus48u.c:2876
 #, no-c-format
 msgid "Set default values for enhancement controls."
-msgstr "Valeurs par défaut pour les réglages fins."
+msgstr "Définir les valeurs par défaut pour les réglages fins."
 
 #: backend/artec_eplus48u.c:2932 backend/canon.c:1611
 #, no-c-format
@@ -1055,7 +1055,7 @@ msgid "Only perform shading-correction"
 msgstr "Effectuer uniquement la correction des ombres"
 
 #: backend/artec_eplus48u.c:2956
-#, fuzzy, no-c-format
+#, no-c-format
 msgid ""
 "If enabled, only the shading correction is performed during calibration. "
 "The default values for gain, offset and exposure time, either built-in "
@@ -1069,7 +1069,7 @@ msgstr ""
 #: backend/artec_eplus48u.c:2967
 #, no-c-format
 msgid "Button state"
-msgstr "Etat du bouton"
+msgstr "Bouton d'état"
 
 #: backend/avision.h:778
 #, no-c-format
@@ -1087,7 +1087,7 @@ msgid "Duplex scan"
 msgstr "Numérisation recto-verso"
 
 #: backend/avision.h:783
-#, fuzzy, no-c-format
+#, no-c-format
 msgid ""
 "Duplex scan provides a scan of the front and back side of the document"
 msgstr ""
@@ -1097,12 +1097,12 @@ msgstr ""
 #: backend/canon-sane.c:674 backend/canon.c:171
 #, no-c-format
 msgid "Correction according to transparency ratio"
-msgstr "Correction en fonction du rapport de transparence"
+msgstr "Correction en fonction du ratio de transparence"
 
 #: backend/canon-sane.c:680 backend/canon.c:170
 #, no-c-format
 msgid "Correction according to film type"
-msgstr "Correction en fonction du support"
+msgstr "Correction en fonction du type de film"
 
 #: backend/canon-sane.c:732 backend/canon-sane.c:940
 #: backend/canon-sane.c:1076 backend/canon-sane.c:1314
@@ -1221,7 +1221,7 @@ msgstr "longueur de la liste de paramètres incorrecte"
 #: backend/canon.c:428
 #, no-c-format
 msgid "invalid command operation code"
-msgstr "code commande invalide"
+msgstr "code commande opération invalide"
 
 #: backend/canon.c:432
 #, no-c-format
@@ -1256,27 +1256,27 @@ msgstr "document absent"
 #: backend/canon.c:456
 #, no-c-format
 msgid "invalid bit IDENTIFY message"
-msgstr "message d'identification (IDENTIFY) invalide"
+msgstr "message bit IDENTIFY non valide"
 
 #: backend/canon.c:460
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "option not correct"
-msgstr "option non connectée"
+msgstr "option incorrecte"
 
 #: backend/canon.c:474
 #, no-c-format
 msgid "power on reset / bus device reset"
-msgstr "Réinitialisation au démarrage / du bus"
+msgstr "Redémarrage / réinitialisation du bus du périphérique"
 
 #: backend/canon.c:478
 #, no-c-format
 msgid "parameter changed by another initiator"
-msgstr "paramètre modifié par un autre maître"
+msgstr "paramètre modifié par une autre instance"
 
 #: backend/canon.c:492
 #, no-c-format
 msgid "no additional sense information"
-msgstr "pas d'information supplémentaire"
+msgstr "pas d'information supplémentaire des capteurs"
 
 #: backend/canon.c:496
 #, no-c-format
@@ -1291,7 +1291,7 @@ msgstr "erreur de parité SCSI"
 #: backend/canon.c:504
 #, no-c-format
 msgid "initiator detected error message received"
-msgstr "message d'erreur détecté "
+msgstr "message d'initialisation d'erreur détecté "
 
 #: backend/canon.c:509
 #, no-c-format
@@ -1316,7 +1316,7 @@ msgstr "lampe non stabilisée"
 #: backend/canon.c:847 backend/canon.c:862
 #, no-c-format
 msgid "film scanner"
-msgstr "numériseur de transparents"
+msgstr "numériseur de film"
 
 #: backend/canon.c:877 backend/canon.c:892 backend/canon.c:907
 #: backend/canon.c:922 backend/hp3900_sane.c:1683 backend/plustek.c:1335
@@ -1334,7 +1334,7 @@ msgstr "Type de film"
 #: backend/canon.c:1179
 #, no-c-format
 msgid "Selects the film type, i.e. negatives or slides"
-msgstr "Sélectionne le type de transparents (négatifs ou diapositives)"
+msgstr "Sélectionne le type de film (négatifs ou diapositives)"
 
 #: backend/canon.c:1191
 #, no-c-format
@@ -1354,7 +1354,7 @@ msgstr "Echantillonnage matériel"
 #: backend/canon.c:1232
 #, no-c-format
 msgid "Use only hardware resolutions"
-msgstr "Utilise seulement les valeurs d'échantillonnage matériel"
+msgstr "Utilise seulement les valeurs résolution du matériel"
 
 #: backend/canon.c:1313
 #, no-c-format
@@ -1624,19 +1624,19 @@ msgid "ADF Duplex"
 msgstr "Chargeur automatique de documents, recto-verso"
 
 #: backend/canon_dr.c:417
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Card Front"
-msgstr "Avant"
+msgstr "Recto de la carte"
 
 #: backend/canon_dr.c:418
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Card Back"
-msgstr "Arrière"
+msgstr "Verso de la carte"
 
 #: backend/canon_dr.c:419
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Card Duplex"
-msgstr "Recto-verso"
+msgstr "Recto-verso de la carte"
 
 #: backend/canon_dr.c:426 backend/epson.c:599 backend/epson.c:3096
 #: backend/epson2.c:201 backend/fujitsu.c:697
@@ -1698,12 +1698,12 @@ msgstr "JPEG"
 #: backend/genesys/genesys.cpp:4168 backend/kvs1025_opt.c:910
 #, no-c-format
 msgid "Software blank skip percentage"
-msgstr ""
+msgstr "Pourcentage logiciel du blanc ignoré"
 
 #: backend/canon_dr.c:2480 backend/fujitsu.c:4118
 #, no-c-format
 msgid "Request driver to discard pages with low percentage of dark pixels"
-msgstr ""
+msgstr "Demande au pilote d'éliminer les pages ayant un faible pourcentage de pixels foncés"
 
 #: backend/epson.c:491 backend/epson2.c:108 backend/epsonds.c:88
 #: backend/kodakaio.c:611 backend/magicolor.c:174
@@ -1723,7 +1723,7 @@ msgstr "Recto-verso"
 #: backend/epsonds-ops.c:33 backend/epsonds.h:63 backend/pixma/pixma.c:937
 #, no-c-format
 msgid "Transparency Unit"
-msgstr "Adaptateur pour transparents"
+msgstr "Unité de Transparence"
 
 #: backend/epson.c:503 backend/epson2-ops.c:104 backend/epson2.c:118
 #: backend/epsonds-ops.c:34 backend/epsonds.c:96 backend/epsonds.h:64
@@ -1736,64 +1736,64 @@ msgstr "Chargeur automatique de document"
 #: backend/epson.c:523 backend/epson2.c:134
 #, no-c-format
 msgid "Positive Film"
-msgstr "Positif"
+msgstr "Film positif"
 
 #: backend/epson.c:524 backend/epson2.c:135
 #, no-c-format
 msgid "Negative Film"
-msgstr "Négatif"
+msgstr "Film négatif"
 
 #: backend/epson.c:529 backend/epson2.c:142
 #, no-c-format
 msgid "Focus on glass"
-msgstr "Mettre au point sur la vitre"
+msgstr "Fzaire le point sur la vitre"
 
 #: backend/epson.c:530 backend/epson2.c:143
 #, no-c-format
 msgid "Focus 2.5mm above glass"
-msgstr "Mettre au point 2,5 mm au-dessus de la vitre"
+msgstr "Faire le point 2,5 mm au-dessus de la vitre"
 
 #: backend/epson.c:557 backend/epson.c:565 backend/epson.c:577
 #: backend/epson2.c:166 backend/epson2.c:174 backend/epson2.c:186
 #, no-c-format
 msgid "Halftone A (Hard Tone)"
-msgstr "Motif demi-teinte A (teinte dure)"
+msgstr "Demi-teinte A (teinte dure)"
 
 #: backend/epson.c:558 backend/epson.c:566 backend/epson.c:578
 #: backend/epson2.c:167 backend/epson2.c:175 backend/epson2.c:187
 #, no-c-format
 msgid "Halftone B (Soft Tone)"
-msgstr "Motif demi-teinte B (teinte douce)"
+msgstr "Demi-teinte B (teinte douce)"
 
 #: backend/epson.c:559 backend/epson.c:567 backend/epson.c:579
 #: backend/epson2.c:168 backend/epson2.c:176 backend/epson2.c:188
 #, no-c-format
 msgid "Halftone C (Net Screen)"
-msgstr "Motif demi-teinte C"
+msgstr "Demi-teinte C (trame nette)"
 
 #: backend/epson.c:568 backend/epson.c:580 backend/epson2.c:177
 #: backend/epson2.c:189
 #, no-c-format
 msgid "Dither A (4x4 Bayer)"
-msgstr "/wiki/Filmstrip A (Bayer 4x4)"
+msgstr "Dither A (Bayer 4x4)"
 
 #: backend/epson.c:569 backend/epson.c:581 backend/epson2.c:178
 #: backend/epson2.c:190
 #, no-c-format
 msgid "Dither B (4x4 Spiral)"
-msgstr "'Dither' B (Spiral 4x4)"
+msgstr "Dither B (Spiral 4x4)"
 
 #: backend/epson.c:570 backend/epson.c:582 backend/epson2.c:179
 #: backend/epson2.c:191
 #, no-c-format
 msgid "Dither C (4x4 Net Screen)"
-msgstr "'Dither' C ('Net Screen' 4x4)"
+msgstr "Dither C (trame nette 4x4)"
 
 #: backend/epson.c:571 backend/epson.c:583 backend/epson2.c:180
 #: backend/epson2.c:192
 #, no-c-format
 msgid "Dither D (8x4 Net Screen)"
-msgstr "'Dither' C ('Net Screen' 4x4)"
+msgstr "Dither C (trame nette 4x4)"
 
 #: backend/epson.c:584 backend/epson2.c:193
 #, no-c-format
@@ -2167,10 +2167,10 @@ msgstr ""
 "Aprés avoir envoyé la commande de numérisation, attendre l'appui du "
 "bouton avant de commencer la numérisation."
 
-#: backend/epson2-ops.c:103 backend/epson2.c:117
+#: backend/epson2-ops.c:103 backend/epson2.c:117i
 #, no-c-format
 msgid "TPU8x10"
-msgstr ""
+msgstr "TPU8x10"
 
 #: backend/epson2.c:102 backend/pixma/pixma.c:409
 #, no-c-format
@@ -2200,22 +2200,22 @@ msgstr "Profil de température de couleurs utilsateur"
 #: backend/epsonds.c:750
 #, no-c-format
 msgid "Load"
-msgstr ""
+msgstr "Chargement"
 
 #: backend/epsonds.c:751
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Load a sheet in the ADF"
-msgstr "Ejecter la feuille du chargeur automatique"
+msgstr "Insérer un feuille dans le bach du chargeur automatique"
 
 #: backend/epsonds.c:771
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "ADF Skew Correction"
-msgstr "Pas de correction"
+msgstr "Correction des erreurs de l'ADF"
 
 #: backend/epsonds.c:773
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enables ADF skew correction"
-msgstr "Désactiver la correction gamma"
+msgstr "Activer la correction des erreurs de l'ADF"
 
 #: backend/fujitsu.c:688 backend/hp-option.c:3330 backend/hp-option.c:3343
 #, no-c-format
@@ -2226,7 +2226,7 @@ msgstr "Activé"
 #: backend/hp-option.c:3342
 #, no-c-format
 msgid "Off"
-msgstr "Aucun"
+msgstr "Arrêté"
 
 #: backend/fujitsu.c:691
 #, no-c-format
@@ -2248,7 +2248,7 @@ msgstr "Tramage"
 #: backend/fujitsu.c:695
 #, no-c-format
 msgid "Diffusion"
-msgstr "Diffusion d'erreur"
+msgstr "Diffusion"
 
 #: backend/fujitsu.c:700
 #, no-c-format
@@ -2333,12 +2333,12 @@ msgstr "Arrière"
 #: backend/fujitsu.c:3148 backend/pixma/pixma_sane_options.c:145
 #, no-c-format
 msgid "Gamma function exponent"
-msgstr ""
+msgstr "Exposant de la fonction gamma"
 
 #: backend/fujitsu.c:3149 backend/pixma/pixma_sane_options.c:146
 #, no-c-format
 msgid "Changes intensity of midtones"
-msgstr ""
+msgstr "Modifie l'intensité des demi-tons"
 
 #: backend/fujitsu.c:3198
 #, no-c-format
@@ -2348,84 +2348,83 @@ msgstr ""
 #: backend/fujitsu.c:3199
 #, no-c-format
 msgid "Reverse image format"
-msgstr ""
+msgstr "Format d'image inversé"
 
 #: backend/fujitsu.c:3216
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Halftone type"
-msgstr "Demi-teinte"
+msgstr "Type de demi-teinte"
 
 #: backend/fujitsu.c:3217
 #, no-c-format
 msgid "Control type of halftone filter"
-msgstr ""
+msgstr "Type de contrôle du filtre demi-teinte"
 
 #: backend/fujitsu.c:3238
 #, no-c-format
 msgid "Control pattern of halftone filter"
-msgstr ""
+msgstr "Modèle de contrôle du filtre demi-teinte"
 
 #: backend/fujitsu.c:3260
 #, no-c-format
 msgid "Outline"
-msgstr ""
+msgstr "Contour"
 
 #: backend/fujitsu.c:3261
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Perform outline extraction"
-msgstr "Effectue la calibration"
+msgstr "Effectuer une extraction des contours"
 
 #: backend/fujitsu.c:3272
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Emphasis"
-msgstr "Accentuation de l'image"
+msgstr "Accentuation"
 
 #: backend/fujitsu.c:3273
 #, no-c-format
 msgid "Negative to smooth or positive to sharpen image"
-msgstr ""
+msgstr "Diminuer pour lisser ou Augmenter pour rendre l'image plus nette"
 
 #: backend/fujitsu.c:3291
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Separation"
-msgstr "Saturation"
+msgstr "Séparation"
 
 #: backend/fujitsu.c:3292
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enable automatic separation of image and text"
 msgstr ""
-"Active la détection automatique du seuil pour la numérisation en mode "
-"trait."
+"Activer la séparation automatique de l'image et du texte."
 
 #: backend/fujitsu.c:3303
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Mirroring"
-msgstr "Image miroir"
+msgstr "Mise en miroir"
 
 #: backend/fujitsu.c:3304
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Reflect output image horizontally"
-msgstr "Renverse l'image horizontalement."
+msgstr "Refléter la sortie d'image horizontalement"
 
 #: backend/fujitsu.c:3321
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "White level follower"
-msgstr "Niveau blanc des bleus"
+msgstr "Suivre le niveau blanche"
 
 #: backend/fujitsu.c:3322
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Control white level follower"
-msgstr "Contrôle le niveau de rouge"
+msgstr "Contrôle le suivi du niveau du blanc"
 
 #: backend/fujitsu.c:3340
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "BP filter"
-msgstr "Filtre de couleur"
+msgstr "Filtre BP"
 
 #: backend/fujitsu.c:3341
 #, no-c-format
 msgid "Improves quality of high resolution ball-point pen text"
-msgstr ""
+msgstr "Améliore la qualité du texte écrit avec des stylos à bille"
 
 #: backend/fujitsu.c:3357 backend/hp-option.h:73
 #, no-c-format
@@ -2435,17 +2434,17 @@ msgstr "Lissage"
 #: backend/fujitsu.c:3358
 #, no-c-format
 msgid "Enable smoothing for improved OCR"
-msgstr ""
+msgstr "Activer le lissage pour une meilleure OCR"
 
 #: backend/fujitsu.c:3374
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Gamma curve"
-msgstr "Valeur de gamma"
+msgstr "Courbe gamma"
 
 #: backend/fujitsu.c:3375
 #, no-c-format
 msgid "Gamma curve, from light to dark, but upper two may not work"
-msgstr ""
+msgstr "Courbe gamma, du clair au foncé, mais au dessus de deux ne fonctionne pas"
 
 #: backend/fujitsu.c:3397 backend/genesys/genesys.cpp:4229
 #: backend/pixma/pixma_sane_options.c:335
@@ -2454,16 +2453,16 @@ msgid "Threshold curve"
 msgstr "Courbe du seuil"
 
 #: backend/fujitsu.c:3398
-#, fuzzy, no-c-format
+#, no-c-format
 msgid ""
 "Threshold curve, from light to dark, but upper two may not be linear"
 msgstr ""
-"Courbe dynamique de seuil, de clair à foncé, normallement entre 50-65"
+"Courbe de seuil, de clair à foncé, mais au dessus de deux ne fonctioone pas"
 
 #: backend/fujitsu.c:3420
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Threshold white"
-msgstr "Seuil"
+msgstr "Ciurbe de seuil du blanc"
 
 #: backend/fujitsu.c:3421
 #, no-c-format
@@ -2471,239 +2470,242 @@ msgid "Set pixels equal to threshold to white instead of black"
 msgstr ""
 
 #: backend/fujitsu.c:3437 backend/fujitsu.c:3438
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Noise removal"
-msgstr "Réduction du bruit"
+msgstr "Suppression du bruit"
 
 #: backend/fujitsu.c:3454
 #, no-c-format
 msgid "Matrix 5x5"
-msgstr ""
+msgstr "Matrice 5x5"
 
 #: backend/fujitsu.c:3455
 #, no-c-format
 msgid "Remove 5 pixel square noise"
-msgstr ""
+msgstr "Supprimer le bruit carré de 5 pixels"
 
 #: backend/fujitsu.c:3471
 #, no-c-format
 msgid "Matrix 4x4"
-msgstr ""
+msgstr "Matrice 4x4"
 
 #: backend/fujitsu.c:3472
 #, no-c-format
 msgid "Remove 4 pixel square noise"
-msgstr ""
+msgstr "Supprimer le bruit carré de 4 pixels"
 
 #: backend/fujitsu.c:3488
 #, no-c-format
 msgid "Matrix 3x3"
-msgstr ""
+msgstr "Matrice 3x3"
 
 #: backend/fujitsu.c:3489
 #, no-c-format
 msgid "Remove 3 pixel square noise"
-msgstr ""
+msgstr "Supprimer le bruit carré de 3 pixels"
 
 #: backend/fujitsu.c:3505
 #, no-c-format
 msgid "Matrix 2x2"
-msgstr ""
+msgstr "Matrice 2x2"
 
 #: backend/fujitsu.c:3506
 #, no-c-format
 msgid "Remove 2 pixel square noise"
-msgstr ""
+msgstr "Supprimer le bruit carré de 2 pixels"
 
 #: backend/fujitsu.c:3525
 #, no-c-format
 msgid "Variance"
-msgstr ""
+msgstr "Écart"
 
 #: backend/fujitsu.c:3526
 #, no-c-format
 msgid "Set SDTC variance rate (sensitivity), 0 equals 127"
-msgstr ""
+msgstr "Définir le taux de variance de SDTC (sensibilité), 0 équivaut à 127"
 
 #: backend/fujitsu.c:3559
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Auto width detection"
-msgstr "Pas de correction"
+msgstr "Détection automatique de la largeur"
 
 #: backend/fujitsu.c:3560
 #, no-c-format
 msgid "Scanner detects paper sides. May reduce scanning speed."
-msgstr ""
+msgstr "Le scanner détecte les côtés du papier. Peut réduire la vitesse de numérisation."
 
 #: backend/fujitsu.c:3577
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Auto length detection"
-msgstr "Pas de correction"
+msgstr "Détection automatique de la longueur"
 
 #: backend/fujitsu.c:3578
 #, no-c-format
 msgid "Scanner detects paper lower edge. May confuse some frontends."
-msgstr ""
+msgstr "Le scanner détecte le bord inférieur du papier. Peut confondre certains frontaux."
 
 #: backend/fujitsu.c:3604
 #, no-c-format
 msgid "Compression"
-msgstr ""
+msgstr "Compression"
 
 #: backend/fujitsu.c:3605
 #, no-c-format
 msgid "Enable compressed data. May crash your front-end program"
-msgstr ""
+msgstr "Activer les données compressées. Peut faire planter votre programme frontal"
 
 #: backend/fujitsu.c:3625
 #, no-c-format
 msgid "Compression argument"
-msgstr ""
+msgstr "Argument de compression"
 
 #: backend/fujitsu.c:3626
 #, no-c-format
 msgid ""
 "Level of JPEG compression. 1 is small file, 7 is large file. 0 (default) "
 "is same as 4"
-msgstr ""
+msgstr "Niveau de compression JPEG, 1 donne un fichier de petit taille, 7 un fichier de grosse taille."
+" O (par défaut) est équivalent à 4"
 
 #: backend/fujitsu.c:3656
 #, no-c-format
 msgid "DF action"
-msgstr ""
+msgstr "Action DF"
 
 #: backend/fujitsu.c:3657
 #, no-c-format
 msgid "Action following double feed error"
-msgstr ""
+msgstr "Action suite à une erreur de double alimentation"
 
 #: backend/fujitsu.c:3673
 #, no-c-format
 msgid "DF skew"
-msgstr ""
+msgstr "Erreur DF"
 
 #: backend/fujitsu.c:3674
 #, no-c-format
 msgid "Enable double feed error due to skew"
-msgstr ""
+msgstr "Enable double feed error due à du papier de travers"
 
 #: backend/fujitsu.c:3692
 #, no-c-format
 msgid "DF thickness"
-msgstr ""
+msgstr "Epaisseur DF"
 
 #: backend/fujitsu.c:3693
 #, no-c-format
 msgid "Enable double feed error due to paper thickness"
-msgstr ""
+msgstr "Permettre une double erreur d'alimentation due à l'épaisseur du papier"
 
 #: backend/fujitsu.c:3711
 #, no-c-format
 msgid "DF length"
-msgstr ""
+msgstr "Longeur DF"
 
 #: backend/fujitsu.c:3712
 #, no-c-format
 msgid "Enable double feed error due to paper length"
-msgstr ""
+msgstr "Permettre une erreur de double alimentation due à la longueur du papier"
 
 #: backend/fujitsu.c:3735
 #, no-c-format
 msgid "DF length difference"
-msgstr ""
+msgstr "Différence de longueur DF"
 
 #: backend/fujitsu.c:3736
 #, no-c-format
 msgid "Difference in page length to trigger double feed error"
-msgstr ""
+msgstr "Différence de longueur de page pour déclencher une double erreur d'alimentation"
 
 #: backend/fujitsu.c:3759
 #, fuzzy, no-c-format
 msgid "DF recovery mode"
-msgstr "Couvercle du chargeur automatique ouvert"
+msgstr "Mode de récupération DF"
 
 #: backend/fujitsu.c:3760
 #, no-c-format
 msgid "Request scanner to reverse feed on paper jam"
-msgstr ""
+msgstr "Demander au scanner d'inverser l'alimentation du papier en cas de bourrage"
 
 #: backend/fujitsu.c:3779
 #, no-c-format
 msgid "Paper protection"
-msgstr ""
+msgstr "Protection du papier"
 
 #: backend/fujitsu.c:3780
 #, no-c-format
 msgid "Request scanner to predict jams in the ADF"
-msgstr ""
+msgstr "Demande de scanner pour prévoir les blocages ADF"
 
 #: backend/fujitsu.c:3799
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Advanced paper protection"
-msgstr "Options avancées"
+msgstr "Protection avancée du papier"
 
 #: backend/fujitsu.c:3800
 #, no-c-format
 msgid "Request scanner to predict jams in the ADF using improved sensors"
-msgstr ""
+msgstr "Demande au scanner de prévoir les bourrages ADF en utilisant les capteurs"
 
 #: backend/fujitsu.c:3819
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Staple detection"
-msgstr "Pas de correction"
+msgstr "Détection des agrafes"
 
 #: backend/fujitsu.c:3820
 #, no-c-format
 msgid "Request scanner to detect jams in the ADF caused by staples"
-msgstr ""
+msgstr "Demande au scanner de détecter les bourrages ADF causés par des agrafes"
 
 #: backend/fujitsu.c:3839
 #, no-c-format
 msgid "Background color"
-msgstr ""
+msgstr "Couleur de fond"
 
 #: backend/fujitsu.c:3840
 #, no-c-format
 msgid ""
 "Set color of background for scans. May conflict with overscan option"
-msgstr ""
+msgstr "Définir la couleur de fond pour les scans. Peut entrer en conflit "
+"avec l'option de surbalayage"
 
 #: backend/fujitsu.c:3860
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Dropout color"
-msgstr "Exclusion"
+msgstr "Couleur d'abandon"
 
 #: backend/fujitsu.c:3861
 #, no-c-format
 msgid ""
 "One-pass scanners use only one color during gray or binary scanning, "
 "useful for colored paper or ink"
-msgstr ""
+msgstr "Les scanners à passage unique n'utilisent qu'une seule couleur lors "
+"du balayage gris ou binaire, utile pour le papier ou l'encre de couleur"
 
 #: backend/fujitsu.c:3884
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Buffer mode"
-msgstr "Mode de chargement"
+msgstr "Mode buffer"
 
 #: backend/fujitsu.c:3885
 #, no-c-format
 msgid "Request scanner to read pages quickly from ADF into internal memory"
-msgstr ""
+msgstr "Demande au scanner de lire rapidement les pages ADF dans la mémoire interne"
 
 #: backend/fujitsu.c:3904
 #, no-c-format
 msgid "Prepick"
-msgstr ""
+msgstr "Préparer"
 
 #: backend/fujitsu.c:3905
 #, no-c-format
 msgid "Request scanner to grab next page from ADF"
-msgstr ""
+msgstr "Demande au scanner de récupérer la page suivante en mode ADF"
 
 #: backend/fujitsu.c:3924
 #, no-c-format
 msgid "Overscan"
-msgstr ""
+msgstr "Surbalayage"
 
 #: backend/fujitsu.c:3925
 #, no-c-format
@@ -2712,22 +2714,26 @@ msgid ""
 "ADF, and increase maximum scan area beyond paper size, to allow "
 "collection on remaining sides. May conflict with bgcolor option"
 msgstr ""
+"Récupérez quelques mm du fond sur la face supérieure du scan, avant que "
+"le papier n'entre dans l'ADF, et augmentez la zone de numérisation maximale "
+"au-delà de la taille du papier, pour permettre la récupération sur les "
+"autres faces. Peut entrer en conflit avec l'option bgcolor"
 
 #: backend/fujitsu.c:3943
 #, no-c-format
 msgid "Sleep timer"
-msgstr ""
+msgstr "Minuteur de veille"
 
 #: backend/fujitsu.c:3944
 #, no-c-format
 msgid ""
 "Time in minutes until the internal power supply switches to sleep mode"
-msgstr ""
+msgstr "Temps en minutes jusqu'à ce que l'alimentation électrique passe en mode veille"
 
 #: backend/fujitsu.c:3962
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Off timer"
-msgstr "Temps avant extinction de la lampe"
+msgstr "Minuterie d'arrêt"
 
 #: backend/fujitsu.c:3963
 #, no-c-format
@@ -2735,41 +2741,43 @@ msgid ""
 "Time in minutes until the internal power supply switches the scanner "
 "off. Will be rounded to nearest 15 minutes. Zero means never power off."
 msgstr ""
+"Temps en minutes jusqu'à ce que l'alimentation électrique éteigne le scanner. "
+"Sera arrondi au quart d'heure le plus proche. Le zéro signifie que l'appareil n'est jamais éteint."
 
 #: backend/fujitsu.c:3981
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Duplex offset"
-msgstr "Décalage des bleus"
+msgstr "Décalage recto-verso"
 
 #: backend/fujitsu.c:3982
 #, no-c-format
 msgid "Adjust front/back offset"
-msgstr ""
+msgstr "Ajustement du décalage avant/arrière"
 
 #: backend/fujitsu.c:3999 backend/plustek.c:1025 backend/umax_pp.c:794
 #, no-c-format
 msgid "Green offset"
-msgstr "Décalage des verts"
+msgstr "Décalage du vert"
 
 #: backend/fujitsu.c:4000
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Adjust green/red offset"
-msgstr "Décalage des verts"
+msgstr "Ajustement du décalage vert/rouge"
 
 #: backend/fujitsu.c:4017 backend/plustek.c:1041 backend/umax_pp.c:806
 #, no-c-format
 msgid "Blue offset"
-msgstr "Décalage des bleus"
+msgstr "Décalage du bleu"
 
 #: backend/fujitsu.c:4018
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Adjust blue/red offset"
-msgstr "Fixe le décalage pour le bleu"
+msgstr "Ajustement du décalage bleu/rouge"
 
 #: backend/fujitsu.c:4031
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Low Memory"
-msgstr "A court de mémoire"
+msgstr "Mémoire faible"
 
 #: backend/fujitsu.c:4032
 #, no-c-format
@@ -2779,11 +2787,16 @@ msgid ""
 "option 'side' can be used to determine correct image. This option should "
 "only be used with custom front-end software."
 msgstr ""
+"Limitez l’utilisation de la mémoire du pilote pour les systèmes embarqués. "
+"Provoque certains transferts recto-verso sur les côtés alternés à chaque appel à "
+"sane_read. La valeur de l’option  'face' peut être utilisée pour déterminer "
+"l’image correcte. Cette option ne doit être utilisée qu’avec un logiciel "
+"frontal personnalisé."
 
 #: backend/fujitsu.c:4047
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Duplex side"
-msgstr "Numérisation recto-verso"
+msgstr "Face recto-verso"
 
 #: backend/fujitsu.c:4048
 #, no-c-format
@@ -2791,152 +2804,156 @@ msgid ""
 "Tells which side (0=front, 1=back) of a duplex scan the next call to "
 "sane_read will return."
 msgstr ""
+"Indique quel côté (0=avant, 1=arrière) d’une acquisition recto-verso "
+"le prochain appel à sane_read retourne."
 
 #: backend/fujitsu.c:4059
 #, no-c-format
 msgid "Hardware deskew and crop"
-msgstr ""
+msgstr "Réalignement du matériel et recadrage."
 
 #: backend/fujitsu.c:4060
 #, no-c-format
 msgid "Request scanner to rotate and crop pages digitally."
-msgstr ""
+msgstr "Demandez au scanner de faire pivoter et de recadrer les pages numériquement."
 
 #: backend/fujitsu.c:4071 backend/kvs1025_opt.c:871
 #, no-c-format
 msgid "Software deskew"
-msgstr ""
+msgstr "Réalignement logiciel"
 
 #: backend/fujitsu.c:4072
 #, no-c-format
 msgid "Request driver to rotate skewed pages digitally."
-msgstr ""
+msgstr "Demandez au pilote de faire pivoter numériquement les pages obliques."
 
 #: backend/fujitsu.c:4084 backend/kvs1025_opt.c:880
 #, no-c-format
 msgid "Software despeckle diameter"
-msgstr ""
+msgstr "Correction d'erreurs logicielles"
 
 #: backend/fujitsu.c:4085
 #, no-c-format
 msgid "Maximum diameter of lone dots to remove from scan."
-msgstr ""
+msgstr "Diamètre maximum des défauts individuels à éliminer dans le scan."
 
 #: backend/fujitsu.c:4104 backend/genesys/genesys.cpp:4159
 #, no-c-format
 msgid "Software crop"
-msgstr ""
+msgstr "Recadrage logiciel"
 
 #: backend/fujitsu.c:4105
 #, no-c-format
 msgid "Request driver to remove border from pages digitally."
-msgstr ""
+msgstr "Le pilote supprime les bords des numérisations."
 
 #: backend/fujitsu.c:4134
 #, no-c-format
 msgid "Halt on Cancel"
-msgstr ""
+msgstr "Arrêt sur annulation"
 
 #: backend/fujitsu.c:4135
 #, no-c-format
 msgid ""
 "Request driver to halt the paper feed instead of eject during a cancel."
 msgstr ""
+"Demander au pilote d'arrêter l'alimentation du papier au lieu de l'"
+"éjecter lors d'une annulation."
 
 #: backend/fujitsu.c:4146
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Endorser Options"
-msgstr "Options avancées"
+msgstr "Options de validation"
 
 #: backend/fujitsu.c:4147
 #, no-c-format
 msgid "Controls for endorser unit"
-msgstr ""
+msgstr "Contrôles pour l'unité de validation"
 
 #: backend/fujitsu.c:4158
 #, no-c-format
 msgid "Endorser"
-msgstr ""
+msgstr "Validation"
 
 #: backend/fujitsu.c:4159
 #, no-c-format
 msgid "Enable endorser unit"
-msgstr ""
+msgstr "Activer l'unité de validation"
 
 #: backend/fujitsu.c:4174
 #, no-c-format
 msgid "Endorser bits"
-msgstr ""
+msgstr "Bits de validation"
 
 #: backend/fujitsu.c:4175
 #, no-c-format
 msgid "Determines maximum endorser counter value."
-msgstr ""
+msgstr "Détermine la valeur maximale du compteur de validation."
 
 #: backend/fujitsu.c:4200
 #, no-c-format
 msgid "Endorser value"
-msgstr ""
+msgstr "Valeur de validation"
 
 #: backend/fujitsu.c:4201
 #, no-c-format
 msgid "Initial endorser counter value."
-msgstr ""
+msgstr "Valeur initiale du compteur de validation"
 
 #: backend/fujitsu.c:4224
 #, no-c-format
 msgid "Endorser step"
-msgstr ""
+msgstr "Étape de validation"
 
 #: backend/fujitsu.c:4225
 #, no-c-format
 msgid "Change endorser counter value by this much for each page."
-msgstr ""
+msgstr "Modifiez d'autant la valeur du compteur de validation pour chaque page."
 
 #: backend/fujitsu.c:4248
 #, no-c-format
 msgid "Endorser Y"
-msgstr ""
+msgstr "Validation Y"
 
 #: backend/fujitsu.c:4249
 #, no-c-format
 msgid "Endorser print offset from top of paper."
-msgstr ""
+msgstr "Validation du décalage d'impression à partir du haut du papier."
 
 #: backend/fujitsu.c:4274
 #, no-c-format
 msgid "Endorser font"
-msgstr ""
+msgstr "Validation de la police de caractères"
 
 #: backend/fujitsu.c:4275
 #, no-c-format
 msgid "Endorser printing font."
-msgstr ""
+msgstr "Validation de la police de caractère d'impression"
 
 #: backend/fujitsu.c:4304
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Endorser direction"
-msgstr "Réduction du bruit"
+msgstr "Validation de la direction"
 
 #: backend/fujitsu.c:4305
 #, no-c-format
 msgid "Endorser printing direction."
-msgstr ""
+msgstr "Validation de la direction d'impression"
 
 #: backend/fujitsu.c:4329
 #, no-c-format
 msgid "Endorser side"
-msgstr ""
+msgstr "Validation de la face"
 
 #: backend/fujitsu.c:4330
 #, no-c-format
 msgid "Endorser printing side, requires hardware support to change"
-msgstr ""
+msgstr "Validation de la face d'impression, pour changer la valeur nécessite le support matériel"
 
 #: backend/fujitsu.c:4355
 #, no-c-format
 msgid "Endorser string"
-msgstr ""
+msgstr "Validation de la chaine de caractères"
 
 #: backend/fujitsu.c:4356
 #, no-c-format
@@ -2944,181 +2961,183 @@ msgid ""
 "Endorser alphanumeric print format. %05ud or %08ud at the end will be "
 "replaced by counter value."
 msgstr ""
+"Valide le format d'impression alphanumérique. %05ud ou %08ud à la "
+"fin sera remplacé par la valeur du compteur."
 
 #: backend/fujitsu.c:4383
 #, no-c-format
 msgid "Top edge"
-msgstr ""
+msgstr "Haut de page"
 
 #: backend/fujitsu.c:4384
 #, no-c-format
 msgid "Paper is pulled partly into ADF"
-msgstr ""
+msgstr "Le papier est partiellement introduit dans l'ADF"
 
 #: backend/fujitsu.c:4395
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "A3 paper"
-msgstr "Avec du papier"
+msgstr "Papier A3"
 
 #: backend/fujitsu.c:4396
 #, no-c-format
 msgid "A3 paper detected"
-msgstr ""
+msgstr "Détection du papier A3"
 
 #: backend/fujitsu.c:4407
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "B4 paper"
-msgstr "Avec du papier"
+msgstr "Papier B4"
 
 #: backend/fujitsu.c:4408
 #, no-c-format
 msgid "B4 paper detected"
-msgstr ""
+msgstr "Détection papier B4"
 
 #: backend/fujitsu.c:4419
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "A4 paper"
-msgstr "Avec du papier"
+msgstr "Papier A4"
 
 #: backend/fujitsu.c:4420
 #, no-c-format
 msgid "A4 paper detected"
-msgstr ""
+msgstr "Détection papier A4"
 
 #: backend/fujitsu.c:4431
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "B5 paper"
-msgstr "Avec du papier"
+msgstr "Papier B5"
 
 #: backend/fujitsu.c:4432
 #, no-c-format
 msgid "B5 paper detected"
-msgstr ""
+msgstr "Détection papier B4"
 
 #: backend/fujitsu.c:4455
 #, no-c-format
 msgid "OMR or DF"
-msgstr ""
+msgstr "OMR ou DF"
 
 #: backend/fujitsu.c:4456
 #, no-c-format
 msgid "OMR or double feed detected"
-msgstr ""
+msgstr "OMR ou double alimentation détectée"
 
 #: backend/fujitsu.c:4479
 #, no-c-format
 msgid "Power saving"
-msgstr ""
+msgstr "Économie d'énergie"
 
 #: backend/fujitsu.c:4480
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Scanner in power saving mode"
-msgstr "Couvercle du scanner ouvert"
+msgstr "Scanner en mode d'économie d'énergie"
 
 #: backend/fujitsu.c:4503
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Manual feed"
-msgstr "Mise au point manuelle"
+msgstr "Alimentation manuelle"
 
 #: backend/fujitsu.c:4504
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Manual feed selected"
-msgstr "Mise au point manuelle"
+msgstr "Alimentation manuelle sélectionnée"
 
 #: backend/fujitsu.c:4527
 #, no-c-format
 msgid "Function"
-msgstr ""
+msgstr "Fonctionnement"
 
 #: backend/fujitsu.c:4528
 #, no-c-format
 msgid "Function character on screen"
-msgstr ""
+msgstr "Caractère de fonction à l'écran"
 
 #: backend/fujitsu.c:4539
 #, no-c-format
 msgid "Ink low"
-msgstr ""
+msgstr "Encre faible"
 
 #: backend/fujitsu.c:4540
 #, no-c-format
 msgid "Imprinter ink running low"
-msgstr ""
+msgstr "L'encre de l'imprimante est faible."
 
 #: backend/fujitsu.c:4551
 #, no-c-format
 msgid "Double feed"
-msgstr ""
+msgstr "Double alimentation"
 
 #: backend/fujitsu.c:4552
 #, no-c-format
 msgid "Double feed detected"
-msgstr ""
+msgstr "Double alimentation détectée"
 
 #: backend/fujitsu.c:4563
 #, no-c-format
 msgid "Error code"
-msgstr ""
+msgstr "Code erreur"
 
 #: backend/fujitsu.c:4564
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Hardware error code"
-msgstr "erreur de test du matériel"
+msgstr "Code erreur matériel"
 
 #: backend/fujitsu.c:4575
 #, no-c-format
 msgid "Skew angle"
-msgstr ""
+msgstr "Correction d'angle"
 
 #: backend/fujitsu.c:4576
 #, no-c-format
 msgid "Requires black background for scanning"
-msgstr ""
+msgstr "Nécessite un fond noir pour le balayage"
 
 #: backend/fujitsu.c:4587
 #, no-c-format
 msgid "Ink remaining"
-msgstr ""
+msgstr "Encre restante"
 
 #: backend/fujitsu.c:4588
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Imprinter ink level"
-msgstr "Niveau blanc"
+msgstr "Niveau d'encre de l'imprimante"
 
 #: backend/fujitsu.c:4599
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Density"
-msgstr "Contrôle de densité"
+msgstr "Densité"
 
 #: backend/fujitsu.c:4600
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Density dial"
-msgstr "Contrôle de densité"
+msgstr "Cadran de densité"
 
 #: backend/fujitsu.c:4611 backend/fujitsu.c:4612
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Duplex switch"
-msgstr "Numérisation recto-verso"
+msgstr "Commutateur recto-verso"
 
 #: backend/genesys/genesys.cpp:4160
 #, no-c-format
 msgid "Request backend to remove border from pages digitally"
-msgstr ""
+msgstr "Demande au pilote de supprimer numériquement la bordure des pages"
 
 #: backend/genesys/genesys.cpp:4169 backend/kvs1025_opt.c:912
 #, no-c-format
 msgid "Request driver to discard pages with low numbers of dark pixels"
-msgstr ""
+msgstr "Demander au pilote d'éliminer les pages comportant un faible nombre de pixels sombres"
 
 #: backend/genesys/genesys.cpp:4179 backend/kvs1025_opt.c:892
 #, no-c-format
 msgid "Software derotate"
-msgstr ""
+msgstr "Rotation des documents logiciels"
 
 #: backend/genesys/genesys.cpp:4180 backend/kvs1025_opt.c:894
 #, no-c-format
 msgid "Request driver to detect and correct 90 degree image rotation"
-msgstr ""
+msgstr "Demander au pilote de détecter et de corriger une rotation de l'image de 90 degrés"
 
 #: backend/genesys/genesys.cpp:4210 backend/pixma/pixma_sane_options.c:314
 #, no-c-format
@@ -3147,7 +3166,7 @@ msgstr ""
 "horizontale."
 
 #: backend/genesys/genesys.cpp:4252
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Color filter"
 msgstr "Filtre de couleur"
 
@@ -3158,19 +3177,19 @@ msgstr ""
 "En niveaux de gris ou en mode trait, sélectionne la couleur à utiliser."
 
 #: backend/genesys/genesys.cpp:4279
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Calibration file"
-msgstr "Calibration"
+msgstr "Fichier de calibration"
 
 #: backend/genesys/genesys.cpp:4280
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Specify the calibration file to use"
-msgstr "Définit le mode de calibration"
+msgstr "Préciser le fichier de calibration à utiliser"
 
 #: backend/genesys/genesys.cpp:4297
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Calibration cache expiration time"
-msgstr "Cache des données de calibration"
+msgstr "Délai d'expiration du cache de calibration"
 
 #: backend/genesys/genesys.cpp:4298
 #, no-c-format
@@ -3178,6 +3197,9 @@ msgid ""
 "Time (in minutes) before a cached calibration expires. A value of 0 "
 "means cache is not used. A negative value means cache never expires."
 msgstr ""
+"Temps (en minutes) avant l'expiration du cache de calibration. Une valeur "
+"de 0 signifie que le cache n'est pas utilisé. Une valeur négative signifie "
+"que le cache n'expire jamais."
 
 #: backend/genesys/genesys.cpp:4308
 #, no-c-format
@@ -3194,14 +3216,14 @@ msgstr ""
 "ne pas éteindre la lampe automatiquement."
 
 #: backend/genesys/genesys.cpp:4321
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Lamp off during scan"
-msgstr "Eteindre la lampe durant la calibration des noirs"
+msgstr "Lampe éteinte pendant la numérisation"
 
 #: backend/genesys/genesys.cpp:4322
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "The lamp will be turned off during scan. "
-msgstr "Délai en minutes avant d'éteindre la lampe après une numérisation."
+msgstr "La lampe sera éteinte pendant la numérisation. "
 
 #: backend/genesys/genesys.cpp:4349 backend/genesys/genesys.cpp:4350
 #, no-c-format
@@ -3219,12 +3241,12 @@ msgid "Power button"
 msgstr "Bouton 'marche'"
 
 #: backend/genesys/genesys.cpp:4418 backend/genesys/genesys.cpp:4419
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Extra button"
-msgstr "Bouton 'courrier électronique'"
+msgstr "Bouton 'Extra'"
 
 #: backend/genesys/genesys.cpp:4430 backend/gt68xx.c:755
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Needs calibration"
 msgstr "Calibration requise"
 
@@ -3263,19 +3285,19 @@ msgid "Clear calibration cache"
 msgstr "Efface le cache des données de calibration"
 
 #: backend/genesys/genesys.cpp:4476
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Force calibration"
-msgstr "Calibration grossière"
+msgstr "Forcer la Calibration"
 
 #: backend/genesys/genesys.cpp:4477
 #, no-c-format
 msgid "Force calibration ignoring all and any calibration caches"
-msgstr ""
+msgstr "Forcer la calibration en  ignorant toutes les caches de calibration"
 
 #: backend/genesys/genesys.cpp:4487
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Ignore internal offsets"
-msgstr "Décalage des verts"
+msgstr "Ignorer les offsets internes"
 
 #: backend/genesys/genesys.cpp:4489
 #, no-c-format
@@ -3283,22 +3305,23 @@ msgid ""
 "Acquires the image including the internal calibration areas of the "
 "scanner"
 msgstr ""
+"Acquiert l'image, y compris les zones de calibrage interne du scanner"
 
 #: backend/genesys/genesys.h:79 backend/gt68xx.c:149 backend/ma1509.c:108
 #: backend/mustek.c:164 backend/snapscan-options.c:87 backend/umax.c:182
 #, no-c-format
 msgid "Transparency Adapter"
-msgstr "Adaptateur pour transparents"
+msgstr "Adaptateur de transparent"
 
 #: backend/genesys/genesys.h:80
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Transparency Adapter Infrared"
-msgstr "Adaptateur pour transparents"
+msgstr "Adaptateur de transparent Infrarouge"
 
 #: backend/gt68xx.c:470
 #, no-c-format
 msgid "Gray mode color"
-msgstr "Couleur du mode niveaux de gris"
+msgstr "Couleur en niveaux de gris"
 
 #: backend/gt68xx.c:472
 #, no-c-format
@@ -3511,7 +3534,7 @@ msgstr "Diapositive"
 #: backend/hp-option.c:3178
 #, no-c-format
 msgid "Film-strip"
-msgstr "Film-strip"
+msgstr "Bande de film"
 
 #: backend/hp-option.c:3256 backend/hp5590.c:93
 #, no-c-format
@@ -3629,7 +3652,7 @@ msgid "Color Matrix"
 msgstr "Matrice de couleurs"
 
 #: backend/hp-option.h:121
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Set the scanner's color matrix."
 msgstr "Sélectionne la matrice de couleurs du scanner."
 
@@ -3712,12 +3735,12 @@ msgstr "Eteint la lampe du scanner."
 #: backend/hp3500.c:1020
 #, no-c-format
 msgid "Geometry Group"
-msgstr "Géométrie"
+msgstr "Groupe géométrie"
 
 #: backend/hp3500.c:1073 backend/hp3500.c:1074
 #, no-c-format
 msgid "Scan Mode Group"
-msgstr "Mode de numérisation"
+msgstr "Numérisation en mode groupe"
 
 #: backend/hp3900_sane.c:1405
 #, no-c-format
@@ -3725,14 +3748,14 @@ msgid "Scanner model"
 msgstr "Modèle de scanner"
 
 #: backend/hp3900_sane.c:1408
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Allows one to test device behavior with other supported models"
 msgstr ""
 "Permet de tester le comportement du périphérique en l'utilisant comme un "
 "autre modèle compatible"
 
 #: backend/hp3900_sane.c:1422
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Image colors will be inverted"
 msgstr "Les couleurs de l'image seront inversées"
 
@@ -3961,60 +3984,61 @@ msgid "Waits for button before scanning"
 msgstr "Attend l'appui sur le bouton avant la numérisation"
 
 #: backend/hp5590.c:118
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Last button pressed"
-msgstr "Rafraîchir l'état du bouton"
+msgstr "Dernier bouton pressé"
 
 #: backend/hp5590.c:119
 #, no-c-format
 msgid "Get ID of last button pressed (read only)"
-msgstr ""
+msgstr "Obtenir l'ID du dernier bouton pressé (lecture seule)"
 
 #: backend/hp5590.c:121
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "LCD counter"
-msgstr "Compteur de numérisations"
+msgstr "Compteur LCD"
 
 #: backend/hp5590.c:122
 #, no-c-format
 msgid "Get value of LCD counter (read only)"
-msgstr ""
+msgstr "Obtenir la valeur du compteur LCD (lecture seule)"
 
 #: backend/hp5590.c:124
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Color LED indicator"
-msgstr "Trait couleur"
+msgstr "Indicateur de couleur LED"
 
 #: backend/hp5590.c:125
 #, no-c-format
 msgid "Get value of LED indicator (read only)"
-msgstr ""
+msgstr "Obtenir la valeur de l'indicateur LED (lecture seul)"
 
 #: backend/hp5590.c:127
 #, no-c-format
 msgid "Document available in ADF"
-msgstr ""
+msgstr "Document disponible dans l'ADF"
 
 #: backend/hp5590.c:128
 #, no-c-format
 msgid "Get state of document-available indicator in ADF (read only)"
-msgstr ""
+msgstr "Obtenir l'indicateur de disponibilité de document dans l'ADF (lecture seule)"
 
 #: backend/hp5590.c:130
 #, no-c-format
 msgid "Hide end-of-page pixel"
-msgstr ""
+msgstr "Cacher le pixel de fin de page"
 
 #: backend/hp5590.c:131
 #, no-c-format
 msgid ""
 "Hide end-of-page indicator pixels and overwrite with neighbor pixels"
 msgstr ""
+"Cacher les pixels indicateurs de fin de page et les écraser avec les pixels voisins"
 
 #: backend/hp5590.c:133
 #, no-c-format
 msgid "Filling mode of trailing lines after scan data (ADF)"
-msgstr ""
+msgstr "Mode de remplissage des lignes de fond après le balayage des données (ADF)"
 
 #: backend/hp5590.c:134
 #, no-c-format
@@ -4022,11 +4046,15 @@ msgid ""
 "raw = raw scan data, last = repeat last scan line, raster = b/w raster, "
 "white = white color, black = black color, color = RGB or gray color value"
 msgstr ""
+"raw = données de numérisation brutes, last = répétition de la dernière ligne "
+"de numérisation, raster = trame n/b, white = couleur blanche, black = couleur "
+"noire, color = RVB ou valeur de couleur grise"
 
 #: backend/hp5590.c:137
 #, no-c-format
 msgid "RGB or gray color value for filling mode 'color'"
 msgstr ""
+"RVB ou valeur de la couleur grise pour le mode de remplissage 'couleur'"
 
 #: backend/hp5590.c:138
 #, no-c-format
@@ -4034,6 +4062,9 @@ msgid ""
 "Color value for trailing lines filling mode 'color'. RGB color as "
 "r*65536+256*g+b or gray value (default=violet or gray)"
 msgstr ""
+"Valeur de la couleur pour les lignes de fond en mode de remplissage "
+"'couleur'. Couleur RVB comme r*65536+256*g+b ou valeur de gris "
+"(par défaut=violet ou gris)"
 
 #: backend/kvs1025.h:51 backend/kvs20xx_opt.c:295 backend/kvs40xx_opt.c:516
 #: backend/matsushita.h:219
@@ -4048,39 +4079,39 @@ msgid "Automatic separation"
 msgstr "Séparation automatique"
 
 #: backend/kvs1025.h:53 backend/kvs20xx_opt.c:307 backend/kvs40xx_opt.c:531
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Landscape"
-msgstr "A5 - paysage"
+msgstr "Paysage"
 
 #: backend/kvs1025.h:54 backend/kvs40xx_opt.c:693
 #, no-c-format
 msgid "Inverse Image"
-msgstr ""
+msgstr "Image inversée"
 
 #: backend/kvs1025.h:56 backend/kvs40xx_opt.c:404
 #, no-c-format
 msgid "Long paper mode"
-msgstr ""
+msgstr "Mode papier long"
 
 #: backend/kvs1025.h:57 backend/kvs20xx_opt.c:230 backend/kvs40xx_opt.c:393
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Length control mode"
-msgstr "Positionne le mode de contrôle de la densité"
+msgstr "Mode de contrôle de longueur"
 
 #: backend/kvs1025.h:58 backend/kvs20xx_opt.c:242 backend/kvs40xx_opt.c:416
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Manual feed mode"
-msgstr "Mise au point manuelle"
+msgstr "Mode d'alimentation manuelle"
 
 #: backend/kvs1025.h:59 backend/kvs20xx_opt.c:254 backend/kvs40xx_opt.c:428
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Manual feed timeout"
-msgstr "Mise au point manuelle"
+msgstr "Délai d'attente pour l'alimentation manuelle"
 
 #: backend/kvs1025.h:60 backend/kvs20xx_opt.c:267 backend/kvs40xx_opt.c:441
 #, no-c-format
 msgid "Double feed detection"
-msgstr ""
+msgstr "Double alimentation detectée"
 
 #: backend/kvs1025.h:63 backend/kvs20xx_opt.c:205 backend/kvs40xx_opt.c:354
 #: backend/matsushita.h:223
@@ -4097,20 +4128,20 @@ msgstr "Taille physique du papier dans le chargeur"
 #: backend/kvs1025_opt.c:39
 #, no-c-format
 msgid "bw"
-msgstr ""
+msgstr "nb"
 
 #: backend/kvs1025_opt.c:40
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "halftone"
 msgstr "Demi-teinte"
 
 #: backend/kvs1025_opt.c:41
 #, no-c-format
 msgid "gray"
-msgstr ""
+msgstr "gris"
 
 #: backend/kvs1025_opt.c:42
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "color"
 msgstr "Couleur"
 
@@ -4118,155 +4149,155 @@ msgstr "Couleur"
 #: backend/kvs40xx_opt.c:1047
 #, no-c-format
 msgid "adf"
-msgstr ""
+msgstr "adf"
 
 #: backend/kvs1025_opt.c:62 backend/kvs40xx_opt.c:50
 #: backend/kvs40xx_opt.c:109
 #, no-c-format
 msgid "fb"
-msgstr ""
+msgstr "vitre"
 
 #: backend/kvs1025_opt.c:72 backend/kvs20xx_opt.c:55
 #: backend/kvs40xx_opt.c:101
 #, no-c-format
 msgid "single"
-msgstr ""
+msgstr "Simple"
 
 #: backend/kvs1025_opt.c:73 backend/kvs20xx.c:462 backend/kvs20xx_opt.c:56
 #: backend/kvs40xx.c:705 backend/kvs40xx.c:723 backend/kvs40xx_opt.c:102
 #: backend/kvs40xx_opt.c:1087
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "continuous"
-msgstr "Continuer"
+msgstr "Continue"
 
 #: backend/kvs1025_opt.c:83 backend/kvs20xx_opt.c:62
 #: backend/kvs40xx_opt.c:115
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "off"
-msgstr "Aucun"
+msgstr "éteint"
 
 #: backend/kvs1025_opt.c:84 backend/kvs20xx_opt.c:63
 #: backend/kvs40xx_opt.c:116
 #, no-c-format
 msgid "wait_doc"
-msgstr ""
+msgstr "En attente d'un document"
 
 #: backend/kvs1025_opt.c:85 backend/kvs20xx_opt.c:64
 #: backend/kvs40xx_opt.c:118
 #, no-c-format
 msgid "wait_key"
-msgstr ""
+msgstr "Attendre la clé"
 
 #: backend/kvs1025_opt.c:96 backend/kvs20xx_opt.c:70
 #: backend/kvs40xx_opt.c:124 backend/kvs40xx_opt.c:141
 #, no-c-format
 msgid "user_def"
-msgstr ""
+msgstr "définit par l'utilisateur"
 
 #: backend/kvs1025_opt.c:97 backend/kvs20xx_opt.c:71
 #: backend/kvs40xx_opt.c:125 backend/kvs40xx_opt.c:142
 #, no-c-format
 msgid "business_card"
-msgstr ""
+msgstr "Carte de visite"
 
 #: backend/kvs1025_opt.c:98 backend/kvs40xx_opt.c:126
 #: backend/kvs40xx_opt.c:143
 #, no-c-format
 msgid "Check"
-msgstr ""
+msgstr "Vérifier"
 
 #: backend/kvs1025_opt.c:101 backend/kvs20xx_opt.c:75
 #: backend/kvs40xx_opt.c:129 backend/kvs40xx_opt.c:146
 #, no-c-format
 msgid "A5"
-msgstr ""
+msgstr "A5"
 
 #: backend/kvs1025_opt.c:102 backend/kvs20xx_opt.c:76
 #: backend/kvs40xx_opt.c:130 backend/kvs40xx_opt.c:147
 #, no-c-format
 msgid "A6"
-msgstr ""
+msgstr "A6"
 
 #: backend/kvs1025_opt.c:106 backend/kvs20xx_opt.c:80
 #: backend/kvs40xx_opt.c:134 backend/kvs40xx_opt.c:151
 #, no-c-format
 msgid "B5"
-msgstr ""
+msgstr "B5"
 
 #: backend/kvs1025_opt.c:107 backend/kvs20xx_opt.c:81
 #: backend/kvs40xx_opt.c:135 backend/kvs40xx_opt.c:152
 #, no-c-format
 msgid "B6"
-msgstr ""
+msgstr "B6"
 
 #: backend/kvs1025_opt.c:108 backend/kvs20xx_opt.c:82
 #: backend/kvs40xx_opt.c:136 backend/kvs40xx_opt.c:153
 #, no-c-format
 msgid "Legal"
-msgstr ""
+msgstr "Légal"
 
 #: backend/kvs1025_opt.c:148 backend/kvs40xx_opt.c:239
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "bayer_64"
-msgstr "Bayer"
+msgstr "Bayer 64"
 
 #: backend/kvs1025_opt.c:149 backend/kvs40xx_opt.c:240
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "bayer_16"
-msgstr "Bayer"
+msgstr "Bayer 16"
 
 #: backend/kvs1025_opt.c:150 backend/kvs40xx_opt.c:241
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "halftone_32"
-msgstr "Demi-teinte"
+msgstr "Demi-teinte 32"
 
 #: backend/kvs1025_opt.c:151 backend/kvs40xx_opt.c:242
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "halftone_64"
-msgstr "Demi-teinte"
+msgstr "Demi-teinte 64"
 
 #: backend/kvs1025_opt.c:152
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "diffusion"
-msgstr "Diffusion d'erreur"
+msgstr "Diffusion"
 
 #: backend/kvs1025_opt.c:165 backend/kvs1025_opt.c:227
 #: backend/kvs1025_opt.c:240 backend/kvs20xx_opt.c:129
 #: backend/kvs20xx_opt.c:137 backend/kvs40xx_opt.c:215
 #: backend/kvs40xx_opt.c:223 backend/kvs40xx_opt.c:258
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "normal"
 msgstr "Normal"
 
 #: backend/kvs1025_opt.c:166 backend/kvs40xx_opt.c:259
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "light"
-msgstr "Contraste"
+msgstr "Luminosité"
 
 #: backend/kvs1025_opt.c:167 backend/kvs40xx_opt.c:260
 #, no-c-format
 msgid "dark"
-msgstr ""
+msgstr "Sombre"
 
 #: backend/kvs1025_opt.c:178 backend/kvs40xx_opt.c:271
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "From scanner"
-msgstr "numériseur de transparents"
+msgstr "Depuis le scanner"
 
 #: backend/kvs1025_opt.c:179 backend/kvs40xx_opt.c:272
 #: backend/matsushita.c:177
 #, no-c-format
 msgid "From paper"
-msgstr "Avec du papier"
+msgstr "Depuis le papier"
 
 #: backend/kvs1025_opt.c:191 backend/kvs40xx_opt.c:284
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "default"
 msgstr "Valeur par défaut"
 
 #: backend/kvs1025_opt.c:210 backend/kvs20xx_opt.c:123
 #: backend/kvs40xx_opt.c:209
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "smooth"
 msgstr "Lisse"
 
@@ -4274,17 +4305,17 @@ msgstr "Lisse"
 #: backend/kvs40xx_opt.c:205
 #, no-c-format
 msgid "none"
-msgstr ""
+msgstr "aucun"
 
 #: backend/kvs1025_opt.c:212 backend/kvs20xx_opt.c:120
 #: backend/kvs40xx_opt.c:206
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "low"
 msgstr "Lent"
 
 #: backend/kvs1025_opt.c:213 backend/kvs1025_opt.c:803
 #: backend/kvs20xx_opt.c:121 backend/kvs40xx_opt.c:207
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "medium"
 msgstr "Moyen"
 
@@ -4292,28 +4323,28 @@ msgstr "Moyen"
 #: backend/kvs40xx_opt.c:208
 #, no-c-format
 msgid "high"
-msgstr ""
+msgstr "Rapide"
 
 #: backend/kvs1025_opt.c:228 backend/kvs20xx_opt.c:130
 #: backend/kvs40xx_opt.c:216
 #, no-c-format
 msgid "crt"
-msgstr ""
+msgstr "crt"
 
 #: backend/kvs1025_opt.c:229
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "linear"
 msgstr "Trait"
 
 #: backend/kvs1025_opt.c:241 backend/kvs20xx_opt.c:138
 #: backend/kvs40xx_opt.c:224
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "red"
 msgstr "Rouge"
 
 #: backend/kvs1025_opt.c:242 backend/kvs20xx_opt.c:139
 #: backend/kvs40xx_opt.c:225
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "green"
 msgstr "Vert"
 
@@ -4321,12 +4352,12 @@ msgstr "Vert"
 #: backend/kvs40xx_opt.c:226
 #, no-c-format
 msgid "blue"
-msgstr ""
+msgstr "bleu"
 
 #: backend/kvs1025_opt.c:561
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Sets the scan source"
-msgstr "Source de numérisation"
+msgstr "Sélectionner la Source de numérisation"
 
 #: backend/kvs1025_opt.c:572 backend/kvs20xx_opt.c:218
 #: backend/kvs40xx_opt.c:367 backend/matsushita.c:1126
@@ -4338,59 +4369,59 @@ msgstr "Mode de chargement"
 #: backend/kvs40xx_opt.c:368 backend/matsushita.c:1127
 #, no-c-format
 msgid "Sets the feeding mode"
-msgstr "Sélectionne le mode de chargement"
+msgstr "Sélectionner le mode de chargement"
 
 #: backend/kvs1025_opt.c:583
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enable/Disable long paper mode"
-msgstr "Activer/désactiver la mise au point automatique"
+msgstr "Activer/désactiver le mode papier long"
 
 #: backend/kvs1025_opt.c:592
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enable/Disable length control mode"
-msgstr "Positionne le mode de contrôle de la densité"
+msgstr "Activer/désactiver le mode de contrôle de la longueur"
 
 #: backend/kvs1025_opt.c:600 backend/kvs20xx_opt.c:243
 #: backend/kvs40xx_opt.c:417
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Sets the manual feed mode"
-msgstr "Sélectionne le mode de chargement"
+msgstr "Sélectionne le mode de chargement manuel"
 
 #: backend/kvs1025_opt.c:611 backend/kvs20xx_opt.c:255
 #: backend/kvs40xx_opt.c:429
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Sets the manual feed timeout in seconds"
-msgstr "Sélectionne le mode de chargement"
+msgstr "Règle le délai d'attente de l'alimentation manuelle en secondes"
 
 #: backend/kvs1025_opt.c:624 backend/kvs20xx_opt.c:268
 #: backend/kvs40xx_opt.c:442
 #, no-c-format
 msgid "Enable/Disable double feed detection"
-msgstr ""
+msgstr "Activer/désactiver la detection de la double alimentation"
 
 #: backend/kvs1025_opt.c:630 backend/kvs20xx_opt.c:276
 #: backend/kvs40xx_opt.c:497
 #, no-c-format
 msgid "fit-to-page"
-msgstr ""
+msgstr "rempli la page"
 
 #: backend/kvs1025_opt.c:631 backend/kvs20xx_opt.c:277
 #: backend/kvs40xx_opt.c:498
 #, no-c-format
 msgid "Fit to page"
-msgstr ""
+msgstr "Rempli la page"
 
 #: backend/kvs1025_opt.c:633 backend/kvs20xx_opt.c:278
 #: backend/kvs40xx_opt.c:499
 #, no-c-format
 msgid "Scanner shrinks image to fit scanned page"
-msgstr ""
+msgstr "Le scanner rétrécit l'image pour l'adapter à la page scannée"
 
 #: backend/kvs1025_opt.c:660 backend/kvs20xx_opt.c:309
 #: backend/kvs40xx_opt.c:533
 #, no-c-format
 msgid "Set paper position : true for landscape, false for portrait"
-msgstr ""
+msgstr "Sélectionne la position du papier, vrai pour paysage, faux pour portrait"
 
 #: backend/kvs1025_opt.c:734 backend/matsushita.c:1224
 #, no-c-format
@@ -4439,65 +4470,65 @@ msgstr "Gamma"
 
 #: backend/kvs1025_opt.c:817 backend/kvs20xx_opt.c:436
 #: backend/kvs40xx_opt.c:681
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Lamp color"
-msgstr "Lampe allumée"
+msgstr "Couleur de la lampe"
 
 #: backend/kvs1025_opt.c:818 backend/kvs20xx_opt.c:437
 #: backend/kvs40xx_opt.c:682
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Sets the lamp color (color dropout)"
-msgstr "Allume/éteint la lampe."
+msgstr "Sélectionne la couleur de la lampe (abandon de la couleur)"
 
 #: backend/kvs1025_opt.c:831
 #, no-c-format
 msgid "Inverse image in B/W or halftone mode"
-msgstr ""
+msgstr "Inverse le couleur de l'image en N/B ou en mode demie-teinte"
 
 #: backend/kvs1025_opt.c:839
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Mirror image (left/right flip)"
-msgstr "Renverse l'image verticalement."
+msgstr "Image miroir (gauche/droite retournée)"
 
 #: backend/kvs1025_opt.c:846
 #, no-c-format
 msgid "jpeg compression"
-msgstr ""
+msgstr "compression jpeg"
 
 #: backend/kvs1025_opt.c:849
 #, no-c-format
 msgid "JPEG Image Compression with Q parameter, '0' - no compression"
-msgstr ""
+msgstr "Compression image JPEG avec le parametre Q, '0' - pas de compression"
 
 #: backend/kvs1025_opt.c:859
 #, no-c-format
 msgid "Rotate image clockwise"
-msgstr ""
+msgstr "Pivote l'image dans le sens des aiguille"
 
 #: backend/kvs1025_opt.c:861
 #, no-c-format
 msgid "Request driver to rotate pages by a fixed amount"
-msgstr ""
+msgstr "Demande au pilote de faire pivoter les pages d'une valeur donnée"
 
 #: backend/kvs1025_opt.c:873
 #, no-c-format
 msgid "Request driver to rotate skewed pages digitally"
-msgstr ""
+msgstr "Demande au pilote de faore pivoter logicielement les pages déformées"
 
 #: backend/kvs1025_opt.c:882
 #, no-c-format
 msgid "Maximum diameter of lone dots to remove from scan"
-msgstr ""
+msgstr "Diamètre maximal des points isolés à retirer du scan"
 
 #: backend/kvs1025_opt.c:901
 #, no-c-format
 msgid "Software automatic cropping"
-msgstr ""
+msgstr "Recadrage automatique par logiciel"
 
 #: backend/kvs1025_opt.c:903
 #, no-c-format
 msgid "Request driver to remove border from pages digitally"
-msgstr ""
+msgstr "Demande au pilote de supprimer logicielement la bordure des pages"
 
 #: backend/kvs20xx_opt.c:233
 #, no-c-format
@@ -4505,6 +4536,9 @@ msgid ""
 "Length Control Mode causes the scanner to read the shorter of either the "
 "length of the actual paper or logical document length."
 msgstr ""
+"Le mode de contrôle de la longueur permet au scanner de lire la plus "
+"courte des deux longueurs suivantes : la longueur du papier réel ou la "
+"longueur logique du document."
 
 #: backend/kvs20xx_opt.c:424 backend/kvs20xx_opt.c:425
 #: backend/kvs40xx_opt.c:668 backend/kvs40xx_opt.c:669
@@ -4516,50 +4550,50 @@ msgstr "Correction gamma"
 #: backend/kvs40xx_opt.c:117
 #, no-c-format
 msgid "wait_doc_hopper_up"
-msgstr ""
+msgstr "Attendre l'insertion d'un document"
 
 #: backend/kvs40xx_opt.c:127
 #, no-c-format
 msgid "A3"
-msgstr ""
+msgstr "A3"
 
 #: backend/kvs40xx_opt.c:132
 #, no-c-format
 msgid "Double letter 11x17 in"
-msgstr ""
+msgstr "Double letter 11x17 pouces"
 
 #: backend/kvs40xx_opt.c:133
 #, no-c-format
 msgid "B4"
-msgstr ""
+msgstr "B4"
 
 #: backend/kvs40xx_opt.c:231
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "High sensitivity"
-msgstr "Impression haute définition"
+msgstr "haute sesibilité"
 
 #: backend/kvs40xx_opt.c:232
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Low sensitivity"
-msgstr "Impression basse définition"
+msgstr "Basse sensibilité"
 
 #: backend/kvs40xx_opt.c:243
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "err_diffusion"
 msgstr "Diffusion d'erreur"
 
 #: backend/kvs40xx_opt.c:249
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "No detection"
-msgstr "Pas de correction"
+msgstr "Pas de détection"
 
 #: backend/kvs40xx_opt.c:250
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Normal mode"
-msgstr "Normal"
+msgstr "Mode normal"
 
 #: backend/kvs40xx_opt.c:251
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Enhanced mode"
 msgstr "Réglages fins"
 
@@ -4569,6 +4603,9 @@ msgid ""
 "Length Control Mode causes the scanner to read the shorter of either the "
 "length of the actual paper or logical document length"
 msgstr ""
+"Le mode de contrôle de la longueur permet au scanner de lire la longueur "
+"la plus courte entre la longueur réelle du papier et la longueur logique "
+"du document"
 
 #: backend/kvs40xx_opt.c:405
 #, no-c-format
@@ -4576,126 +4613,129 @@ msgid ""
 "Long Paper Mode is a mode that the scanner reads the image after it "
 "divides long paper by the length which is set in Document Size option."
 msgstr ""
+"Le mode Papier long est un mode dans lequel le scanner lit l'image "
+"après avoir divisé le papier long par la longueur, qui est définie "
+"dans l'option, Taille du document."
 
 #: backend/kvs40xx_opt.c:449
 #, no-c-format
 msgid "Double feed detector sensitivity"
-msgstr ""
+msgstr "Double sensibilité du détecteur d'alimentation"
 
 #: backend/kvs40xx_opt.c:450
 #, no-c-format
 msgid "Set the double feed detector sensitivity"
-msgstr ""
+msgstr "Sélectionner la double sensibilité du détecteur d'alimentation"
 
 #: backend/kvs40xx_opt.c:461 backend/kvs40xx_opt.c:462
 #, no-c-format
 msgid "Do not stop after double feed detection"
-msgstr ""
+msgstr "Ne pas stopper après la double detection du capteur d'alimentation"
 
 #: backend/kvs40xx_opt.c:470 backend/kvs40xx_opt.c:471
 #, no-c-format
 msgid "Ignore left double feed sensor"
-msgstr ""
+msgstr "Ignorer le double capteur d'alimentation gauche"
 
 #: backend/kvs40xx_opt.c:479 backend/kvs40xx_opt.c:480
 #, no-c-format
 msgid "Ignore center double feed sensor"
-msgstr ""
+msgstr "Ignorer le double capteur d'alimentation centré"
 
 #: backend/kvs40xx_opt.c:488 backend/kvs40xx_opt.c:489
 #, no-c-format
 msgid "Ignore right double feed sensor"
-msgstr ""
+msgstr "Ignorer le double capteur d'alimentation droit"
 
 #: backend/kvs40xx_opt.c:642
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Automatic threshold mode"
-msgstr "Seuil automatique"
+msgstr "Mode de seuil automatique"
 
 #: backend/kvs40xx_opt.c:643
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Sets the automatic threshold mode"
-msgstr "Seuil automatique"
+msgstr "choisir le mode de Seuil automatique"
 
 #: backend/kvs40xx_opt.c:694
 #, no-c-format
 msgid "Inverse image in B/W mode"
-msgstr ""
+msgstr "Mde d'Inversion des couleur de l'image N/B"
 
 #: backend/kvs40xx_opt.c:715
 #, no-c-format
 msgid "JPEG compression"
-msgstr ""
+msgstr "Compression JPEG"
 
 #: backend/kvs40xx_opt.c:718
 #, no-c-format
 msgid "JPEG compression (your application must be able to uncompress)"
-msgstr ""
+msgstr "Compression JPEG (votre application doit pouvoir faire la decompression)"
 
 #: backend/kvs40xx_opt.c:737 backend/kvs40xx_opt.c:738
 #, no-c-format
 msgid "Detect stapled document"
-msgstr ""
+msgstr "Détecter un document agrafé"
 
 #: backend/kvs40xx_opt.c:776
 #, no-c-format
 msgid "chroma of red"
-msgstr ""
+msgstr "rouge chroma"
 
 #: backend/kvs40xx_opt.c:777
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Set chroma of red"
-msgstr "Fixe l'orde des trames"
+msgstr "Selectionne rouge chroma"
 
 #: backend/kvs40xx_opt.c:787
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "chroma of blue"
-msgstr "Ombré bleu"
+msgstr "bleu chroma"
 
 #: backend/kvs40xx_opt.c:788
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Set chroma of blue"
-msgstr "Décalage rouge -> bleu"
+msgstr "Selectionne bleu chroma"
 
 #: backend/kvs40xx_opt.c:798 backend/kvs40xx_opt.c:799
 #, no-c-format
 msgid "Skew adjustment"
-msgstr ""
+msgstr "Ajustement du biais"
 
 #: backend/kvs40xx_opt.c:808
 #, no-c-format
 msgid "Stop scanner if a sheet is skewed"
-msgstr ""
+msgstr "Arrêter le scanner si une feuille est de travers"
 
 #: backend/kvs40xx_opt.c:809
 #, no-c-format
 msgid "Scanner will stop if a sheet is skewed"
-msgstr ""
+msgstr "Le scanner s'arrête si une feuille est de travers"
 
 #: backend/kvs40xx_opt.c:816
 #, no-c-format
 msgid "Crop actual image area"
-msgstr ""
+msgstr "Recadrer la zone de l'image"
 
 #: backend/kvs40xx_opt.c:817
 #, no-c-format
 msgid "Scanner will automatically detect image area and crop to it"
-msgstr ""
+msgstr "Le scanner détectera automatiquement la zone de l'image et la recadrera"
 
 #: backend/kvs40xx_opt.c:827
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Left/right mirror image"
-msgstr "Image miroir"
+msgstr "Image miroir gouche/droite"
 
 #: backend/kvs40xx_opt.c:834 backend/kvs40xx_opt.c:835
 #, no-c-format
 msgid "Addition of space in top position"
-msgstr ""
+msgstr "Ajout d'espace en position haute"
 
 #: backend/kvs40xx_opt.c:842 backend/kvs40xx_opt.c:843
 #, no-c-format
 msgid "Addition of space in bottom position"
-msgstr ""
+msgstr "Ajout d'espace en position basse"
 
 #: backend/leo.c:110
 #, no-c-format
@@ -4705,22 +4745,22 @@ msgstr "Diamant"
 #: backend/leo.c:111
 #, no-c-format
 msgid "8x8 Coarse Fatting"
-msgstr "\"Graissage\" grossier 8x8"
+msgstr "8x8 Gros gras"
 
 #: backend/leo.c:112
 #, no-c-format
 msgid "8x8 Fine Fatting"
-msgstr "\"Graissage\" fin 8x8"
+msgstr "8x8 Gros fin"
 
 #: backend/leo.c:113
 #, no-c-format
 msgid "8x8 Bayer"
-msgstr "Bayer 8x8"
+msgstr "8x8 Bayer"
 
 #: backend/leo.c:114
 #, no-c-format
 msgid "8x8 Vertical Line"
-msgstr "Ligne verticale 8x8"
+msgstr "8x8 Ligne verticale"
 
 #: backend/lexmark.c:273 backend/umax_pp.c:705
 #, no-c-format
@@ -4775,12 +4815,12 @@ msgstr "Fixe le gain pour le bleu"
 #: backend/matsushita.c:139
 #, no-c-format
 msgid "Bayer Dither 16"
-msgstr "'Dither' Bayer 16"
+msgstr "Dither Bayer 16"
 
 #: backend/matsushita.c:140
 #, no-c-format
 msgid "Bayer Dither 64"
-msgstr "'Dither' Bayer 64"
+msgstr "Dither Bayer 64"
 
 #: backend/matsushita.c:141
 #, no-c-format
@@ -4979,7 +5019,7 @@ msgstr "Utilise la même valeur gamma pour toutes les couleurs."
 #: backend/microtek2.h:649
 #, no-c-format
 msgid "Scalar gamma"
-msgstr "Valeur de gamma"
+msgstr "Gamma scalaire"
 
 #: backend/microtek2.h:650
 #, no-c-format
@@ -5362,29 +5402,29 @@ msgstr ""
 "lieu d'attendre 40 secondes."
 
 #: backend/p5.c:1926
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Need calibration"
 msgstr "Calibration requise"
 
 #: backend/pixma/pixma.c:397
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Negative color"
-msgstr "Film négatif"
+msgstr "Couleur négative"
 
 #: backend/pixma/pixma.c:402
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Negative gray"
-msgstr "Négatif"
+msgstr "Gris négatif"
 
 #: backend/pixma/pixma.c:415
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "48 bits color"
-msgstr "Couleurs précises"
+msgstr "couleur 48 bits"
 
 #: backend/pixma/pixma.c:420
 #, no-c-format
 msgid "16 bits gray"
-msgstr ""
+msgstr "Gris 16 bits"
 
 #: backend/pixma/pixma_sane_options.c:84
 #, no-c-format
@@ -5392,6 +5432,9 @@ msgid ""
 "Selects the scan source (such as a document-feeder). Set source before "
 "mode and resolution. Resets mode and resolution to auto values."
 msgstr ""
+"Sélectionne la source de numérisation (par exemple, un chargeur de documents). "
+"Régler la source avant le mode et la résolution. Réinitialise le mode et "
+"la résolution à des valeurs automatiques." ## thierry
 
 #: backend/pixma/pixma_sane_options.c:98
 #, no-c-format
@@ -5851,17 +5894,17 @@ msgstr "Chargeur automatique de document"
 #: backend/snapscan-options.c:92
 #, no-c-format
 msgid "6x4 (inch)"
-msgstr "6\"x4\" (~15x10 cm)"
+msgstr "6x4 (~15x10 cm)"
 
 #: backend/snapscan-options.c:93
 #, no-c-format
 msgid "8x10 (inch)"
-msgstr "8\"x10\" (~20x25 cm)"
+msgstr "8x10 (~20x25 cm)"
 
 #: backend/snapscan-options.c:94
 #, no-c-format
 msgid "8.5x11 (inch)"
-msgstr "8.5\"x11\" (~21x28 cm)"
+msgstr "8.5x11 (~21x28 cm)"
 
 #: backend/snapscan-options.c:97
 #, no-c-format
@@ -5905,9 +5948,9 @@ msgid "Use manual or automatic selection of focus point."
 msgstr ""
 
 #: backend/snapscan-options.c:117
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Focus point for scanning."
-msgstr "Ejecte le document après la numérisation"
+msgstr "Point de focalisation pour la numérisation"
 
 #: backend/snapscan-options.c:482
 #, no-c-format
@@ -5940,40 +5983,40 @@ msgstr ""
 #: backend/snapscan-options.c:884
 #, no-c-format
 msgid "Frame"
-msgstr ""
+msgstr "iCadre"
 
 #: backend/snapscan-options.c:885
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Frame to be scanned"
-msgstr "numériseur à plat"
+msgstr "Cadre à scanner"
 
 #: backend/snapscan-options.c:897
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Focus-mode"
-msgstr "Mise au point"
+msgstr "Mode Focus"
 
 #: backend/snapscan-options.c:898
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Auto or manual focus"
-msgstr "Mise au point automatique"
+msgstr "Focus manuel ou automatique"
 
 #: backend/snapscan-options.c:911
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Focus-point"
-msgstr "Mise-au-point"
+msgstr "Point focal"
 
 #: backend/snapscan-options.c:912
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Focus point"
-msgstr "Mise-au-point"
+msgstr "Point focal"
 
 #: backend/snapscan-options.c:930
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Color lines per read"
 msgstr "Nombre de lignes en couleurs par cycle de lecture"
 
 #: backend/snapscan-options.c:942
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Grayscale lines per read"
 msgstr "Nombre de lignes en niveaux de gris par cycle de lecture"
 

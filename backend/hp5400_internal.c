@@ -165,6 +165,7 @@ GetSensors(THWParams * pHWParams, uint16_t *sensorMap)
    * Max 10 iterations for safety.
    *
    */
+  *sensorMap = 0;
   uint16_t thisSensorMap = 0;
   size_t iterCount = 10;
   do

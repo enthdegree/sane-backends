@@ -364,7 +364,14 @@
 :model "P-208II"
 :interface "USB"
 :usbid "0x1083" "0x165f"
-:status :untested
+:status :basic
+:comment "Simplex+duplex, all resolutions <= 600, gray/color, calibration poor."
+
+:model "P-208II"
+:interface "USB"
+:usbid "0x1083" "0x1660"
+:status :basic
+:comment "This is the same device as the 0x165f P-208II, but the mode switch on the scanner is in the wrong position, you must move the switch."
 
 :model "DR-P215"
 :interface "USB"

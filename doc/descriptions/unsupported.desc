@@ -1932,7 +1932,7 @@
 :interface "USB"
 :usbid "0x18dd" "0x1000"
 :status :unsupported
-:comment "Probably not supported. No details known."
+:comment "Supported by gPhoto2."
 
 :model "DocuPen R700"
 :url "unsupported/planon-docupen-r700.html"

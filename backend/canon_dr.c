@@ -3951,10 +3951,12 @@ get_pixelsize(struct scanner *s)
         in, &inLen
     );
 
-    if(ret == SANE_STATUS_GOOD &&
-       get_R_PSIZE_width(in) > 0 &&
-       get_R_PSIZE_length(in) > 0){
+    if(ret != SANE_STATUS_GOOD){
+      DBG (10, "get_pixelsize: error reading, status = %d\n", ret);
+      break;
+    }
 
+    if(get_R_PSIZE_width(in) > 0 && get_R_PSIZE_length(in) > 0){
       DBG (15, "get_pixelsize: w:%d h:%d\n",
            get_R_PSIZE_width(in) * s->u.dpi_x / 1200,
            get_R_PSIZE_length(in) * s->u.dpi_y / 1200);

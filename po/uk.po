@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.31\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
-"POT-Creation-Date: 2020-07-22 15:22+0300\n"
+"POT-Creation-Date: 2020-08-02 12:33+0000\n"
 "PO-Revision-Date: 2020-07-22 15:32+0300\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <translation@linux.org.ua>\n"
@@ -30,23 +30,23 @@ msgstr "Типово"
 
 #: include/sane/saneopts.h:157 backend/artec_eplus48u.c:2884
 #: backend/canon_lide70.c:414 backend/epson.c:3298 backend/epson2.c:1290
-#: backend/epsonds.c:679 backend/genesys/genesys.cpp:4660
+#: backend/epsonds.c:679 backend/genesys/genesys.cpp:4703
 #: backend/gt68xx.c:696 backend/hp-option.c:3300 backend/hp3500.c:1019
 #: backend/kvs1025_opt.c:639 backend/kvs20xx_opt.c:285
 #: backend/kvs40xx_opt.c:506 backend/leo.c:823 backend/lexmark.c:199
 #: backend/ma1509.c:551 backend/matsushita.c:1135 backend/microtek2.h:599
 #: backend/mustek.c:4373 backend/mustek_usb.c:301 backend/mustek_usb2.c:465
-#: backend/pixma/pixma_sane_options.c:160 backend/plustek.c:808
+#: backend/pixma/pixma_sane_options.c:161 backend/plustek.c:808
 #: backend/plustek_pp.c:747 backend/sceptre.c:702
 #: backend/snapscan-options.c:550 backend/teco1.c:1095 backend/teco2.c:1910
-#: backend/teco3.c:920 backend/test.c:647 backend/u12.c:546
+#: backend/teco3.c:920 backend/test.c:689 backend/u12.c:546
 #: backend/umax.c:5176 backend/umax_pp.c:570
 #, no-c-format
 msgid "Geometry"
 msgstr "Позиція і розміри"
 
 #: include/sane/saneopts.h:158 backend/artec_eplus48u.c:2805
-#: backend/canon.c:1493 backend/genesys/genesys.cpp:4703
+#: backend/canon.c:1493 backend/genesys/genesys.cpp:4746
 #: backend/gt68xx.c:665 backend/hp-option.c:2956 backend/kvs1025_opt.c:703
 #: backend/leo.c:871 backend/ma1509.c:599 backend/matsushita.c:1189
 #: backend/microtek2.h:600 backend/mustek.c:4421 backend/mustek_usb.c:349
@@ -88,7 +88,7 @@ msgid "Bit depth"
 msgstr "Кількість бітів на колір"
 
 #: include/sane/saneopts.h:165 backend/canon.c:1140 backend/leo.c:781
-#: backend/pixma/pixma_sane_options.c:47
+#: backend/pixma/pixma_sane_options.c:48
 #, no-c-format
 msgid "Scan mode"
 msgstr "Режим сканування"
@@ -129,7 +129,7 @@ msgid "Bottom-right y"
 msgstr "Нижня права координата за Y"
 
 #: include/sane/saneopts.h:173 backend/canon.c:1216
-#: backend/pixma/pixma_sane_options.c:300
+#: backend/pixma/pixma_sane_options.c:301
 #, no-c-format
 msgid "Scan resolution"
 msgstr "Роздільна здатність сканування"
@@ -1016,22 +1016,22 @@ msgstr ""
 msgid "Button state"
 msgstr "Стан кнопки"
 
-#: backend/avision.h:778
+#: backend/avision.h:834
 #, no-c-format
 msgid "Number of the frame to scan"
 msgstr "Номер кадру для сканування"
 
-#: backend/avision.h:779
+#: backend/avision.h:835
 #, no-c-format
 msgid "Selects the number of the frame to scan"
 msgstr "Визначає кількість кадрів для сканування"
 
-#: backend/avision.h:782
+#: backend/avision.h:838
 #, no-c-format
 msgid "Duplex scan"
 msgstr "Двобічне сканування"
 
-#: backend/avision.h:783
+#: backend/avision.h:839
 #, no-c-format
 msgid ""
 "Duplex scan provides a scan of the front and back side of the document"
@@ -1547,9 +1547,9 @@ msgstr "Визначити криву виправлення гами"
 #: backend/hp3900_sane.c:418 backend/hp3900_sane.c:427
 #: backend/hp3900_sane.c:1017 backend/hp5590.c:92 backend/kodakaio.c:617
 #: backend/ma1509.c:108 backend/magicolor.c:181 backend/mustek.c:156
-#: backend/mustek.c:160 backend/mustek.c:164 backend/pixma/pixma.c:921
-#: backend/pixma/pixma_sane_options.c:92 backend/snapscan-options.c:86
-#: backend/test.c:192 backend/umax.c:181
+#: backend/mustek.c:160 backend/mustek.c:164 backend/pixma/pixma.c:978
+#: backend/pixma/pixma_sane_options.c:93 backend/snapscan-options.c:86
+#: backend/test.c:234 backend/umax.c:181
 #, no-c-format
 msgid "Flatbed"
 msgstr "Планшет"
@@ -1567,7 +1567,7 @@ msgid "ADF Back"
 msgstr "Зворот протяжного механізму"
 
 #: backend/canon_dr.c:416 backend/epjitsu.c:236 backend/fujitsu.c:684
-#: backend/hp5590.c:94 backend/kodak.c:142 backend/pixma/pixma.c:932
+#: backend/hp5590.c:94 backend/kodak.c:142 backend/pixma/pixma.c:989
 #, no-c-format
 msgid "ADF Duplex"
 msgstr "Двобічна АПД"
@@ -1589,7 +1589,7 @@ msgstr "Картка (обидва боки)"
 
 #: backend/canon_dr.c:426 backend/epson.c:599 backend/epson.c:3096
 #: backend/epson2.c:201 backend/fujitsu.c:704
-#: backend/genesys/genesys.cpp:121 backend/genesys/genesys.cpp:128
+#: backend/genesys/genesys.cpp:119 backend/genesys/genesys.cpp:126
 #: backend/gt68xx_low.h:136 backend/hp-option.c:3096
 #, no-c-format
 msgid "Red"
@@ -1597,7 +1597,7 @@ msgstr "Червоний"
 
 #: backend/canon_dr.c:427 backend/epson.c:600 backend/epson.c:3092
 #: backend/epson2.c:202 backend/fujitsu.c:705
-#: backend/genesys/genesys.cpp:122 backend/genesys/genesys.cpp:129
+#: backend/genesys/genesys.cpp:120 backend/genesys/genesys.cpp:127
 #: backend/gt68xx_low.h:137 backend/hp-option.c:3097
 #, no-c-format
 msgid "Green"
@@ -1605,7 +1605,7 @@ msgstr "Зелений"
 
 #: backend/canon_dr.c:428 backend/epson.c:601 backend/epson.c:3100
 #: backend/epson2.c:203 backend/fujitsu.c:706
-#: backend/genesys/genesys.cpp:123 backend/genesys/genesys.cpp:130
+#: backend/genesys/genesys.cpp:121 backend/genesys/genesys.cpp:128
 #: backend/gt68xx_low.h:138 backend/hp-option.c:3098
 #, no-c-format
 msgid "Blue"
@@ -1630,7 +1630,7 @@ msgstr "Покращити синій"
 #: backend/epson.c:576 backend/epson.c:598 backend/epson2.c:165
 #: backend/epson2.c:173 backend/epson2.c:185 backend/epson2.c:200
 #: backend/epson2.c:214 backend/fujitsu.c:710
-#: backend/genesys/genesys.cpp:131 backend/leo.c:109
+#: backend/genesys/genesys.cpp:129 backend/leo.c:109
 #: backend/matsushita.c:138 backend/matsushita.c:159
 #: backend/matsushita.c:191 backend/matsushita.c:213
 #: backend/snapscan-options.c:91
@@ -1643,8 +1643,7 @@ msgstr "Немає"
 msgid "JPEG"
 msgstr "JPEG"
 
-#: backend/canon_dr.c:2479 backend/fujitsu.c:4142
-#: backend/genesys/genesys.cpp:4793 backend/kvs1025_opt.c:910
+#: backend/canon_dr.c:2479 backend/fujitsu.c:4142 backend/kvs1025_opt.c:910
 #, no-c-format
 msgid "Software blank skip percentage"
 msgstr "Порогове значення порожніх сторінок для програмного відкидання"
@@ -1657,25 +1656,25 @@ msgstr ""
 "кількістю темних пікселів"
 
 #: backend/canon_lide70.c:344 backend/epson.c:2813 backend/epson2.c:976
-#: backend/epsonds.c:631 backend/genesys/genesys.cpp:4591
+#: backend/epsonds.c:631 backend/genesys/genesys.cpp:4634
 #: backend/gt68xx.c:451 backend/hp-option.c:2917 backend/kvs1025_opt.c:521
 #: backend/kvs20xx_opt.c:171 backend/kvs40xx_opt.c:320 backend/ma1509.c:501
 #: backend/matsushita.c:1084 backend/microtek2.h:598 backend/mustek.c:4215
 #: backend/mustek_usb.c:256 backend/mustek_usb2.c:344 backend/niash.c:734
 #: backend/plustek.c:721 backend/plustek_pp.c:658 backend/sceptre.c:673
 #: backend/snapscan-options.c:354 backend/stv680.c:1030
-#: backend/teco2.c:1882 backend/test.c:306 backend/u12.c:473
+#: backend/teco2.c:1882 backend/test.c:348 backend/u12.c:473
 #: backend/umax.c:5054
 #, no-c-format
 msgid "Scan Mode"
 msgstr "Режим сканування"
 
-#: backend/canon_lide70.c:400 backend/test.c:591
+#: backend/canon_lide70.c:400 backend/test.c:633
 #, no-c-format
 msgid "Use non-blocking IO"
 msgstr "Використовувати ввід-вивід без блокування"
 
-#: backend/canon_lide70.c:401 backend/test.c:592
+#: backend/canon_lide70.c:401 backend/test.c:634
 #, no-c-format
 msgid "Use non-blocking IO for sane_read() if supported by the frontend."
 msgstr ""
@@ -1697,7 +1696,7 @@ msgid "Duplex"
 msgstr "Двобічна"
 
 #: backend/epson.c:502 backend/epson2-ops.c:102 backend/epson2.c:116
-#: backend/epsonds-ops.c:33 backend/epsonds.h:63 backend/pixma/pixma.c:938
+#: backend/epsonds-ops.c:33 backend/epsonds.h:63 backend/pixma/pixma.c:995
 #, no-c-format
 msgid "Transparency Unit"
 msgstr "Модуль для слайдів"
@@ -1705,7 +1704,7 @@ msgstr "Модуль для слайдів"
 #: backend/epson.c:503 backend/epson2-ops.c:104 backend/epson2.c:118
 #: backend/epsonds-ops.c:34 backend/epsonds.c:98 backend/epsonds.h:64
 #: backend/kodakaio.c:618 backend/magicolor.c:182 backend/mustek.c:160
-#: backend/pixma/pixma.c:926 backend/test.c:192 backend/umax.c:183
+#: backend/pixma/pixma.c:983 backend/test.c:234 backend/umax.c:183
 #, no-c-format
 msgid "Automatic Document Feeder"
 msgstr "Автоматична подача документів"
@@ -1818,7 +1817,7 @@ msgid "CRT monitors"
 msgstr "Монітори з ЕПТ"
 
 #: backend/epson.c:656 backend/epson2.c:254 backend/fujitsu.c:694
-#: backend/hp-option.c:3229 backend/test.c:143
+#: backend/hp-option.c:3229 backend/test.c:149
 #, no-c-format
 msgid "Default"
 msgstr "Типовий"
@@ -2069,13 +2068,13 @@ msgid "Eject document after scanning"
 msgstr "Виштовхнути документ після сканування"
 
 #: backend/epson.c:3457 backend/epson2.c:1416 backend/epsonds.c:760
-#: backend/kodakaio.c:2855 backend/magicolor.c:2420
+#: backend/kodakaio.c:2855 backend/magicolor.c:2450
 #, no-c-format
 msgid "ADF Mode"
 msgstr "Режим протяжного пристрою"
 
 #: backend/epson.c:3459 backend/epson2.c:1418 backend/epsonds.c:762
-#: backend/kodakaio.c:2857 backend/magicolor.c:2422
+#: backend/kodakaio.c:2857 backend/magicolor.c:2452
 #, no-c-format
 msgid "Selects the ADF mode (simplex/duplex)"
 msgstr "Визначає режим протяжного пристрою (однобічний/двобічний)"
@@ -2132,7 +2131,7 @@ msgstr ""
 msgid "TPU8x10"
 msgstr "TPU8x10"
 
-#: backend/epson2.c:102 backend/pixma/pixma.c:410
+#: backend/epson2.c:102 backend/pixma/pixma.c:413
 #, no-c-format
 msgid "Infrared"
 msgstr "Інфрачервоне"
@@ -2290,12 +2289,12 @@ msgstr "Перед"
 msgid "Back"
 msgstr "Зворот"
 
-#: backend/fujitsu.c:3173 backend/pixma/pixma_sane_options.c:145
+#: backend/fujitsu.c:3173 backend/pixma/pixma_sane_options.c:146
 #, no-c-format
 msgid "Gamma function exponent"
 msgstr "Показник функції гами"
 
-#: backend/fujitsu.c:3174 backend/pixma/pixma_sane_options.c:146
+#: backend/fujitsu.c:3174 backend/pixma/pixma_sane_options.c:147
 #, no-c-format
 msgid "Changes intensity of midtones"
 msgstr "Змінює інтенсивність напівтонів"
@@ -2407,8 +2406,7 @@ msgid "Gamma curve, from light to dark, but upper two may not work"
 msgstr ""
 "Крива гами, від світлого до темного, але верхні дві можуть не працювати"
 
-#: backend/fujitsu.c:3422 backend/genesys/genesys.cpp:4854
-#: backend/pixma/pixma_sane_options.c:335
+#: backend/fujitsu.c:3422 backend/pixma/pixma_sane_options.c:378
 #, no-c-format
 msgid "Threshold curve"
 msgstr "Порогова крива"
@@ -2822,7 +2820,7 @@ msgstr ""
 "Мінімальний діаметр окремих плям, які слід усунути зі сканованого "
 "зображення."
 
-#: backend/fujitsu.c:4129 backend/genesys/genesys.cpp:4784
+#: backend/fujitsu.c:4129
 #, no-c-format
 msgid "Software crop"
 msgstr "Програмне обрізання"
@@ -3120,87 +3118,39 @@ msgstr "Набирач щільності"
 msgid "Duplex switch"
 msgstr "Перемикач двобічного"
 
-#: backend/genesys/genesys.cpp:4785
-#, no-c-format
-msgid "Request backend to remove border from pages digitally"
-msgstr ""
-"Вимагати від програмного модуля вилучення границі зі сторінок у "
-"автоматичному режимі"
-
-#: backend/genesys/genesys.cpp:4794 backend/kvs1025_opt.c:912
-#, no-c-format
-msgid "Request driver to discard pages with low numbers of dark pixels"
-msgstr ""
-"Вимагати від драйвера відкидання сторінок з надто низькою кількістю "
-"темних пікселів"
-
-#: backend/genesys/genesys.cpp:4804 backend/kvs1025_opt.c:892
-#, no-c-format
-msgid "Software derotate"
-msgstr "Програмне усування обертання"
-
-#: backend/genesys/genesys.cpp:4805 backend/kvs1025_opt.c:894
-#, no-c-format
-msgid "Request driver to detect and correct 90 degree image rotation"
-msgstr ""
-"Вимагати від драйвера виявлення і виправлення обертання зображення на 90 "
-"градусів"
-
-#: backend/genesys/genesys.cpp:4835 backend/pixma/pixma_sane_options.c:314
+#: backend/genesys/genesys.cpp:4823 backend/pixma/pixma_sane_options.c:357
 #, no-c-format
 msgid "Extras"
 msgstr "Додаткові"
 
-#: backend/genesys/genesys.cpp:4855 backend/pixma/pixma_sane_options.c:336
-#, no-c-format
-msgid "Dynamic threshold curve, from light to dark, normally 50-65"
-msgstr ""
-"Крива динамічного порогового значення, від світлого до темного, типово "
-"50-65"
-
-#: backend/genesys/genesys.cpp:4865
-#, no-c-format
-msgid "Disable interpolation"
-msgstr "Вимкнути інтерполяцію"
-
-#: backend/genesys/genesys.cpp:4868
-#, no-c-format
-msgid ""
-"When using high resolutions where the horizontal resolution is smaller "
-"than the vertical resolution this disables horizontal interpolation."
-msgstr ""
-"За використання високих роздільних здатностей, коли горизонтальна "
-"роздільна здатність менша за вертикальну, вимикає горизонтальну "
-"інтерполяцію."
-
-#: backend/genesys/genesys.cpp:4877
+#: backend/genesys/genesys.cpp:4832
 #, no-c-format
 msgid "Color filter"
 msgstr "Фільтр кольору"
 
-#: backend/genesys/genesys.cpp:4880
+#: backend/genesys/genesys.cpp:4835
 #, no-c-format
 msgid "When using gray or lineart this option selects the used color."
 msgstr ""
 "За використання друку у півтонах або штрихового друку за допомогою цього "
 "пункту можна обрати колір друку."
 
-#: backend/genesys/genesys.cpp:4904
+#: backend/genesys/genesys.cpp:4859
 #, no-c-format
 msgid "Calibration file"
 msgstr "Файл калібрування"
 
-#: backend/genesys/genesys.cpp:4905
+#: backend/genesys/genesys.cpp:4860
 #, no-c-format
 msgid "Specify the calibration file to use"
 msgstr "Вкажіть файл даних калібрування, які буде використано"
 
-#: backend/genesys/genesys.cpp:4922
+#: backend/genesys/genesys.cpp:4877
 #, no-c-format
 msgid "Calibration cache expiration time"
 msgstr "Строк дії кешу калібрування"
 
-#: backend/genesys/genesys.cpp:4923
+#: backend/genesys/genesys.cpp:4878
 #, no-c-format
 msgid ""
 "Time (in minutes) before a cached calibration expires. A value of 0 "
@@ -3211,12 +3161,12 @@ msgstr ""
 "Від’ємні значення означають, що обмежень на строк дії кешу не "
 "накладатиметься."
 
-#: backend/genesys/genesys.cpp:4933
+#: backend/genesys/genesys.cpp:4888
 #, no-c-format
 msgid "Lamp off time"
 msgstr "Час вимикання лампи"
 
-#: backend/genesys/genesys.cpp:4936
+#: backend/genesys/genesys.cpp:4891
 #, no-c-format
 msgid ""
 "The lamp will be turned off after the given time (in minutes). A value "
@@ -3225,92 +3175,92 @@ msgstr ""
 "Лампу буде вимкнено, коли спливе вказаний час (у хвилинах). Значення "
 "рівне 0 означатиме, що лампа не вимикатиметься."
 
-#: backend/genesys/genesys.cpp:4946
+#: backend/genesys/genesys.cpp:4901
 #, no-c-format
 msgid "Lamp off during scan"
 msgstr "Вимикання лампи під час сканування"
 
-#: backend/genesys/genesys.cpp:4947
+#: backend/genesys/genesys.cpp:4902
 #, no-c-format
 msgid "The lamp will be turned off during scan. "
 msgstr "Лампу буде вимкнено під час сканування. "
 
-#: backend/genesys/genesys.cpp:4974 backend/genesys/genesys.cpp:4975
+#: backend/genesys/genesys.cpp:4929 backend/genesys/genesys.cpp:4930
 #, no-c-format
 msgid "File button"
 msgstr "Кнопка «File»"
 
-#: backend/genesys/genesys.cpp:5019 backend/genesys/genesys.cpp:5020
+#: backend/genesys/genesys.cpp:4974 backend/genesys/genesys.cpp:4975
 #, no-c-format
 msgid "OCR button"
 msgstr "Кнопка «OCR»"
 
-#: backend/genesys/genesys.cpp:5031 backend/genesys/genesys.cpp:5032
+#: backend/genesys/genesys.cpp:4986 backend/genesys/genesys.cpp:4987
 #, no-c-format
 msgid "Power button"
 msgstr "Кнопка «Power»"
 
-#: backend/genesys/genesys.cpp:5043 backend/genesys/genesys.cpp:5044
+#: backend/genesys/genesys.cpp:4998 backend/genesys/genesys.cpp:4999
 #, no-c-format
 msgid "Extra button"
 msgstr "Додаткова кнопка"
 
-#: backend/genesys/genesys.cpp:5055 backend/gt68xx.c:755
+#: backend/genesys/genesys.cpp:5010 backend/gt68xx.c:755
 #, no-c-format
 msgid "Needs calibration"
 msgstr "Потребує калібрування"
 
-#: backend/genesys/genesys.cpp:5056 backend/gt68xx.c:756 backend/p5.c:1928
+#: backend/genesys/genesys.cpp:5011 backend/gt68xx.c:756 backend/p5.c:1928
 #, no-c-format
 msgid "The scanner needs calibration for the current settings"
 msgstr "Для застосування поточних параметрів потрібне калібрування"
 
-#: backend/genesys/genesys.cpp:5067 backend/gt68xx.c:780
+#: backend/genesys/genesys.cpp:5022 backend/gt68xx.c:780
 #: backend/gt68xx.c:781 backend/p5.c:1937 backend/p5.c:1938
-#: backend/pixma/pixma_sane_options.c:226 backend/plustek.c:1080
+#: backend/pixma/pixma_sane_options.c:227 backend/plustek.c:1080
 #, no-c-format
 msgid "Buttons"
 msgstr "Кнопки"
 
-#: backend/genesys/genesys.cpp:5076 backend/gt68xx.c:787
+#: backend/genesys/genesys.cpp:5031 backend/gt68xx.c:787
 #: backend/hp-option.h:97 backend/hp5400_sane.c:536 backend/niash.c:726
 #: backend/p5.c:1945 backend/plustek.c:941
 #, no-c-format
 msgid "Calibrate"
 msgstr "Відкалібрувати"
 
-#: backend/genesys/genesys.cpp:5078 backend/gt68xx.c:789 backend/p5.c:1947
+#: backend/genesys/genesys.cpp:5033 backend/gt68xx.c:789 backend/p5.c:1947
 #, no-c-format
 msgid "Start calibration using special sheet"
 msgstr "Почати калібрування за допомогою спеціального аркуша"
 
-#: backend/genesys/genesys.cpp:5090 backend/gt68xx.c:802 backend/p5.c:1958
+#: backend/genesys/genesys.cpp:5045 backend/gt68xx.c:802 backend/p5.c:1958
 #, no-c-format
 msgid "Clear calibration"
 msgstr "Спорожнити дані калібрування"
 
-#: backend/genesys/genesys.cpp:5091 backend/gt68xx.c:803 backend/p5.c:1960
+#: backend/genesys/genesys.cpp:5046 backend/gt68xx.c:803 backend/p5.c:1960
 #, no-c-format
 msgid "Clear calibration cache"
 msgstr "Спорожнити кеш калібрування"
 
-#: backend/genesys/genesys.cpp:5101
+#: backend/genesys/genesys.cpp:5056
 #, no-c-format
 msgid "Force calibration"
 msgstr "Примусове калібрування"
 
-#: backend/genesys/genesys.cpp:5102
+#: backend/genesys/genesys.cpp:5057
 #, no-c-format
 msgid "Force calibration ignoring all and any calibration caches"
 msgstr ""
 "Примусове калібрування з ігноруванням усіх кешованих даних калібрування"
 
-#: backend/genesys/genesys.cpp:5112
+#: backend/genesys/genesys.cpp:5067
 #, no-c-format
 msgid "Ignore internal offsets"
 msgstr "Ігнорувати внутрішні відступи"
 
-#: backend/genesys/genesys.cpp:5114
+#: backend/genesys/genesys.cpp:5069
 #, no-c-format
 msgid ""
 "Acquires the image including the internal calibration areas of the "
@@ -4586,7 +4536,7 @@ msgstr "Визначає виразність зображення"
 
 #: backend/kvs1025_opt.c:807 backend/kvs1025_opt.c:808
 #: backend/matsushita.c:1300 backend/matsushita.c:1301
-#: backend/pixma/pixma_sane_options.c:112
+#: backend/pixma/pixma_sane_options.c:113
 #, no-c-format
 msgid "Gamma"
 msgstr "Гама"
@@ -4647,6 +4597,18 @@ msgstr ""
 "Мінімальний діаметр окремих плям, які слід усунути зі сканованого "
 "зображення"
 
+#: backend/kvs1025_opt.c:892
+#, no-c-format
+msgid "Software derotate"
+msgstr "Програмне усування обертання"
+
+#: backend/kvs1025_opt.c:894
+#, no-c-format
+msgid "Request driver to detect and correct 90 degree image rotation"
+msgstr ""
+"Вимагати від драйвера виявлення і виправлення обертання зображення на 90 "
+"градусів"
+
 #: backend/kvs1025_opt.c:901
 #, no-c-format
 msgid "Software automatic cropping"
@@ -4658,6 +4620,13 @@ msgid "Request driver to remove border from pages digitally"
 msgstr ""
 "Вимагати від драйвера вилучення границі зі сторінок у автоматичному "
 "режимі"
+
+#: backend/kvs1025_opt.c:912
+#, no-c-format
+msgid "Request driver to discard pages with low numbers of dark pixels"
+msgstr ""
+"Вимагати від драйвера відкидання сторінок з надто низькою кількістю "
+"темних пікселів"
 
 #: backend/kvs20xx_opt.c:233
 #, no-c-format
@@ -5543,27 +5512,38 @@ msgstr "Зображення"
 msgid "Need calibration"
 msgstr "Потребує калібрування"
 
-#: backend/pixma/pixma.c:398
+#: backend/pixma/pixma.c:401
 #, no-c-format
 msgid "Negative color"
 msgstr "Кольоровий негатив"
 
-#: backend/pixma/pixma.c:403
+#: backend/pixma/pixma.c:406
 #, no-c-format
 msgid "Negative gray"
 msgstr "Чорно-білий негатив"
 
-#: backend/pixma/pixma.c:416
+#: backend/pixma/pixma.c:419
 #, no-c-format
 msgid "48 bits color"
 msgstr "48-бітовий колір"
 
-#: backend/pixma/pixma.c:421
+#: backend/pixma/pixma.c:424
 #, no-c-format
 msgid "16 bits gray"
 msgstr "16-бітовий сірий"
 
-#: backend/pixma/pixma_sane_options.c:84
+#: backend/pixma/pixma.c:1011
+#, fuzzy, no-c-format
+msgid ""
+"Gamma-correction table with 4096 entries. In color mode this option "
+"equally affects the red, green, and blue channels simultaneously (i.e., "
+"it is an intensity gamma table)."
+msgstr ""
+"Таблиця виправлення гами. В кольоровому режимі цей параметр одночасно "
+"змінює параметри червоного, зеленого та синього каналів (тобто є "
+"таблицею інтенсивності гами)."
+
+#: backend/pixma/pixma_sane_options.c:85
 #, no-c-format
 msgid ""
 "Selects the scan source (such as a document-feeder). Set source before "
@@ -5573,12 +5553,12 @@ msgstr ""
 "Встановіть джерело перед режимом і роздільною здатністю. Відновлює "
 "автоматично визначені значення режиму та роздільної здатності."
 
-#: backend/pixma/pixma_sane_options.c:98
+#: backend/pixma/pixma_sane_options.c:99
 #, no-c-format
 msgid "Button-controlled scan"
 msgstr "Кероване кнопкою сканування"
 
-#: backend/pixma/pixma_sane_options.c:99
+#: backend/pixma/pixma_sane_options.c:100
 #, no-c-format
 msgid ""
 "When enabled, scan process will not start immediately. To proceed, press "
@@ -5589,37 +5569,70 @@ msgstr ""
 "негайно. Для продовження, натисніть кнопку «SCAN» (MP150) або "
 "«COLOR» (для інших моделей). Для скасування натисніть кнопку «GRAY»."
 
-#: backend/pixma/pixma_sane_options.c:232
+#: backend/pixma/pixma_sane_options.c:134
+#, fuzzy, no-c-format
+msgid ""
+"Gamma-correction table with 1024 entries. In color mode this option "
+"equally affects the red, green, and blue channels simultaneously (i.e., "
+"it is an intensity gamma table)."
+msgstr ""
+"Таблиця виправлення гами. В кольоровому режимі цей параметр одночасно "
+"змінює параметри червоного, зеленого та синього каналів (тобто є "
+"таблицею інтенсивності гами)."
+
+#: backend/pixma/pixma_sane_options.c:233
 #, no-c-format
 msgid "Update button state"
 msgstr "Оновити стан кнопки"
 
-#: backend/pixma/pixma_sane_options.c:244
+#: backend/pixma/pixma_sane_options.c:245
 #, no-c-format
 msgid "Button 1"
 msgstr "Кнопка 1"
 
-#: backend/pixma/pixma_sane_options.c:258
+#: backend/pixma/pixma_sane_options.c:259
 #, no-c-format
 msgid "Button 2"
 msgstr "Кнопка 2"
 
-#: backend/pixma/pixma_sane_options.c:272
+#: backend/pixma/pixma_sane_options.c:273
 #, no-c-format
 msgid "Type of original to scan"
 msgstr "Тип оригіналу для сканування"
 
-#: backend/pixma/pixma_sane_options.c:286
+#: backend/pixma/pixma_sane_options.c:287
 #, no-c-format
 msgid "Target operation type"
 msgstr "Тип дії для отримання результату"
 
-#: backend/pixma/pixma_sane_options.c:348
+#: backend/pixma/pixma_sane_options.c:315
+#, fuzzy, no-c-format
+msgid "Document type"
+msgstr "Подача документів"
+
+#: backend/pixma/pixma_sane_options.c:329
+#, fuzzy, no-c-format
+msgid "ADF status"
+msgstr "Стан лампи"
+
+#: backend/pixma/pixma_sane_options.c:343
+#, fuzzy, no-c-format
+msgid "ADF orientation"
+msgstr "Дія ПП"
+
+#: backend/pixma/pixma_sane_options.c:379
+#, no-c-format
+msgid "Dynamic threshold curve, from light to dark, normally 50-65"
+msgstr ""
+"Крива динамічного порогового значення, від світлого до темного, типово "
+"50-65"
+
+#: backend/pixma/pixma_sane_options.c:391
 #, no-c-format
 msgid "ADF Waiting Time"
 msgstr "Час очікування АПД"
 
-#: backend/pixma/pixma_sane_options.c:349
+#: backend/pixma/pixma_sane_options.c:392
 #, no-c-format
 msgid ""
 "When set, the scanner waits upto the specified time in seconds for a new "
@@ -6180,37 +6193,37 @@ msgstr "Кольоровий RGB"
 msgid "Color RGB TEXT"
 msgstr "Кольоровий RGB TEXT"
 
-#: backend/test.c:137
+#: backend/test.c:143
 #, no-c-format
 msgid "Solid black"
 msgstr "Суцільний чорний"
 
-#: backend/test.c:137
+#: backend/test.c:143
 #, no-c-format
 msgid "Solid white"
 msgstr "Суцільний білий"
 
-#: backend/test.c:138
+#: backend/test.c:144
 #, no-c-format
 msgid "Color pattern"
 msgstr "Кольоровий візерунок"
 
-#: backend/test.c:138
+#: backend/test.c:144
 #, no-c-format
 msgid "Grid"
 msgstr "Ґратка"
 
-#: backend/test.c:163 backend/test.c:171
+#: backend/test.c:169 backend/test.c:177
 #, no-c-format
 msgid "First entry"
 msgstr "Перший запис"
 
-#: backend/test.c:163 backend/test.c:171
+#: backend/test.c:169 backend/test.c:177
 #, no-c-format
 msgid "Second entry"
 msgstr "Другий запис"
 
-#: backend/test.c:165
+#: backend/test.c:171
 #, no-c-format
 msgid ""
 "This is the very long third entry. Maybe the frontend has an idea how to "
@@ -6218,12 +6231,12 @@ msgid ""
 msgstr ""
 "Третій запис є затримується. Можливо, оболонка не може його показати."
 
-#: backend/test.c:348
+#: backend/test.c:390
 #, no-c-format
 msgid "Hand-scanner simulation"
 msgstr "Імітація ручного сканера"
 
-#: backend/test.c:349
+#: backend/test.c:391
 #, no-c-format
 msgid ""
 "Simulate a hand-scanner.  Hand-scanners do not know the image height a "
@@ -6237,12 +6250,12 @@ msgstr ""
 "правильно обробити такі дані. Позначення цього пункту також увімкне "
 "фіксовану ширину у 11 см."
 
-#: backend/test.c:366
+#: backend/test.c:408
 #, no-c-format
 msgid "Three-pass simulation"
 msgstr "Імітація режиму трьох проходів"
 
-#: backend/test.c:367
+#: backend/test.c:409
 #, no-c-format
 msgid ""
 "Simulate a three-pass scanner. In color mode, three frames are "
@@ -6251,17 +6264,17 @@ msgstr ""
 "Імітувати сканування з трьома проходами. У кольоровому режимі буде "
 "повернуто три кадри."
 
-#: backend/test.c:382
+#: backend/test.c:424
 #, no-c-format
 msgid "Set the order of frames"
 msgstr "Визначити порядок кадрів"
 
-#: backend/test.c:383
+#: backend/test.c:425
 #, no-c-format
 msgid "Set the order of frames in three-pass color mode."
 msgstr "Визначити порядок кадрів у кольоровому режимі трьох проходів."
 
-#: backend/test.c:416
+#: backend/test.c:458
 #, no-c-format
 msgid ""
 "If Automatic Document Feeder is selected, the feeder will be 'empty' "
@@ -6270,17 +6283,17 @@ msgstr ""
 "Якщо обрано режим автоматичної подачі документів, пристрій подачі буде "
 "«спорожнено» після 10 сканувань."
 
-#: backend/test.c:431
+#: backend/test.c:473
 #, no-c-format
 msgid "Special Options"
 msgstr "Особливі параметри"
 
-#: backend/test.c:444
+#: backend/test.c:486
 #, no-c-format
 msgid "Select the test picture"
 msgstr "Оберіть тестове зображення"
 
-#: backend/test.c:446
+#: backend/test.c:488
 #, no-c-format
 msgid ""
 "Select the kind of test picture. Available options:\n"
@@ -6297,12 +6310,12 @@ msgstr ""
 "від режиму.\n"
 "Ґратка: намалює чорно-білу ґратку з шириною і висотою 10 мм на квадрат."
 
-#: backend/test.c:467
+#: backend/test.c:509
 #, no-c-format
 msgid "Invert endianness"
 msgstr "Інвертувати порядок байтів"
 
-#: backend/test.c:468
+#: backend/test.c:510
 #, no-c-format
 msgid ""
 "Exchange upper and lower byte of image data in 16 bit modes. This option "
@@ -6314,23 +6327,23 @@ msgstr ""
 "режимів оболонок, наприклад, перевірки правильності порядку байтів у "
 "оболонці."
 
-#: backend/test.c:484
+#: backend/test.c:526
 #, no-c-format
 msgid "Read limit"
 msgstr "Границя читання"
 
-#: backend/test.c:485
+#: backend/test.c:527
 #, no-c-format
 msgid "Limit the amount of data transferred with each call to sane_read()."
 msgstr ""
 "Обмежити об’єм даних, що передаються під час кожного виклику sane_read()."
 
-#: backend/test.c:498
+#: backend/test.c:540
 #, no-c-format
 msgid "Size of read-limit"
 msgstr "Розмір границі читання"
 
-#: backend/test.c:499
+#: backend/test.c:541
 #, no-c-format
 msgid ""
 "The (maximum) amount of data transferred with each call to sane_read()."
@@ -6338,33 +6351,33 @@ msgstr ""
 "Об’єм (максимальний) даних, які буде передано під час кожного з викликів "
 "sane_read()."
 
-#: backend/test.c:514
+#: backend/test.c:556
 #, no-c-format
 msgid "Read delay"
 msgstr "Затримка читання"
 
-#: backend/test.c:515
+#: backend/test.c:557
 #, no-c-format
 msgid "Delay the transfer of data to the pipe."
 msgstr "Затримка передавання даних до каналу."
 
-#: backend/test.c:527
+#: backend/test.c:569
 #, no-c-format
 msgid "Duration of read-delay"
 msgstr "Тривалість затримки читання"
 
-#: backend/test.c:528
+#: backend/test.c:570
 #, no-c-format
 msgid ""
 "How long to wait after transferring each buffer of data through the pipe."
 msgstr "Час очікування після передавання кожного з буферів даних каналом."
 
-#: backend/test.c:543
+#: backend/test.c:585
 #, no-c-format
 msgid "Return-value of sane_read"
 msgstr "Повернуте значення sane_read"
 
-#: backend/test.c:545
+#: backend/test.c:587
 #, no-c-format
 msgid ""
 "Select the return-value of sane_read(). \"Default\" is the normal "
@@ -6375,22 +6388,22 @@ msgstr ""
 "обробку сканування. Всі інші коди стану призначено для перевірки "
 "способів їх обробки оболонкою."
 
-#: backend/test.c:562
+#: backend/test.c:604
 #, no-c-format
 msgid "Loss of pixels per line"
 msgstr "Втрата точок на лінію"
 
-#: backend/test.c:564
+#: backend/test.c:606
 #, no-c-format
 msgid "The number of pixels that are wasted at the end of each line."
 msgstr "Кількість точок, які було втрачено наприкінці кожної з ліній."
 
-#: backend/test.c:577
+#: backend/test.c:619
 #, no-c-format
 msgid "Fuzzy parameters"
 msgstr "Параметри нечіткості"
 
-#: backend/test.c:578
+#: backend/test.c:620
 #, no-c-format
 msgid ""
 "Return fuzzy lines and bytes per line when sane_parameters() is called "
@@ -6399,12 +6412,12 @@ msgstr ""
 "Кількість повернутих неточних рядків і байтів, якщо sane_parameters() "
 "викликається до sane_start()."
 
-#: backend/test.c:605
+#: backend/test.c:647
 #, no-c-format
 msgid "Offer select file descriptor"
 msgstr "Пропонувати обрати дескриптор файла"
 
-#: backend/test.c:606
+#: backend/test.c:648
 #, no-c-format
 msgid ""
 "Offer a select filedescriptor for detecting if sane_read() will return "
@@ -6413,12 +6426,12 @@ msgstr ""
 "Пропонувати обрати дескриптор файла для визначення того, чи повертатиме "
 "sane_read() дані."
 
-#: backend/test.c:619
+#: backend/test.c:661
 #, no-c-format
 msgid "Enable test options"
 msgstr "Увімкнути параметри перевірки"
 
-#: backend/test.c:620
+#: backend/test.c:662
 #, no-c-format
 msgid ""
 "Enable various test options. This is for testing the ability of "
@@ -6427,27 +6440,27 @@ msgstr ""
 "Увімкнути різноманітні параметри перевірки. Призначено для перевірки "
 "можливостей оболонки переглядати і змінювати всі параметри SANE."
 
-#: backend/test.c:634
+#: backend/test.c:676
 #, no-c-format
 msgid "Print options"
 msgstr "Параметри друку"
 
-#: backend/test.c:635
+#: backend/test.c:677
 #, no-c-format
 msgid "Print a list of all options."
 msgstr "Надрукувати список всіх параметрів."
 
-#: backend/test.c:712
+#: backend/test.c:754
 #, no-c-format
 msgid "Bool test options"
 msgstr "Двійкові параметри перевірки"
 
-#: backend/test.c:725
+#: backend/test.c:767
 #, no-c-format
 msgid "(1/6) Bool soft select soft detect"
 msgstr "(1/6) Булевий програмний вибір програмне визначення"
 
-#: backend/test.c:727
+#: backend/test.c:769
 #, no-c-format
 msgid ""
 "(1/6) Bool test option that has soft select and soft detect (and "
@@ -6457,12 +6470,12 @@ msgstr ""
 "програмного вибору і програмного визначення (та додаткових). Це "
 "звичайний булевий параметр."
 
-#: backend/test.c:743
+#: backend/test.c:785
 #, no-c-format
 msgid "(2/6) Bool hard select soft detect"
 msgstr "(2/6) Булевий апаратний вибір програмне визначення"
 
-#: backend/test.c:745
+#: backend/test.c:787
 #, no-c-format
 msgid ""
 "(2/6) Bool test option that has hard select and soft detect (and "
@@ -6474,12 +6487,12 @@ msgstr ""
 "що параметр не може бути встановлено оболонкою, лише користувачем "
 "(наприклад, натисканням кнопки на пристрої)."
 
-#: backend/test.c:762
+#: backend/test.c:804
 #, no-c-format
 msgid "(3/6) Bool hard select"
 msgstr "(3/6) Булевий апаратний вибір"
 
-#: backend/test.c:763
+#: backend/test.c:805
 #, no-c-format
 msgid ""
 "(3/6) Bool test option that has hard select (and advanced) capabilities. "
@@ -6491,12 +6504,12 @@ msgstr ""
 "встановлено оболонкою, лише користувачем (наприклад, натисканням кнопки "
 "на пристрої), оболонка не може читати дані за такої конфігурації."
 
-#: backend/test.c:781
+#: backend/test.c:823
 #, no-c-format
 msgid "(4/6) Bool soft detect"
 msgstr "(4/6) М’яке булівське виявлення"
 
-#: backend/test.c:782
+#: backend/test.c:824
 #, no-c-format
 msgid ""
 "(4/6) Bool test option that has soft detect (and advanced) capabilities. "
@@ -6506,12 +6519,12 @@ msgstr ""
 "програмного визначення (та додаткових). Це означає, що параметр "
 "призначено лише для читання."
 
-#: backend/test.c:798
+#: backend/test.c:840
 #, no-c-format
 msgid "(5/6) Bool soft select soft detect emulated"
 msgstr "(5/6) Булева емуляція програмного вибору і програмного визначення"
 
-#: backend/test.c:799
+#: backend/test.c:841
 #, no-c-format
 msgid ""
 "(5/6) Bool test option that has soft select, soft detect, and emulated "
@@ -6520,12 +6533,12 @@ msgstr ""
 "(5/6) Булевий параметр перевірки, який визначає наявність можливостей "
 "програмного вибору, програмного визначення та емуляції (та додаткових)."
 
-#: backend/test.c:815
+#: backend/test.c:857
 #, no-c-format
 msgid "(6/6) Bool soft select soft detect auto"
 msgstr "(6/6) Булевий автоматичний програмний вибір, програмне визначення"
 
-#: backend/test.c:816
+#: backend/test.c:858
 #, no-c-format
 msgid ""
 "(6/6) Bool test option that has soft select, soft detect, and automatic "
@@ -6537,29 +6550,29 @@ msgstr ""
 "додаткових) можливостей. Цей параметри може автоматично встановлюватися "
 "сервером."
 
-#: backend/test.c:833
+#: backend/test.c:875
 #, no-c-format
 msgid "Int test options"
 msgstr "Цілочисельні параметри перевірки"
 
-#: backend/test.c:846
+#: backend/test.c:888
 #, no-c-format
 msgid "(1/6) Int"
 msgstr "(1/6) Цілочисельний"
 
-#: backend/test.c:847
+#: backend/test.c:889
 #, no-c-format
 msgid "(1/6) Int test option with no unit and no constraint set."
 msgstr ""
 "(1/6) Цілочисельний параметр перевірки без одиниці виміру і набору "
 "обмежень."
 
-#: backend/test.c:862
+#: backend/test.c:904
 #, no-c-format
 msgid "(2/6) Int constraint range"
 msgstr "(2/6) Цілочисельний діапазон обмеження"
 
-#: backend/test.c:863
+#: backend/test.c:905
 #, no-c-format
 msgid ""
 "(2/6) Int test option with unit pixel and constraint range set. Minimum "
@@ -6569,24 +6582,24 @@ msgstr ""
 "обмежень. Мінімальним значенням може бути 4, максимальним — 192, крок — "
 "2."
 
-#: backend/test.c:879
+#: backend/test.c:921
 #, no-c-format
 msgid "(3/6) Int constraint word list"
 msgstr "(3/6) Цілочисельний список обмежень слів"
 
-#: backend/test.c:880
+#: backend/test.c:922
 #, no-c-format
 msgid "(3/6) Int test option with unit bits and constraint word list set."
 msgstr ""
 "(3/6) Цілочисельний параметр перевірки з одиницею виміру біт і набором "
 "обмежень списку слів."
 
-#: backend/test.c:895
+#: backend/test.c:937
 #, no-c-format
 msgid "(4/6) Int array"
 msgstr "(4/6) Цілочисельний масив"
 
-#: backend/test.c:896
+#: backend/test.c:938
 #, no-c-format
 msgid ""
 "(4/6) Int test option with unit mm and using an array without "
@@ -6595,12 +6608,12 @@ msgstr ""
 "(4/6) Цілочисельний параметр перевірки з одиницею виміру міліметри і "
 "використанням масиву без обмежень."
 
-#: backend/test.c:911
+#: backend/test.c:953
 #, no-c-format
 msgid "(5/6) Int array constraint range"
 msgstr "(2/6) Цілочисельний масив з діапазоном обмеження"
 
-#: backend/test.c:912
+#: backend/test.c:954
 #, no-c-format
 msgid ""
 "(5/6) Int test option with unit dpi and using an array with a range "
@@ -6610,12 +6623,12 @@ msgstr ""
 "використанням масиву обмежень діапазону. Мінімальним значенням може бути "
 "4, максимальним — 192, крок — 2."
 
-#: backend/test.c:929
+#: backend/test.c:1028
 #, no-c-format
 msgid "(6/6) Int array constraint word list"
 msgstr "(6/6) Цілочисельний масив зі списком обмежень слів"
 
-#: backend/test.c:930
+#: backend/test.c:1029
 #, no-c-format
 msgid ""
 "(6/6) Int test option with unit percent and using an array with a word "
@@ -6624,29 +6637,29 @@ msgstr ""
 "(6/6) Цілочисельний параметр з розмірністю у відсотках з використанням "
 "масиву обмежень списку слів."
 
-#: backend/test.c:946
+#: backend/test.c:1045
 #, no-c-format
 msgid "Fixed test options"
 msgstr "Дробовочислові параметри перевірки"
 
-#: backend/test.c:959
+#: backend/test.c:1058
 #, no-c-format
 msgid "(1/3) Fixed"
 msgstr "(1/3) Дробовочисловий"
 
-#: backend/test.c:960
+#: backend/test.c:1059
 #, no-c-format
 msgid "(1/3) Fixed test option with no unit and no constraint set."
 msgstr ""
 "(1/3) Дробовочисловий параметр перевірки без одиниці виміру і без набору "
 "обмежень."
 
-#: backend/test.c:975
+#: backend/test.c:1074
 #, no-c-format
 msgid "(2/3) Fixed constraint range"
 msgstr "(2/3) Фіксований обмежений діапазон"
 
-#: backend/test.c:976
+#: backend/test.c:1075
 #, no-c-format
 msgid ""
 "(2/3) Fixed test option with unit microsecond and constraint range set. "
@@ -6656,49 +6669,49 @@ msgstr ""
 "обмежень. Мінімальним значенням може бути -42.17, максимальним — "
 "32767.9999, крок — 2.0."
 
-#: backend/test.c:992
+#: backend/test.c:1091
 #, no-c-format
 msgid "(3/3) Fixed constraint word list"
 msgstr "(3/3) Фіксований обмежений список слів"
 
-#: backend/test.c:993
+#: backend/test.c:1092
 #, no-c-format
 msgid "(3/3) Fixed test option with no unit and constraint word list set."
 msgstr ""
 "(3/3) Дробовочисловий параметр перевірки без одиниці виміру і набором "
 "обмежень списку слів."
 
-#: backend/test.c:1008
+#: backend/test.c:1107
 #, no-c-format
 msgid "String test options"
 msgstr "Рядкові параметри перевірки"
 
-#: backend/test.c:1021
+#: backend/test.c:1120
 #, no-c-format
 msgid "(1/3) String"
 msgstr "(1/3) Рядок"
 
-#: backend/test.c:1022
+#: backend/test.c:1121
 #, no-c-format
 msgid "(1/3) String test option without constraint."
 msgstr "(1/3) Варіант перевірки рядків без обмежень."
 
-#: backend/test.c:1039
+#: backend/test.c:1138
 #, no-c-format
 msgid "(2/3) String constraint string list"
 msgstr "(2/3) Рядкова з обмеженим списком рядків"
 
-#: backend/test.c:1040
+#: backend/test.c:1139
 #, no-c-format
 msgid "(2/3) String test option with string list constraint."
 msgstr "(2/3) Варіант перевірки рядків з обмеженням на список рядків."
 
-#: backend/test.c:1059
+#: backend/test.c:1158
 #, no-c-format
 msgid "(3/3) String constraint long string list"
 msgstr "(3/3) Рядкова з обмеженим довгим списком рядків"
 
-#: backend/test.c:1060
+#: backend/test.c:1159
 #, no-c-format
 msgid ""
 "(3/3) String test option with string list constraint. Contains some more "
@@ -6707,17 +6720,17 @@ msgstr ""
 "(3/3) Варіант перевірки рядків з обмеженням на список рядків. Містить "
 "дещо більше записів..."
 
-#: backend/test.c:1080
+#: backend/test.c:1179
 #, no-c-format
 msgid "Button test options"
 msgstr "Параметри перевірки кнопок"
 
-#: backend/test.c:1093
+#: backend/test.c:1192
 #, no-c-format
 msgid "(1/1) Button"
 msgstr "(1/1) Кнопка"
 
-#: backend/test.c:1094
+#: backend/test.c:1193
 #, no-c-format
 msgid "(1/1) Button test option. Prints some text..."
 msgstr "(1/1) Варіант перевірки кнопок. Друкує текст..."
@@ -6856,3 +6869,20 @@ msgstr "Визначає зсув каналу зеленого"
 #, no-c-format
 msgid "Sets blue channel offset"
 msgstr "Визначає зсув каналу синього"
+
+#~ msgid "Request backend to remove border from pages digitally"
+#~ msgstr ""
+#~ "Вимагати від програмного модуля вилучення границі зі сторінок у "
+#~ "автоматичному режимі"
+
+#~ msgid "Disable interpolation"
+#~ msgstr "Вимкнути інтерполяцію"
+
+#~ msgid ""
+#~ "When using high resolutions where the horizontal resolution is "
+#~ "smaller than the vertical resolution this disables horizontal "
+#~ "interpolation."
+#~ msgstr ""
+#~ "За використання високих роздільних здатностей, коли горизонтальна "
+#~ "роздільна здатність менша за вертикальну, вимикає горизонтальну "
+#~ "інтерполяцію."

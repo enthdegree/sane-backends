@@ -2130,6 +2130,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len,
       && s->byte_count >= s->reader->params.pixel_xs)
     {
       DBG (4, "sane_read: nothing more to scan: EOF\n");
+      gt68xx_scanner_stop_scan(s);
       return SANE_STATUS_EOF;
     }
 
@@ -2343,8 +2344,10 @@ sane_cancel (SANE_Handle handle)
           gt68xx_device_carriage_home (s->dev);
         }
       if (s->gamma_table)
-        free (s->gamma_table);
-      s->gamma_table = 0;
+        {
+          free (s->gamma_table);
+          s->gamma_table = 0;
+        }
     }
   else
     {

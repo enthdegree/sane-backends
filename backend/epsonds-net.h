@@ -4,9 +4,9 @@
 #include <sys/types.h>
 #include "../include/sane/sane.h"
 
-extern int epsonds_net_read(struct epsonds_scanner *s, unsigned char *buf, ssize_t buf_size,
+extern ssize_t epsonds_net_read(struct epsonds_scanner *s, unsigned char *buf, ssize_t buf_size,
 				SANE_Status *status);
-extern int epsonds_net_write(struct epsonds_scanner *s, unsigned int cmd, const unsigned char *buf,
+extern size_t epsonds_net_write(struct epsonds_scanner *s, unsigned int cmd, const unsigned char *buf,
 				size_t buf_size, size_t reply_len,
 				SANE_Status *status);
 extern SANE_Status epsonds_net_lock(struct epsonds_scanner *s);

@@ -247,8 +247,8 @@ open_scanner(epsonds_scanner *s)
 
 			/* the scanner sends a kind of welcome msg */
 			// XXX check command type, answer to connect is 0x80
-			read = eds_recv(s, buf, 3, &status);
-			if (read != 3) {
+			read = eds_recv(s, buf, 5, &status);
+			if (read != 5) {
 				sanei_tcp_close(s->fd);
 				s->fd = -1;
 				return SANE_STATUS_IO_ERROR;

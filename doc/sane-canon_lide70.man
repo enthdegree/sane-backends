@@ -21,9 +21,8 @@ the sane\-devel mailing list <sane\-devel@alioth-lists.debian.net>
 The
 .B Canoscan LiDE 600
 (or 600f, with film unit) is closely related to the LiDE 70, but
-it probably will not work with this backend. The framework of this canon_lide70
-backend could likely be used to develop a backend for the LiDE 600 without too
-much difficulty.
+it does not work with this backend. Support for the LiDE 600 will
+be added by the end of 2020.
 .PP
 .SH CONFIGURATION
 The
@@ -93,7 +92,7 @@ be remedied by shifting the document one millimeter downward, in cases
 where such precision matters. Note that xsane uses the 75 dpi mode for
 prescans.
 .PP
-It is recommended that in xsane the gamma value be set to approximately 2.0
+It is recommended that in xsane the gamma value be set to approximately 1.5
 to get more realistic colors. This also wipes out some artifacts caused by
 the lack of real calibration.
 .SH "SEE ALSO"

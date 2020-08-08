@@ -15,7 +15,8 @@ $ make install
 
 2.1. Install with your preferred package manager:
      (a) the development environment for your Linux distibution
-         - mandatory: gcc, make, kernel header files, autoconf, autoconf-archive
+         - mandatory: gcc, make, kernel header files, autoconf, autoconf-archive,
+                      python(>=2.7)
          - optional:  git
      (b) missing development packages
          - libusb-dev or libusb-devel or libusb-compat-devel

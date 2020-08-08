@@ -45,10 +45,10 @@ msgstr "Standard"
 #: backend/kvs40xx_opt.c:506 backend/leo.c:823 backend/lexmark.c:199
 #: backend/ma1509.c:551 backend/matsushita.c:1135 backend/microtek2.h:599
 #: backend/mustek.c:4373 backend/mustek_usb.c:301 backend/mustek_usb2.c:465
-#: backend/pixma/pixma_sane_options.c:160 backend/plustek.c:808
+#: backend/pixma/pixma_sane_options.c:161 backend/plustek.c:808
 #: backend/plustek_pp.c:747 backend/sceptre.c:702
 #: backend/snapscan-options.c:550 backend/teco1.c:1095 backend/teco2.c:1910
-#: backend/teco3.c:920 backend/test.c:647 backend/u12.c:546
+#: backend/teco3.c:920 backend/test.c:689 backend/u12.c:546
 #: backend/umax.c:5176 backend/umax_pp.c:570
 #, no-c-format
 msgid "Geometry"
@@ -97,7 +97,7 @@ msgid "Bit depth"
 msgstr "Bittiefe"
 
 #: include/sane/saneopts.h:165 backend/canon.c:1140 backend/leo.c:781
-#: backend/pixma/pixma_sane_options.c:47
+#: backend/pixma/pixma_sane_options.c:48
 #, no-c-format
 msgid "Scan mode"
 msgstr "Scanmodus"
@@ -139,7 +139,7 @@ msgid "Bottom-right y"
 msgstr "Rechts-unten y"
 
 #: include/sane/saneopts.h:173 backend/canon.c:1216
-#: backend/pixma/pixma_sane_options.c:300
+#: backend/pixma/pixma_sane_options.c:301
 #, no-c-format
 msgid "Scan resolution"
 msgstr "Scanauflösung"
@@ -1053,22 +1053,22 @@ msgstr ""
 msgid "Button state"
 msgstr "Tasten-Status"
 
-#: backend/avision.h:778
+#: backend/avision.h:834
 #, no-c-format
 msgid "Number of the frame to scan"
 msgstr "Nummer des zu scannenden Bildes"
 
-#: backend/avision.h:779
+#: backend/avision.h:835
 #, no-c-format
 msgid "Selects the number of the frame to scan"
 msgstr "Wählt die Nummer des zu scannenden Bildes aus"
 
-#: backend/avision.h:782
+#: backend/avision.h:838
 #, no-c-format
 msgid "Duplex scan"
 msgstr "Duplexscan"
 
-#: backend/avision.h:783
+#: backend/avision.h:839
 #, no-c-format
 msgid ""
 "Duplex scan provides a scan of the front and back side of the document"
@@ -1581,9 +1581,9 @@ msgstr "Wählt die korrigierte Gammakurve aus"
 #: backend/hp3900_sane.c:418 backend/hp3900_sane.c:427
 #: backend/hp3900_sane.c:1017 backend/hp5590.c:92 backend/kodakaio.c:617
 #: backend/ma1509.c:108 backend/magicolor.c:181 backend/mustek.c:156
-#: backend/mustek.c:160 backend/mustek.c:164 backend/pixma/pixma.c:972
-#: backend/pixma/pixma_sane_options.c:92 backend/snapscan-options.c:86
-#: backend/test.c:192 backend/umax.c:181
+#: backend/mustek.c:160 backend/mustek.c:164 backend/pixma/pixma.c:978
+#: backend/pixma/pixma_sane_options.c:93 backend/snapscan-options.c:86
+#: backend/test.c:234 backend/umax.c:181
 #, no-c-format
 msgid "Flatbed"
 msgstr "Flachbett"
@@ -1601,7 +1601,7 @@ msgid "ADF Back"
 msgstr "Automatischer Dokumenteneinzug hinten"
 
 #: backend/canon_dr.c:416 backend/epjitsu.c:236 backend/fujitsu.c:684
-#: backend/hp5590.c:94 backend/kodak.c:142 backend/pixma/pixma.c:983
+#: backend/hp5590.c:94 backend/kodak.c:142 backend/pixma/pixma.c:989
 #, no-c-format
 msgid "ADF Duplex"
 msgstr "Dokumenteneinzug mit Duplex"
@@ -1695,18 +1695,18 @@ msgstr "Seiten mit geringer Pixeldichte überspringen"
 #: backend/mustek_usb.c:256 backend/mustek_usb2.c:344 backend/niash.c:734
 #: backend/plustek.c:721 backend/plustek_pp.c:658 backend/sceptre.c:673
 #: backend/snapscan-options.c:354 backend/stv680.c:1030
-#: backend/teco2.c:1882 backend/test.c:306 backend/u12.c:473
+#: backend/teco2.c:1882 backend/test.c:348 backend/u12.c:473
 #: backend/umax.c:5054
 #, no-c-format
 msgid "Scan Mode"
 msgstr "Scanmodus"
 
-#: backend/canon_lide70.c:400 backend/test.c:591
+#: backend/canon_lide70.c:400 backend/test.c:633
 #, no-c-format
 msgid "Use non-blocking IO"
 msgstr "Nichtblockierendes IO"
 
-#: backend/canon_lide70.c:401 backend/test.c:592
+#: backend/canon_lide70.c:401 backend/test.c:634
 #, no-c-format
 msgid "Use non-blocking IO for sane_read() if supported by the frontend."
 msgstr ""
@@ -1728,7 +1728,7 @@ msgid "Duplex"
 msgstr "Duplex"
 
 #: backend/epson.c:502 backend/epson2-ops.c:102 backend/epson2.c:116
-#: backend/epsonds-ops.c:33 backend/epsonds.h:63 backend/pixma/pixma.c:989
+#: backend/epsonds-ops.c:33 backend/epsonds.h:63 backend/pixma/pixma.c:995
 #, no-c-format
 msgid "Transparency Unit"
 msgstr "Durchlichtaufsatz"
@@ -1736,7 +1736,7 @@ msgstr "Durchlichtaufsatz"
 #: backend/epson.c:503 backend/epson2-ops.c:104 backend/epson2.c:118
 #: backend/epsonds-ops.c:34 backend/epsonds.c:98 backend/epsonds.h:64
 #: backend/kodakaio.c:618 backend/magicolor.c:182 backend/mustek.c:160
-#: backend/pixma/pixma.c:977 backend/test.c:192 backend/umax.c:183
+#: backend/pixma/pixma.c:983 backend/test.c:234 backend/umax.c:183
 #, no-c-format
 msgid "Automatic Document Feeder"
 msgstr "Automatischer Dokumenteneinzug"
@@ -1849,7 +1849,7 @@ msgid "CRT monitors"
 msgstr "Monitore"
 
 #: backend/epson.c:656 backend/epson2.c:254 backend/fujitsu.c:694
-#: backend/hp-option.c:3229 backend/test.c:143
+#: backend/hp-option.c:3229 backend/test.c:149
 #, no-c-format
 msgid "Default"
 msgstr "Standardeinstellung"
@@ -2159,7 +2159,7 @@ msgstr ""
 msgid "TPU8x10"
 msgstr "Durchlichtaufsatz 8x10"
 
-#: backend/epson2.c:102 backend/pixma/pixma.c:410
+#: backend/epson2.c:102 backend/pixma/pixma.c:413
 #, no-c-format
 msgid "Infrared"
 msgstr "Infrarot"
@@ -2317,12 +2317,12 @@ msgstr "Vorne"
 msgid "Back"
 msgstr "Hinten"
 
-#: backend/fujitsu.c:3173 backend/pixma/pixma_sane_options.c:145
+#: backend/fujitsu.c:3173 backend/pixma/pixma_sane_options.c:146
 #, no-c-format
 msgid "Gamma function exponent"
 msgstr "Gamma-Exponent"
 
-#: backend/fujitsu.c:3174 backend/pixma/pixma_sane_options.c:146
+#: backend/fujitsu.c:3174 backend/pixma/pixma_sane_options.c:147
 #, no-c-format
 msgid "Changes intensity of midtones"
 msgstr "Verändert die Intensität der mittleren Farbtöne"
@@ -2434,7 +2434,7 @@ msgstr ""
 "Gammakurve, von hell zu dunkel, die oberen beiden funktionieren nicht "
 "unbedingt"
 
-#: backend/fujitsu.c:3422 backend/pixma/pixma_sane_options.c:335
+#: backend/fujitsu.c:3422 backend/pixma/pixma_sane_options.c:378
 #, no-c-format
 msgid "Threshold curve"
 msgstr "Schwellwertkurve"
@@ -3024,7 +3024,7 @@ msgstr "OMR oder Double Feed erkannt"
 #: backend/fujitsu.c:4504
 #, no-c-format
 msgid "Card loaded"
-msgstr "Karte geladen"
+msgstr "Seite geladen"
 
 #: backend/fujitsu.c:4505
 #, no-c-format
@@ -3126,7 +3126,7 @@ msgstr "Dichte Einstellung"
 msgid "Duplex switch"
 msgstr "Duplexscan"
 
-#: backend/genesys/genesys.cpp:4823 backend/pixma/pixma_sane_options.c:314
+#: backend/genesys/genesys.cpp:4823 backend/pixma/pixma_sane_options.c:357
 #, no-c-format
 msgid "Extras"
 msgstr "Extras"
@@ -3225,7 +3225,7 @@ msgstr ""
 
 #: backend/genesys/genesys.cpp:5022 backend/gt68xx.c:780
 #: backend/gt68xx.c:781 backend/p5.c:1937 backend/p5.c:1938
-#: backend/pixma/pixma_sane_options.c:226 backend/plustek.c:1080
+#: backend/pixma/pixma_sane_options.c:227 backend/plustek.c:1080
 #, no-c-format
 msgid "Buttons"
 msgstr "Tasten"
@@ -3893,7 +3893,7 @@ msgid "Reprint Photos button"
 msgstr "Foto-Taste"
 
 #: backend/hp5400_sane.c:428
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Button for reprinting photos"
 msgstr "Foto-Taste"
 
@@ -4535,7 +4535,7 @@ msgstr "Wählt die Bildgewichtung"
 
 #: backend/kvs1025_opt.c:807 backend/kvs1025_opt.c:808
 #: backend/matsushita.c:1300 backend/matsushita.c:1301
-#: backend/pixma/pixma_sane_options.c:112
+#: backend/pixma/pixma_sane_options.c:113
 #, no-c-format
 msgid "Gamma"
 msgstr "Gamma"
@@ -5502,28 +5502,28 @@ msgstr "Bild"
 msgid "Need calibration"
 msgstr "Benötigt Kalibrierung"
 
-#: backend/pixma/pixma.c:398
+#: backend/pixma/pixma.c:401
 #, no-c-format
 msgid "Negative color"
 msgstr "Negativfilm Farbe"
 
-#: backend/pixma/pixma.c:403
+#: backend/pixma/pixma.c:406
 #, no-c-format
 msgid "Negative gray"
 msgstr "Negativfilm Graustufen"
 
-#: backend/pixma/pixma.c:416
+#: backend/pixma/pixma.c:419
 #, no-c-format
 msgid "48 bits color"
 msgstr "48 Bit Farbe"
 
-#: backend/pixma/pixma.c:421
+#: backend/pixma/pixma.c:424
 #, no-c-format
 msgid "16 bits gray"
 msgstr "16 Bit Graustufen"
 
-#: backend/pixma/pixma.c:1005
-#, no-c-format
+#: backend/pixma/pixma.c:1011
+#, fuzzy, no-c-format
 msgid ""
 "Gamma-correction table with 4096 entries. In color mode this option "
 "equally affects the red, green, and blue channels simultaneously (i.e., "
@@ -5533,7 +5533,7 @@ msgstr ""
 "Option auf die rote, grüne und blaue Farbkomponente aus. Es ist also "
 "eine Helligkeits-Gammatabelle."
 
-#: backend/pixma/pixma_sane_options.c:84
+#: backend/pixma/pixma_sane_options.c:85
 #, no-c-format
 msgid ""
 "Selects the scan source (such as a document-feeder). Set source before "
@@ -5543,12 +5543,12 @@ msgstr ""
 "muss vor Scanmodus und Scanauflösung ausgewählt werden. Setzt die "
 "Einstellungen für Scanmodus und Scanauflösung zurück."
 
-#: backend/pixma/pixma_sane_options.c:98
+#: backend/pixma/pixma_sane_options.c:99
 #, no-c-format
 msgid "Button-controlled scan"
 msgstr "Scannen auf Tastendruck"
 
-#: backend/pixma/pixma_sane_options.c:99
+#: backend/pixma/pixma_sane_options.c:100
 #, no-c-format
 msgid ""
 "When enabled, scan process will not start immediately. To proceed, press "
@@ -5559,8 +5559,8 @@ msgstr ""
 "Fortsetzen drücken Sie die Taste \"SCAN\" beim MP1500 oder \"COLOR\" bei "
 "anderen Modellen. Zum Abbrechen drücken Sie die Taste \"GRAY\"."
 
-#: backend/pixma/pixma_sane_options.c:133
-#, no-c-format
+#: backend/pixma/pixma_sane_options.c:134
+#, fuzzy, no-c-format
 msgid ""
 "Gamma-correction table with 1024 entries. In color mode this option "
 "equally affects the red, green, and blue channels simultaneously (i.e., "
@@ -5570,43 +5570,58 @@ msgstr ""
 "Option auf die rote, grüne und blaue Farbkomponente aus. Es ist also "
 "eine Helligkeits-Gammatabelle."
 
-#: backend/pixma/pixma_sane_options.c:232
+#: backend/pixma/pixma_sane_options.c:233
 #, no-c-format
 msgid "Update button state"
 msgstr "Tasten-Status aktualisieren"
 
-#: backend/pixma/pixma_sane_options.c:244
+#: backend/pixma/pixma_sane_options.c:245
 #, no-c-format
 msgid "Button 1"
 msgstr "Taste 1"
 
-#: backend/pixma/pixma_sane_options.c:258
+#: backend/pixma/pixma_sane_options.c:259
 #, no-c-format
 msgid "Button 2"
 msgstr "Taste 2"
 
-#: backend/pixma/pixma_sane_options.c:272
+#: backend/pixma/pixma_sane_options.c:273
 #, no-c-format
 msgid "Type of original to scan"
 msgstr "Vorlagentyp"
 
-#: backend/pixma/pixma_sane_options.c:286
+#: backend/pixma/pixma_sane_options.c:287
 #, no-c-format
 msgid "Target operation type"
 msgstr "Scanziel"
 
-#: backend/pixma/pixma_sane_options.c:336
+#: backend/pixma/pixma_sane_options.c:315
+#, fuzzy, no-c-format
+msgid "Document type"
+msgstr "Dokumenteneinzug"
+
+#: backend/pixma/pixma_sane_options.c:329
+#, fuzzy, no-c-format
+msgid "ADF status"
+msgstr "Lampenstatus"
+
+#: backend/pixma/pixma_sane_options.c:343
+#, fuzzy, no-c-format
+msgid "ADF orientation"
+msgstr "Duplex Aktion"
+
+#: backend/pixma/pixma_sane_options.c:379
 #, no-c-format
 msgid "Dynamic threshold curve, from light to dark, normally 50-65"
 msgstr ""
 "Dynamische Schwellwertkurve, von hell zu dunkel, nomalerweise 50-65"
 
-#: backend/pixma/pixma_sane_options.c:348
+#: backend/pixma/pixma_sane_options.c:391
 #, no-c-format
 msgid "ADF Waiting Time"
 msgstr "Wartezeit Dokumenteneinzug"
 
-#: backend/pixma/pixma_sane_options.c:349
+#: backend/pixma/pixma_sane_options.c:392
 #, no-c-format
 msgid ""
 "When set, the scanner waits upto the specified time in seconds for a new "
@@ -6167,37 +6182,37 @@ msgstr "Farbe RGB"
 msgid "Color RGB TEXT"
 msgstr "Farbe RGB TEXT"
 
-#: backend/test.c:137
+#: backend/test.c:143
 #, no-c-format
 msgid "Solid black"
 msgstr "Komplett schwarz"
 
-#: backend/test.c:137
+#: backend/test.c:143
 #, no-c-format
 msgid "Solid white"
 msgstr "Komplett weiß"
 
-#: backend/test.c:138
+#: backend/test.c:144
 #, no-c-format
 msgid "Color pattern"
 msgstr "Farbmuster"
 
-#: backend/test.c:138
+#: backend/test.c:144
 #, no-c-format
 msgid "Grid"
 msgstr "Gitter"
 
-#: backend/test.c:163 backend/test.c:171
+#: backend/test.c:169 backend/test.c:177
 #, no-c-format
 msgid "First entry"
 msgstr "Erster Eintrag"
 
-#: backend/test.c:163 backend/test.c:171
+#: backend/test.c:169 backend/test.c:177
 #, no-c-format
 msgid "Second entry"
 msgstr "Zweiter Eintrag"
 
-#: backend/test.c:165
+#: backend/test.c:171
 #, no-c-format
 msgid ""
 "This is the very long third entry. Maybe the frontend has an idea how to "
@@ -6206,12 +6221,12 @@ msgstr ""
 "Dies ist der sehr lange dritte Eintrag; vielleicht weiß das Frontend, "
 "wie man ihn darstellen kann"
 
-#: backend/test.c:348
+#: backend/test.c:390
 #, no-c-format
 msgid "Hand-scanner simulation"
 msgstr "Handscanner-Simulation"
 
-#: backend/test.c:349
+#: backend/test.c:391
 #, no-c-format
 msgid ""
 "Simulate a hand-scanner.  Hand-scanners do not know the image height a "
@@ -6224,12 +6239,12 @@ msgstr ""
 "-1 zurück. Mit dieser Option kann man prüfen, ob das Frontend damit "
 "richtig umgehen kann."
 
-#: backend/test.c:366
+#: backend/test.c:408
 #, no-c-format
 msgid "Three-pass simulation"
 msgstr "Three-Pass Simulation"
 
-#: backend/test.c:367
+#: backend/test.c:409
 #, no-c-format
 msgid ""
 "Simulate a three-pass scanner. In color mode, three frames are "
@@ -6238,17 +6253,17 @@ msgstr ""
 "Simuliere einen Three-Pass-Scanner. Im Farbmodus werden drei Frames "
 "übertragen."
 
-#: backend/test.c:382
+#: backend/test.c:424
 #, no-c-format
 msgid "Set the order of frames"
 msgstr "Legt die Reihenfolge der Frames fest"
 
-#: backend/test.c:383
+#: backend/test.c:425
 #, no-c-format
 msgid "Set the order of frames in three-pass color mode."
 msgstr "Legt die Reihenfolge der Frames im Three-Pass-Modus fest."
 
-#: backend/test.c:416
+#: backend/test.c:458
 #, no-c-format
 msgid ""
 "If Automatic Document Feeder is selected, the feeder will be 'empty' "
@@ -6257,17 +6272,17 @@ msgstr ""
 "Falls der automatische Dokumenteneinzug ausgewählt ist, meldet der "
 "Einzug \"leer\" nach 10 Scans."
 
-#: backend/test.c:431
+#: backend/test.c:473
 #, no-c-format
 msgid "Special Options"
 msgstr "Spezialoptionen"
 
-#: backend/test.c:444
+#: backend/test.c:486
 #, no-c-format
 msgid "Select the test picture"
 msgstr "Wählt das Testbild aus"
 
-#: backend/test.c:446
+#: backend/test.c:488
 #, no-c-format
 msgid ""
 "Select the kind of test picture. Available options:\n"
@@ -6285,12 +6300,12 @@ msgstr ""
 "Gitter: zeichnet ein Schwarz-Weiß-Gitter mit einer Höhe und Breite der "
 "einzelnen Felder von jeweils 10 mm."
 
-#: backend/test.c:467
+#: backend/test.c:509
 #, no-c-format
 msgid "Invert endianness"
 msgstr "Endianness umkehren"
 
-#: backend/test.c:468
+#: backend/test.c:510
 #, no-c-format
 msgid ""
 "Exchange upper and lower byte of image data in 16 bit modes. This option "
@@ -6302,24 +6317,24 @@ msgstr ""
 "testen, beispielsweise um festzustellen, ob das Frontend die richtige "
 "Endianness verwendet."
 
-#: backend/test.c:484
+#: backend/test.c:526
 #, no-c-format
 msgid "Read limit"
 msgstr "Lesebegrenzung"
 
-#: backend/test.c:485
+#: backend/test.c:527
 #, no-c-format
 msgid "Limit the amount of data transferred with each call to sane_read()."
 msgstr ""
 "Begrenzt die Menge an Daten, die mit jedem Aufruf von sane_read() "
 "übertragen wird."
 
-#: backend/test.c:498
+#: backend/test.c:540
 #, no-c-format
 msgid "Size of read-limit"
 msgstr "Größe der Lesebegrenzung"
 
-#: backend/test.c:499
+#: backend/test.c:541
 #, no-c-format
 msgid ""
 "The (maximum) amount of data transferred with each call to sane_read()."
@@ -6327,22 +6342,22 @@ msgstr ""
 "Die (maximale) Menge and Daten, die bei jedem Aufruf von sane_read() "
 "übertragen wird."
 
-#: backend/test.c:514
+#: backend/test.c:556
 #, no-c-format
 msgid "Read delay"
 msgstr "Leseverzögerung"
 
-#: backend/test.c:515
+#: backend/test.c:557
 #, no-c-format
 msgid "Delay the transfer of data to the pipe."
 msgstr "Verzögere die Datenübertragung durch die Pipe."
 
-#: backend/test.c:527
+#: backend/test.c:569
 #, no-c-format
 msgid "Duration of read-delay"
 msgstr "Dauer der Leseverzögerung"
 
-#: backend/test.c:528
+#: backend/test.c:570
 #, no-c-format
 msgid ""
 "How long to wait after transferring each buffer of data through the pipe."
@@ -6350,12 +6365,12 @@ msgstr ""
 "Legt fest, wie lange nach der Übertragung eines Datenpuffers durch die "
 "Pipe gewartet wird."
 
-#: backend/test.c:543
+#: backend/test.c:585
 #, no-c-format
 msgid "Return-value of sane_read"
 msgstr "Rückgabewert von sane_read"
 
-#: backend/test.c:545
+#: backend/test.c:587
 #, no-c-format
 msgid ""
 "Select the return-value of sane_read(). \"Default\" is the normal "
@@ -6366,22 +6381,22 @@ msgstr ""
 "Einstellung für's Scannen. Alle anderen Rückgabewerte dienen dazu, das "
 "Verhalten des Frontends festzustellen."
 
-#: backend/test.c:562
+#: backend/test.c:604
 #, no-c-format
 msgid "Loss of pixels per line"
 msgstr "Pixelverlust pro Zeile"
 
-#: backend/test.c:564
+#: backend/test.c:606
 #, no-c-format
 msgid "The number of pixels that are wasted at the end of each line."
 msgstr "Die Anzahl der Pixel, die am Ende der Zeile ungenutzt sind."
 
-#: backend/test.c:577
+#: backend/test.c:619
 #, no-c-format
 msgid "Fuzzy parameters"
 msgstr "Ungenaue Parameter"
 
-#: backend/test.c:578
+#: backend/test.c:620
 #, no-c-format
 msgid ""
 "Return fuzzy lines and bytes per line when sane_parameters() is called "
@@ -6390,12 +6405,12 @@ msgstr ""
 "Gebe ungenaue Werte für die Anzahl der Zeilen und die Bytes pro Zeile "
 "zurück, wenn sane_parameters() vor sane_start() aufgerufen wird."
 
-#: backend/test.c:605
+#: backend/test.c:647
 #, no-c-format
 msgid "Offer select file descriptor"
 msgstr "Biete Select-Dateideskriptor an"
 
-#: backend/test.c:606
+#: backend/test.c:648
 #, no-c-format
 msgid ""
 "Offer a select filedescriptor for detecting if sane_read() will return "
@@ -6404,12 +6419,12 @@ msgstr ""
 "Biete einen Select-Dateideskriptor an, damit das Frontend erkennen kann, "
 "ob sane_read() Daten zurückliefern würde."
 
-#: backend/test.c:619
+#: backend/test.c:661
 #, no-c-format
 msgid "Enable test options"
 msgstr "Test-Optionen einschalten"
 
-#: backend/test.c:620
+#: backend/test.c:662
 #, no-c-format
 msgid ""
 "Enable various test options. This is for testing the ability of "
@@ -6419,27 +6434,27 @@ msgstr ""
 "Fähigkeit des Frontends feststellen, die verschiedenen Typen von SANE-"
 "Optionen darzustellen und zu ändern."
 
-#: backend/test.c:634
+#: backend/test.c:676
 #, no-c-format
 msgid "Print options"
 msgstr "Gebe Optionen aus"
 
-#: backend/test.c:635
+#: backend/test.c:677
 #, no-c-format
 msgid "Print a list of all options."
 msgstr "Gibt eine Liste aller Optionen aus."
 
-#: backend/test.c:712
+#: backend/test.c:754
 #, no-c-format
 msgid "Bool test options"
 msgstr "Binäre Testoptionen"
 
-#: backend/test.c:725
+#: backend/test.c:767
 #, no-c-format
 msgid "(1/6) Bool soft select soft detect"
 msgstr "(1/6) Bool soft select soft detect"
 
-#: backend/test.c:727
+#: backend/test.c:769
 #, no-c-format
 msgid ""
 "(1/6) Bool test option that has soft select and soft detect (and "
@@ -6449,12 +6464,12 @@ msgstr ""
 "\"soft detect\" (und \"advanced\") hat. Also eine ganz normale binäre "
 "Option."
 
-#: backend/test.c:743
+#: backend/test.c:785
 #, no-c-format
 msgid "(2/6) Bool hard select soft detect"
 msgstr "(2/6) Bool hard select soft detect"
 
-#: backend/test.c:745
+#: backend/test.c:787
 #, no-c-format
 msgid ""
 "(2/6) Bool test option that has hard select and soft detect (and "
@@ -6466,12 +6481,12 @@ msgstr ""
 "nicht vom \"frontend\" gesetzt werden kann sondern vom Benutzer (z.B. "
 "durch drücken einer Taste am Gerät)."
 
-#: backend/test.c:762
+#: backend/test.c:804
 #, no-c-format
 msgid "(3/6) Bool hard select"
 msgstr "(3/6) Bool hard select"
 
-#: backend/test.c:763
+#: backend/test.c:805
 #, no-c-format
 msgid ""
 "(3/6) Bool test option that has hard select (and advanced) capabilities. "
@@ -6484,12 +6499,12 @@ msgstr ""
 "drücken einer Taste am Gerät) und nicht vom \"frontend\" gelesen werden "
 "kann."
 
-#: backend/test.c:781
+#: backend/test.c:823
 #, no-c-format
 msgid "(4/6) Bool soft detect"
 msgstr "(4/6) Bool soft detect"
 
-#: backend/test.c:782
+#: backend/test.c:824
 #, no-c-format
 msgid ""
 "(4/6) Bool test option that has soft detect (and advanced) capabilities. "
@@ -6498,12 +6513,12 @@ msgstr ""
 "(4/6) Binäre Testoption, welche die Funktionalitäten \"soft detect"
 "\" (und \"advanced\") hat. Das heißt, dass dies eine Nur-Lese-Option ist."
 
-#: backend/test.c:798
+#: backend/test.c:840
 #, no-c-format
 msgid "(5/6) Bool soft select soft detect emulated"
 msgstr "(5/6) Bool soft select soft detect emulated"
 
-#: backend/test.c:799
+#: backend/test.c:841
 #, no-c-format
 msgid ""
 "(5/6) Bool test option that has soft select, soft detect, and emulated "
@@ -6512,12 +6527,12 @@ msgstr ""
 "(5/6) Binäre Testoption, welche die Funktionalitäten \"soft select\", "
 "\"soft detect\", und \"emulated\" (und \"advanced\") hat."
 
-#: backend/test.c:815
+#: backend/test.c:857
 #, no-c-format
 msgid "(6/6) Bool soft select soft detect auto"
 msgstr "(6/6) Bool soft select soft detect auto"
 
-#: backend/test.c:816
+#: backend/test.c:858
 #, no-c-format
 msgid ""
 "(6/6) Bool test option that has soft select, soft detect, and automatic "
@@ -6528,27 +6543,27 @@ msgstr ""
 "\"soft detect\" und \"automatic\" (und \"advanced\") hat. Diese Option "
 "kann vom \"backend\" automatisch gesetzt werden."
 
-#: backend/test.c:833
+#: backend/test.c:875
 #, no-c-format
 msgid "Int test options"
 msgstr "Int-Testoptionen"
 
-#: backend/test.c:846
+#: backend/test.c:888
 #, no-c-format
 msgid "(1/6) Int"
 msgstr "(1/6) Int"
 
-#: backend/test.c:847
+#: backend/test.c:889
 #, no-c-format
 msgid "(1/6) Int test option with no unit and no constraint set."
 msgstr "(1/6) Int-Testoption ohne Einheit und Beschränkung."
 
-#: backend/test.c:862
+#: backend/test.c:904
 #, no-c-format
 msgid "(2/6) Int constraint range"
 msgstr "(2/6) Int constraint range"
 
-#: backend/test.c:863
+#: backend/test.c:905
 #, no-c-format
 msgid ""
 "(2/6) Int test option with unit pixel and constraint range set. Minimum "
@@ -6558,24 +6573,24 @@ msgstr ""
 "Bereichsbeschränkung. Das Minimum ist 4, das Maximum 192, und die "
 "Schrittweite ist 2."
 
-#: backend/test.c:879
+#: backend/test.c:921
 #, no-c-format
 msgid "(3/6) Int constraint word list"
 msgstr "(3/6) Int constraint word list"
 
-#: backend/test.c:880
+#: backend/test.c:922
 #, no-c-format
 msgid "(3/6) Int test option with unit bits and constraint word list set."
 msgstr ""
 "(3/6) Int-Testoption mit der Einheit \"Bits\" und einer Wortlisten-"
 "Beschränkung."
 
-#: backend/test.c:895
+#: backend/test.c:937
 #, no-c-format
 msgid "(4/6) Int array"
 msgstr "(4/6) Int array"
 
-#: backend/test.c:896
+#: backend/test.c:938
 #, no-c-format
 msgid ""
 "(4/6) Int test option with unit mm and using an array without "
@@ -6584,12 +6599,12 @@ msgstr ""
 "(4/6) Int-Testoption mit der Einheit \"mm\" und einem Feld ohne "
 "Beschränkung."
 
-#: backend/test.c:911
+#: backend/test.c:953
 #, no-c-format
 msgid "(5/6) Int array constraint range"
 msgstr "(5/6) Int array constraint range"
 
-#: backend/test.c:912
+#: backend/test.c:954
 #, no-c-format
 msgid ""
 "(5/6) Int test option with unit dpi and using an array with a range "
@@ -6599,12 +6614,12 @@ msgstr ""
 "Bereichsbeschränkung. Das Minimum ist 4, das Maximum 192, und die "
 "Schrittweite ist 2."
 
-#: backend/test.c:929
+#: backend/test.c:1028
 #, no-c-format
 msgid "(6/6) Int array constraint word list"
 msgstr "(6/6) Int array constraint word list"
 
-#: backend/test.c:930
+#: backend/test.c:1029
 #, no-c-format
 msgid ""
 "(6/6) Int test option with unit percent and using an array with a word "
@@ -6613,27 +6628,27 @@ msgstr ""
 "(6/6) Int-Testoption mit der Einheit \"Prozent\" und einem Feld mit "
 "einer Wort-Beschränkung."
 
-#: backend/test.c:946
+#: backend/test.c:1045
 #, no-c-format
 msgid "Fixed test options"
 msgstr "Fixed-Testoptionen"
 
-#: backend/test.c:959
+#: backend/test.c:1058
 #, no-c-format
 msgid "(1/3) Fixed"
 msgstr "(1/3) Fixed"
 
-#: backend/test.c:960
+#: backend/test.c:1059
 #, no-c-format
 msgid "(1/3) Fixed test option with no unit and no constraint set."
 msgstr "(1/3) Fixed-Testoption ohne Einheit und ohne Beschränkung."
 
-#: backend/test.c:975
+#: backend/test.c:1074
 #, no-c-format
 msgid "(2/3) Fixed constraint range"
 msgstr "(2/3) Fixed constraint range"
 
-#: backend/test.c:976
+#: backend/test.c:1075
 #, no-c-format
 msgid ""
 "(2/3) Fixed test option with unit microsecond and constraint range set. "
@@ -6643,51 +6658,51 @@ msgstr ""
 "Bereichsbeschränkung. Das Minimum ist -42.17, das Maximum 32767.9999, "
 "und die Schrittweite ist 2.0."
 
-#: backend/test.c:992
+#: backend/test.c:1091
 #, no-c-format
 msgid "(3/3) Fixed constraint word list"
 msgstr "(3/3) Fixed constraint word list"
 
-#: backend/test.c:993
+#: backend/test.c:1092
 #, no-c-format
 msgid "(3/3) Fixed test option with no unit and constraint word list set."
 msgstr ""
 "(3/3) Fixed-Testoption ohne Einheit und mit einer Wortlisten-"
 "Beschränkung."
 
-#: backend/test.c:1008
+#: backend/test.c:1107
 #, no-c-format
 msgid "String test options"
 msgstr "Zeichenketten-Testoptionen"
 
-#: backend/test.c:1021
+#: backend/test.c:1120
 #, no-c-format
 msgid "(1/3) String"
 msgstr "(1/3) Zeichenketten"
 
-#: backend/test.c:1022
+#: backend/test.c:1121
 #, no-c-format
 msgid "(1/3) String test option without constraint."
 msgstr "(1/3) Zeichenketten-Testoption ohne Beschränkung."
 
-#: backend/test.c:1039
+#: backend/test.c:1138
 #, no-c-format
 msgid "(2/3) String constraint string list"
 msgstr "(2/3) Zeichenketten-Beschränkungsliste"
 
-#: backend/test.c:1040
+#: backend/test.c:1139
 #, no-c-format
 msgid "(2/3) String test option with string list constraint."
 msgstr ""
 "(2/3) Zeichenketten-Testoption mit einer Zeichenkettenlisten-"
 "Beschränkung."
 
-#: backend/test.c:1059
+#: backend/test.c:1158
 #, no-c-format
 msgid "(3/3) String constraint long string list"
 msgstr "(3/3) Lange-Zeichenketten-Beschränkungsliste"
 
-#: backend/test.c:1060
+#: backend/test.c:1159
 #, no-c-format
 msgid ""
 "(3/3) String test option with string list constraint. Contains some more "
@@ -6696,17 +6711,17 @@ msgstr ""
 "(3/3) Zeichenketten-Testoption mit einer Zeichenkettenlisten-"
 "Beschränkung. Enthält ein paar mehr Einträge..."
 
-#: backend/test.c:1080
+#: backend/test.c:1179
 #, no-c-format
 msgid "Button test options"
 msgstr "Tasten-Testoptionen"
 
-#: backend/test.c:1093
+#: backend/test.c:1192
 #, no-c-format
 msgid "(1/1) Button"
 msgstr "(1/1) Taste"
 
-#: backend/test.c:1094
+#: backend/test.c:1193
 #, no-c-format
 msgid "(1/1) Button test option. Prints some text..."
 msgstr "(1/1) Tasten-Testoption. Gibt etwas Text aus..."

@@ -81,6 +81,12 @@ typedef struct Avision_Connection {
 
 } Avision_Connection;
 
+/* structure for ADF offsets in mm */
+typedef struct mm_offset {
+  double top;
+  double bottom;
+} mm_offset;
+
 typedef struct Avision_HWEntry {
   const char* scsi_mfg;
   const char* scsi_model;
@@ -184,9 +190,6 @@ typedef struct Avision_HWEntry {
     /* does the scanner contain a Cancel button? */
   #define AV_CANCEL_BUTTON ((uint64_t)1<<28)
 
-    /* is the rear image offset? */
-  #define AV_REAR_OFFSET ((uint64_t)1<<29)
-
     /* some devices do not need a START_SCAN, even hang with it */
   #define AV_NO_START_SCAN ((uint64_t)1<<30)
 
@@ -204,8 +207,45 @@ typedef struct Avision_HWEntry {
     /* For scanners which need to have their firmware read to properly function. */
   #define AV_FIRMWARE ((uint64_t)1<<35)
 
+  /* at least Kodak i1120 claims no calibration needed but windows driver does it anyways */
+  #define AV_FORCE_CALIB ((uint64_t)1<<36)
+
+  /* at least Kodak i1120 does not have an explicit "quality-scan" mode */
+  #define AV_NO_QSCAN_MODE ((uint64_t)1<<37)
+
+  /* at least Kodak i1120 optical DPI is used for overscan calculation */
+  #define AV_OVERSCAN_OPTDPI ((uint64_t)1<<38)
+
+  /* some scanners support fast feed-out of the sheet when cancelling a running scan */
+  #define AV_FASTFEED_ON_CANCEL ((uint64_t)1<<39)
+
+  /* at least Kodak i1120 does not have an explicit "quality-calibration" mode */
+  #define AV_NO_QCALIB_MODE ((uint64_t)1<<40)
+
+  /* Kodak i1120 needs gamma = 1.0 to give decent results */
+  #define AV_GAMMA_10 ((uint64_t)1<<41)
+
+  /* Kodak i1120 has a different gamma table format (like a uint16/double array) */
+  #define AV_GAMMA_UINT16 ((uint64_t)1<<42)
+
+  /* Kodak i1120 has single-sheet and multi-sheet scan modes. This option sets
+     bitset3[7] which enables multi-sheet scan by default so there is no pause
+     of 1s between two sheets in ADF scan mode. This also fixes some offsets
+     when scanning multiple sheets. */
+  #define AV_MULTI_SHEET_SCAN ((uint64_t)1<<43)
+
     /* maybe more ...*/
   uint64_t feature_type;
+
+  /* ADF offsets in mm */
+  struct {
+    float first; /* offset difference first sheet */
+    mm_offset front; /* front-only */
+    struct {
+      mm_offset front;
+      mm_offset rear;
+    } duplex;
+  } offset;
 
 } Avision_HWEntry;
 
@@ -301,6 +341,13 @@ enum Avision_Option
   NUM_OPTIONS            /* must come last */
 };
 
+/* structure for ADF offsets in pixels of HW res */
+typedef struct hwpx_offset {
+  int top;
+  int bottom;
+} hwpx_offset;
+
+
 typedef struct Avision_Dimensions
 {
   /* in dpi */
@@ -315,7 +362,11 @@ typedef struct Avision_Dimensions
 
   /* in pixels */
   int line_difference;
-  int rear_offset; /* in pixels of HW res */
+
+  struct {
+    hwpx_offset front;
+    hwpx_offset rear;
+  } offset;
 
   /* interlaced duplex scan */
   SANE_Bool interlaced_duplex;
@@ -407,6 +458,8 @@ typedef struct Avision_Device
   int inquiry_bits_per_channel;
   int inquiry_no_gray_modes;
 
+  SANE_Bool adf_offset_compensation;
+
   int scsi_buffer_size; /* nice to have SCSI buffer size */
   int read_stripe_size; /* stripes to be read at-a-time */
 
@@ -451,6 +504,7 @@ typedef struct Avision_Scanner
 
   /* Internal data for duplex scans */
   char duplex_rear_fname [PATH_MAX];
+  char duplex_offtmp_fname [PATH_MAX];
   SANE_Bool duplex_rear_valid;
 
   color_mode c_mode;
@@ -670,6 +724,8 @@ typedef struct command_set_window_window
 	uint8_t line_width_msb;
 	uint8_t line_count_msb;
 	uint8_t background_lines;
+
+	uint8_t single_sheet_scan; /* from Kodak SVT tool */
       } normal;
 
       struct {

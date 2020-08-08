@@ -633,6 +633,12 @@ calc_raw_width (const mp150_t * mp, const pixma_scan_param_t * param)
   return raw_width;
 }
 
+static int
+is_gray_16 (pixma_t * s)
+{
+  return (s->param->mode == PIXMA_SCAN_MODE_GRAY_16);
+}
+
 static unsigned
 get_cis_line_size (pixma_t * s)
 {
@@ -642,7 +648,9 @@ get_cis_line_size (pixma_t * s)
                    __func__, s->param->line_size, s->param->w, s->param->wx, mp->scale));*/
 
   return (s->param->wx ? s->param->line_size / s->param->w * s->param->wx
-                       : s->param->line_size) * mp->scale;
+                       : s->param->line_size)
+         * mp->scale
+         * (is_gray_16(s) ? 3 : 1);
 }
 
 static int
@@ -707,10 +715,12 @@ send_scan_param (pixma_t * s)
       pixma_set_be32 (y, data + 0x10);
       pixma_set_be32 (wx, data + 0x14);
       pixma_set_be32 (h, data + 0x18);
-      data[0x1c] = (s->param->channels != 1) ? 0x08 : 0x04;
+      /*PDBG (pixma_dbg (4, "*send_scan_param gen. 3+ ***** Setting: channels=%hi depth=%hi ***** \n",
+                       s->param->channels, s->param->depth));*/
+      data[0x1c] = ((s->param->channels != 1) || (is_gray_16(s)) ? 0x08 : 0x04);
 
       data[0x1d] = ((s->param->software_lineart) ? 8 : s->param->depth)
-                    * s->param->channels;   /* bits per pixel */
+                    * (is_gray_16(s) ? 3 : s->param->channels); /* bits per pixel */
 
       data[0x1f] = 0x01;        /* This one also seen at 0. Don't know yet what's used for */
       data[0x20] = 0xff;
@@ -904,7 +914,8 @@ handle_interrupt (pixma_t * s, int timeout)
       || s->cfg->pid == MX920_PID
       || s->cfg->pid == MB2300_PID
       || s->cfg->pid == MB5000_PID
-      || s->cfg->pid == MB5400_PID)
+      || s->cfg->pid == MB5400_PID
+      || s->cfg->pid == TR4500_PID)
   /* button no. in buf[7]
    * size in buf[10] 01=A4; 02=Letter; 08=10x15; 09=13x18; 0b=auto
    * format in buf[11] 01=JPEG; 02=TIFF; 03=PDF; 04=Kompakt-PDF
@@ -912,9 +923,28 @@ handle_interrupt (pixma_t * s, int timeout)
    * target = format; original = size; scan-resolution = dpi */
   {
     if (buf[7] & 1)
-      s->events = PIXMA_EV_BUTTON1 | buf[11] | buf[10]<<8 | buf[12]<<16;    /* color scan */
+    {
+      /* color scan */
+      s->events = PIXMA_EV_BUTTON1 | (buf[11] & 0x0f) | (buf[10] & 0x0f) << 8
+                  | (buf[12] & 0x0f) << 16;
+    }
     if (buf[7] & 2)
-      s->events = PIXMA_EV_BUTTON2 | buf[11] | buf[10]<<8 | buf[12]<<16;    /* b/w scan */
+    {
+      /* b/w scan */
+      s->events = PIXMA_EV_BUTTON2 | (buf[11] & 0x0f) | (buf[10] & 0x0f) << 8
+                  | (buf[12] & 0x0f) << 16;
+    }
+
+    /* some scanners provide additional information:
+     * document type in buf[6] 01=Document; 02=Photo; 03=Auto Scan
+     * ADF status in buf[8] 01 = ADF empty; 02 = ADF filled
+     * ADF orientation in buf[16] 01=Portrait; 02=Landscape */
+    if (s->cfg->pid == TR4500_PID)
+      {
+        s->events |= (buf[6] & 0x0f) << 12;
+        s->events |= (buf[8] & 0x0f) << 20;
+        s->events |= (buf[16] & 0x0f) << 4;
+      }
   }
   else if (s->cfg->pid == LIDE300_PID
            || s->cfg->pid == LIDE400_PID)
@@ -922,10 +952,16 @@ handle_interrupt (pixma_t * s, int timeout)
    * target in buf[0x13] 01=copy; 02=auto; 03=send; 05=start PDF; 06=finish PDF
    * "Finish PDF" is Button-2, all others are Button-1 */
   {
-      if (buf[0x13] == 0x06)
-        s->events = PIXMA_EV_BUTTON2 | buf[0x13];   /* button 2 = cancel / end scan */
-      else if (buf[0x13])
-        s->events = PIXMA_EV_BUTTON1 | buf[0x13];   /* button 1 = start scan */
+    if (buf[0x13] == 0x06)
+    {
+      /* button 2 = cancel / end scan */
+      s->events = PIXMA_EV_BUTTON2 | (buf[0x13] & 0x0f);
+    }
+    else if (buf[0x13])
+    {
+      /* button 1 = start scan */
+      s->events = PIXMA_EV_BUTTON1 | (buf[0x13] & 0x0f);
+    }
   }
   else
   /* button no. in buf[0]
@@ -941,9 +977,15 @@ handle_interrupt (pixma_t * s, int timeout)
     if (buf[9] & 2)
       query_status (s);
     if (buf[0] & 2)
-      s->events = PIXMA_EV_BUTTON2 | buf[1] | ((buf[0] & 0xf0) << 4);	/* b/w scan */
+    {
+      /* b/w scan */
+      s->events = PIXMA_EV_BUTTON2 | (buf[1] & 0x0f) | (buf[0] & 0xf0) << 4;
+    }
     if (buf[0] & 1)
-      s->events = PIXMA_EV_BUTTON1 | buf[1] | ((buf[0] & 0xf0) << 4);	/* color scan */
+    {
+      /* color scan */
+      s->events = PIXMA_EV_BUTTON1 | (buf[1] & 0x0f) | ((buf[0] & 0xf0) << 4);
+    }
   }
   return 1;
 }
@@ -1066,7 +1108,7 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
     }
 
   /* process image sizes */
-  c = s->param->channels
+  c = (is_gray_16(s) ? 3 : s->param->channels)
       * ((s->param->software_lineart) ? 8 : s->param->depth) / 8;   /* color channels count */
   cw = c * s->param->w;                                             /* image width */
   cx = c * s->param->xs;                                            /* x-offset */
@@ -1140,6 +1182,9 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
           /* Color / Gray to Lineart convert */
           if (s->param->software_lineart)
               cptr = gptr = pixma_binarize_line (s->param, gptr, cptr, s->param->w, c);
+          /* Color to Grayscale convert for 16bit gray */
+          else if (is_gray_16(s))
+            cptr = gptr = pixma_rgb_to_gray (gptr, cptr, s->param->w, c);
           else
               cptr += cw;
         }
@@ -1225,19 +1270,38 @@ mp150_check_param (pixma_t * s, pixma_scan_param_t * sp)
   /* PDBG (pixma_dbg (4, "*mp150_check_param***** Initially: channels=%u, depth=%u, x=%u, y=%u, w=%u, h=%u, xs=%u, wx=%u, gamma=%f *****\n",
                    sp->channels, sp->depth, sp->x, sp->y, sp->w, sp->h, sp->xs, sp->wx, sp->gamma)); */
 
-  /* MP150 only supports 8 bit per channel in color and grayscale mode */
-  if (sp->depth != 1)
-    {
-      sp->software_lineart = 0;
-      sp->depth = 8;
-    }
-  else
-    {
-      /* software lineart */
-      sp->software_lineart = 1;
-      sp->depth = 1;
+  sp->channels = 3;
+  sp->software_lineart = 0;
+  switch (sp->mode)
+  {
+    /* standard scan modes
+     * 8 bit per channel in color and grayscale mode */
+    case PIXMA_SCAN_MODE_GRAY:
       sp->channels = 1;
-    }
+      /* fall through */
+    case PIXMA_SCAN_MODE_COLOR:
+      sp->depth = 8;
+      break;
+      /* extended scan modes for 48 bit flatbed scanners
+       * 16 bit per channel in color and grayscale mode */
+    case PIXMA_SCAN_MODE_GRAY_16:
+      sp->channels = 1;
+      sp->depth = 16;
+      break;
+    case PIXMA_SCAN_MODE_COLOR_48:
+      sp->channels = 3;
+      sp->depth = 16;
+      break;
+      /* software lineart
+       * 1 bit per channel */
+    case PIXMA_SCAN_MODE_LINEART:
+      sp->software_lineart = 1;
+      sp->channels = 1;
+      sp->depth = 1;
+      break;
+    default:
+      break;
+  }
 
   /* for software lineart w must be a multiple of 8 */
   if (sp->software_lineart == 1 && sp->w % 8)
@@ -1600,6 +1664,7 @@ static const pixma_scan_ops_t pixma_mp150_ops = {
         0,                 /* iface */              \
         &pixma_mp150_ops,  /* ops */                \
         min_dpi,           /* min_xdpi */           \
+        0,                 /* min_xdpi_16 not used in this subdriver */ \
         dpi, 2*(dpi),      /* xdpi, ydpi */         \
         adftpu_min_dpi, adftpu_max_dpi,         /* adftpu_min_dpi, adftpu_max_dpi */ \
         0, 0,              /* tpuir_min_dpi & tpuir_max_dpi not used in this subdriver */  \
@@ -1774,7 +1839,7 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA TR8500 Series", "TR8500", TR8500_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF | PIXMA_CAP_ADF_JPEG),
   DEVICE ("Canon PIXMA TR7500 Series", "TR7500", TR7500_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA TS9500 Series", "TS9500", TS9500_PID, 0, 1200, 0, 600, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
-  DEVICE ("CanoScan LiDE 400", "LIDE400", LIDE400_PID, 300, 4800, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("CanoScan LiDE 400", "LIDE400", LIDE400_PID, 300, 4800, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_48BIT),
   DEVICE ("CanoScan LiDE 300", "LIDE300", LIDE300_PID, 300, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   /* Latest devices (2019) Generation 5 CIS */
@@ -1792,7 +1857,7 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA TR7530 Series", "TR7530", TR7530_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXUS XK50 Series", "XK50", XK50_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXUS XK70 Series", "XK70", XK70_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
-  DEVICE ("Canon PIXMA TR4500 Series", "TR4500", TR4500_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA TR4500 Series", "TR4500", TR4500_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF | PIXMA_CAP_ADF_JPEG),   /* ToDo: max. scan resolution = 600x1200dpi */
   DEVICE ("Canon PIXMA E4200 Series", "E4200", E4200_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA TS6200 Series", "TS6200", TS6200_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA TS6280 Series", "TS6280", TS6280_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),

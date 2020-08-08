@@ -92,7 +92,7 @@
  */
 #include "pixma_sane_options.h"
 
-#define BUTTON_GROUP_SIZE ( opt_scan_resolution - opt_button_1 + 1 )
+#define BUTTON_GROUP_SIZE ( opt_adf_orientation - opt_button_1 + 1 )
 #define BUTTON_GROUP_INDEX(x) ( x - opt_button_1 )
 
 typedef struct pixma_sane_t
@@ -318,6 +318,9 @@ update_button_state (pixma_sane_t * ss, SANE_Int * info)
     OVAL (opt_original).w = GET_EV_ORIGINAL(ev);
     OVAL (opt_target).w = GET_EV_TARGET(ev);
     OVAL (opt_scan_resolution).w = GET_EV_DPI(ev);
+    OVAL (opt_document_type).w = GET_EV_DOC(ev);
+    OVAL (opt_adf_status).w = GET_EV_STAT(ev);
+    OVAL (opt_adf_orientation).w = GET_EV_ORIENT(ev);
     }
   mark_all_button_options_cached(ss);
 }
@@ -470,7 +473,7 @@ create_dpi_list (pixma_sane_t * ss)
                 || ss->mode_map[OVAL (opt_mode).w] == PIXMA_SCAN_MODE_GRAY_16))
   { /* 48 bits flatbed */
     /*PDBG (pixma_dbg (4, "*create_dpi_list***** 48 bits flatbed mode\n"));*/
-    min_dpi = 150;
+    min_dpi = (cfg->min_xdpi_16) ? cfg->min_xdpi_16 : 75;
   }
 
   /* set j for min. dpi
@@ -749,6 +752,9 @@ control_option (pixma_sane_t * ss, SANE_Int n,
       case opt_original:
       case opt_target:
       case opt_scan_resolution:
+      case opt_document_type:
+      case opt_adf_status:
+      case opt_adf_orientation:
         /* poll scanner if option is not cached */
         if (! ss->button_option_is_cached[ BUTTON_GROUP_INDEX(n) ] )
           update_button_state (ss, info);
@@ -2073,7 +2079,13 @@ sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
   return SANE_STATUS_GOOD;
 }
 
-/*
+/* CAUTION!
+ * Remove generated files pixma_sane_options.[ch] after editing SANE option
+ * descriptors below OR do a 'make clean' OR manually generate them as described
+ * below.
+ * However, make drops the circular dependency and the files won't be generated
+ * again (see merge request sane-project/backends!491).
+
 BEGIN SANE_Option_Descriptor
 
 rem -------------------------------------------
@@ -2204,6 +2216,21 @@ type int target
 type int scan-resolution
   default 0
   title Scan resolution
+  cap soft_detect advanced
+
+type int document-type
+  default 0
+  title Document type
+  cap soft_detect advanced
+
+type int adf-status
+  default 0
+  title ADF status
+  cap soft_detect advanced
+
+type int adf-orientation
+  default 0
+  title ADF orientation
   cap soft_detect advanced
 
 rem -------------------------------------------

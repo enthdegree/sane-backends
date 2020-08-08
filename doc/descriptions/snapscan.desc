@@ -311,38 +311,43 @@
 :interface "USB"
 :usbid "0x04b8" "0x0114"
 :status :good
+:comment "Requires firmware tail_058.bin."
 
 :model "Perfection 1270"
 :interface "USB"
 :usbid "0x04b8" "0x0120"
 :status :good
+:comment "Requires firmware esfw3e.bin."
 
 :model "Perfection 1670"
 :interface "USB"
 :usbid "0x04b8" "0x011f"
 :status :good
+:comment "Requires firmware esfw30.bin."
 
-:model "Perfection 2480"
+:model "Perfection 2480 PHOTO"
 :interface "USB"
 :usbid "0x04b8" "0x0121"
 :status :good
+:comment "Requires firmware esfw41.bin."
 
-:model "Perfection 2580"
+:model "Perfection 2580 PHOTO"
 :interface "USB"
 :status :basic
 :usbid "0x04b8" "0x0121"
-:comment "Film scanning unit unsupported"
+:comment "Requires firmware esfw41.bin, film scanning unit unsupported."
 
-:model "Perfection 3490"
+:model "Perfection 3490 PHOTO"
 :interface "USB"
 :usbid "0x04b8" "0x0122"
 :status :good
+:comment "Requires firmware esfw51.bin."
 
-:model "Perfection 3590"
+:model "Perfection 3590 PHOTO"
 :interface "USB"
 :usbid "0x04b8" "0x0122"
 :status :basic
-:comment "Film scanning unit unsupported"
+:comment "Requires firmware esfw52.bin, film scanning unit unsupported."
 
 :model "Stylus CX-1500"
 :interface "USB"

@@ -9,15 +9,15 @@
 # Oliver Schwartz <Oliver.Schwartz@gmx.de>, 2002, 2004.
 # Karsten Festag <karsten.festag@gmx.de>, 2002.
 # Burkhard Lück <lueck@hube-lueck.de>, 2009.
-# Rolf Bensch <rolf at bensch hyphen online dot de>, 2012-2019.
+# Rolf Bensch <rolf@bensch-online.de>, 2012-2020.
 # Ulf Zibis <Ulf.Zibis@CoSoCo.de>, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.29\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
-"POT-Creation-Date: 2020-08-02 12:33+0000\n"
-"PO-Revision-Date: 2020-01-26 16:29+0900\n"
-"Last-Translator: Ulf Zibis <Ulf.Zibis@CoSoCo.de>\n"
+"POT-Creation-Date: 2020-06-27 12:18+0200\n"
+"PO-Revision-Date: 2020-08-10 22:47+0200\n"
+"Last-Translator: Rolf Bensch <rolf@bensch-online.de>\n"
 "Language-Team: \n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -600,7 +600,6 @@ msgstr "Gamma-Korrekturtabelle für die grüne Komponente."
 msgid "Gamma-correction table for the blue band."
 msgstr "Gamma-Korrekturtabelle für die blaue Komponente."
 
-# Alternative: des erlangten Abbilds
 #: include/sane/saneopts.h:326
 #, no-c-format
 msgid "Controls the brightness of the acquired image."
@@ -1138,7 +1137,7 @@ msgstr "1/3 Normalgeschwindigkeit"
 #: backend/canon.c:360
 #, no-c-format
 msgid "rounded parameter"
-msgstr "gerundeter Parameter"
+msgstr "Gerundeter Parameter"
 
 #: backend/canon.c:363 backend/canon.c:379 backend/canon.c:414
 #: backend/canon.c:464 backend/canon.c:482 backend/canon.c:525
@@ -1234,7 +1233,7 @@ msgstr "Zu viele Fenster angegeben"
 #: backend/canon.c:452
 #, no-c-format
 msgid "medium not present"
-msgstr "kein Medium eingelegt"
+msgstr "Kein Medium eingelegt"
 
 #: backend/canon.c:456
 #, no-c-format
@@ -1259,7 +1258,7 @@ msgstr "Parameter von einem anderen Initator geändert"
 #: backend/canon.c:492
 #, no-c-format
 msgid "no additional sense information"
-msgstr "keine zusätzliche Sinnesinformation"
+msgstr "Keine zusätzliche Sensorinformation"
 
 #: backend/canon.c:496
 #, no-c-format
@@ -1745,12 +1744,12 @@ msgstr "Automatischer Dokumenteneinzug"
 #: backend/epson.c:523 backend/epson2.c:134
 #, no-c-format
 msgid "Positive Film"
-msgstr "Filmpositiv"
+msgstr "Film positiv"
 
 #: backend/epson.c:524 backend/epson2.c:135
 #, no-c-format
 msgid "Negative Film"
-msgstr "Filmnegativ"
+msgstr "Film negativ"
 
 #: backend/epson.c:529 backend/epson2.c:142
 #, no-c-format
@@ -2108,7 +2107,7 @@ msgstr "Dokumenteneinzug Modus"
 #: backend/kodakaio.c:2857 backend/magicolor.c:2452
 #, no-c-format
 msgid "Selects the ADF mode (simplex/duplex)"
-msgstr "Wählt den ADF-Modus aus (einseitig/doppelseitig)"
+msgstr "Wählt den Duplex-Modus aus (einseitig/doppelseitig)"
 
 #: backend/epson.c:3473 backend/epson2.c:1430
 #, no-c-format
@@ -2168,12 +2167,12 @@ msgstr "Infrarot"
 #: backend/epson2.c:136
 #, no-c-format
 msgid "Positive Slide"
-msgstr "Diapositiv"
+msgstr "Dia positiv"
 
 #: backend/epson2.c:137
 #, no-c-format
 msgid "Negative Slide"
-msgstr "Dianegativ"
+msgstr "Dia negativ"
 
 #: backend/epson2.c:215
 #, no-c-format
@@ -2203,7 +2202,7 @@ msgstr "ADF-Schräglaufkorrektur"
 #: backend/epsonds.c:775
 #, no-c-format
 msgid "Enables ADF skew correction"
-msgstr "aktiviert ADF-Schräglaufkorrektur"
+msgstr "Aktiviert ADF-Schräglaufkorrektur"
 
 #: backend/fujitsu.c:695 backend/hp-option.c:3330 backend/hp-option.c:3343
 #, no-c-format
@@ -2668,7 +2667,7 @@ msgid ""
 msgstr "Hintergrundfarbe für Scans. Steht im Konflikt mit Overscan"
 
 #: backend/fujitsu.c:3885
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "Dropout color"
 msgstr "Dropout-Farbe"
 
@@ -3023,14 +3022,14 @@ msgid "OMR or double feed detected"
 msgstr "OMR oder Double Feed erkannt"
 
 #: backend/fujitsu.c:4504
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Card loaded"
 msgstr "Seite geladen"
 
 #: backend/fujitsu.c:4505
 #, no-c-format
 msgid "Card slot contains paper"
-msgstr ""
+msgstr "Papier eingelegt"
 
 #: backend/fujitsu.c:4516
 #, no-c-format
@@ -3073,12 +3072,12 @@ msgid "Imprinter ink running low"
 msgstr "Wenig Imprinter Tinte"
 
 #: backend/fujitsu.c:4588
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "Double feed"
 msgstr "Double Feed"
 
 #: backend/fujitsu.c:4589
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "Double feed detected"
 msgstr "Double Feed erkannt"
 
@@ -3869,19 +3868,19 @@ msgid "This option reflects a front panel scanner button"
 msgstr "Diese Option spiegelt eine Frontplatten-Scannertaste wider"
 
 #: backend/hp5400_sane.c:418
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "web"
-msgstr "Webcam"
+msgstr "Internet"
 
 #: backend/hp5400_sane.c:419
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Share-To-Web button"
-msgstr "Scan-Taste"
+msgstr "Teilen-Taste"
 
 #: backend/hp5400_sane.c:420
 #, no-c-format
 msgid "Scan an image and send it on the web"
-msgstr ""
+msgstr "Scannen und mit Freunden teilen"
 
 #: backend/hp5400_sane.c:426
 #, fuzzy, no-c-format
@@ -3891,117 +3890,117 @@ msgstr "Foto"
 #: backend/hp5400_sane.c:427
 #, fuzzy, no-c-format
 msgid "Reprint Photos button"
-msgstr "Warte auf Tastendruck"
+msgstr "Foto-Taste"
 
 #: backend/hp5400_sane.c:428
 #, no-c-format
 msgid "Button for reprinting photos"
-msgstr ""
+msgstr "Foto-Taste"
 
 #: backend/hp5400_sane.c:450
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "more-options"
-msgstr "Stempel Optionen"
+msgstr "Optionen"
 
 #: backend/hp5400_sane.c:451
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "More Options button"
-msgstr "Stempel Optionen"
+msgstr "Optionen-Taste"
 
 #: backend/hp5400_sane.c:452
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Button for additional options/configuration"
-msgstr "keine zusätzliche Sinnesinformation"
+msgstr "Optionen-Taste"
 
 #: backend/hp5400_sane.c:466
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "power-save"
 msgstr "Energiesparmodus"
 
 #: backend/hp5400_sane.c:467
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Power Save button"
-msgstr "Einschalt-Taste"
+msgstr "Energiesparmodus-Taste"
 
 #: backend/hp5400_sane.c:468
 #, no-c-format
 msgid "Puts the scanner in an energy-conservation mode"
-msgstr ""
+msgstr "Energiesparmodus aktivieren"
 
 #: backend/hp5400_sane.c:474
 #, no-c-format
 msgid "copies-up"
-msgstr ""
+msgstr "Anzahl vergößern"
 
 #: backend/hp5400_sane.c:475
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Increase Copies button"
-msgstr "Kopieren-Taste"
+msgstr "Anzahl vergrößern Taste"
 
 #: backend/hp5400_sane.c:476
 #, no-c-format
 msgid "Increase the number of copies"
-msgstr ""
+msgstr "Anzahl der Kopien vergrößern"
 
 #: backend/hp5400_sane.c:482
 #, no-c-format
 msgid "copies-down"
-msgstr ""
+msgstr "Anzahl reduzieren"
 
 #: backend/hp5400_sane.c:483
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Decrease Copies button"
-msgstr "Kopieren-Taste"
+msgstr "Anzahl reduzieren Taste"
 
 #: backend/hp5400_sane.c:484
 #, no-c-format
 msgid "Decrease the number of copies"
-msgstr ""
+msgstr "Anzahl der Kopien verringern"
 
 #: backend/hp5400_sane.c:490
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "color-bw"
-msgstr "Farbe"
+msgstr "Farbe Monochrom"
 
 #: backend/hp5400_sane.c:491
 #, no-c-format
 msgid "Select color/BW button"
-msgstr ""
+msgstr "Farb-Monochrom-Taste"
 
 #: backend/hp5400_sane.c:492
 #, no-c-format
 msgid "Alternates between color and black/white scanning"
-msgstr ""
+msgstr "Umschalten zwischen Farb- und Monochrom-Scans"
 
 #: backend/hp5400_sane.c:498
 #, no-c-format
 msgid "color-bw-state"
-msgstr ""
+msgstr "Farb-/Monochrom Status"
 
 #: backend/hp5400_sane.c:499
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Read color/BW button state"
-msgstr "Tasten-Status"
+msgstr "Lese Status der Farb/Monochrom Taste"
 
 #: backend/hp5400_sane.c:500
 #, no-c-format
 msgid "Reads state of BW/colour panel setting"
-msgstr ""
+msgstr "Lese Farb-/Monochrom Einstellungen"
 
 #: backend/hp5400_sane.c:508
 #, no-c-format
 msgid "copies-count"
-msgstr ""
+msgstr "Anzahl Kopien"
 
 #: backend/hp5400_sane.c:509
 #, no-c-format
 msgid "Read copy count value"
-msgstr ""
+msgstr "Lese Anzahl der Kopien"
 
 #: backend/hp5400_sane.c:510
 #, no-c-format
 msgid "Reads state of copy count panel setting"
-msgstr ""
+msgstr "Lese Zähler-Einstellungen"
 
 #: backend/hp5400_sane.c:519 backend/niash.c:709
 #, no-c-format
@@ -4021,7 +4020,7 @@ msgstr "Schaltet die Lampe an oder aus."
 #: backend/hp5400_sane.c:537 backend/niash.c:727
 #, no-c-format
 msgid "Calibrates for black and white level."
-msgstr "Kalibriert Schwarz- und Weisswert."
+msgstr "Kalibriert Schwarz- und Weißwert."
 
 #: backend/hp5590.c:95
 #, no-c-format
@@ -4122,7 +4121,7 @@ msgid ""
 "raw = raw scan data, last = repeat last scan line, raster = b/w raster, "
 "white = white color, black = black color, color = RGB or gray color value"
 msgstr ""
-"raw = Scandaten, letzte = wiederhole letzte Scanzeile, Raster = s/w "
+"RAW = Scandaten, letzte = wiederhole letzte Scanzeile, Raster = S/W "
 "Raster, Weiß, Schwarz, Farbe = RGB oder Grau Wert"
 
 #: backend/hp5590.c:137
@@ -4234,20 +4233,20 @@ msgstr "Flachbett"
 #: backend/kvs40xx_opt.c:101
 #, no-c-format
 msgid "single"
-msgstr "einzeln"
+msgstr "Einzeln"
 
 #: backend/kvs1025_opt.c:73 backend/kvs20xx.c:462 backend/kvs20xx_opt.c:56
 #: backend/kvs40xx.c:705 backend/kvs40xx.c:723 backend/kvs40xx_opt.c:102
 #: backend/kvs40xx_opt.c:1087
 #, no-c-format
 msgid "continuous"
-msgstr "endlos"
+msgstr "Endlos"
 
 #: backend/kvs1025_opt.c:83 backend/kvs20xx_opt.c:62
 #: backend/kvs40xx_opt.c:115
 #, no-c-format
 msgid "off"
-msgstr "aus"
+msgstr "Aus"
 
 #: backend/kvs1025_opt.c:84 backend/kvs20xx_opt.c:63
 #: backend/kvs40xx_opt.c:116
@@ -4340,12 +4339,12 @@ msgstr "Diffusion"
 #: backend/kvs40xx_opt.c:223 backend/kvs40xx_opt.c:258
 #, no-c-format
 msgid "normal"
-msgstr "normal"
+msgstr "Normal"
 
 #: backend/kvs1025_opt.c:166 backend/kvs40xx_opt.c:259
 #, no-c-format
 msgid "light"
-msgstr "hell"
+msgstr "Hell"
 
 #: backend/kvs1025_opt.c:167 backend/kvs40xx_opt.c:260
 #, no-c-format
@@ -4378,7 +4377,7 @@ msgstr "Glatt"
 #: backend/kvs40xx_opt.c:205
 #, no-c-format
 msgid "none"
-msgstr "nichts"
+msgstr "Nichts"
 
 #: backend/kvs1025_opt.c:212 backend/kvs20xx_opt.c:120
 #: backend/kvs40xx_opt.c:206
@@ -4396,7 +4395,7 @@ msgstr "Mittel"
 #: backend/kvs40xx_opt.c:208
 #, no-c-format
 msgid "high"
-msgstr "hoch"
+msgstr "Hoch"
 
 #: backend/kvs1025_opt.c:228 backend/kvs20xx_opt.c:130
 #: backend/kvs40xx_opt.c:216
@@ -4407,7 +4406,7 @@ msgstr "Monitor"
 #: backend/kvs1025_opt.c:229
 #, no-c-format
 msgid "linear"
-msgstr "linear"
+msgstr "Linear"
 
 #: backend/kvs1025_opt.c:241 backend/kvs20xx_opt.c:138
 #: backend/kvs40xx_opt.c:224
@@ -4647,7 +4646,7 @@ msgstr "A3"
 #: backend/kvs40xx_opt.c:132
 #, no-c-format
 msgid "Double letter 11x17 in"
-msgstr "Double Letter 11x17 Zoll"
+msgstr "Double Letter 11\"x17\""
 
 #: backend/kvs40xx_opt.c:133
 #, no-c-format
@@ -5524,15 +5523,15 @@ msgid "16 bits gray"
 msgstr "16 Bit Graustufen"
 
 #: backend/pixma/pixma.c:1011
-#, fuzzy, no-c-format
+#, no-c-format
 msgid ""
 "Gamma-correction table with 4096 entries. In color mode this option "
 "equally affects the red, green, and blue channels simultaneously (i.e., "
 "it is an intensity gamma table)."
 msgstr ""
-"Gamma-Korrekturtabelle. Im Farbmodus wirkt sich diese Option auf die "
-"rote, grüne und blaue Farbkomponente aus. Es ist also eine Helligkeits-"
-"Gammatabelle."
+"Gamma-Korrekturtabelle mit 4096 Einträgen. Im Farbmodus wirkt sich diese "
+"Option auf die rote, grüne und blaue Farbkomponente aus. Es ist also "
+"eine Helligkeits-Gammatabelle."
 
 #: backend/pixma/pixma_sane_options.c:85
 #, no-c-format
@@ -5561,15 +5560,15 @@ msgstr ""
 "anderen Modellen. Zum Abbrechen drücken Sie die Taste \"GRAY\"."
 
 #: backend/pixma/pixma_sane_options.c:134
-#, fuzzy, no-c-format
+#, no-c-format
 msgid ""
 "Gamma-correction table with 1024 entries. In color mode this option "
 "equally affects the red, green, and blue channels simultaneously (i.e., "
 "it is an intensity gamma table)."
 msgstr ""
-"Gamma-Korrekturtabelle. Im Farbmodus wirkt sich diese Option auf die "
-"rote, grüne und blaue Farbkomponente aus. Es ist also eine Helligkeits-"
-"Gammatabelle."
+"Gamma-Korrekturtabelle mit 1024 Einträgen. Im Farbmodus wirkt sich diese "
+"Option auf die rote, grüne und blaue Farbkomponente aus. Es ist also "
+"eine Helligkeits-Gammatabelle."
 
 #: backend/pixma/pixma_sane_options.c:233
 #, no-c-format
@@ -5597,19 +5596,19 @@ msgid "Target operation type"
 msgstr "Scanziel"
 
 #: backend/pixma/pixma_sane_options.c:315
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Document type"
-msgstr "Dokumenteneinzug"
+msgstr "Vorlagentyp"
 
 #: backend/pixma/pixma_sane_options.c:329
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "ADF status"
-msgstr "Lampenstatus"
+msgstr "Duplex Status"
 
 #: backend/pixma/pixma_sane_options.c:343
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "ADF orientation"
-msgstr "Duplex Aktion"
+msgstr "Duplex Orientierung"
 
 #: backend/pixma/pixma_sane_options.c:379
 #, no-c-format
@@ -6041,12 +6040,12 @@ msgstr "6x4 (Zoll)"
 #: backend/snapscan-options.c:93
 #, no-c-format
 msgid "8x10 (inch)"
-msgstr "8x10 (Zoll)"
+msgstr "8\"x10\""
 
 #: backend/snapscan-options.c:94
 #, no-c-format
 msgid "8.5x11 (inch)"
-msgstr "8.5x11 (Zoll)"
+msgstr "8.5\"x11\""
 
 #: backend/snapscan-options.c:97
 #, no-c-format
@@ -6054,12 +6053,12 @@ msgid "Halftoning Unsupported"
 msgstr "Halbton nicht unterstützt"
 
 #: backend/snapscan-options.c:98
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "DispersedDot8x8"
 msgstr "DispersedDot8x8"
 
 #: backend/snapscan-options.c:99
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "DispersedDot16x16"
 msgstr "DispersedDot16x16"
 
@@ -6136,7 +6135,7 @@ msgstr "Zu scannender Rahmen"
 #: backend/snapscan-options.c:897
 #, no-c-format
 msgid "Focus-mode"
-msgstr "Fokus"
+msgstr "Fokus-Modus"
 
 #: backend/snapscan-options.c:898
 #, no-c-format
@@ -6488,7 +6487,7 @@ msgid "(3/6) Bool hard select"
 msgstr "(3/6) Bool hard select"
 
 #: backend/test.c:805
-#, no-c-format
+#, fuzzy, no-c-format
 msgid ""
 "(3/6) Bool test option that has hard select (and advanced) capabilities. "
 "That means the option can't be set by the frontend but by the user (e.g. "
@@ -6501,12 +6500,12 @@ msgstr ""
 "kann."
 
 #: backend/test.c:823
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "(4/6) Bool soft detect"
 msgstr "(4/6) Bool soft detect"
 
 #: backend/test.c:824
-#, no-c-format
+#, fuzzy, no-c-format
 msgid ""
 "(4/6) Bool test option that has soft detect (and advanced) capabilities. "
 "That means the option is read-only."
@@ -6515,7 +6514,7 @@ msgstr ""
 "\" (und \"advanced\") hat. Das heißt, dass dies eine Nur-Lese-Option ist."
 
 #: backend/test.c:840
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "(5/6) Bool soft select soft detect emulated"
 msgstr "(5/6) Bool soft select soft detect emulated"
 
@@ -6529,7 +6528,7 @@ msgstr ""
 "\"soft detect\", und \"emulated\" (und \"advanced\") hat."
 
 #: backend/test.c:857
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "(6/6) Bool soft select soft detect auto"
 msgstr "(6/6) Bool soft select soft detect auto"
 
@@ -6562,7 +6561,7 @@ msgstr "(1/6) Int-Testoption ohne Einheit und Beschränkung."
 #: backend/test.c:904
 #, no-c-format
 msgid "(2/6) Int constraint range"
-msgstr "(2/6) Int constraint range"
+msgstr "(2/6) Int Bereichsbeschränkung"
 
 #: backend/test.c:905
 #, no-c-format
@@ -6575,9 +6574,9 @@ msgstr ""
 "Schrittweite ist 2."
 
 #: backend/test.c:921
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "(3/6) Int constraint word list"
-msgstr "(3/6) Int constraint word list"
+msgstr "(3/6) Int Beschränkungsliste"
 
 #: backend/test.c:922
 #, no-c-format
@@ -6587,7 +6586,7 @@ msgstr ""
 "Beschränkung."
 
 #: backend/test.c:937
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "(4/6) Int array"
 msgstr "(4/6) Int array"
 
@@ -6616,7 +6615,7 @@ msgstr ""
 "Schrittweite ist 2."
 
 #: backend/test.c:1028
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "(6/6) Int array constraint word list"
 msgstr "(6/6) Int array constraint word list"
 
@@ -6635,19 +6634,19 @@ msgid "Fixed test options"
 msgstr "Fixed-Testoptionen"
 
 #: backend/test.c:1058
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "(1/3) Fixed"
-msgstr "(1/3) Fixed"
+msgstr "(1/3) Festgelegt"
 
 #: backend/test.c:1059
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "(1/3) Fixed test option with no unit and no constraint set."
-msgstr "(1/3) Fixed-Testoption ohne Einheit und ohne Beschränkung."
+msgstr "(1/3) Festgelegte Testoption ohne Einheit und ohne Beschränkung."
 
 #: backend/test.c:1074
 #, no-c-format
 msgid "(2/3) Fixed constraint range"
-msgstr "(2/3) Fixed constraint range"
+msgstr "(2/3) Festgelegte Bereichsbeschränkung"
 
 #: backend/test.c:1075
 #, no-c-format
@@ -6655,14 +6654,14 @@ msgid ""
 "(2/3) Fixed test option with unit microsecond and constraint range set. "
 "Minimum is -42.17, maximum 32767.9999, and quant is 2.0."
 msgstr ""
-"(2/3) Fixed-Testoption mit der Einheit \"Mikrosekunde\" und einer "
+"(2/3) Festgelegte Testoption mit der Einheit \"Mikrosekunde\" und einer "
 "Bereichsbeschränkung. Das Minimum ist -42.17, das Maximum 32767.9999, "
 "und die Schrittweite ist 2.0."
 
 #: backend/test.c:1091
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "(3/3) Fixed constraint word list"
-msgstr "(3/3) Fixed constraint word list"
+msgstr "(3/3) Festgelegte Beschränkungsliste"
 
 #: backend/test.c:1092
 #, no-c-format
@@ -6679,7 +6678,7 @@ msgstr "Zeichenketten-Testoptionen"
 #: backend/test.c:1120
 #, no-c-format
 msgid "(1/3) String"
-msgstr "(1/3) Zeichenketten"
+msgstr "(1/3) Zeichenkette"
 
 #: backend/test.c:1121
 #, no-c-format
@@ -6861,52 +6860,3 @@ msgstr "Legt den Offset des grünen Kanals fest"
 #, no-c-format
 msgid "Sets blue channel offset"
 msgstr "Legt den Offset des blauen Kanals fest"
-
-#~ msgid "Request backend to remove border from pages digitally"
-#~ msgstr "Treiber entfernt digital Ränder vom Scan"
-
-#~ msgid "Disable interpolation"
-#~ msgstr "Interpolation abschalten"
-
-#~ msgid ""
-#~ "When using high resolutions where the horizontal resolution is "
-#~ "smaller than the vertical resolution this disables horizontal "
-#~ "interpolation."
-#~ msgstr ""
-#~ "Deaktiviere horizontale Interpolation bei hoher Auflösung, bei denen "
-#~ "die horizontale Auflösung kleiner ist als die vertikale."
-
-#~ msgid "offset X"
-#~ msgstr "X-Abstand"
-
-#~ msgid "Hardware internal X position of the scanning area."
-#~ msgstr "Hardwareinterne X-Position des Scanbereichs."
-
-#~ msgid "offset Y"
-#~ msgstr "Y-Abstand"
-
-#~ msgid "Hardware internal Y position of the scanning area."
-#~ msgstr "Hardwareinterne Y-Position des Scanbereichs."
-
-#~ msgid "Disable dynamic lineart"
-#~ msgstr "Deaktiviere dynamische Strichzeichnung"
-
-#~ msgid ""
-#~ "Disable use of a software adaptive algorithm to generate lineart "
-#~ "relying instead on hardware lineart."
-#~ msgstr ""
-#~ "Deaktiviere Software angepassten Algorithmus zur Erstellung von "
-#~ "Strichzeichnungen anstelle von Hardware-Strichzeichnungen."
-
-#~ msgid "linier"
-#~ msgstr "Lineal"
-
-#~ msgid "It is right and left reversing"
-#~ msgstr "Das ist rechter und linker Rücklauf"
-
-#, fuzzy
-#~ msgid "IPC mode"
-#~ msgstr "Vorschaumodus"
-
-#~ msgid "problem not analyzed (unknown SCSI class)"
-#~ msgstr "Problem nicht analysiert (unbekannte SCSI-Klasse)"

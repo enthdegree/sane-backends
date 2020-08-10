@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: sane-backends 1.0.29\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
 "POT-Creation-Date: 2020-06-27 12:18+0200\n"
-"PO-Revision-Date: 2020-08-10 22:38+0200\n"
+"PO-Revision-Date: 2020-08-10 22:47+0200\n"
 "Last-Translator: Rolf Bensch <rolf@bensch-online.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -1744,12 +1744,12 @@ msgstr "Automatischer Dokumenteneinzug"
 #: backend/epson.c:523 backend/epson2.c:134
 #, no-c-format
 msgid "Positive Film"
-msgstr "Filmpositiv"
+msgstr "Film positiv"
 
 #: backend/epson.c:524 backend/epson2.c:135
 #, no-c-format
 msgid "Negative Film"
-msgstr "Filmnegativ"
+msgstr "Film negativ"
 
 #: backend/epson.c:529 backend/epson2.c:142
 #, no-c-format
@@ -2107,7 +2107,7 @@ msgstr "Dokumenteneinzug Modus"
 #: backend/kodakaio.c:2857 backend/magicolor.c:2452
 #, no-c-format
 msgid "Selects the ADF mode (simplex/duplex)"
-msgstr "Wählt den ADF-Modus aus (einseitig/doppelseitig)"
+msgstr "Wählt den Duplex-Modus aus (einseitig/doppelseitig)"
 
 #: backend/epson.c:3473 backend/epson2.c:1430
 #, no-c-format
@@ -2167,12 +2167,12 @@ msgstr "Infrarot"
 #: backend/epson2.c:136
 #, no-c-format
 msgid "Positive Slide"
-msgstr "Diapositiv"
+msgstr "Dia positiv"
 
 #: backend/epson2.c:137
 #, no-c-format
 msgid "Negative Slide"
-msgstr "Dianegativ"
+msgstr "Dia negativ"
 
 #: backend/epson2.c:215
 #, no-c-format
@@ -3870,7 +3870,7 @@ msgstr "Diese Option spiegelt eine Frontplatten-Scannertaste wider"
 #: backend/hp5400_sane.c:418
 #, no-c-format
 msgid "web"
-msgstr "Web"
+msgstr "Internet"
 
 #: backend/hp5400_sane.c:419
 #, no-c-format
@@ -3933,7 +3933,7 @@ msgid "copies-up"
 msgstr "Anzahl vergößern"
 
 #: backend/hp5400_sane.c:475
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Increase Copies button"
 msgstr "Anzahl vergrößern Taste"
 
@@ -3945,12 +3945,12 @@ msgstr "Anzahl der Kopien vergrößern"
 #: backend/hp5400_sane.c:482
 #, no-c-format
 msgid "copies-down"
-msgstr "Anzahl verringern"
+msgstr "Anzahl reduzieren"
 
 #: backend/hp5400_sane.c:483
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Decrease Copies button"
-msgstr "Anzahl verringern Taste"
+msgstr "Anzahl reduzieren Taste"
 
 #: backend/hp5400_sane.c:484
 #, no-c-format
@@ -3960,7 +3960,7 @@ msgstr "Anzahl der Kopien verringern"
 #: backend/hp5400_sane.c:490
 #, no-c-format
 msgid "color-bw"
-msgstr "Farbe-Monochrom"
+msgstr "Farbe Monochrom"
 
 #: backend/hp5400_sane.c:491
 #, no-c-format
@@ -3990,7 +3990,7 @@ msgstr "Lese Farb-/Monochrom Einstellungen"
 #: backend/hp5400_sane.c:508
 #, no-c-format
 msgid "copies-count"
-msgstr "Anzahl"
+msgstr "Anzahl Kopien"
 
 #: backend/hp5400_sane.c:509
 #, no-c-format
@@ -4020,7 +4020,7 @@ msgstr "Schaltet die Lampe an oder aus."
 #: backend/hp5400_sane.c:537 backend/niash.c:727
 #, no-c-format
 msgid "Calibrates for black and white level."
-msgstr "Kalibriert Schwarz- und Weisswert."
+msgstr "Kalibriert Schwarz- und Weißwert."
 
 #: backend/hp5590.c:95
 #, no-c-format
@@ -4121,7 +4121,7 @@ msgid ""
 "raw = raw scan data, last = repeat last scan line, raster = b/w raster, "
 "white = white color, black = black color, color = RGB or gray color value"
 msgstr ""
-"raw = Scandaten, letzte = wiederhole letzte Scanzeile, Raster = s/w "
+"RAW = Scandaten, letzte = wiederhole letzte Scanzeile, Raster = S/W "
 "Raster, Weiß, Schwarz, Farbe = RGB oder Grau Wert"
 
 #: backend/hp5590.c:137
@@ -4646,7 +4646,7 @@ msgstr "A3"
 #: backend/kvs40xx_opt.c:132
 #, no-c-format
 msgid "Double letter 11x17 in"
-msgstr "Double Letter 11x17 Zoll"
+msgstr "Double Letter 11\"x17\""
 
 #: backend/kvs40xx_opt.c:133
 #, no-c-format
@@ -5523,7 +5523,7 @@ msgid "16 bits gray"
 msgstr "16 Bit Graustufen"
 
 #: backend/pixma/pixma.c:1011
-#, fuzzy, no-c-format
+#, no-c-format
 msgid ""
 "Gamma-correction table with 4096 entries. In color mode this option "
 "equally affects the red, green, and blue channels simultaneously (i.e., "
@@ -5560,7 +5560,7 @@ msgstr ""
 "anderen Modellen. Zum Abbrechen drücken Sie die Taste \"GRAY\"."
 
 #: backend/pixma/pixma_sane_options.c:134
-#, fuzzy, no-c-format
+#, no-c-format
 msgid ""
 "Gamma-correction table with 1024 entries. In color mode this option "
 "equally affects the red, green, and blue channels simultaneously (i.e., "
@@ -5596,19 +5596,19 @@ msgid "Target operation type"
 msgstr "Scanziel"
 
 #: backend/pixma/pixma_sane_options.c:315
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Document type"
-msgstr "Dokumenteneinzug"
+msgstr "Vorlagentyp"
 
 #: backend/pixma/pixma_sane_options.c:329
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "ADF status"
-msgstr "Lampenstatus"
+msgstr "Duplex Status"
 
 #: backend/pixma/pixma_sane_options.c:343
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "ADF orientation"
-msgstr "Duplex Aktion"
+msgstr "Duplex Orientierung"
 
 #: backend/pixma/pixma_sane_options.c:379
 #, no-c-format
@@ -6040,12 +6040,12 @@ msgstr "6x4 (Zoll)"
 #: backend/snapscan-options.c:93
 #, no-c-format
 msgid "8x10 (inch)"
-msgstr "8x10 (Zoll)"
+msgstr "8\"x10\""
 
 #: backend/snapscan-options.c:94
 #, no-c-format
 msgid "8.5x11 (inch)"
-msgstr "8.5x11 (Zoll)"
+msgstr "8.5\"x11\""
 
 #: backend/snapscan-options.c:97
 #, no-c-format
@@ -6135,7 +6135,7 @@ msgstr "Zu scannender Rahmen"
 #: backend/snapscan-options.c:897
 #, no-c-format
 msgid "Focus-mode"
-msgstr "Fokus"
+msgstr "Fokus-Modus"
 
 #: backend/snapscan-options.c:898
 #, no-c-format
@@ -6561,7 +6561,7 @@ msgstr "(1/6) Int-Testoption ohne Einheit und Beschränkung."
 #: backend/test.c:904
 #, no-c-format
 msgid "(2/6) Int constraint range"
-msgstr "(2/6) Int constraint range"
+msgstr "(2/6) Int Bereichsbeschränkung"
 
 #: backend/test.c:905
 #, no-c-format
@@ -6576,7 +6576,7 @@ msgstr ""
 #: backend/test.c:921
 #, no-c-format
 msgid "(3/6) Int constraint word list"
-msgstr "(3/6) Int constraint word list"
+msgstr "(3/6) Int Beschränkungsliste"
 
 #: backend/test.c:922
 #, no-c-format
@@ -6636,17 +6636,17 @@ msgstr "Fixed-Testoptionen"
 #: backend/test.c:1058
 #, no-c-format
 msgid "(1/3) Fixed"
-msgstr "(1/3) Fixed"
+msgstr "(1/3) Festgelegt"
 
 #: backend/test.c:1059
 #, no-c-format
 msgid "(1/3) Fixed test option with no unit and no constraint set."
-msgstr "(1/3) Fixed-Testoption ohne Einheit und ohne Beschränkung."
+msgstr "(1/3) Festgelegte Testoption ohne Einheit und ohne Beschränkung."
 
 #: backend/test.c:1074
 #, no-c-format
 msgid "(2/3) Fixed constraint range"
-msgstr "(2/3) Fixed constraint range"
+msgstr "(2/3) Festgelegte Bereichsbeschränkung"
 
 #: backend/test.c:1075
 #, no-c-format
@@ -6654,14 +6654,14 @@ msgid ""
 "(2/3) Fixed test option with unit microsecond and constraint range set. "
 "Minimum is -42.17, maximum 32767.9999, and quant is 2.0."
 msgstr ""
-"(2/3) Fixed-Testoption mit der Einheit \"Mikrosekunde\" und einer "
+"(2/3) Festgelegte Testoption mit der Einheit \"Mikrosekunde\" und einer "
 "Bereichsbeschränkung. Das Minimum ist -42.17, das Maximum 32767.9999, "
 "und die Schrittweite ist 2.0."
 
 #: backend/test.c:1091
 #, no-c-format
 msgid "(3/3) Fixed constraint word list"
-msgstr "(3/3) Fixed constraint word list"
+msgstr "(3/3) Festgelegte Beschränkungsliste"
 
 #: backend/test.c:1092
 #, no-c-format
@@ -6678,7 +6678,7 @@ msgstr "Zeichenketten-Testoptionen"
 #: backend/test.c:1120
 #, no-c-format
 msgid "(1/3) String"
-msgstr "(1/3) Zeichenketten"
+msgstr "(1/3) Zeichenkette"
 
 #: backend/test.c:1121
 #, no-c-format

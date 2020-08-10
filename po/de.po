@@ -2667,7 +2667,7 @@ msgid ""
 msgstr "Hintergrundfarbe für Scans. Steht im Konflikt mit Overscan"
 
 #: backend/fujitsu.c:3885
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "Dropout color"
 msgstr "Dropout-Farbe"
 
@@ -3072,12 +3072,12 @@ msgid "Imprinter ink running low"
 msgstr "Wenig Imprinter Tinte"
 
 #: backend/fujitsu.c:4588
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "Double feed"
 msgstr "Double Feed"
 
 #: backend/fujitsu.c:4589
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "Double feed detected"
 msgstr "Double Feed erkannt"
 
@@ -6053,12 +6053,12 @@ msgid "Halftoning Unsupported"
 msgstr "Halbton nicht unterstützt"
 
 #: backend/snapscan-options.c:98
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "DispersedDot8x8"
 msgstr "DispersedDot8x8"
 
 #: backend/snapscan-options.c:99
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "DispersedDot16x16"
 msgstr "DispersedDot16x16"
 
@@ -6487,7 +6487,7 @@ msgid "(3/6) Bool hard select"
 msgstr "(3/6) Bool hard select"
 
 #: backend/test.c:805
-#, no-c-format
+#, fuzzy, no-c-format
 msgid ""
 "(3/6) Bool test option that has hard select (and advanced) capabilities. "
 "That means the option can't be set by the frontend but by the user (e.g. "
@@ -6500,12 +6500,12 @@ msgstr ""
 "kann."
 
 #: backend/test.c:823
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "(4/6) Bool soft detect"
 msgstr "(4/6) Bool soft detect"
 
 #: backend/test.c:824
-#, no-c-format
+#, fuzzy, no-c-format
 msgid ""
 "(4/6) Bool test option that has soft detect (and advanced) capabilities. "
 "That means the option is read-only."
@@ -6514,7 +6514,7 @@ msgstr ""
 "\" (und \"advanced\") hat. Das heißt, dass dies eine Nur-Lese-Option ist."
 
 #: backend/test.c:840
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "(5/6) Bool soft select soft detect emulated"
 msgstr "(5/6) Bool soft select soft detect emulated"
 
@@ -6528,7 +6528,7 @@ msgstr ""
 "\"soft detect\", und \"emulated\" (und \"advanced\") hat."
 
 #: backend/test.c:857
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "(6/6) Bool soft select soft detect auto"
 msgstr "(6/6) Bool soft select soft detect auto"
 
@@ -6574,7 +6574,7 @@ msgstr ""
 "Schrittweite ist 2."
 
 #: backend/test.c:921
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "(3/6) Int constraint word list"
 msgstr "(3/6) Int Beschränkungsliste"
 
@@ -6586,7 +6586,7 @@ msgstr ""
 "Beschränkung."
 
 #: backend/test.c:937
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "(4/6) Int array"
 msgstr "(4/6) Int array"
 
@@ -6615,7 +6615,7 @@ msgstr ""
 "Schrittweite ist 2."
 
 #: backend/test.c:1028
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "(6/6) Int array constraint word list"
 msgstr "(6/6) Int array constraint word list"
 
@@ -6634,12 +6634,12 @@ msgid "Fixed test options"
 msgstr "Fixed-Testoptionen"
 
 #: backend/test.c:1058
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "(1/3) Fixed"
 msgstr "(1/3) Festgelegt"
 
 #: backend/test.c:1059
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "(1/3) Fixed test option with no unit and no constraint set."
 msgstr "(1/3) Festgelegte Testoption ohne Einheit und ohne Beschränkung."
 
@@ -6659,7 +6659,7 @@ msgstr ""
 "und die Schrittweite ist 2.0."
 
 #: backend/test.c:1091
-#, no-c-format
+#, fuzzy, no-c-format
 msgid "(3/3) Fixed constraint word list"
 msgstr "(3/3) Festgelegte Beschränkungsliste"
 

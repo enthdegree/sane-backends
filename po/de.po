@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: sane-backends 1.0.29\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
 "POT-Creation-Date: 2020-06-27 12:18+0200\n"
-"PO-Revision-Date: 2020-06-27 13:37+0200\n"
+"PO-Revision-Date: 2020-08-10 22:38+0200\n"
 "Last-Translator: Rolf Bensch <rolf@bensch-online.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -6860,52 +6860,3 @@ msgstr "Legt den Offset des grünen Kanals fest"
 #, no-c-format
 msgid "Sets blue channel offset"
 msgstr "Legt den Offset des blauen Kanals fest"
-
-#~ msgid "Request backend to remove border from pages digitally"
-#~ msgstr "Treiber entfernt digital Ränder vom Scan"
-
-#~ msgid "Disable interpolation"
-#~ msgstr "Interpolation abschalten"
-
-#~ msgid ""
-#~ "When using high resolutions where the horizontal resolution is "
-#~ "smaller than the vertical resolution this disables horizontal "
-#~ "interpolation."
-#~ msgstr ""
-#~ "Deaktiviere horizontale Interpolation bei hoher Auflösung, bei denen "
-#~ "die horizontale Auflösung kleiner ist als die vertikale."
-
-#~ msgid "offset X"
-#~ msgstr "X-Abstand"
-
-#~ msgid "Hardware internal X position of the scanning area."
-#~ msgstr "Hardwareinterne X-Position des Scanbereichs."
-
-#~ msgid "offset Y"
-#~ msgstr "Y-Abstand"
-
-#~ msgid "Hardware internal Y position of the scanning area."
-#~ msgstr "Hardwareinterne Y-Position des Scanbereichs."
-
-#~ msgid "Disable dynamic lineart"
-#~ msgstr "Deaktiviere dynamische Strichzeichnung"
-
-#~ msgid ""
-#~ "Disable use of a software adaptive algorithm to generate lineart "
-#~ "relying instead on hardware lineart."
-#~ msgstr ""
-#~ "Deaktiviere Software angepassten Algorithmus zur Erstellung von "
-#~ "Strichzeichnungen anstelle von Hardware-Strichzeichnungen."
-
-#~ msgid "linier"
-#~ msgstr "Lineal"
-
-#~ msgid "It is right and left reversing"
-#~ msgstr "Das ist rechter und linker Rücklauf"
-
-#, fuzzy
-#~ msgid "IPC mode"
-#~ msgstr "Vorschaumodus"
-
-#~ msgid "problem not analyzed (unknown SCSI class)"
-#~ msgstr "Problem nicht analysiert (unbekannte SCSI-Klasse)"

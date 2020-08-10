@@ -1137,7 +1137,7 @@ msgstr "1/3 Normalgeschwindigkeit"
 #: backend/canon.c:360
 #, no-c-format
 msgid "rounded parameter"
-msgstr "gerundeter Parameter"
+msgstr "Gerundeter Parameter"
 
 #: backend/canon.c:363 backend/canon.c:379 backend/canon.c:414
 #: backend/canon.c:464 backend/canon.c:482 backend/canon.c:525
@@ -1233,7 +1233,7 @@ msgstr "Zu viele Fenster angegeben"
 #: backend/canon.c:452
 #, no-c-format
 msgid "medium not present"
-msgstr "kein Medium eingelegt"
+msgstr "Kein Medium eingelegt"
 
 #: backend/canon.c:456
 #, no-c-format
@@ -1258,7 +1258,7 @@ msgstr "Parameter von einem anderen Initator geändert"
 #: backend/canon.c:492
 #, no-c-format
 msgid "no additional sense information"
-msgstr "keine zusätzliche Sinnesinformation"
+msgstr "Keine zusätzliche Sensorinformation"
 
 #: backend/canon.c:496
 #, no-c-format
@@ -4233,20 +4233,20 @@ msgstr "Flachbett"
 #: backend/kvs40xx_opt.c:101
 #, no-c-format
 msgid "single"
-msgstr "einzeln"
+msgstr "Einzeln"
 
 #: backend/kvs1025_opt.c:73 backend/kvs20xx.c:462 backend/kvs20xx_opt.c:56
 #: backend/kvs40xx.c:705 backend/kvs40xx.c:723 backend/kvs40xx_opt.c:102
 #: backend/kvs40xx_opt.c:1087
 #, no-c-format
 msgid "continuous"
-msgstr "endlos"
+msgstr "Endlos"
 
 #: backend/kvs1025_opt.c:83 backend/kvs20xx_opt.c:62
 #: backend/kvs40xx_opt.c:115
 #, no-c-format
 msgid "off"
-msgstr "aus"
+msgstr "Aus"
 
 #: backend/kvs1025_opt.c:84 backend/kvs20xx_opt.c:63
 #: backend/kvs40xx_opt.c:116
@@ -4339,12 +4339,12 @@ msgstr "Diffusion"
 #: backend/kvs40xx_opt.c:223 backend/kvs40xx_opt.c:258
 #, no-c-format
 msgid "normal"
-msgstr "normal"
+msgstr "Normal"
 
 #: backend/kvs1025_opt.c:166 backend/kvs40xx_opt.c:259
 #, no-c-format
 msgid "light"
-msgstr "hell"
+msgstr "Hell"
 
 #: backend/kvs1025_opt.c:167 backend/kvs40xx_opt.c:260
 #, no-c-format
@@ -4377,7 +4377,7 @@ msgstr "Glatt"
 #: backend/kvs40xx_opt.c:205
 #, no-c-format
 msgid "none"
-msgstr "nichts"
+msgstr "Nichts"
 
 #: backend/kvs1025_opt.c:212 backend/kvs20xx_opt.c:120
 #: backend/kvs40xx_opt.c:206
@@ -4395,7 +4395,7 @@ msgstr "Mittel"
 #: backend/kvs40xx_opt.c:208
 #, no-c-format
 msgid "high"
-msgstr "hoch"
+msgstr "Hoch"
 
 #: backend/kvs1025_opt.c:228 backend/kvs20xx_opt.c:130
 #: backend/kvs40xx_opt.c:216
@@ -4406,7 +4406,7 @@ msgstr "Monitor"
 #: backend/kvs1025_opt.c:229
 #, no-c-format
 msgid "linear"
-msgstr "linear"
+msgstr "Linear"
 
 #: backend/kvs1025_opt.c:241 backend/kvs20xx_opt.c:138
 #: backend/kvs40xx_opt.c:224

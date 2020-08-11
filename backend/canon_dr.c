@@ -3,7 +3,7 @@
    This file is part of the SANE package, and implements a SANE backend
    for various Canon DR-series scanners.
 
-   Copyright (C) 2008-2019 m. allan noah
+   Copyright (C) 2008-2020 m. allan noah
 
    Yabarana Corp. www.yabarana.com provided significant funding
    EvriChart, Inc. www.evrichart.com provided funding and loaned equipment
@@ -340,6 +340,10 @@
          - complete support for X-10, including hardware cropping
       v58 2019-11-10, MAN
          - adjust wait_scanner to set runRS only as a last resort, bug #154
+      v59 2020-09-23, MAN
+         - restructure fine calibration code
+         - initial support for uploading fine calibration payloads
+         - improve DR-C225 support
 
    SANE FLOW DIAGRAM
 
@@ -390,7 +394,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 58
+#define BUILD 59
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -1348,7 +1352,8 @@ init_model (struct scanner *s)
     s->gray_interlace[SIDE_BACK] = GRAY_INTERLACE_gG;
     s->duplex_interlace = DUPLEX_INTERLACE_FBfb;
     s->need_ccal = 1;
-    s->need_fcal = 1;
+    s->fcal_src = FCAL_SRC_SCAN;
+    s->fcal_dest = FCAL_DEST_SW;
     /*s->duplex_offset = 432; now set in config file*/
     s->duplex_offset_side = SIDE_BACK;
 
@@ -1372,7 +1377,8 @@ init_model (struct scanner *s)
     s->duplex_interlace = DUPLEX_INTERLACE_2510;
     /*s->duplex_offset = 400; now set in config file*/
     s->need_ccal = 1;
-    s->need_fcal = 1;
+    s->fcal_src = FCAL_SRC_SCAN;
+    s->fcal_dest = FCAL_DEST_SW;
     s->sw_lut = 1;
     /*s->invert_tly = 1;*/
 
@@ -1402,7 +1408,8 @@ init_model (struct scanner *s)
     s->duplex_interlace = DUPLEX_INTERLACE_2510;
     /*s->duplex_offset = 400; now set in config file*/
     s->need_ccal = 1;
-    s->need_fcal = 1;
+    s->fcal_src = FCAL_SRC_SCAN;
+    s->fcal_dest = FCAL_DEST_SW;
     s->sw_lut = 1;
     s->invert_tly = 1;
 
@@ -1427,7 +1434,8 @@ init_model (struct scanner *s)
     s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_RRGGBB;
     s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_RRGGBB;
     s->duplex_interlace = DUPLEX_INTERLACE_FBfb;
-    s->need_fcal_buffer = 1;
+    s->fcal_src = FCAL_SRC_HW;
+    s->fcal_dest = FCAL_DEST_SW;
     s->bg_color = 0x08;
     /*s->duplex_offset = 840; now set in config file*/
     s->sw_lut = 1;
@@ -1604,7 +1612,8 @@ init_model (struct scanner *s)
     s->unknown_byte2 = 0x88;
     s->need_ccal = 1;
     s->ccal_version = 3;
-    s->need_fcal = 1;
+    s->fcal_src = FCAL_SRC_SCAN;
+    s->fcal_dest = FCAL_DEST_SW;
     s->sw_lut = 1;
     s->rgb_format = 1;
     /*s->duplex_offset = 400; now set in config file*/
@@ -1625,14 +1634,15 @@ init_model (struct scanner *s)
   else if (strstr (s->model_name,"DR-C225")){
 
     s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_RRGGBB;
-    s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_rRgGbB;
+    s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_RRGGBB;
     s->gray_interlace[SIDE_BACK] = GRAY_INTERLACE_gG;
-    s->duplex_interlace = DUPLEX_INTERLACE_FBfb;
+    s->duplex_interlace = DUPLEX_INTERLACE_PER_CHANNEL;
 
     s->unknown_byte2 = 0x88;
     s->need_ccal = 1;
     s->ccal_version = 3;
-    s->need_fcal = 1;
+    s->fcal_src = FCAL_SRC_SCAN;
+    s->fcal_dest = FCAL_DEST_HW;
     s->invert_tly = 1;
     s->rgb_format = 1;
     /*s->duplex_offset = 400; now set in config file*/
@@ -4314,19 +4324,16 @@ sane_start (SANE_Handle handle)
     }
 
     /* AFE cal */
-    if((ret = calibrate_AFE(s))){
+    ret = calibrate_AFE(s);
+    if (ret != SANE_STATUS_GOOD) {
       DBG (5, "sane_start: ERROR: cannot cal afe\n");
       goto errors;
     }
 
     /* fine cal */
-    if((ret = calibrate_fine(s))){
+    ret = calibrate_fine(s);
+    if (ret != SANE_STATUS_GOOD) {
       DBG (5, "sane_start: ERROR: cannot cal fine\n");
-      goto errors;
-    }
-
-    if((ret = calibrate_fine_buffer(s))){
-      DBG (5, "sane_start: ERROR: cannot cal fine from buffer\n");
       goto errors;
     }
 
@@ -5517,6 +5524,7 @@ copy_duplex(struct scanner *s, unsigned char * buf, int len)
 {
   SANE_Status ret=SANE_STATUS_GOOD;
   int i,j;
+  int pwidth = s->s.width;
   int bwidth = s->s.Bpl;
   int dbwidth = 2*bwidth;
   unsigned char * front;
@@ -5564,6 +5572,21 @@ copy_duplex(struct scanner *s, unsigned char * buf, int len)
         back[blen++] = buf[i+j+3];
         back[blen++] = buf[i+j];
         back[blen++] = buf[i+j+1];
+      }
+    }
+  }
+
+  /* line is in 6 sections, front red, back red, front green, etc. */
+  else if(s->duplex_interlace == DUPLEX_INTERLACE_PER_CHANNEL){
+
+    DBG (10, "copy_duplex: per channel\n");
+
+    for(i=0; i<len; i+=dbwidth){
+      for(j=0;j<3;j++){
+        memcpy(front+flen,buf+i+j*pwidth*2,pwidth);
+        flen+=pwidth;
+        memcpy(back+blen,buf+i+j*pwidth*2+pwidth,pwidth);
+        blen+=pwidth;
       }
     }
   }
@@ -6119,10 +6142,68 @@ calibrate_AFE (struct scanner *s)
   return ret;
 }
 
-
-/* alternative version- extracts data from scanner memory */
+/*
+ * fine calibration produces a per-cell offset and gain value,
+ * which is then used to adjust the output from the scanner.
+ * There is quite a bit of variation here, with different models
+ * needing different types/amounts of help from the software.
+ *
+ * This function is a common entry point for all variations.
+ */
 static SANE_Status
-calibrate_fine_buffer (struct scanner *s)
+calibrate_fine (struct scanner *s)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+
+  DBG (10, "calibrate_fine: start\n");
+
+  if(s->fcal_src == FCAL_SRC_NONE || s->fcal_dest == FCAL_DEST_NONE){
+    DBG (10, "calibrate_fine: not required\n");
+    goto cleanup;
+  }
+
+  /* don't recalibrate if we've already done it with these params */
+  if(s->f_res == s->s.dpi_x && s->f_mode == s->s.mode){
+    DBG (10, "calibrate_fine: already done\n");
+    goto cleanup;
+  }
+
+  /* get calibration data from scanner memory */
+  if(s->fcal_src == FCAL_SRC_HW){
+    ret = calibrate_fine_src_hw(s);
+    if (ret != SANE_STATUS_GOOD)
+      goto cleanup;
+  }
+
+  /* get calibration data by making scans */
+  if(s->fcal_src == FCAL_SRC_SCAN){
+    ret = calibrate_fine_src_scan(s);
+    if (ret != SANE_STATUS_GOOD)
+      goto cleanup;
+  }
+
+  /* send calibration data to scanner */
+  if(s->fcal_dest == FCAL_DEST_HW){
+    ret = calibrate_fine_dest_hw(s);
+    if (ret != SANE_STATUS_GOOD)
+      goto cleanup;
+  }
+
+  /* log current cal settings so we won't recalibrate on next scan with same params */
+  s->f_res = s->s.dpi_x;
+  s->f_mode = s->s.mode;
+
+  cleanup:
+
+  DBG (10, "calibrate_fine: finish %d\n",ret);
+
+  return ret;
+}
+
+
+/* extracts fine calibration data from scanner memory */
+static SANE_Status
+calibrate_fine_src_hw (struct scanner *s)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
   int i, j, k;
@@ -6138,12 +6219,7 @@ calibrate_fine_buffer (struct scanner *s)
   int old_br_y = s->u.br_y;
   int old_source = s->u.source;
 
-  DBG (10, "calibrate_fine_buffer: start\n");
-
-  if(!s->need_fcal_buffer){
-    DBG (10, "calibrate_fine_buffer: not required\n");
-    return ret;
-  }
+  DBG (10, "calibrate_fine_src_hw: start\n");
 
   /* pretend we are doing a 1 line scan in duplex */
   s->u.tl_y = 0;
@@ -6153,19 +6229,14 @@ calibrate_fine_buffer (struct scanner *s)
   /* load our own private copy of scan params */
   ret = update_params(s,1);
   if (ret != SANE_STATUS_GOOD) {
-    DBG (5, "calibrate_fine_buffer: ERROR: cannot update_params\n");
-    goto cleanup;
-  }
-
-  if(s->f_res == s->s.dpi_x && s->f_mode == s->s.mode){
-    DBG (10, "calibrate_fine_buffer: already done\n");
+    DBG (5, "calibrate_fine_src_hw: ERROR: cannot update_params\n");
     goto cleanup;
   }
 
   /* clean scan params for new scan */
   ret = clean_params(s);
   if (ret != SANE_STATUS_GOOD) {
-    DBG (5, "calibrate_fine_buffer: ERROR: cannot clean_params\n");
+    DBG (5, "calibrate_fine_src_hw: ERROR: cannot clean_params\n");
     goto cleanup;
   }
 
@@ -6174,7 +6245,7 @@ calibrate_fine_buffer (struct scanner *s)
 
   in = malloc(reqLen);
   if (!in) {
-    DBG (5, "calibrate_fine_buffer: ERROR: cannot malloc in\n");
+    DBG (5, "calibrate_fine_src_hw: ERROR: cannot malloc in\n");
     ret = SANE_STATUS_NO_MEM;
     goto cleanup;
   }
@@ -6182,11 +6253,11 @@ calibrate_fine_buffer (struct scanner *s)
   /*fine offset*/
   ret = offset_buffers(s,1);
   if (ret != SANE_STATUS_GOOD) {
-    DBG (5, "calibrate_fine_buffer: ERROR: cannot load offset buffers\n");
+    DBG (5, "calibrate_fine_src_hw: ERROR: cannot load offset buffers\n");
     goto cleanup;
   }
 
-  DBG (5, "calibrate_fine_buffer: %d %x\n", s->s.dpi_x/10, s->s.dpi_x/10);
+  DBG (10, "calibrate_fine_src_hw: %d %x\n", s->s.dpi_x/10, s->s.dpi_x/10);
 
   memset(cmd,0,cmdLen);
   set_SCSI_opcode(cmd, READ_code);
@@ -6195,8 +6266,6 @@ calibrate_fine_buffer (struct scanner *s)
   set_R_xfer_length (cmd, reqLen);
 
   inLen = reqLen;
-
-  hexdump(15, "cmd:", cmd, cmdLen);
 
   ret = do_cmd (
     s, 1, 0,
@@ -6232,14 +6301,12 @@ calibrate_fine_buffer (struct scanner *s)
           s->f_offset[i][j] = 1;
       }
     }
-
-    hexdump(15, "off:", s->f_offset[i], s->s.valid_Bpl);
   }
 
   /*fine gain*/
   ret = gain_buffers(s,1);
   if (ret != SANE_STATUS_GOOD) {
-    DBG (5, "calibrate_fine_buffer: ERROR: cannot load gain buffers\n");
+    DBG (5, "calibrate_fine_src_hw: ERROR: cannot load gain buffers\n");
     goto cleanup;
   }
 
@@ -6258,8 +6325,6 @@ calibrate_fine_buffer (struct scanner *s)
 
       set_R_xfer_uid (cmd, codes[k]);
       inLen = reqLen;
-
-      hexdump(15, "cmd:", cmd, cmdLen);
 
       ret = do_cmd (
         s, 1, 0,
@@ -6288,8 +6353,6 @@ calibrate_fine_buffer (struct scanner *s)
     set_R_xfer_uid (cmd, R_FINE_uid_gray);
     inLen = reqLen;
 
-    hexdump(15, "cmd:", cmd, cmdLen);
-
     ret = do_cmd (
       s, 1, 0,
       cmd, cmdLen,
@@ -6310,14 +6373,6 @@ calibrate_fine_buffer (struct scanner *s)
     }
   }
 
-  for(i=0;i<2;i++){
-    hexdump(15, "gain:", s->f_gain[i], s->s.valid_Bpl);
-  }
-
-  /* log current cal type */
-  s->f_res = s->s.dpi_x;
-  s->f_mode = s->s.mode;
-
   cleanup:
 
   if(in){
@@ -6329,16 +6384,16 @@ calibrate_fine_buffer (struct scanner *s)
   s->u.br_y = old_br_y;
   s->u.source = old_source;
 
-  DBG (10, "calibrate_fine_buffer: finish %d\n",ret);
+  DBG (10, "calibrate_fine_src_hw: finish %d\n",ret);
 
   return ret;
 }
 
 /*
- * makes several scans, adjusts fine calibration
+ * makes several scans, generates fine calibration data
  */
 static SANE_Status
-calibrate_fine (struct scanner *s)
+calibrate_fine_src_scan (struct scanner *s)
 {
   SANE_Status ret = SANE_STATUS_GOOD;
   int i, j, k;
@@ -6350,12 +6405,7 @@ calibrate_fine (struct scanner *s)
   int old_br_y = s->u.br_y;
   int old_source = s->u.source;
 
-  DBG (10, "calibrate_fine: start\n");
-
-  if(!s->need_fcal){
-    DBG (10, "calibrate_fine: not required\n");
-    return ret;
-  }
+  DBG (10, "calibrate_fine_src_scan: start\n");
 
   /* always cal with a short scan in duplex */
   s->u.tl_y = 0;
@@ -6365,12 +6415,7 @@ calibrate_fine (struct scanner *s)
   /* load our own private copy of scan params */
   ret = update_params(s,1);
   if (ret != SANE_STATUS_GOOD) {
-    DBG (5, "calibrate_fine: ERROR: cannot update_params\n");
-    goto cleanup;
-  }
-
-  if(s->f_res == s->s.dpi_x && s->f_mode == s->s.mode){
-    DBG (10, "calibrate_fine: already done\n");
+    DBG (5, "calibrate_fine_src_scan: ERROR: cannot update_params\n");
     goto cleanup;
   }
 
@@ -6384,7 +6429,7 @@ calibrate_fine (struct scanner *s)
   /* make buffers to hold the images */
   ret = image_buffers(s,1);
   if (ret != SANE_STATUS_GOOD) {
-    DBG (5, "calibrate_fine: ERROR: cannot load buffers\n");
+    DBG (5, "calibrate_fine_src_scan: ERROR: cannot load buffers\n");
     goto cleanup;
   }
 
@@ -6395,28 +6440,28 @@ calibrate_fine (struct scanner *s)
   /* need to tell it we want duplex */
   ret = ssm_buffer(s);
   if (ret != SANE_STATUS_GOOD) {
-    DBG (5, "calibrate_fine: ERROR: cannot ssm buffer\n");
+    DBG (5, "calibrate_fine_src_scan: ERROR: cannot ssm buffer\n");
     goto cleanup;
   }
 
   /* set window command */
   ret = set_window(s);
   if (ret != SANE_STATUS_GOOD) {
-    DBG (5, "calibrate_fine: ERROR: cannot set window\n");
+    DBG (5, "calibrate_fine_src_scan: ERROR: cannot set window\n");
     goto cleanup;
   }
 
-  /*handle fifth pass (fine offset), lamp off*/
-  DBG (15, "calibrate_fine: offset\n");
+  /* first pass (fine offset), lamp off */
+  DBG (15, "calibrate_fine_src_scan: offset\n");
   ret = calibration_scan(s,0xff);
   if (ret != SANE_STATUS_GOOD) {
-    DBG (5, "calibrate_fine: ERROR: cannot make offset cal scan\n");
+    DBG (5, "calibrate_fine_src_scan: ERROR: cannot make offset cal scan\n");
     goto cleanup;
   }
 
   ret = offset_buffers(s,1);
   if (ret != SANE_STATUS_GOOD) {
-    DBG (5, "calibrate_fine: ERROR: cannot load offset buffers\n");
+    DBG (5, "calibrate_fine_src_scan: ERROR: cannot load offset buffers\n");
     goto cleanup;
   }
 
@@ -6431,17 +6476,17 @@ calibrate_fine (struct scanner *s)
     hexdump(15, "off:", s->f_offset[i], s->s.valid_Bpl);
   }
 
-  /*handle sixth pass (fine gain), lamp on*/
-  DBG (15, "calibrate_fine: gain\n");
+  /* second pass (fine gain), lamp on */
+  DBG (15, "calibrate_fine_src_scan: gain\n");
   ret = calibration_scan(s,0xfe);
   if (ret != SANE_STATUS_GOOD) {
-    DBG (5, "calibrate_fine: ERROR: cannot make gain cal scan\n");
+    DBG (5, "calibrate_fine_src_scan: ERROR: cannot make gain cal scan\n");
     goto cleanup;
   }
 
   ret = gain_buffers(s,1);
   if (ret != SANE_STATUS_GOOD) {
-    DBG (5, "calibrate_fine: ERROR: cannot load gain buffers\n");
+    DBG (5, "calibrate_fine_src_scan: ERROR: cannot load gain buffers\n");
     goto cleanup;
   }
 
@@ -6459,10 +6504,6 @@ calibrate_fine (struct scanner *s)
     hexdump(15, "gain:", s->f_gain[i], s->s.valid_Bpl);
   }
 
-  /* log current cal type */
-  s->f_res = s->s.dpi_x;
-  s->f_mode = s->s.mode;
-
   cleanup:
 
   /* recover user settings */
@@ -6470,13 +6511,109 @@ calibrate_fine (struct scanner *s)
   s->u.br_y = old_br_y;
   s->u.source = old_source;
 
-  DBG (10, "calibrate_fine: finish %d\n",ret);
+  DBG (10, "calibrate_fine_src_scan: finish %d\n",ret);
+
+  return ret;
+}
+
+/* write calibration data to scanner memory and delete from struct */
+static SANE_Status
+calibrate_fine_dest_hw (struct scanner *s)
+{
+  SANE_Status ret = SANE_STATUS_GOOD;
+  int i, j, k;
+
+  unsigned char cmd[SEND_len];
+  size_t cmdLen = SEND_len;
+
+  unsigned char * out = NULL;
+  size_t outLen = 0;
+
+  DBG (10, "calibrate_fine_dest_hw: start\n");
+
+  /* calibration buffers in scanner are single color channel, but 16 bit, plus 4 byte header */
+  outLen = s->s.width*2 + 4;
+
+  out = calloc(outLen,1);
+  if (!out) {
+    DBG (5, "calibrate_fine_dest_hw: ERROR: cannot calloc out\n");
+    ret = SANE_STATUS_NO_MEM;
+    goto cleanup;
+  }
+
+  // sides
+  for(i=0;i<2;i++){
+
+    // colors
+    for(j=0;j<3;j++){
+
+      int codes[] = {
+        S_FCAL_id_f_red, S_FCAL_id_f_green, S_FCAL_id_f_blue,
+        S_FCAL_id_b_red, S_FCAL_id_b_green, S_FCAL_id_b_blue};
+
+      // offset
+      memset(cmd,0,cmdLen);
+      set_SCSI_opcode(cmd, SEND_code);
+      set_S_xfer_datatype (cmd, SR_datatype_fineoffset);
+      set_S_xfer_length (cmd, outLen);
+
+      set_S_FCAL_datatype (out, codes[i*3+j]);
+
+      for(k=0; k<s->s.valid_width; k++){
+        out[4+k*2] = 0;
+
+        // TODO: calculate this instead of hardcode
+        out[4+k*2+1] = 140;
+      }
+
+      ret = do_cmd (
+        s, 1, 0,
+        cmd, cmdLen,
+        out, outLen,
+        NULL, 0
+      );
+      if (ret != SANE_STATUS_GOOD)
+        goto cleanup;
+
+      // gain
+      set_S_FCAL_datatype (out, codes[i*3+j] | 0x40);
+
+      for(k=0; k<s->s.valid_width; k++){
+        out[4+k*2] = 0;
+
+        // TODO: calculate this instead of hardcode
+        out[4+k*2+1] = 40;
+      }
+
+      ret = do_cmd (
+        s, 1, 0,
+        cmd, cmdLen,
+        out, outLen,
+        NULL, 0
+      );
+      if (ret != SANE_STATUS_GOOD)
+        goto cleanup;
+
+    }
+  }
+
+  cleanup:
+
+  /*blast the fine cal data we generated above, so reading code wont apply it*/
+  offset_buffers(s,0);
+  gain_buffers(s,0);
+
+  if(out){
+    free(out);
+  }
+
+  DBG (10, "calibrate_fine_dest_hw: finish %d\n",ret);
 
   return ret;
 }
 
 /*
- * sends AFE params, and ingests entire duplex image into buffers
+ * does a simple scan, ingests entire duplex image into buffers
  */
 static SANE_Status
 calibration_scan (struct scanner *s, int scan)
@@ -7245,7 +7382,7 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
       }
 
       /* build a USB packet around the SCSI command */
-      cmdBuffer[3] = cmdLength-4;
+      set_USB_CMD_xfer_length(cmdBuffer,cmdLength-4);
       cmdBuffer[5] = 1;
       cmdBuffer[6] = 0x90;
       memcpy(cmdBuffer+cmdOffset,cmdBuff,cmdLen);
@@ -7305,7 +7442,7 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
       }
 
       /* build a USB packet around the SCSI command */
-      outBuffer[3] = outLength-4;
+      set_USB_OUT_xfer_length(outBuffer,outLength-4);
       outBuffer[5] = 2;
       outBuffer[6] = 0xb0;
       memcpy(outBuffer+outOffset,outBuff,outLen);

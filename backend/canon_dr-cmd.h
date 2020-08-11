@@ -71,6 +71,11 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define get_ES_length(b)             getnbyte(b+0x04, 4)
 
 /* ==================================================================== */
+/* USB packets */
+#define set_USB_CMD_xfer_length(sb, val)   putnbyte(sb + 1, val, 3)
+#define set_USB_OUT_xfer_length(sb, val)   putnbyte(sb + 1, val, 3)
+
+/* ==================================================================== */
 /* SCSI commands */
 
 #define set_SCSI_opcode(out, val)          out[0]=val
@@ -286,6 +291,17 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 
 /*counters*/
 /*endorser*/
+
+/*fine calibration*/
+#define set_S_FCAL_datatype(sb, val) sb[0x00] = (unsigned char)val
+/* these are offset, OR with 0x40 to get gain */
+#define S_FCAL_id_f_red                0x00
+#define S_FCAL_id_f_green              0x04
+#define S_FCAL_id_f_blue               0x08
+#define S_FCAL_id_b_red                0x01
+#define S_FCAL_id_b_green              0x05
+#define S_FCAL_id_b_blue               0x09
+
 
 /* ==================================================================== */
 /* OBJECT_POSITION */

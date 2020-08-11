@@ -167,10 +167,20 @@ struct scanner
   int max_y_fb;
 
   int can_color;     /* actually might be in vpd, but which bit? */
+
   int need_ccal;     /* scanner needs software to help with afe calibration */
-  int need_fcal;     /* scanner needs software to help with fine calibration */
-  int need_fcal_buffer; /* software to apply calibration stored in scanner*/
   int ccal_version;  /* 0 in most scanners, 3 in newer ones */
+
+  int fcal_src;      /* where fine offset/gain calibration data comes from */
+  int fcal_dest;     /* where fine offset/gain calibration data is used */
+
+#define FCAL_SRC_NONE 0  /* scanner does not require fine calibration */
+#define FCAL_SRC_SCAN 1  /* make calibration scans, store gain/offset in struct */
+#define FCAL_SRC_HW 2    /* calibration permanently stored in scanner, downloaded into struct */
+
+#define FCAL_DEST_NONE 0 /* scanner does not require fine calibration */
+#define FCAL_DEST_SW 1   /* use gain/offset in struct to adjust output in software */
+#define FCAL_DEST_HW 2   /* send calibration data into scanner for use in hardware */
 
   int has_counter;
   int has_rif;
@@ -456,6 +466,7 @@ enum {
 #define DUPLEX_INTERLACE_FBfb 2
 #define DUPLEX_INTERLACE_2510 3
 #define DUPLEX_INTERLACE_fFBb 4
+#define DUPLEX_INTERLACE_PER_CHANNEL 5
 
 #define JPEG_INTERLACE_ALT 0
 #define JPEG_INTERLACE_NONE 1
@@ -609,7 +620,9 @@ static SANE_Status gain_buffers (struct scanner *s, int setup);
 
 static SANE_Status calibrate_AFE(struct scanner *s);
 static SANE_Status calibrate_fine(struct scanner *s);
-static SANE_Status calibrate_fine_buffer(struct scanner *s);
+static SANE_Status calibrate_fine_src_scan(struct scanner *s);
+static SANE_Status calibrate_fine_src_hw(struct scanner *s);
+static SANE_Status calibrate_fine_dest_hw(struct scanner *s);
 
 static SANE_Status write_AFE (struct scanner *s);
 static SANE_Status calibration_scan (struct scanner *s, int);

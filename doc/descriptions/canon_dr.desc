@@ -11,9 +11,9 @@
 
 :backend "canon_dr"              ; name of backend
 :url "http://www.thebility.com/canon/"
-:version "57"                    ; version of backend
+:version "59"                    ; version of backend
 :manpage "sane-canon_dr"         ; name of manpage (if it exists)
-:comment "Backend updated for SANE release 1.0.28, see sane-canon_dr manpage"
+:comment "Backend updated for SANE release 1.0.32, see sane-canon_dr manpage"
 :devicetype :scanner             ; start of a list of devices....
                                  ; other types:  :stillcam, :vidcam,
                                  ;               :meta, :api
@@ -283,8 +283,8 @@
 :model "DR-C225"
 :interface "USB"
 :usbid "0x1083" "0x1658"
-:status :untested
-:comment ""
+:status :basic
+:comment "Calibration is poor, grayscale mode may crash. DR-C225ii is the same device."
 
 :model "DR-F120"
 :interface "USB"

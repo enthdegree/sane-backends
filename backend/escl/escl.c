@@ -383,7 +383,8 @@ sane_exit(void)
  * \return escl_add_in_list(escl_device) if the parsing worked, SANE_STATUS_GOOD otherwise.
  */
 static SANE_Status
-attach_one_config(SANEI_Config __sane_unused__ *config, const char *line)
+attach_one_config(SANEI_Config __sane_unused__ *config, const char *line,
+		  void __sane_unused__ *data)
 {
     int port = 0;
     SANE_Status status;
@@ -487,7 +488,8 @@ sane_get_devices(const SANE_Device ***device_list, SANE_Bool local_only)
 
     if (device_list == NULL)
 	return (SANE_STATUS_INVAL);
-    status = sanei_configure_attach(ESCL_CONFIG_FILE, NULL, attach_one_config);
+    status = sanei_configure_attach(ESCL_CONFIG_FILE, NULL,
+				    attach_one_config, NULL);
     if (status != SANE_STATUS_GOOD)
 	return (status);
     escl_devices(&status);

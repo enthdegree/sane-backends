@@ -1566,7 +1566,8 @@ probe_p5_devices (void)
   config.count = NUM_CFG_OPTIONS;
 
   /* generic configure and attach function */
-  status = sanei_configure_attach (P5_CONFIG_FILE, &config, config_attach);
+  status = sanei_configure_attach (P5_CONFIG_FILE, &config,
+                                   config_attach, NULL);
   /* free allocated options */
   for (i = 0; i < NUM_CFG_OPTIONS; i++)
     {
@@ -1590,7 +1591,8 @@ probe_p5_devices (void)
  * 	   SANE_STATUS_INVAL in case of error
  */
 static SANE_Status
-config_attach (SANEI_Config * config, const char *devname)
+config_attach (SANEI_Config __sane_unused__ * config, const char *devname,
+               void __sane_unused__ *data)
 {
   /* currently, the config is a global variable so config is useless here */
   /* the correct thing would be to have a generic sanei_attach_matching_devices

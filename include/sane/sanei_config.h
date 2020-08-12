@@ -166,7 +166,9 @@ typedef struct
 extern SANE_Status sanei_configure_attach (
   const char *config_file,
   SANEI_Config *config,
-  SANE_Status (*config_attach)(SANEI_Config *config, const char *devname)
+  SANE_Status (*config_attach)(SANEI_Config *config, const char *devname,
+                               void *data),
+  void *data
 );
 
 /** Return the list of config directories, extracted from the SANE_CONFIG_DIR

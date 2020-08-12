@@ -481,10 +481,11 @@ attach_one_net(const char *dev)
 
 
 static SANE_Status
-attach_one_config(SANEI_Config __sane_unused__ *config, const char *line)
+attach_one_config(SANEI_Config __sane_unused__ *config, const char *line,
+		  void *data)
 {
 	int vendor, product;
-
+	SANE_Bool local_only = *(SANE_Bool*) data;
 	int len = strlen(line);
 
 	DBG(7, "%s: len = %d, line = %s\n", __func__, len, line);
@@ -513,13 +514,16 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line)
 
 	} else if (strncmp(line, "net", 3) == 0) {
 
-		/* remove the "net" sub string */
-		const char *name = sanei_config_skip_whitespace(line + 3);
+		if (!local_only) {
+			/* remove the "net" sub string */
+			const char *name =
+				sanei_config_skip_whitespace(line + 3);
 
-		if (strncmp(name, "autodiscovery", 13) == 0)
-			e2_network_discovery();
-		else
-			attach_one_net(name);
+			if (strncmp(name, "autodiscovery", 13) == 0)
+				e2_network_discovery();
+			else
+				attach_one_net(name);
+		}
 
 	} else {
 		DBG(0, "unable to parse config line: %s\n", line);
@@ -545,12 +549,13 @@ free_devices(void)
 }
 
 static void
-probe_devices(void)
+probe_devices(SANE_Bool local_only)
 {
 	DBG(5, "%s\n", __func__);
 
 	free_devices();
-	sanei_configure_attach(EPSONDS_CONFIG_FILE, NULL, attach_one_config);
+	sanei_configure_attach(EPSONDS_CONFIG_FILE, NULL,
+			       attach_one_config, &local_only);
 }
 
 /**** SANE API ****/
@@ -581,14 +586,14 @@ sane_exit(void)
 }
 
 SANE_Status
-sane_get_devices(const SANE_Device ***device_list, SANE_Bool __sane_unused__ local_only)
+sane_get_devices(const SANE_Device ***device_list, SANE_Bool local_only)
 {
 	int i;
 	epsonds_device *dev;
 
 	DBG(5, "** %s\n", __func__);
 
-	probe_devices();
+	probe_devices(local_only);
 
 	devlist = malloc((num_devices + 1) * sizeof(devlist[0]));
 	if (!devlist) {
@@ -793,7 +798,7 @@ sane_open(SANE_String_Const name, SANE_Handle *handle)
 	/* probe if empty device name provided */
 	if (name[0] == '\0') {
 
-		probe_devices();
+		probe_devices(SANE_FALSE);
 
 		if (first_dev == NULL) {
 			DBG(1, "no devices detected\n");

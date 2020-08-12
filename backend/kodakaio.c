@@ -2513,10 +2513,11 @@ attach_one_net(const char *dev, unsigned int model)
 }
 
 static SANE_Status
-attach_one_config(SANEI_Config __sane_unused__ *config, const char *line)
+attach_one_config(SANEI_Config __sane_unused__ *config, const char *line,
+		  void *data)
 {
 	int vendor, product, timeout;
-
+	SANE_Bool local_only = *(SANE_Bool*) data;
 	int len = strlen(line);
 
 	DBG(7, "%s: len = %d, line = %s\n", __func__, len, line);
@@ -2550,27 +2551,30 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line)
 
 	} else if (strncmp(line, "net", 3) == 0) {
 
-		/* remove the "net" sub string */
-		const char *name = sanei_config_skip_whitespace(line + 3);
-		char IP[1024];
-		unsigned int model = 0;
+		if (!local_only) {
+			/* remove the "net" sub string */
+			const char *name =
+				sanei_config_skip_whitespace(line + 3);
+			char IP[1024];
+			unsigned int model = 0;
 
-		if (strncmp(name, "autodiscovery", 13) == 0) {
+			if (strncmp(name, "autodiscovery", 13) == 0) {
 
-#if WITH_AVAHI
-			DBG (30, "%s: Initiating network autodiscovery via avahi\n", __func__);
-			kodak_network_discovery(NULL);
-#else
-			DBG (20, "%s: Network autodiscovery not done because not configured with avahi.\n", __func__);
-#endif
+	#if WITH_AVAHI
+				DBG (30, "%s: Initiating network autodiscovery via avahi\n", __func__);
+				kodak_network_discovery(NULL);
+	#else
+				DBG (20, "%s: Network autodiscovery not done because not configured with avahi.\n", __func__);
+	#endif
 
-		} else if (sscanf(name, "%s %x", IP, &model) == 2) {
-			DBG(30, "%s: Using network device on IP %s, forcing model 0x%x\n", __func__, IP, model);
-			attach_one_net(IP, model);
-		} else {
+			} else if (sscanf(name, "%s %x", IP, &model) == 2) {
+				DBG(30, "%s: Using network device on IP %s, forcing model 0x%x\n", __func__, IP, model);
+				attach_one_net(IP, model);
+			} else {
 				DBG(1, "%s: net entry %s may be a host name?\n", __func__, name);
 				attach_one_net(name, 0);
 			}
+		}
 
 	} else if (sscanf(line, "snmp-timeout %i\n", &timeout)) {
 		/* Timeout for auto network discovery */
@@ -2646,7 +2650,7 @@ sane_exit(void)
 }
 
 SANE_Status
-sane_get_devices(const SANE_Device ***device_list, SANE_Bool __sane_unused__ local_only)
+sane_get_devices(const SANE_Device ***device_list, SANE_Bool local_only)
 {
 	Kodak_Device *dev, *s, *prev=0;
 	int i;
@@ -2662,7 +2666,7 @@ sane_get_devices(const SANE_Device ***device_list, SANE_Bool __sane_unused__ loc
 
 	/* Read the config, mark each device as found, possibly add new devs */
 	sanei_configure_attach(KODAKAIO_CONFIG_FILE, NULL,
-			       attach_one_config);
+			       attach_one_config, &local_only);
 
 	/*delete missing scanners from list*/
 	for (s = first_dev; s;) {

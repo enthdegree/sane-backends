@@ -5186,7 +5186,8 @@ static SANE_Status attach_one_device(SANE_String_Const devname) noexcept
 
 // this function is passed to C API, it must not throw
 static SANE_Status
-config_attach_genesys(SANEI_Config __sane_unused__ *config, const char *devname) noexcept
+config_attach_genesys(SANEI_Config __sane_unused__ *config, const char *devname,
+                      void __sane_unused__ *data) noexcept
 {
   /* the devname has been processed and is ready to be used
    * directly. Since the backend is an USB only one, we can
@@ -5214,7 +5215,8 @@ static void probe_genesys_devices()
     config.values = nullptr;
   config.count = 0;
 
-    auto status = sanei_configure_attach(GENESYS_CONFIG_FILE, &config, config_attach_genesys);
+    auto status = sanei_configure_attach(GENESYS_CONFIG_FILE, &config,
+                                         config_attach_genesys, NULL);
     if (status == SANE_STATUS_ACCESS_DENIED) {
         dbg.vlog(DBG_error0, "Critical error: Couldn't access configuration file '%s'",
                  GENESYS_CONFIG_FILE);

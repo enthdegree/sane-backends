@@ -120,7 +120,7 @@ typedef uint32_t uint32_t;
 /**@{*/
 #define PIXMA_VERSION_MAJOR 0
 #define PIXMA_VERSION_MINOR 28
-#define PIXMA_VERSION_BUILD 3
+#define PIXMA_VERSION_BUILD 4
 /**@}*/
 
 /** \name Error codes */
@@ -157,8 +157,9 @@ typedef uint32_t uint32_t;
 #define PIXMA_CAP_NEGATIVE     (1 << 10)
 #define PIXMA_CAP_TPUIR        ((1 << 11) | PIXMA_CAP_TPU)
 #define PIXMA_CAP_ADF_WAIT     (1 << 12)
-#define PIXMA_CAP_ADF_JPEG     (1 << 13)
-#define PIXMA_CAP_GT_4096      (1 << 14)    /* gamma table has 4096 8-bit values
+#define PIXMA_CAP_ADF_JPEG     (1 << 13)    /* scanner returns image as jpeg from ADF */
+#define PIXMA_CAP_JPEG         (1 << 14)    /* scanner always returns image as jpeg */
+#define PIXMA_CAP_GT_4096      (1 << 15)    /* gamma table has 4096 8-bit values
                                              * only generation 1 scanners
                                              * usually gamma table has 1024 16-bit values
                                              */

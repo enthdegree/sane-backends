@@ -1150,7 +1150,6 @@ post_process_image_data (pixma_t * s, pixma_imagebuf_t * ib)
            * MP220, MX360 and generation 5 scanners are exceptions */
           if (n > 1
               && s->cfg->pid != MP220_PID
-              && s->cfg->pid != MP490_PID
               && s->cfg->pid != MX360_PID
               && (mp->generation < 5
                   /* generation 5 scanners *with* special image format */

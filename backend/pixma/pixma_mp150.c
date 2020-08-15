@@ -1743,7 +1743,7 @@ const pixma_config_t pixma_mp150_devices[] = {
 
   /* Latest devices (2010) Generation 4 CIS */
   DEVICE ("Canon PIXMA MP280",  "MP280",  MP280_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS), /* TODO: 1200dpi doesn't work yet */
-  DEVICE ("Canon PIXMA MP495",  "MP495",  MP495_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
+  DEVICE ("Canon PIXMA MP495",  "MP495",  MP495_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS), /* ToDo: max. scan resolution = 1200x600dpi */
   DEVICE ("Canon PIXMA MG5100", "MG5100", MG5100_PID, 0, 1200, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MG5200", "MG5200", MG5200_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),
   DEVICE ("Canon PIXMA MG6100", "MG6100", MG6100_PID, 0, 2400, 0, 0, 638, 877, PIXMA_CAP_CIS),

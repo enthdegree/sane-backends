@@ -502,8 +502,8 @@
 :model "PIXMA MP495"
 :interface "USB"
 :usbid "0x04a9" "0x1747"
-:status :untested
-:comment "Same protocol as Pixma MP280? Testers needed!"
+:status :complete
+:comment "All resolutions supported (up to 600DPI)"
 
 :model "PIXMA MP500"
 :interface "USB"

@@ -159,10 +159,11 @@ static void mark_all_button_options_cached ( struct pixma_sane_t * ss )
       ss -> button_option_is_cached[i] = 1;
 }
 
-static SANE_Status config_attach_pixma(SANEI_Config * config, const char *devname)
+static SANE_Status config_attach_pixma(SANEI_Config __sane_unused__ * config,
+				       const char *devname,
+				       void __sane_unused__ *data)
 {
   int i;
-  UNUSED(config);
   for (i=0; i < (MAX_CONF_DEVICES -1); i++)
     {
       if(conf_devices[i] == NULL)
@@ -1656,8 +1657,8 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback authorize)
   config.descriptors = NULL;
   config.values = NULL;
 
-  if (sanei_configure_attach(PIXMA_CONFIG_FILE, &config, config_attach_pixma) !=
-       SANE_STATUS_GOOD)
+  if (sanei_configure_attach(PIXMA_CONFIG_FILE, &config,
+                             config_attach_pixma, NULL) != SANE_STATUS_GOOD)
     PDBG(pixma_dbg(2, "Could not read pixma configuration file: %s\n",
                    PIXMA_CONFIG_FILE));
 

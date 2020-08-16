@@ -239,7 +239,8 @@ sanei_config_read (char *str, int n, FILE *stream)
 SANE_Status
 sanei_configure_attach (const char *config_file, SANEI_Config * config,
 			SANE_Status (*attach) (SANEI_Config * config,
-					       const char *devname))
+					       const char *devname, void *data),
+			void *data)
 {
   SANE_Char line[PATH_MAX];
   SANE_Char *token, *string;
@@ -443,7 +444,7 @@ sanei_configure_attach (const char *config_file, SANEI_Config * config,
 	  DBG (3, "sanei_configure_attach: trying to attach with '%s'\n",
 	       lp2);
 	  if(attach!=NULL)
-	  	attach (config, lp2);
+	  	attach (config, lp2, data);
 	}
     }
 

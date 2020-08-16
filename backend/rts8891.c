@@ -217,7 +217,7 @@ static Rts8891_Config rtscfg;
 /* ------------------------------------------------------------------------- */
 static SANE_Status probe_rts8891_devices (void);
 static SANE_Status config_attach_rts8891 (SANEI_Config * config,
-					  const char *devname);
+					  const char *devname, void *data);
 static SANE_Status attach_rts8891 (const char *name);
 static SANE_Status set_lamp_brightness (struct Rts8891_Device *dev,
 					int level);
@@ -2374,7 +2374,7 @@ probe_rts8891_devices (void)
 
   /* generic configure and attach function */
   status = sanei_configure_attach (RTS8891_CONFIG_FILE, &config,
-				   config_attach_rts8891);
+				   config_attach_rts8891, NULL);
   /* free allocated options */
   for (i = 0; i < NUM_CFG_OPTIONS; i++)
     {
@@ -2398,7 +2398,8 @@ probe_rts8891_devices (void)
  * 	   SANE_STATUS_INVAL in case of error
  */
 static SANE_Status
-config_attach_rts8891 (SANEI_Config * config, const char *devname)
+config_attach_rts8891 (SANEI_Config * config, const char *devname,
+                       void __sane_unused__ *data)
 {
   /* currently, the config is a global variable so config is useless here */
   /* the correct thing would be to have a generic sanei_attach_matching_devices

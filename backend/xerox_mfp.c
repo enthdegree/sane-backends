@@ -1028,7 +1028,8 @@ list_one_device(SANE_String_Const devname)
 
 /* SANE API ignores return code of this callback */
 static SANE_Status
-list_conf_devices(UNUSED(SANEI_Config *config), const char *devname)
+list_conf_devices(SANEI_Config __sane_unused__ *config, const char *devname,
+                  void __sane_unused__ *data)
 {
     return tr_from_devname(devname)->configure_device(devname, list_one_device);
 }
@@ -1080,7 +1081,7 @@ sane_get_devices(const SANE_Device *** device_list, SANE_Bool local)
     config.count = 0;
     config.descriptors = NULL;
     config.values = NULL;
-    sanei_configure_attach(XEROX_CONFIG_FILE, &config, list_conf_devices);
+    sanei_configure_attach(XEROX_CONFIG_FILE, &config, list_conf_devices, NULL);
 
     for (dev_count = 0, dev = devices_head; dev; dev = dev->next)
         dev_count++;

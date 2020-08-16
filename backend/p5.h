@@ -195,7 +195,8 @@ typedef struct P5_Session
 
 static SANE_Status probe_p5_devices (void);
 static P5_Model *probe (const char *devicename);
-static SANE_Status config_attach (SANEI_Config * config, const char *devname);
+static SANE_Status config_attach (SANEI_Config * config, const char *devname,
+                                  void *data);
 static SANE_Status attach_p5 (const char *name, SANEI_Config * config);
 static SANE_Status init_options (struct P5_Session *session);
 static SANE_Status compute_parameters (struct P5_Session *session);

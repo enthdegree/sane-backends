@@ -288,8 +288,7 @@ sane_exit (void)
 /***********************************************************/
 
 SANE_Status
-sane_get_devices (const SANE_Device *** device_list,
-		  SANE_Bool __sane_unused__ local_only)
+sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 {
 
   int ret;
@@ -312,6 +311,10 @@ sane_get_devices (const SANE_Device *** device_list,
   sock = 0;
   pDevice = NULL;
   optYes = 1;
+
+  if (local_only)
+    return ret;
+
   InitComBuf (&queryPacket);
 
   /* clear previous results */

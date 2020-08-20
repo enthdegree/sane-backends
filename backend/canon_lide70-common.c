@@ -70,6 +70,7 @@ typedef struct CANON_Handle
 
   SANE_Word graymode;
   char *product;		/* product name */
+  int productcode;		/* product code, 0x2224 or 0x2225 */
   int fd;			/* scanner fd */
   int x1, x2, y1, y2;		/* in pixels, at 600 dpi */
   long width, height;		/* at scan resolution */
@@ -585,51 +586,54 @@ make_buf (size_t count, unsigned char *buf)
 }
 
 void
+write_buf (int fd, size_t count, unsigned char *buf,
+	   unsigned char value_74, unsigned char value_75)
+{
+  unsigned char value_72, value_73;
+  value_72 = ((count - 4) >> 8) & 0xff;
+  value_73 = (count - 4) & 0xff;
+  cp2155_set (fd, 0x71, 0x01);
+  cp2155_set (fd, 0x0230, 0x11);
+  cp2155_set (fd, 0x71, 0x14);
+  cp2155_set (fd, 0x72, value_72);
+  cp2155_set (fd, 0x73, value_73);
+  cp2155_set (fd, 0x74, value_74);
+  cp2155_set (fd, 0x75, value_75);
+  cp2155_set (fd, 0x76, 0x00);
+  cp2155_set (fd, 0x0239, 0x40);
+  cp2155_set (fd, 0x0238, 0x89);
+  cp2155_set (fd, 0x023c, 0x2f);
+  cp2155_set (fd, 0x0264, 0x20);
+  sanei_usb_write_bulk (fd, buf, &count);
+}
+
+void
 big_write (int fd, size_t count, unsigned char *buf)
 {
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0x51);
-  cp2155_set (fd, 0x73, 0x70);
-  cp2155_set (fd, 0x74, 0x00);
-  cp2155_set (fd, 0x75, 0x00);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
   make_buf (count, buf);
-  sanei_usb_write_bulk (fd, buf, &count);
+  write_buf (fd, count, buf, 0x00, 0x00);
+  write_buf (fd, count, buf, 0x00, 0xb0);
+  write_buf (fd, count, buf, 0x01, 0x60);
+}
 
+void
+general_motor (int fd)
+{
+  cp2155_set (fd, 0x9b, 0x02);
+  cp2155_set (fd, 0x10, 0x05);
+  cp2155_set (fd, 0x11, 0x91);
+  cp2155_set (fd, 0x60, 0x15);
+  cp2155_set (fd, 0x80, 0x12);
+  cp2155_set (fd, 0x03, 0x01);
   cp2155_set (fd, 0x71, 0x01);
   cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0x51);
-  cp2155_set (fd, 0x73, 0x70);
-  cp2155_set (fd, 0x74, 0x00);
-  cp2155_set (fd, 0x75, 0xb0);
-  cp2155_set (fd, 0x76, 0x00);
+  cp2155_set (fd, 0x71, 0x18);
+  cp2155_set (fd, 0x72, 0x00);
+  cp2155_set (fd, 0x73, 0x10);
   cp2155_set (fd, 0x0239, 0x40);
   cp2155_set (fd, 0x0238, 0x89);
   cp2155_set (fd, 0x023c, 0x2f);
   cp2155_set (fd, 0x0264, 0x20);
-  sanei_usb_write_bulk (fd, buf, &count);
-
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0x51);
-  cp2155_set (fd, 0x73, 0x70);
-  cp2155_set (fd, 0x74, 0x01);
-  cp2155_set (fd, 0x75, 0x60);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
-  sanei_usb_write_bulk (fd, buf, &count);
-
 }
 
 void
@@ -692,7 +696,7 @@ startblob0075 (CANON_Handle * chndl, unsigned char *buf)
   cp2155_set (fd, 0x80, 0x12);
   cp2155_set (fd, 0xb0, 0x0b);
 
-  big_write (fd, 20852, buf);
+  big_write (fd, 0x5174, buf);
 
   cp2155_set (fd, 0x10, 0x05);
   cp2155_set (fd, 0x10, 0x05);
@@ -762,253 +766,73 @@ startblob0075 (CANON_Handle * chndl, unsigned char *buf)
   cp2155_set (fd, 0xca, 0x01);
   cp2155_set (fd, 0xca, 0x11);
   cp2155_set (fd, 0x18, 0x00);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0x01);
-  cp2155_set (fd, 0x73, 0x00);
-  cp2155_set (fd, 0x74, 0x03);
-  cp2155_set (fd, 0x75, 0x00);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
-  memcpy (buf + 0x00000000,
-	  "\x04\x70\x00\x01\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000010,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000020,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000030,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000040,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000050,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000060,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\xf0\x23\x80\x22\x2c\x21",
-	  16);
-  memcpy (buf + 0x00000070,
-	  "\xf1\x1f\xcd\x1e\xbd\x1d\xc0\x1c\xd2\x1b\xf4\x1a\x22\x1a\x5e\x19",
-	  16);
-  memcpy (buf + 0x00000080,
-	  "\xa4\x18\xf5\x17\x4f\x17\xb2\x16\x1d\x16\x90\x15\x09\x15\x89\x14",
-	  16);
-  memcpy (buf + 0x00000090,
-	  "\x0e\x14\x9a\x13\x2a\x13\xc0\x12\x59\x12\xf8\x11\x9a\x11\x3f\x11",
-	  16);
-  memcpy (buf + 0x000000a0,
-	  "\xe9\x10\x96\x10\x46\x10\xf8\x0f\xae\x0f\x66\x0f\x21\x0f\xde\x0e",
-	  16);
-  memcpy (buf + 0x000000b0,
-	  "\x9e\x0e\x60\x0e\x23\x0e\xe9\x0d\xb0\x0d\x7a\x0d\x44\x0d\x11\x0d",
-	  16);
-  memcpy (buf + 0x000000c0,
-	  "\xdf\x0c\xaf\x0c\x80\x0c\x52\x0c\x25\x0c\xfa\x0b\xd0\x0b\xa7\x0b",
-	  16);
-  memcpy (buf + 0x000000d0,
-	  "\x80\x0b\x59\x0b\x33\x0b\x0e\x0b\xea\x0a\xc8\x0a\xa5\x0a\x84\x0a",
-	  16);
-  memcpy (buf + 0x000000e0,
-	  "\x64\x0a\x44\x0a\x25\x0a\x07\x0a\xe9\x09\xcd\x09\xb0\x09\x95\x09",
-	  16);
-  memcpy (buf + 0x000000f0,
-	  "\x7a\x09\x60\x09\x46\x09\x2c\x09\x14\x09\xfc\x08\xe4\x08\xcd\x08",
-	  16);
-  memcpy (buf + 0x00000100, "\xb6\x08\xa0\x08", 4);
-  count = 260;
-  sanei_usb_write_bulk (fd, buf, &count);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0x01);
-  cp2155_set (fd, 0x73, 0x00);
-  cp2155_set (fd, 0x74, 0x03);
-  cp2155_set (fd, 0x75, 0x02);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
-  memcpy (buf + 0x00000000,
-	  "\x04\x70\x00\x01\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000010,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000020,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000030,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000040,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000050,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000060,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\xf0\x23\x80\x22\x2c\x21",
-	  16);
-  memcpy (buf + 0x00000070,
-	  "\xf1\x1f\xcd\x1e\xbd\x1d\xc0\x1c\xd2\x1b\xf4\x1a\x22\x1a\x5e\x19",
-	  16);
-  memcpy (buf + 0x00000080,
-	  "\xa4\x18\xf5\x17\x4f\x17\xb2\x16\x1d\x16\x90\x15\x09\x15\x89\x14",
-	  16);
-  memcpy (buf + 0x00000090,
-	  "\x0e\x14\x9a\x13\x2a\x13\xc0\x12\x59\x12\xf8\x11\x9a\x11\x3f\x11",
-	  16);
-  memcpy (buf + 0x000000a0,
-	  "\xe9\x10\x96\x10\x46\x10\xf8\x0f\xae\x0f\x66\x0f\x21\x0f\xde\x0e",
-	  16);
-  memcpy (buf + 0x000000b0,
-	  "\x9e\x0e\x60\x0e\x23\x0e\xe9\x0d\xb0\x0d\x7a\x0d\x44\x0d\x11\x0d",
-	  16);
-  memcpy (buf + 0x000000c0,
-	  "\xdf\x0c\xaf\x0c\x80\x0c\x52\x0c\x25\x0c\xfa\x0b\xd0\x0b\xa7\x0b",
-	  16);
-  memcpy (buf + 0x000000d0,
-	  "\x80\x0b\x59\x0b\x33\x0b\x0e\x0b\xea\x0a\xc8\x0a\xa5\x0a\x84\x0a",
-	  16);
-  memcpy (buf + 0x000000e0,
-	  "\x64\x0a\x44\x0a\x25\x0a\x07\x0a\xe9\x09\xcd\x09\xb0\x09\x95\x09",
-	  16);
-  memcpy (buf + 0x000000f0,
-	  "\x7a\x09\x60\x09\x46\x09\x2c\x09\x14\x09\xfc\x08\xe4\x08\xcd\x08",
-	  16);
-  memcpy (buf + 0x00000100, "\xb6\x08\xa0\x08", 4);
-  count = 260;
-  sanei_usb_write_bulk (fd, buf, &count);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0x00);
-  cp2155_set (fd, 0x73, 0x20);
-  cp2155_set (fd, 0x74, 0x03);
-  cp2155_set (fd, 0x75, 0x04);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
-  memcpy (buf + 0x00000000,
-	  "\x04\x70\x18\x00\x80\x25\xc0\x1c\x4f\x17\x9a\x13\xe9\x10\xde\x0e",
-	  16);
-  memcpy (buf + 0x00000010,
-	  "\x44\x0d\xfa\x0b\xea\x0a\x07\x0a\x46\x09\xa0\x08\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000020, "\x80\x25\x80\x25", 4);
-  count = 36;
-  sanei_usb_write_bulk (fd, buf, &count);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0x01);
-  cp2155_set (fd, 0x73, 0x00);
-  cp2155_set (fd, 0x74, 0x03);
-  cp2155_set (fd, 0x75, 0x06);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
-  memcpy (buf + 0x00000000,
-	  "\x04\x70\x00\x01\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000010,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000020,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000030,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000040,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000050,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000060,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\xf0\x23\x80\x22\x2c\x21",
-	  16);
-  memcpy (buf + 0x00000070,
-	  "\xf1\x1f\xcd\x1e\xbd\x1d\xc0\x1c\xd2\x1b\xf4\x1a\x22\x1a\x5e\x19",
-	  16);
-  memcpy (buf + 0x00000080,
-	  "\xa4\x18\xf5\x17\x4f\x17\xb2\x16\x1d\x16\x90\x15\x09\x15\x89\x14",
-	  16);
-  memcpy (buf + 0x00000090,
-	  "\x0e\x14\x9a\x13\x2a\x13\xc0\x12\x59\x12\xf8\x11\x9a\x11\x3f\x11",
-	  16);
-  memcpy (buf + 0x000000a0,
-	  "\xe9\x10\x96\x10\x46\x10\xf8\x0f\xae\x0f\x66\x0f\x21\x0f\xde\x0e",
-	  16);
-  memcpy (buf + 0x000000b0,
-	  "\x9e\x0e\x60\x0e\x23\x0e\xe9\x0d\xb0\x0d\x7a\x0d\x44\x0d\x11\x0d",
-	  16);
-  memcpy (buf + 0x000000c0,
-	  "\xdf\x0c\xaf\x0c\x80\x0c\x52\x0c\x25\x0c\xfa\x0b\xd0\x0b\xa7\x0b",
-	  16);
-  memcpy (buf + 0x000000d0,
-	  "\x80\x0b\x59\x0b\x33\x0b\x0e\x0b\xea\x0a\xc8\x0a\xa5\x0a\x84\x0a",
-	  16);
-  memcpy (buf + 0x000000e0,
-	  "\x64\x0a\x44\x0a\x25\x0a\x07\x0a\xe9\x09\xcd\x09\xb0\x09\x95\x09",
-	  16);
-  memcpy (buf + 0x000000f0,
-	  "\x7a\x09\x60\x09\x46\x09\x2c\x09\x14\x09\xfc\x08\xe4\x08\xcd\x08",
-	  16);
-  memcpy (buf + 0x00000100, "\xb6\x08\xa0\x08", 4);
-  count = 260;
-  sanei_usb_write_bulk (fd, buf, &count);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0x00);
-  cp2155_set (fd, 0x73, 0x20);
-  cp2155_set (fd, 0x74, 0x03);
-  cp2155_set (fd, 0x75, 0x08);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
-  memcpy (buf + 0x00000000,
-	  "\x04\x70\x18\x00\x80\x25\xc0\x1c\x4f\x17\x9a\x13\xe9\x10\xde\x0e",
-	  16);
-  memcpy (buf + 0x00000010,
-	  "\x44\x0d\xfa\x0b\xea\x0a\x07\x0a\x46\x09\xa0\x08\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000020, "\x80\x25\x80\x25", 4);
-  count = 36;
-  sanei_usb_write_bulk (fd, buf, &count);
-  cp2155_set (fd, 0x9b, 0x02);
-  cp2155_set (fd, 0x10, 0x05);
-  cp2155_set (fd, 0x11, 0x91);
-  cp2155_set (fd, 0x60, 0x15);
-  cp2155_set (fd, 0x80, 0x12);
-  cp2155_set (fd, 0x03, 0x01);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x18);
-  cp2155_set (fd, 0x72, 0x00);
-  cp2155_set (fd, 0x73, 0x10);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
 
+  memcpy (buf + 0x00000000,
+	  "\x04\x70\x00\x01\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
+	  16);
+  memcpy (buf + 0x00000010,
+	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
+	  16);
+  memcpy (buf + 0x00000020,
+	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
+	  16);
+  memcpy (buf + 0x00000030,
+	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
+	  16);
+  memcpy (buf + 0x00000040,
+	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
+	  16);
+  memcpy (buf + 0x00000050,
+	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
+	  16);
+  memcpy (buf + 0x00000060,
+	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\xf0\x23\x80\x22\x2c\x21",
+	  16);
+  memcpy (buf + 0x00000070,
+	  "\xf1\x1f\xcd\x1e\xbd\x1d\xc0\x1c\xd2\x1b\xf4\x1a\x22\x1a\x5e\x19",
+	  16);
+  memcpy (buf + 0x00000080,
+	  "\xa4\x18\xf5\x17\x4f\x17\xb2\x16\x1d\x16\x90\x15\x09\x15\x89\x14",
+	  16);
+  memcpy (buf + 0x00000090,
+	  "\x0e\x14\x9a\x13\x2a\x13\xc0\x12\x59\x12\xf8\x11\x9a\x11\x3f\x11",
+	  16);
+  memcpy (buf + 0x000000a0,
+	  "\xe9\x10\x96\x10\x46\x10\xf8\x0f\xae\x0f\x66\x0f\x21\x0f\xde\x0e",
+	  16);
+  memcpy (buf + 0x000000b0,
+	  "\x9e\x0e\x60\x0e\x23\x0e\xe9\x0d\xb0\x0d\x7a\x0d\x44\x0d\x11\x0d",
+	  16);
+  memcpy (buf + 0x000000c0,
+	  "\xdf\x0c\xaf\x0c\x80\x0c\x52\x0c\x25\x0c\xfa\x0b\xd0\x0b\xa7\x0b",
+	  16);
+  memcpy (buf + 0x000000d0,
+	  "\x80\x0b\x59\x0b\x33\x0b\x0e\x0b\xea\x0a\xc8\x0a\xa5\x0a\x84\x0a",
+	  16);
+  memcpy (buf + 0x000000e0,
+	  "\x64\x0a\x44\x0a\x25\x0a\x07\x0a\xe9\x09\xcd\x09\xb0\x09\x95\x09",
+	  16);
+  memcpy (buf + 0x000000f0,
+	  "\x7a\x09\x60\x09\x46\x09\x2c\x09\x14\x09\xfc\x08\xe4\x08\xcd\x08",
+	  16);
+  memcpy (buf + 0x00000100, "\xb6\x08\xa0\x08", 4);
+  count = 260;
+  write_buf (fd, count, buf, 0x03, 0x00);
+  write_buf (fd, count, buf, 0x03, 0x02);
+  write_buf (fd, count, buf, 0x03, 0x06);
+
+  memcpy (buf + 0x00000000,
+	  "\x04\x70\x18\x00\x80\x25\xc0\x1c\x4f\x17\x9a\x13\xe9\x10\xde\x0e",
+	  16);
+  memcpy (buf + 0x00000010,
+	  "\x44\x0d\xfa\x0b\xea\x0a\x07\x0a\x46\x09\xa0\x08\x80\x25\x80\x25",
+	  16);
+  memcpy (buf + 0x00000020, "\x80\x25\x80\x25", 4);
+  count = 36;
+  write_buf (fd, count, buf, 0x03, 0x04);
+  write_buf (fd, count, buf, 0x03, 0x08);
+
+  general_motor (fd);
 }
 
 void
@@ -1071,7 +895,7 @@ startblob0150 (CANON_Handle * chndl, unsigned char *buf)
   cp2155_set (fd, 0x80, 0x12);
   cp2155_set (fd, 0xb0, 0x0a);
 
-  big_write (fd, 20852, buf);
+  big_write (fd, 0x5174, buf);
 
   cp2155_set (fd, 0x10, 0x05);
   cp2155_set (fd, 0x10, 0x05);
@@ -1203,191 +1027,22 @@ startblob0150 (CANON_Handle * chndl, unsigned char *buf)
 	  16);
   memcpy (buf + 0x00000100, "\x8c\x0b\x7c\x0b", 4);
   count = 260;
-  sanei_usb_write_bulk (fd, buf, &count);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0x01);
-  cp2155_set (fd, 0x73, 0x00);
-  cp2155_set (fd, 0x74, 0x03);
-  cp2155_set (fd, 0x75, 0x02);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
-  memcpy (buf + 0x00000000,
-	  "\x04\x70\x00\x01\x80\x25\xd7\x24\x35\x24\x98\x23\x00\x23\x6d\x22",
-	  16);
-  memcpy (buf + 0x00000010,
-	  "\xdf\x21\x56\x21\xd1\x20\x50\x20\xd2\x1f\x59\x1f\xe3\x1e\x70\x1e",
-	  16);
-  memcpy (buf + 0x00000020,
-	  "\x01\x1e\x95\x1d\x2c\x1d\xc6\x1c\x62\x1c\x02\x1c\xa3\x1b\x47\x1b",
-	  16);
-  memcpy (buf + 0x00000030,
-	  "\xee\x1a\x97\x1a\x42\x1a\xef\x19\x9e\x19\x4f\x19\x02\x19\xb7\x18",
-	  16);
-  memcpy (buf + 0x00000040,
-	  "\x6d\x18\x25\x18\xdf\x17\x9a\x17\x57\x17\x16\x17\xd6\x16\x97\x16",
-	  16);
-  memcpy (buf + 0x00000050,
-	  "\x59\x16\x1d\x16\xe2\x15\xa8\x15\x70\x15\x38\x15\x02\x15\xcd\x14",
-	  16);
-  memcpy (buf + 0x00000060,
-	  "\x99\x14\x66\x14\x33\x14\x02\x14\xd2\x13\xa2\x13\x74\x13\x46\x13",
-	  16);
-  memcpy (buf + 0x00000070,
-	  "\x19\x13\xed\x12\xc2\x12\x98\x12\x6e\x12\x45\x12\x1d\x12\xf5\x11",
-	  16);
-  memcpy (buf + 0x00000080,
-	  "\xce\x11\xa8\x11\x82\x11\x5d\x11\x39\x11\x15\x11\xf2\x10\xcf\x10",
-	  16);
-  memcpy (buf + 0x00000090,
-	  "\xad\x10\x8b\x10\x6a\x10\x4a\x10\x2a\x10\x0a\x10\xeb\x0f\xcc\x0f",
-	  16);
-  memcpy (buf + 0x000000a0,
-	  "\xae\x0f\x90\x0f\x73\x0f\x56\x0f\x3a\x0f\x1e\x0f\x02\x0f\xe7\x0e",
-	  16);
-  memcpy (buf + 0x000000b0,
-	  "\xcc\x0e\xb2\x0e\x97\x0e\x7e\x0e\x64\x0e\x4b\x0e\x32\x0e\x1a\x0e",
-	  16);
-  memcpy (buf + 0x000000c0,
-	  "\x02\x0e\xea\x0d\xd3\x0d\xbc\x0d\xa5\x0d\x8e\x0d\x78\x0d\x62\x0d",
-	  16);
-  memcpy (buf + 0x000000d0,
-	  "\x4d\x0d\x37\x0d\x22\x0d\x0d\x0d\xf8\x0c\xe4\x0c\xd0\x0c\xbc\x0c",
-	  16);
-  memcpy (buf + 0x000000e0,
-	  "\xa8\x0c\x95\x0c\x82\x0c\x6f\x0c\x5c\x0c\x4a\x0c\x37\x0c\x25\x0c",
-	  16);
-  memcpy (buf + 0x000000f0,
-	  "\x14\x0c\x02\x0c\xf0\x0b\xdf\x0b\xce\x0b\xbd\x0b\xac\x0b\x9c\x0b",
-	  16);
-  memcpy (buf + 0x00000100, "\x8c\x0b\x7c\x0b", 4);
-  count = 260;
-  sanei_usb_write_bulk (fd, buf, &count);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0x00);
-  cp2155_set (fd, 0x73, 0x20);
-  cp2155_set (fd, 0x74, 0x03);
-  cp2155_set (fd, 0x75, 0x04);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
-  memcpy (buf + 0x00000000,
-	  "\x04\x70\x18\x00\x80\x25\x18\x1f\x8f\x1a\x2d\x17\x8f\x14\x79\x12",
-	  16);
-  memcpy (buf + 0x00000010,
-	  "\xc6\x10\x5b\x0f\x2a\x0e\x24\x0d\x41\x0c\x7c\x0b\xe3\x1e\x70\x1e",
-	  16);
-  memcpy (buf + 0x00000020, "\x01\x1e\x95\x1d", 4);
-  count = 36;
-  sanei_usb_write_bulk (fd, buf, &count);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0x01);
-  cp2155_set (fd, 0x73, 0x00);
-  cp2155_set (fd, 0x74, 0x03);
-  cp2155_set (fd, 0x75, 0x06);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
-  memcpy (buf + 0x00000000,
-	  "\x04\x70\x00\x01\x80\x25\xd7\x24\x35\x24\x98\x23\x00\x23\x6d\x22",
-	  16);
-  memcpy (buf + 0x00000010,
-	  "\xdf\x21\x56\x21\xd1\x20\x50\x20\xd2\x1f\x59\x1f\xe3\x1e\x70\x1e",
-	  16);
-  memcpy (buf + 0x00000020,
-	  "\x01\x1e\x95\x1d\x2c\x1d\xc6\x1c\x62\x1c\x02\x1c\xa3\x1b\x47\x1b",
-	  16);
-  memcpy (buf + 0x00000030,
-	  "\xee\x1a\x97\x1a\x42\x1a\xef\x19\x9e\x19\x4f\x19\x02\x19\xb7\x18",
-	  16);
-  memcpy (buf + 0x00000040,
-	  "\x6d\x18\x25\x18\xdf\x17\x9a\x17\x57\x17\x16\x17\xd6\x16\x97\x16",
-	  16);
-  memcpy (buf + 0x00000050,
-	  "\x59\x16\x1d\x16\xe2\x15\xa8\x15\x70\x15\x38\x15\x02\x15\xcd\x14",
-	  16);
-  memcpy (buf + 0x00000060,
-	  "\x99\x14\x66\x14\x33\x14\x02\x14\xd2\x13\xa2\x13\x74\x13\x46\x13",
-	  16);
-  memcpy (buf + 0x00000070,
-	  "\x19\x13\xed\x12\xc2\x12\x98\x12\x6e\x12\x45\x12\x1d\x12\xf5\x11",
-	  16);
-  memcpy (buf + 0x00000080,
-	  "\xce\x11\xa8\x11\x82\x11\x5d\x11\x39\x11\x15\x11\xf2\x10\xcf\x10",
-	  16);
-  memcpy (buf + 0x00000090,
-	  "\xad\x10\x8b\x10\x6a\x10\x4a\x10\x2a\x10\x0a\x10\xeb\x0f\xcc\x0f",
-	  16);
-  memcpy (buf + 0x000000a0,
-	  "\xae\x0f\x90\x0f\x73\x0f\x56\x0f\x3a\x0f\x1e\x0f\x02\x0f\xe7\x0e",
-	  16);
-  memcpy (buf + 0x000000b0,
-	  "\xcc\x0e\xb2\x0e\x97\x0e\x7e\x0e\x64\x0e\x4b\x0e\x32\x0e\x1a\x0e",
-	  16);
-  memcpy (buf + 0x000000c0,
-	  "\x02\x0e\xea\x0d\xd3\x0d\xbc\x0d\xa5\x0d\x8e\x0d\x78\x0d\x62\x0d",
-	  16);
-  memcpy (buf + 0x000000d0,
-	  "\x4d\x0d\x37\x0d\x22\x0d\x0d\x0d\xf8\x0c\xe4\x0c\xd0\x0c\xbc\x0c",
-	  16);
-  memcpy (buf + 0x000000e0,
-	  "\xa8\x0c\x95\x0c\x82\x0c\x6f\x0c\x5c\x0c\x4a\x0c\x37\x0c\x25\x0c",
-	  16);
-  memcpy (buf + 0x000000f0,
-	  "\x14\x0c\x02\x0c\xf0\x0b\xdf\x0b\xce\x0b\xbd\x0b\xac\x0b\x9c\x0b",
-	  16);
-  memcpy (buf + 0x00000100, "\x8c\x0b\x7c\x0b", 4);
-  count = 260;
-  sanei_usb_write_bulk (fd, buf, &count);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0x00);
-  cp2155_set (fd, 0x73, 0x20);
-  cp2155_set (fd, 0x74, 0x03);
-  cp2155_set (fd, 0x75, 0x08);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
-  memcpy (buf + 0x00000000,
-	  "\x04\x70\x18\x00\x80\x25\x18\x1f\x8f\x1a\x2d\x17\x8f\x14\x79\x12",
-	  16);
-  memcpy (buf + 0x00000010,
-	  "\xc6\x10\x5b\x0f\x2a\x0e\x24\x0d\x41\x0c\x7c\x0b\xe3\x1e\x70\x1e",
-	  16);
-  memcpy (buf + 0x00000020, "\x01\x1e\x95\x1d", 4);
-  count = 36;
-  sanei_usb_write_bulk (fd, buf, &count);
-  cp2155_set (fd, 0x9b, 0x02);
-  cp2155_set (fd, 0x10, 0x05);
-  cp2155_set (fd, 0x11, 0x91);
-  cp2155_set (fd, 0x60, 0x15);
-  cp2155_set (fd, 0x80, 0x12);
-  cp2155_set (fd, 0x03, 0x01);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x18);
-  cp2155_set (fd, 0x72, 0x00);
-  cp2155_set (fd, 0x73, 0x10);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
+  write_buf (fd, count, buf, 0x03, 0x00);
+  write_buf (fd, count, buf, 0x03, 0x02);
+  write_buf (fd, count, buf, 0x03, 0x06);
 
+  memcpy (buf + 0x00000000,
+	  "\x04\x70\x18\x00\x80\x25\x18\x1f\x8f\x1a\x2d\x17\x8f\x14\x79\x12",
+	  16);
+  memcpy (buf + 0x00000010,
+	  "\xc6\x10\x5b\x0f\x2a\x0e\x24\x0d\x41\x0c\x7c\x0b\xe3\x1e\x70\x1e",
+	  16);
+  memcpy (buf + 0x00000020, "\x01\x1e\x95\x1d", 4);
+  count = 36;
+  write_buf (fd, count, buf, 0x03, 0x04);
+  write_buf (fd, count, buf, 0x03, 0x08);
+
+  general_motor (fd);
 }
 
 void
@@ -1450,7 +1105,7 @@ startblob0300 (CANON_Handle * chndl, unsigned char *buf)
   cp2155_set (fd, 0x80, 0x12);
   cp2155_set (fd, 0xb0, 0x09);
 
-  big_write (fd, 20852, buf);
+  big_write (fd, 0x5174, buf);
 
   cp2155_set (fd, 0x10, 0x05);
   cp2155_set (fd, 0x10, 0x05);
@@ -1520,136 +1175,34 @@ startblob0300 (CANON_Handle * chndl, unsigned char *buf)
   cp2155_set (fd, 0xca, 0x00);
   cp2155_set (fd, 0xca, 0x00);
   cp2155_set (fd, 0x18, 0x00);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0x00);
-  cp2155_set (fd, 0x73, 0x30);
-  cp2155_set (fd, 0x74, 0x03);
-  cp2155_set (fd, 0x75, 0x00);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
-  memcpy (buf + 0x00000000,
-	  "\x04\x70\x30\x00\x80\x25\x36\x25\xee\x24\xa8\x24\x62\x24\x1d\x24",
-	  16);
-  memcpy (buf + 0x00000010,
-	  "\xd9\x23\x96\x23\x54\x23\x13\x23\xd3\x22\x94\x22\x56\x22\x19\x22",
-	  16);
-  memcpy (buf + 0x00000020,
-	  "\xdc\x21\xa1\x21\x66\x21\x2c\x21\xf3\x20\xba\x20\x82\x20\x4b\x20",
-	  16);
-  memcpy (buf + 0x00000030, "\x15\x20\xe0\x1f", 4);
-  count = 52;
-  sanei_usb_write_bulk (fd, buf, &count);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0x00);
-  cp2155_set (fd, 0x73, 0x30);
-  cp2155_set (fd, 0x74, 0x03);
-  cp2155_set (fd, 0x75, 0x02);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
-  memcpy (buf + 0x00000000,
-	  "\x04\x70\x30\x00\x80\x25\x36\x25\xee\x24\xa8\x24\x62\x24\x1d\x24",
-	  16);
-  memcpy (buf + 0x00000010,
-	  "\xd9\x23\x96\x23\x54\x23\x13\x23\xd3\x22\x94\x22\x56\x22\x19\x22",
-	  16);
-  memcpy (buf + 0x00000020,
-	  "\xdc\x21\xa1\x21\x66\x21\x2c\x21\xf3\x20\xba\x20\x82\x20\x4b\x20",
-	  16);
-  memcpy (buf + 0x00000030, "\x15\x20\xe0\x1f", 4);
-  count = 52;
-  sanei_usb_write_bulk (fd, buf, &count);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0x00);
-  cp2155_set (fd, 0x73, 0x20);
-  cp2155_set (fd, 0x74, 0x03);
-  cp2155_set (fd, 0x75, 0x04);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
-  memcpy (buf + 0x00000000,
-	  "\x04\x70\x18\x00\x80\x25\xe8\x24\x55\x24\xc7\x23\x3d\x23\xb7\x22",
-	  16);
-  memcpy (buf + 0x00000010,
-	  "\x35\x22\xb6\x21\x3c\x21\xc4\x20\x50\x20\xe0\x1f\x56\x22\x19\x22",
-	  16);
-  memcpy (buf + 0x00000020, "\xdc\x21\xa1\x21", 4);
-  count = 36;
-  sanei_usb_write_bulk (fd, buf, &count);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0x00);
-  cp2155_set (fd, 0x73, 0x30);
-  cp2155_set (fd, 0x74, 0x03);
-  cp2155_set (fd, 0x75, 0x06);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
-  memcpy (buf + 0x00000000,
-	  "\x04\x70\x30\x00\x80\x25\x36\x25\xee\x24\xa8\x24\x62\x24\x1d\x24",
-	  16);
-  memcpy (buf + 0x00000010,
-	  "\xd9\x23\x96\x23\x54\x23\x13\x23\xd3\x22\x94\x22\x56\x22\x19\x22",
-	  16);
-  memcpy (buf + 0x00000020,
-	  "\xdc\x21\xa1\x21\x66\x21\x2c\x21\xf3\x20\xba\x20\x82\x20\x4b\x20",
-	  16);
-  memcpy (buf + 0x00000030, "\x15\x20\xe0\x1f", 4);
-  count = 52;
-  sanei_usb_write_bulk (fd, buf, &count);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0x00);
-  cp2155_set (fd, 0x73, 0x20);
-  cp2155_set (fd, 0x74, 0x03);
-  cp2155_set (fd, 0x75, 0x08);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
-  memcpy (buf + 0x00000000,
-	  "\x04\x70\x18\x00\x80\x25\xe8\x24\x55\x24\xc7\x23\x3d\x23\xb7\x22",
-	  16);
-  memcpy (buf + 0x00000010,
-	  "\x35\x22\xb6\x21\x3c\x21\xc4\x20\x50\x20\xe0\x1f\x56\x22\x19\x22",
-	  16);
-  memcpy (buf + 0x00000020, "\xdc\x21\xa1\x21", 4);
-  count = 36;
-  sanei_usb_write_bulk (fd, buf, &count);
-  cp2155_set (fd, 0x9b, 0x00);
-  cp2155_set (fd, 0x10, 0x05);
-  cp2155_set (fd, 0x11, 0x91);
-  cp2155_set (fd, 0x60, 0x15);
-  cp2155_set (fd, 0x80, 0x12);
-  cp2155_set (fd, 0x03, 0x01);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x18);
-  cp2155_set (fd, 0x72, 0x00);
-  cp2155_set (fd, 0x73, 0x10);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
 
+  memcpy (buf + 0x00000000,
+	  "\x04\x70\x30\x00\x80\x25\x36\x25\xee\x24\xa8\x24\x62\x24\x1d\x24",
+	  16);
+  memcpy (buf + 0x00000010,
+	  "\xd9\x23\x96\x23\x54\x23\x13\x23\xd3\x22\x94\x22\x56\x22\x19\x22",
+	  16);
+  memcpy (buf + 0x00000020,
+	  "\xdc\x21\xa1\x21\x66\x21\x2c\x21\xf3\x20\xba\x20\x82\x20\x4b\x20",
+	  16);
+  memcpy (buf + 0x00000030, "\x15\x20\xe0\x1f", 4);
+  count = 52;
+  write_buf (fd, count, buf, 0x03, 0x00);
+  write_buf (fd, count, buf, 0x03, 0x02);
+  write_buf (fd, count, buf, 0x03, 0x06);
+
+  memcpy (buf + 0x00000000,
+	  "\x04\x70\x18\x00\x80\x25\xe8\x24\x55\x24\xc7\x23\x3d\x23\xb7\x22",
+	  16);
+  memcpy (buf + 0x00000010,
+	  "\x35\x22\xb6\x21\x3c\x21\xc4\x20\x50\x20\xe0\x1f\x56\x22\x19\x22",
+	  16);
+  memcpy (buf + 0x00000020, "\xdc\x21\xa1\x21", 4);
+  count = 36;
+  write_buf (fd, count, buf, 0x03, 0x04);
+  write_buf (fd, count, buf, 0x03, 0x08);
+
+  general_motor (fd);
 }
 
 void
@@ -1779,154 +1332,40 @@ startblob0600 (CANON_Handle * chndl, unsigned char *buf)
   cp2155_set (fd, 0xca, 0x00);
   cp2155_set (fd, 0xca, 0x00);
   cp2155_set (fd, 0x18, 0x00);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0x00);
-  cp2155_set (fd, 0x73, 0x50);
-  cp2155_set (fd, 0x74, 0x03);
-  cp2155_set (fd, 0x75, 0x00);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
-  memcpy (buf + 0x0000,
-	  "\x04\x70\x50\x00\x80\x25\x58\x25\x32\x25\x0b\x25\xe5\x24\xc0\x24",
-	  16);
-  memcpy (buf + 0x0010,
-	  "\x9a\x24\x75\x24\x50\x24\x2b\x24\x07\x24\xe3\x23\xbf\x23\x9c\x23",
-	  16);
-  memcpy (buf + 0x0020,
-	  "\x79\x23\x56\x23\x33\x23\x11\x23\xee\x22\xcd\x22\xab\x22\x8a\x22",
-	  16);
-  memcpy (buf + 0x0030,
-	  "\x68\x22\x48\x22\x27\x22\x07\x22\xe6\x21\xc7\x21\xa7\x21\x87\x21",
-	  16);
-  memcpy (buf + 0x0040,
-	  "\x68\x21\x49\x21\x2a\x21\x0c\x21\xee\x20\xd0\x20\x00\x00\x00\x00",
-	  16);
-  memcpy (buf + 0x0050, "\x00\x00\x00\x00", 4);
-  count = 84;
-  sanei_usb_write_bulk (fd, buf, &count);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0x00);
-  cp2155_set (fd, 0x73, 0x50);
-  cp2155_set (fd, 0x74, 0x03);
-  cp2155_set (fd, 0x75, 0x02);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
-  memcpy (buf + 0x0000,
-	  "\x04\x70\x50\x00\x80\x25\x58\x25\x32\x25\x0b\x25\xe5\x24\xc0\x24",
-	  16);
-  memcpy (buf + 0x0010,
-	  "\x9a\x24\x75\x24\x50\x24\x2b\x24\x07\x24\xe3\x23\xbf\x23\x9c\x23",
-	  16);
-  memcpy (buf + 0x0020,
-	  "\x79\x23\x56\x23\x33\x23\x11\x23\xee\x22\xcd\x22\xab\x22\x8a\x22",
-	  16);
-  memcpy (buf + 0x0030,
-	  "\x68\x22\x48\x22\x27\x22\x07\x22\xe6\x21\xc7\x21\xa7\x21\x87\x21",
-	  16);
-  memcpy (buf + 0x0040,
-	  "\x68\x21\x49\x21\x2a\x21\x0c\x21\xee\x20\xd0\x20\x00\x00\x00\x00",
-	  16);
-  memcpy (buf + 0x0050, "\x00\x00\x00\x00", 4);
-  count = 84;
-  sanei_usb_write_bulk (fd, buf, &count);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0x00);
-  cp2155_set (fd, 0x73, 0x20);
-  cp2155_set (fd, 0x74, 0x03);
-  cp2155_set (fd, 0x75, 0x04);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
-  memcpy (buf + 0x0000,
-	  "\x04\x70\x20\x00\x80\x25\x04\x25\x8c\x24\x18\x24\xa5\x23\x36\x23",
-	  16);
-  memcpy (buf + 0x0010,
-	  "\xca\x22\x60\x22\xf8\x21\x93\x21\x30\x21\xd0\x20\x00\x00\x00\x00",
-	  16);
-  memcpy (buf + 0x0020, "\x00\x00\x00\x00", 4);
-  count = 36;
-  sanei_usb_write_bulk (fd, buf, &count);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0x00);
-  cp2155_set (fd, 0x73, 0x50);
-  cp2155_set (fd, 0x74, 0x03);
-  cp2155_set (fd, 0x75, 0x06);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
-  memcpy (buf + 0x0000,
-	  "\x04\x70\x50\x00\x80\x25\x58\x25\x32\x25\x0b\x25\xe5\x24\xc0\x24",
-	  16);
-  memcpy (buf + 0x0010,
-	  "\x9a\x24\x75\x24\x50\x24\x2b\x24\x07\x24\xe3\x23\xbf\x23\x9c\x23",
-	  16);
-  memcpy (buf + 0x0020,
-	  "\x79\x23\x56\x23\x33\x23\x11\x23\xee\x22\xcd\x22\xab\x22\x8a\x22",
-	  16);
-  memcpy (buf + 0x0030,
-	  "\x68\x22\x48\x22\x27\x22\x07\x22\xe6\x21\xc7\x21\xa7\x21\x87\x21",
-	  16);
-  memcpy (buf + 0x0040,
-	  "\x68\x21\x49\x21\x2a\x21\x0c\x21\xee\x20\xd0\x20\x00\x00\x00\x00",
-	  16);
-  memcpy (buf + 0x0050, "\x00\x00\x00\x00", 4);
-  count = 84;
-  sanei_usb_write_bulk (fd, buf, &count);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0x00);
-  cp2155_set (fd, 0x73, 0x20);
-  cp2155_set (fd, 0x74, 0x03);
-  cp2155_set (fd, 0x75, 0x08);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
-  memcpy (buf + 0x0000,
-	  "\x04\x70\x20\x00\x80\x25\x04\x25\x8c\x24\x18\x24\xa5\x23\x36\x23",
-	  16);
-  memcpy (buf + 0x0010,
-	  "\xca\x22\x60\x22\xf8\x21\x93\x21\x30\x21\xd0\x20\x00\x00\x00\x00",
-	  16);
-  memcpy (buf + 0x0020, "\x00\x00\x00\x00", 4);
-  count = 36;
-  sanei_usb_write_bulk (fd, buf, &count);
-  cp2155_set (fd, 0x9b, 0x00);
-  cp2155_set (fd, 0x10, 0x05);
-  cp2155_set (fd, 0x11, 0xd1);
-  cp2155_set (fd, 0x60, 0x15);
-  cp2155_set (fd, 0x80, 0x12);
-  cp2155_set (fd, 0x03, 0x01);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x18);
-  cp2155_set (fd, 0x72, 0x00);
-  cp2155_set (fd, 0x73, 0x10);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
 
+  memcpy (buf + 0x0000,
+	  "\x04\x70\x50\x00\x80\x25\x58\x25\x32\x25\x0b\x25\xe5\x24\xc0\x24",
+	  16);
+  memcpy (buf + 0x0010,
+	  "\x9a\x24\x75\x24\x50\x24\x2b\x24\x07\x24\xe3\x23\xbf\x23\x9c\x23",
+	  16);
+  memcpy (buf + 0x0020,
+	  "\x79\x23\x56\x23\x33\x23\x11\x23\xee\x22\xcd\x22\xab\x22\x8a\x22",
+	  16);
+  memcpy (buf + 0x0030,
+	  "\x68\x22\x48\x22\x27\x22\x07\x22\xe6\x21\xc7\x21\xa7\x21\x87\x21",
+	  16);
+  memcpy (buf + 0x0040,
+	  "\x68\x21\x49\x21\x2a\x21\x0c\x21\xee\x20\xd0\x20\x00\x00\x00\x00",
+	  16);
+  memcpy (buf + 0x0050, "\x00\x00\x00\x00", 4);
+  count = 84;
+  write_buf (fd, count, buf, 0x03, 0x00);
+  write_buf (fd, count, buf, 0x03, 0x02);
+  write_buf (fd, count, buf, 0x03, 0x06);
+
+  memcpy (buf + 0x0000,
+	  "\x04\x70\x20\x00\x80\x25\x04\x25\x8c\x24\x18\x24\xa5\x23\x36\x23",
+	  16);
+  memcpy (buf + 0x0010,
+	  "\xca\x22\x60\x22\xf8\x21\x93\x21\x30\x21\xd0\x20\x00\x00\x00\x00",
+	  16);
+  memcpy (buf + 0x0020, "\x00\x00\x00\x00", 4);
+  count = 36;
+  write_buf (fd, count, buf, 0x03, 0x04);
+  write_buf (fd, count, buf, 0x03, 0x08);
+
+  general_motor (fd);
 }
 
 void
@@ -1989,49 +1428,7 @@ startblob1200 (CANON_Handle * chndl, unsigned char *buf)
   cp2155_set (fd, 0x80, 0x12);
   cp2155_set (fd, 0xb0, 0x08);
 
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0xa1);
-  cp2155_set (fd, 0x73, 0xa0);
-  cp2155_set (fd, 0x74, 0x00);
-  cp2155_set (fd, 0x75, 0x00);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
-  count = 41380;
-  make_buf (count, buf);
-  sanei_usb_write_bulk (fd, buf, &count);
-
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0xa1);
-  cp2155_set (fd, 0x73, 0xa0);
-  cp2155_set (fd, 0x74, 0x00);
-  cp2155_set (fd, 0x75, 0xb0);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
-  sanei_usb_write_bulk (fd, buf, &count);
-
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0xa1);
-  cp2155_set (fd, 0x73, 0xa0);
-  cp2155_set (fd, 0x74, 0x01);
-  cp2155_set (fd, 0x75, 0x60);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
-  sanei_usb_write_bulk (fd, buf, &count);
+  big_write (fd, 0xa1a4, buf);
 
   cp2155_set (fd, 0x10, 0x05);
   cp2155_set (fd, 0x10, 0x05);
@@ -2101,127 +1498,22 @@ startblob1200 (CANON_Handle * chndl, unsigned char *buf)
   cp2155_set (fd, 0xca, 0x00);
   cp2155_set (fd, 0xca, 0x00);
   cp2155_set (fd, 0x18, 0x01);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0x00);
-  cp2155_set (fd, 0x73, 0x20);
-  cp2155_set (fd, 0x74, 0x03);
-  cp2155_set (fd, 0x75, 0x00);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
-  memcpy (buf + 0x00000000,
-	  "\x04\x70\x18\x00\x00\xff\x00\xff\x00\xff\x00\xff\x00\xff\x00\xff",
-	  16);
-  memcpy (buf + 0x00000010,
-	  "\x00\xff\x00\xff\x00\xff\x00\xff\x00\xff\x00\xff\x00\x00\x00\x00",
-	  16);
-  memcpy (buf + 0x00000020, "\x00\x00\x00\x00", 4);
-  count = 36;
-  sanei_usb_write_bulk (fd, buf, &count);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0x00);
-  cp2155_set (fd, 0x73, 0x20);
-  cp2155_set (fd, 0x74, 0x03);
-  cp2155_set (fd, 0x75, 0x02);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
-  memcpy (buf + 0x00000000,
-	  "\x04\x70\x18\x00\x00\xff\x00\xff\x00\xff\x00\xff\x00\xff\x00\xff",
-	  16);
-  memcpy (buf + 0x00000010,
-	  "\x00\xff\x00\xff\x00\xff\x00\xff\x00\xff\x00\xff\x00\x00\x00\x00",
-	  16);
-  memcpy (buf + 0x00000020, "\x00\x00\x00\x00", 4);
-  count = 36;
-  sanei_usb_write_bulk (fd, buf, &count);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0x00);
-  cp2155_set (fd, 0x73, 0x20);
-  cp2155_set (fd, 0x74, 0x03);
-  cp2155_set (fd, 0x75, 0x04);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
-  memcpy (buf + 0x00000000,
-	  "\x04\x70\x18\x00\x00\xff\x00\xff\x00\xff\x00\xff\x00\xff\x00\xff",
-	  16);
-  memcpy (buf + 0x00000010,
-	  "\x00\xff\x00\xff\x00\xff\x00\xff\x00\xff\x00\xff\x00\x00\x00\x00",
-	  16);
-  memcpy (buf + 0x00000020, "\x00\x00\x00\x00", 4);
-  count = 36;
-  sanei_usb_write_bulk (fd, buf, &count);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0x00);
-  cp2155_set (fd, 0x73, 0x20);
-  cp2155_set (fd, 0x74, 0x03);
-  cp2155_set (fd, 0x75, 0x06);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
-  memcpy (buf + 0x00000000,
-	  "\x04\x70\x18\x00\x00\xff\x00\xff\x00\xff\x00\xff\x00\xff\x00\xff",
-	  16);
-  memcpy (buf + 0x00000010,
-	  "\x00\xff\x00\xff\x00\xff\x00\xff\x00\xff\x00\xff\x00\x00\x00\x00",
-	  16);
-  memcpy (buf + 0x00000020, "\x00\x00\x00\x00", 4);
-  count = 36;
-  sanei_usb_write_bulk (fd, buf, &count);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0x00);
-  cp2155_set (fd, 0x73, 0x20);
-  cp2155_set (fd, 0x74, 0x03);
-  cp2155_set (fd, 0x75, 0x08);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
-  memcpy (buf + 0x00000000,
-	  "\x04\x70\x18\x00\x00\xff\x00\xff\x00\xff\x00\xff\x00\xff\x00\xff",
-	  16);
-  memcpy (buf + 0x00000010,
-	  "\x00\xff\x00\xff\x00\xff\x00\xff\x00\xff\x00\xff\x00\x00\x00\x00",
-	  16);
-  memcpy (buf + 0x00000020, "\x00\x00\x00\x00", 4);
-  count = 36;
-  sanei_usb_write_bulk (fd, buf, &count);
-  cp2155_set (fd, 0x9b, 0x00);
-  cp2155_set (fd, 0x10, 0x05);
-  cp2155_set (fd, 0x11, 0x91);
-  cp2155_set (fd, 0x60, 0x15);
-  cp2155_set (fd, 0x80, 0x12);
-  cp2155_set (fd, 0x03, 0x01);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x18);
-  cp2155_set (fd, 0x72, 0x00);
-  cp2155_set (fd, 0x73, 0x10);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
 
+  memcpy (buf + 0x00000000,
+	  "\x04\x70\x18\x00\x00\xff\x00\xff\x00\xff\x00\xff\x00\xff\x00\xff",
+	  16);
+  memcpy (buf + 0x00000010,
+	  "\x00\xff\x00\xff\x00\xff\x00\xff\x00\xff\x00\xff\x00\x00\x00\x00",
+	  16);
+  memcpy (buf + 0x00000020, "\x00\x00\x00\x00", 4);
+  count = 36;
+  write_buf (fd, count, buf, 0x03, 0x00);
+  write_buf (fd, count, buf, 0x03, 0x02);
+  write_buf (fd, count, buf, 0x03, 0x06);
+  write_buf (fd, count, buf, 0x03, 0x04);
+  write_buf (fd, count, buf, 0x03, 0x08);
+
+  general_motor (fd);
 }
 
 void
@@ -2873,11 +2165,11 @@ CANON_open_device (CANON_Handle * scan, const char *dev)
   if (vendor == 0x04a9)
     {
       scan->product = "Canon";
-
+      scan->productcode = product;
       if (product == 0x2224)
-        {
-          scan->product = "CanoScan LiDE 600F";
-        }
+	{
+	  scan->product = "CanoScan LiDE 600F";
+	}
       else if (product == 0x2225)
 	{
 	  scan->product = "CanoScan LiDE 70";

@@ -391,6 +391,10 @@ init_options (CANON_Handle * chndl)
   od->size = sizeof (SANE_Word);
   od->cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT;
   od->constraint_type = SANE_CONSTRAINT_WORD_LIST;
+  if (chndl->productcode == 0x2224)
+    {
+      resolution_list[0] = 4;
+    }
   od->constraint.word_list = resolution_list;
   chndl->val[opt_resolution].w = init_resolution;
 

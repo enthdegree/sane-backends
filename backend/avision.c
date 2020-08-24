@@ -6747,7 +6747,7 @@ do_eof (Avision_Scanner *s)
 static SANE_Status
 do_cancel (Avision_Scanner* s)
 {
-  int status, release_type = 0;
+  int status;
 
   DBG (3, "do_cancel:\n");
 
@@ -6770,11 +6770,11 @@ do_cancel (Avision_Scanner* s)
     sanei_thread_invalidate (s->reader_pid);
   }
 
-  if (s->hw->hw->feature_type & AV_FASTFEED_ON_CANCEL)
-    release_type = 1;
-  status = release_unit (s, release_type);
-  if (status != SANE_STATUS_GOOD)
-    DBG (1, "do_cancel: release_unit failed\n");
+  if (s->hw->hw->feature_type & AV_FASTFEED_ON_CANCEL) {
+    status = release_unit (s, 1);
+    if (status != SANE_STATUS_GOOD)
+      DBG (1, "do_cancel: release_unit failed\n");
+  }
 
   return SANE_STATUS_CANCELLED;
 }

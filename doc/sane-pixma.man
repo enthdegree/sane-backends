@@ -15,7 +15,7 @@ over IPv4 as well as IPv6 (MFNP over IPv6 is untested).
 Currently, the following models work with this backend:
 .PP
 .RS
-PIXMA E510
+PIXMA E410, E510
 .br
 PIXMA G2000, G2010, G2100, G4000
 .br
@@ -103,7 +103,7 @@ in the backend so that they get recognized and activated.
 Feedback in the sane\-devel mailing list welcome.
 .PP
 .RS
-PIXMA E400, E410, E460, E470, E480, E500, E560, E600, E610
+PIXMA E400, E460, E470, E480, E500, E560, E600, E610
 .br
 PIXMA E3100, E3300, E4200
 .br

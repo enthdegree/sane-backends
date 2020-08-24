@@ -31,8 +31,8 @@
 :model "PIXMA E410 Series"
 :interface "USB"
 :usbid "0x04a9" "0x181e"
-:status :untested
-:comment "Testers needed!"
+:status :complete
+:comment "All resolutions supported (up to 600DPI)."
 
 :model "PIXMA E460 Series"
 :interface "USB Ethernet"

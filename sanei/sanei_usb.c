@@ -218,6 +218,14 @@ static int libusb_timeout = 30 * 1000;	/* 30 seconds */
 static libusb_context *sanei_usb_ctx;
 #endif /* HAVE_LIBUSB */
 
+#if defined (__APPLE__)
+/* macOS won't configure several USB scanners (i.e. ScanSnap 300M) because their
+ * descriptors are vendor specific.  As a result the device will get configured
+ * later during sanei_usb_open making it safe to ignore the configuration check
+ * on these platforms. */
+#define SANEI_ALLOW_UNCONFIGURED_DEVICES
+#endif
+
 #if defined (__linux__)
 /* From /usr/src/linux/driver/usb/scanner.h */
 #define SCANNER_IOCTL_VENDOR _IOR('U', 0x20, int)
@@ -1862,11 +1870,7 @@ static void libusb_scan_devices(void)
 	  continue;
 	}
 
-/* macOS won't configure several USB scanners (i.e. ScanSnap 300M) because their
- * descriptors are vendor specific.  As a result the device will get configured
- * later during sanei_usb_open making it safe to ignore the configuration check
- * here on these platforms. */
-#if !defined(__APPLE__)
+#if !defined(SANEI_ALLOW_UNCONFIGURED_DEVICES)
       if (config == 0)
 	{
 	  DBG (1,
@@ -2623,11 +2627,7 @@ sanei_usb_open (SANE_String_Const devname, SANE_Int * dn)
 	  return SANE_STATUS_INVAL;
 	}
 
-/* macOS won't configure several USB scanners (i.e. ScanSnap 300M) because their
- * descriptors are vendor specific.  As a result the device will get configured
- * later during sanei_usb_open making it safe to ignore the configuration check
- * here on these platforms. */
-#if !defined(__APPLE__)
+#if !defined(SANEI_ALLOW_UNCONFIGURED_DEVICES)
       if (config == 0)
 	{
 	  DBG (1, "sanei_usb_open: device `%s' not configured?\n", devname);

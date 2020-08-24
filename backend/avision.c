@@ -3619,7 +3619,7 @@ adf_reset (Avision_Scanner* s)
     set_triple (rcmd.transferlen, size);
     status = avision_cmd (&s->av_con, &rcmd, sizeof (rcmd), 0, 0, payload, &size);
     if (status != SANE_STATUS_GOOD || size != (4-n)) {
-      DBG (1, "adf_reset: read %lu failed (%s)\n", (2-n),
+      DBG (1, "adf_reset: read %zu failed (%s)\n", (4-n),
 	 sane_strstatus (status));
       return (status);
     }

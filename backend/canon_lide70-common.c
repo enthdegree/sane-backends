@@ -254,7 +254,8 @@ cp2155_read (int fd, byte * data, size_t size)
 /*****************************************************/
 
 static void
-cp2155_block1 (int fd, byte v001, unsigned int addr, byte * data, size_t size)
+cp2155_block1 (int fd, byte value_71, unsigned int addr, byte * data,
+	       size_t size)
 {
   size_t count = size;
 
@@ -271,7 +272,7 @@ cp2155_block1 (int fd, byte v001, unsigned int addr, byte * data, size_t size)
 */
   cp2155_set (fd, 0x71, 0x01);
   cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, v001);
+  cp2155_set (fd, 0x71, value_71);
   cp2155_set (fd, 0x72, pgHI);
   cp2155_set (fd, 0x73, pgLO);
   cp2155_set (fd, 0x74, (addr >> 16) & 0xff);
@@ -286,7 +287,7 @@ cp2155_block1 (int fd, byte v001, unsigned int addr, byte * data, size_t size)
 
 /* size=0x0100 */
 /* gamma table red*/
-static byte cp2155_gamma_red_data[] = {
+static byte cp2155_gamma_red_enhanced_data[] = {
   0x00, 0x14, 0x1c, 0x26, 0x2a, 0x2e, 0x34, 0x37, 0x3a, 0x3f, 0x42, 0x44,
   0x48, 0x4a, 0x4c, 0x50,
   0x52, 0x53, 0x57, 0x58, 0x5c, 0x5d, 0x5f, 0x62, 0x63, 0x64, 0x67, 0x68,
@@ -323,7 +324,7 @@ static byte cp2155_gamma_red_data[] = {
 
 /* size=0x0100 */
 /* gamma table */
-static byte cp2155_gamma_greenblue_data[] = {
+static byte cp2155_gamma_standard_data[] = {
   0x00, 0x14, 0x1c, 0x21, 0x26, 0x2a, 0x2e, 0x31, 0x34, 0x37, 0x3a, 0x3d,
   0x3f, 0x42, 0x44, 0x46,
   0x48, 0x4a, 0x4c, 0x4e, 0x50, 0x52, 0x53, 0x55, 0x57, 0x58, 0x5a, 0x5c,
@@ -359,54 +360,23 @@ static byte cp2155_gamma_greenblue_data[] = {
 };
 
 static void
-cp2155_block2 (int fd, unsigned int addr)
-{
-  DBG (1, "cp2155_block2 %06x\n", addr);
-  cp2155_block1 (fd, 0x16, addr, cp2155_gamma_red_data, 0x0100);
-}
-
-static void
-cp2155_block3 (int fd, unsigned int addr)
-{
-  DBG (1, "cp2155_block3 %06x\n", addr);
-  cp2155_block1 (fd, 0x16, addr, cp2155_gamma_greenblue_data, 0x0100);
-}
-
-static void
-cp2155_block6 (int fd, byte v001, byte v002)
-{
-  DBG (1, "cp2155_block6 %02x %02x\n", v001, v002);
-  cp2155_set (fd, 0x80, v001);
-  cp2155_set (fd, 0x11, v002);
-}
-
-static void
-cp2155_block8 (int fd)
-{
-  DBG (1, "cp2155_block8\n");
-  cp2155_set (fd, 0x04, 0x0c);
-  cp2155_set (fd, 0x05, 0x00);
-  cp2155_set (fd, 0x06, 0x00);
-}
-
-static void
 cp2155_set_gamma (int fd)
 {
   DBG (1, "cp2155_set_gamma\n");
 /* gamma tables */
-  cp2155_block3 (fd, 0x000000);
-  cp2155_block3 (fd, 0x000100);
-  cp2155_block3 (fd, 0x000200);
+  cp2155_block1 (fd, 0x16, 0x000, cp2155_gamma_standard_data, 0x0100);
+  cp2155_block1 (fd, 0x16, 0x100, cp2155_gamma_standard_data, 0x0100);
+  cp2155_block1 (fd, 0x16, 0x200, cp2155_gamma_standard_data, 0x0100);
 }
 
 static void
-cp2155_set_gamma600 (int fd)
+cp2155_set_gamma_red_enhanced (int fd)
 {
   DBG (1, "cp2155_set_gamma\n");
 /* gamma tables */
-  cp2155_block2 (fd, 0x000000);
-  cp2155_block3 (fd, 0x000100);
-  cp2155_block3 (fd, 0x000200);
+  cp2155_block1 (fd, 0x16, 0x000, cp2155_gamma_red_enhanced_data, 0x0100);
+  cp2155_block1 (fd, 0x16, 0x100, cp2155_gamma_standard_data, 0x0100);
+  cp2155_block1 (fd, 0x16, 0x200, cp2155_gamma_standard_data, 0x0100);
 }
 
 static void
@@ -519,7 +489,7 @@ general_motor_600 (int fd)
 }
 
 void
-startblob0075 (CANON_Handle * chndl, unsigned char *buf)
+startblob_2225_0075 (CANON_Handle * chndl, unsigned char *buf)
 {
 
   int fd;
@@ -718,7 +688,7 @@ startblob0075 (CANON_Handle * chndl, unsigned char *buf)
 }
 
 void
-startblob0150 (CANON_Handle * chndl, unsigned char *buf)
+startblob_2225_0150 (CANON_Handle * chndl, unsigned char *buf)
 {
 
   int fd;
@@ -928,7 +898,7 @@ startblob0150 (CANON_Handle * chndl, unsigned char *buf)
 }
 
 void
-startblob0300 (CANON_Handle * chndl, unsigned char *buf)
+startblob_2225_0300 (CANON_Handle * chndl, unsigned char *buf)
 {
 
   int fd;
@@ -1088,7 +1058,7 @@ startblob0300 (CANON_Handle * chndl, unsigned char *buf)
 }
 
 void
-startblob0600 (CANON_Handle * chndl, unsigned char *buf)
+startblob_2225_0600 (CANON_Handle * chndl, unsigned char *buf)
 {
 
   int fd;
@@ -1251,7 +1221,7 @@ startblob0600 (CANON_Handle * chndl, unsigned char *buf)
 }
 
 void
-startblob0600_extra (CANON_Handle * chndl, unsigned char *buf)
+startblob_2225_0600_extra (CANON_Handle * chndl, unsigned char *buf)
 {
 
   int fd;
@@ -1399,7 +1369,7 @@ startblob0600_extra (CANON_Handle * chndl, unsigned char *buf)
 }
 
 void
-startblob1200 (CANON_Handle * chndl, unsigned char *buf)
+startblob_2225_1200 (CANON_Handle * chndl, unsigned char *buf)
 {
 
   int fd;
@@ -1547,7 +1517,7 @@ startblob1200 (CANON_Handle * chndl, unsigned char *buf)
 }
 
 void
-startblob_600_0075 (CANON_Handle * chndl, unsigned char *buf)
+startblob_2224_0075 (CANON_Handle * chndl, unsigned char *buf)
 {
 
   int fd;
@@ -1798,7 +1768,7 @@ startblob_600_0075 (CANON_Handle * chndl, unsigned char *buf)
 }
 
 void
-startblob_600_0150 (CANON_Handle * chndl, unsigned char *buf)
+startblob_2224_0150 (CANON_Handle * chndl, unsigned char *buf)
 {
 
   int fd;
@@ -2001,7 +1971,7 @@ startblob_600_0150 (CANON_Handle * chndl, unsigned char *buf)
 }
 
 void
-startblob_600_0300 (CANON_Handle * chndl, unsigned char *buf)
+startblob_2224_0300 (CANON_Handle * chndl, unsigned char *buf)
 {
 
   int fd;
@@ -2201,7 +2171,7 @@ startblob_600_0300 (CANON_Handle * chndl, unsigned char *buf)
 }
 
 void
-startblob_600_0600 (CANON_Handle * chndl, unsigned char *buf)
+startblob_2224_0600 (CANON_Handle * chndl, unsigned char *buf)
 {
 
   int fd;
@@ -2352,7 +2322,7 @@ startblob_600_0600 (CANON_Handle * chndl, unsigned char *buf)
 }
 
 void
-startblob_600_1200 (CANON_Handle * chndl, unsigned char *buf)
+startblob_2224_1200 (CANON_Handle * chndl, unsigned char *buf)
 {
 
   int fd;
@@ -2606,13 +2576,25 @@ send_start_blob (CANON_Handle * chndl)
       chndl->value_67 = 0xab;	/* 6*7300 */
       chndl->value_68 = 0x18;
     }
-
+/*
   cp2155_block6 (fd, 0x12, 0x83);
-/*  cp2155_set (fd, 0x90, 0xf8); */
+  cp2155_set (fd, 0x90, 0xf8); 
   cp2155_block6 (fd, 0x12, 0x83);
-/* start preparing real scan */
   cp2155_set (fd, 0x01, 0x29);
   cp2155_block8 (fd);
+  cp2155_set (fd, 0x01, 0x29);
+*/
+  cp2155_set (fd, 0x80, 0x12);
+  cp2155_set (fd, 0x11, 0xc1);
+  cp2155_set (fd, 0x80, 0x12);
+  cp2155_set (fd, 0x11, 0xc1);
+  cp2155_set (fd, 0x90, 0xf8);
+  cp2155_set (fd, 0x80, 0x12);
+  cp2155_set (fd, 0x11, 0xc1);
+  cp2155_set (fd, 0x01, 0x29);
+  cp2155_set (fd, 0x04, 0x0c);
+  cp2155_set (fd, 0x05, 0x00);
+  cp2155_set (fd, 0x06, 0x00);
   cp2155_set (fd, 0x01, 0x29);
   cp2155_set_gamma (fd);
 
@@ -2621,56 +2603,56 @@ send_start_blob (CANON_Handle * chndl)
     case 75:
       if (chndl->productcode == 0x2225)
 	{
-	  startblob0075 (chndl, buf);
+	  startblob_2225_0075 (chndl, buf);
 	}
       else
 	{
-	  startblob_600_0075 (chndl, buf);
+	  startblob_2224_0075 (chndl, buf);
 	}
       break;
     case 150:
       if (chndl->productcode == 0x2225)
 	{
-	  startblob0150 (chndl, buf);
+	  startblob_2225_0150 (chndl, buf);
 	}
       else
 	{
-	  startblob_600_0150 (chndl, buf);
+	  startblob_2224_0150 (chndl, buf);
 	}
       break;
     case 300:
       if (chndl->productcode == 0x2225)
 	{
-	  startblob0300 (chndl, buf);
+	  startblob_2225_0300 (chndl, buf);
 	}
       else
 	{
-	  cp2155_set_gamma600 (fd);
-	  startblob_600_0300 (chndl, buf);
+	  cp2155_set_gamma_red_enhanced (fd);
+	  startblob_2224_0300 (chndl, buf);
 	}
       break;
     case 600:
       if (chndl->productcode == 0x2225)
 	{
-	  cp2155_set_gamma600 (fd);
-	  startblob0600 (chndl, buf);
+	  cp2155_set_gamma_red_enhanced (fd);
+	  startblob_2225_0600 (chndl, buf);
 /*
-          startblob0600_extra (chndl, buf);
+          startblob_2225_0600_extra (chndl, buf);
 */
 	}
       else
 	{
-	  startblob_600_0600 (chndl, buf);
+	  startblob_2224_0600 (chndl, buf);
 	}
       break;
     case 1200:
       if (chndl->productcode == 0x2225)
 	{
-	  startblob1200 (chndl, buf);
+	  startblob_2225_1200 (chndl, buf);
 	}
       else
 	{
-	  startblob_600_1200 (chndl, buf);
+	  startblob_2224_1200 (chndl, buf);
 	}
       break;
     }

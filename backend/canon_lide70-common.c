@@ -2578,7 +2578,7 @@ send_start_blob (CANON_Handle * chndl)
     }
 /*
   cp2155_block6 (fd, 0x12, 0x83);
-  cp2155_set (fd, 0x90, 0xf8); 
+  cp2155_set (fd, 0x90, 0xf8);
   cp2155_block6 (fd, 0x12, 0x83);
   cp2155_set (fd, 0x01, 0x29);
   cp2155_block8 (fd);

@@ -21,7 +21,7 @@
    Foundation, Inc., 59 Temple Place - Suite 330, Boston,
    MA 02111-1307, USA.
 
-   This file implements a SANE backend for the Canon CanoScan LiDE 70 */
+   This file implements a SANE backend for the Canon CanoScan LiDE 70 and 600 */
 
 #include <errno.h>
 #include <fcntl.h>		/* open */
@@ -254,10 +254,10 @@ cp2155_read (int fd, byte * data, size_t size)
 /*****************************************************/
 
 static void
-cp2155_block1 (int fd, byte value_71, unsigned int addr, byte * data,
-	       size_t size)
+cp2155_write_gamma_block (int fd, unsigned int addr, byte * data)
 {
-  size_t count = size;
+  byte value_71 = 0x16;
+  size_t count = 0x100;
 
   while ((count & 0x0f) != 0)
     {
@@ -267,7 +267,7 @@ cp2155_block1 (int fd, byte value_71, unsigned int addr, byte * data,
   byte pgLO = (count) & 0xff;
   byte pgHI = (count >> 8) & 0xff;
 /*
-  DBG (1, "cp2155_block1 %06x %02x %04lx %04lx\n", addr, v001, (u_long) size,
+  DBG (1, "cp2155_write_gamma_block %06x %02x %04lx %04lx\n", addr, v001, (u_long) size,
        (u_long) count);
 */
   cp2155_set (fd, 0x71, 0x01);
@@ -364,9 +364,9 @@ cp2155_set_gamma (int fd)
 {
   DBG (1, "cp2155_set_gamma\n");
 /* gamma tables */
-  cp2155_block1 (fd, 0x16, 0x000, cp2155_gamma_standard_data, 0x0100);
-  cp2155_block1 (fd, 0x16, 0x100, cp2155_gamma_standard_data, 0x0100);
-  cp2155_block1 (fd, 0x16, 0x200, cp2155_gamma_standard_data, 0x0100);
+  cp2155_write_gamma_block (fd, 0x000, cp2155_gamma_standard_data);
+  cp2155_write_gamma_block (fd, 0x100, cp2155_gamma_standard_data);
+  cp2155_write_gamma_block (fd, 0x200, cp2155_gamma_standard_data);
 }
 
 static void
@@ -374,9 +374,9 @@ cp2155_set_gamma_red_enhanced (int fd)
 {
   DBG (1, "cp2155_set_gamma\n");
 /* gamma tables */
-  cp2155_block1 (fd, 0x16, 0x000, cp2155_gamma_red_enhanced_data, 0x0100);
-  cp2155_block1 (fd, 0x16, 0x100, cp2155_gamma_standard_data, 0x0100);
-  cp2155_block1 (fd, 0x16, 0x200, cp2155_gamma_standard_data, 0x0100);
+  cp2155_write_gamma_block (fd, 0x000, cp2155_gamma_red_enhanced_data);
+  cp2155_write_gamma_block (fd, 0x100, cp2155_gamma_standard_data);
+  cp2155_write_gamma_block (fd, 0x200, cp2155_gamma_standard_data);
 }
 
 static void
@@ -449,7 +449,7 @@ big_write (int fd, size_t count, unsigned char *buf)
 }
 
 void
-general_motor (int fd)
+general_motor_2225 (int fd)
 {
   cp2155_set (fd, 0x9b, 0x02);
   cp2155_set (fd, 0x10, 0x05);
@@ -469,7 +469,7 @@ general_motor (int fd)
 }
 
 void
-general_motor_600 (int fd)
+general_motor_2224 (int fd)
 {
   cp2155_set (fd, 0x90, 0xfa);
   cp2155_set (fd, 0x10, 0x05);
@@ -684,7 +684,7 @@ startblob_2225_0075 (CANON_Handle * chndl, unsigned char *buf)
   write_buf (fd, count, buf, 0x03, 0x04);
   write_buf (fd, count, buf, 0x03, 0x08);
 
-  general_motor (fd);
+  general_motor_2225 (fd);
 }
 
 void
@@ -894,7 +894,7 @@ startblob_2225_0150 (CANON_Handle * chndl, unsigned char *buf)
   write_buf (fd, count, buf, 0x03, 0x04);
   write_buf (fd, count, buf, 0x03, 0x08);
 
-  general_motor (fd);
+  general_motor_2225 (fd);
 }
 
 void
@@ -1054,7 +1054,7 @@ startblob_2225_0300 (CANON_Handle * chndl, unsigned char *buf)
   write_buf (fd, count, buf, 0x03, 0x04);
   write_buf (fd, count, buf, 0x03, 0x08);
 
-  general_motor (fd);
+  general_motor_2225 (fd);
 }
 
 void
@@ -1217,7 +1217,7 @@ startblob_2225_0600 (CANON_Handle * chndl, unsigned char *buf)
   write_buf (fd, count, buf, 0x03, 0x04);
   write_buf (fd, count, buf, 0x03, 0x08);
 
-  general_motor (fd);
+  general_motor_2225 (fd);
 }
 
 void
@@ -1365,7 +1365,7 @@ startblob_2225_0600_extra (CANON_Handle * chndl, unsigned char *buf)
   write_buf (fd, count, buf, 0x03, 0x04);
   write_buf (fd, count, buf, 0x03, 0x08);
 
-  general_motor (fd);
+  general_motor_2225 (fd);
 }
 
 void
@@ -1513,7 +1513,7 @@ startblob_2225_1200 (CANON_Handle * chndl, unsigned char *buf)
   write_buf (fd, count, buf, 0x03, 0x04);
   write_buf (fd, count, buf, 0x03, 0x08);
 
-  general_motor (fd);
+  general_motor_2225 (fd);
 }
 
 void
@@ -1763,7 +1763,7 @@ startblob_2224_0075 (CANON_Handle * chndl, unsigned char *buf)
   write_buf (fd, count, buf, 0x03, 0x04);
   write_buf (fd, count, buf, 0x03, 0x08);
 
-  general_motor_600 (fd);
+  general_motor_2224 (fd);
 
 }
 
@@ -1966,7 +1966,7 @@ startblob_2224_0150 (CANON_Handle * chndl, unsigned char *buf)
   write_buf (fd, count, buf, 0x03, 0x04);
   write_buf (fd, count, buf, 0x03, 0x08);
 
-  general_motor_600 (fd);
+  general_motor_2224 (fd);
 
 }
 
@@ -2166,7 +2166,7 @@ startblob_2224_0300 (CANON_Handle * chndl, unsigned char *buf)
   write_buf (fd, count, buf, 0x03, 0x04);
   write_buf (fd, count, buf, 0x03, 0x08);
 
-  general_motor_600 (fd);
+  general_motor_2224 (fd);
 
 }
 
@@ -2317,7 +2317,7 @@ startblob_2224_0600 (CANON_Handle * chndl, unsigned char *buf)
   write_buf (fd, count, buf, 0x03, 0x04);
   write_buf (fd, count, buf, 0x03, 0x08);
 
-  general_motor_600 (fd);
+  general_motor_2224 (fd);
 
 }
 
@@ -2536,7 +2536,7 @@ startblob_2224_1200 (CANON_Handle * chndl, unsigned char *buf)
   write_buf (fd, count, buf, 0x03, 0x04);
   write_buf (fd, count, buf, 0x03, 0x08);
 
-  general_motor_600 (fd);
+  general_motor_2224 (fd);
 
 }
 
@@ -2576,14 +2576,7 @@ send_start_blob (CANON_Handle * chndl)
       chndl->value_67 = 0xab;	/* 6*7300 */
       chndl->value_68 = 0x18;
     }
-/*
-  cp2155_block6 (fd, 0x12, 0x83);
-  cp2155_set (fd, 0x90, 0xf8);
-  cp2155_block6 (fd, 0x12, 0x83);
-  cp2155_set (fd, 0x01, 0x29);
-  cp2155_block8 (fd);
-  cp2155_set (fd, 0x01, 0x29);
-*/
+
   cp2155_set (fd, 0x80, 0x12);
   cp2155_set (fd, 0x11, 0xc1);
   cp2155_set (fd, 0x80, 0x12);

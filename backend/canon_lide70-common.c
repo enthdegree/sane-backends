@@ -207,7 +207,7 @@ cp2155_write (int fd, byte * data, size_t size)
   cmd_buffer[3] = (size >> 8) & 0xff;
   memcpy (cmd_buffer + 4, data, size);
 
-  status = sanei_usb_write_bulk (fd, cmd_buffer, &count);
+  status = sanei_usb_write_bulk (fd, data, &count);
 
   if (status != SANE_STATUS_GOOD)
     {
@@ -288,6 +288,8 @@ cp2155_write_gamma_block (int fd, unsigned int addr, byte * data)
 /* size=0x0100 */
 /* gamma table red*/
 static byte cp2155_gamma_red_enhanced_data[] = {
+
+  0x04, 0x70, 0x00, 0x01,
   0x00, 0x14, 0x1c, 0x26, 0x2a, 0x2e, 0x34, 0x37, 0x3a, 0x3f, 0x42, 0x44,
   0x48, 0x4a, 0x4c, 0x50,
   0x52, 0x53, 0x57, 0x58, 0x5c, 0x5d, 0x5f, 0x62, 0x63, 0x64, 0x67, 0x68,
@@ -325,6 +327,8 @@ static byte cp2155_gamma_red_enhanced_data[] = {
 /* size=0x0100 */
 /* gamma table */
 static byte cp2155_gamma_standard_data[] = {
+
+  0x04, 0x70, 0x00, 0x01,
   0x00, 0x14, 0x1c, 0x21, 0x26, 0x2a, 0x2e, 0x31, 0x34, 0x37, 0x3a, 0x3d,
   0x3f, 0x42, 0x44, 0x46,
   0x48, 0x4a, 0x4c, 0x4e, 0x50, 0x52, 0x53, 0x55, 0x57, 0x58, 0x5a, 0x5c,
@@ -2715,7 +2719,74 @@ wait_for_data (CANON_Handle * chndl)
 }
 
 static int
-init (CANON_Handle * chndl)
+init_2225 (CANON_Handle * chndl)
+{
+  int fd = chndl->fd;
+  byte value;
+  int result = 0;
+
+  cp2155_get (fd, 0xd0, &value);
+  /* Detect if scanner is plugged in */
+  if (value != 0x81 && value != 0x40)
+    {
+      DBG (0, "INIT: unexpected value: %x\n", value);
+    }
+
+  if (value == 0x00)
+    {
+      return -1;
+    }
+
+  cp2155_set (fd, 0x02, 0x01);
+  cp2155_set (fd, 0x02, 0x00);
+  cp2155_set (fd, 0x01, 0x00);
+  cp2155_set (fd, 0x01, 0x28);
+  cp2155_set (fd, 0x90, 0x4f);
+  cp2155_set (fd, 0x92, 0xff);
+  cp2155_set (fd, 0x93, 0x00);
+  cp2155_set (fd, 0x91, 0x1f);
+  cp2155_set (fd, 0x95, 0x1f);
+  cp2155_set (fd, 0x97, 0x1f);
+  cp2155_set (fd, 0x9b, 0x00);
+  cp2155_set (fd, 0x9c, 0x07);
+  cp2155_set (fd, 0x90, 0x4d);
+  cp2155_set (fd, 0x90, 0xcd);
+  cp2155_set (fd, 0x90, 0xcc);
+  cp2155_set (fd, 0x9b, 0x01);
+  cp2155_set (fd, 0xa0, 0x04);
+  cp2155_set (fd, 0xa0, 0x05);
+  cp2155_set (fd, 0x01, 0x28);
+  cp2155_set (fd, 0x04, 0x0c);
+  cp2155_set (fd, 0x05, 0x00);
+  cp2155_set (fd, 0x06, 0x00);
+  cp2155_set (fd, 0x98, 0x00);
+  cp2155_set (fd, 0x98, 0x00);
+  cp2155_set (fd, 0x98, 0x02);
+  cp2155_set (fd, 0x99, 0x28);
+  cp2155_set (fd, 0x9a, 0x03);
+  cp2155_set (fd, 0x80, 0x10);
+  cp2155_set (fd, 0x8d, 0x00);
+  cp2155_set (fd, 0x8d, 0x04);
+
+  cp2155_set (fd, 0x85, 0x00);
+  cp2155_set (fd, 0x87, 0x00);
+  cp2155_set (fd, 0x88, 0x70);
+
+  cp2155_set (fd, 0x85, 0x03);
+  cp2155_set (fd, 0x87, 0x00);
+  cp2155_set (fd, 0x88, 0x28);
+
+  cp2155_set (fd, 0x85, 0x06);
+  cp2155_set (fd, 0x87, 0x00);
+  cp2155_set (fd, 0x88, 0x28);
+
+
+  DBG (1, "INIT state: %0d\n", result);
+  return result;
+}
+
+static int
+init_2224 (CANON_Handle * chndl)
 {
   int fd = chndl->fd;
   byte value;
@@ -2765,6 +2836,21 @@ init (CANON_Handle * chndl)
 
   DBG (1, "INIT state: %0d\n", result);
 
+  return result;
+}
+
+static int
+init (CANON_Handle * chndl)
+{
+  int result;
+  if (chndl->productcode == 0x2225)
+    {
+      result = init_2225 (chndl);
+    }
+  else
+    {
+      result = init_2224 (chndl);
+    }
   return result;
 }
 

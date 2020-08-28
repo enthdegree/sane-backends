@@ -770,7 +770,7 @@ static void convdata(unsigned char *srcbuffer, unsigned char *dstbuffer,
 
 	for (count = 0; count < width; count++)
 	{
-		/* The scanner stores data in a bizzare butchered 10-bit
+		/* The scanner stores data in a bizarre butchered 10-bit
 		   format.  I'll try to explain it in 100 words or less:
 
 		   Scanlines are made up of groups of 4 pixels. Each group of

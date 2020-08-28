@@ -311,7 +311,7 @@ struct Genesys_Device
     bool already_initialized = false;
 
     bool read_active = false;
-    // signal wether the park command has been issued
+    // signal whether the park command has been issued
     bool parking = false;
 
     // for sheetfed scanner's, is TRUE when there is a document in the scanner

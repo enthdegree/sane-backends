@@ -98,7 +98,7 @@ struct Motor_Master
 
 /**
  * master motor settings, for a given motor and dpi,
- * it gives steps and speed informations
+ * it gives steps and speed information
  */
 static Motor_Master motor_master[] = {
     /* HP3670 motor settings */
@@ -1040,7 +1040,7 @@ gl646_init_regs (Genesys_Device * dev)
       dev->reg.find_reg(0x6d).value = 0x01;	/* select deceleration steps whenever go home (0), accel/decel stop time (31 * LPeriod) */
       break;
     }
-  dev->reg.find_reg(0x6c).value = 0x00;	/* peroid times for LPeriod, expR,expG,expB, Z1MODE, Z2MODE (one period time) */
+  dev->reg.find_reg(0x6c).value = 0x00;	/* period times for LPeriod, expR,expG,expB, Z1MODE, Z2MODE (one period time) */
 }
 
 // Set values of Analog Device type frontend
@@ -1480,7 +1480,7 @@ void CommandSetGl646::detect_document_end(Genesys_Device* dev) const
  * eject document from the feeder
  * currently only used by XP200
  * TODO we currently rely on AGOHOME not being set for sheetfed scanners,
- * maybe check this flag in eject to let the document being eject automaticaly
+ * maybe check this flag in eject to let the document being eject automatically
  */
 void CommandSetGl646::eject_document(Genesys_Device* dev) const
 {
@@ -1491,7 +1491,7 @@ void CommandSetGl646::eject_document(Genesys_Device* dev) const
     unsigned count;
     std::uint8_t gpio;
 
-  /* at the end there will be noe more document */
+  /* at the end there will be no more document */
     dev->document = false;
 
     // first check for document event
@@ -2512,7 +2512,7 @@ void CommandSetGl646::init_regs_for_warmup(Genesys_Device* dev, const Genesys_Se
 /* *
  * initialize ASIC : registers, motor tables, and gamma tables
  * then ensure scanner's head is at home
- * @param dev device description of the scanner to initailize
+ * @param dev device description of the scanner to initialize
  */
 void CommandSetGl646::init(Genesys_Device* dev) const
 {
@@ -2739,7 +2739,7 @@ static void simple_scan(Genesys_Device* dev, const Genesys_Sensor& sensor,
 
 /**
  * update the status of the required sensor in the scanner session
- * the button fileds are used to make events 'sticky'
+ * the button fields are used to make events 'sticky'
  */
 void CommandSetGl646::update_hardware_sensors(Genesys_Scanner* session) const
 {

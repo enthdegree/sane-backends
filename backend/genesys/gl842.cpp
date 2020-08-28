@@ -362,7 +362,7 @@ static void gl842_init_motor_regs_scan(Genesys_Device* dev,
         reg->set8(REG_0x80, vref);
     }
 
-    // substract acceleration distance from feedl
+    // subtract acceleration distance from feedl
     unsigned feedl = feed_steps;
     feedl <<= static_cast<unsigned>(motor_profile.step_type);
 

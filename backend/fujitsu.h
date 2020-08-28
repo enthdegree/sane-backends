@@ -323,7 +323,7 @@ struct fujitsu
   int color_interlace;  /* different models interlace colors differently     */
   int duplex_interlace; /* different models interlace sides differently      */
   int jpeg_interlace;   /* different models interlace jpeg sides differently */
-  int cropping_mode;    /* lower-end scanners dont crop from paper size      */
+  int cropping_mode;    /* lower-end scanners don't crop from paper size      */
   int ghs_in_rs;
   int window_gamma;
   int endorser_string_len;
@@ -331,11 +331,11 @@ struct fujitsu
   int has_short_pixelsize; /* m3091/2 put weird stuff at end, ignore it */
 
   int broken_diag_serial;   /* some scanners are just plain borked */
-  int need_q_table;         /* some scanners wont work without these */
+  int need_q_table;         /* some scanners won't work without these */
   int need_diag_preread;
   int late_lut;
-  int hopper_before_op;     /* some scanners dont like OP when hopper empty */
-  int no_wait_after_op;     /* some scanners dont like TUR after OP */
+  int hopper_before_op;     /* some scanners don't like OP when hopper empty */
+  int no_wait_after_op;     /* some scanners don't like TUR after OP */
 
   int has_vuid_mono;    /* mono set window data */
   int has_vuid_3091;    /* 3091/2 set window data */
@@ -567,7 +567,7 @@ struct fujitsu
   int req_driv_lut;
 
   /* --------------------------------------------------------------------- */
-  /* values used by the software enhancment code (deskew, crop, etc)       */
+  /* values used by the software enhancement code (deskew, crop, etc)      */
   SANE_Status deskew_stat;
   int deskew_vals[2];
   double deskew_slope;

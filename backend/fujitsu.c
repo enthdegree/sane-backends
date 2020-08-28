@@ -172,11 +172,11 @@
          - use sanei_scsi_open_extended() to set buffer size
          - fix some compiler warns: 32&64 bit gcc
       v26 2006-05-23, MAN
-         - dont send scanner control (F1) if unsupported
+         - don't send scanner control (F1) if unsupported
       v27 2006-05-30, MAN
          - speed up hexdump (adeuring A T gmx D O T net)
          - duplex request same size block from both sides
-         - dont #include or call sanei_thread
+         - don't #include or call sanei_thread
          - split usb/scsi command DBG into 25 and 30
       v28 2006-06-01, MAN
          - sane_read() usleep if scanner is busy
@@ -201,10 +201,10 @@
          - add error msg if VPD missing or non-extended
          - remove references to color_lineart and ht units
          - rework init_model to support more known models
-         - dont send paper size data if using flatbed
+         - don't send paper size data if using flatbed
       v31 2006-06-13, MAN
          - add 5220C usb id
-         - dont show ink level buttons if no imprinter
+         - don't show ink level buttons if no imprinter
          - run ghs/rs every second instead of every other
       v32 2006-06-14, MAN
          - add 4220C2 usb id
@@ -299,7 +299,7 @@
          - proper async sane_cancel support
          - re-enable JPEG support
          - replace s->img_count with s->side
-         - sane_get_parameters(): dont round up larger than current paper size
+         - sane_get_parameters(): don't round up larger than current paper size
          - sane_start() rewritten, shorter, more clear
          - return values are SANE_Status, not int
          - hide unused functions
@@ -386,7 +386,7 @@
 	 - set SANE_CAP_INACTIVE on all disabled options
          - fix bug in mode_select page for sleep timer
       v78 2008-08-26, MAN
-	 - recent model names (fi-6xxx) dont end in 'C'
+	 - recent model names (fi-6xxx) don't end in 'C'
          - simplify flatbed area overrides
          - call scanner_control to change source during sane_start
       v79 2008-10-01, MAN
@@ -423,7 +423,7 @@
          - track frontend reading sensor/button values to reload
          - deactivate double feed options if df-action == default
       v88 2009-01-21, MAN
-         - dont export private symbols
+         - don't export private symbols
       v89 2009-02-20, MAN
          - fi-4750 returns random garbage to serial number queries
       v90 2009-02-23, MAN
@@ -482,7 +482,7 @@
          - cache software crop/deskew parameters for use on backside of duplex
          - fi-6110 does not support bgcolor or prepick
       v106 2011-01-30, MAN (SANE 1.0.22)
-         - dont call mode_select with a page code the scanner does not support
+         - don't call mode_select with a page code the scanner does not support
       v107 2011-11-03, MAN
          - M3091 does not support scanner_control(adf)
          - Correct buffer overflow in read_from_3091duplex()
@@ -1217,7 +1217,7 @@ init_inquire (struct fujitsu *s)
   s->color_raster_offset = get_IN_color_offset(in);
   DBG (15, "  color offset: %d lines\n",s->color_raster_offset);
 
-  /* FIXME: we dont store all of these? */
+  /* FIXME: we don't store all of these? */
   DBG (15, "  long gray scan: %d\n",get_IN_long_gray(in));
   DBG (15, "  long color scan: %d\n",get_IN_long_color(in));
 
@@ -1701,7 +1701,7 @@ init_vpd (struct fujitsu *s)
   s->has_comp_JPG3 = get_IN_compression_JPG_INDEP (in);
   DBG (15, "  compression JPG3: %d\n", s->has_comp_JPG3);
 
-  /* FIXME: we dont store these? */
+  /* FIXME: we don't store these? */
   DBG (15, "  back endorser mech: %d\n", get_IN_endorser_b_mech(in));
   DBG (15, "  back endorser stamp: %d\n", get_IN_endorser_b_stamp(in));
   DBG (15, "  back endorser elec: %d\n", get_IN_endorser_b_elec(in));
@@ -2378,7 +2378,7 @@ init_model (struct fujitsu *s)
     s->can_mode[MODE_LINEART] = 2;
     s->can_mode[MODE_GRAYSCALE] = 2;
 
-    /* dont bother with this one */
+    /* don't bother with this one */
     s->can_mode[MODE_HALFTONE] = 0;
   }
 
@@ -2398,7 +2398,7 @@ init_model (struct fujitsu *s)
     /* lies */
     s->adbits = 8;
 
-    /* dont bother with this one */
+    /* don't bother with this one */
     s->can_mode[MODE_HALFTONE] = 0;
   }
 
@@ -4202,7 +4202,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
     opt->unit = SANE_UNIT_NONE;
     opt->size = sizeof(SANE_Word);
 
-    /*old type cant do this?*/
+    /*old type can't do this?*/
     if ((s->has_endorser_f && s->endorser_type_f != ET_OLD)
      || (s->has_endorser_b && s->endorser_type_b != ET_OLD)){
       opt->cap=SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT | SANE_CAP_ADVANCED;
@@ -5336,7 +5336,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       DBG (20, "sane_control_option: set value for '%s' (%d)\n", s->opt[option].name,option);
 
       if ( s->started ) {
-        DBG (5, "sane_control_option: cant set, device busy\n");
+        DBG (5, "sane_control_option: can't set, device busy\n");
         return SANE_STATUS_DEVICE_BUSY;
       }
 
@@ -5351,7 +5351,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         return status;
       }
 
-      /* may have been changed by constrain, so dont copy until now */
+      /* may have been changed by constrain, so don't copy until now */
       val_c = *(SANE_Word *)val;
 
       /*
@@ -6429,7 +6429,7 @@ diag_preread (struct fujitsu *s)
   set_SD_preread_yres(out,s->resolution_y);
   /* call helper function, scanner wants lies about paper width */
   set_SD_preread_paper_width(out, get_page_width(s));
-  /* dont call helper function, scanner wants actual length?  */
+  /* don't call helper function, scanner wants actual length?  */
   set_SD_preread_paper_length(out, s->page_height);
   set_SD_preread_composition(out, s->s_mode);
 
@@ -6789,7 +6789,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
   params->pixels_per_line = s->u_params.pixels_per_line;
   params->bytes_per_line = s->u_params.bytes_per_line;
 
-  /* we wont know the end until we get to it */
+  /* we won't know the end until we get to it */
   if(s->ald && !must_fully_buffer(s)){
     DBG (15, "sane_get_parameters: hand-scanner mode\n");
     params->lines = -1;
@@ -6941,7 +6941,7 @@ update_u_params (struct fujitsu * s)
  *
  * this will be called between sides of a duplex scan,
  * and at the start of each page of an adf batch.
- * hence, we spend alot of time playing with s->started, etc.
+ * hence, we spend a lot of time playing with s->started, etc.
  */
 SANE_Status
 sane_start (SANE_Handle handle)
@@ -7110,10 +7110,10 @@ sane_start (SANE_Handle handle)
   }
 
   /* set clean defaults with new sheet of paper */
-  /* dont reset the transfer vars on backside of duplex page */
+  /* don't reset the transfer vars on backside of duplex page */
   /* otherwise buffered back page will be lost */
   /* ingest paper with adf (no-op for fb) */
-  /* dont call object pos or scan on back side of duplex scan */
+  /* don't call object pos or scan on back side of duplex scan */
   if(s->side == SIDE_FRONT || s->source == SOURCE_ADF_BACK || s->source == SOURCE_CARD_BACK){
 
       s->bytes_rx[0]=0;
@@ -7187,7 +7187,7 @@ sane_start (SANE_Handle handle)
         s->buff_tot[SIDE_BACK] = s->bytes_tot[SIDE_BACK];
 
         /* the back buffer is normally very large, but some scanners or
-         * option combinations dont need it, so we make a small one */
+         * option combinations don't need it, so we make a small one */
         if(s->low_mem || s->source == SOURCE_ADF_BACK || s->source == SOURCE_CARD_BACK
          || s->duplex_interlace == DUPLEX_INTERLACE_NONE)
           s->buff_tot[SIDE_BACK] = s->buffer_size;
@@ -7739,7 +7739,7 @@ set_window (struct fujitsu *s)
     /* call helper function, scanner wants lies about paper width */
     set_WD_paper_width_X (desc1, get_page_width(s));
 
-    /* dont call helper function, scanner wants actual length?  */
+    /* don't call helper function, scanner wants actual length?  */
     set_WD_paper_length_Y (desc1, s->page_height);
   }
 
@@ -7974,7 +7974,7 @@ start_scan (struct fujitsu *s)
 
 /* checks started and cancelled flags in scanner struct,
  * sends cancel command to scanner if required. don't call
- * this function asyncronously, wait for pending operation */
+ * this function asynchronously, wait for pending operation */
 static SANE_Status
 check_for_cancel(struct fujitsu *s)
 {
@@ -8166,7 +8166,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
   return ret;
 }
 
-/* bare jpeg images dont contain resolution, but JFIF APP0 does, so we add */
+/* bare jpeg images don't contain resolution, but JFIF APP0 does, so we add */
 static SANE_Status
 inject_jfif_header(struct fujitsu *s, int side)
 {
@@ -8415,7 +8415,7 @@ read_from_JPEGduplex(struct fujitsu *s)
             s->bytes_rx[SIDE_FRONT]++;
 	  }
 
-	  /* image is interlaced afterall, continue */
+	  /* image is interlaced after all, continue */
 	  else{
             DBG(15, "read_from_JPEGduplex: wrong width, req:%d got:%d\n",
 	      s->s_params.pixels_per_line,width);
@@ -8484,7 +8484,7 @@ read_from_JPEGduplex(struct fujitsu *s)
 
     free(in);
 
-    /* jpeg uses in-band EOI marker, so this is ususally redundant */
+    /* jpeg uses in-band EOI marker, so this is usually redundant */
     if(ret == SANE_STATUS_EOF){
       DBG(15, "read_from_JPEGduplex: got EOF, finishing\n");
       s->eof_rx[SIDE_FRONT] = 1;
@@ -9157,7 +9157,7 @@ downsample_from_buffer(struct fujitsu *s, SANE_Byte * buf,
  * handle h is a valid handle) but usually affects long-running
  * operations only (such as image is acquisition). It is safe to call
  * this function asynchronously (e.g., from within a signal handler).
- * It is important to note that completion of this operaton does not
+ * It is important to note that completion of this operation does not
  * imply that the currently pending operation has been cancelled. It
  * only guarantees that cancellation has been initiated. Cancellation
  * completes only when the cancelled call returns (typically with a
@@ -9963,7 +9963,7 @@ get_page_width(struct fujitsu *s)
       return s->page_width;
   }
 
-  /* cant overscan larger than scanner max */
+  /* can't overscan larger than scanner max */
   if(width > s->max_x){
       return s->max_x;
   }
@@ -9992,7 +9992,7 @@ get_page_height(struct fujitsu *s)
       return s->page_height;
   }
 
-  /* cant overscan larger than scanner max */
+  /* can't overscan larger than scanner max */
   if(height > s->max_y){
       return s->max_y;
   }

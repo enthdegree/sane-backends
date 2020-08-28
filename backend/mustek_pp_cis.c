@@ -198,7 +198,7 @@
 
 /******************************************************************************
  * High-level logging: traces the flow of the driver in a hierarchical way
- *                     up to the level of register acccesses.
+ *                     up to the level of register accesses.
  *****************************************************************************/
 #ifdef M1015_LOG_HL
 

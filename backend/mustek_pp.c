@@ -669,7 +669,7 @@ attach_device(SANE_String *driver, SANE_String *name,
   *name = *port = *driver = *option_ta = 0;
 
   /* In case of a successful initialization, the configuration options
-     should have been transfered to the device, but this function can
+     should have been transferred to the device, but this function can
      deal with that. */
   free_cfg_options(&numcfgoptions, &cfgoptions);
 }
@@ -694,7 +694,7 @@ attach_device(SANE_String *driver, SANE_String *name,
  *            <driver> is the name of the driver to use
  *
  *      if the optional argument "option_ta" is present the driver uses special
- *      parameters fitting for a trasparency adapter.
+ *      parameters fitting for a transparency adapter.
  */
 
 SANE_Status
@@ -1080,7 +1080,7 @@ sane_get_devices (const SANE_Device *** device_list,
  *
  * 	open is called for the selected device.
  *
- * 	The handel is set up with default values, and the
+ * 	The handle is set up with default values, and the
  * 	option descriptors are initialized
  */
 
@@ -1189,7 +1189,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
  * 	Then the backend makes sure, the lamp was at least
  * 	2 seconds on.
  *
- * 	Afterwards the selected handel is closed
+ * 	Afterwards the selected handle is closed
  */
 void
 sane_close (SANE_Handle handle)
@@ -1259,7 +1259,7 @@ sane_get_option_descriptor (SANE_Handle handle, SANE_Int option)
 /* sane_control_option:
  * 	Reads or writes an option
  *
- * Desription:
+ * Description:
  * 	If a pointer to info is given, the value is initialized to zero
  *	while scanning options cannot be read or written. next a basic
  *	check whether the request is valid is done.
@@ -1502,7 +1502,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
  *
  * 	sane_get_parameters not only returns the parameters for
  * 	the next scan, it also sets them, i.e. converts the
- * 	options in actuall parameters.
+ * 	options in actually parameters.
  *
  * 	The following parameters are set:
  *
@@ -1684,7 +1684,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 
 
 /* sane_start:
- * 	starts the scan. data aquisition will start immedially
+ * 	starts the scan. data acquisition will start immediately
  *
  * Description:
  *

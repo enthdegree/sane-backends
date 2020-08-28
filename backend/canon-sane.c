@@ -181,7 +181,7 @@ sane_open (SANE_String_Const devnam, SANE_Handle * handle)
 	  s->gamma_table[i][0] = 0;
 	}
       for (j = 1; j < 4096; ++j)
-	{			/* FS2710 needs inital gamma 2.0 */
+	{			/* FS2710 needs initial gamma 2.0 */
 	  c = (int) (256.0 * pow (((double) j) / 4096.0, 0.5));
 	  for (i = 0; i < 4; i++)
 	    {
@@ -520,7 +520,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	    }
 	  return SANE_STATUS_GOOD;
 
-	  /* 990320, ss: switch between slider and option menue for resolution */
+	  /* 990320, ss: switch between slider and option menu for resolution */
 	case OPT_HW_RESOLUTION_ONLY:
 	  if (s->val[option].w != *(SANE_Word *) val)
 	    {

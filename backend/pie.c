@@ -60,7 +60,7 @@
  * 11-11-2000 eliminated some warnings about signed/unsigned comparisons
  *            removed #undef NDEBUG and C++ style comments
  *
- * 1-10-2000 force gamma table to one to one mappping if lineart or halftone selected
+ * 1-10-2000 force gamma table to one to one mapping if lineart or halftone selected
  *
  * 30-9-2000 added ADLIB devices to scanner_str[]
  *
@@ -1689,7 +1689,7 @@ pie_perform_cal (Pie_Scanner * scanner, int cal_index)
 
   send_length += 4;		/* space for header at start of data */
 
-  /* alllocate buffers for the receive data, the result buffers, and for the send data */
+  /* allocate buffers for the receive data, the result buffers, and for the send data */
   rcv_buffer = (unsigned char *) malloc (rcv_length);
 
   red_result = (long *) calloc (pixels_per_line, sizeof (long));

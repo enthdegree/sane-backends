@@ -1946,7 +1946,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 
 	  /* If the scanner does not have enough memory, it will
 	   * send the raw rasters instead of returning a full
-	   * interleaved line. Unfortunatly this does not work well,
+	   * interleaved line. Unfortunately this does not work well,
 	   * because I don't know how to compute the color
 	   * shifting. So here is the result of some trial and error
 	   * process. This is ignored if the scanner has a RAM
@@ -2036,7 +2036,7 @@ sane_start (SANE_Handle handle)
 	  return SANE_STATUS_NO_MEM;
 	}
 
-      /* Rasters are meaningfull only in color mode. */
+      /* Rasters are meaningful only in color mode. */
       dev->raster_size = dev->params.pixels_per_line;
       dev->raster_real = dev->params.lines * 3;
       dev->raster_num = 0;

@@ -85,7 +85,7 @@ void debug_printf(unsigned long ulType, const char *szFormat, ...)
 
 SetError(error, format, ...)
 
-The program is aborted, all handles and ressources are freed (this
+The program is aborted, all handles and resources are freed (this
 being global) and the user gets a nice panic screen :-)
 
 ********************************************************************** */

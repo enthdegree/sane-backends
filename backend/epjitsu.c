@@ -118,7 +118,7 @@
         - increase scan height ~1/2 inch due to head offset
         - change page length autodetection condition
       v18 2009-01-21, MAN
-         - dont export private symbols
+         - don't export private symbols
       v19 2009-08-31, RG
          - rewritten calibration routines
       v20 2010-02-09, MAN (SANE 1.0.21 to 1.0.24)
@@ -1615,7 +1615,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       DBG (20, "sane_control_option: set value for '%s' (%d)\n", s->opt[option].name,option);
 
       if ( s->started ) {
-        DBG (5, "sane_control_option: cant set, device busy\n");
+        DBG (5, "sane_control_option: can't set, device busy\n");
         return SANE_STATUS_DEVICE_BUSY;
       }
 
@@ -1630,7 +1630,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         return status;
       }
 
-      /* may have been changed by constrain, so dont copy until now */
+      /* may have been changed by constraints, so dont copy until now */
       val_c = *(SANE_Word *)val;
 
       /*
@@ -2392,7 +2392,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 
 /*
  * Called by SANE when a page acquisition operation is to be started.
- * FIXME: wont handle SOURCE_ADF_BACK
+ * FIXME: won't handle SOURCE_ADF_BACK
  */
 SANE_Status
 sane_start (SANE_Handle handle)
@@ -2741,7 +2741,7 @@ coarsecal_get_line(struct scanner *s, struct image *img)
     while(!s->cal_image.done){
         ret = read_from_scanner(s,&s->cal_image);
         if(ret){
-            DBG (5, "coarsecal_get_line: cant read from scanner\n");
+            DBG (5, "coarsecal_get_line: can't read from scanner\n");
             return ret;
         }
     }
@@ -3218,7 +3218,7 @@ finecal_get_line(struct scanner *s, struct image *img)
     while(!s->cal_image.done){
         ret = read_from_scanner(s,&s->cal_image);
         if(ret){
-            DBG (5, "finecal_get_line: cant read from scanner\n");
+            DBG (5, "finecal_get_line: can't read from scanner\n");
             return ret;
         }
     }
@@ -3243,7 +3243,7 @@ finecal_get_line(struct scanner *s, struct image *img)
     return ret;
 }
 
-/* roundf() is c99, so we provide our own, though this version wont return -0 */
+/* roundf() is c99, so we provide our own, though this version won't return -0 */
 static float
 round2(float x)
 {
@@ -3992,7 +3992,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
 
         ret = read_from_scanner(s, &s->block_xfr);
         if(ret){
-            DBG (5, "sane_read: cant read from scanner\n");
+            DBG (5, "sane_read: can't read from scanner\n");
             return ret;
         }
 
@@ -4036,7 +4036,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
                     ret = copy_block_to_page(s, SIDE_FRONT);
 
                 if(ret){
-                    DBG (5, "sane_read: cant copy to front/back\n");
+                    DBG (5, "sane_read: can't copy to front/back\n");
                     return ret;
                 }
 
@@ -4061,7 +4061,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len, SANE_Int * len
             else { /*fi-60f*/
                 ret = copy_block_to_page(s, SIDE_FRONT);
                 if(ret){
-                    DBG (5, "sane_read: cant copy to front/back\n");
+                    DBG (5, "sane_read: can't copy to front/back\n");
                     return ret;
                 }
 
@@ -4539,7 +4539,7 @@ copy_block_to_page(struct scanner *s,int side)
             p_in += page->image->x_offset_bytes;
 
         /* for MODE_LINEART, binarize the gray line stored in the temp image buffer(dt) */
-        /* bacause dt.width = page_width, we pass page_width */
+        /* because dt.width = page_width, we pass page_width */
         if (s->mode == MODE_LINEART)
             binarize_line(s, lineStart, page_width);
 
@@ -4616,7 +4616,7 @@ binarize_line(struct scanner *s, unsigned char *lineOut, int width)
  * handle h is a valid handle) but usually affects long-running
  * operations only (such as image is acquisition). It is safe to call
  * this function asynchronously (e.g., from within a signal handler).
- * It is important to note that completion of this operaton does not
+ * It is important to note that completion of this operation does not
  * imply that the currently pending operation has been cancelled. It
  * only guarantees that cancellation has been initiated. Cancellation
  * completes only when the cancelled call returns (typically with a

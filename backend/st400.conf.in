@@ -42,7 +42,7 @@ scsi SIEMENS "ST 800" Scanner * * 3 *
 # Maximum bytes to read in a single SCSI command (see also maxread above).
 #option scanner_maxread 65536
 
-# Supported resolutions (upto 15 different values).  If you specify an
+# Supported resolutions (up to 15 different values).  If you specify an
 # illegal value here, most likely the scanner will not report an error,
 # but only scan a small sub-area of the requested area (at least my ST400
 # does this).

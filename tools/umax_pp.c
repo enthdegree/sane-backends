@@ -374,10 +374,10 @@ main (int argc, char **argv)
       if (sanei_umax_pp_initPort (port, name) != 1)
 	{
 	  if (port)
-	    fprintf (stderr, "failed to gain direct acces to port 0x%X!\n",
+	    fprintf (stderr, "failed to gain direct access to port 0x%X!\n",
 		     port);
 	  else
-	    fprintf (stderr, "failed to gain acces to device %s!\n", name);
+	    fprintf (stderr, "failed to gain access to device %s!\n", name);
 	  return 0;
 	}
     }
@@ -499,7 +499,7 @@ main (int argc, char **argv)
       if (x + width > maxw)
 	{
 	  fprintf (stderr,
-		   "Right side of scan area exceed physical limits (x+witdh>%d)\n",
+		   "Right side of scan area exceed physical limits (x+width>%d)\n",
 		   maxw);
 	  return 0;
 	}

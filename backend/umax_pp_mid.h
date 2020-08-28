@@ -104,7 +104,7 @@ extern int sanei_umax_pp_lamp (int on);
  initialize transport layer
  initialize scanner
 
- on succes returns UMAX1220P_OK,
+ on success returns UMAX1220P_OK,
  else one of the error above.
 
  port: addr when doing direc I/O
@@ -117,7 +117,7 @@ extern int sanei_umax_pp_open (int port, char *name);
 
 
 /*
-	release any ressource acquired during open
+	release any resource acquired during open
 	since there may be only one scanner, no port parameter
 */
 extern int sanei_umax_pp_close (void);

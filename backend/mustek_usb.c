@@ -95,7 +95,7 @@ static Mustek_Usb_Device **new_dev;
 /* Length of new_dev array */
 static SANE_Int new_dev_len;
 
-/* Number of entries alloced for new_dev */
+/* Number of entries allocated for new_dev */
 static SANE_Int new_dev_alloced;
 
 static SANE_String_Const mode_list[6];

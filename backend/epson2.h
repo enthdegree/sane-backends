@@ -172,7 +172,7 @@
 #define EPSON_LEVEL_D7		12
 #define EPSON_LEVEL_D8		13
 
-/* there is also a function level "A5", which I'm igoring here until somebody can
+/* there is also a function level "A5", which I'm ignoring here until somebody can
  * convince me that this is still needed. The A5 level was for the GT-300, which
  * was (is) a monochrome only scanner. So if somebody really wants to use this
  * scanner with SANE get in touch with me and we can work something out - khk

@@ -71,7 +71,7 @@
 #define LOBYTE(w) ((SANE_Byte)(w))
 
 
-/* return if an error occured while the function was called */
+/* return if an error occurred while the function was called */
 #ifdef MAX_DEBUG
 
 #  define RIE(function) \
@@ -219,7 +219,7 @@ struct GT68xx_Command_Set
   /*@{ */
 
   SANE_Byte request_type;		/**< Request type (should be 0x40, vendor spec) */
-  SANE_Byte request;			/**< Vendor spec resquest (0x01 or 0x04) */
+  SANE_Byte request;			/**< Vendor spec request (0x01 or 0x04) */
   SANE_Word memory_read_value;		/**< Memory read - wValue */
   SANE_Word memory_write_value;		/**< Memory write - wValue */
   SANE_Word send_cmd_value;		/**< Send normal command - wValue */
@@ -504,7 +504,7 @@ struct GT68xx_Device
   SANE_Bool active;
 
   /** Device missing to flag devices that are unplugged
-   * after sane_init and befor sane_exit */
+   * after sane_init and before sane_exit */
   SANE_Bool missing;
 
   /** Scanner model data. */
@@ -588,7 +588,7 @@ struct GT68xx_Scan_Parameters
   SANE_Int ld_shift_b;
   SANE_Int ld_shift_double;
   SANE_Int double_column;
-  SANE_Int pixel_x0;		/**< x start postion */
+  SANE_Int pixel_x0;		/**< x start position */
 };
 
 
@@ -763,7 +763,7 @@ static SANE_Status gt68xx_device_deactivate (GT68xx_Device * dev);
  *
  * @return
  * - #SANE_STATUS_GOOD     - success.
- * - #SANE_STATUS_IO_ERROR - a communication error occured.
+ * - #SANE_STATUS_IO_ERROR - a communication error occurred.
  *
  * @warning
  * @a size must be a multiple of 64 (at least with GT6816), otherwise the
@@ -782,7 +782,7 @@ gt68xx_device_memory_write (GT68xx_Device * dev, SANE_Word addr,
  *
  * @return
  * - #SANE_STATUS_GOOD     - success.
- * - #SANE_STATUS_IO_ERROR - a communication error occured.
+ * - #SANE_STATUS_IO_ERROR - a communication error occurred.
  *
  * @warning
  * @a size must be a multiple of 64 (at least with GT6816), otherwise the
@@ -800,7 +800,7 @@ gt68xx_device_memory_read (GT68xx_Device * dev, SANE_Word addr,
  *
  * @return
  * - #SANE_STATUS_GOOD     - success.
- * - #SANE_STATUS_IO_ERROR - a communication error occured.
+ * - #SANE_STATUS_IO_ERROR - a communication error occurred.
  */
 static SANE_Status
 gt68xx_device_req (GT68xx_Device * dev, GT68xx_Packet cmd, GT68xx_Packet res);
@@ -813,7 +813,7 @@ gt68xx_device_req (GT68xx_Device * dev, GT68xx_Packet cmd, GT68xx_Packet res);
  *
  * @return
  * - #SANE_STATUS_GOOD     - success.
- * - #SANE_STATUS_IO_ERROR - a communication error occured.
+ * - #SANE_STATUS_IO_ERROR - a communication error occurred.
  */
 static SANE_Status
 gt68xx_device_small_req (GT68xx_Device * dev, GT68xx_Packet cmd,
@@ -829,7 +829,7 @@ gt68xx_device_small_req (GT68xx_Device * dev, GT68xx_Packet cmd,
  *
  * @return
  * - #SANE_STATUS_GOOD     - success.
- * - #SANE_STATUS_IO_ERROR - a communication error occured.
+ * - #SANE_STATUS_IO_ERROR - a communication error occurred.
  */
 static SANE_Status
 gt68xx_device_check_firmware (GT68xx_Device * dev, SANE_Bool * loaded);
@@ -850,7 +850,7 @@ gt68xx_device_download_firmware (GT68xx_Device * dev,
  *
  * @return
  * - #SANE_STATUS_GOOD     - success.
- * - #SANE_STATUS_IO_ERROR - a communication error occured.
+ * - #SANE_STATUS_IO_ERROR - a communication error occurred.
  */
 static SANE_Status
 gt68xx_device_get_power_status (GT68xx_Device * dev, SANE_Bool * power_ok);
@@ -865,7 +865,7 @@ gt68xx_device_get_power_status (GT68xx_Device * dev, SANE_Bool * power_ok);
  * @return
  * - #SANE_STATUS_GOOD        - success.
  * - #SANE_STATUS_UNSUPPORTED - the scanner does not support TA connection.
- * - #SANE_STATUS_IO_ERROR    - a communication error occured.
+ * - #SANE_STATUS_IO_ERROR    - a communication error occurred.
  */
 static SANE_Status
 gt68xx_device_get_ta_status (GT68xx_Device * dev, SANE_Bool * ta_attached);
@@ -878,7 +878,7 @@ gt68xx_device_get_ta_status (GT68xx_Device * dev, SANE_Bool * ta_attached);
  *
  * @return
  * - #SANE_STATUS_GOOD        - success.
- * - #SANE_STATUS_IO_ERROR    - a communication error occured.
+ * - #SANE_STATUS_IO_ERROR    - a communication error occurred.
  * - #SANE_STATUS_UNSUPPORTED - unsupported request was made (like attempt to
  *   turn on the TA lamp on a scanner which does not support TA).
  */
@@ -895,7 +895,7 @@ gt68xx_device_lamp_control (GT68xx_Device * dev, SANE_Bool fb_lamp,
  *
  * @return
  * - #SANE_STATUS_GOOD     - success; the status in @a *moving is valid.
- * - #SANE_STATUS_IO_ERROR - a communication error occured.
+ * - #SANE_STATUS_IO_ERROR - a communication error occurred.
  */
 static SANE_Status
 gt68xx_device_is_moving (GT68xx_Device * dev, SANE_Bool * moving);
@@ -912,7 +912,7 @@ gt68xx_device_is_moving (GT68xx_Device * dev, SANE_Bool * moving);
  * - #SANE_STATUS_GOOD - success; the movement is started.  Call
  *   gt68xx_device_is_moving() periodically to determine when the movement is
  *   complete.
- * - #SANE_STATUS_IO_ERROR - a communication error occured.
+ * - #SANE_STATUS_IO_ERROR - a communication error occurred.
  */
 static SANE_Status
 gt68xx_device_move_relative (GT68xx_Device * dev, SANE_Int distance);
@@ -929,7 +929,7 @@ gt68xx_device_move_relative (GT68xx_Device * dev, SANE_Int distance);
  *
  * @return
  * - #SANE_STATUS_GOOD - success; the movement is started.
- * - #SANE_STATUS_IO_ERROR - a communication error occured.
+ * - #SANE_STATUS_IO_ERROR - a communication error occurred.
  */
 static SANE_Status gt68xx_device_carriage_home (GT68xx_Device * dev);
 
@@ -940,7 +940,7 @@ static SANE_Status gt68xx_device_carriage_home (GT68xx_Device * dev);
  *
  * @return
  * - #SANE_STATUS_GOOD - success; the movement is started.
- * - #SANE_STATUS_IO_ERROR - a communication error occured.
+ * - #SANE_STATUS_IO_ERROR - a communication error occurred.
  */
 static SANE_Status gt68xx_device_paperfeed (GT68xx_Device * dev);
 
@@ -958,7 +958,7 @@ static SANE_Status gt68xx_device_paperfeed (GT68xx_Device * dev);
  *
  * @return
  * - #SANE_STATUS_GOOD - success.
- * - #SANE_STATUS_IO_ERROR - a communication error occured.
+ * - #SANE_STATUS_IO_ERROR - a communication error occurred.
  */
 static SANE_Status gt68xx_device_start_scan (GT68xx_Device * dev);
 
@@ -977,7 +977,7 @@ static SANE_Status gt68xx_device_start_scan (GT68xx_Device * dev);
  *
  * @return
  * - #SANE_STATUS_GOOD - success; the value in @a *ready is valid.
- * - #SANE_STATUS_IO_ERROR - a communication error occured.
+ * - #SANE_STATUS_IO_ERROR - a communication error occurred.
  */
 static SANE_Status
 gt68xx_device_read_scanned_data (GT68xx_Device * dev, SANE_Bool * ready);
@@ -991,7 +991,7 @@ gt68xx_device_read_scanned_data (GT68xx_Device * dev, SANE_Bool * ready);
  *
  * @return
  * - #SANE_STATUS_GOOD - success.
- * - #SANE_STATUS_IO_ERROR - a communication error occured.
+ * - #SANE_STATUS_IO_ERROR - a communication error occurred.
  */
 static SANE_Status gt68xx_device_stop_scan (GT68xx_Device * dev);
 
@@ -1014,7 +1014,7 @@ static SANE_Status gt68xx_device_stop_scan (GT68xx_Device * dev);
  *   are not supported by hardware.
  * - #SANE_STATUS_INVAL - some of the parameters in @a request, or the @a
  *   action code, are completely invalid.
- * - #SANE_STATUS_IO_ERROR - a communication error occured.
+ * - #SANE_STATUS_IO_ERROR - a communication error occurred.
  */
 static SANE_Status
 gt68xx_device_setup_scan (GT68xx_Device * dev,
@@ -1029,7 +1029,7 @@ gt68xx_device_setup_scan (GT68xx_Device * dev,
  *
  * @return
  * - #SANE_STATUS_GOOD - success.
- * - #SANE_STATUS_IO_ERROR - a communication error occured.
+ * - #SANE_STATUS_IO_ERROR - a communication error occurred.
  */
 static SANE_Status
 gt68xx_device_set_afe (GT68xx_Device * dev, GT68xx_AFE_Parameters * params);
@@ -1048,7 +1048,7 @@ gt68xx_device_set_exposure_time (GT68xx_Device * dev,
  *
  * @return
  * - #SANE_STATUS_GOOD - success.
- * - #SANE_STATUS_IO_ERROR - a communication error occured.
+ * - #SANE_STATUS_IO_ERROR - a communication error occurred.
  */
 static SANE_Status
 gt68xx_device_read_raw (GT68xx_Device * dev, SANE_Byte * buffer,
@@ -1085,7 +1085,7 @@ gt68xx_device_get_id (GT68xx_Device * dev);
 /** Read the device descriptor of the scanner.
  *
  * This function should be called before closing the device to make sure
- * that the device descriptor is propperly stored in the scanner's memory.
+ * that the device descriptor is properly stored in the scanner's memory.
  * If that's not done, the next try to get the config descriptor will
  * result in a corrupted descriptor.
  *

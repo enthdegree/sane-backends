@@ -342,7 +342,7 @@ shm_channel_writer_init (Shm_Channel * shm_channel)
  * This function may block waiting for a free buffer (if the reader process
  * does not process the data fast enough).
  *
- * After successfull call to this function the writer process should fill the
+ * After successful call to this function the writer process should fill the
  * buffer with the data and pass the buffer identifier from @a buffer_id_return
  * to shm_channel_writer_put_buffer() to give the buffer to the reader process.
  *
@@ -355,7 +355,7 @@ shm_channel_writer_init (Shm_Channel * shm_channel)
  *   waiting for it); @a buffer_id_return and @a buffer_addr_return are filled
  *   with valid values.
  * - SANE_STATUS_EOF - the reader process has closed its half of the channel.
- * - SANE_STATUS_IO_ERROR - an I/O error occured.
+ * - SANE_STATUS_IO_ERROR - an I/O error occurred.
  */
 SANE_Status
 shm_channel_writer_get_buffer (Shm_Channel * shm_channel,
@@ -399,7 +399,7 @@ shm_channel_writer_get_buffer (Shm_Channel * shm_channel,
  * @return
  * - SANE_STATUS_GOOD - the buffer was successfully queued.
  * - SANE_STATUS_IO_ERROR - the reader process has closed its half of the
- *   channel, or another I/O error occured.
+ *   channel, or another I/O error occurred.
  */
 SANE_Status
 shm_channel_writer_put_buffer (Shm_Channel * shm_channel,
@@ -573,7 +573,7 @@ shm_channel_reader_start (Shm_Channel * shm_channel)
  *   Otherwise, @a *buffer_id_return, @a *buffer_addr_return and @a
  *   *buffer_bytes return are filled with valid values.
  * - SANE_STATUS_EOF - the writer process has closed its half of the channel.
- * - SANE_STATUS_IO_ERROR - an I/O error occured.
+ * - SANE_STATUS_IO_ERROR - an I/O error occurred.
  */
 SANE_Status
 shm_channel_reader_get_buffer (Shm_Channel * shm_channel,
@@ -627,7 +627,7 @@ shm_channel_reader_get_buffer (Shm_Channel * shm_channel,
  * @return
  * - SANE_STATUS_GOOD - the buffer was successfully released.
  * - SANE_STATUS_IO_ERROR - the writer process has closed its half of the
- *   channel, or an unexpected I/O error occured.
+ *   channel, or an unexpected I/O error occurred.
  */
 SANE_Status
 shm_channel_reader_put_buffer (Shm_Channel * shm_channel, SANE_Int buffer_id)

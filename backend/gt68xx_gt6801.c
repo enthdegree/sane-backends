@@ -103,7 +103,7 @@ gt6801_check_plustek_firmware (GT68xx_Device * dev, SANE_Bool * loaded)
     *loaded = SANE_FALSE;
 
   /* Until I find out if testing for req[3] & 0x80 is save, load the firmware
-     everytime */
+     every time */
   *loaded = SANE_FALSE;
 
   return SANE_STATUS_GOOD;

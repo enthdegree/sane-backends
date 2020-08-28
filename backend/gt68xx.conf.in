@@ -5,7 +5,7 @@
 # Put the firmware file into "@DATADIR@/sane/gt68xx/".
 
 # Manual configuration is necessary for some scanners. Please uncomment the
-# override line and optinally the vendor and product lines that apply to your
+# override line and optionally the vendor and product lines that apply to your
 # scanner. For some scanners it's also necessary to change the name of the
 # firmware file.
 

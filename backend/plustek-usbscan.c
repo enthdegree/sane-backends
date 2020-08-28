@@ -348,7 +348,7 @@ usb_GetPhyPixels( Plustek_Device *dev, ScanParam *sp )
 		sp->Size.dwPhyPixels = (sp->Size.dwValidPixels + 1UL) & 0xfffffffeUL;
 		sp->Size.dwPhyBytes  = sp->Size.dwPhyPixels * sp->bChannels + 2UL;
 
-		/* need to be adjusted fo CIS devices in color mode */
+		/* need to be adjusted for CIS devices in color mode */
 		if(usb_IsCISDevice( dev ) && (sp->bDataType == SCANDATATYPE_Color)) {
 			sp->Size.dwPhyBytes *= 3;
 		}
@@ -358,7 +358,7 @@ usb_GetPhyPixels( Plustek_Device *dev, ScanParam *sp )
 		sp->Size.dwPhyPixels = sp->Size.dwValidPixels;
 		sp->Size.dwPhyBytes  = sp->Size.dwPhyPixels * 2 * sp->bChannels + 2UL;
 
-		/* need to be adjusted fo CIS devices in color mode */
+		/* need to be adjusted for CIS devices in color mode */
 		if(usb_IsCISDevice( dev ) && (sp->bDataType == SCANDATATYPE_Color)) {
 			sp->Size.dwPhyBytes *= 3;
 		}
@@ -1443,7 +1443,7 @@ usb_IsDataAvailableInDRAM( Plustek_Device *dev )
 {
 	/* Compute polling timeout
 	 *	Height (Inches) / MaxScanSpeed (Inches/Second) = Seconds to move the
-     *  module from top to bottom. Then convert the seconds to miliseconds
+     *  module from top to bottom. Then convert the seconds to milliseconds
      *  by multiply 1000. We add extra 2 seconds to get some tolerance.
      */
 	u_char         a_bBand[3];

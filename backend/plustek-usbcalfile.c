@@ -94,7 +94,7 @@ static u_short a_wDarkShading[_SHADING_BUF]  = {0};
 
 /** function to read a text file and returns the string which starts which
  *  'id' string.
- *  no duplicate entries where detected, always the first occurance will be
+ *  no duplicate entries where detected, always the first occurrence will be
  *  red.
  * @param fp  - file pointer of file to read
  * @param id  - what to search for

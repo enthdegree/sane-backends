@@ -2835,7 +2835,7 @@ static SetDef Settings[] =
 	 * it's used by the driver to select the device settings. For other devices
 	 * than those of Plustek, you'll not need to add the second '-' part
 	 *
-	 * The second entry decribes the capabilities of the device, you may find
+	 * The second entry describes the capabilities of the device, you may find
 	 * one suitable for your scanner, for a better description of the entries
 	 * have a look at the beginning of this file at Cap0x07B3_0x0017_0 for
 	 * the UT12

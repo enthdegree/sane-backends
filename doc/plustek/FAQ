@@ -111,7 +111,7 @@ SOLUTION:
 ---------
 Simply load the parport module. You can add this dependency to
 your /etc/modules.conf (or /etc/conf.modules) file (see INSTALL).
-Then everytime you load pt_drv with modprobe, parport will be loaded
+Then every time you load pt_drv with modprobe, parport will be loaded
 automatically. After modifying this file, call
 depmod -va
 
@@ -339,7 +339,7 @@ A:  I recommend to uninstall the previous one.
 
     rpm -e sane-1.0.1-94
 
-    After theses steps, sane should be removed.
+    After these steps, sane should be removed.
     I'm not sure,  but you might have to remove the /etc/sane.d manually...
     Now got to your sane-1.0.3 stuff and reinstall this
     as described. Before using, you might have a look

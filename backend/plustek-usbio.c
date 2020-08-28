@@ -16,7 +16,7 @@
  * - 0.42 - no changes
  * - 0.43 - no changes
  * - 0.44 - added dump registers and dumpPic functions
- *        - beautyfied output of ASIC detection
+ *        - beautified output of ASIC detection
  * - 0.45 - fixed dumpRegs
  *        - added dimension stuff to dumpPic
  * - 0.46 - disabled reset prior to the detection of Merlin

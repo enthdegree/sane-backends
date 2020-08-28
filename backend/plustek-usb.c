@@ -435,10 +435,10 @@ static void usbDev_shutdown( Plustek_Device *dev  )
 }
 
 /**
- * This function checks wether a device, described by a given
+ * This function checks whether a device, described by a given
  * string(vendor and product ID), is support by this backend or not
  *
- * @param usbIdStr - sting consisting out of product and vendor ID
+ * @param usbIdStr - string consisting out of product and vendor ID
  *                   format: "0xVVVVx0xPPPP" VVVV = Vendor ID, PPP = Product ID
  * @returns; SANE_TRUE if supported, SANE_FALSE if not
  */
@@ -902,7 +902,7 @@ usbDev_setScanEnv( Plustek_Device *dev, ScanInfo *si )
 		scan->sParam.dMCLK = dMCLK_ADF;
 	}
 
-    /* Save necessary informations */
+    /* Save necessary information */
 	scan->fGrayFromColor = 0;
 
 	/* for some devices and settings, we tweak the physical settings
@@ -1346,7 +1346,7 @@ usbDev_Prepare( Plustek_Device *dev, SANE_Byte *buf )
 			}
 		}
 
-		/* set a funtion to process the RAW data... */
+		/* set a function to process the RAW data... */
 		usb_GetImageProc( dev );
 
 		if( scan->sParam.bSource == SOURCE_ADF )

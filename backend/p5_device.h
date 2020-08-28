@@ -85,7 +85,7 @@ typedef struct P5_Calibration_Data
 
 /**
  * This structure describes a particular model which is handled by the backend.
- * Contained data is immutable and is used to initalize the P5_Device
+ * Contained data is immutable and is used to initialize the P5_Device
  * structure.
  */
 typedef struct P5_Model
@@ -178,7 +178,7 @@ typedef struct P5_Device
   struct P5_Device *next;
 
   /**
-   * Points to a structure that decribes model capabilities, geometry
+   * Points to a structure that describes model capabilities, geometry
    * and default settings.
    */
   P5_Model *model;
@@ -197,7 +197,7 @@ typedef struct P5_Device
   SANE_Bool local;
 
   /**
-   * True if device has been intialized.
+   * True if device has been initialized.
    */
   SANE_Bool initialized;
 
@@ -211,7 +211,7 @@ typedef struct P5_Device
   /** @brief scan parameters
    * The scan done by the hardware can be different from the one at the SANE
    * frontend session. For instance:
-   *  - xdpy and ydpi may be different to accomodate hardware capabilites.
+   *  - xdpy and ydpi may be different to accommodate hardware capabilities.
    *  - many CCD scanners need to scan more lines to correct the 'line
    *  distance shift' effect.
    *  - emulated modes (lineart from gray scan, or gray scan for color one)

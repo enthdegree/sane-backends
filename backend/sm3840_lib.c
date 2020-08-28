@@ -996,7 +996,7 @@ fix_endian_short (unsigned short *data, int count)
   if (*firstbyte == 255)
     return;			/* INTC endianness */
 
-  DBG (2, "swapping endiannes...\n");
+  DBG (2, "swapping endianness...\n");
   for (i = 0; i < count; i++)
     data[i] = ((data[i] >> 8) & 0x00ff) | ((data[i] << 8) & 0xff00);
 }

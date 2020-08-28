@@ -173,7 +173,7 @@ find_nodes_c(xmlNode *node)
 
 /**
  * \fn static int find_valor_of_array_variables(xmlNode *node, capabilities_t *scanner)
- * \brief Function that searchs in the xml file if a scanner capabilitie stocked
+ * \brief Function that searches in the xml file if a scanner capabilitie stocked
  *        in one of the created array (character/integer array) is found.
  *
  * \return 0
@@ -239,7 +239,7 @@ find_valor_of_array_variables(xmlNode *node, capabilities_t *scanner, int type)
 
 /**
  * \fn static int find_value_of_int_variables(xmlNode *node, capabilities_t *scanner)
- * \brief Function that searchs in the xml file if a integer scanner capabilitie is found.
+ * \brief Function that searches in the xml file if a integer scanner capabilitie is found.
  *        The integer scanner capabilities that are interesting are :
  *        MinWidth, MaxWidth, MaxHeight, MinHeight, MaxScanRegions, MaxOpticalXResolution,
  *        RiskyLeftMargin, RiskyRightMargin, RiskyTopMargin, RiskyBottomMargin.
@@ -285,7 +285,7 @@ find_value_of_int_variables(xmlNode *node, capabilities_t *scanner, int type)
 
 /**
  * \fn static int find_true_variables(xmlNode *node, capabilities_t *scanner)
- * \brief Function that searchs in the xml file if we find a scanner capabilitie stocked
+ * \brief Function that searches in the xml file if we find a scanner capabilitie stocked
  *        in one of the created array (character/integer array),
  *        or, if we find a integer scanner capabilitie.
  *

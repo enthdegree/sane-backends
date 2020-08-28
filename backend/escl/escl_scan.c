@@ -38,7 +38,7 @@
  * \fn static size_t write_callback(void *str, size_t size, size_t nmemb, void *userp)
  * \brief Callback function that writes the image scanned into the temporary file.
  *
- * \return to_write (the result of the fwrite fonction)
+ * \return to_write (the result of the fwrite function)
  */
 static size_t
 write_callback(void *str, size_t size, size_t nmemb, void *userp)

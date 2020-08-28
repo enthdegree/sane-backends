@@ -1043,7 +1043,7 @@ buffer_crop(PKV_DEV s, int side)
     DBG (15, "buffer_crop: t:%d b:%d l:%d r:%d\n",
       s->crop_vals[0],s->crop_vals[1],s->crop_vals[2],s->crop_vals[3]);
 
-    /* we dont listen to the 'top' value, since the top is not padded */
+    /* we don't listen to the 'top' value, since the top is not padded */
     /*s->crop_vals[0] = 0;*/
   }
   /* backside images can use a 'flipped' version of frontside data */

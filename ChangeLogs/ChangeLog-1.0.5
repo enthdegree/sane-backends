@@ -182,7 +182,7 @@
 2001-06-07  Stéphane Voltz  <svoltz@wanadoo.fr>
 
 	* backend/umax_pp_low.c: make use of PPGETMODES to get ppdev
-	capabilites.
+	capabilities.
 
 2001-06-05  Peter Fales <peter@fales.com>
 
@@ -208,7 +208,7 @@
 
 2001-06-04  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 
-	* update of umax backend to version 1.0 buid 27
+	* update of umax backend to version 1.0 build 27
 
 2001-06-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
@@ -261,14 +261,14 @@
 
 2001-06-02  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 
-	* corrected umax version numver in umax.desc (1.0.24->1.0.26)
+	* corrected umax version number in umax.desc (1.0.24->1.0.26)
 
 2001-06-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* NEWS: Updated concerning backend versions.
 	* TODO: Removed nec entries. Added entry about ADF extension to
 	  scanimage.
-	* backend/qcam.c: Another occurence where struct flock must be defined
+	* backend/qcam.c: Another occurrence where struct flock must be defined
 	  for OS/2.
 	* AUTHORS: Fixed Kazuya Fukuda's name and email address.
 	* backend/nec.c backend/nec.h backend/nec.desc: Update to backend
@@ -450,7 +450,7 @@
 
 2001-05-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* sane-mustek.man: Removed some bug descriptions and addded
+	* sane-mustek.man: Removed some bug descriptions and added
 	  sane(7) to SEE ALSO.
 	* sane-find-scanner.man sane-scsi.man scanimage.man: Added
 	  sane(7) to SEE ALSO.
@@ -612,16 +612,16 @@
 	  tools/sane-find-scanner.c frontend/stiff.c: Used #include
 	  "../include/sane/...".
 	* backend/net.c backend/net.h backend/net.desc: Fixed some memory
-	  leaks. A bit of reformating. Added more debug output. Used
+	  leaks. A bit of reformatting. Added more debug output. Used
 	  #include "../include/sane/...".
 	* sanei_codec_bin.c sanei/sanei_net.c sanei/sanei_wire.c: Fixed
 	  some memory leaks. Used #include "../include/sane/...".
 	* frontend/scanimage.c: Added exit handler to call sane_close
-	  and sane_exit in any case and to free alloced memory. A bit of
-	  reformating. Used #include "../include/sane/...". Fixed some
+	  and sane_exit in any case and to free allocated memory. A bit of
+	  reformatting. Used #include "../include/sane/...". Fixed some
 	  warnings.
 	* frontend/saned.c: Fixed some memory leaks. Fixed some warnings.
-	  Some reformating. Used #include "../include/sane/...".
+	  Some reformatting. Used #include "../include/sane/...".
 	* README.hp-ux: Use gmake if make doesn't work.
 	* LEVEL2: Added point about sane_init results != SANE_STATUS_GOOD.
 	* TODO: Added entries about memory leaks, sane_init return values, and
@@ -829,7 +829,7 @@
 	  address.
 	* TODO: Removed pnm entry about adding more options. Added entry about
 	  epson backend freezing when trying to detect non-epson USB scanner.
-	  Added entry about adding contact adresses to .desc files. Added
+	  Added entry about adding contact addresses to .desc files. Added
 	  comment about me working on a sane man page. Removed entry about OS/2
 	  problems in sanei_scsi.c.
 	* configure configure.in: Removed a newline in --help message.
@@ -881,7 +881,7 @@
 	  debugging enabled) and in *.desc. The internal versions
 	  of both net and dll are set to 1.0.1. Please increase the
 	  build number with every change on the source files.
-	* doc/realeases.txt -> doc/releases.txt. Fixed spelling error.
+	* doc/releases.txt -> doc/releases.txt. Fixed spelling error.
 	  Added entries about sane-backends.html, sane.ps, man pages,
 	  platforms page.
 
@@ -916,11 +916,11 @@
 	  Additions and corrections are appreciated.
 	* doc/scanimage.man: Add some more information about the -V option.
 	* frontend/scanimage.c: The option -V now also prints the version of
-	  the backend (ususally dll).
+	  the backend (usually dll).
 
 2001-04-11  Abel Deuring <a.deuring@satzbau-gmbh.de>
 	* sanei/sanei_scsi.c: fixed a bug in error handling for the
-	  Linux SG driver verison 3.x
+	  Linux SG driver version 3.x
 	* sanei/sanei_scsi.c, configure.in, configure: Usage of direct IO
 	  disabled by default.
          * README.linux: Added a note, how to enable direct IO

@@ -35,7 +35,7 @@
 	* backend/pixma.h, doc/descriptions/pixma.desc: Pixma backend version 0.17.4
 
 2013-09-08 paul newall
-	* kodakaio.desc: Added hero 4.1 model, marked some scanners as staus basic
+	* kodakaio.desc: Added hero 4.1 model, marked some scanners as status basic
 
 2013-08-27 m. allan noah <kitno455 at gmail dot com>
 	* acinclude.m4, configure: enable pthread on Linux by default
@@ -55,7 +55,7 @@
 2013-08-16 Chris Bagwell <chris@cnpbagwell.com>
 	* testsuite/sanei/Makefile.am: Add missing data files to distribution.
 	Pass in $srcdir to sanei_config_test so it knows were data files are
-	regardless of were ran from.
+	regardless of were run from.
 	* testsuite/sanei/sanei_config_test.c: Use full path for config
 	file.  This allows "make distcheck" to work for this testcase
 	since it uses a different build directory then source directory
@@ -85,7 +85,7 @@
 2013-08-11 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys_low.[ch] backend/genesys_conv.c backend/genesys.c
 	 backend/genesys_gl841.c backend/genesys_gl646.c: make use of hardware
-	 gamma tables to implement constrast and brightness correction.
+	 gamma tables to implement contrast and brightness correction.
 
 2013-08-07 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.[ch] backend/genesys_conv.c doc/sane-genesys.man
@@ -170,7 +170,7 @@
 
 2013-06-19 Stéphane Voltz <stef.dev@free.fr>
 	* frontend/scanimage.c: protect for group option with incorrect
-	capabilites.
+	capabilities.
 	* frontend/tstbackend.c: add test to check is group option are
 	settable. Fix test_getdevices() function.
 

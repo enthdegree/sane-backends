@@ -114,7 +114,7 @@
 	* backend/Makefile.in (V_REV): New variable.
 
 	* configure.in (V_REV): New variable.
-	(VERSION): Include ${V_REV} in vesion number.
+	(VERSION): Include ${V_REV} in version number.
 	Substitute V_REV.
 
 	* backend/umax.c (umax_do_request_sense): Make "static".
@@ -357,7 +357,7 @@
 
 	* include/sane/sane.h (SANE_CURRENT_MAJOR): SANE_CURRENT_MAJOR and
 	V_MAJOR HAVE to be in sync, so I'm forced to fix SANE_CURRENT_MAJOR
-	now.  Embarassing, but fortunately only the snapscan backend seems
+	now.  Embarrassing, but fortunately only the snapscan backend seems
 	affected by this change.
 
 	* backend/dll.c (load): Use SANE_CURRENT_MAJOR, not V_MAJOR (the

@@ -190,7 +190,7 @@
 	* backend/artec_eplus48u.conf, backend/snapscan.conf: Use default
 	  firmware dirs in config files
 	* doc/sane-artec_eplus48u.man, doc/sane-snapscan.man: Use default
-	  firmare dirs in man pages
+	  firmware dirs in man pages
 
 2005-11-25  Ulrich Deiters <ulrich.deiters@uni-koeln.de>
 
@@ -245,7 +245,7 @@
 2005-11-22  Mattias Ellert <mattias.ellert@tsl.uu.se>
 
 	* po/sane-backends.sv.po: Updated Swedish translation
-	* sanei/sanei_scsi.c: Added some debugging. Fixed some varnings
+	* sanei/sanei_scsi.c: Added some debugging. Fixed some warnings
 
 ---- FEATURE FREEZE FOR SANE 1.0.17 ---
 
@@ -626,7 +626,7 @@
 	* backend/snapscan-options.c backend/snapscan-scsi.c
 	  backend/snapscan.c backend/snapscan.h:
 	  Added 16 bit option for Epson scanners, untested.
-	  Reenabled enhanced inquiry command for epson scanners.
+	  Re-enabled enhanced inquiry command for epson scanners.
 
 2005-09-28  Julien Blache <jb@jblache.org>
 	* tools/udev/convert-usermap.sh: Don't print 0x when matching VID
@@ -664,7 +664,7 @@
 2005-09-23  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* README: Mention in addition to the listed libraries, their
-	  header files are also neccessary. A missing usb.h is a common
+	  header files are also necessary. A missing usb.h is a common
 	  problem when building SANE (--> no USB support).
 	* configure configure.in: Added warning message that's printed
 	  when libusb or its header file is not available.

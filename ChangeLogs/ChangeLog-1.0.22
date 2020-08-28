@@ -24,7 +24,7 @@
 	* backend/fujitsu.c, doc/descriptions/fujitsu.desc,
 	doc/sane-fujitsu.man: fujitsu backend v106,
 	- added new models
-	- dont call mode_select with a page code the scanner does not support
+	- don't call mode_select with a page code the scanner does not support
 
 2011-01-28 Mike Kelly <mike@piratehaven.org>
 	* backends/avision.[ch]:
@@ -86,7 +86,7 @@
 	*  backend/genesys.c backend/genesys_devices.c
 	backend/genesys_gl847.c: fix lineart issue when yres is higher than
 	xres and dynamic lineart is enabled, make gl847 wait for head to
-	park between scans, wait for head ot park in sane_close()
+	park between scans, wait for head to park in sane_close()
 
 2011-01-05  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp730.c:
@@ -100,7 +100,7 @@
 2011-01-04 Stéphane Voltz <stef.dev@free.fr>
 	*  backend/genesys.c backend/genesys_devices.c
 	backend/genesys_gl124.c: fix 1200 dpi lineart issues for gl124,
-	reenable low resolutions for lineart for gl124, and geometry fine
+	re-enable low resolutions for lineart for gl124, and geometry fine
 	tuning for LiDE 110/210
 
 2011-01-03 Stéphane Voltz <stef.dev@free.fr>
@@ -255,7 +255,7 @@
 	fixed clear-calibration option reading,
 	make calibration cache expire for non sheetfed gl847 scanners,
 	tuned KV-SS080 timings to improve image quality,
-	raised LiDE 100/200 defaukt gamma to 1.7
+	raised LiDE 100/200 default gamma to 1.7
 
 2010-10-31 Julien Blache <jb@jblache.org>
 	* doc/descriptions/hp.desc: add SCSI IDs for ScanJet 4c.
@@ -286,7 +286,7 @@
 
 2010-09-18 Reinhold Kainhofer <reinhold@kainhofer.com>
 	* include/sane/sanei_config.h sanei/sanei_config.c: Add
-	function sanei_config_get_paths to obtain all configuration pathes
+	function sanei_config_get_paths to obtain all configuration paths
 	(from env var SANE_CONFIG_DIR and default paths); fix pointers to
 	invalid/freed strings when SANE_CONFIG_DIR is set.
 	* backend/dll.c: When searching for the dll.d/ directory,
@@ -468,7 +468,7 @@
 
 2010-06-08  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_imageclass.c:
-	pixma: set #1 of modifiations for ImageClass MF65xx series.
+	pixma: set #1 of modifications for ImageClass MF65xx series.
 
 2010-06-07 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl847.c:

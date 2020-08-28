@@ -247,7 +247,7 @@
 	removed references to the never implemented zoom function.
 	the function that shortened the list was actually
 	missing the first entry.
-	more resolutions addedd for networked scanners.
+	more resolutions added for networked scanners.
 	added support for Perfection 4990 (Claus Boje).
 
 2007-11-17  m. allan noah <kitno455 a t gmail d o t com>
@@ -488,7 +488,7 @@
 	* doc/descriptions-external/hpljm1005.desc: Added.
 
 2007-08-08  m. allan noah <kitno455 a t gmail d o t com>
-	* frontend/scanimage.c: bugfix: dont round up negative user values
+	* frontend/scanimage.c: bugfix: don't round up negative user values
 	* doc/descriptions/fujitsu.desc: add/consolidate new models
 
 2007-08-03 Julien Blache <jb@jblache.org>
@@ -575,7 +575,7 @@
 	* backend/fujitsu.[ch], backend/fujitsu-scsi.h: update to v1.0.50,
 	  add JPEG support, usb command sending and scan params cleanups
 	* include/sane/sane.h: add SANE_FRAME_JPEG
-	* frontend/scanimage.c: dont crash on unknown frame types
+	* frontend/scanimage.c: don't crash on unknown frame types
 
 2007-07-10  Gerhard Jaeger <gerhard@gjaeger.de>
 
@@ -835,7 +835,7 @@
 
 2006-12-18  Alessandro Zummo <a.zummo@towertech.it>
 
-	* epson2: restructured code once more, splitted
+	* epson2: restructured code once more, split
 	  in multiple files, added networking
 	  support, added FS G extended handshaking mode,
 	  make proper use of extended commands when possible
@@ -1078,7 +1078,7 @@
 2006-08-06  Stephane Voltz <stefdev@modulonet.fr>
 
 	* backend/genesys_gl646.c backend/genesys.c: fix y scan area offset
-	  detection for HP2300, one more fixe related to bug #303681.
+	  detection for HP2300, one more fix related to bug #303681.
 
 2006-08-01  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -73,7 +73,7 @@
 
 2012-07-26 Rolf Bensch <rolf at bensch hyphen online dot de>
 	* README.linux:
-	New detailled description for the installation of SANE backend.
+	New detailed description for the installation of SANE backend.
 
 2012-07-24 m. allan noah <kitno455 at gmail dot com>
 	* backend/kvs40xx_opt.c: Oops- it is new
@@ -403,7 +403,7 @@
 
 2011-11-08 Chris Bagwell <chris at cnpbagwell dot com>
 	* backend/Makefile.*: Finish preload linking fix.
-	dll.c was being linked in with convienence library.
+	dll.c was being linked in with convenience library.
 	If it needs to have two behaviors then we need to
 	create two libraries.  Now preloading is working in
 	libsane.so again and disabled in libsane-dll.so.
@@ -443,7 +443,7 @@
 	it doesn't work. At least it will compile.
 	* lib/syslog.c: Add a replacement syslog for at least mingw.
 	* testsuite/Makefile.*: Use $(EXEEXT) so that scanimage can
-	be ran on windows.
+	be run on windows.
 	* backend/Makefile.*, backend/dll.c: Modify dll backend
 	so that libsane-dll does not reference preloaded backends
 	symbols since its not linking them in.  Only libsane

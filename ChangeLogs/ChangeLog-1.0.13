@@ -42,7 +42,7 @@
 
 2003-11-14  Gerhard Jaeger <gerhard@gjaeger.de>
 	* backend/plustek.c backend/plustek-usb.cal backend/plustek-usbshading.c
-	  backend/plustek-usbhw.c: Endianess fixes.
+	  backend/plustek-usbhw.c: Endianness fixes.
 
 2003-11-13  Eddy De Greef <eddy_de_greef at tiscali dot be>
 	* backend/mustek_pp_cis.c: accept old style parport names to
@@ -177,10 +177,10 @@
 2003-10-28  Rene Rebe <rene@rocklinux.org>
 	* backend/avision.h backend/avision.c doc/descriptions/avision.desc
 	  backend/avision.conf AUTHORS: merge of the current Subversion
-	  revision of SANE/Avision. The fixes include: endianess fixes,
+	  revision of SANE/Avision. The fixes include: endianness fixes,
 	  calibration code, ADF detection, correct lamp warmup, gamma table
 	  for new ASICs, some workarounds for ASIC variations and the
-	  convertion to use OPT_SOURCE instead of seperate OPT_ADF and
+	  conversion to use OPT_SOURCE instead of separate OPT_ADF and
 	  OPT_TRANS. Also fixed Bugs #300288 and #300196 and removed
 	  the conflicting Option_Valu now present in sanei_backend.h
 	* doc/sane-avision.man: made requested clarifications (Bugs #300290,
@@ -408,7 +408,7 @@
 2003-10-09  Peter Kirchgessner <peter@kirchgessner.net>
 
 	* backend/hp.c backend/hp-option.c backend/hp-scl.c:
-	  Bug #300241: fix invers image on 3c/4c/6100C at 10 bit depth
+	  Bug #300241: fix inverse image on 3c/4c/6100C at 10 bit depth
 	  Redo when TEST UNIT READY failed
 	  Redo when read returns with 0 bytes (non-SCSI only)
 	* doc/sane-hp.man: Add environment SANE_HP_RDREDO, SANE_HOME_HP

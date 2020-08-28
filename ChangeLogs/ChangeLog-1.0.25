@@ -70,7 +70,7 @@
 
 2015-08-08 Stéphane Voltz <stef.dev@free.fr>
 	* backend/test.c: fix memleaks (#313553)
-	* configure.in, configure: don not harcode -I/usr/local/include
+	* configure.in, configure: don not hardcode -I/usr/local/include
 	(#315060)
 
 	open/close tests.
@@ -286,7 +286,7 @@
 
 2014-08-23 Louis Lagendijk <louis dot lagendijk at gmail dot com>
 	* backend/pixma_bjnp.c:
-	* Keep TCP-connection closed untill we really need it. This avoids
+	* Keep TCP-connection closed until we really need it. This avoids
           the scanner closing the TCP-connection when idle
 	* Add an explicit error message when we detect that the scanner
 	  closed the TCP-connection

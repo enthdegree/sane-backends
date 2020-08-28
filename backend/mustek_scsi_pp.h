@@ -96,7 +96,7 @@ static SANE_Status mustek_scsi_pp_test_ready (int fd);
  *
  * @return
  * - SANE_STATUS_GOOD - on success
- * - SANE_STATUS_IO_ERROR - if an error occured during the dialog with the
+ * - SANE_STATUS_IO_ERROR - if an error occurred during the dialog with the
  *   device
  */
 static SANE_Status mustek_scsi_pp_cmd (int fd, const void *src, size_t src_size,
@@ -113,7 +113,7 @@ static SANE_Status mustek_scsi_pp_cmd (int fd, const void *src, size_t src_size,
  *
  * @return
  * - SANE_STATUS_GOOD - on success
- * - SANE_STATUS_IO_ERROR - if an error occured during the dialog with the
+ * - SANE_STATUS_IO_ERROR - if an error occurred during the dialog with the
  *   device
  */
 static SANE_Status mustek_scsi_pp_rdata (int fd, int planes,

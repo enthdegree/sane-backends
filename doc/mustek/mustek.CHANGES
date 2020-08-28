@@ -116,7 +116,7 @@ CHANGES for the SANE Mustek backend
   * Used my own address instead of sane-devel for bug reports.
 
 2002-05-31
-  * Explicitely set some arrays to 0.
+  * Explicitly set some arrays to 0.
 
 2002-05-28
   * Released Mustek backend 1.0-124.
@@ -250,7 +250,7 @@ CHANGES for the SANE Mustek backend
   * Released Mustek backend 1.0-110.
 
 2001-07-10
-  * Added debug output for the total amount of data transfered to the
+  * Added debug output for the total amount of data transferred to the
     frontend.
   * Fixed bug in fix_line_distance_block which lead to too much data
     transferred to sane_read.
@@ -338,7 +338,7 @@ CHANGES for the SANE Mustek backend
   * Added 36 bit color mode for the Paragon Pro scanners.
 
 2000-12-31
-  * Added function little_endian (from coolscan.c) to check the endianess of
+  * Added function little_endian (from coolscan.c) to check the endianness of
     the current architecture (needed for 16 bit frames).
   * Added option for Gray fast
   * Added option for bit depth (8 and 12 bits for the Pro models)
@@ -442,7 +442,7 @@ CHANGES for the SANE Mustek backend
   * Added support for TAIV for SE 12000 SP. Lamp is turned off while
     scanning (seems to work for firmware >= 2.00)
   * Adjusted transparency adapter support for all ScanExpress scanners.
-    The 12000 A3 SP can only do A4 beacuse I don't have the right TA.
+    The 12000 A3 SP can only do A4 because I don't have the right TA.
   * don't use u_int* types in mustek.h because the definitions for these
     types are not included
 
@@ -660,7 +660,7 @@ CHANGES for the SANE Mustek backend
   * Released backend version 1.0-91
 
 2000-07-18
-  * Removed again MUSTEK_FLAG_LD_NONE for MFS-08000SP. Maybe the automatical
+  * Removed again MUSTEK_FLAG_LD_NONE for MFS-08000SP. Maybe the automatic
     detection works now.
 
 2000-07-15
@@ -709,7 +709,7 @@ CHANGES for the SANE Mustek backend
   * fixed debug output bug in fix_linedistance_se (found by Jan-Erik Karlsson)
 
 2000-06-21
-  * fixed dependancy of mustek.h on sane-backends.h
+  * fixed dependency of mustek.h on sane-backends.h
 
 2000-06-19
   * Fixed gamma correction in lineart mode for Paragon 1200 A3
@@ -733,7 +733,7 @@ CHANGES for the SANE Mustek backend
     24 bit per pixel are supported (12/36 are possible in hardware)
 
 2000-06-16
-  * addded debugging output in sane_control_option
+  * added debugging output in sane_control_option
   * added gamma correction for Paragon 1200 A3 Pro (doesn't work correctly yet)
 
 2000-06-15
@@ -789,7 +789,7 @@ CHANGES for the SANE Mustek backend
 
 2000-05-21
   * The Mustek Paragon 1200 A3 PRO is now detected. This is only a test
-    release. Be carefull and read the PROBLEMS file if you want to
+    release. Be careful and read the PROBLEMS file if you want to
     try this scanner.
 
 2000-05-19
@@ -801,7 +801,7 @@ CHANGES for the SANE Mustek backend
 
 2000-05-12
   * fixed bug in distinguishing firmware formats
-  * added shrinked image fix to ScanExpress 12000SP models <= v2.0
+  * added shrunk image fix to ScanExpress 12000SP models <= v2.0
 
 2000-05-08
   * fixed remaining sane_cancel problems (in non_blocking mode)
@@ -981,7 +981,7 @@ CHANGES for the SANE Mustek backend
   * probably fixed linedistance correction at high resolutions for
     MFS-1200SP firmware 1.00 and possibly others (patch from Andreas Beck)
   * added check for ADF ready in sane_start (patch from Joerg Anders)
-  * Bug fix in the STORE makros (patch from Norbert Mueller)
+  * Bug fix in the STORE macros (patch from Norbert Mueller)
 
 
 2000-03-06

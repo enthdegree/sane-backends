@@ -85,43 +85,6 @@ typedef struct CANON_Handle
 }
 CANON_Handle;
 
-
-static byte cmd_buffer[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-};
-
 /*****************************************************
             CP2155 communication primitives
    Provides I/O routines to Philips CP2155BE chip
@@ -134,7 +97,8 @@ static SANE_Status
 cp2155_set (int fd, CP2155_Register reg, byte data)
 {
   SANE_Status status;
-  size_t count;
+  byte cmd_buffer[5];
+  size_t count = 5 /* = sizeof(cmd_buffer) */ ;
 
   cmd_buffer[0] = (reg >> 8) & 0xff;
   cmd_buffer[1] = (reg) & 0xff;
@@ -148,7 +112,6 @@ cp2155_set (int fd, CP2155_Register reg, byte data)
 /*
   usleep (100 * MSEC);
 */
-  count = 5;
   status = sanei_usb_write_bulk (fd, cmd_buffer, &count);
 
   if (status != SANE_STATUS_GOOD)
@@ -165,14 +128,14 @@ static SANE_Status
 cp2155_get (int fd, CP2155_Register reg, byte * data)
 {
   SANE_Status status;
-  size_t count;
+  byte cmd_buffer[4];
+  size_t count = 4;		/* = sizeof(cmd_buffer) */
 
   cmd_buffer[0] = 0x01;
   cmd_buffer[1] = (reg) & 0xff;
   cmd_buffer[2] = 0x01;
   cmd_buffer[3] = 0x00;
 
-  count = 4;
   status = sanei_usb_write_bulk (fd, cmd_buffer, &count);
 
   if (status != SANE_STATUS_GOOD)
@@ -194,42 +157,19 @@ cp2155_get (int fd, CP2155_Register reg, byte * data)
   return status;
 }
 
-/* Write a block of data to CP2155 chip */
-static SANE_Status
-cp2155_write (int fd, byte * data, size_t size)
-{
-  SANE_Status status;
-  size_t count = size + 4;
-
-  cmd_buffer[0] = 0x04;
-  cmd_buffer[1] = 0x70;
-  cmd_buffer[2] = (size) & 0xff;
-  cmd_buffer[3] = (size >> 8) & 0xff;
-  memcpy (cmd_buffer + 4, data, size);
-
-  status = sanei_usb_write_bulk (fd, data, &count);
-
-  if (status != SANE_STATUS_GOOD)
-    {
-      DBG (1, "cp2155_write: sanei_usb_write_bulk error\n");
-    }
-
-  return status;
-}
-
 /* Read a block of data from CP2155 chip */
 static SANE_Status
 cp2155_read (int fd, byte * data, size_t size)
 {
   SANE_Status status;
-  size_t count;
+  byte cmd_buffer[4];
+  size_t count = 4;		/* = sizeof(cmd_buffer) */
 
   cmd_buffer[0] = 0x05;
   cmd_buffer[1] = 0x70;
   cmd_buffer[2] = (size) & 0xff;
   cmd_buffer[3] = (size >> 8) & 0xff;
 
-  count = 4;
   status = sanei_usb_write_bulk (fd, cmd_buffer, &count);
 
   if (status != SANE_STATUS_GOOD)
@@ -282,7 +222,9 @@ cp2155_write_gamma_block (int fd, unsigned int addr, byte * data)
   cp2155_set (fd, 0x0238, 0x89);
   cp2155_set (fd, 0x023c, 0x2f);
   cp2155_set (fd, 0x0264, 0x20);
-  cp2155_write (fd, data, count);
+
+  count = count + 4;
+  sanei_usb_write_bulk (fd, data, &count);
 }
 
 /* size=0x0100 */

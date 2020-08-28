@@ -94,7 +94,7 @@
    2002-11-03   Full libusb support.
    2002-10-05   Fixed problem with incorrect response to sane_get_parameters()
                 in certain situations.
-   2002-09-01   USB scanners are now using libsane-usb funtions
+   2002-09-01   USB scanners are now using libsane-usb functions
    2002-08-17   Fixed typo in variable name.
                 Fixed IEEE-1394 problem with Perfection-2450.
                 Fixed problem with older B3 level SCSI scanners that do
@@ -115,7 +115,7 @@
    2001-11-13   Version 0.2.16
                 Do not call access() for parallel port scanners.
    2001-11-11   Version 0.2.15
-                Fixed "wait-for-button" functionality, accidentially merged back wrong
+                Fixed "wait-for-button" functionality, accidentally merged back wrong
                 version after code freeze.
                 Corrected "need-strange-reorder" recognition.
                 Added IOCTL support to header file.
@@ -201,10 +201,10 @@
                 Show film type only when TPU is selected
    2000-06-13   Initialize optical_res to 0 (Dave Hill)
    2000-06-07   Fix in sane_close() - found by Henning Meier-Geinitz
-   2000-06-01   Threshhold should only be active when scan depth
+   2000-06-01   Threshold should only be active when scan depth
                 is 1 and halftoning is off.  (mjp)
    2000-05-28   Turned on scanner based color correction.
-                Dependancies between many options are now
+                Dependencies between many options are now
                 being enforced.  For instance, auto area seg
                 (AAS) should only be on when scan depth == 1.
                 Added some routines to active and deactivate
@@ -247,7 +247,7 @@
    2000-03-02   Code cleanup, disabled ZOOM until I have time to
                 deal with all the side effects.
    2000-03-01   More D1 fixes. In the future I have to come up with
-                a more elegant solution to destinguish between different
+                a more elegant solution to distinguish between different
                 function levels. The level > n does not work anymore with
                 D1.
                 Added support for "set threshold" and "set zoom".
@@ -272,7 +272,7 @@
    2000-02-02   "Brown Paper Bag Release" Put the USB fix finally
                 into the CVS repository.
    2000-02-01   Fixed problem with USB scanner not being recognized
-                because of hte changes to attach a few days ago. (KHK)
+                because of the changes to attach a few days ago. (KHK)
    2000-01-29   fixed core dump with xscanimage by moving the gamma
                 curves to the standard interface (no longer advanced)
                 Removed pragma pack() from source code to make it
@@ -395,7 +395,7 @@
 #define  EPSON_LEVEL_D7         12
 #define  EPSON_LEVEL_D8         13
 
-/* there is also a function level "A5", which I'm igoring here until somebody can
+/* there is also a function level "A5", which I'm ignoring here until somebody can
    convince me that this is still needed. The A5 level was for the GT-300, which
    was (is) a monochrome only scanner. So if somebody really wants to use this
    scanner with SANE get in touch with me and we can work something out - khk */
@@ -641,7 +641,7 @@ static const SANE_String_Const color_list[] = {
  * Gamma correction:
  * The A and B level scanners work differently than the D level scanners, therefore
  * I define two different sets of arrays, plus one set of variables that get set to
- * the actally used params and list arrays at runtime.
+ * the actually used params and list arrays at runtime.
  */
 
 static int gamma_params_ab[] = {
@@ -2496,9 +2496,9 @@ attach (const char *dev_name, Epson_Device * *devp, int type)
         /*
          * Check for Perfection 4990 photo/GT-X800 scanner.
          * This scanner only report 3200 dpi back.
-         * The scanner fysical supports 4800 dpi.
+         * The scanner physically supports 4800 dpi.
          * This is simulated here...
-         * Futher details read:
+         * Further details read:
          * EPSON Programming guide for EPSON Color Image Scanner Perfection 4990
          */
         if (strncmp((char *) buf + 0x1A,"GT-X800",7) == 0)
@@ -4277,7 +4277,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 
   /*
    * Make sure that the number of lines is correct for color shuffling:
-   * The shuffling alghorithm produces 2xline_distance lines at the
+   * The shuffling algorithm produces 2xline_distance lines at the
    * beginning and the same amount at the end of the scan that are not
    * useable. If s->params.lines gets negative, 0 lines are reported
    * back to the frontend.
@@ -4796,7 +4796,7 @@ sane_start (SANE_Handle handle)
       }
       else
       {
-        /* we run into an eror condition, just continue */
+        /* we ran into an error condition, just continue */
         s->hw->wait_for_button = SANE_FALSE;
       }
     }
@@ -4853,7 +4853,7 @@ sane_start (SANE_Handle handle)
   /*
    * Modify the scan area: If the scanner requires color shuffling, then we try to
    * scan more lines to compensate for the lines that will be removed from the scan
-   * due to the color shuffling alghorithm.
+   * due to the color shuffling algorithm.
    * At this time we add two times the line distance to the number of scan lines if
    * this is possible - if not, then we try to calculate the number of additional
    * lines according to the selected scan area.
@@ -5778,7 +5778,7 @@ color_shuffle (SANE_Handle handle, int *new_length)
 
 
         /*
-         * The ouput buffer ist still "buf", but because we are
+         * The output buffer is still "buf", but because we are
          * only overwriting from the beginning of the memory area
          * we are not interfering with the "still to shuffle" data
          * in the same area.
@@ -5951,7 +5951,7 @@ get_identity_information (SANE_Handle handle)
     }
 
     s->hw->level = dev->cmd->level[1] - '0';
-  }                             /* set comand type and level */
+  }                             /* set command type and level */
 
 /*
  *  Setting available resolutions and xy ranges for sane frontend.
@@ -6011,9 +6011,9 @@ get_identity_information (SANE_Handle handle)
           /*
            * Check for Perfection 4990 photo/GT-X800 scanner.
            * This scanner only report 3200 dpi back.
-           * The scanner fysical supports 4800 dpi.
+           * The scanner physically supports 4800 dpi.
            * This is simulated here...
-           * Futher details read:
+           * Further details read:
            * EPSON Programming guide for EPSON Color Image Scanner Perfection 4990
            */
           if (s->hw->cmd->request_extended_status != 0)
@@ -6148,7 +6148,7 @@ get_identity2_information (SANE_Handle handle)
   len = result[3] << 8 | result[2];
   buf = alloca (len);
 
-  receive (s, buf, len, &status);       /* reveive actual status data */
+  receive (s, buf, len, &status);       /* receive actual status data */
 
   /* the first two bytes of the buffer contain the optical resolution */
   s->hw->optical_res = buf[1] << 8 | buf[0];
@@ -6250,7 +6250,7 @@ request_focus_position (SANE_Handle handle, u_char * position)
   len = result[3] << 8 | result[2];
   buf = alloca (len);
 
-  receive (s, buf, len, &status);       /* reveive actual status data */
+  receive (s, buf, len, &status);       /* receive actual status data */
 
   *position = buf[1];
   DBG (1, "Focus position = 0x%x\n", buf[1]);
@@ -6306,7 +6306,7 @@ request_push_button_status (SANE_Handle handle, SANE_Bool * theButtonStatus)
   len = result[3] << 8 | result[2];     /* this should be 1 for scanners with one button */
   buf = alloca (len);
 
-  receive (s, buf, len, &status);       /* reveive actual status data */
+  receive (s, buf, len, &status);       /* receive actual status data */
 
   DBG (1, "Push button status = %d\n", buf[0] & 0x01);
   *theButtonStatus = ((buf[0] & 0x01) != 0);

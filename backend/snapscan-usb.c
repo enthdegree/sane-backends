@@ -648,7 +648,7 @@ static void snapscani_usb_shm_exit(void)
  *
  * Revision 1.12  2001/09/18 15:01:07  oliverschwartz
  * - Read scanner id string again after firmware upload
- *   to indentify correct model
+ *   to identify correct model
  * - Make firmware upload work for AGFA scanners
  * - Change copyright notice
  *

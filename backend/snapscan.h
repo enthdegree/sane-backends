@@ -586,7 +586,7 @@ struct snapscan_scanner
  *
  * Revision 1.15  2001/09/18 15:01:07  oliverschwartz
  * - Read scanner id string again after firmware upload
- *   to indentify correct model
+ *   to identify correct model
  * - Make firmware upload work for AGFA scanners
  * - Change copyright notice
  *
@@ -622,7 +622,7 @@ struct snapscan_scanner
  * Adding USB files for optional USB compiles.
  *
  * Revision 1.4  2000/10/13 03:50:27  cbagwell
- * Updating to source from SANE 1.0.3.  Calling this versin 1.1
+ * Updating to source from SANE 1.0.3.  Calling this version 1.1
  *
  * Revision 1.3  2000/08/12 15:09:37  pere
  * Merge devel (v1.0.3) into head branch.

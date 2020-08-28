@@ -2155,7 +2155,7 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
  * Set backend version to 1.4.14
  *
  * Revision 1.46  2002/06/06 20:40:01  oliverschwartz
- * Changed default scan area for transparancy unit of SnapScan e50
+ * Changed default scan area for transparency unit of SnapScan e50
  *
  * Revision 1.45  2002/05/02 18:29:34  oliverschwartz
  * - Added ADF support
@@ -2247,7 +2247,7 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
  *
  * Revision 1.20  2001/09/18 15:01:07  oliverschwartz
  * - Read scanner id string again after firmware upload
- *   to indentify correct model
+ *   to identify correct model
  * - Make firmware upload work for AGFA scanners
  * - Change copyright notice
  *
@@ -2311,7 +2311,7 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
  * changes.
  *
  * Revision 1.4  2000/10/13 03:50:27  cbagwell
- * Updating to source from SANE 1.0.3.  Calling this versin 1.1
+ * Updating to source from SANE 1.0.3.  Calling this version 1.1
  *
  * Revision 1.3  2000/08/12 15:09:35  pere
  * Merge devel (v1.0.3) into head branch.
@@ -2550,13 +2550,13 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
  * Revision 1.16  1998/01/23  07:40:23  charter
  * Reindented using GNU convention at David Mosberger-Tang's request.
  * Also applied David's patch fixing problems on 64-bit architectures.
- * Now using scanner's reported speed to guage amount of data to request
+ * Now using scanner's reported speed to gauge amount of data to request
  * in a read on the scsi fd---nonblocking mode operates better now.
  * Fixed stupid bug I introduced in preview mode data transfer.
  *
  * Revision 1.15  1998/01/22  06:18:57  charter
  * Raised the priority of a couple of DBG messages in reserve_unit()
- * and release_unit(), and got rid of some unecessary ones.
+ * and release_unit(), and got rid of some unnecessary ones.
  *
  * Revision 1.14  1998/01/22  05:15:35  charter
  * Have replaced the bit depth option with a mode option; various

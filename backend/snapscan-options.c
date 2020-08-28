@@ -1837,7 +1837,7 @@ SANE_Status sane_control_option (SANE_Handle h,
  * Fixes for Epson 3490 and 16 bit scan mode
  *
  * Revision 1.25  2005/09/28 22:09:26  oliver-guest
- * Reenabled enhanced inquiry command for Epson scanners (duh\!)
+ * Re-enabled enhanced inquiry command for Epson scanners (duh\!)
  *
  * Revision 1.24  2005/09/28 21:33:10  oliver-guest
  * Added 16 bit option for Epson scanners (untested)
@@ -1849,7 +1849,7 @@ SANE_Status sane_control_option (SANE_Handle h,
  * Added support for Epson 3490/3590 (thanks to Matt Judge)
  *
  * Revision 1.21  2005/07/20 21:37:29  oliver-guest
- * Changed TPO scanning area for 2480/2580, reenabled 2400 DPI for 2480/2580
+ * Changed TPO scanning area for 2480/2580, re-enabled 2400 DPI for 2480/2580
  *
  * Revision 1.20  2005/05/22 11:50:24  oliver-guest
  * Disabled 2400 DPI for Epson 2480
@@ -1867,7 +1867,7 @@ SANE_Status sane_control_option (SANE_Handle h,
  * Use sanei_thread in snapscan backend
  *
  * Revision 1.15  2004/04/02 20:19:23  oliver-guest
- * Various bugfixes for gamma corretion (thanks to Robert Tsien)
+ * Various bugfixes for gamma correction (thanks to Robert Tsien)
  *
  * Revision 1.14  2004/02/01 13:32:26  oliver-guest
  * Fixed resolutions for Epson 1670
@@ -1903,7 +1903,7 @@ SANE_Status sane_control_option (SANE_Handle h,
  * Disable quality calibration for 5300
  *
  * Revision 1.5  2002/06/06 20:40:00  oliverschwartz
- * Changed default scan area for transparancy unit of SnapScan e50
+ * Changed default scan area for transparency unit of SnapScan e50
  *
  * Revision 1.4  2002/05/02 18:28:44  oliverschwartz
  * Added ADF support

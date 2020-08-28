@@ -121,7 +121,7 @@ static SANE_Status usb_cmd(int fd, const void *src, size_t src_size,
  *
  * Revision 1.8  2001/09/18 15:01:07  oliverschwartz
  * - Read scanner id string again after firmware upload
- *   to indentify correct model
+ *   to identify correct model
  * - Make firmware upload work for AGFA scanners
  * - Change copyright notice
  *

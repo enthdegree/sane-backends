@@ -719,7 +719,7 @@ wait_for_return (int fd)
 static SANE_Status compute_ogn (char *calfilename);
 
 
-/* This is the calibration rountine Win2k goes through when the scanner is
+/* This is the calibration routine Win2k goes through when the scanner is
    first plugged in.
    Original usb trace from Win2k with USBSnoopy ("usb sniffer for w2k"
    http://benoit.papillault.free.fr/speedtouch/sniff-2000.en.php3)

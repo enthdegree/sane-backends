@@ -64,11 +64,11 @@
 	. . - sane_get_option_descriptor() : get option information
 	. . - sane_control_option() : change option values
 	. .
-	. . - sane_start() : start image aquisition
+	. . - sane_start() : start image acquisition
 	. .   - sane_get_parameters() : returns actual scan-parameters
 	. .   - sane_read() : read image-data (from pipe)
 in ADF mode this is done often:
-	. . - sane_start() : start image aquisition
+	. . - sane_start() : start image acquisition
 	. .   - sane_get_parameters() : returns actual scan-parameters
 	. .   - sane_read() : read image-data (from pipe)
 
@@ -1986,7 +1986,7 @@ static SANE_Status umax_queue_read_image_data_req(Umax_Device *dev, unsigned int
   set_R_datatype_code(sread.cmd, R_datatype_imagedata);					     /* set datatype */
 
   dev->length_queued[bufnr] = length; /* set length request */
-  dev->length_read[bufnr]   = length; /* set length request, can be changed asyncronous by umax_scsi_req_enter */
+  dev->length_read[bufnr]   = length; /* set length request, can be changed asynchronous by umax_scsi_req_enter */
 
   status = umax_scsi_req_enter(dev, sread.cmd, sread.size, dev->buffer[bufnr], &(dev->length_read[bufnr]), &(dev->queue_id[bufnr]));
   if (status)
@@ -3219,7 +3219,7 @@ static int umax_identify_scanner(Umax_Device *dev)
         memcpy(dev->buffer[0]+0x24, inq_data.inquiry, inq_data.inquiry_len-0x24);
 
         /* correct variables */
-        set_inquiry_sc_uta(dev->buffer[0], get_inquiry_transavail(dev->buffer[0]));	/* transparancy available ? */
+        set_inquiry_sc_uta(dev->buffer[0], get_inquiry_transavail(dev->buffer[0]));	/* transparency available ? */
         set_inquiry_sc_adf(dev->buffer[0], get_inquiry_scanmode(dev->buffer[0]));	/* automatic document feeder available ? */
 
         set_inquiry_length(dev->buffer[0], inq_data.inquiry_len);
@@ -3934,7 +3934,7 @@ static int umax_check_values(Umax_Device *dev)
   {
     if ( (dev->colormode != RGB) || (dev->three_pass != 0) )
     {
-      dev->do_color_ordering = 0; /* color ordering not necessery */
+      dev->do_color_ordering = 0; /* color ordering not necessary */
     }
   }
 
@@ -7946,7 +7946,7 @@ SANE_Status sane_start(SANE_Handle handle)
 
   umax_set_window_param(scanner->device);
   status = umax_start_scan(scanner->device);
-  if (status) /* errror */
+  if (status) /* error */
   {
     umax_give_scanner(scanner->device); /* reposition and release scanner */
     return status;
@@ -7967,13 +7967,13 @@ SANE_Status sane_start(SANE_Handle handle)
   }
 
   status = umax_do_calibration(scanner->device);
-  if (status) /* errror */
+  if (status) /* error */
   {
     umax_give_scanner(scanner->device); /* reposition and release scanner */
     return status;
   }
 
-  if (scanner->device->pause_after_calibration) /* may be usefull */
+  if (scanner->device->pause_after_calibration) /* may be useful */
   {
     DBG(DBG_info2,"pause after calibration %d msec ...\n", scanner->device->pause_after_calibration);
     usleep(((long) scanner->device->pause_after_calibration) * 1000); /* time in ms */

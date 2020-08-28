@@ -64,7 +64,7 @@ A: There are at least two kind of scsi controller cards that
 Q: I use linux with a NCR/Symbios logic SCSI-Controller, sane does not work
    right.
 
-A: There are two differen drivers in the linux Kernel/modules.
+A: There are two different drivers in the linux Kernel/modules.
    Use the BSD-driver ncr53c8xx or sym53c8xx.
 
 -------------------------------------------------------------------------------
@@ -141,5 +141,5 @@ A: The optimization set by "-O2" makes problems, try which one of the following
 
 -------------------------------------------------------------------------------
 
-You find a lot of tips and informations in the internet. E.g. take a look
+You find a lot of tips and information on the internet. E.g. take a look
 at http://www.scantips.com

@@ -853,7 +853,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
 }
 
 /**
- * Initiates aquisition of an image from the scanner.
+ * Initiates acquisition of an image from the scanner.
  * SCAN Phase 1: initialization and calibration
  * (SCAN Phase 2: line-by-line scan & read is not implemented)
  * SCAN Phase 3: get CCD-mask

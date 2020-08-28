@@ -548,7 +548,7 @@ sanei_pieusb_buffer_get(struct Pieusb_Read_Buffer* buffer, SANE_Byte* data, SANE
         }
     } else {
         /* not implemented */
-        DBG(DBG_error, "buffer_put(): paccket size & density of %d/%d not implementd\n", buffer->packet_size_bytes, buffer->packing_density);
+        DBG(DBG_error, "buffer_put(): paccket size & density of %d/%d not implemented\n", buffer->packet_size_bytes, buffer->packing_density);
         return;
     }
     *len = n;

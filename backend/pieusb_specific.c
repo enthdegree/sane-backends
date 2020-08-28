@@ -82,7 +82,7 @@ static void pieusb_calculate_shading(struct Pieusb_Scanner *scanner, SANE_Byte* 
 /* sub to sanei_pieusb_post() */
 static SANE_Status pieusb_write_pnm_file (char *filename, uint16_t *data, int depth, int channels, int pixels_per_line, int lines);
 
-/* Auxilary */
+/* Auxiliary */
 static size_t max_string_size (SANE_String_Const const strings[]);
 static double getGain(int gain);
 static int getGainSetting(double gain);
@@ -1171,7 +1171,7 @@ sanei_pieusb_on_cancel (Pieusb_Scanner * scanner)
 }
 
 /**
- * Determine maximum lengt of a set of strings.
+ * Determine maximum length of a set of strings.
  *
  * @param strings Set of strings
  * @return maximum length
@@ -1672,7 +1672,7 @@ static void pieusb_calculate_shading(struct Pieusb_Scanner *scanner, SANE_Byte* 
     SANE_Int shading_width = scanner->device->shading_parameters[0].pixelsPerLine;
     SANE_Int shading_height = scanner->device->shading_parameters[0].nLines;
 
-    /* Initialze all to 0 */
+    /* Initialize all to 0 */
     for (k = 0; k < SHADING_PARAMETERS_INFO_COUNT; k++) {
         scanner->shading_max[k] = 0;
         scanner->shading_mean[k] = 0;
@@ -1862,7 +1862,7 @@ sanei_pieusb_set_mode_from_options(Pieusb_Scanner * scanner)
  * - values default (pieusb_set_default_gain_offset)
  * - values set by options
  * - values set by auto-calibration procedure
- * - values determined from preceeding preview
+ * - values determined from preceding preview
  *
  * @param scanner
  * @return
@@ -1897,7 +1897,7 @@ sanei_pieusb_set_gain_offset(Pieusb_Scanner * scanner, const char *calibration_m
         status.pieusb_status = PIEUSB_STATUS_GOOD;
     } else if ((strcmp(calibration_mode, SCAN_CALIBRATION_PREVIEW) == 0)
 	       && scanner->preview_done) {
-        /* If no preview data availble, do the auto-calibration. */
+        /* If no preview data available, do the auto-calibration. */
         double dg, dgi;
         DBG (DBG_info, "sanei_pieusb_set_gain_offset(): get calibration data from preview. scanner->mode.passes %d\n", scanner->mode.passes);
         switch (scanner->mode.passes) {

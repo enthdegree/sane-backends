@@ -279,7 +279,7 @@ static scsiblk window_parameter_data_block =
 
 static unsigned char window_descriptor_blockC[] =
 {
-/* Any field maked with 'R' (e.g. R0x55) indicate a filed provided for
+/* Any field marked with 'R' (e.g. R0x55) indicate a field provided for
  * development. In normal operation, 0 is set here. If any other value is set,
  * operationis not guaranteed! */
 

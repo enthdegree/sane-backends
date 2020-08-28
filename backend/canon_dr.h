@@ -304,7 +304,7 @@ struct scanner
   unsigned char lut[256];
 
   /* --------------------------------------------------------------------- */
-  /* values used by the software enhancment code (deskew, crop, etc)       */
+  /* values used by the software enhancement code (deskew, crop, etc)       */
   SANE_Status deskew_stat;
   int deskew_vals[2];
   double deskew_slope;

@@ -128,7 +128,7 @@ int pixma_reset_device (pixma_io_t *);
 /** Write data to the device. This function may not be interrupted by signals.
  *  It will return iff
  *   - \a len bytes have been successfully written or
- *   - an error (inclusive timeout) occured.
+ *   - an error (inclusive timeout) occurred.
  *  .
  *  \note Calling pixma_write(io, buf, n1) and pixma(io, buf+n1, n2) may
  *        not be the same as pixma_write(io, buf, n1+n2) if n1 is not
@@ -146,7 +146,7 @@ int pixma_write (pixma_io_t *, const void *cmd, unsigned len);
  *  It will return iff
  *   - \a size bytes have been successfully read,
  *   - a short packet has been read or
- *   - an error (inclusive timeout) occured.
+ *   - an error (inclusive timeout) occurred.
  *  .
  *  \param[out] buf
  *  \param[in]  size of the buffer

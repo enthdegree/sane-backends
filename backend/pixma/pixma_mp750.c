@@ -827,7 +827,7 @@ mp750_fill_buffer (pixma_t * s, pixma_imagebuf_t * ib)
       n = mp->rawimg_left / 3;
       /* n = number of pixels in the buffer? */
 
-      /* Color to Grayscale converion for CCD sensor */
+      /* Color to Grayscale conversion for CCD sensor */
       if (is_ccd_grayscale (s)) {
 	shift_rgb (mp->rawimg, n, shift[0], shift[1], shift[2], mp->stripe_shift, mp->line_size,
 		   mp->imgcol + mp->imgbuf_ofs);

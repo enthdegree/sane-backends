@@ -6,7 +6,7 @@
 # networking=no
 #
 # bjnp-timeout=5000
-# Specify the timeout (in ms) to be used for all the folllowing
+# Specify the timeout (in ms) to be used for all the following
 # scanners.
 # May be specified multiple times.
 # The last value (if any) will be used for auto-detection

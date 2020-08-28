@@ -483,7 +483,7 @@ static unsigned calc_raw_width (const mp810_t * mp,
                                 const pixma_scan_param_t * param)
 {
   unsigned raw_width;
-  /* NOTE: Actually, we can send arbitary width to MP810. Lines returned
+  /* NOTE: Actually, we can send arbitrary width to MP810. Lines returned
      are always padded to multiple of 4 or 12 pixels. Is this valid for
      other models, too? */
   if (mp->generation >= 2)

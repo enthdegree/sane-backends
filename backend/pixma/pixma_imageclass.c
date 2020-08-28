@@ -461,7 +461,7 @@ step1 (pixma_t * s)
   iclass_t *mf = (iclass_t *) s->subdriver;
 
   /* don't wait full timeout for 1st command */
-  rec_tmo = s->rec_tmo;         /* save globel timeout */
+  rec_tmo = s->rec_tmo;         /* save global timeout */
   s->rec_tmo = 2;               /* set timeout to 2 seconds */
   error = query_status (s);
   s->rec_tmo = rec_tmo;         /* restore global timeout */

@@ -614,7 +614,7 @@ static unsigned
 calc_raw_width (const mp150_t * mp, const pixma_scan_param_t * param)
 {
   unsigned raw_width;
-  /* NOTE: Actually, we can send arbitary width to MP150. Lines returned
+  /* NOTE: Actually, we can send arbitrary width to MP150. Lines returned
      are always padded to multiple of 4 or 12 pixels. Is this valid for
      other models, too? */
   if (mp->generation >= 2)
@@ -1029,7 +1029,7 @@ reorder_pixels (uint8_t * linebuf, uint8_t * sptr, unsigned c, unsigned n,
   memcpy (sptr, linebuf, line_size);
 }
 
-/* the scanned image must be shrinked by factor "scale"
+/* the scanned image must be shrunk by factor "scale"
  * the image can be formatted as rgb (c=3) or gray (c=1)
  * we need to crop the left side (xs)
  * we ignore more pixels inside scanned line (wx), behind needed line (w)
@@ -1069,7 +1069,7 @@ shrink_image (uint8_t * dptr, uint8_t * sptr, unsigned xs, unsigned w,
       pixel = 0;
 
       /* sum shrink pixels */
-      for (unsigned m = 0; m < scale; m++)    /* get pixels from shrinked lines */
+      for (unsigned m = 0; m < scale; m++)    /* get pixels from shrunk lines */
       {
         for (unsigned n = 0; n < scale; n++)  /* get pixels from same line */
         {
@@ -1080,7 +1080,7 @@ shrink_image (uint8_t * dptr, uint8_t * sptr, unsigned xs, unsigned w,
 #endif
     }
 
-    /* jump over shrinked data */
+    /* jump over shrunk data */
     src += c * scale;
     /* next pixel */
     dst += c;

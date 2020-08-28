@@ -60,7 +60,7 @@
 
 /* Flags */
 #define RTS8891_FLAG_UNTESTED               (1 << 0)	/* Print a warning for these scanners */
-#define RTS8891_FLAG_EMULATED_GRAY_MODE     (2 << 0)	/* gray scans are emulated using comor modes */
+#define RTS8891_FLAG_EMULATED_GRAY_MODE     (2 << 0)	/* gray scans are emulated using color modes */
 
 #define LOWORD(x)  ((uint16_t)(x & 0xffff))
 #define HIWORD(x)  ((uint16_t)(x >> 16))
@@ -98,7 +98,7 @@ typedef struct Rts8891_Device Rts8891_Device;
 #define TIMING2_REG             0x8a     /* holds REG8180+2 */
 
 
-/* this struc describes a particular model which is handled by the backend */
+/* this struct describes a particular model which is handled by the backend */
 /* available resolutions, physical goemetry, scanning area, ... */
 typedef struct Rts8891_Model
 {
@@ -168,11 +168,11 @@ struct Rts8891_Device
   /**< USB device number for libusb */
   SANE_Int devnum;
   SANE_String file_name;
-  Rts8891_Model *model;		/* points to a structure that decribes model specifics */
+  Rts8891_Model *model;		/* points to a structure that describes model specifics */
 
   SANE_Int sensor;		/* sensor id */
 
-  SANE_Bool initialized;	/* true if device has been intialized */
+  SANE_Bool initialized;	/* true if device has been initialized */
   SANE_Bool needs_warming;	/* true if device needs warming up    */
   SANE_Bool parking;	        /* true if device is parking head     */
 

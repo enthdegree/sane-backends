@@ -129,7 +129,7 @@ rts8891_write_all (SANE_Int devnum, SANE_Byte * regs, SANE_Int count)
       return SANE_STATUS_IO_ERROR;
     }
 
-  size = count - 0xb4;		/*  we need to substract one reg since b3 won't be written */
+  size = count - 0xb4;		/*  we need to subtract one reg since b3 won't be written */
   buffer[0] = 0x88;
   buffer[1] = 0xb4;
   buffer[2] = 0x00;
@@ -531,7 +531,7 @@ rts8891_move (struct Rts8891_Device *device, SANE_Byte * regs,
       regs[0x36] = regs[0x36] & 0xf7;
     }
 
-  /* write regiters values */
+  /* write registers values */
   status = rts8891_write_all (device->devnum, regs, RTS8891_MAX_REGISTERS);
 
   /* commit it */
@@ -616,7 +616,7 @@ rts8891_park (struct Rts8891_Device *device, SANE_Byte *regs, SANE_Bool wait)
 /* reads data from scanner.
  * First we wait for some data to be available and then loop reading
  * from scanner until the required amount is reached.
- * We handle non blocking I/O by returning immediatly (with SANE_STATUS_BUSY)
+ * We handle non blocking I/O by returning immediately (with SANE_STATUS_BUSY)
  * if there is no data available from scanner. But once read is started,
  * all the required amount is read. Once wait for data succeeded, we still poll
  * for data in order no to read it too fast, but we don' take care of non blocking
@@ -667,7 +667,7 @@ read_data (struct Rts8891_Session *session, SANE_Byte * dest, SANE_Int length)
 	      dev->regs[LAMP_REG] = 0x8d;
 	      sanei_rts88xx_write_reg (dev->devnum, LAMP_REG,
 				       &(dev->regs[LAMP_REG]));
-	      DBG (DBG_io, "read_data: no data vailable\n");
+	      DBG (DBG_io, "read_data: no data available\n");
 	      DBG (DBG_proc, "read_data: end\n");
 	      return SANE_STATUS_DEVICE_BUSY;
 	    }

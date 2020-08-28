@@ -118,8 +118,8 @@ enum Rts8891_Configure_Option
   NUM_CFG_OPTIONS		/* MUST be last */
 };
 
-/** Scanner object. This struct holds informations usefull for
- * the functions defined in SANE's standard. Informations closer
+/** Scanner object. This struct holds information useful for
+ * the functions defined in SANE's standard. Information closer
  * to the hardware are in the Rts8891_Device structure. There is
  * as many session structure than frontends using the scanner.
  */

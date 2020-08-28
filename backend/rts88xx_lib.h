@@ -196,7 +196,7 @@ SANE_Status sanei_rts88xx_get_mem (SANE_Int devnum, SANE_Byte ctrl1,
 				   SANE_Byte * value);
 
  /*
-  * write to the nvram controler
+  * write to the nvram controller
   */
 SANE_Status sanei_rts88xx_nvram_ctrl (SANE_Int devnum, SANE_Int length,
 				      SANE_Byte * value);

@@ -264,7 +264,7 @@ typedef struct {
     UShort  thresholdColor;
 } ThreshDef, *pThreshDef;
 
-/* for decription of the DAC specific stuff*/
+/* for description of the DAC specific stuff*/
 typedef struct {
     ColorWord	GainResize;
     ColorWord   DarkCmpHi;

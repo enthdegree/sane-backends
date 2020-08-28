@@ -12,7 +12,7 @@
  * - 0.32 - no changes
  * - 0.33 - no changes
  * - 0.34 - reactivated code in imageP96WaitLineData() to recover from
- *          loosing data
+ *          losing data
  * - 0.35 - no changes
  * - 0.36 - removed comment
  *        - added wDither exchange to imageP9xSetupScanSettings
@@ -30,7 +30,7 @@
  *          these I/O timeouts...
  * - 0.40 - no changes
  * - 0.41 - no changes
- * - 0.42 - fixed a problem for the 12bit modes fo ASIC9800x based devices
+ * - 0.42 - fixed a problem for the 12bit modes for ASIC9800x based devices
  *        - changed include names
  * - 0.43 - removed floating point stuff
  *        - cleanup
@@ -1508,7 +1508,7 @@ static int imageP98003SetupScanSettings( pScanData ps, pScanInfo pInf )
     }
 
     /*
-     * now assign the buffer pointers for image aquisition
+     * now assign the buffer pointers for image acquisition
      */
 	ps->Scan.p48BitBuf.pb = NULL;
 

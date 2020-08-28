@@ -1109,7 +1109,7 @@ _LOC Byte IOGetScanState( pScanData ps, Bool fOpenned )
 }
 
 /*.............................................................................
- * ASIC 98003 specific function to read status 2 regiser
+ * ASIC 98003 specific function to read status 2 register
  */
 _LOC Byte IOGetExtendedStatus( pScanData ps )
 {

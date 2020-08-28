@@ -81,7 +81,7 @@
  */
 #include "plustek-pp_scan.h"
 
-/*************************** some definitons *********************************/
+/*************************** some definitions *********************************/
 
 /* #define _A3I_EN */
 
@@ -203,7 +203,7 @@ static void motorP96GetStartStopGap( pScanData ps, Bool fCheckState )
 
 
 /*.............................................................................
- * wait for the ScanState stop or ScanState reachs the dwScanStateCount
+ * wait for the ScanState stop or ScanState reaches the dwScanStateCount
  */
 static Bool motorCheckMotorPresetLength( pScanData ps )
 {
@@ -2040,7 +2040,7 @@ static void motorGoHalfStep1( pScanData ps )
 }
 
 /*.............................................................................
- * when loosing data, we use this function to go back some lines and read them
+ * when losing data, we use this function to go back some lines and read them
  * again...
  */
 static void motorP96WaitBack( pScanData ps )
@@ -2126,7 +2126,7 @@ static void motorP96WaitBack( pScanData ps )
 }
 
 /*.............................................................................
- * when loosing data, we use this function to go back some lines and read them
+ * when losing data, we use this function to go back some lines and read them
  * again...
  */
 static void motorP98WaitBack( pScanData ps )
@@ -2523,7 +2523,7 @@ static void motorP98SetSpeed( pScanData ps, Byte bSpeed, Bool fSetRunState )
 
 		if((lastFifoState > _P96_FIFOOVERFLOWTHRESH) &&
 													(bData < lastFifoState)) {
-			DBG( DBG_HIGH, "FIFO OVERFLOW, loosing data !!\n" );
+			DBG( DBG_HIGH, "FIFO OVERFLOW, losing data !!\n" );
 			overflow = _TRUE;
         }
         lastFifoState = bData;

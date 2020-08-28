@@ -10,7 +10,7 @@ V 1.0-9 (2005-10-02)
 - Removed global variables in mustek_usb2.c:
   Deleted the following variables (not necessary):
     m_bIsOpen
-  Moved the following varaiables to Mustek_Scanner structure:
+  Moved the following variables to Mustek_Scanner structure:
     m_bIsScanning
     m_bIsReading
     setpara
@@ -104,7 +104,7 @@ V 1.0-4 (2005-09-27)
 - Changed backend name to mustek_usb2.
 - Used dos2unix to change dos line endings to unix.
 - Added mustek_usb2.TODO.
-- Changed several occurences of "//" to "/* */".
+- Changed several occurrences of "//" to "/* */".
 - Used DBG instead of XDBG.
 - Defined DBG levels in mustek_usb2_asic_low.h.
 - Changed code to use sanei_usb instead of home-grown usb functions.

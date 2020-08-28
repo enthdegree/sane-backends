@@ -141,10 +141,10 @@ Reflective_Reset ()
 /**********************************************************************
 Author: Jack            Date: 2005/05/13
 Routine Description:
-	get the suggest parameter of scaning
+	get the suggest parameter of scanning
 Parameters:
-	pTarget: the information of scaning
-	pSuggest: suggest parameter of scaning
+	pTarget: the information of scanning
+	pSuggest: suggest parameter of scanning
 Return value:
 	if the operation is success
 	return TRUE

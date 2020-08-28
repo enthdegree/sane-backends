@@ -3034,7 +3034,7 @@ MustScanner_ReadDataFromScanner (void * dummy)
 	      return NULL;
 	    }
 
-	  /*has read in memroy Buffer */
+	  /*has read in memory Buffer */
 	  wReadImageLines += wScanLinesThisBlock;
 
 	  AddScannedLines (wScanLinesThisBlock);
@@ -3203,10 +3203,10 @@ ModifyLinePoint (SANE_Byte * lpImageData,
 /**********************************************************************
 Author: Jack             Date: 2005/05/15
 Routine Description:
-	Modifiy the image data
+	Modify the image data
 Parameters:
 	A: the input the image data
-	B: the input the iamge data
+	B: the input the image data
 Return value:
 	the modified data
 ***********************************************************************/

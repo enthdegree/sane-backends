@@ -402,7 +402,7 @@ static SANE_Byte u12io_DataFromRegister( U12_Device *dev, SANE_Byte reg )
 static void u12io_CloseScanPath( U12_Device *dev )
 {
 	DBG( _DBG_INFO, "u12io_CloseScanPath()\n" );
-/* FIXME: Probaly not needed */
+/* FIXME: Probably not needed */
 #if 0
 	u12io_RegisterToScanner( dev, 0xff );
 #endif

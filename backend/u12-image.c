@@ -589,7 +589,7 @@ static SANE_Status u12image_SetupScanSettings( U12_Device *dev, ImgDef *img )
 		}
 	}
 
-	/* now assign the buffer pointers for image aquisition
+	/* now assign the buffer pointers for image acquisition
 	 */
 	dev->scan.p48BitBuf.pb = NULL;
 

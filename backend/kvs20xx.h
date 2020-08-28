@@ -50,7 +50,7 @@ typedef enum
   RESOLUTION,			/* X and Y resolution */
 
   DUPLEX,			/* Duplex mode */
-  FEEDER_MODE,			/* Feeder mode, fixed to Continous */
+  FEEDER_MODE,			/* Feeder mode, fixed to Continuous */
   LENGTHCTL,			/* Length control mode */
   MANUALFEED,			/* Manual feed mode */
   FEED_TIMEOUT,			/* Feed timeout */

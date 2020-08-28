@@ -99,7 +99,7 @@ kvs20xx_sense_handler (int __sane_unused__ fd,
   if (i == sizeof (s_errors) / sizeof (s_errors[0]))
     st = SANE_STATUS_IO_ERROR;
   DBG (DBG_ERR,
-       "send_command: CHECK_CONDITION: sence:0x%x ASC:0x%x ASCQ:0x%x\n",
+       "send_command: CHECK_CONDITION: sense:0x%x ASC:0x%x ASCQ:0x%x\n",
        sense_buffer[2], sense_buffer[12], sense_buffer[13]);
 
   return st;

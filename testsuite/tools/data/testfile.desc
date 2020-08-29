@@ -5605,7 +5605,7 @@
 :interface "USB"
 :usbid "0x04a7" "0x0444"
 :status :good
-:comment "Works upto 1200 dpi and 12 bits/color."
+:comment "Works up to 1200 dpi and 12 bits/color."
 
 ; -----------------------------------------------------------------------------
 ; SANE Backend specification file
@@ -5906,7 +5906,7 @@
 :url "http://www.hp.com/"
 
 :model "ScanJet Plus"           ; name models for above-specified mfg.
-:interface "Propietary"
+:interface "Proprietary"
 :status :complete
 :comment "Driver for HP parallel interface card required"
 
@@ -6794,7 +6794,7 @@
 :interface "USB"
 :usbid "0x055f" "0x0010"
 :status :good
-:comment "Works upto 600 dpi. No support for TA and ADF yet."
+:comment "Works up to 600 dpi. No support for TA and ADF yet."
 :mfg "Fujitsu"		; name a manufacturer
 :url "http://www.fujitsu.com/"
 
@@ -7812,7 +7812,7 @@
 :manpage "sane-pixma"             ; name of manpage (if it exists)
 :url "http://home.arcor.de/wittawat/pixma/" ; 0.13.2 backend's web page
 :url "http://mp610.blogspot.com/"            ; the pixma backend blog
-;:comment "Devices marked as experimantal are disabled by default. See the manual page for how to enable them."
+;:comment "Devices marked as experimental are disabled by default. See the manual page for how to enable them."
 
 :devicetype :scanner              ; start of a list of devices....
                                   ; other types:  :stillcam, :vidcam,
@@ -11448,7 +11448,7 @@
 :interface "USB"
 :usbid "0x06dc" "0x0012"
 :status :unsupported
-:comment "Unsuported. See link for details."
+:comment "Unsupported. See link for details."
 
 :model "ColorPage HR8"
 :url "unsupported/genius-colorpage-hr8.html"
@@ -13020,7 +13020,7 @@
 :interface "Parport"
 :status :unsupported
 :url "http://www.autistici.org/tamarhack/"
-:comment "Unsupported at the moment. See link for a project for that scanner taht may support it in future."
+:comment "Unsupported at the moment. See link for a project for that scanner that may support it in future."
 
 :model "Artiscan 9600 pro 36"                ; name models for above-specified mfg.
 :interface "Parport"

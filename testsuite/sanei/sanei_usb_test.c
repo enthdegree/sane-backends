@@ -745,7 +745,7 @@ static char *expected_device;
 
 /** dummy attach function
  * dummy attach function
- * @return resturn SANE_STATUS_GOOD
+ * @return return SANE_STATUS_GOOD
  */
 static SANE_Status
 dummy_attach (const char *dev)
@@ -772,7 +772,7 @@ test_attach (void)
 {
   device_list_type mock;
 
-  /* add mock device and try ot attach to it */
+  /* add mock device and try to attach to it */
   dummy_flag = 0;
   create_mock_device ("mock", &mock);
   expected_device = mock.devname;

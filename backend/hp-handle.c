@@ -173,7 +173,7 @@ hp_handle_startReader (HpHandle this, HpScsi scsi)
   this->pipe_write_fd = fds[1];
   this->pipe_read_fd = fds[0];
 
-  /* Will childs be forked ? */
+  /* Will child be forked ? */
   this->child_forked = sanei_thread_is_forked ();
 
   /* Start a thread or fork a child. None of them will return here. */

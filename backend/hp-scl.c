@@ -1083,7 +1083,7 @@ is_lowbyte_first_byteorder (void)
 
 /* The SANE standard defines that 2-byte data must use the full 16 bit range.
  * Byte order returned by the backend must be native byte order.
- * Scaling to 16 bit and byte order is achived by hp_scale_to_16bit.
+ * Scaling to 16 bit and byte order is achieved by hp_scale_to_16bit.
  * for >8 bits data, take the two data bytes and scale their content
  * to the full 16 bit range, using
  *     scaled = unscaled << (newlen - oldlen) +

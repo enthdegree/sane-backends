@@ -4291,7 +4291,7 @@ check_usb_chip (int verbosity,
       if (ret < 0)
 	{
 	  if (verbose > 2)
-	    printf ("couldnt set device to configuration %d\n",
+	    printf ("couldn't set device to configuration %d\n",
 		    config0->bConfigurationValue);
 	  return NULL;
 	}

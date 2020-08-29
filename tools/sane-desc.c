@@ -268,7 +268,7 @@ static const char *device_type_name[] =
   {"Unknown", "Scanners", "Still cameras", "Video Cameras", "Meta backends",
    "APIs"};
 static const char *device_type_aname[] =
-  {"UKNOWN", "SCANNERS", "STILL", "VIDEO", "META",
+  {"UNKNOWN", "SCANNERS", "STILL", "VIDEO", "META",
    "API"};
 static const char *status_color[] =
   {COLOR_UNKNOWN, COLOR_UNSUPPORTED, COLOR_UNTESTED, COLOR_MINIMAL,
@@ -783,7 +783,7 @@ check_hex (SANE_String string)
   return SANE_TRUE;
 }
 
-/* Read and interprete the .desc files */
+/* Read and interpret the .desc files */
 static SANE_Bool
 read_files (void)
 {
@@ -1698,7 +1698,7 @@ update_model_record_list (model_record_entry * first_model_record,
 
 
 /* Insert manufacturer into list at the alphabetically correct position, */
-/* create new record if neccessary */
+/* create new record if necessary */
 static mfg_record_entry *
 update_mfg_record_list (mfg_record_entry * first_mfg_record, mfg_entry * mfg,
 			backend_entry * be)

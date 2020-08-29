@@ -17,7 +17,7 @@ instead.
     using the vendor ID and the product ID of your scanner. Please contact the
     sane-devel mailing list in this case so the ids of your scanner can be added.
   o Make sure that the "scanner" group exists on your system and that every user
-    who should be allowed to acces the scanner is a member of that group.
+    who should be allowed to access the scanner is a member of that group.
     Alternatively, you can enable access for every user of your system in
     libusbscanner.
 

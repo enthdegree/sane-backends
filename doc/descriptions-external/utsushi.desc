@@ -445,25 +445,25 @@
 :interface "USB"
 :usbid     "0x04b8" "0x0165"
 :status    :good
-:comment   "propably one of DS-410, DS-535, DS-575W, DS-775"
+:comment   "probably one of DS-410, DS-535, DS-575W, DS-775"
 
 :model     "PID 0167"
 :interface "USB"
 :usbid     "0x04b8" "0x0167"
 :status    :good
-:comment   "propably one of DS-410, DS-535, DS-575W, DS-775"
+:comment   "probably one of DS-410, DS-535, DS-575W, DS-775"
 
 :model     "PID 0168"
 :interface "USB"
 :usbid     "0x04b8" "0x0168"
 :status    :good
-:comment   "propably one of DS-410, DS-535, DS-575W, DS-775"
+:comment   "probably one of DS-410, DS-535, DS-575W, DS-775"
 
 :model     "PID 0169"
 :interface "USB"
 :usbid     "0x04b8" "0x0169"
 :status    :good
-:comment   "propably one of DS-410, DS-535, DS-575W, DS-775"
+:comment   "probably one of DS-410, DS-535, DS-575W, DS-775"
 
 :model     "PID 016B"
 :interface "USB"
@@ -475,13 +475,13 @@
 :interface "USB"
 :usbid     "0x04b8" "0x016d"
 :status    :good
-:comment   "propably one of ES-55R, ES-65WR"
+:comment   "probably one of ES-55R, ES-65WR"
 
 :model     "PID 016F"
 :interface "USB"
 :usbid     "0x04b8" "0x016f"
 :status    :good
-:comment   "propably one of ES-55R, ES-65WR"
+:comment   "probably one of ES-55R, ES-65WR"
 
 :model     "PID 0176"
 :interface "USB"

@@ -2,7 +2,7 @@ SANE and Zeta
 -------------
 
 The Zeta port is based on existing BeOS port, with some changes
-to accomodate yellowTAB's internal build procedure, and some new
+to accommodate yellowTAB's internal build procedure, and some new
 conventions brought up by Zeta.
 
 Cf. README.beos for more historical stuff.

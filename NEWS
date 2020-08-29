@@ -44,7 +44,7 @@
 - adds and updates information for multiple supported and unsupported
   devices
 - translation updates for British English, French, German, Italian and
-  Ukranian
+  Ukrainian
 - `scanimage`: documents the JPEG compression level
 - minor improvements documenting build requirements
 
@@ -56,7 +56,7 @@
   required support is not available, `configure` will exit with an
   error.
 - improves checking for libjpeg version dependent requirements
-- has been made reproducable (#228)
+- has been made reproducible (#228)
 - fixes build issues on MinGW
 
 ### Miscellaneous
@@ -338,7 +338,7 @@ New with 1.0.18, released 2006-07-02:
   microtek2, mustek_pp, niash, plustek, snapscan, sp15c, test, u12, umax1220u.
 * Scanimage batch mode fixes.
 * Scanner lists contain USB vendor/product ids and some statistics now.
-* Udev/hotplug lists are generated autmatically from the .desc files now.
+* Udev/hotplug lists are generated automatically from the .desc files now.
 * Portability fixes (especially for DragonFlyBSD and HP/UX).
 * Build system updates.
 * Updated translations.
@@ -414,7 +414,7 @@ New with 1.0.14, released 2004-05-01:
 New with 1.0.13, released 2003-11-22:
 
 * New backends: mustek_pp_ccd (for Mustek parport CCD scanners),
-  plustek_pp (for Plustek parport scanners, splitted from the plustek backend).
+  plustek_pp (for Plustek parport scanners, split from the plustek backend).
 * Updated backends: avision, canon630u, coolscan, epson, fujitsu, gphoto2,
   gt68xx, hp, hp5400, mustek, mustek_pp, pie, plustek, snapscan, teco2, test,
   umax, umax_pp.
@@ -484,7 +484,7 @@ New with 1.0.9, released 2002-10-24:
 * New tool to create gamma tables (gamma4scanimage).
 * Support for ICC profiles for scanimage.
 * USB scanner should work on all systems supported by libusb now.
-* Portability fixes (especially for big-endian sytems, Irix, OpenStep, OS/2,
+* Portability fixes (especially for big-endian systems, Irix, OpenStep, OS/2,
   Solaris).
 * New and updated translations for various backends.
 * New system for generating lists of manufacturers/backends.
@@ -548,7 +548,7 @@ New with 1.0.6, released 2001-11-05:
 New with 1.0.5, released 2001-07-01:
 
 * New backends: bh (Bell+Howell Copiscan II series), dc240 (Kodak DC240
-  Digital Camera), sm3600 (Microtek ScanMaker 3600), umax_pp (Umax paralell
+  Digital Camera), sm3600 (Microtek ScanMaker 3600), umax_pp (Umax parallel
   port scanners).
 * Updated backends: artec (v0.5.16), dc25 (v1.2), dll (v1.0.3),
   epson (v0.2.08), hp (v0.94), microtek (v0.12.3), microtek2(v0.9),
@@ -577,7 +577,7 @@ New with 1.0.4, released 2000-12-21:
   hp (v0.93), mustek (v1.0-102), mustek_pp (v0.9-devel), plustek (v0.38),
   sharp (v0.32), umax (v1.0-21).
 * Moved frontends xscanimage and xcam to a new package (sane-frontends).
-* Added authentification with encrypted passwords.
+* Added authentication with encrypted passwords.
 * Installation of shared libraries on AIX is supported now.
 * Fixed compilation bugs on Irix and FreeBSD.
 * Better debug output on platforms not supporting vararg macros.
@@ -685,7 +685,7 @@ New with 1.01:
    o larger buffer acquired (speeds up scanning slightly)
    o for SE models minimal resolution increased from 60 dpi to 75 dpi
    o for SE models 75 dpi in color mode is no longer used as the newer
-     firware version seems to be even more buggy
+     firmware version seems to be even more buggy
    o bug in calculation of gamma table corrected (applies only to SE models,
      NOT related to the overflow problem which was corrected via CLIP( ) )
    o default resolution is now set according to the minimal resolution
@@ -894,7 +894,7 @@ New with 0.74:
  o changed the default for the resolution
  o The values for the SANE_Params struct are calculated more precisely
  o dito the number of scan lines that fit into the frontend buffer
- o changed some return stati ( replaced SANE_STATUS_INVAL with
+ o changed some return statuses ( replaced SANE_STATUS_INVAL with
    SANE_STATUS_IO_ERROR where the first one is not allowed)
  o completely rewrote the end of scan and cancel scan handling
  o fixed another bug that caused xscanimage to crash with sigsegv
@@ -913,7 +913,7 @@ New with 0.74:
   o Quality calibration / calibration by driver now works for same scanners.
      - added selection for type of shading data calculation
   o Solved problem with black area at top of the image
-    (happend only with some SCSI-adapters).
+    (happened only with some SCSI-adapters).
   o Added gamma download format type 0 and type 1 for older scanners.
   o Added Astra 1220S as supported scanner:
      - added 36 gamma input bits support for Astra 1220S
@@ -969,7 +969,7 @@ New with 0.73:
        - 3-pass scanners
        - more than 8 bit per color output data. Provisions are made here
          and there in the code, to support more than 8 bit, but that's
-         uncomplete.
+         incomplete.
 
 * configure --disable-static should now work as expected.
 

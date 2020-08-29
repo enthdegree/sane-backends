@@ -254,7 +254,7 @@ to the systemd journal. The systemd support
 requires compilation with the systemd-devel package
 installed on the system. this is the preferred option.
 
-Saned can be used wih systemd without the systemd integration
+Saned can be used with systemd without the systemd integration
 compiled in, but then logging of debug information is not supported.
 
 The systemd configuration is different for the 2 options, so
@@ -362,7 +362,7 @@ WantedBy=sockets.target
 .PP
 The second file to be added is
 .I saned@.service
-This one differes from the sersion with systemd integration compiled in:
+This one differs from the version with systemd integration compiled in:
 .PP
 .RS
 .ft CR

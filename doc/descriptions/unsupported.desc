@@ -709,7 +709,7 @@
 :interface "USB"
 :usbid "0x06dc" "0x0012"
 :status :unsupported
-:comment "Unsuported. See link for details."
+:comment "Unsupported. See link for details."
 
 :model "ColorPage HR8"
 :url "unsupported/genius-colorpage-hr8.html"
@@ -2255,7 +2255,7 @@
 :interface "Parport"
 :status :unsupported
 :url "http://www.autistici.org/tamarhack/"
-:comment "Unsupported at the moment. See link for a project for that scanner taht may support it in future."
+:comment "Unsupported at the moment. See link for a project for that scanner that may support it in future."
 
 :model "Artiscan 9600 pro 36"                ; name models for above-specified mfg.
 :interface "Parport"

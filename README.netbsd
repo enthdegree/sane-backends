@@ -48,7 +48,7 @@ uscanner driver can't detect the vendor and product ids automatically, it's
 necessary to add the name of the device file to the backends's configuration
 file. Some backends also need the vendor and product id of the scanner.
 
-Some backends won't work with the uscanner driver becasue they need USB
+Some backends won't work with the uscanner driver because they need USB
 control messages. Use libusb instead.
 
 Parport-scanners:

@@ -17,6 +17,6 @@ Last update: 2006-01-05
 
   saned is not intended to be exposed to the internet or other non-trusted
   networks.  Make sure that access is limited by tcpwrappers and/or a firewall
-  setup. Don't depend only on saned's own authentification.  Don't run saned
+  setup. Don't depend only on saned's own authentication.  Don't run saned
   as root if it's not necessary. And do not install saned as setuid root.
   Read man saned(8) for details.

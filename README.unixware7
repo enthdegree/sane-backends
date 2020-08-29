@@ -18,7 +18,7 @@ found here:
 
 However, please note that the SANE package that is available from the
 Skunkware server will most likely contain the latest stable version of
-SANE. Since SANE is continously being worked on, you might want to download
+SANE. Since SANE is continuously being worked on, you might want to download
 the latest source from the Git repository and build the source yourself.
 
 To build SANE on a UnixWare 7.1.X system the following packages are required:

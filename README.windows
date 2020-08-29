@@ -44,7 +44,7 @@ If you have more than one scanner, you should do the following:
 
 Run "scanimage > out.pnm" to get a scan.
 
-xscanimage ans XSane have been reported to compile and run in the past
+xscanimage and XSane have been reported to compile and run in the past
 under Cygwin.
 
 Notes

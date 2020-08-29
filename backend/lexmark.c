@@ -624,7 +624,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 /**
  * Open the backend, ie return the struct handle of a detected scanner
  * The struct returned is choosne if it matches the name given, which is
- * usefull when several scanners handled by the backend have been detected.
+ * useful when several scanners handled by the backend have been detected.
  * However, special case empty string "" and "lexmark" pick the first
  * available handle.
  */
@@ -649,7 +649,7 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
       return SANE_STATUS_INVAL;
     }
 
-  /* walk the linked list of scanner device until ther is a match
+  /* walk the linked list of scanner device until there is a match
    * with the device name */
   for (lexmark_device = first_lexmark_device; lexmark_device;
        lexmark_device = lexmark_device->next)

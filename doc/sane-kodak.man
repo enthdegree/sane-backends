@@ -77,7 +77,7 @@ Scanners can be specified in the configuration file in 2 ways:
 .PP
 "scsi KODAK"
 .RS
-Requests backend to search all scsi busses in the system for a device
+Requests backend to search all scsi buses in the system for a device
 which reports itself to be a scanner made by 'KODAK'.
 .RE
 .PP

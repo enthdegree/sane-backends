@@ -111,7 +111,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define I_periph_devtype_scanner          0x06
 #define I_periph_devtype_unknown          0x1f
 
-/* dont use these, until vendor */
+/* don't use these, until vendor */
 #define get_I_rmb(in)                     getbitfield(in + 1, 7, 1)
 #define get_I_devtype_qual(in)            getbitfield(in + 1, 0, 0x7f)
 

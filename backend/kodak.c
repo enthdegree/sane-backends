@@ -61,7 +61,7 @@
       v0 through v5 2008-01-15, MAN
          - development versions
       v6 2009-06-22, MAN
-         - improved set_window() to build desciptor from scratch
+         - improved set_window() to build descriptor from scratch
          - initial release
       v7 2010-02-10, MAN
          - add SANE_I18N to static strings
@@ -1376,7 +1376,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       DBG (20, "sane_control_option: set value for '%s' (%d)\n", s->opt[option].name,option);
 
       if ( s->started ) {
-        DBG (5, "sane_control_option: cant set, device busy\n");
+        DBG (5, "sane_control_option: can't set, device busy\n");
         return SANE_STATUS_DEVICE_BUSY;
       }
 
@@ -1391,7 +1391,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         return status;
       }
 
-      /* may have been changed by constrain, so dont copy until now */
+      /* may have been changed by constrain, so don't copy until now */
       val_c = *(SANE_Word *)val;
 
       /*
@@ -1682,7 +1682,7 @@ sane_get_parameters (SANE_Handle handle, SANE_Parameters * params)
  *
  * this will be called before each image, including duplex backsides,
  * and at the start of adf batch.
- * hence, we spend alot of time playing with s->started, etc.
+ * hence, we spend a lot of time playing with s->started, etc.
  */
 SANE_Status
 sane_start (SANE_Handle handle)
@@ -1795,7 +1795,7 @@ sane_start (SANE_Handle handle)
       s->bytes_buf = 0;
   }
 
-  /* grab new buffer if dont have one */
+  /* grab new buffer if don't have one */
   if (!s->buffer) {
       DBG (15, "sane_start: calloc buffer.\n");
       s->buffer = calloc (1,s->i_bytes);
@@ -1817,7 +1817,7 @@ sane_start (SANE_Handle handle)
  * This routine issues a SCSI SET WINDOW command to the scanner, using the
  * values currently in the scanner data structure.
  * the scanner has 4 separate windows, and all must be set similarly,
- * even if you dont intend to aquire images from all of them.
+ * even if you don't intend to acquire images from all of them.
  */
 static SANE_Status
 set_window (struct scanner *s)
@@ -2202,7 +2202,7 @@ read_imageheader (struct scanner *s)
     DBG (15, "  comp: %d\n",get_SR_ih_comp_type(pay));
     s->i_compr = get_SR_ih_comp_type(pay);
 
-    /*FIXME: there are alot more of these?*/
+    /*FIXME: there are a lot more of these?*/
   }
 
   DBG (10, "read_imageheader: finish %d\n", ret);
@@ -2424,7 +2424,7 @@ read_from_buffer(struct scanner *s, SANE_Byte * buf,
  * handle h is a valid handle) but usually affects long-running
  * operations only (such as image is acquisition). It is safe to call
  * this function asynchronously (e.g., from within a signal handler).
- * It is important to note that completion of this operaton does not
+ * It is important to note that completion of this operation does not
  * imply that the currently pending operation has been cancelled. It
  * only guarantees that cancellation has been initiated. Cancellation
  * completes only when the cancelled call returns (typically with a

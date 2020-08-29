@@ -5,7 +5,7 @@
  * particular, the current incarnation will only support cameras
  * that directly generate jpeg files.
  *
- * Please report sucesses or failures using this backend!
+ * Please report successes or failures using this backend!
  *
  * However, having said that, I've already found it to be quite useful
  * even in its current form - one reason is that gphoto2 provides access

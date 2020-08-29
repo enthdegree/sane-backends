@@ -51,10 +51,10 @@ If you want to use the test backend, for example with sane-troubleshoot, you sho
    . - sane_open() : open a particular scanner-device and attach_scanner(devicename,&dev)
    . . - sane_set_io_mode : set blocking-mode
    . . - sane_get_select_fd : get scanner-fd
-   . . - sane_get_option_descriptor() : get option informations
+   . . - sane_get_option_descriptor() : get option information
    . . - sane_control_option() : change option values
    . .
-   . . - sane_start() : start image aquisition [V,L,F,S,C,D,O,Z] first time or after cancel. [(F),E,G] every time
+   . . - sane_start() : start image acquisition [V,L,F,S,C,D,O,Z] first time or after cancel. [(F),E,G] every time
    . .   - sane_get_parameters() : returns actual scan-parameters
    . .   - sane_read() : read image-data (from pipe)
    . . - sane_cancel() : cancel operation, kill reader_process [(F), U]
@@ -1299,7 +1299,7 @@ int
 cmparray (unsigned char *array1, unsigned char *array2, size_t len)
 {
 /* compares len bytes of the arrays returns 0 if they match
-returns the first missmatch position if they don't match */
+returns the first mismatch position if they don't match */
 unsigned int i;
 	for(i=0; i<len; ++i)
 	{
@@ -2434,7 +2434,7 @@ First version only does autodiscovery */
     /* Allocate a new client */
     client = avahi_client_new(avahi_simple_poll_get(simple_poll), 0, client_callback, simple_poll, &error);
 
-    /* Check wether creating the client object succeeded */
+    /* Check whether creating the client object succeeded */
     if (!client) {
         DBG(min(1,DBG_AUTO), "Failed to create client: %s\n", avahi_strerror(error));
         goto fail;
@@ -2760,7 +2760,7 @@ init_options(KodakAio_Scanner *s)
 	s->val[OPT_MODE].w = MODE_COLOR;	/* default */
 	DBG(20, "%s: mode_list has first entry %s, default mode is %s\n", __func__, mode_list[0],mode_list[s->val[OPT_MODE].w]);
 
-	/* theshold the sane std says should be SANE_TYPE_FIXED 0..100 but all other backends seem to use INT 0..255 */
+	/* threshold the sane std says should be SANE_TYPE_FIXED 0..100 but all other backends seem to use INT 0..255 */
 	s->opt[OPT_THRESHOLD].name = SANE_NAME_THRESHOLD;
 	s->opt[OPT_THRESHOLD].title = SANE_TITLE_THRESHOLD;
 	s->opt[OPT_THRESHOLD].desc = SANE_DESC_THRESHOLD;
@@ -2772,7 +2772,7 @@ init_options(KodakAio_Scanner *s)
 	s->val[OPT_THRESHOLD].w = SANE_FIX(50.0);
 	DBG(20, "%s: threshold initialised to fixed %f\n", __func__, SANE_UNFIX(s->val[OPT_THRESHOLD].w));
 
-	/* theshold the sane std says should be SANE_TYPE_FIXED 0..100 but all other backends seem to use INT 0..255
+	/* threshold the sane std says should be SANE_TYPE_FIXED 0..100 but all other backends seem to use INT 0..255
 	s->opt[OPT_THRESHOLD].name = SANE_NAME_THRESHOLD;
 	s->opt[OPT_THRESHOLD].title = SANE_TITLE_THRESHOLD;
 	s->opt[OPT_THRESHOLD].desc = SANE_DESC_THRESHOLD;

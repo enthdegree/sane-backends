@@ -30,8 +30,8 @@
    This file implements a SANE backend for Tamarack flatbed scanners.  */
 
 /*
-   This driver was written initially by changing all occurances of
-   "mustek" to "tamarack". This actuall worked without modification
+   This driver was written initially by changing all occurrences of
+   "mustek" to "tamarack". This actually worked without modification
    for the manufacturer detection code! :-)
 
  */

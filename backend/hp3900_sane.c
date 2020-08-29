@@ -157,7 +157,7 @@ typedef struct
   SANE_Int rest_amount;
   SANE_Int mylin;
 
-  /* convertion settings */
+  /* conversion settings */
   struct st_convert cnv;
 
   /* ranges */
@@ -188,7 +188,7 @@ static SANE_Status bknd_models (TScanner * scanner);
 static SANE_Status bknd_resolutions (TScanner * scanner, SANE_Int model);
 static SANE_Status bknd_sources (TScanner * scanner, SANE_Int model);
 
-/* convertions */
+/* conversions */
 static void Color_Negative (SANE_Byte * buffer, SANE_Int size,
 			    SANE_Int depth);
 static void Color_to_Gray (SANE_Byte * buffer, SANE_Int size, SANE_Int depth);
@@ -894,7 +894,7 @@ gamma_create (TScanner * s, double gamma)
       /* default result */
       rst = OK;
 
-      /* destroy previus gamma tables */
+      /* destroy previous gamma tables */
       gamma_free (s);
 
       /* check gamma value */
@@ -1161,7 +1161,7 @@ options_init (TScanner * scanner)
       /* set gamma */
       gamma_create (scanner, 1.0);
 
-      /* color convertion */
+      /* color conversion */
       scanner->cnv.colormode = -1;
       scanner->cnv.negative = FALSE;
       scanner->cnv.threshold = 40;
@@ -1178,12 +1178,12 @@ options_init (TScanner * scanner)
       scanner->rng_gamma.max = 65535;
       scanner->rng_gamma.quant = 0;
 
-      /* setting default horizontal constrain in milimeters */
+      /* setting default horizontal constraint in millimeters */
       scanner->rng_horizontal.min = 0;
       scanner->rng_horizontal.max = 220;
       scanner->rng_horizontal.quant = 1;
 
-      /* setting default vertical constrain in milimeters */
+      /* setting default vertical constraint in millimeters */
       scanner->rng_vertical.min = 0;
       scanner->rng_vertical.max = 300;
       scanner->rng_vertical.quant = 1;
@@ -2261,7 +2261,7 @@ sane_get_parameters (SANE_Handle h, SANE_Parameters * p)
       /* resolution */
       res = s->aValues[opt_resolution].w;
 
-      /* image coordinates in milimeters */
+      /* image coordinates in millimeters */
       coords.left = s->aValues[opt_tlx].w;
       coords.top = s->aValues[opt_tly].w;
       coords.width = s->aValues[opt_brx].w;
@@ -2384,7 +2384,7 @@ sane_start (SANE_Handle h)
 	  RTS_Debug->SaveCalibFile =
 	    (s->aValues[opt_dbgimages].w == SANE_TRUE) ? TRUE : FALSE;
 
-	  /* Get image coordinates in milimeters */
+	  /* Get image coordinates in millimeters */
 	  coords.left = s->aValues[opt_tlx].w;
 	  coords.top = s->aValues[opt_tly].w;
 	  coords.width = s->aValues[opt_brx].w;
@@ -2583,7 +2583,7 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 		     buf : will contain postprocessed image
 		     len : will contain size in bytes of postprocessed image */
 
-		  /* apply gamma if neccesary */
+		  /* apply gamma if necessary */
 		  if (RTS_Debug->EnableGamma == TRUE)
 		    gamma_apply (s, buffer, emul_len, s->ScanParams.depth);
 
@@ -2623,7 +2623,7 @@ sane_read (SANE_Handle h, SANE_Byte * buf, SANE_Int maxlen, SANE_Int * len)
 		    {
 		      /* I didn't see any scanner supporting lineart mode.
 		         Windows drivers scan in grayscale and then convert image to lineart
-		         so let's perform convertion */
+		         so let's perform conversion */
 		      SANE_Int rest = emul_len % 8;
 
 		      Gray_to_Lineart (buffer, emul_len, s->cnv.threshold);
@@ -2691,7 +2691,7 @@ sane_close (SANE_Handle h)
 
   DBG (DBG_FNC, "- sane_close...\n");
 
-  /* stop previus scans */
+  /* stop previous scans */
   RTS_Scanner_StopScan (device, TRUE);
 
   /* close usb */
@@ -2700,7 +2700,7 @@ sane_close (SANE_Handle h)
   /* free scanner internal variables */
   RTS_Scanner_End (device);
 
-  /* free RTS enviroment */
+  /* free RTS environment */
   RTS_Free (device);
 
   /* free backend variables */

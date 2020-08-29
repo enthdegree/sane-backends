@@ -52,7 +52,7 @@ static SANE_Int cfg_chipset_model_get(SANE_Int device);
 /* buttons for each scanner */
 static SANE_Int cfg_buttons_get(struct st_buttons *reg);
 
-/* area constrains for each scanner */
+/* area constraints for each scanner */
 static SANE_Int cfg_constrains_get(struct st_constrains *constrain);
 
 /* spectrum clock generator for each scanner */
@@ -989,7 +989,7 @@ static void cfg_offset_get(SANE_Int sensortype, SANE_Int resolution, SANE_Int sc
 	}
 }
 
-/** SEC: Device constrains ---------- */
+/** SEC: Device constraints ---------- */
 
 static SANE_Int cfg_constrains_get(struct st_constrains *constrain)
 {
@@ -1003,7 +1003,7 @@ static SANE_Int cfg_constrains_get(struct st_constrains *constrain)
 
 	struct st_reg reg[] =
 	{
-		/* constrains are set in milimeters */
+		/* constraints are set in millimeters */
 		/*device ,   reflective               , negative                  , transparent                   */
 		/*       , {{left, width, top, height}, {left, width, top, height}, {left, width, top, height}}}, */
 		{ BQ5550 , {{   0,   220,   0,    300}, {  88,    42,   0,     83}, {  88,    42,   0,     83}}},

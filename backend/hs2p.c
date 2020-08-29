@@ -51,10 +51,10 @@
    . . . init_options : initialize SANE_OPTIONS array
    . . - sane_set_io_mode : set blocking-mode
    . . - sane_get_select_fd : get scanner-fd
-   . . - sane_get_option_descriptor() : get option informations
+   . . - sane_get_option_descriptor() : get option information
    . . - sane_control_option() : change option values
    . .
-   . . - sane_start() : start image aquisition
+   . . - sane_start() : start image acquisition
    . .   - sane_get_parameters() : returns actual scan-parameters
    . .   - sane_read() : read image-data (from pipe)
    . .
@@ -1535,7 +1535,7 @@ do_cancel (HS2P_Scanner * s)
 	   object_position (s->fd,
 			    OBJECT_POSITION_UNLOAD)) != SANE_STATUS_GOOD)
 	{
-	  DBG (DBG_error, "cancel: OBJECT POSTITION failed\n");
+	  DBG (DBG_error, "cancel: OBJECT POSITION failed\n");
 	}
       sanei_scsi_req_flush_all ();
       release_unit (s->fd);
@@ -1588,7 +1588,7 @@ sane_init (SANE_Int * version_code,
     }
 
 #if 0
-  /* avision.c: search for all supported scanners on all scsi busses & channels */
+  /* avision.c: search for all supported scanners on all scsi buses & channels */
   for (hw = &HS2P_Device_List[0]; hw->mfg != NULL; hw++)
     {
       sanei_scsi_find_devices (hw->mfg,	/*vendor */
@@ -3252,7 +3252,7 @@ pad:
 	  /*
 	   * If status != SANE_STATUS_GOOD, then sense_handler() has already
 	   * been called and the sanei_* functions have already gotten the
-	   * sense data buffer (which apparently clears the error conditionn)
+	   * sense data buffer (which apparently clears the error condition)
 	   * so the following doesn't work:
 	   get_sense_data (s->fd, &(s->hw->sense_data));
 	   print_sense_data (&(s->hw->sense_data));

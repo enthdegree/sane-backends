@@ -1678,7 +1678,7 @@ set_gamma_caps(SHARP_Scanner *s)
 
 /* The next function is a slightly modified version of sanei_constrain_value
    Instead of returning status information like STATUS_INVAL, it adjusts
-   an invaild value to the nearest allowed one.
+   an invalid value to the nearest allowed one.
 */
 static void
 clip_value (const SANE_Option_Descriptor * opt, void * value)
@@ -2096,7 +2096,7 @@ init_options (SHARP_Scanner * s)
 
 #ifdef USE_COLOR_THRESHOLD
   s->opt[OPT_THRESHOLD_R].name = SANE_NAME_THRESHOLD "-red";
-  /* xxx the titles and decriptions are confusing:
+  /* xxx the titles and descriptions are confusing:
      "set white point (red)"
      Any idea? maybe "threshold to get the red component on"
   */
@@ -3145,7 +3145,7 @@ sprint_gamma(Option_Value val, SANE_Byte *dst)
   SANE_Byte *p = dst;
 
   p += sprintf((char *) p, "%i", val.wa[0] > 255 ? 255 : val.wa[0]);
-  /* val.wa[i] is over 255, so val.wa[i] is limitied to 255 */
+  /* val.wa[i] is over 255, so val.wa[i] is limited to 255 */
   for (i = 1; i < 256; i++)
     p += sprintf((char *) p, ",%i", val.wa[i] > 255 ? 255 : val.wa[i]);
   return p - dst;

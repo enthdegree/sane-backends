@@ -181,7 +181,7 @@ static int devlist_count;	/* Number of element in the list */
  */
 static SANE_Device **devlist = NULL;
 
-/* round() is c99, so we provide our own, though this version wont return -0 */
+/* round() is c99, so we provide our own, though this version won't return -0 */
 static double
 round2(double x)
 {

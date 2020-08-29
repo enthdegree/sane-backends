@@ -731,7 +731,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
        action == SANE_ACTION_GET_VALUE ? "get" :
        action == SANE_ACTION_SET_VALUE ? "set" :
        action == SANE_ACTION_SET_AUTO ? "auto set" :
-       "(unknow action with)", option,
+       "(unknown action with)", option,
        s->opt[option].name ? s->opt[option].name : s->opt[option].title);
 
   cap = s->opt[option].cap;

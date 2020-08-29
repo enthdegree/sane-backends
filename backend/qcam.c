@@ -234,7 +234,7 @@ disable_ports (QC_Device * q)
   return SANE_STATUS_GOOD;
 }
 
-/* We need a short delay loop -- somthing well under a millisecond.
+/* We need a short delay loop -- something well under a millisecond.
    Unfortunately, adding 2 usleep(1)'s to qc_command slowed it down by
    a factor of over 1000 over the same loop with 2 usleep(0)'s, and
    that's too slow -- qc_start was taking over a second to run.  This
@@ -258,7 +258,7 @@ qc_wait (QC_Device * q)
    termination, so "dead locks" are not a problem.  (FYI, the lock
    file will remain after process termination, but this is actually
    desired so that the next process need not re-creat(2)e it... just
-   lock it.)  The wait argument indicates whether or not this funciton
+   lock it.)  The wait argument indicates whether or not this function
    should "block" waiting for the previous lock to be relinquished.
    This is ideal so that multiple processes (eg. qcam) taking
    "snapshots" can peacefully coexist.
@@ -1944,7 +1944,7 @@ sane_start (SANE_Handle handle)
     }
 
   s->read_fd = dup (s->from_child);
-  sane_get_parameters (s, 0);	/* ensure uptodate parameters */
+  sane_get_parameters (s, 0);	/* ensure up-to-date parameters */
 
   qc_lock (q);
   s->holding_lock = SANE_TRUE;

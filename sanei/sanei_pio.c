@@ -45,7 +45,7 @@
 /*
   RESTRICTIONS:
 
-  - This interface is very timing sensitive, be carefull with setting
+  - This interface is very timing sensitive, be careful with setting
     debug levels.
  */
 

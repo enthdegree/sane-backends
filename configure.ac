@@ -72,7 +72,7 @@ dnl Checks for programs.
 dnl ***********************************************************************
 AC_PATH_PROG(SANE_CONFIG_PATH, sane-config, no)
 
-dnl Call explicitely before using PKG_*
+dnl Call explicitly before using PKG_*
 PKG_PROG_PKG_CONFIG
 
 AM_CONDITIONAL(CROSS_COMPILING, test x$cross_compiling = xyes)
@@ -105,7 +105,7 @@ AC_CHECK_LIB(m, sqrt, MATH_LIB="-lm")
 AC_SUBST(MATH_LIB)
 case ${host_os} in
   os2*)
-  AC_CHECK_LIB(syslog, sylog, SYSLOG_LIBS="-lsyslog")
+  AC_CHECK_LIB(syslog, syslog, SYSLOG_LIBS="-lsyslog")
   ;;
   beos*)
   AC_CHECK_LIB(be, syslog, SYSLOG_LIBS="-lbe")
@@ -589,7 +589,7 @@ AC_ARG_ENABLE(scsibuffersize,
   [set_scsibuffersize="$enableval"], [set_scsibuffersize=131072])
 AC_DEFINE_UNQUOTED(SCSIBUFFERSIZE, $set_scsibuffersize,
                    [SCSI command buffer size])
-dnl FIXME: Move tihs to configuration printout area but probably
+dnl FIXME: Move this to configuration printout area but probably
 dnl but probably needs to be wrapped by what ever uses it so its
 dnl only printed when used.
 echo "scsi buffersize: $set_scsibuffersize"
@@ -608,7 +608,7 @@ dnl ****
 dnl IPv6
 dnl ****
 
-dnl check for IPv6 (can be overriden by --enable-ipv6)
+dnl check for IPv6 (can be overridden by --enable-ipv6)
 if test "$ac_cv_func_getnameinfo" = "yes" \
   && test "$ac_cv_func_getaddrinfo" = "yes" ; then
   SANE_CHECK_IPV6

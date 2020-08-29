@@ -12,7 +12,7 @@
  * - 2) find the dirt
  * - 3) replace the dirt
  *
- * - 1) is mainly adressed by sanei_ir_spectral_clean
+ * - 1) is mainly addressed by sanei_ir_spectral_clean
  * - 2) by sanei_ir_filter_madmean
  * - 3) by sanei_ir_dilate_mean
  */
@@ -185,7 +185,7 @@ sanei_ir_to_8bit (SANE_Parameters * params, const SANE_Uint *in_img,
  * @brief Allocate and initialize logarithmic lookup table
  *
  * @param[in]  len length of table, usually 1 << depth
- * @param[out] lut_ln adress of pointer to allocated table
+ * @param[out] lut_ln address of pointer to allocated table
  *
  * @return
  * - SANE_STATUS_GOOD - success
@@ -208,9 +208,9 @@ SANE_Status sanei_ir_ln_table (int len, double **lut_ln);
  * - SANE_STATUS_GOOD - success
  * - SANE_STATUS_NO_MEM - if out of memory
  *
- * This routine is based on the observation that the relation beween the infrared value
+ * This routine is based on the observation that the relation between the infrared value
  * ired and the red value red of an image point can be described by ired = b + a * ln (red).
- * First points are randomly sampled to calculate the linear regression coefficent a.
+ * First points are randomly sampled to calculate the linear regression coefficient a.
  * Then ired' = ired - a  * ln (red) is calculated for each pixel. Finally, the ir' image
  * is scaled between 0 and maximal value. For the logarithms a lookup table is used.
  * Negative films show very little spectral overlap but positive film usually has to be
@@ -255,8 +255,8 @@ sanei_ir_filter_mean (const SANE_Parameters * params,
  * @param[in]  in_img pointer to grey scale image
  * @param[out] out_img address of pointer to newly allocated binary image
  * @param[in] win_size Size of filtering window
- * @param[in]  a_val Parameter, below is definetly clean
- * @param[in]  b_val Parameter, above is definetly noisy
+ * @param[in]  a_val Parameter, below is definitely clean
+ * @param[in]  b_val Parameter, above is definitely noisy
  *
  * @return
  * - SANE_STATUS_GOOD - success
@@ -267,7 +267,7 @@ sanei_ir_filter_mean (const SANE_Parameters * params,
  * The dirty pixels which we wish to remove are always darker than the real signal. But
  * at high resolutions the scanner may generate some noise and the ired cleaning step can
  * reverse things. So a maximum filter will not do.
- * The second median is replaced by a mean filter to reduce computation time. Inspite of
+ * The second median is replaced by a mean filter to reduce computation time. In spite of
  * these changes Crnojevic's recommendations for the choice of the parameters "a" and "b"
  * are still valid when scaled to the color depth.
  *

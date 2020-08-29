@@ -202,7 +202,7 @@ typedef struct
 #endif
     u_int in_use;		/* port in use? */
     u_int enabled;		/* port enabled? */
-    u_int mode;			/* protocoll */
+    u_int mode;			/* protocol */
     u_char prelock[3];		/* state of port */
 #ifdef HAVE_LIBIEEE1284
     int caps;
@@ -750,7 +750,7 @@ pa4s2_writebyte_any (int fd, u_char reg, u_char val)
   /* somebody from Mustek asked me once, why I was writing the same
      value repeatedly to a port. Well, actually I don't know, it just
      works. Maybe the repeated writes could be replaced by appropriate
-     delays or even left out completly.
+     delays or even left out completely.
    */
 #if defined(HAVE_LIBIEEE1284)
   DBG (6, "pa4s2_writebyte_any: writing value 0x%02x"
@@ -1922,7 +1922,7 @@ sanei_pa4s2_open (const char *dev, int *fd)
   DBG (6, "sanei_pa4s2_open: basically, this backend does only compile\n");
   DBG (6, "sanei_pa4s2_open: on x86 architectures. Furthermore it\n");
   DBG (6, "sanei_pa4s2_open: needs ioperm() and inb()/outb() calls.\n");
-  DBG (6, "sanei_pa4s2_open: alternativly it makes use of libieee1284\n");
+  DBG (6, "sanei_pa4s2_open: alternatively it makes use of libieee1284\n");
   DBG (6, "sanei_pa4s2_open: (which isn't present either)\n");
   DBG (5, "sanei_pa4s2_open: returning SANE_STATUS_INVAL\n");
 

@@ -37,7 +37,7 @@ To send an enter command to the server, follow these steps:
 /* Amount of data in a sense request */
 #define DomainSenseSize 18
 
-/* Maximum amound of data in a transfer, per Domain/OS SCSI spec */
+/* Maximum amount of data in a transfer, per Domain/OS SCSI spec */
 #define DomainMaxDataSize (32 * 1024)
 
 /* Timeout for ec2_$wait calls, in 1/4 second intervals */

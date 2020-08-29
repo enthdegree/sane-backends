@@ -173,7 +173,7 @@
 # include <sys/scsi/targets/scgio.h>
 #elif defined (HAVE_SYS_SCSI_SCSI_H)
   /*
-   * the "offical" solaris uscsi(7I) interface; comes last, so that users
+   * the "official" solaris uscsi(7I) interface; comes last, so that users
    * installing the SCG/SG driver can still use these generic scsi interfaces
    */
 # define USE SOLARIS_USCSI_INTERFACE
@@ -347,7 +347,7 @@ int sanei_scsi_max_request_size = MAX_DATA;
 #endif
 
 /* the struct returned by the SG ioctl call SG_GET_SCSI_ID changed
-   from version 2.1.34 to 2.1.35, and we need the informations from
+   from version 2.1.34 to 2.1.35, and we need the information from
    the field s_queue_depth, which was introduced in 2.1.35.
    To get this file compiling also with older versions of sg.h, the
    struct is re-defined here.
@@ -383,7 +383,7 @@ typedef struct req
     {
       struct sg_header hdr;
       /* Make sure this is the last element, the real size is
-         SG_BIG_BUFF and machine dependant */
+         SG_BIG_BUFF and machine dependent */
       u_int8_t data[1];
     }
     cdb;
@@ -2298,7 +2298,7 @@ issue (struct req *req)
 		     /* this is messy... Sometimes it happens that we have
 		        a valid looking sense buffer, but the DRIVER_SENSE
 		        bit is not set. Moreover, we can check this only for
-		        not tooo old SG drivers
+		        not too old SG drivers
 		      */
 		     && (req->sgdata.cdb.hdr.driver_status & DRIVER_SENSE)
 #endif
@@ -2347,7 +2347,7 @@ issue (struct req *req)
 		      status = SANE_STATUS_DEVICE_BUSY;
 		    else if (handler)
 		      /* sense handler should return SANE_STATUS_GOOD if it
-		         decided all was ok afterall */
+		         decided all was ok after all */
 		      status =
 			(*handler) (req->fd, req->sgdata.cdb.hdr.sense_buffer,
 				    arg);
@@ -2415,7 +2415,7 @@ issue (struct req *req)
 		      status = SANE_STATUS_DEVICE_BUSY;
 		    else if (handler && req->sgdata.sg3.hdr.sb_len_wr)
 		      /* sense handler should return SANE_STATUS_GOOD if it
-		         decided all was ok afterall */
+		         decided all was ok after all */
 		      status =
 			(*handler) (req->fd, req->sgdata.sg3.sense_buffer,
 				    arg);
@@ -3833,12 +3833,12 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
  * (c) R=I+S Rapp Informatik System Germany
  * Email: wolfgang@rapp-informatik.de
  *
- * The driver version should run with other scsi componets like disk
+ * The driver version should run with other scsi components like disk
  * attached to the same controller at the same time.
  *
  * Attention : This port needs a sane kernel driver for Unixware 2.x
  * The driver is available in binary pkgadd format
- * Plese mail me.
+ * Please mail me.
  *
  */
   SANE_Status
@@ -3978,7 +3978,7 @@ sanei_scsi_find_devices (const char *findvendor, const char *findmodel,
 #ifdef UWSUPPORTED		/* at this time not supported by driver */
 	  if (sb_ptr->SCB.sc_comp_code != SDI_ASW)
 	    {
-	      DBG (1, "sanei_scsi_cmd: scsi_cmd failture %x\n",
+	      DBG (1, "sanei_scsi_cmd: scsi_cmd failure %x\n",
 		   sb_ptr->SCB.sc_comp_code);
 	      if (sb_ptr->SCB.sc_comp_code == SDI_CKSTAT
 		  && sb_ptr->SCB.sc_status == S_CKCON)

@@ -51,7 +51,7 @@ EXTRA_DIST += po/README
 #
 # Keep the .gitignore files sorted, and use this target to do it.
 # Note that git's negated ignore patterns introduce order dependency
-# and should therefor be sorted with much more care than we do here.
+# and should therefore be sorted with much more care than we do here.
 # Until that has been taken care of, such files are best left alone.
 #
 PERL=perl
@@ -91,12 +91,12 @@ libcheck:
 	fi
 
 # Verify that backends do not contain any unwanted public symbols
-# anytime check or distcheck is ran.
+# anytime check or distcheck is run.
 # TODO: Currently this doesn't pass.  Uncomment once symbols have
 # been cleaned up.
 #check-am: libcheck
 
-# Run testsuite any time installcheck or distcheck is ran.
+# Run testsuite any time installcheck or distcheck is run.
 # Must run testsuite after install or else shared library backends
 # will not be found (including test backend).
 installcheck-local:

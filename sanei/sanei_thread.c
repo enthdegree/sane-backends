@@ -113,7 +113,7 @@ sanei_thread_is_forked( void )
 #endif
 }
 
-/* Use this to mark a SANE_Pid as invaild instead of marking with -1.
+/* Use this to mark a SANE_Pid as invalid instead of marking with -1.
  */
 #ifdef USE_PTHREAD
 static void

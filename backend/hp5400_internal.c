@@ -385,7 +385,7 @@ SetCalibration (int iHandle, int numPixels, unsigned int *low_vals[3],
       i = j / numLoop;
 
       /* This is obviously not quite right. The values on
-       * the right are approximatly what windows sends */
+       * the right are approximately what windows sends */
       k = (high_vals[0][i] > 0x4000) ? 1000000000 / high_vals[0][i] : 0;	/* 0x6700 */
       pixel->highr[0] = k;
       pixel->highr[1] = k >> 8;
@@ -781,7 +781,7 @@ DoAverageScan (int iHandle, struct ScanRequest *req, int code,
   HWParams.iXferHandle = iHandle;
 
   if (InitScan2 (SCAN_TYPE_CALIBRATION, req, &HWParams, &res, 0, code) != 0)
-    return -1;			/* No colour offseting, we want raw */
+    return -1;			/* No colour offsetting, we want raw */
 
   length = htonl (res.xsize) / 6;
 
@@ -1204,7 +1204,7 @@ InitScan2 (enum ScanType scantype, struct ScanRequest *req,
 
   /* Protect scanner from damage. This stops stpuid errors.  It basically
    * limits you to the scanner glass. Stuff like calibrations which need
-   * more access do it safely by fiddling other paramters. Note you can
+   * more access do it safely by fiddling other parameters. Note you can
    * still break things by fiddling the ScanOffset, but that is not yet
    * under user control */
 

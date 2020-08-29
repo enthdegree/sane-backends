@@ -574,8 +574,8 @@ sane_open(SANE_String_Const name, SANE_Handle *handle)
     *handle = ms;
 
 #ifdef HAVE_AUTHORIZATION
-    /* check whether the file with the passwords exists. If it doesnt */
-    /* exist, we dont use any authorization */
+    /* check whether the file with the passwords exists. If it doesn't */
+    /* exist, we don't use any authorization */
 
     rc = stat(PASSWD_FILE, &st);
     if ( rc == -1 && errno == ENOENT )
@@ -1420,15 +1420,15 @@ cleanup_scanner(Microtek2_Scanner *ms)
 /*---------- do_authorization() ----------------------------------------------*/
 
 static SANE_Status
-do_authorization(char *ressource)
+do_authorization(char *resource)
 {
     /* This function implements a simple authorization function. It looks */
     /* up an entry in the file SANE_PATH_CONFIG_DIR/auth. Such an entry */
     /* must be of the form device:user:password where password is a crypt() */
     /* encrypted password. If several users are allowed to access a device */
     /* an entry must be created for each user. If no entry exists for device */
-    /* or the file does not exist no authentication is neccessary. If the */
-    /* file exists, but cant be opened the authentication fails */
+    /* or the file does not exist no authentication is necessary. If the */
+    /* file exists, but can't be opened the authentication fails */
 
     SANE_Status status;
     FILE *fp;
@@ -1443,12 +1443,12 @@ do_authorization(char *ressource)
     char *p;
 
 
-    DBG(30, "do_authorization: ressource=%s\n", ressource);
+    DBG(30, "do_authorization: resource=%s\n", resource);
 
     if ( auth_callback == NULL )  /* frontend does not require authorization */
         return SANE_STATUS_GOOD;
 
-    /* first check if an entry exists in for this device. If not, we dont */
+    /* first check if an entry exists in for this device. If not, we don't */
     /* use authorization */
 
     fp = fopen(PASSWD_FILE, "r");
@@ -1475,7 +1475,7 @@ do_authorization(char *ressource)
           {
             *p = '\0';
             device = linep;
-            if ( strcmp(device, ressource) == 0 )
+            if ( strcmp(device, resource) == 0 )
               {
                 DBG(2, "equal\n");
                 device_found = 1;
@@ -1492,7 +1492,7 @@ do_authorization(char *ressource)
 
     fseek(fp, 0L, SEEK_SET);
 
-    (*auth_callback) (ressource, username, password);
+    (*auth_callback) (resource, username, password);
 
     status = SANE_STATUS_ACCESS_DENIED;
     do
@@ -1506,7 +1506,7 @@ do_authorization(char *ressource)
                 continue;
             *p = '\0';
             device = linep;
-            if ( strcmp( device, ressource) != 0 ) /* not a matching entry */
+            if ( strcmp( device, resource) != 0 ) /* not a matching entry */
                 continue;
 
             linep = ++p;
@@ -1517,7 +1517,7 @@ do_authorization(char *ressource)
             *p = '\0';
             user = linep;
             if ( strncmp(user, username, SANE_MAX_USERNAME_LEN) != 0 )
-                continue;                  /* username doesnt match */
+                continue;                  /* username doesn't match */
 
             linep = ++p;
             /* rest of the line is considered to be the password */
@@ -3573,7 +3573,7 @@ restore_gamma_options(SANE_Option_Descriptor *sod, Option_Value *val)
 {
 
     DBG(40, "restore_gamma_options: val=%p, sod=%p\n", (void *) val, (void *) sod);
-    /* if we dont have a gamma table return immediately */
+    /* if we don't have a gamma table return immediately */
     if ( ! val[OPT_GAMMA_MODE].s )
        return SANE_STATUS_GOOD;
 
@@ -5122,7 +5122,7 @@ scsi_sense_handler (int fd, u_char *sense, void *arg)
                     DBG(5, "scsi_sense_handler: Gain error\n");
                     break;
                   case RQS_ASCQ_POS:
-                    DBG(5, "scsi_sense_handler: Positoning error\n");
+                    DBG(5, "scsi_sense_handler: Positioning error\n");
                     break;
                   default:
                     DBG(5, "scsi_sense_handler: Unknown combination of ASC"
@@ -5545,7 +5545,7 @@ prepare_buffers(Microtek2_Scanner *ms)
 
     if ( ms->mode == MS_MODE_COLOR && mi->data_format == MI_DATAFMT_LPLSEGREG )
       {
-        /* In this case the data is not neccessarily in the order RGB */
+        /* In this case the data is not necessarily in the order RGB */
         /* and there may be different numbers of read red, green and blue */
         /* segments. We allocate a second buffer to read new lines in */
         /* and hold undelivered pixels in the other buffer */
@@ -6752,7 +6752,7 @@ calc_cx_shading_line(Microtek2_Scanner *ms)
                 accu = *current_byte;
 
                 /* word shading data: the lower bytes per line and color are */
-                /* transfered first in one block and then the high bytes */
+                /* transferred first in one block and then the high bytes */
                 /* in one block  */
                 /* the dark shading data is also 10 bit, but only the */
                 /* low byte is transferred (ms->word = 0) */

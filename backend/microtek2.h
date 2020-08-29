@@ -392,7 +392,7 @@
 #define SW_CMD_L                10
 #define SW_HEADER_L             8
 #define SW_BODY_L               61
-#define SW_CMD_P                0     /* command at postion 0 */
+#define SW_CMD_P                0     /* command at position 0 */
 #define SW_HEADER_P             SW_CMD_L
 #define SW_BODY_P(n)            SW_CMD_L + SW_HEADER_L + (n) * SW_BODY_L
 

@@ -58,7 +58,7 @@
    Copyright 2010, 2011 by
                 "Mike Kelly" <mike@piratehaven.org>
 
-   Additional Contributers:
+   Additional Contributors:
                 "Gunter Wagner"
                   (some fixes and the transparency option)
                 "Martin Jelínek" <mates@sirrah.troja.mff.cuni.cz>
@@ -4880,7 +4880,7 @@ send_tune_scan_length (Avision_Scanner* s)
   set_double (payload.vertical, top);
   /* set_double (payload.horizontal, 0); */
 
-  /* we alway send it, even for 0 as the scanner keeps it in RAM and
+  /* we always send it, even for 0 as the scanner keeps it in RAM and
      previous runs could already have set something */
 
   status = avision_cmd (&s->av_con, &scmd, sizeof (scmd),
@@ -6266,7 +6266,7 @@ set_window (Avision_Scanner* s)
   cmd.window.avision.highlight = 0xFF;
   cmd.window.avision.shadow = 0x00;
 
-  /* mode dependant settings */
+  /* mode dependent settings */
   switch (s->c_mode)
     {
     case AV_THRESHOLDED:

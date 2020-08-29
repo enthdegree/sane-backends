@@ -120,7 +120,7 @@ typedef struct Avision_HWEntry {
     /* if the scan area and resolution needs to be forced for films */
   #define AV_FORCE_FILM ((uint64_t)1<<6)
 
-    /* does not suport, or very broken background (added for AV610C2) */
+    /* does not support, or very broken background (added for AV610C2) */
   #define AV_NO_BACKGROUND ((uint64_t)1<<7)
 
     /* is film scanner - no detection yet */
@@ -171,7 +171,7 @@ typedef struct Avision_HWEntry {
     /* though marked as GRAY only the scanner can do GRAY modes */
   #define AV_GRAY_MODES ((uint64_t)1<<23)
 
-    /* no seperate, single REAR scan (AV122, DM152, ...) */
+    /* no separate, single REAR scan (AV122, DM152, ...) */
   #define AV_NO_REAR ((uint64_t)1<<24)
 
     /* only scan with some known good hardware resolutions, as the
@@ -180,11 +180,11 @@ typedef struct Avision_HWEntry {
        interpolate to all the others */
   #define AV_SOFT_SCALE ((uint64_t)1<<25)
 
-    /* does keep window though it does not advertice it - the AV122/DM152
+    /* does keep window though it does not advertise it - the AV122/DM152
        mess up image data if window is resend between ADF pages */
   #define AV_DOES_KEEP_WINDOW ((uint64_t)1<<26)
 
-    /* does keep gamma though it does not advertice it */
+    /* does keep gamma though it does not advertise it */
   #define AV_DOES_KEEP_GAMMA ((uint64_t)1<<27)
 
     /* does the scanner contain a Cancel button? */
@@ -463,12 +463,12 @@ typedef struct Avision_Device
   int scsi_buffer_size; /* nice to have SCSI buffer size */
   int read_stripe_size; /* stripes to be read at-a-time */
 
-  /* film scanner atributes - maybe these should be in the scanner struct? */
+  /* film scanner attributes - maybe these should be in the scanner struct? */
   SANE_Range frame_range;
   SANE_Word current_frame;
   SANE_Word holder_type;
 
-  /* some versin corrections */
+  /* some version corrections */
   uint16_t data_dq; /* was ox0A0D - but hangs some new scanners */
 
   Avision_HWEntry* hw;
@@ -773,7 +773,7 @@ typedef struct calibration_format
   uint16_t g_dark_shading_target;
   uint16_t b_dark_shading_target;
 
-  /* not returned but usefull in some places */
+  /* not returned but useful in some places */
   uint8_t channels;
 } calibration_format;
 

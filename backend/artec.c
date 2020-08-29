@@ -836,7 +836,7 @@ artec_byte_rgb_to_line_rgb (SANE_Byte * data, SANE_Int len)
 
   DBG (8, "artec_byte_rgb_to_line_rgb()\n");
 
-  /* copy the RGBRGBRGBRGBRGB... formated data to our temp buffer */
+  /* copy the RGBRGBRGBRGBRGB... formatted data to our temp buffer */
   memcpy (tmp_buf, data, len * 3);
 
   /* now copy back to *data in RRRRRRRGGGGGGGBBBBBBB format */

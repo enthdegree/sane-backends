@@ -69,7 +69,7 @@
  *	/pub/hakimian directory. The complete URL is:
  *	    ftp://ftp.eecs.wsu.edu/pub/hakimian/dc20.tar.gz
  *
- *	This package also includes a sligthly modified version of the Comet to ppm
+ *	This package also includes a slightly modified version of the Comet to ppm
  *	conversion routine written by YOSHIDA Hideki <hideki@yk.rim.or.jp>
  *
  *	This program is free software; you can redistribute it and/or modify

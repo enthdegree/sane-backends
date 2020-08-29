@@ -2251,7 +2251,7 @@ sane_read (SANE_Handle handle, SANE_Byte * data, SANE_Int max_length,
   *length = nread;
   /* Check whether we are scanning with a depth of 16 bits/pixel and whether
      server and client have different byte order. If this is true, then it's
-     neccessary to check whether read returned an odd number. If an odd number
+     necessary to check whether read returned an odd number. If an odd number
      has been returned, we must save the last byte.
   */
   if ((depth == 16) && (server_big_endian != client_big_endian))

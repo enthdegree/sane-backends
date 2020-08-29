@@ -295,7 +295,7 @@ set_window (S9036_Scanner * s)
   /* ranges from 20 (little contrast) down to -20 = 235 (much contrast) */
   int contr_adjust = auto_contr ? (256 - s->val[OPT_CONTR_ADJUST]) % 256 : 0;
 
-  /* Warning ! The following structur SEEMS to be an valid SCSI-2
+  /* Warning ! The following structure SEEMS to be an valid SCSI-2
      SET_WINDOW command.  But e.g. the limits for the window are only
      2 Bytes instead of 4.  The scanner was built at about 1990, so
      SCSI-2 wasn't available for development...

@@ -233,6 +233,9 @@ static void JpegDecompTermSource (j_decompress_ptr cinfo);
 /* Results of last call to sane_get_devices */
 static struct DeviceRecord *gKnownDevices[MAX_SCANNERS];
 
+/* Empty list for when network devices are not wanted */
+static const SANE_Device *gEmptyDeviceList[1];
+
 /* Array of open scanner device states.
    :NOTE: (int)SANE_Handle is an offset into this array */
 static struct ScannerState *gOpenScanners[MAX_SCANNERS];
@@ -306,14 +309,16 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
   const char *pVal;
   int valLen;
 
+  if (local_only) {
+    *device_list = gEmptyDeviceList;
+    return SANE_STATUS_GOOD;
+  }
+
   /* init variables */
   ret = SANE_STATUS_GOOD;
   sock = 0;
   pDevice = NULL;
   optYes = 1;
-
-  if (local_only)
-    return ret;
 
   InitComBuf (&queryPacket);
 

@@ -12893,7 +12893,7 @@ shadingCalibration610p (int color, int dcRed, int dcGreen, int dcBlue,
   COMPLETIONWAIT;
 
   /* picture height is scan area height minus y          */
-  /* then we subtract 14 or 6 lines that aren't scanned */
+  /* then we subtract 14 or 6 lines that aren't scanned  */
   if (color < RGB_MODE)
     h = h - y - 14;
   else

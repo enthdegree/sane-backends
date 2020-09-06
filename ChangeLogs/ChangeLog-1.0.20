@@ -945,7 +945,7 @@
 	* AUTHORS, configure, configure.in, backend/Makefile.in,
 	backend/xerox_mfp.c, backend/xerox_mfp.h, doc/Makefile.in,
 	doc/descriptions/xerox_mfp.desc, doc/sane-xerox_mfp.man:
-	Initial commit to xerox_mfp backed.
+	Initial commit to xerox_mfp backend.
 
 2008-12-12  Julien Blache <jb@jblache.org>
 	* frontend/saned.c: add a data_portrange config file option to

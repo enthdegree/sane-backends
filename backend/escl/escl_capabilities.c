@@ -285,7 +285,7 @@ find_value_of_int_variables(xmlNode *node, capabilities_t *scanner, int type)
 
 /**
  * \fn static int find_true_variables(xmlNode *node, capabilities_t *scanner)
- * \brief Function that searches in the xml file if we find a scanner capabilitie stocked
+ * \brief Function that searches in the xml file if we find a scanner capability stored
  *        in one of the created array (character/integer array),
  *        or, if we find a integer scanner capabilitie.
  *

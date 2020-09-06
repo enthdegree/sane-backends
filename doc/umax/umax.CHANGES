@@ -1156,7 +1156,7 @@ build-42 -> build-43
 build-43 -> build-44
 --------------------
 
-  * the sense_hanlder stores the sense data in buffer[0] when valid sense data is available
+  * the sense_handler stores the sense data in buffer[0] when valid sense data is available
 
   * do_calibration:
 	- corrected bug in reading calibration width from scanner (added /bytespp)

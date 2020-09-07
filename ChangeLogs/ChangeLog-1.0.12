@@ -194,7 +194,7 @@
 	  OS/2.
 	* config.guess config.sub: New upstream versions.
 	* acinclude.m4 aclocal.m4 configure ltmain.sh: New libtool
-	  upstream realease: 1.5.
+	  upstream release: 1.5.
 	* acinclude.m4 aclocal.m4 configure configure.in: Added support
 	  for -framework option and check for IOKit for MacOS X. Check for
 	  latex tools. Minimum autoconf version is 2.54.
@@ -363,8 +363,8 @@
 	* doc/sane.man: Added SEE ALSO section.
 	* backend/Makefile.in: Fixed warning for dll-preload.c.
 	* bakend/dll.c: Add casts to function calls. Without this fix, the
-	  dll backend didn't work on the m68k paltform because data and
-	  addresses are stored in differnt registers so the return values
+	  dll backend didn't work on the m68k platform because data and
+	  addresses are stored in different registers so the return values
 	  of the sane api functions were wrong. Patch from Dave Huang
 	  <khym@azeotrope.org>. Fixed some compilation warnings.
 
@@ -403,7 +403,7 @@
 2003-04-03  Eddy De Greef <eddy_de_greef at tiscali dot be>
 
 	* TODO: removed mustek_pp entry (Check that global variables are
-	  initialized propperly
+	  initialized properly
 
 2003-04-03  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
@@ -482,7 +482,7 @@
 	  backend/net.h doc/sane-net.man doc/saned.man frontend/saned.c
 	  include/sane/config.h.in: Added support for IPv6. Updated
 	  manpages. Patch from Julien BLACHE <jb@jblache.org>.
-	* TODO: Updated net sections. Removed Irix pacht entry. Added
+	* TODO: Updated net sections. Removed Irix patch entry. Added
 	  entry about libusb switch.
 
 2003-03-28  Oliver Schirrmeister <oschirr@abm.de>
@@ -758,7 +758,7 @@
 	  doc/descriptions/gt68xx.desc doc/gt68xx/gt68xx.CHANGES:
 	  Added vid/pid 0x07b3/0x0400 to gt68xx.conf also. Added indormation
 	  about Medion 4394. Mention ma1509 backend. Fix segfault when calling
-	  sane_open with an empty device name. Explicitely initialize global
+	  sane_open with an empty device name. Explicitly initialize global
 	  variables to avoid segfaults when calling sane_init/sane_exit more
 	  than once.
 	* backend/net.c doc/descriptions/net.desc: Initialize global variables
@@ -768,7 +768,7 @@
 	* sanei/sanei_usb.c: Call sanei_usb_init only once.
 	* backend/mustek_usb.c doc/descriptions/mustek_usb.desc
 	  doc/mustek_usb/mustek_usb.CHANGES doc/sane-mustek_usb.man: Iniatialize
-	  global variables explicitely. Mention ma1509.
+	  global variables explicitly. Mention ma1509.
 	* backend/mustek.c doc/mustek/mustek.CHANGES: Initialize global
 	  variables in sane_init.
 	* TODO: Add ma1509 backend. Add segfault when running sane_init more

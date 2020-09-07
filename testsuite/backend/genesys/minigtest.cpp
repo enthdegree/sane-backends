@@ -29,7 +29,7 @@ size_t s_num_failures = 0;
 
 int finish_tests()
 {
-    std::cerr << "Finished tests. Sucessses: " << s_num_successes
+    std::cerr << "Finished tests. Successes: " << s_num_successes
               << " failures: " << s_num_failures << "\n";
     if (s_num_failures > 0)
         return 1;

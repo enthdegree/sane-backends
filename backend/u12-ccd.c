@@ -1,5 +1,5 @@
 /* @file u12-ccd.c
- * @brief here we have the whole code to intialize the CCD and DAC stuff
+ * @brief here we have the whole code to initialize the CCD and DAC stuff
  *
  * based on sources acquired from Plustek Inc.
  * Copyright (c) 2003-2004 Gerhard Jaeger <gerhard@gjaeger.de>

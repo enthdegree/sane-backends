@@ -2256,7 +2256,7 @@ type int adf-wait
   default 0
   constraint (0,3600,1)
   title ADF Waiting Time
-  desc  When set, the scanner waits upto the specified time in seconds for a new document inserted into the automatic document feeder.
+  desc  When set, the scanner waits up to the specified time in seconds for a new document inserted into the automatic document feeder.
   cap soft_select soft_detect automatic inactive
 
 rem -------------------------------------------

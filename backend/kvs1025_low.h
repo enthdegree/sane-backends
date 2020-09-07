@@ -99,7 +99,7 @@ typedef enum
   OPT_RESOLUTION,		/* X and Y resolution */
   OPT_DUPLEX,			/* Duplex mode */
   OPT_SCAN_SOURCE,		/* Scan source, fixed to ADF */
-  OPT_FEEDER_MODE,		/* Feeder mode, fixed to Continous */
+  OPT_FEEDER_MODE,		/* Feeder mode, fixed to Continuous */
   OPT_LONGPAPER,		/* Long paper mode */
   OPT_LENGTHCTL,		/* Length control mode */
   OPT_MANUALFEED,		/* Manual feed mode */
@@ -190,7 +190,7 @@ typedef struct kv_scanner_dev
   int bytes_to_read[2];		/* bytes to read */
 
   /* --------------------------------------------------------------------- */
-  /* values used by the software enhancment code (deskew, crop, etc)       */
+  /* values used by the software enhancement code (deskew, crop, etc)      */
   SANE_Status deskew_stat;
   int deskew_vals[2];
   double deskew_slope;

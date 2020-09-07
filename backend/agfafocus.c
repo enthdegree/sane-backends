@@ -428,7 +428,7 @@ set_window (AgfaFocus_Scanner * s)
   /* ranges from 20 (little contrast) down to -20 = 235 (much contrast) */
   int contr_adjust = (SANE_UNFIX (s->val[OPT_CONTRAST].w) * -20.0) / 100.0;
 
-  /* Warning ! The following structur SEEMS to be a valid SCSI-2 SET_WINDOW
+  /* Warning ! The following structure SEEMS to be a valid SCSI-2 SET_WINDOW
      command.  But e.g. the limits for the window are only 2 Bytes instead
      of 4.  The scanner was built at about 1990, so SCSI-2 wasn't available
      for development...  */

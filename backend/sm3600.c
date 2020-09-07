@@ -672,7 +672,7 @@ SetupInternalParameters(TInstance *this)
 SANE_Status
 sane_get_parameters (SANE_Handle handle, SANE_Parameters *p)
 {
-  /* extremly important for xscanimage */
+  /* extremely important for xscanimage */
   TInstance *this;
   this=(TInstance*)handle;
   SetupInternalParameters(this);
@@ -714,7 +714,7 @@ sane_start (SANE_Handle handle)
   if (this->state.bScanning) return SANE_STATUS_DEVICE_BUSY;
   rc=SetupInternalParameters(this);
   this->state.bCanceled=false;
-  if (!rc) rc=DoInit(this); /* oopsi, we should initalise :-) */
+  if (!rc) rc=DoInit(this); /* oopsi, we should initialise :-) */
   if (!rc && !this->bOptSkipOriginate) rc=DoOriginate(this,true);
   if (!rc) rc=DoJog(this,this->calibration.yMargin);
   if (rc) return rc;

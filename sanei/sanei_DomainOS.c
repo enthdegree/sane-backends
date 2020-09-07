@@ -112,7 +112,7 @@ static struct
    scsi_$operation_id_t op_id;  /* op_id of current request */
    } *DomainFdInfo;
 
-/* This function is called error might have occured, but it would be one that I
+/* This function is called error might have occurred, but it would be one that I
 don't know how to handle, or never expect to happen.  */
 static void DomainErrorCheck(status_$t status, const char *message)
    {

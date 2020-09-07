@@ -1,6 +1,6 @@
 # coolscan2.conf: sample configuration file for coolscan2 backend
 #
-# The following entrie checks for your scanner by manufacturer (SCSI)
+# The following entry checks for your scanner by manufacturer (SCSI)
 # and by vendor and product ID (USB). This is what the backend does when
 # no configuration file can be found.
 #

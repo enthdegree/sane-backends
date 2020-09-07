@@ -308,7 +308,7 @@ RGBColor;
 #define DBG_DET 	4	/* more detailed information */
 #define DBG_FUNC 	5	/* start and exits of high level functions */
 #define DBG_ASIC 	6	/* starts and exits of low level functions */
-#define DBG_DBG 	10	/* usefull only for tracing bugs */
+#define DBG_DBG 	10	/* useful only for tracing bugs */
 
 
 #define		DPI_2400		0x8000
@@ -1295,7 +1295,7 @@ static STATUS Asic_ReadCalibrationData (PAsic chip, void * pBuffer,
 					unsigned int dwXferBytes, SANE_Byte bScanBits);
 /* Set motor move or not */
 static STATUS Asic_SetMotorType (PAsic chip, SANE_Bool isMotorMove, SANE_Bool isUniformSpeed);
-/* Move Motor Forward or Backword */
+/* Move Motor Forward or Backward */
 static STATUS Asic_MotorMove (PAsic chip, SANE_Bool isForward, unsigned int dwTotalSteps);
 /* Move Motor to Home. */
 /* If isTA is TRUE, move TA to home, else move Lamp to home */

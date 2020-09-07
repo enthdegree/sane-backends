@@ -473,6 +473,6 @@
 :interface "USB"
 :usbid "0x04a7" "0x0444"
 :status :good
-:comment "Works upto 1200 dpi and 12 bits/color."
+:comment "Works up to 1200 dpi and 12 bits/color."
 
 ; -----------------------------------------------------------------------------

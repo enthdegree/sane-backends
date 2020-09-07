@@ -3,7 +3,7 @@
 2002-05-27  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/plustek-usbscan.c: Critical bugfix to avoid bumping the
-	  scan slider at the end of the scan. Commited on behalf of
+	  scan slider at the end of the scan. Committed on behalf of
 	  g-jaeger@t-online.de (G. Jaeger).
 
 2002-05-26  Karl Heinz Kremer <khk@khk.net>
@@ -19,7 +19,7 @@
 	* doc/descriptions-external/teco2.desc
 	  doc/descriptions-external/teco3.desc: new backends descriptions.
 	* AUTHORS: changed my email address
-	* doc/descriptions/teco1.desc: added the mising connection type
+	* doc/descriptions/teco1.desc: added the missing connection type
 	  for the vm3520
 
 2002-05-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -196,7 +196,7 @@
 2002-04-24  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* backend/mustek.c backend/mustek.h doc/descriptions/mustek.desc
-	  doc/mustek/mustek.CHANGES: Print usefull DBG messages for options
+	  doc/mustek/mustek.CHANGES: Print useful DBG messages for options
 	  without a name. Undef MIN and MAX macros before defining them.
 	* backend/mustek_usb.c backend/mustek_usb_low.h
 	  doc/descriptions/mustek_usb.desc doc/mustek_usb/mustek_usb.CHANGES:
@@ -224,7 +224,7 @@
 
 	* backend/dc240.c backend/gphoto2.c:  Various minor bug fixes for
 	  problems found by tstbackend
-	* AUTHORS:  Upate email address for Peter Fales
+	* AUTHORS:  Update email address for Peter Fales
 
 2002-04-22  Frank Zago <fzago@greshamstorage.com>
 
@@ -405,7 +405,7 @@
 	* AUTHORS: Added myself for test backend.
 	* TODO: Added entries about SANE_CAP_ADVANCED in groups, a wip marker
 	  for sorted sane-backends.html, and saneopts.??.po problem.
-	  Removed backends from list of inclusion beacuse of lack of response:
+	  Removed backends from list of inclusion because of lack of response:
 	  v4l2, lhii, viceo (they stay in PROJECTS). Removed snapscan from
 	  exported symbols bug list. Updated doxygen list.
 
@@ -497,7 +497,7 @@ i
 2002-04-08  Rene Rebe <rene.rebe@gmx.net>
 	* backend/avision.c backend/avision.h doc/descriptions/avision.desc
 	  doc/sane-avision.man: updated to Avision backend build 25. More
-	  stable for HP usb scanners, suport for Misubishi scanners and
+	  stable for HP usb scanners, support for Misubishi scanners and
 	  various cleanups. - And corrected the avision.desc location.
 
 2002-04-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -617,7 +617,7 @@ i
 	  libtool.
 	* TODO: More status indicators for backends to include. Removed
 	  entry about the grand Fujitsu reunification. Updated entry about the
-	  DBG warnings. Removed entry about splitted sane-backends.html.
+	  DBG warnings. Removed entry about split sane-backends.html.
 	  Removed entries about libtool problems. Added entry about plustek on
 	  OS/2 problem.
 	* backend/pnm.c doc/descriptions/pnm.desc: If fread returns 0, check
@@ -642,9 +642,9 @@ i
 
 2002-03-21  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* doc/backend-writing.txt: Updated concerning splitted .desc
+	* doc/backend-writing.txt: Updated concerning split .desc
 	  directories.
-	* doc/Makefile.in: Updated install-mostang concerning splitted HTML
+	* doc/Makefile.in: Updated install-mostang concerning split HTML
 	  pages.
 	* configure configure.in README: Use only shared libraries by default.
 	  Fixed file patterns for distclean targets.
@@ -724,7 +724,7 @@ i
 
 2002-03-19  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* TODO: Marked backends that really should be included. Clearified
+	* TODO: Marked backends that really should be included. Clarified
 	  comment about sane-backends.html. Added comment about sort order
 	  this list. Add comment about better linking of external libs.
 
@@ -737,7 +737,7 @@ i
 	  backend/mustek_usb_mid.c doc/mustek_usb/mustek_usb.CHANGES: Fixed
 	  segfault when opening device again after closing and possible
 	  segfault when name="". Type for option 0 must be set to
-	  SANE_TYPE_INT explicitely. Updated GPL/SANE headers.
+	  SANE_TYPE_INT explicitly. Updated GPL/SANE headers.
 	* TODO: Added entry about auto-loading SCSI drivers. Removed entry
 	  about new SANE types. Moved entry about config.guess to
 	  doc/releases.txt. Added more info about libtool problems.
@@ -815,7 +815,7 @@ i
 
 2002-03-08 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 
-	* backend/Makfile.in: added missing depenencies for
+	* backend/Makfile.in: added missing dependencies for
 	  new umax backends
 
 2002-03-08  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -949,7 +949,7 @@ i
 	* backend/umax_pp_low.c backend/umax_pp_low.h backend/umax_pp_mid.h
 	  backend/umax_pp_mid.c backend/umax_pp.c backend/umax_pp.h
 	  backend/umax_pp.conf:  added ppdev character device name passing
-	  from conf file. Allow model overide from conf option. DBG macros
+	  from conf file. Allow model override from conf option. DBG macros
 	  clean-up. Fixed color inversion for 1660P models. Fixed potential
 	  crash when custom dump files could not be opened for writing.
 	* doc/sane-umax_pp.man: updates to match backned new parameter and
@@ -1055,6 +1055,6 @@ i
 	* configure configure.in: Version is 1.0.7-cvs. Enable warnings by
 	  default. Don't use "-ansi" for HPUX.
 	* sanei/sanei_thread.c: Make sure that waitpid returns something
-	  usefull on OS/2. Avoids the "Unknown SANE status code 128" errors.
+	  useful on OS/2. Avoids the "Unknown SANE status code 128" errors.
 
 Older entries can be found in ChangeLog-1.0.7.

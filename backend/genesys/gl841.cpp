@@ -999,7 +999,7 @@ void CommandSetGl841::init_regs_for_scan_session(Genesys_Device* dev, const Gene
   int dummy = 0;
 
 /* dummy */
-  /* dummy lines: may not be usefull, for instance 250 dpi works with 0 or 1
+  /* dummy lines: may not be useful, for instance 250 dpi works with 0 or 1
      dummy line. Maybe the dummy line adds correctness since the motor runs
      slower (higher dpi)
   */
@@ -2256,7 +2256,7 @@ void CommandSetGl841::send_shading_data(Genesys_Device* dev, const Genesys_Senso
   for(i=0;i<3;i++)
     {
       /* copy data to work buffer and process it */
-          /* coefficent destination */
+          /* coefficient destination */
       ptr=buffer.data();
 
       /* iterate on both sensor segment, data has been averaged,

@@ -1693,7 +1693,7 @@ static void usb_GrayScalePseudo16( Plustek_Device *dev )
 	}
 }
 
-/** function to select the apropriate pixel copy function
+/** function to select the appropriate pixel copy function
  */
 static void usb_GetImageProc( Plustek_Device *dev )
 {

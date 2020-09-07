@@ -239,7 +239,7 @@ enum {
  * Gamma correction:
  * The A and B level scanners work differently than the D level scanners,
  * therefore I define two different sets of arrays, plus one set of
- * variables that get set to the actally used params and list arrays at runtime.
+ * variables that get set to the actually used params and list arrays at runtime.
  */
 
 static int gamma_params_ab[] = {

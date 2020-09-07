@@ -4,7 +4,7 @@
 sane\-usb \- USB configuration tips for SANE
 .SH DESCRIPTION
 This manual page contains information on how to access scanners with a USB
-interface. It focusses on two main topics: getting the scanner detected by the
+interface. It focuses on two main topics: getting the scanner detected by the
 operating system kernel and using it with SANE.
 .PP
 This page applies to USB most backends and scanners, as they use the generic

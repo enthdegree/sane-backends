@@ -69,7 +69,7 @@ static char *hp_backend_revision = "$Revision$";
    Revision 1.18  2003/10/09 19:37:29  kig-guest
    Redo when TEST UNIT READY failed
    Redo when read returns with 0 bytes (non-SCSI only)
-   Bug #300241: fix invers image on 3c/4c/6100C at 10 bit depth
+   Bug #300241: fix inverse image on 3c/4c/6100C at 10 bit depth
 
    Revision 1.17  2003/10/06 19:54:07  kig-guest
    Bug #300248: correct "Negatives" to "Negative" in option description
@@ -132,7 +132,7 @@ static char *hp_backend_revision = "$Revision$";
       - remove inlines
    V 0.88, 20-Jul-2000, PK:
       - Use sanei_config_read()
-      - dont write chars < 32 to DBG
+      - don't write chars < 32 to DBG
    V 0.88, 09-Jul-2000, PK:
       - Add front button support by Chris S. Cowles, Houston, Texas,
         c_cowles@ieee.org
@@ -146,7 +146,7 @@ static char *hp_backend_revision = "$Revision$";
         (Jens Heise, <heisbeee@calvados.zrz.TU-Berlin.DE>)
       - add option enable-image-buffering
    V 0.85, 30-Jan-2000, PK:
-      - correct and enhace data widths > 8 (Ewald de Wit  <ewald@pobox.com>)
+      - correct and enhance data widths > 8 (Ewald de Wit  <ewald@pobox.com>)
       - enable data width for all scanners
       - PhotoSmart: exposure "Off" changed to "Default"
       - PhotoSmart: even if max. datawidth 24 is reported, allow 30 bits.

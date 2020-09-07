@@ -510,7 +510,7 @@ copy_scan_line (Artec48U_Scanner * s)
 {
   /*For resolution of 1200 dpi we have to interpolate
      horizontally, because the optical horizontal resolution is
-     limited to 600 dpi. We simply use the avarage value of two pixels. */
+     limited to 600 dpi. We simply use the average value of two pixels. */
   int cnt, i, j;
   int xs = s->params.pixel_xs;
   int interpolate = 0;
@@ -787,7 +787,7 @@ attach (const char *dev_name, Artec48U_Device ** devp)
   vendor_string[40] = 0;
   model_string[40] = 0;
 
-  /* assign all the stuff we need fo this device... */
+  /* assign all the stuff we need for this device... */
   dev->sane.vendor = strdup (vendor_string);
   XDBG ((3, "attach: setting vendor string: %s\n", vendor_string));
   dev->sane.model = strdup (model_string);
@@ -874,7 +874,7 @@ decodeVal (char *src, char *opt, int what, void *result, void *def)
 
   if (tmp)
     {
-      /* on success, compare wiht the given one */
+      /* on success, compare with the given one */
       if (0 == strcmp (tmp, opt))
 	{
 	  XDBG ((1, "Decoding option >%s<\n", opt));
@@ -952,7 +952,7 @@ decodeVal (char *src, char *opt, int what, void *result, void *def)
 }
 
 /**
- * function to retrive the device name of a given string
+ * function to retrieve the device name of a given string
  * @param src  -  string that keeps the option name to check src for
  * @param dest -  pointer to the string, that should receive the detected
  *                devicename
@@ -3058,7 +3058,7 @@ calculate_contrast (Artec48U_Scanner * s)
    Works like the white shading correction, with the difference, that the red-, green-
    and blue exposure time is set to 0x04 (the value is taken from the windoze driver).
   -Since we do this over the whole width of the image with the maximal optical resolution,
-   we can use the shading data for every scan, independend of the size, position or resolution,
+   we can use the shading data for every scan, independent of the size, position or resolution,
    because we have the shading values for every sensor/LED.
 
   Note:

@@ -1005,7 +1005,7 @@ attach_scanner (const char *devicename, Teco_Scanner ** devp)
       return SANE_STATUS_INVAL;
     }
 
-  /* Get the page 0x82. It doesn't appear to be usefull yet. */
+  /* Get the page 0x82. It doesn't appear to be useful yet. */
   teco_get_inquiry_82 (dev);
 
   teco_close (dev);

@@ -55,10 +55,10 @@
    . - sane_open() : open a particular scanner-device and attach_scanner(devicename,&dev)
    . . - sane_set_io_mode : set blocking-mode
    . . - sane_get_select_fd : get scanner-fd
-   . . - sane_get_option_descriptor() : get option informations
+   . . - sane_get_option_descriptor() : get option information
    . . - sane_control_option() : change option values
    . .
-   . . - sane_start() : start image aquisition
+   . . - sane_start() : start image acquisition
    . .   - sane_get_parameters() : returns actual scan-parameters
    . .   - sane_read() : read image-data (from pipe)
    . . - sane_cancel() : cancel operation, kill reader_process
@@ -82,9 +82,9 @@
  . - init_options
  - sane_set_io_mode : set blocking-mode
  - sane_get_select_fd : get scanner-fd
- - sane_get_option_descriptor() : get option informations
+ - sane_get_option_descriptor() : get option information
  - sane_control_option() : change option values
- - sane_start() : start image aquisition
+ - sane_start() : start image acquisition
    - sane_get_parameters() : returns actual scan-parameters
    - sane_read() : read image-data (from pipe)
    - sane_cancel() : cancel operation, kill reader_process

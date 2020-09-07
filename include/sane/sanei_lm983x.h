@@ -141,7 +141,7 @@ extern SANE_Status sanei_lm983x_read( SANE_Int fd, SANE_Byte reg,
  *
  * @param fd    - device file descriptor
  * @return
- * - SANE_TRUE  - reset successfuly done
+ * - SANE_TRUE  - reset successfully done
  * - SANE_FALSE - reset failed
  */
 extern SANE_Bool sanei_lm983x_reset( SANE_Int fd );

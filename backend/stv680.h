@@ -117,7 +117,7 @@ struct vidcam_hardware
 #define COLOR_RGB_TEXT_STR              SANE_I18N("Color RGB TEXT")
 /*--------------------------------------------------------------------------*/
 
-/* Define a vidcam occurence. */
+/* Define a vidcam occurrence. */
 typedef struct Stv680_Vidcam
 {
   struct Stv680_Vidcam *next;

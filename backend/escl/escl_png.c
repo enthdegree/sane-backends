@@ -87,7 +87,7 @@ get_PNG_data(capabilities_t *scanner, int *width, int *height, int *bps)
                 goto close_file;
 	}
 	// initialize the setjmp for returning properly after a libpng
-	//   error occured
+	//   error occurred
 	if (setjmp (png_jmpbuf (png_ptr)))
 	{
 		png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
@@ -107,7 +107,7 @@ get_PNG_data(capabilities_t *scanner, int *width, int *height, int *bps)
 	png_read_info (png_ptr, info_ptr);
 
 	int bit_depth, color_type;
-	// get some usefull information from header
+	// get some useful information from header
 	bit_depth = png_get_bit_depth (png_ptr, info_ptr);
 	color_type = png_get_color_type (png_ptr, info_ptr);
 	// convert index color images to RGB images

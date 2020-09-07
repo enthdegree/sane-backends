@@ -109,7 +109,7 @@ Scanners can be specified in the configuration file in 4 ways:
 .PP
 "scsi FUJITSU"
 .RS
-Requests backend to search all scsi busses in the system for a device
+Requests backend to search all scsi buses in the system for a device
 which reports itself to be a scanner made by 'FUJITSU'.
 .RE
 .PP
@@ -122,7 +122,7 @@ specify one. Probably should not be used with the other "scsi" line above.
 .PP
 "usb 0x04c5 0x1042" (or other vendor/product ids)
 .RS
-Requests backend to search all usb busses in the system for a device
+Requests backend to search all usb buses in the system for a device
 which uses that vendor and product id. The device will then be queried
 to determine if it is a Fujitsu scanner.
 .RE

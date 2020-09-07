@@ -60,7 +60,7 @@ typedef enum
   SOURCE,
 
   DUPLEX,			/* Duplex mode */
-  FEEDER_MODE,			/* Feeder mode, fixed to Continous */
+  FEEDER_MODE,			/* Feeder mode, fixed to Continuous */
   LENGTHCTL,			/* Length control mode */
   LONG_PAPER,
   MANUALFEED,			/* Manual feed mode */

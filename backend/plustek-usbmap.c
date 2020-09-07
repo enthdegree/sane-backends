@@ -69,7 +69,7 @@
 
 static SANE_Byte a_bMap[_MAP_SIZE * 3];
 
-/** adjust acording to brightness and contrast
+/** adjust according to brightness and contrast
  */
 static void usb_MapAdjust( Plustek_Device *dev )
 {

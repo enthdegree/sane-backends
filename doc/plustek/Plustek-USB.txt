@@ -195,7 +195,7 @@ When using libusb with SANE, then you should also use the hotplug utilities to
 automatically setup your device nodes (at least the permissions) and prevent
 scanner.o from loading.
 
-Assuming, that these utilites are properly installed on your box, you have
+Assuming, that these utilities are properly installed on your box, you have
 to tweak and add some files.
 
 In directory (where of course the config files reside):
@@ -292,7 +292,7 @@ it.
 If you have carried out all of the above steps, then sane-find-scanner should
 be able to recognise your scanner correctly.
 
-sane-find-scanner probes all of the devices on the SCSI and USB busses, and
+sane-find-scanner probes all of the devices on the SCSI and USB buses, and
 so you may find that it outputs "unable to get minor data" errors or similar
 to your terminal, or to your error logs, you can safely ignore these as long
 as it does that, and has recognised your scanner.
@@ -339,7 +339,7 @@ log, as well as (where possible) the output of the scanimage command (if
 you can't capture it directly, an as-accurate-as-possible description is
 MUCH better than nothing!), and try and get all of the activity that
 your scanner did as well (light
-came on? didnt? motors came on? etc?) and email that to the plustek list
+came on? didn't? motors came on? etc?) and email that to the plustek list
 (<plustek@linuxhacker.org>).
 
 For the particularly adventurous only...

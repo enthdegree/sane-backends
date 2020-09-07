@@ -2,7 +2,7 @@
  *  @brief SANE backend for USB scanner, based on Plusteks' ASIC P98003 and
  *         the GeneSys Logic GL640 parallel-port to USB bridge.
  *
- * Based on source aquired from Plustek<br>
+ * Based on source acquired from Plustek<br>
  * Copyright (c) 2003-2004 Gerhard Jaeger <gerhard@gjaeger.de><br>
  *
  * History:
@@ -731,7 +731,7 @@ static SANE_Bool decodeVal( char *src, char *opt,
 
 	if( tmp ) {
 
-		/* on success, compare wiht the given one */
+		/* on success, compare with the given one */
 		if( 0 == strcmp( tmp, opt )) {
 
 			DBG( _DBG_SANE_INIT, "Decoding option >%s<\n", opt );
@@ -779,7 +779,7 @@ static SANE_Bool decodeVal( char *src, char *opt,
    	return SANE_FALSE;
 }
 
-/** function to retrive the device name of a given string
+/** function to retrieve the device name of a given string
  * @param src  -  string that keeps the option name to check src for
  * @param dest -  pointer to the string, that should receive the detected
  *                devicename
@@ -840,7 +840,7 @@ static SANE_Status attach( const char *dev_name,
 	if( NULL == dev )
     	return SANE_STATUS_NO_MEM;
 
-	/* assign all the stuff we need fo this device... */
+	/* assign all the stuff we need for this device... */
 	memset(dev, 0, sizeof (*dev));
 
 	dev->fd          = -1;
@@ -916,7 +916,7 @@ static void init_config_struct( pCnfDef cnf )
 	cnf->adj.bgamma    = 1.0;
 }
 
-/** intialize the backend
+/** initialize the backend
  */
 SANE_Status sane_init( SANE_Int *version_code, SANE_Auth_Callback authorize )
 {

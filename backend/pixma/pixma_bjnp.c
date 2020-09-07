@@ -661,8 +661,8 @@ udp_command (const int dev_no, char *command, int cmd_len, char *response,
 	     int resp_len)
 {
   /*
-   * send udp command to given device and recieve the response`
-   * returns: the legth of the response or -1
+   * send udp command to given device and receive the response`
+   * returns: the length of the response or -1
    */
   int sockfd;
   struct timeval timeout;
@@ -958,7 +958,7 @@ prepare_socket(const char *if_name, const bjnp_sockaddr_t *local_sa,
    * local_sa: local address to use
    * broadcast_sa: broadcast address to use, if NULL we use all hosts
    * dest_sa: (write) where to return destination address of broadcast
-   * retuns: open socket or -1
+   * returns: open socket or -1
    */
 
   int socket = -1;
@@ -1831,7 +1831,7 @@ bjnp_allocate_device (SANE_String_Const devname,
           /* Check if found the scanner before, if so we use the best address
 	   * but still make sure the scanner is listed only once.
 	   * We check for matching addresses as wel as matching mac_addresses as
-           * an IPv6 host can have multiple adresses */
+           * an IPv6 host can have multiple addresses */
 
           if ( strcmp( device[i].mac_address, device[bjnp_no_devices].mac_address ) == 0 )
             {
@@ -2392,9 +2392,9 @@ sanei_bjnp_set_timeout (SANE_Int devno, SANE_Int timeout)
  * @param size size of the data
  *
  * @return
- * - SANE_STATUS_GOOD - on succes
+ * - SANE_STATUS_GOOD - on success
  * - SANE_STATUS_EOF - if zero bytes have been read
- * - SANE_STATUS_IO_ERROR - if an error occured during the read
+ * - SANE_STATUS_IO_ERROR - if an error occurred during the read
  * - SANE_STATUS_INVAL - on every other error
  *
  */
@@ -2456,7 +2456,7 @@ sanei_bjnp_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
           if ( device[dn].scanner_data_left < device[dn].blocksize)
             {
               /* the scanner will not react at all to a read request, when no more data is available */
-              /* we now determine end of data by comparing the payload size to the maximun blocksize */
+              /* we now determine end of data by comparing the payload size to the maximum blocksize */
               /* this block is shorter than blocksize, so after this block we are done */
 
               device[dn].last_block = 1;
@@ -2493,7 +2493,7 @@ sanei_bjnp_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
       recvd = recvd + read_size;
     }
 
-  PDBG (bjnp_dbg (LOG_DEBUG, "bjnp_read_bulk: %s: Returning %ld bytes, backend expexts %ld\n",
+  PDBG (bjnp_dbg (LOG_DEBUG, "bjnp_read_bulk: %s: Returning %ld bytes, backend expects %ld\n",
         (recvd == *size)? "OK": "NOTICE",recvd, *size ) );
   *size = recvd;
   if ( *size == 0 )
@@ -2511,8 +2511,8 @@ sanei_bjnp_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size)
  * @param size size of the data
  *
  * @return
- * - SANE_STATUS_GOOD - on succes
- * - SANE_STATUS_IO_ERROR - if an error occured during the write
+ * - SANE_STATUS_GOOD - on success
+ * - SANE_STATUS_IO_ERROR - if an error occurred during the write
  * - SANE_STATUS_INVAL - on every other error
  */
 
@@ -2584,9 +2584,9 @@ sanei_bjnp_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size)
  * @param size size of the data
  *
  * @return
- * - SANE_STATUS_GOOD - on succes
+ * - SANE_STATUS_GOOD - on success
  * - SANE_STATUS_EOF - if zero bytes have been read
- * - SANE_STATUS_IO_ERROR - if an error occured during the read
+ * - SANE_STATUS_IO_ERROR - if an error occurred during the read
  * - SANE_STATUS_INVAL - on every other error
  *
  */

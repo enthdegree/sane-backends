@@ -63,7 +63,7 @@
 #  1 = enabled (same values for red, green and blue)
 #options exposure-time-rgb-bind 0
 
-# define if shading data shall be inverted befor sending it back to the scanner
+# define if shading data shall be inverted before sending it back to the scanner
 # -1 = automatically set by driver - if known
 #  0 = disabled
 #  1 = enabled

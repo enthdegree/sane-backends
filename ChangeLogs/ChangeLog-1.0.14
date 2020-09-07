@@ -82,7 +82,7 @@
 	  backend/sm3600-homerun.c: Many fixes for MacOS-X problems pointed
 	  out by Mattias Ellert, thanks: Waiting longer for DoJog() command
 	  completion, new function for transmitting the line gain correction
-	  data with correct endianess, Chassis-Gray-Level lowered.
+	  data with correct endianness, Chassis-Gray-Level lowered.
 	* backend/sm3600.c : Fixed off-by-one-error in p->lines
           backend/sm3600-scanmtek: Fixed just broken UploadGainCorrection()
 
@@ -716,7 +716,7 @@
 	* doc/sane-plustek.man: new version, minor fixes
 	* doc/descriptions/plustek.desc: new backend version
 	* backend/plustek-pp*: cleanup work
-	* backend/plustek-usb*: new version 0.47, added support for model overide
+	* backend/plustek-usb*: new version 0.47, added support for model override
 	  when one manufacturer uses the same model-id for various devices.
 
 2003-12-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -812,7 +812,7 @@
 
 	* backend/canon630u.c: Change default scan size to full platen,
 	  removed compiler warnings, made HMG's fix for bug #300257
-	  permament.
+	  permanent.
 	* doc/sane-canon630u.man: cleanup
 
 2003-12-01  Jochen Eisinger <jochen@penguin-breeder.org>

@@ -174,7 +174,7 @@
 	 * backend/kvs1025*: add new backend from Panasonic Russia, Ltd.
 	 * backend/Makefile.*, configure*, doc/Makefile.*, doc/sane.man:
 	   backend integration changes
-	 * doc/desciptions/kvs1025.desc, doc/sane-kvs1025.man:
+	 * doc/descriptions/kvs1025.desc, doc/sane-kvs1025.man:
 	   the parts Panasonic forgot
 
 2010-02-12 m. allan noah <kitno455 at gmail dot com>
@@ -392,7 +392,7 @@
 	* backend/gt68xx_generic.h backend/gt68xx_generic.c
 	backend/gt68xx.conf.in backend/gt68xx_low.h backend/gt68xx_high.c
 	backend/gt68xx_devices.c backend/gt68xx.c: fixed gt6816 based sheetfed
-	scanners positionning by implementing and using a move paper request.
+	scanners positioning by implementing and using a move paper request.
 	Added Iriscan Express 2 model based on reports seen in sane-devel
 	list.
 
@@ -552,7 +552,7 @@
 	  from Johannes Meixner
 
 2009-08-08 Julien Blache <jb@jblache.org>
-	* frontend/saned.c: run_standalone(), explicitely check for errors
+	* frontend/saned.c: run_standalone(), explicitly check for errors
 	on fds.
 
 2009-08-07 m. allan noah <kitno455 at gmail dot com>
@@ -573,7 +573,7 @@
 2009-08-04  Stéphane Voltz <stef.dev at free.fr>
 	* backend/genesys.c backend/genesys_gl646.c backend/genesys_devices.c:
 	- fixed document end detection for gl646 cis scanners
-	- disable color filter fro gray mode for gl646 cis scanners
+	- disable color filter for gray mode for gl646 cis scanners
 
 2009-08-03  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* doc/descriptions/pixma.desc, doc/sane-pixma.man:
@@ -651,7 +651,7 @@
 	* po/Makefile.am, po/Makefile.in, po/sane-backends.uk.po:
 	- Ukrainian translation from yurchor@ukr.net
 	* backend/avision.c: set flag for Fujitsu SP620C
-	* doc/desciptions/unsupported.desc: minor updates to Canon scanners
+	* doc/descriptions/unsupported.desc: minor updates to Canon scanners
 	* doc/descriptions/canon_dr.desc: set status complete on 5 machines
 	* backend/canon_dr.c: reduce default buffer size to 2 megs
 
@@ -664,7 +664,7 @@
 
 2009-06-22 m. allan noah <kitno455 at gmail dot com>
 	* backend/kodak.*: new backend for big Kodak SCSI/Firewire scanners
-	* doc/desciptions/kodak.desc, doc/sane-kodak.man: docs for same
+	* doc/descriptions/kodak.desc, doc/sane-kodak.man: docs for same
 
 2009-06-22  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_imageclass.c, backend/pixma_mp730.c, doc/descriptions/pixma.desc:
@@ -683,7 +683,7 @@
 	Added Canon imageCLASS D480 support to the pixma backend.
 
 2009-06-17  Stéphane Voltz <stef.dev at free.fr>
-	* backend/lexmark_low.c: f3/f4 registers assignement cleanup
+	* backend/lexmark_low.c: f3/f4 registers assignment cleanup
 
 2009-06-18  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* backend/pixma_mp150.c:
@@ -728,7 +728,7 @@
 	MSG_WAITALL.  recv() tends to return MTU sized chunks
 	of data without that option.  And at least cygwin doesn't
 	support MSG_WAITALL.  Re-enable epson2 using that function
-	for big recieves.
+	for big receives.
 	* libgetopt.c, libgetopt1.c: Revert some logic meant to be used
 	only when we were always compiling internal getopt() functions.
 	Fix header filename.
@@ -882,6 +882,6 @@
 	with newer automake.
 	* backend/Makefile.am, tools/sane-config.in: Add missing
 	$GPHOTO2_LDFLAGS so library can be found.
-	* tools/Makefile.am: Add mising $SCSI_LIBS to sane-find-scanner.
+	* tools/Makefile.am: Add missing $SCSI_LIBS to sane-find-scanner.
 
 Older entries can be found in ChangeLog-1.0.20.

@@ -89,7 +89,7 @@
 
 /*************************************************/
 /* here we define sanei_inb/sanei_outb based on  */
-/* OS dependant inb/outb definitions             */
+/* OS dependent inb/outb definitions             */
 /* SANE_INB is defined whenever a valid inb/outb */
 /* definition has been found                     */
 /* once all these work, it might be moved to     */
@@ -539,7 +539,7 @@ static void ECPFifoMode (void);
 /* block transfer init */
 static void ECPSetBuffer (int size);
 
-/* mode dependant operations */
+/* mode dependent operations */
 static int PS2Something (int reg);
 static void PS2bufferRead (int size, unsigned char *dest);
 static void PS2bufferWrite (int size, unsigned char *source);
@@ -739,12 +739,12 @@ static int gAutoSettings = 1;
 static void Outb (int port, int value);
 
 /*****************************************************************************/
-/*         ouput 'size' bytes stored in 'source' on given port               */
+/*         output 'size' bytes stored in 'source' on given port              */
 /*****************************************************************************/
 static void Outsb (int port, unsigned char *source, int size);
 
 /*****************************************************************************/
-/*       ouput 'size' 32 bits words stored in 'source' on given port         */
+/*       output 'size' 32 bits words stored in 'source' on given port        */
 /*****************************************************************************/
 static void Outsw (int port, unsigned char *source, int size);
 
@@ -755,12 +755,12 @@ static void Outsw (int port, unsigned char *source, int size);
 static int Inb (int port);
 
 /*****************************************************************************/
-/*       input 'size' bytes from given port ans store them in 'dest'         */
+/*       input 'size' bytes from given port and store them in 'dest'         */
 /*****************************************************************************/
 static void Insb (int port, unsigned char *dest, int size);
 
 /*****************************************************************************/
-/*     input 'size' 32 bits word from given port ans store them in 'dest'    */
+/*     input 'size' 32 bits word from given port and store them in 'dest'    */
 /*****************************************************************************/
 static void Insw (int port, unsigned char *dest, int size);
 
@@ -918,7 +918,7 @@ sanei_parport_find_device (void)
 
 
 /*
- * gain direct acces to IO port, and set parport to the 'right' mode
+ * gain direct access to IO port, and set parport to the 'right' mode
  * returns 1 on success, 0 an failure
  */
 
@@ -1065,12 +1065,12 @@ sanei_umax_pp_initPort (int port, const char *name)
 #endif
 	      mode = 0;
 
-	      /* prefered mode is EPP */
+	      /* preferred mode is EPP */
 	      if (modes & PARPORT_MODE_EPP)
 		{
 		  mode = IEEE1284_MODE_EPP;
 
-		  /* negot allways fail here ... */
+		  /* negot always fail here ... */
 		  rc = ioctl (fd, PPNEGOT, &mode);
 		  if (rc)
 		    {
@@ -1129,7 +1129,7 @@ sanei_umax_pp_initPort (int port, const char *name)
 		}
 
 
-	      /* allways start in compat mode (for probe) */
+	      /* always start in compat mode (for probe) */
 	      mode = IEEE1284_MODE_COMPAT;
 	      rc = ioctl (fd, PPSETMODE, &mode);
 	      if (rc)
@@ -1694,7 +1694,7 @@ sanei_umax_pp_scannerStatus (void)
       gTime = 0;
     }
 
-  /* 0x07 variant returns status with bit 0 or 1 allways set to 1 */
+  /* 0x07 variant returns status with bit 0 or 1 always set to 1 */
   /* so we mask it out                                            */
   return scannerStatus & 0xFC;
 }
@@ -5254,7 +5254,7 @@ testVersion (int no)
       status = ((status << 1) & 0x70) | (status & 0x80);
       if (status != count)
 	{
-	  /* since failure is expected, we dont't alaways print */
+	  /* since failure is expected, we don't alaways print */
 	  /* this message ...                                   */
 	  DBG (2, "status %d doesn't match count 0x%X! %s:%d\n", status,
 	       count, __FILE__, __LINE__);
@@ -6655,7 +6655,7 @@ probe610p (int recover)
       DBG (0, "initScanner610p() failed (%s:%d)\n", __FILE__, __LINE__);
       return 0;
     }
-  /* successfull end ... */
+  /* successful end ... */
   DBG (1, "UMAX Astra 610p detected\n");
   DBG (1, "probe610p done ...\n");
   return 1;
@@ -7759,7 +7759,7 @@ sanei_umax_pp_probeScanner (int recover)
   reg = registerRead (0x19) & 0xC8;
   /* if reg=E8 or D8 , we have a 'messed' scanner */
 
-  /* 4 tranform buffers + 'void' are sent: 1 B&W, and 3 RGB ? */
+  /* 4 transform buffers + 'void' are sent: 1 B&W, and 3 RGB ? */
   memset (initbuf, 0x00, 2048 * sizeof (int));
   memset (voidbuf, 0x00, 2048 * sizeof (int));
 
@@ -7795,7 +7795,7 @@ sanei_umax_pp_probeScanner (int recover)
        __LINE__);
 
   /* everything above the FF 55 AA tag is 'void' */
-  /* it seems that the buffer is reused and only the beginning is initalized */
+  /* it seems that the buffer is reused and only the beginning is initialized */
   for (i = 515; i < 2048; i++)
     initbuf[i] = voidbuf[i];
 
@@ -7838,7 +7838,7 @@ sanei_umax_pp_probeScanner (int recover)
   REGISTERWRITE (0x0A, 0x18);	/* end */
 
   /* read them back */
-  REGISTERWRITE (0x0A, 0x11);	/*start transfert */
+  REGISTERWRITE (0x0A, 0x11);	/*start transfer */
   if (gMode == UMAX_PP_PARPORT_ECP)
     {
       ECPSetBuffer (0x400);
@@ -9592,7 +9592,7 @@ bloc2Decode (int *op)
   for (i = 0; i < 16; i++)
     sprintf (str + 3 * i, "%02X ", (unsigned char) op[i]);
   str[48] = 0x00;
-  DBG (0, "Command bloc 2: %s\n", str);
+  DBG (0, "Command block 2: %s\n", str);
 
 
   scanh = op[0] + (op[1] & 0x3F) * 256;
@@ -9671,7 +9671,7 @@ bloc8Decode (int *op)
   for (i = 0; i < len; i++)
     sprintf (str + 3 * i, "%02X ", (unsigned char) op[i]);
   str[3 * i] = 0x00;
-  DBG (0, "Command bloc 8: %s\n", str);
+  DBG (0, "Command block 8: %s\n", str);
 
   xskip = op[17] + 256 * (op[18] & 0x0F);
   if (op[33] & 0x40)
@@ -10606,7 +10606,7 @@ sanei_umax_pp_scan (int x, int y, int width, int height, int dpi, int color,
 
 
   /* colors don't come in sync, so we must increase y */
-  /* to have extra lines to reorder datas             */
+  /* to have extra lines to reorder data             */
   if (sanei_umax_pp_getastra () > 610)
     {
       switch (dpi)
@@ -10870,7 +10870,7 @@ sanei_umax_pp_scan (int x, int y, int width, int height, int dpi, int color,
 	   elapsed, (somme / elapsed) / 1024.0);
 #endif
 
-      /* release ressources */
+      /* release resources */
       if (fout != NULL)
 	fclose (fout);
       free (dest);
@@ -11139,7 +11139,7 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
       vgaBlue = gain & 0x00F;
     }
 
-  /* ccd calibration is allways done */
+  /* ccd calibration is always done */
   /* with final dc and vga */
   if (shadingCalibration
       (color, dcRed, dcGreen, dcBlue, vgaRed, vgaGreen, vgaBlue,
@@ -11481,7 +11481,7 @@ sanei_umax_pp_startScan (int x, int y, int width, int height, int dpi,
     {
       /* XXX STEF XXX : there is a 4 pixels shift to the right
        * the first shading correction value applies to the forth
-       * pixel of scan (at 300 dpi), we allready shift to the left
+       * pixel of scan (at 300 dpi), we already shift to the left
        * when doing shadingCalibration, but now we have to move coeffs
        * to match x coordinate */
       delta = x - sanei_umax_pp_getLeft ();
@@ -11916,7 +11916,7 @@ offsetCalibration1220p (int color, int *offRed, int *offGreen, int *offBlue)
   DBG (16, "entering offsetCalibration1220p() ... (%s:%d)\n", __FILE__,
        __LINE__);
 
-  /* really dirty hack: somethig is buggy in BW mode    */
+  /* really dirty hack: something is buggy in BW mode   */
   /* we override mode with color until the bug is found */
   /* color = RGB_MODE; */
 
@@ -12134,7 +12134,7 @@ offsetCalibration610p (int color, int *offRed, int *offGreen, int *offBlue)
 
   /* first color channel: used both in color and b&w modes */
   /* offset to the max */
-  /* supposed to be green componant */
+  /* supposed to be green component */
   offset = 0x10;
   do
     {
@@ -12583,7 +12583,7 @@ coarseGainCalibration1220p (int color, int dcRed, int dcGreen,
   DBG (16, "entering coarseGainCalibration1220p() ... (%s:%d) \n", __FILE__,
        __LINE__);
 
-  /* temporay workaround */
+  /* temporary workaround */
   color = RGB_MODE;
 
   /* initialize VGA components */
@@ -12893,7 +12893,7 @@ shadingCalibration610p (int color, int dcRed, int dcGreen, int dcBlue,
   COMPLETIONWAIT;
 
   /* picture height is scan area height minus y          */
-  /* then we substract 14 or 6 lines that aren't scanned */
+  /* then we subtract 14 or 6 lines that aren't scanned  */
   if (color < RGB_MODE)
     h = h - y - 14;
   else
@@ -12904,7 +12904,7 @@ shadingCalibration610p (int color, int dcRed, int dcGreen, int dcBlue,
        "shadingCalibration610p: trying to read 0x%06X bytes ... (%s:%d)\n",
        size, __FILE__, __LINE__);
   /* since we know that each scan line matches CCD width, we signals
-   * that data reading doens't need to sync on each byte, but at each
+   * that data reading doesn't need to sync on each byte, but at each
    * row end
    */
   sanei_umax_pp_setfull (1);
@@ -12995,7 +12995,7 @@ shadingCalibration610p (int color, int dcRed, int dcGreen, int dcBlue,
 
 /*
  * build CCD correction: a white area below the top is scanned without
- * correction, and the data are used to compute the coefficents needed
+ * correction, and the data are used to compute the coefficients needed
  * to correct the light/CCD variations
  */
 static int

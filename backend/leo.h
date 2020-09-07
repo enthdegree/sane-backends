@@ -262,7 +262,7 @@ struct scanners_supported
 
 /*--------------------------------------------------------------------------*/
 
-/* Define a scanner occurence. */
+/* Define a scanner occurrence. */
 typedef struct Leo_Scanner
 {
   struct Leo_Scanner *next;

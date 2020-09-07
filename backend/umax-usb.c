@@ -231,7 +231,7 @@ static SANE_Status pv8630_init_umaxusb_scanner(int fd)
  * sanei_umaxusb_req_wait() and sanei_umaxusb_req_enter()
  *
  * I don't know if it is possible to queue the reads to the
- * scanner. So The queing is disabled. The performance does not seems
+ * scanner. So The queueing is disabled. The performance does not seems
  * to be bad anyway.
  */
 
@@ -275,7 +275,7 @@ sanei_umaxusb_open (const char *dev, int *fdp,
 		SANE_Word vendor;
 		SANE_Word product;
 
-		/* We have openned the device. Check that it is a USB scanner. */
+		/* We have opened the device. Check that it is a USB scanner. */
 		if (sanei_usb_get_vendor_product (*fdp, &vendor, &product) != SANE_STATUS_GOOD) {
 			/* This is not a USB scanner, or SANE or the OS doesn't support it. */
 			sanei_usb_close(*fdp);

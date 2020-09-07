@@ -259,7 +259,7 @@ get_vendor(char *search)
  * \brief Function that checks if the url of the received scanner is secured or not (http / https).
  *        --> if the url is not secured, our own url will be composed like "http://'ip':'port'".
  *        --> else, our own url will be composed like "https://'ip':'port'".
- *        AND, it's in this function that we gather all the informations of the url (that were in our list) :
+ *        AND, it's in this function that we gather all the information of the url (that were in our list) :
  *        the model_name, the port, the ip, and the type of url.
  *        SO, leaving this function, we have in memory the complete url.
  *
@@ -531,7 +531,7 @@ _source_size_max (SANE_String_Const * sources)
 /**
  * \fn static SANE_Status init_options(SANE_String_Const name, escl_sane_t *s)
  * \brief Function thzt initializes all the needed options of the received scanner
- *        (the resolution / the color / the margins) thanks to the informations received with
+ *        (the resolution / the color / the margins) thanks to the information received with
  *        the 'escl_capabilities' function, called just before.
  *
  * \return status (if everything is OK, status = SANE_STATUS_GOOD)
@@ -977,7 +977,7 @@ _go_next_page(SANE_Status status,
 
 /**
  * \fn SANE_Status sane_start(SANE_Handle h)
- * \brief Function that initiates aquisition of an image from the device represented by handle 'h'.
+ * \brief Function that initiates acquisition of an image from the device represented by handle 'h'.
  *        This function calls the "escl_newjob" function and the "escl_scan" function.
  *
  * \return status (if everything is OK, status = SANE_STATUS_GOOD, otherwise, SANE_STATUS_NO_MEM/SANE_STATUS_INVAL)
@@ -1106,7 +1106,7 @@ sane_start(SANE_Handle h)
        status = get_PDF_data(handler->scanner, &w, &he, &bps);
     }
     else {
-       DBG(10, "Unknow image format\n");
+       DBG(10, "Unknown image format\n");
        return SANE_STATUS_INVAL;
     }
 

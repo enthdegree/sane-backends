@@ -80,7 +80,7 @@ V 1.0.73 (2005-08-19)
 V 1.0.72 (2005-08-18)
 
 * Finally fixed the problem concerning scanning on *BSD. Scanning only worked
-  once. After that, the scanner wasn't even detected anymore beacuse the config
+  once. After that, the scanner wasn't even detected anymore because the config
   descriptor returned by the device was corrupted. This is a hardware bug. When
   filling the internal memory of the scanner completely, the config descriptor
   is overwritten. The work-around is to ask the scanner for the device
@@ -205,7 +205,7 @@ V 1.0-61 (2004-06-18)
   * Check for status of read_scanned_data every 10 ms. Avoids short stops before
     scan data comes in.
   * Added resolution limit for using backtracking.
-  * Reduced deafult CCD backtracking to 0x10 lines.
+  * Reduced default CCD backtracking to 0x10 lines.
 * CCD coarse calibration:
   * Check if calib has succeeded per color now (fewer loops).
   * Added loop detection now.
@@ -399,7 +399,7 @@ V 1.0-40 (2003-02-22)
 - Added indormation about Medion 4394.
 - Mention ma1509 backend.
 - Fix segfault when calling sane_open with an empty device name.
-- Explicitely initialize global variables to avoid segfaults when calling
+- Explicitly initialize global variables to avoid segfaults when calling
   sane_init/sane_exit more than once.
 
 V 1.0-39 (2003-02-16)
@@ -416,7 +416,7 @@ V 1.0-38 (2003-02-05)
 - Increase the lowest black for CCD coarse calibration to avoid too much black.
 - Adjusted internal gamma correction to avoid getting 0 for high gamma values.
 - CCD scanners use color mode for coarse+quality cal now. This fixes the
-  problem with extremly high gains and terrible quality cal in gray mode at
+  problem with extremely high gains and terrible quality cal in gray mode at
   least for the BearPaw 1200 TA.
 --> Thanks to Alexei V. Mezin for reporting these bugs.
 - Preview isn't always in 8 bit mode now (can be selected by option).
@@ -533,8 +533,8 @@ V 1.0-26 (2002-10-22)
 
 - Several fixes for Medion MD-9385 and Artec Ultima 2000 based scanners. The
   Cytron MD 9385 works now.
-- Diabled Plustek-like firmware check again, didn't work for MD 9385.
-- Splitted flags for mirror_x and sset_home.
+- Disabled Plustek-like firmware check again, didn't work for MD 9385.
+- Split flags for mirror_x and sset_home.
 
 V 1.0-25 (2002-10-20)
 
@@ -575,7 +575,7 @@ V 1.0-22 (2002-10-07),
 - Line calibration uses the bit depth of the main scan now.
 - Vendor, product ids and other information is printed when debugging is active
 - Fixed segfault in attach ().
-- Fixed endianess issues (untested).
+- Fixed endianness issues (untested).
 - Code cleanup.
 
 V 1.0-21 (2002-10-07),
@@ -612,7 +612,7 @@ V 1.0-18 (2002-10-01)
 
 - Added detection of Artec Ultima 2000.
 - Updated Lexmark X70 settings.
-- Fixed segfault that occured when no device was detected.
+- Fixed segfault that occurred when no device was detected.
 - Changed test for loaded firmware for GT-6801 scanners.
 
 V 1.0-17 (2002-10-01)
@@ -699,7 +699,7 @@ V 1.0-9 (2002-09-17)
 
 - Added option to disable automatic gain (->less ugly colors for GT-6801
   based models)
-- Fixed segfault that occured when a scan was cancelled
+- Fixed segfault that occurred when a scan was cancelled
 - Preview uses slow but safe (?) 300 dpi 8 bit modes now
 - Fixed bug concerning X0/Y0 coordinates
 - Started implementing dpeth option (doesn't work yet)

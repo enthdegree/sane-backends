@@ -49,13 +49,13 @@ to xhp just to get a better acceptance.
   Uses SCSI-flushing more often because otherwise the scanner did not
   accept all of the commands.
 
-  Test support of commands to be independant from inquired
+  Test support of commands to be independent from inquired
   model number.
 
 Wed Mar 28 10:00:00 UT+1 1998
 
 Bring it on its way to the SANE-project. Geoffrey accepted to add
-licence informations to the files as long as noone has to pay for the code.
+licence information to the files as long as no one has to pay for the code.
 
 Sun Jun 07 15:00:00 UT+1 1998
 

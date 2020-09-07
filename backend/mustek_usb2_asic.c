@@ -1674,7 +1674,7 @@ LLFMotorMove (PAsic chip, LLF_MOTORMOVE * LLF_MotorMove)
 		   MotorMoveUnit);
 
   /*Set motor speed unit, for all motor mode,
-     //inclue uniform, acc, motor speed of scan */
+     //include uniform, acc, motor speed of scan */
   Mustek_SendData (chip, ES01_F6_MorotControl1,
 		   LLF_MotorMove->MotorSpeedUnit | LLF_MotorMove->
 		   MotorSyncUnit);
@@ -1996,7 +1996,7 @@ LLFCalculateMotorTable (LLF_CALCULATEMOTORTABLE * LLF_CalculateMotorTable)
 
   for (i = 0; i < 512; i++)
     {
-      /* befor scan acc table */
+      /* before scan acc table */
       *(LLF_CalculateMotorTable->lpMotorTable + i) =
 	(unsigned short) ((LLF_CalculateMotorTable->StartSpeed -
 		 LLF_CalculateMotorTable->EndSpeed) * pow (0.09,
@@ -2773,7 +2773,7 @@ SetAFEGainOffset (PAsic chip)
 		       chip->AD.OffsetR);
     }
   else
-    {				/* Postive */
+    {				/* Positive */
       Mustek_SendData (chip, ES01_60_AFE_AUTO_GAIN_OFFSET_RED_LB,
 		       (chip->AD.GainR << 1));
       Mustek_SendData (chip, ES01_61_AFE_AUTO_GAIN_OFFSET_RED_HB,
@@ -4315,7 +4315,7 @@ Asic_SetSource (PAsic chip, LIGHTSOURCE lsLightSource)
       DBG (DBG_ASIC, "Asic_SetSource: Source is Position\n");
       break;
     case 4:
-      DBG (DBG_ASIC, "Asic_SetSource: Source is Negtive\n");
+      DBG (DBG_ASIC, "Asic_SetSource: Source is Negative\n");
       break;
     default:
       DBG (DBG_ASIC, "Asic_SetSource: Source error\n");
@@ -4726,7 +4726,7 @@ Asic_SetShadingTable (PAsic chip, unsigned short * lpWhiteShading,
   DBG (DBG_ASIC, "wValidPixelNumber = %d\n", wValidPixelNumber);
 
   /* clear old Shading table, if it has. */
-  /*  first 4 element and lastest 5 of Shading table can't been used */
+  /*  first 4 element and latest 5 of Shading table can't been used */
   wShadingTableSize = (ShadingTableSize (wValidPixelNumber)) * sizeof (unsigned short);
   if (chip->lpShadingTable != NULL)
     {

@@ -6,7 +6,7 @@
 
 2005-08-05  St�hane Voltz <stefdev@modulonet.fr>
 
-	* backend/genesys.c: Fixed endianess issue in slope table
+	* backend/genesys.c: Fixed endianness issue in slope table
 	  generation. Tested ok on x86 architecture.
 
 2005-08-02  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -98,7 +98,7 @@
 2005-07-15  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan-options.c: Change TPO range for Epson 2480/2580 to
-	  55x80mm^2 which is the working range for the 2580. Reenabled
+	  55x80mm^2 which is the working range for the 2580. Re-enabled
 	  2400 DPI for 2480/2580.
 
 2005-07-15  Oliver Schwartz <Oliver.Schwartz@gmx.de>
@@ -135,7 +135,7 @@
 	  The install target has been changed to account for this,
 	  Some files don't exist in BeOS/ZETA (ipc.h, ...).
 	  Backend function names get a prefix, I suppose to avoid namespace clashes.
-	  Though we do have a libdl to implement dl_open, the native way is prefered.
+	  Though we do have a libdl to implement dl_open, the native way is preferred.
 	  Added a --with-docdir= configure arg.
 	  BeOS has a broken get[name|addr]info() from bind. This is fixed in ZETA R1.
 	  libtool needs -no-undefined. Various VPATH fixes.
@@ -339,7 +339,7 @@
 
 2005-05-26  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
-	* doc/net.tex doc/sane.tex: Mention RPC codes explicitely and
+	* doc/net.tex doc/sane.tex: Mention RPC codes explicitly and
 	  explain what request and reply means. based on patch from
 	  Johannes Berg <johannes@sipsolutions.net>.
 
@@ -400,7 +400,7 @@
 
 2005-05-15  frank  <sane at zago net>
 
-	* tools/Makefile.in: remove superflous libraries for sane-desc
+	* tools/Makefile.in: remove superfluous libraries for sane-desc
 	* doc/descriptions/matsushita.desc: changed some scanner status from
 	  good to minimal
 	* doc/descriptions/unsupported.desc: added a few Panasonic scanners.
@@ -731,7 +731,7 @@
 
 2005-01-19  Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 
-	* backend/coolscan.c: added initilization of dev->scanning = SANE_FALSE
+	* backend/coolscan.c: added initialization of dev->scanning = SANE_FALSE
 
 2005-01-18  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
@@ -817,7 +817,7 @@
 2004-12-01  Oliver Schwartz <Oliver.Schwartz@gmx.de>
 
 	* backend/snapscan.c backend/snapscan-scsi.c backend/snapscan-options.c:
-	  Added quality calibration for Epson 2480 (implementd by Simon Munton)
+	  Added quality calibration for Epson 2480 (implemented by Simon Munton)
 
 2004-12-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

@@ -185,7 +185,7 @@ be_convenience_libs = libabaton.la libagfafocus.la \
     libumax1220u.la libumax_pp.la libv4l.la \
     libxerox_mfp.la
 
-# Each stand alone backend thats possible to be built should be listed
+# Each stand-alone backend that's possible to be built should be listed
 # here.  There are the libraries that are installed under $(libdir)/sane.
 # Format is libsane-${backend}.la.
 be_dlopen_libs = libsane-abaton.la libsane-agfafocus.la \
@@ -232,15 +232,15 @@ COMMON_LIBS = ../lib/liblib.la $(XML_LIBS)
 # Each backend should define a convenience library that compiles
 # all related files within backend directory.  General guideline
 # is to have a ${backend}.c and ${backend}.h.  Some backends also
-# add a few support source files to convience library.
+# add a few support source files to convenience library.
 # Note: automake doesn't really use header files listed here.
 # They are indications that they need to be distributed only.
 libabaton_la_SOURCES = abaton.c abaton.h
 libabaton_la_CPPFLAGS = $(AM_CPPFLAGS) -DBACKEND_NAME=abaton
 
-# Each backend should define a stand alone library that gets installed.
+# Each backend should define a stand-alone library that gets installed.
 # This will need to link in a special file ${backend}-s.c that allows
-# the backend to be stand alone and contain all SANE API functions.
+# the backend to be stand-alone and contain all SANE API functions.
 # Also, it will need to link in related convenience library as well as
 # any external libraries required to resolve symbols.
 #

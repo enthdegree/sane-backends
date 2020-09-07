@@ -609,7 +609,7 @@ sense_handler (int __sane_unused__ scsi_fd, u_char * sense_buffer, void *sd)
       case 0x2C02:		/* Invalid combination of windows specified */
 	status = SANE_STATUS_INVAL;
 	break;
-      case 0x3700:		/* (Rounded paramter) */
+      case 0x3700:		/* (Rounded parameter) */
 	status = SANE_STATUS_INVAL;
 	break;
       case 0x3900:		/* (Saving parameters not supported) */
@@ -928,7 +928,7 @@ mode_sense (int fd, MP * buf, SANE_Byte page_code)
   cmd.dbd &= ~(1 << 3);		/* Disable Block Description (bit3) is set to 0 */
   cmd.pc = (page_code & 0x3F);	/* bits 5-0 */
   cmd.pc &= ~(0x03 << 6);	/* unset PC Field (bits7-6)
-				 * 00 Curent Value is the only effective value
+				 * 00 Current Value is the only effective value
 				 * 01 Changeable Value
 				 * 10 Default Value
 				 * 11 Saved Value */
@@ -1014,7 +1014,7 @@ set_window (int fd, SWD * swd)
       DBG (DBG_error, "set_window: error with memcpy\n");
     }
 
-  /* Set Window Data Header: 0-5:reserved; 6-7:Window Descriptor Lenght=640 */
+  /* Set Window Data Header: 0-5:reserved; 6-7:Window Descriptor Length=640 */
   wdl = sizeof (win.swd) - sizeof (win.swd.hdr);
   _lto2b (wdl, &win.swd.hdr.len[0]);
   DBG (DBG_info,

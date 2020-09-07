@@ -1766,7 +1766,7 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
  * Fixes for Epson 3490 and 16 bit scan mode
  *
  * Revision 1.40  2005/09/28 22:09:26  oliver-guest
- * Reenabled enhanced inquiry command for Epson scanners (duh\!)
+ * Re-enabled enhanced inquiry command for Epson scanners (duh\!)
  *
  * Revision 1.39  2005/09/28 21:33:10  oliver-guest
  * Added 16 bit option for Epson scanners (untested)
@@ -1805,7 +1805,7 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
  * Added support for Epson 2480
  *
  * Revision 1.27  2004/04/02 20:19:24  oliver-guest
- * Various bugfixes for gamma corretion (thanks to Robert Tsien)
+ * Various bugfixes for gamma correction (thanks to Robert Tsien)
  *
  * Revision 1.26  2003/11/07 23:26:49  oliver-guest
  * Final bugfixes for bascic support of Epson 1670
@@ -1838,7 +1838,7 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
  * Added support for Benq 5000
  *
  * Revision 1.32  2002/06/06 20:40:01  oliverschwartz
- * Changed default scan area for transparancy unit of SnapScan e50
+ * Changed default scan area for transparency unit of SnapScan e50
  *
  * Revision 1.31  2002/05/02 18:28:44  oliverschwartz
  * Added ADF support
@@ -1900,7 +1900,7 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
  *
  * Revision 1.15  2001/09/18 15:01:07  oliverschwartz
  * - Read scanner id string again after firmware upload
- *   to indentify correct model
+ *   to identify correct model
  * - Make firmware upload work for AGFA scanners
  * - Change copyright notice
  *
@@ -1943,6 +1943,6 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
  * changes.
  *
  * Revision 1.2  2000/10/13 03:50:27  cbagwell
- * Updating to source from SANE 1.0.3.  Calling this versin 1.1
+ * Updating to source from SANE 1.0.3.  Calling this version 1.1
  *
  * */

@@ -9,7 +9,7 @@ Please send Email to wolfgang@rapp-informatik.de to receive.
 What you need to build xane on Unixware 2.x
 - gnu make
 
-You dont't need gcc. All is build with the standard Unixware cc and
+You don't need gcc. All is build with the standard Unixware cc and
 libs!!
 
 For the X-frontends xscanimage and xsane (separately distributed) you need
@@ -38,8 +38,8 @@ are build.It's also necessary for mathematic lib -lm .  Not doing this
 will bring runtime errors like missimg usleep or pow function.
 
 ATTENTION:!!! libucb.a of Unixware 2.x has a buggy readdir function so
-it is recommanded to remove readdir.o from libucb.a with ar -d
-readdir.o libucb.a Often used and neded functions from libucb.a are
+it is recommended to remove readdir.o from libucb.a with ar -d
+readdir.o libucb.a Often used and needed functions from libucb.a are
 strncasecmp or getpagesize.
 
 If you use -I/usr/ucbinclude it is also a good idea to move
@@ -48,7 +48,7 @@ first and some sources will not compile.
 
 Then you can run make with GNU make.
 
-After this say su and then ist good to say
+After this say su and then it's good to say
 LD_RUN_PATH=/usr/local/lib export LD_RUN_PATH
 
 after this you can install with

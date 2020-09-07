@@ -114,7 +114,7 @@ static Mustek_Device **new_dev;
 /* Length of new_dev array */
 static SANE_Int new_dev_len;
 
-/* Number of entries alloced for new_dev */
+/* Number of entries allocated for new_dev */
 static SANE_Int new_dev_alloced;
 
 static SANE_Int lamp_off_time = 60;
@@ -4910,7 +4910,7 @@ reader_process (void *data)
   s->total_lines = 0;
   bpl = s->hw->bpl;
 
-  /* buffer size is scanner dependant */
+  /* buffer size is scanner dependent */
   lines_per_buffer = s->hw->buffer_size / bpl / 2;
 
   if (strip_height > 0.0)
@@ -6305,7 +6305,7 @@ sane_start (SANE_Handle handle)
       else if (strcmp (mode, SANE_VALUE_SCAN_MODE_COLOR) == 0)
 	s->mode = MUSTEK_MODE_COLOR;
 
-      /* scanner dependant specials */
+      /* scanner dependent specials */
       s->one_pass_color_scan = SANE_FALSE;
       if ((s->mode & MUSTEK_MODE_COLOR)
 	  && !(s->hw->flags & MUSTEK_FLAG_THREE_PASS))

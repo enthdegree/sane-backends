@@ -228,7 +228,7 @@ as target.
 .TP
 .I original
 (read only) Returns the value of the type or size of original to be scanned
-if the scanner provides that data. Known values of type: 1 = document, 2 = foto,
+if the scanner provides that data. Known values of type: 1 = document, 2 = photo,
 5 = film. Known values of size: 1 = A4, 2 = Letter, 8 = 10x15, 9 = 13x18, b = auto.
 Not all scanners can provide this data.
 .TP
@@ -310,7 +310,7 @@ More globally applicable timeouts can be set using the bjnp-timeout parameter as
 .PP
 A timeout defined using bjnp-timeout will apply to the following scanner definitions
 in the file. If required the bjnp-timeout setting
-can be defined multiple times, where each settng will apply only to the scanners that
+can be defined multiple times, where each setting will apply only to the scanners that
 follow the setting. The last setting is used for the auto discovered scanners.
 If not explicitly set, the default 1000ms setting will apply.
 .PP
@@ -318,7 +318,7 @@ Setting timeouts should only be required in exceptional cases.
 .PP
 .RE
 .PP
-If so desired networking can be disbled as follows:
+If so desired networking can be disabled as follows:
 .RS
 .IP -
 If the first non-commented line contains
@@ -328,7 +328,7 @@ This will cause all further statements in the configuration file to be ignored.
 .IP -
 A line that contains
 .B auto_detection=no
-will cause auto-detection to be skipped. Explicitely defined network scanners will still be probed.
+will cause auto-detection to be skipped. Explicitly defined network scanners will still be probed.
 .SH USB SUPPORT
 USB scanners will be auto-detected and require no configuration.
 .SH NETWORKING SUPPORT
@@ -358,7 +358,7 @@ common subnet for scanning.
 .PP
 Scanner detection is slightly more complicated. The pixma backend sends
 a broadcast on all direct connected subnets it can find (provided your OS
-allows for enumeration of all netowrk interfaces). The broadcast is sent FROM
+allows for enumeration of all network interfaces). The broadcast is sent FROM
 port 8612 TO port 8610 or 8612 on the broadcast address of each interface.
 The outgoing packets will be allowed by the rule described above.
 .PP

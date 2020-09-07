@@ -761,7 +761,7 @@ void sanei_genesys_send_gamma_table(Genesys_Device* dev, const Genesys_Sensor& s
       val &= ~(0x01 << i);
         dev->interface->write_register(0xbe, val);
 
-      // FIXME: currently the last word of each gamma table is not initialied, so to work around
+      // FIXME: currently the last word of each gamma table is not initialized, so to work around
       // unstable data, just set it to 0 which is the most likely value of uninitialized memory
       // (proper value is probably 0xff)
       gamma[size * 2 * i + size * 2 - 2] = 0;
@@ -1789,7 +1789,7 @@ int sanei_genesys_get_lowest_dpi(Genesys_Device *dev)
  * true if they are compatible.
  * A calibration cache is compatible if color mode and x dpi match the user
  * requested scan. In the case of CIS scanners, dpi isn't a criteria.
- * flatbed cache entries are considred too old and then expires if they
+ * flatbed cache entries are considered too old and then expires if they
  * are older than the expiration time option, forcing calibration at least once
  * then given time. */
 bool sanei_genesys_is_compatible_calibration(Genesys_Device* dev,
@@ -1853,7 +1853,7 @@ bool sanei_genesys_is_compatible_calibration(Genesys_Device* dev,
       return false;
     }
 
-  /* a cache entry expires after afetr expiration time for non sheetfed scanners */
+  /* a cache entry expires after after expiration time for non sheetfed scanners */
   /* this is not taken into account when overwriting cache entries    */
 #ifdef HAVE_SYS_TIME_H
     if (!for_overwrite && dev->settings.expiration_time >=0)

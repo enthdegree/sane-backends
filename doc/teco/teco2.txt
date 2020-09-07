@@ -258,7 +258,7 @@ Likewise, if the input value is 0x700, the calibration value must be 0x924
 And if the input value is 0x600, the calibration value must 0xAAA (0x800*0x800
 / 0x600)
 
-Though, carefull comparison with scans done under windows has shown that the
+Though, careful comparison with scans done under windows has shown that the
 factor is slightly different from 0x800*0x800(=0x400000) but in stead it
 seems to be approximately 0x40302f (which would mean that the average value
 is approximately 0x803 in stead of 0x800).

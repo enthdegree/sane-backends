@@ -506,7 +506,7 @@ SANE_Status sanei_usb_testing_enable_replay(SANE_String_Const path,
   testing_mode = sanei_usb_testing_mode_replay;
   testing_development_mode = development_mode;
 
-  // TODO: we'll leak if noone ever inits sane_usb properly
+  // TODO: we'll leak if no one ever inits sane_usb properly
   testing_xml_path = strdup(path);
   testing_xml_doc = xmlReadFile(testing_xml_path, NULL, 0);
   if (!testing_xml_doc)
@@ -1443,7 +1443,7 @@ sanei_usb_init (void)
   /* sanei_usb is now initialized */
   initialized++;
 
-  /* do a first scan of USB busses to fill device list */
+  /* do a first scan of USB buses to fill device list */
   sanei_usb_scan_devices();
 }
 
@@ -2221,7 +2221,7 @@ static const char* sanei_usb_transfer_type_desc(SANE_Int transfer_type)
   return NULL;
 }
 
-// Similar sanei_usb_set_endpoint, but ignors duplicate endpoints
+// Similar sanei_usb_set_endpoint, but ignores duplicate endpoints
 static void sanei_usb_add_endpoint(device_list_type* device,
                                    SANE_Int transfer_type,
                                    SANE_Int ep_address,

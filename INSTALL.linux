@@ -14,7 +14,7 @@ $ make install
 ==================================================
 
 2.1. Install with your preferred package manager:
-     (a) the development environment for your Linux distibution
+     (a) the development environment for your Linux distribution
          - mandatory: gcc, make, kernel header files, autoconf, autoconf-archive,
                       python(>=2.7)
          - optional:  git

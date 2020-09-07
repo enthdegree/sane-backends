@@ -356,7 +356,7 @@ static SANE_Status gt68xx_scanner_stop_scan (GT68xx_Scanner * scanner);
  * This function stores in memory calibration data created at calibration
  * time into file
  * @param scanner Scanner object.
- * @return SANE_STATUS_GOOD when succesfull
+ * @return SANE_STATUS_GOOD when successful
  */
 static SANE_Status gt68xx_write_calibration (GT68xx_Scanner * scanner);
 
@@ -365,7 +365,7 @@ static SANE_Status gt68xx_write_calibration (GT68xx_Scanner * scanner);
  * This function sets in memory calibration data from data saved into file.
  *
  * @param scanner Scanner object.
- * @return SANE_STATUS_GOOD when succesfull
+ * @return SANE_STATUS_GOOD when successful
  */
 static SANE_Status gt68xx_read_calibration (GT68xx_Scanner * scanner);
 

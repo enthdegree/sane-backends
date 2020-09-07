@@ -623,7 +623,7 @@ typedef struct mode_page_service
 typedef struct scsi_mode_sense_cmd
 {
   SANE_Byte opcode;		/* 1AH */
-  SANE_Byte dbd;		/* 7-5:LUN; 4:Reserved; 3:DBD (Disable Block Desciption) set to "0"; 2-0:Reserved */
+  SANE_Byte dbd;		/* 7-5:LUN; 4:Reserved; 3:DBD (Disable Block Description) set to "0"; 2-0:Reserved */
   SANE_Byte pc;			/* 7-6:PC; 5-0:Page Code
 				 * PC field indicates the type of data to be returned (bit7,bit6):
 				 * 00 Current Value   (THIS IS THE ONLY VALUE WHICH WORKS!)
@@ -919,7 +919,7 @@ struct hs2p_window_data
 				 *        0: 0=>output from bit0 of each byte; 1=>output from bit7
 				 *        1: 0=>output from LSB; 1=>output from MSB
 				 *        2: 0=>unpacked 4 bits gray; 1=>Packed 4 bits gray
-				 *        3: 1=>Bits arrangment from LSB in grayscale; 0=>from MSB
+				 *        3: 1=>Bits arrangement from LSB in grayscale; 0=>from MSB
 				 *      4-6: reserved
 				 *        7: 1=>Mirroring; 0=>Normal output
 				 *     8-15: reserved

@@ -45,7 +45,7 @@
 /** @file sanei_access.h
  *  Interface file for the sanei_access functions.
  *
- *  The idea is to provide some simple locking/unlocking mecanism, which
+ *  The idea is to provide some simple locking/unlocking mechanism, which
  *  can be used to protect device access from more than one frontend
  *  simultaneously.
  */

@@ -52,7 +52,7 @@
 #include "../include/sane/sanei_debug.h"
 
 /* Please note: ASSERT won't go away if you define NDEBUG, it just won't
- * output a message when ASSERT failes. So if "cond" does anything, it will
+ * output a message when ASSERT fails. So if "cond" does anything, it will
  * be executed, even if NDEBUG is defined...
  */
 #define	ASSERT(cond, retval)	do { 					\
@@ -90,7 +90,7 @@ typedef struct {
 					SANE_String_Const port,
 					SANE_String_Const name,
 					SANE_Attach_Callback attach);
-	/* this function returns the informationen needed to set up
+	/* this function returns the information needed to set up
 	 * the device entry. the info parameter is passed from
 	 * init to the attach_callback to this function, to
 	 * help to identify the device, before it is registered
@@ -119,7 +119,7 @@ typedef struct {
 	/* stop scanning session */
 	void			(*close)(SANE_Handle hndl);
 
-	/* start actuall scan */
+	/* start actual scan */
 	SANE_Status		(*start)(SANE_Handle hndl);
 
 	/* read data (one line) */

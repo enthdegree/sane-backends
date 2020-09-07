@@ -122,7 +122,7 @@ struct ScannerState
   int m_numPages;	        /* number of complete pages (host byte order) */
   struct ComBuf m_pageInfo;	/* "array" of numPages PageInfo structs */
   int m_bFinish;		/* set non-0 to signal that we are finished */
-  int m_bCancelled;		/* set non-0 that bFinish state arose from cancelation */
+  int m_bCancelled;		/* set non-0 that bFinish state arose from cancellation */
   char m_regName[REG_NAME_SIZE];	/* name with which to register */
   unsigned short m_xres;	/* x resolution (network byte order) */
   unsigned short m_yres;	/* y resolution (network byte order) */
@@ -702,7 +702,7 @@ sane_start (SANE_Handle handle)
   if (!ValidScannerNumber (iHandle))
     return SANE_STATUS_INVAL;
 
-  /* check if we still have oustanding pages of data on this handle */
+  /* check if we still have outstanding pages of data on this handle */
   if (gOpenScanners[iHandle]->m_imageData.m_used){
 
     /* remove empty page */
@@ -1756,7 +1756,7 @@ cleanup:
 /***********************************************************/
 
 /* remove data from the front of a ComBuf struct
-   \return 0 if sucessful, >0 otherwise
+   \return 0 if successful, >0 otherwise
 */
 int
 PopFromComBuf (struct ComBuf *pBuf, size_t datSize)

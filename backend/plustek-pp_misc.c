@@ -152,7 +152,7 @@ static struct parport_driver pt_drv = {
 };
 #endif
 
-/** display the avaialable port-modes
+/** display the available port-modes
  */
 #ifdef DEBUG
 static void miscShowPortModes( int modes )
@@ -307,7 +307,7 @@ static int miscSetFastMode( pScanData ps )
 
 	/*
 	 * Some BIOS/cards have only a Bi-directional/PS2 mode (no EPP).
-	 * Make one last attemp to set to PS2 mode.
+	 * Make one last attempt to set to PS2 mode.
 	 */
 	if ( port_feature & PARPORT_MODE_PCPS2 ){
 

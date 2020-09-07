@@ -279,7 +279,7 @@ usb_high_cal_setup (Calibrator * cal, SANE_Word major_average,
 SANE_Status
 usb_high_cal_evaluate_white (Calibrator * cal, double factor)
 {
-  /* Caculate white_line */
+  /* Calculate white_line */
   double loop_division;
   double average;
   SANE_Int *buffer;
@@ -328,7 +328,7 @@ usb_high_cal_evaluate_dark (Calibrator * cal, double factor)
   double loop_division;
 
   DBG (5, "usb_high_cal_evaluate_dark: start\n");
-  /* Caculate dark_line */
+  /* Calculate dark_line */
   factor *= 16.0;
   loop_division = (double) (cal->major_average * cal->minor_average);
   for (i = 0; i < cal->width; i++)
@@ -2179,7 +2179,7 @@ usb_high_scan_calibration_rgb_24 (Mustek_Usb_Device * dev)
 						 dev->skips_per_row)));
     }
   RIE (usb_low_stop_rowing (dev->chip));
-  /* Caculate average */
+  /* Calculate average */
   RIE (usb_high_cal_evaluate_white (dev->green_calibrator,
 				    dev->init_green_factor));
   RIE (usb_high_cal_evaluate_white (dev->blue_calibrator,
@@ -2275,7 +2275,7 @@ usb_high_scan_calibration_mono_8 (Mustek_Usb_Device * dev)
 						 dev->skips_per_row)));
     }
   RIE (usb_low_stop_rowing (dev->chip));
-  /* Caculate average */
+  /* Calculate average */
   RIE (usb_high_cal_evaluate_white (dev->mono_calibrator,
 				    dev->init_gray_factor));
 
@@ -2295,10 +2295,10 @@ usb_high_scan_calibration_mono_8 (Mustek_Usb_Device * dev)
     }
   RIE (usb_low_stop_rowing (dev->chip));
   RIE (usb_low_turn_lamp_power (dev->chip, SANE_TRUE));
-  /* Caculate Green Black */
+  /* Calculate Green Black */
   RIE (usb_high_cal_evaluate_dark (dev->mono_calibrator,
 				   dev->init_gray_black_factor));
-  /* Caculate Mapping */
+  /* Calculate Mapping */
   RIE (usb_high_cal_evaluate_calibrator (dev->mono_calibrator));
   DBG (5, "usb_high_scan_calibration_mono_8: exit\n");
   return SANE_STATUS_GOOD;

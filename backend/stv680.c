@@ -296,7 +296,7 @@ stv680_init_2 (Stv680_Vidcam * dev)
     dev->buffer_size = 356 * 292;
   if (dev->VGA)
     dev->buffer_size = 644 * 484;
-  DBG (DBG_proc, "stv680_init_2: dev->bufffer = 0x%lx\n", (unsigned long) (size_t) dev->buffer_size);
+  DBG (DBG_proc, "stv680_init_2: dev->buffer = 0x%lx\n", (unsigned long) (size_t) dev->buffer_size);
 
   dev->buffer = malloc (dev->buffer_size);
 

@@ -2084,7 +2084,7 @@ sane_start (SANE_Handle handle)
                                 &(dev->th));
       /* we enlarged the scanning zone   */
       /* to allow reordering, we must    */
-      /* substract it from real scanning */
+      /* subtract it from real scanning */
       /* zone                            */
       dev->th -= points;
       DBG (64, "sane_start: bpp=%d,tw=%d,th=%d\n", dev->bpp, dev->tw,

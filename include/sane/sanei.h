@@ -118,7 +118,7 @@ extern "C" {
  * @return
  * - SANE_STATUS_GOOD     - on success
  * - SANE_STATUS_INVAL    - if the value doesn't fit inside the constraint
- *   or any other error occured
+ *   or any other error occurred
  * @sa sanei_constrain_value()
  */
 
@@ -135,7 +135,7 @@ extern "C" {
  * @return
  * - SANE_STATUS_GOOD     - on success
  * - SANE_STATUS_INVAL    - if the function wasn't able to fit value into the
- *   constraint or any other error occured
+ *   constraint or any other error occurred
  * @sa sanei_check_value()
  */
 

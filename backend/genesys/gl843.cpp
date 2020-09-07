@@ -781,7 +781,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
         reg->set8(REG_0x80, vref);
     }
 
-  /* substract acceleration distance from feedl */
+  /* subtract acceleration distance from feedl */
   feedl=feed_steps;
     feedl <<= static_cast<unsigned>(motor_profile.step_type);
 
@@ -872,7 +872,7 @@ static void gl843_init_motor_regs_scan(Genesys_Device* dev,
  *        scan's one
  * @param start logical start pixel coordinate
  * @param pixels logical number of pixels to use
- * @param channels number of color channles used (1 or 3)
+ * @param channels number of color channels used (1 or 3)
  * @param depth bit depth of the scan (1, 8 or 16 bits)
  * @param color_filter to choose the color channel used in gray scans
  * @param flags to drive specific settings such no calibration, XPA use ...

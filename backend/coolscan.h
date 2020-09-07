@@ -147,7 +147,7 @@ typedef struct Coolscan
 
     int LS;			/* index in scanner_str  */
     int cont;			/* continue although scanner is unknown */
-    int verbose;		/* 1,2=output informations */
+    int verbose;		/* 1,2=output information */
     int asf;			/* Automatic Slide Feeder enabled? */
 
     int MUD;			/* Measurement Unit Divisor (1200 or 2700) */
@@ -317,7 +317,7 @@ static char *scanner_str[] =
 
 #define known_scanners 4
 
-/* Comment this line if you havn't patched sane.h to include
+/* Comment this line if you haven't patched sane.h to include
   SANE_FRAME_RGBA */
 /* #define HAS_IRED 1 */
 

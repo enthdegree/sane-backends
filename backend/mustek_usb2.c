@@ -635,7 +635,7 @@ Author: Jack            Date: 2005/05/13
 Routine Description:
 	set scan parameters
 Parameters:
-	pSetParameters: the information of scaning
+	pSetParameters: the information of scanning
 Return value:
 	if the operation success
 	return TRUE

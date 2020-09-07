@@ -113,7 +113,7 @@ extern void sanei_scsi_find_devices (const char *vendor, const char *model,
  * - SANE_STATUS_ACCESS_DENIED - if the file couldn't be accessed due to
  *   permissions
  * - SANE_STATUS_NO_MEM - if malloc failed (not enough memory)
- * - SANE_STATUS_INVAL - if the filename was invalid or an unknown error occured
+ * - SANE_STATUS_INVAL - if the filename was invalid or an unknown error occurred
  *
  * @sa sanei_scsi_open_extended(), HAVE_SANEI_SCSI_OPEN_EXTENDED
  */
@@ -144,7 +144,7 @@ extern SANE_Status sanei_scsi_open (const char * device_name, int * fd,
  * - SANE_STATUS_ACCESS_DENIED - if the file couldn't be accessed due to
  *   permissions
  * - SANE_STATUS_NO_MEM - if malloc failed (not enough memory)
- * - SANE_STATUS_INVAL - if the filename was invalid or an unknown error occured
+ * - SANE_STATUS_INVAL - if the filename was invalid or an unknown error occurred
  *
  * @sa sanei_scsi_open(), HAVE_SANEI_SCSI_OPEN_EXTENDED
  */
@@ -186,7 +186,7 @@ extern SANE_Status sanei_scsi_open_extended (
  * - SANE_STATUS_GOOD - on success
  * - SANE_STATUS_IO_ERROR - if an error was received from the SCSI driver
  * - SANE_STATUS_NO_MEM - if malloc failed (not enough memory)
- * - SANE_STATUS_INVAL - if a locking or an unknown error occured
+ * - SANE_STATUS_INVAL - if a locking or an unknown error occurred
  * @sa sanei_scsi_req_enter2()
  *
 */
@@ -200,7 +200,7 @@ extern SANE_Status sanei_scsi_req_enter (int fd,
  * Same as sanei_scsi_req_enter(), but with separate buffers for the SCSI
  * command and for the data to be sent to the device.
  *
- * With sanei_scsi_req_enter(), the length of te SCSI command block must be
+ * With sanei_scsi_req_enter(), the length of the SCSI command block must be
  * guessed. While that works in most cases, Canon scanners for example use the
  * vendor specific commands 0xd4, 0xd5 and 0xd6. The Canon scanners want to
  * get 6 byte command blocks for these commands, but sanei_scsi_req_enter() and
@@ -224,7 +224,7 @@ extern SANE_Status sanei_scsi_req_enter (int fd,
  * - SANE_STATUS_GOOD - on success
  * - SANE_STATUS_IO_ERROR - if an error was received from the SCSI driver
  * - SANE_STATUS_NO_MEM - if malloc failed (not enough memory)
- * - SANE_STATUS_INVAL - if a locking or an unknown error occured
+ * - SANE_STATUS_INVAL - if a locking or an unknown error occurred
  * @sa sanei_scsi_req_enter()
  */
 extern SANE_Status sanei_scsi_req_enter2 (int fd,
@@ -264,7 +264,7 @@ extern SANE_Status sanei_scsi_req_wait (void *id);
  * - SANE_STATUS_GOOD - on success
  * - SANE_STATUS_IO_ERROR - if an error was received from the SCSI driver
  * - SANE_STATUS_NO_MEM - if malloc failed (not enough memory)
- * - SANE_STATUS_INVAL - if a locking or an unknown error occured
+ * - SANE_STATUS_INVAL - if a locking or an unknown error occurred
  *
  * @sa sanei_scsi_cmd2(), sanei_scsi_req_enter(), sanei_scsi_req_wait()
  */
@@ -291,7 +291,7 @@ extern SANE_Status sanei_scsi_cmd (int fd,
  * - SANE_STATUS_GOOD - on success
  * - SANE_STATUS_IO_ERROR - if an error was received from the SCSI driver
  * - SANE_STATUS_NO_MEM - if malloc failed (not enough memory)
- * - SANE_STATUS_INVAL - if a locking or an unknown error occured
+ * - SANE_STATUS_INVAL - if a locking or an unknown error occurred
  *
  * @sa sanei_scsi_cmd(), sanei_scsi_req_enter(), sanei_scsi_req_wait()
  */

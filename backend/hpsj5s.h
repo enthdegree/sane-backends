@@ -10,7 +10,7 @@
 
 #define ADDRESS_RESULT			0x20	/*Here we get result */
 
-/*Scanner functions (not all - some of them I cann't identify)*/
+/*Scanner functions (not all - some of them I can't identify)*/
 #define FUNCTION_SETUP_HARDWARE		0xA0
 
 /*Scanner hardware control flags:*/
@@ -83,7 +83,7 @@ static SANE_Byte CallFunctionWithRetVal (SANE_Byte Function);
 
 static SANE_Byte ReadDataByte (void);
 
-static void ReadDataBlock (SANE_Byte * Buffer, int lenght);
+static void ReadDataBlock (SANE_Byte * Buffer, int length);
 
 /*Daisy chaining API: (should be moved to ieee1284 library in future)*/
 

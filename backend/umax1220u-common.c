@@ -87,7 +87,7 @@
  * physical limit to UMAX_MAX_WIDTH as well (based on the
  * sensor size) but I do not know what it is. The current
  * value can be increased beyond what it is now, but you
- * gain nothing in usuable scan area (you only scan more
+ * gain nothing in usable scan area (you only scan more
  * of the underside of the scanner's plastic lid).
  */
 
@@ -98,7 +98,7 @@
 /* Buffer size. Specifies the size of the buffer that is
  * used to copy data from the scanner. The old command
  * line driver had this set at 0x80000 which is likely
- * the largest possible chunck of data that can be.
+ * the largest possible chunk of data that can be.
  * at once. This is probably most efficient, but using
  * a lower value for the SANE driver makes the driver
  * more responsive to interaction.
@@ -369,7 +369,7 @@ xxxops (UMAX_Handle * scan)
 }
 
 /*
-Apparently sends the two syncronization characters followed
+Apparently sends the two synchronization characters followed
 by the command length, followed by the command number
 */
 static SANE_Status
@@ -412,7 +412,7 @@ usync (UMAX_Handle * scan, UMAX_Cmd cmd, int len)
 }
 
 /*
-This function escapes any syncronization sequence that may be
+This function escapes any synchronization sequence that may be
 in data, storing the result in buf. In the worst case where
 every character gets escaped buf must be at least twice as
 large as dlen.

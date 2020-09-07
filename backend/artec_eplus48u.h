@@ -226,9 +226,9 @@ typedef enum Artec48U_Scan_Action
 {
   SA_CALIBRATE_SCAN_WHITE,	/**< Scan white shading buffer           */
   SA_CALIBRATE_SCAN_BLACK,	/**< Scan black shading buffer           */
-  SA_CALIBRATE_SCAN_OFFSET_1,	/**< First scan to determin offset       */
+  SA_CALIBRATE_SCAN_OFFSET_1,	/**< First scan to determine offset      */
   SA_CALIBRATE_SCAN_OFFSET_2,	/**< Second scan to determine offset     */
-  SA_CALIBRATE_SCAN_EXPOSURE_1,	  /**< First scan to determin offset       */
+  SA_CALIBRATE_SCAN_EXPOSURE_1,	  /**< First scan to determine offset      */
   SA_CALIBRATE_SCAN_EXPOSURE_2,	  /**< Second scan to determine offset     */
   SA_SCAN			/**< Normal scan */
 }
@@ -399,7 +399,7 @@ static SANE_Status artec48u_device_deactivate (Artec48U_Device * dev);
  *
  * @return
  * - #SANE_STATUS_GOOD     - success.
- * - #SANE_STATUS_IO_ERROR - a communication error occured.
+ * - #SANE_STATUS_IO_ERROR - a communication error occurred.
  *
  * @warning
  * @a size must be a multiple of 64 (at least with TV9693), otherwise the
@@ -418,7 +418,7 @@ artec48u_device_memory_write (Artec48U_Device * dev, SANE_Word addr,
  *
  * @return
  * - #SANE_STATUS_GOOD     - success.
- * - #SANE_STATUS_IO_ERROR - a communication error occured.
+ * - #SANE_STATUS_IO_ERROR - a communication error occurred.
  *
  * @warning
  * @a size must be a multiple of 64 (at least with TV9693), otherwise the
@@ -436,7 +436,7 @@ artec48u_device_memory_read (Artec48U_Device * dev, SANE_Word addr,
  *
  * @return
  * - #SANE_STATUS_GOOD     - success.
- * - #SANE_STATUS_IO_ERROR - a communication error occured.
+ * - #SANE_STATUS_IO_ERROR - a communication error occurred.
  */
 static SANE_Status
 artec48u_device_req (Artec48U_Device * dev, Artec48U_Packet cmd,
@@ -450,7 +450,7 @@ artec48u_device_req (Artec48U_Device * dev, Artec48U_Packet cmd,
  *
  * @return
  * - #SANE_STATUS_GOOD     - success.
- * - #SANE_STATUS_IO_ERROR - a communication error occured.
+ * - #SANE_STATUS_IO_ERROR - a communication error occurred.
  */
 static SANE_Status
 artec48u_device_small_req (Artec48U_Device * dev, Artec48U_Packet cmd,
@@ -466,7 +466,7 @@ artec48u_device_small_req (Artec48U_Device * dev, Artec48U_Packet cmd,
  *
  * @return
  * - #SANE_STATUS_GOOD - success.
- * - #SANE_STATUS_IO_ERROR - a communication error occured.
+ * - #SANE_STATUS_IO_ERROR - a communication error occurred.
  */
 static SANE_Status
 artec48u_device_read_raw (Artec48U_Device * dev, SANE_Byte * buffer,
@@ -527,7 +527,7 @@ static SANE_Status artec48u_line_reader_free (Artec48U_Line_Reader * reader);
  *
  * @return
  * - SANE_STATUS_GOOD  - read completed successfully
- * - other error value - an error occured
+ * - other error value - an error occurred
  */
 static SANE_Status
 artec48u_line_reader_read (Artec48U_Line_Reader * reader,

@@ -81,7 +81,7 @@ gt68xx_delay_buffer_init (GT68xx_Delay_Buffer * delay,
       DBG (3, "gt68xx_delay_buffer_init: no memory for delay block\n");
       return SANE_STATUS_NO_MEM;
     }
-  /* make sure that we will see if one of the unitialized lines get displayed */
+  /* make sure that we will see if one of the uninitialized lines get displayed */
   for (i = 0; i < bytes_per_line * line_count; i++)
     delay->mem_block[i] = i % 256;
 

@@ -271,7 +271,7 @@ struct paper_sizes
 
 /*--------------------------------------------------------------------------*/
 
-/* Define a scanner occurence. */
+/* Define a scanner occurrence. */
 typedef struct Matsushita_Scanner
 {
   struct Matsushita_Scanner *next;

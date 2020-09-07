@@ -534,7 +534,7 @@ enum {
     NUM_OPTIONS
 };
 
-/** for compatiblity to version 0x0102 drivers
+/** for compatibility to version 0x0102 drivers
  */
 typedef struct {
 

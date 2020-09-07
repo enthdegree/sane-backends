@@ -54,7 +54,7 @@
 /** @name Options to control interface operations */
 /* @{ */
 #define SANEI_PA4S2_OPT_DEFAULT		0	/* normal mode */
-#define SANEI_PA4S2_OPT_TRY_MODE_UNI	1	/* enable UNI protocoll */
+#define SANEI_PA4S2_OPT_TRY_MODE_UNI	1	/* enable UNI protocol */
 #define SANEI_PA4S2_OPT_ALT_LOCK	2	/* use alternative lock cmd */
 #define SANEI_PA4S2_OPT_NO_EPP		4	/* do not try to use EPP */
 /* @} */

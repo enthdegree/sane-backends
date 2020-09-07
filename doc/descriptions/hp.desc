@@ -21,7 +21,7 @@
 :url "http://www.hp.com/"
 
 :model "ScanJet Plus"           ; name models for above-specified mfg.
-:interface "Propietary"
+:interface "Proprietary"
 :status :complete
 :comment "Driver for HP parallel interface card required"
 

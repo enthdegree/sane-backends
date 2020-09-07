@@ -1421,7 +1421,7 @@ dbg_registers (SANE_Byte * buffer)
      DBG(DBG_FNC, "   bit[0..3] = %02x : Scanner buttons ", iValue & 0x0f);
      if ((iValue & 0x0f) == 0x0f)
      DBG(DBG_FNC, "enabled\n");
-     else DBG(DBG_FNC, "dissabled\n");
+     else DBG(DBG_FNC, "disabled\n");
      DBG(DBG_FNC, "         bit[4..7] = ? : 0x%02x\n", (iValue >> 4) & 0x0f);
 
      dbg_buffer(DBG_FNC, "\n0x0159", &buffer[0x159], 11, 0x159);

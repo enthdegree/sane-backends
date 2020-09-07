@@ -48,7 +48,7 @@
    Add missing SANE_I18N, Regenerate .po files accordingly, Update Swedish translations
 
    Revision 1.12  2003/10/09 19:32:50  kig-guest
-   Bug #300241: fix invers image on 3c/4c/6100C at 10 bit depth
+   Bug #300241: fix inverse image on 3c/4c/6100C at 10 bit depth
 
 
 */
@@ -60,7 +60,7 @@
 #endif
 #endif
 
-/* To be done: dont reallocate choice accessors */
+/* To be done: don't reallocate choice accessors */
 /* #define HP_ALLOC_CHOICEACC_ONCE 1 */
 /*
 #define HP_EXPERIMENTAL
@@ -276,7 +276,7 @@ hp_probed_choice_isSupported (HpScsi scsi, HpScl scl,
 
   /* Not in the support table. Try to inquire */
   /* Fix me: It seems that the scanner does not raise a parameter error */
-  /* after specifiying an unsupported command-value. */
+  /* after specifying an unsupported command-value. */
 
   sanei_hp_scl_clearErrors (scsi);
   sanei_hp_scl_set (scsi, scl, choice->val);
@@ -757,7 +757,7 @@ _probe_int (_HpOption this, HpScsi scsi, HpOptSet __sane_unused__ optset, HpData
   if (minval >= maxval)
       return SANE_STATUS_UNSUPPORTED;
 
-  /* If we dont have an accessor, get one */
+  /* If we don't have an accessor, get one */
   if (!this->data_acsr)
   {
       if (!(this->data_acsr = sanei_hp_accessor_int_new(data)))
@@ -798,7 +798,7 @@ _probe_int_brightness (_HpOption this, HpScsi scsi, HpOptSet __sane_unused__ opt
   if (minval >= maxval)
       return SANE_STATUS_UNSUPPORTED;
 
-  /* If we dont have an accessor, get one */
+  /* If we don't have an accessor, get one */
   if (!this->data_acsr)
   {
       if (!(this->data_acsr = sanei_hp_accessor_int_new(data)))
@@ -829,7 +829,7 @@ _probe_resolution (_HpOption this, HpScsi scsi, HpOptSet __sane_unused__ optset,
   if (minval >= maxval)
       return SANE_STATUS_UNSUPPORTED;
 
-  /* If we dont have an accessor, get one */
+  /* If we don't have an accessor, get one */
   if (!this->data_acsr)
   {
     if (!(this->data_acsr = sanei_hp_accessor_int_new(data)))
@@ -880,7 +880,7 @@ _probe_bool (_HpOption this, HpScsi scsi, HpOptSet __sane_unused__ optset,
   if (scl)
       RETURN_IF_FAIL( sanei_hp_scl_inquire(scsi, scl, &val, 0, 0) );
 
-  /* If we dont have an accessor, get one */
+  /* If we don't have an accessor, get one */
   if (!this->data_acsr)
   {
       if (!(this->data_acsr = sanei_hp_accessor_bool_new(data)))
@@ -912,7 +912,7 @@ _probe_change_doc (_HpOption this, HpScsi scsi, HpOptSet __sane_unused__ optset,
   if ( status != SANE_STATUS_GOOD )
     return SANE_STATUS_UNSUPPORTED;
 
-  /* If we dont have an accessor, get one */
+  /* If we don't have an accessor, get one */
   if (!this->data_acsr)
   {
       if (!(this->data_acsr = sanei_hp_accessor_bool_new(data)))
@@ -948,7 +948,7 @@ _probe_unload (_HpOption this, HpScsi scsi, HpOptSet __sane_unused__ optset,
   if ( status != SANE_STATUS_GOOD )
     return SANE_STATUS_UNSUPPORTED;
 
-  /* If we dont have an accessor, get one */
+  /* If we don't have an accessor, get one */
   if (!this->data_acsr)
   {
       if (!(this->data_acsr = sanei_hp_accessor_bool_new(data)))
@@ -994,7 +994,7 @@ _probe_calibrate (_HpOption this, HpScsi scsi, HpOptSet __sane_unused__ optset,
   /* And the desired ID of 10963 does not work. So we have to trust */
   /* the evaluated HP model number. */
 
-  /* If we dont have an accessor, get one */
+  /* If we don't have an accessor, get one */
   if (!this->data_acsr)
   {
       if (!(this->data_acsr = sanei_hp_accessor_bool_new(data)))
@@ -1175,7 +1175,7 @@ _probe_each_choice (_HpOption this, HpScsi scsi, HpOptSet __sane_unused__ optset
   if (!choices)
       return SANE_STATUS_UNSUPPORTED;
 
-  /* If we dont have an accessor, get one */
+  /* If we don't have an accessor, get one */
 #ifdef HP_ALLOC_CHOICEACC_ONCE
   if (!this->data_acsr)
 #endif
@@ -1210,7 +1210,7 @@ _probe_ps_exposure_time (_HpOption this, HpScsi scsi, HpOptSet __sane_unused__ o
 
     info = sanei_hp_device_info_get ( sanei_hp_scsi_devicename  (scsi) );
 
-    /* If we dont have an accessor, get one */
+    /* If we don't have an accessor, get one */
 #ifdef HP_ALLOC_CHOICEACC_ONCE
     if (!this->data_acsr)
 #endif
@@ -1262,7 +1262,7 @@ _probe_scan_type (_HpOption this, HpScsi scsi, HpOptSet __sane_unused__ optset,
   }
 
   /* Inquire XPA capability is supported only by IIcx and 6100c/4c/3c. */
-  /* But more devices support XPA scan window. So dont inquire XPA cap. */
+  /* But more devices support XPA scan window. So don't inquire XPA cap. */
   if ( compat & (  HP_COMPAT_2CX | HP_COMPAT_4C | HP_COMPAT_4P
                  | HP_COMPAT_5P | HP_COMPAT_5100C | HP_COMPAT_6200C) &&
        !(compat&HP_COMPAT_OJ_1150C) )
@@ -1282,7 +1282,7 @@ _probe_scan_type (_HpOption this, HpScsi scsi, HpOptSet __sane_unused__ optset,
 
   info = sanei_hp_device_info_get ( sanei_hp_scsi_devicename  (scsi) );
 
-  /* If we dont have an accessor, get one */
+  /* If we don't have an accessor, get one */
 #ifdef HP_ALLOC_CHOICEACC_ONCE
   if (!this->data_acsr)
 #endif
@@ -1327,7 +1327,7 @@ _probe_mirror_horiz (_HpOption this, HpScsi scsi, HpOptSet __sane_unused__ optse
   if (!choices)
       return SANE_STATUS_UNSUPPORTED;
 
-  /* If we dont have an accessor, get one */
+  /* If we don't have an accessor, get one */
 #ifdef HP_ALLOC_CHOICEACC_ONCE
   if (!this->data_acsr)
 #endif
@@ -1371,7 +1371,7 @@ _probe_mirror_vert (_HpOption this, HpScsi scsi, HpOptSet __sane_unused__ optset
   if (!choices)
       return SANE_STATUS_UNSUPPORTED;
 
-  /* If we dont have an accessor, get one */
+  /* If we don't have an accessor, get one */
 #ifdef HP_ALLOC_CHOICEACC_ONCE
   if (!this->data_acsr)
 #endif
@@ -1403,7 +1403,7 @@ static SANE_Status _probe_front_button(_HpOption this, HpScsi scsi,
 
   _set_size(this, data, sizeof(SANE_Bool));
 
-  /* If we dont have an accessor, get one */
+  /* If we don't have an accessor, get one */
   if (!this->data_acsr)
   {
       if ( !(this->data_acsr = sanei_hp_accessor_bool_new(data)) )
@@ -1529,7 +1529,7 @@ _probe_custom_gamma (_HpOption this, HpScsi scsi, HpOptSet __sane_unused__ optse
     RETURN_IF_FAIL( sanei_hp_scl_inquire(scsi, scl, &val, 0, 0) );
   }
 
-  /* If we dont have an accessor, get one */
+  /* If we don't have an accessor, get one */
   if (!this->data_acsr)
   {
       if (!(this->data_acsr = sanei_hp_accessor_bool_new(data)))
@@ -1591,7 +1591,7 @@ _probe_vector (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
       assert(type->scl);
 
       RETURN_IF_FAIL ( _probe_download_type (scl, scsi) );
-      /* If we dont have an accessor, get one */
+      /* If we don't have an accessor, get one */
 #ifdef HP_ALLOC_CHOICEACC_ONCE
       if (!this->data_acsr)
 #endif
@@ -1612,7 +1612,7 @@ _probe_vector (_HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
       super = hp_optset_get(optset, type->super);
       assert(super);
 
-      /* If we dont have an accessor, get one */
+      /* If we don't have an accessor, get one */
 #ifdef HP_ALLOC_CHOICEACC_ONCE
       if (!this->data_acsr)
 #endif
@@ -1700,7 +1700,7 @@ static SANE_Status
 _probe_num_options (_HpOption this, HpScsi __sane_unused__ scsi,
                     HpOptSet __sane_unused__ optset, HpData data)
 {
-  /* If we dont have an accessor, get one */
+  /* If we don't have an accessor, get one */
   if (!this->data_acsr)
   {
       if (!(this->data_acsr = sanei_hp_accessor_int_new(data)))
@@ -2125,7 +2125,7 @@ _program_resolution (HpOption this, HpScsi scsi, HpOptSet __sane_unused__ optset
   /* xres = next higher multiple of 300, xscale < 100 */
   /* yres = next lower multiple of 300, yscale > 100 */
   /* yres = next higher multiple of 300, yscale < 100 */
-  /* The image extent was ok, but the content was streched in y-direction */
+  /* The image extent was ok, but the content was stretched in y-direction */
 
   if (xresolution > 300)
   {
@@ -2417,7 +2417,7 @@ _program_scan_type (HpOption this, HpScsi scsi, HpOptSet optset, HpData data)
 0xfc,0x02,0x7c,0x01,0xfc,0x01,0x7c,0x00,0xfc,0x00,0x7c,0x00,0x00
      };
 
-    sanei_hp_scl_set(scsi, SCL_RESERVED1, 0); /* dont know */
+    sanei_hp_scl_set(scsi, SCL_RESERVED1, 0); /* don't know */
     sanei_hp_scl_set(scsi, SCL_10952, 0);     /* Calibration mode */
 
     if (   sanei_hp_is_active_xpa (scsi)
@@ -2549,7 +2549,7 @@ _program_ps_exposure_time (HpOption this, HpScsi scsi,
     /* Negatives get some extra blue to penetrate the orange mask and less
        red to not saturate the red channel; R:G:B = 100:200:300 */
 
-    /* We dont use the 100% case. It may cause mechanical problems */
+    /* We don't use the 100% case. It may cause mechanical problems */
     if ((option < 1) || (option > 9)) return 0;
     RETURN_IF_FAIL ( sanei_hp_scl_upload_binary (scsi, SCL_CALIB_MAP,
                &calib_size, &calib_buf) );
@@ -2837,7 +2837,7 @@ _enable_calibrate (HpOption __sane_unused__ this, HpOptSet optset, HpData data,
 {
   HpOption 	media	= hp_optset_get(optset, MEDIA);
 
-  /* If we dont have the media button, we should have calibrate */
+  /* If we don't have the media button, we should have calibrate */
   if ( !media ) return 1;
 
   return hp_option_getint(media, data) == HP_MEDIA_PRINT;

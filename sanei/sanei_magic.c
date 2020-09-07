@@ -130,7 +130,7 @@ sanei_magic_despeck (SANE_Parameters * params, SANE_Byte * buffer,
 
             int tmp[3];
 
-            /* dont count pixels in the window */
+            /* don't count pixels in the window */
             if(k != -1 && k != diam && l != -1 && l != diam)
               continue;
 
@@ -189,7 +189,7 @@ sanei_magic_despeck (SANE_Parameters * params, SANE_Byte * buffer,
 
             int tmp = 0;
 
-            /* dont count pixels in the window */
+            /* don't count pixels in the window */
             if(k != -1 && k != diam && l != -1 && l != diam)
               continue;
 
@@ -239,7 +239,7 @@ sanei_magic_despeck (SANE_Parameters * params, SANE_Byte * buffer,
         for(k=-1; k<diam+1; k++){
           for(l=-1; l<diam+1; l++){
 
-            /* dont count pixels in the window */
+            /* don't count pixels in the window */
             if(k != -1 && k != diam && l != -1 && l != diam)
               continue;
 
@@ -366,7 +366,7 @@ sanei_magic_findEdges(SANE_Parameters * params, SANE_Byte * buffer,
   }
 
   /* loop thru top and bottom lists, look for l and r extremes
-   * NOTE: We dont look above the top or below the bottom found previously.
+   * NOTE: We don't look above the top or below the bottom found previously.
    * This prevents issues with adf scanners that pad the image after the
    * paper runs out (usually with white) */
   DBG (5, "sanei_magic_findEdges: bb0:%d tb0:%d b:%d t:%d\n",
@@ -534,14 +534,14 @@ sanei_magic_findSkew(SANE_Parameters * params, SANE_Byte * buffer,
   /* get buffers for edge detection */
   topBuf = sanei_magic_getTransY(params,dpiY,buffer,1);
   if(!topBuf){
-    DBG (5, "sanei_magic_findSkew: cant gTY\n");
+    DBG (5, "sanei_magic_findSkew: can't gTY\n");
     ret = SANE_STATUS_NO_MEM;
     goto cleanup;
   }
 
   botBuf = sanei_magic_getTransY(params,dpiY,buffer,0);
   if(!botBuf){
-    DBG (5, "sanei_magic_findSkew: cant gTY\n");
+    DBG (5, "sanei_magic_findSkew: can't gTY\n");
     ret = SANE_STATUS_NO_MEM;
     goto cleanup;
   }
@@ -1419,7 +1419,7 @@ getLine (int height, int width, int * buff,
   /* build an array of pretty-print values for slope */
   slopeCenter = calloc(slopes,sizeof(double));
   if(!slopeCenter){
-    DBG(5,"getLine: cant load slopeCenter\n");
+    DBG(5,"getLine: can't load slopeCenter\n");
     ret = SANE_STATUS_NO_MEM;
     goto cleanup;
   }
@@ -1427,7 +1427,7 @@ getLine (int height, int width, int * buff,
   /* build an array of scaling factors for slope */
   slopeScale = calloc(slopes,sizeof(int));
   if(!slopeScale){
-    DBG(5,"getLine: cant load slopeScale\n");
+    DBG(5,"getLine: can't load slopeScale\n");
     ret = SANE_STATUS_NO_MEM;
     goto cleanup;
   }
@@ -1448,7 +1448,7 @@ getLine (int height, int width, int * buff,
   /* build an array of pretty-print values for offset */
   offsetCenter = calloc(offsets,sizeof(double));
   if(!offsetCenter){
-    DBG(5,"getLine: cant load offsetCenter\n");
+    DBG(5,"getLine: can't load offsetCenter\n");
     ret = SANE_STATUS_NO_MEM;
     goto cleanup;
   }
@@ -1456,7 +1456,7 @@ getLine (int height, int width, int * buff,
   /* build an array of scaling factors for offset */
   offsetScale = calloc(offsets,sizeof(int));
   if(!offsetScale){
-    DBG(5,"getLine: cant load offsetScale\n");
+    DBG(5,"getLine: can't load offsetScale\n");
     ret = SANE_STATUS_NO_MEM;
     goto cleanup;
   }
@@ -1477,14 +1477,14 @@ getLine (int height, int width, int * buff,
   /* build 2-d array of 'density', divided into slope and offset ranges */
   lines = calloc(slopes, sizeof(int *));
   if(!lines){
-    DBG(5,"getLine: cant load lines\n");
+    DBG(5,"getLine: can't load lines\n");
     ret = SANE_STATUS_NO_MEM;
     goto cleanup;
   }
 
   for(i=0;i<slopes;i++){
     if(!(lines[i] = calloc(offsets, sizeof(int)))){
-      DBG(5,"getLine: cant load lines %d\n",i);
+      DBG(5,"getLine: can't load lines %d\n",i);
       ret = SANE_STATUS_NO_MEM;
       goto cleanup;
     }
@@ -1533,7 +1533,7 @@ getLine (int height, int width, int * buff,
   *finDensity = 0;
 
   /* go thru array, and scale densities to % of maximum, plus adjust for
-   * prefered (smaller absolute value) slope and offset */
+   * preferred (smaller absolute value) slope and offset */
   for(i=0;i<slopes;i++){
     for(j=0;j<offsets;j++){
       lines[i][j] = (float)lines[i][j] / maxDensity * slopeScale[i] * offsetScale[j];
@@ -1567,7 +1567,7 @@ getLine (int height, int width, int * buff,
     }
   }
 
-  /* dont forget to cleanup */
+  /* don't forget to cleanup */
   cleanup:
   for(i=0;i<slopes;i++){
     if(lines[i])

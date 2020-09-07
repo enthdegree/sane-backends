@@ -3,7 +3,7 @@
 	with newer automake.
 	* backend/Makefile.am, tools/sane-config.in: Add missing
 	$GPHOTO2_LDFLAGS so library can be found.
-	* tools/Makefile.am: Add mising $SCSI_LIBS to sane-find-scanner.
+	* tools/Makefile.am: Add missing $SCSI_LIBS to sane-find-scanner.
 
 ******  Release of sane-backends 1.0.20. End of code freeze ******
 
@@ -167,14 +167,14 @@
 	* backend/canon_dr.[ch], backend/canon_dr.conf.in: backend v24
 	- fix DR-2510C duplex deinterlacing code
 	- rewrite sane_read helpers to read until EOF
-	- update sane_start for scanners that dont use object_position
-	- dont call sanei_usb_clear_halt() if device is not open
+	- update sane_start for scanners that don't use object_position
+	- don't call sanei_usb_clear_halt() if device is not open
 	- increase default buffer size to 4 megs
 	- set buffermode on by default
 	- hide modes and resolutions that DR-2510C lies about
 	- read_panel() logs front-end access to sensors instead of timing
 	- rewrite do_usb_cmd() to use remainder from RS info
-	* doc/desciptions/canon_dr.desc: backend v24, update DR-2510C comment
+	* doc/descriptions/canon_dr.desc: backend v24, update DR-2510C comment
 
 2009-03-31 Louis Lagendijk  <llagendijk-guest at users.alioth.debian.org>
 	* backend/pixma_bjnp.c:
@@ -196,7 +196,7 @@
 	- handle more image interlacing formats
 	- re-enable binary mode on some scanners
 	- limit some machines to full-width scanning
-	* doc/desciptions/canon_dr.desc: v23, improved comments
+	* doc/descriptions/canon_dr.desc: v23, improved comments
 
 2009-03-25  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/canon_dr.[ch]: backend v22
@@ -210,7 +210,7 @@
 	* backend/canon_dr.[ch], backend/canon_dr-cmd.h: backend v21
 	- correct rgb padding macro
 	- skip send_panel and ssm_df commands for DR-20xx scanners
-	* doc/desciptions/microtek2.desc: add ScanMaker 6400XL
+	* doc/descriptions/microtek2.desc: add ScanMaker 6400XL
 
 2009-03-24 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* doc/Makefile.am: Don't include any template.desc. into
@@ -242,7 +242,7 @@
 	- set status packet size from config file
 	- rewrite config file parsing to reset options after each scanner
 	- add config options for vendor, model, version
-	- dont call inquiry if those 3 options are set
+	- don't call inquiry if those 3 options are set
 	- remove default config file from code
 	- add initial gray deinterlacing code for DR-2510C
 	- rename do_usb_reset to do_usb_clear
@@ -332,7 +332,7 @@
 
 2009-03-09 Stéphane Voltz <stef.dev@free.fr>
 	* backend/genesys.c backend/genesys_devices.c backend/genesys_gl646.c:
-	1200 dpi scan fix and head positionning fixes
+	1200 dpi scan fix and head positioning fixes
 
 
 2009-03-07  m. allan noah <kitno455 a t gmail d o t com>
@@ -572,11 +572,11 @@
 2009-02-04 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* configure.in, acinclude.ac: Cleanup autoconf 2.63 warnings.
 	add cv_ prefix to cached variable.  Remove AC_ARG_PROGRAM as
-	automake already invokes this. When prefered AC_USE_SYSTEM_EXTENSIONS
+	automake already invokes this. When preferred AC_USE_SYSTEM_EXTENSIONS
 	exists, use that instead of AC_GNU_SOURCE/AC_AIX/AC_MINUX.
 	Cleanup socket detection more by creating only a single
 	SOCKET_LIBS that contains list of all optional libraries
-	for any socket related funciton.  Make sure that checks
+	for any socket related function.  Make sure that checks
 	for socket related functions use SOCKET_LIBS when searching.
 	Check for getopt_long() and getopt.h.  Make OS/2 use
 	-no-undefined (same as windows).
@@ -612,7 +612,7 @@
 2009-02-01 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
 	* aclocalm4: fix prototype of internal strcasestr and usleep.
 	* configure.in: Group all USB logic together and all SCSI
-	logic together to aid understanding of whats no longer
+	logic together to aid understanding of what's no longer
 	valid.  Allow sharing enable/disable options between all
 	USB drivers on multiple platforms.  Combined CAM_LIBS and
 	SCSI_LIBS since they are mutually exclusive.
@@ -666,7 +666,7 @@
 	* backend/Makefile.am: Convert backend makefile to automake.
 	Initial version that is feature parity with original but uses
 	specific rules instead of wildcards and only links in libraries/objs
-	really required. Room for more cleanup of whats linked in once
+	really required. Room for more cleanup of what's linked in once
 	all makefiles have been converted to automake.
 
 2009-01-29 Chris Bagwell <cbagwell-guest at users.alioth.debian.org>
@@ -741,7 +741,7 @@
 
 2009-01-21  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/canon_dr.[ch], backend/epjitsu.[ch], backend/fujitsu.[ch]:
-	- dont export private symbols
+	- don't export private symbols
 
 2009-01-19  m. allan noah <kitno455 a t gmail d o t com>
 	* doc/descriptions-external/brother2.desc: add MFC-7840W
@@ -768,10 +768,10 @@
 	* backend/genesys_gl841.c: Make dpihw depend on sensor pixel count
 	instead of sensor resolution. Make some Canon LiDE 35 specific
 	gpio handling conditional, add missing SCANMOD shift. Make
-	half-ccd mode optional. Reenable clock register setup from sensor
+	half-ccd mode optional. Re-enable clock register setup from sensor
 	struct, set SCANMOD.
 	* backend/genesys_devices.c: Make half-ccd mode optional.
-	Reenable clock register setup from sensor struct, set SCANMOD.
+	Re-enable clock register setup from sensor struct, set SCANMOD.
 
 2009-01-17  Nicolas Martin <nicols-guest at users.alioth.debian.org>
 	* pixma_mp150.c:
@@ -848,7 +848,7 @@
 	- send_panel() can disable too
 	- add cancel() to send d8 command
 	- call cancel() only after final read from scanner
-	- stop button reqests cancel
+	- stop button requests cancel
 
 2009-01-10 Jeremy Johnson <jeremy a t acjlaw dot net>
 	* backend/hs2p.c: replaced ulong with u_long,
@@ -865,7 +865,7 @@
 	requested length and to zero out any garbage using
 	information from sense data command. Added new
 	MAINTENANCE_DATA struct and options to display
-	scanner's maintenance/callibration statistics.
+	scanner's maintenance/calibration statistics.
 	*backend/hs2p.h
 	- added enum CONNECTION_TYPES
 	- added HS2P_DATA struct
@@ -887,7 +887,7 @@
 	- added get_hs2p_data() to read scanner data
 	- added print_maintenance_data()
 	- modified sane_control_options() to
-	  accomodate new maintenance options and to
+	  accommodate new maintenance options and to
 	  handle Portrait/Landscape option
 	  replaced adf_status macro with s->data.adf_status
 	- modified sane_read() to correctly zero out the
@@ -945,7 +945,7 @@
 	* AUTHORS, configure, configure.in, backend/Makefile.in,
 	backend/xerox_mfp.c, backend/xerox_mfp.h, doc/Makefile.in,
 	doc/descriptions/xerox_mfp.desc, doc/sane-xerox_mfp.man:
-	Initial commit ot xerox_mfp backed.
+	Initial commit to xerox_mfp backend.
 
 2008-12-12  Julien Blache <jb@jblache.org>
 	* frontend/saned.c: add a data_portrange config file option to
@@ -1123,7 +1123,7 @@
 	  bjnp tcp connection is now de-activated after initialization and
 	  re-activated at start of scanning. If we do not do this, the scanner
 	  closes its side of the connection after 30 secods of inactivity.
-	  Added a maximum to the retry of slect calls when signals are
+	  Added a maximum to the retry of select calls when signals are
 	  received
 	  Added blocksize detection for tcp read_bulk call
 
@@ -1175,7 +1175,7 @@
 	The rest is cosmetic only.
 
 2008-10-21  Louis Lagendijk <llagendijk-guest at users.alioth.debian.org>
-	* Added #ifdef around defintions of MIN and MAX in pixma_common.h
+	* Added #ifdef around definitions of MIN and MAX in pixma_common.h
 	- Re-enable includes in pixma_bjnp.c as they are needed on Freebsd
 	- Replaced getaddrinfo by gethostbyname in pixma_bjnp.c as this is
 	  supported on OS/2 as well
@@ -1349,7 +1349,7 @@
 
 2008-08-26  m. allan noah <kitno455 a t gmail d o t com>
 	* backend/fujitsu.c, doc/descriptions/fujitsu.desc: backend v78
-	- recent model names (fi-6xxx) dont end in 'C'
+	- recent model names (fi-6xxx) don't end in 'C'
 	- simplify flatbed area overrides
 	- call scanner_control to change source during sane_start
 
@@ -1636,7 +1636,7 @@
 	changed top of scan area detection for MD6228/MD6471 models
 
 2008-05-23  Jonathan Bravo Lopez <jkdsoft@gmail.com>
-	* backend/hp3900_sane.c: setting appropiate capabilities to some options.
+	* backend/hp3900_sane.c: setting appropriate capabilities to some options.
 
 2008-05-22  Jonathan Bravo Lopez <jkdsoft@gmail.com>
 	* backend/hp3900_sane.c: use 1.1.0 well-known option group strings.

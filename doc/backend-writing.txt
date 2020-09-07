@@ -185,7 +185,7 @@ sane-backends/include/
        used by several backends.
      * sanei_*:
        Sanei (SANE internal) headers. Needed for code used in several backends
-       like USB access. For more details, see the documentaion on the SANE website.
+       like USB access. For more details, see the documentation on the SANE website.
 
 sane-backends/japi/
      Contains Java interface for SANE. See README.JAVA for details.
@@ -199,7 +199,7 @@ sane-backends/po/
 
 sane-backends/sanei/
      Sanei (SANE internal) code. Needed for code used in several backends
-     like USB access. For more details, see the documentaion on the SANE
+     like USB access. For more details, see the documentation on the SANE
      website.
 
 sane-backends/testsuite/
@@ -310,7 +310,7 @@ PROGRAMMING
   the doc/ directory.
 
 * Initialize global variables explicitly in sane_init. Keep in mind that
-  sane_init can be called more than once (if sane_exit is called everytime
+  sane_init can be called more than once (if sane_exit is called every time
   after sane_init). Therefore don't depend on automatic initialization to
   0 / NULL.
 

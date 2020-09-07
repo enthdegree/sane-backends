@@ -101,7 +101,7 @@ extern SANE_Bool sanei_thread_is_valid (SANE_Pid pid);
  *
  *  @note
  *  When using pthreads, this only works for those implementations
- *  that opted to make pthread_t an arithmatic type.  This is *not*
+ *  that opted to make pthread_t an arithmetic type.  This is *not*
  *  required by the POSIX threads specification.  The choice to do
  *  SANE_Pid invalidation by means of a macro rather than a proper
  *  function circumvents to need to pass a pointer.
@@ -150,7 +150,7 @@ extern SANE_Pid sanei_thread_begin (int (*func) (void *args), void *args);
  *
  * @return
  * - 0 on success
- * - any other value if an error occured while terminating the task
+ * - any other value if an error occurred while terminating the task
  */
 extern int sanei_thread_kill (SANE_Pid pid);
 
@@ -165,7 +165,7 @@ extern int sanei_thread_kill (SANE_Pid pid);
  *
  * @return
  * - 0 - on success
- * - any other value - if an error occured while sending the signal
+ * - any other value - if an error occurred while sending the signal
  */
 extern int sanei_thread_sendsig (SANE_Pid pid, int sig);
 

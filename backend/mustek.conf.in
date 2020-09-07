@@ -33,7 +33,7 @@ scsi SCANNER
 #0x2eb
                                 # For the 600 II N try one of 0x26b, 0x2ab,
                                 # 0x2eb, 0x22b, 0x32b, 0x36b,  0x3ab, 0x3eb.
-# option linedistance-fix       # only neccessary with firmware 2.x
+# option linedistance-fix       # only necessary with firmware 2.x
 
 #-------------------------- 600 II EP ---------------------------------------
 #parport0

@@ -2411,7 +2411,7 @@ Date:   2019-03-08 20:56:26 +0000
 
     Merge branch 'master' into 'master'
 
-    Add Driver Canon Pixma TS 6200 Serie.
+    Add Driver Canon Pixma TS 6200 Series.
 
     See merge request sane-project/backends!43
 
@@ -2425,7 +2425,7 @@ commit 2915756ae4262b6a87490b5d96959f58c498307b
 Author: Thierry <thierry@substantiel.fr>
 Date:   2019-03-05 08:43:31 +0100
 
-    Add Driver Canon Pixma TS 6200 Serie.
+    Add Driver Canon Pixma TS 6200 Series.
 
 commit 9e4344b33a2d83aa7663b65d6d8a49c7306d72c7
 Author: Rolf Bensch <rolf@bensch-online.de>
@@ -2513,7 +2513,7 @@ commit 941f6bb3808fd45760ab0cf0fa0cf53a6f197986
 Author: m. allan noah <kitno455@gmail.com>
 Date:   2019-02-23 14:54:48 -0500
 
-    remove nonexistant scanners
+    remove nonexistent scanners
 
     the fi-6125 and 6135 were never released, though they showed in
     some old versions of the windows driver. here, we remove them.
@@ -4140,7 +4140,7 @@ Date:   2017-07-15 14:47:54 +0900
 
     Not all pthreads implementations use an integer type for pthread_t.
     As a matter of fact, POSIX has explicitly withdrawn the requirement
-    that it must be an arithmatic type.
+    that it must be an arithmetic type.
 
     The musl C library uses a `struct __pthread *` which triggered the
     warnings.  As of this change, sanei_thread.h works around this by
@@ -4245,7 +4245,7 @@ Date:   2017-06-26 19:13:51 +0900
     to enumeration constants by ISO C99.
 
     Seeing that the _PS_INP* values appear to be bitflags (despite the
-    arithmatic additions in backend/plustek-usbdev.c!) it is safer to
+    arithmetic additions in backend/plustek-usbdev.c!) it is safer to
     use #defines instead of an enum.
 
 commit a74cb99c1aa3dbddf0bb8250a9b2af72584d9b42

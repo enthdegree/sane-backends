@@ -931,7 +931,7 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
    *        3091 0x00 = use floating slice; 0x01..0xff fixed slice
    *             with 0x01=brightest, 0x80=medium, 0xff=darkest;
    *             only effective for line art mode.
-   *        3096 0x00 = use "simplified dynamic treshold", otherwise
+   *        3096 0x00 = use "simplified dynamic threshold", otherwise
    *             same as above but resolution is only 64 steps.
    */
 #define set_WD_threshold(sb, val) sb[0x17] = val

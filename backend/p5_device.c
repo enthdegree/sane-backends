@@ -280,7 +280,7 @@ write_reg2 (int fd, uint8_t index, uint16_t value)
  * to check the scanner is correctly working.
  * @param fd file descriptor used to access hardware
  * @param addr address where to write and read
- * @return SANE_TRUE on succes, SANE_FALSE otherwise
+ * @return SANE_TRUE on success, SANE_FALSE otherwise
  */
 static int
 memtest (int fd, uint16_t addr)
@@ -615,7 +615,7 @@ test_document (int fd)
 /**
  * return the amount of scanned data available
  * @param fd file descriptor to access scanner
- * @return avaible byte number
+ * @return available byte number
  */
 static int
 available_bytes (int fd)
@@ -1122,7 +1122,7 @@ cleanup_calibration (P5_Device * dev)
 }
 
 /** detect a black scan line
- * parses the given buffer and retrun SANE_TRUE if the line is an
+ * parses the given buffer and return SANE_TRUE if the line is an
  * acceptable black line for calibration
  * @param buffer data line to parse
  * @param pixels number of pixels
@@ -1171,7 +1171,7 @@ is_black_line (uint8_t * buffer, unsigned int pixels, int mode)
 }
 
 /** detect a white scan line
- * parses the given buffer and retrun SANE_TRUE if the line is an
+ * parses the given buffer and return SANE_TRUE if the line is an
  * acceptable white line for calibration
  * @param buffer data line to parse
  * @param pixels number of pixels

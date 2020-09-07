@@ -1496,7 +1496,7 @@ e2_wait_button(Epson_Scanner * s)
 			else
 				sleep(1);
 		} else {
-			/* we run into an error condition, just continue */
+			/* we ran into an error condition, just continue */
 			s->hw->wait_for_button = SANE_FALSE;
 		}
 	}
@@ -1997,7 +1997,7 @@ color_shuffle(SANE_Handle handle, int *new_length)
 				 * We just finished the line in line_buffer[0] - write it to the
 				 * output buffer and continue.
 				 *
-				 * The ouput buffer ist still "buf", but because we are
+				 * The output buffer is still "buf", but because we are
 				 * only overwriting from the beginning of the memory area
 				 * we are not interfering with the "still to shuffle" data
 				 * in the same area.

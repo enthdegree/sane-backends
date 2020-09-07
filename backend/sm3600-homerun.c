@@ -181,7 +181,7 @@ static TLineType GetLineType(TInstance *this)
   else
     bHolesOk=false;
   lMedian=lSum/cchBulk;
-  /* this is *definitly* dirty style. We should pass the information
+  /* this is *definitely* dirty style. We should pass the information
      by other means... */
   if (bHolesOk)
     {

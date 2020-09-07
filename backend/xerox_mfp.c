@@ -518,7 +518,7 @@ static void reset_options(struct device *dev)
     dev->val[OPT_RESOLUTION].w = 150;
     dev->val[OPT_MODE].s = string_match(scan_modes, SANE_VALUE_SCAN_MODE_COLOR);
 
-    /* if docs loaded in adf use it as default source, flatbed oterwise */
+    /* if docs loaded in adf use it as default source, flatbed otherwise */
     dev->val[OPT_SOURCE].s = UNCONST(doc_sources[(dev->doc_loaded)? 1 : 0]);
 
     dev->val[OPT_THRESHOLD].w = SANE_FIX(50);

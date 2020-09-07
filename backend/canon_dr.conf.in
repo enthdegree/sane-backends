@@ -20,7 +20,7 @@
 #option buffer-size 2097152
 
 #######################################################################
-# Most scanners dont pad their reads
+# Most scanners don't pad their reads
 #option padded-read 0
 
 #######################################################################

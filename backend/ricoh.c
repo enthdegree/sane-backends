@@ -167,7 +167,7 @@ attach (const char *devnam, Ricoh_Device ** devp)
   status = object_position (fd);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (1, "attach: OBJECT POSTITION failed\n");
+      DBG (1, "attach: OBJECT POSITION failed\n");
       sanei_scsi_close (fd);
       return (SANE_STATUS_INVAL);
     }
@@ -243,7 +243,7 @@ attach (const char *devnam, Ricoh_Device ** devp)
   dev->info.yres_default = _2btol(wbuf.y_res);
   dev->info.image_mode_default = wbuf.image_comp;
 
-  /* if you throw the MRIF bit the brighness control reverses too */
+  /* if you throw the MRIF bit the brightness control reverses too */
   /* so I reverse the reversal in software for symmetry's sake */
   /* I should make this into an option */
 
@@ -467,7 +467,7 @@ do_cancel (Ricoh_Scanner * s)
   status = object_position (s->fd);
   if (status != SANE_STATUS_GOOD)
     {
-      DBG (1, "cancel: OBJECT POSTITION failed\n");
+      DBG (1, "cancel: OBJECT POSITION failed\n");
     }
 
   s->scanning = SANE_FALSE;
@@ -849,7 +849,7 @@ sane_start (SANE_Handle handle)
   _lto4b(s->length, wbuf.length);
 
   wbuf.image_comp = s->image_composition;
-  /* if you throw the MRIF bit the brighness control reverses too */
+  /* if you throw the MRIF bit the brightness control reverses too */
   /* so I reverse the reversal in software for symmetry's sake */
   if (wbuf.image_comp == RICOH_GRAYSCALE || wbuf.image_comp == RICOH_DITHERED_MONOCHROME)
     {

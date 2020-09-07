@@ -151,9 +151,9 @@ extern void sanei_bjnp_set_timeout (SANE_Int devno, SANE_Int timeout);
  * @param size size of the data
  *
  * @return
- * - SANE_STATUS_GOOD - on succes
+ * - SANE_STATUS_GOOD - on success
  * - SANE_STATUS_EOF - if zero bytes have been read
- * - SANE_STATUS_IO_ERROR - if an error occured during the read
+ * - SANE_STATUS_IO_ERROR - if an error occurred during the read
  * - SANE_STATUS_INVAL - on every other error
  *
  */
@@ -170,8 +170,8 @@ sanei_bjnp_read_bulk (SANE_Int dn, SANE_Byte * buffer, size_t * size);
  * @param size size of the data
  *
  * @return
- * - SANE_STATUS_GOOD - on succes
- * - SANE_STATUS_IO_ERROR - if an error occured during the write
+ * - SANE_STATUS_GOOD - on success
+ * - SANE_STATUS_IO_ERROR - if an error occurred during the write
  * - SANE_STATUS_INVAL - on every other error
  */
 extern SANE_Status
@@ -187,9 +187,9 @@ sanei_bjnp_write_bulk (SANE_Int dn, const SANE_Byte * buffer, size_t * size);
  * @param size size of the data
  *
  * @return
- * - SANE_STATUS_GOOD - on succes
+ * - SANE_STATUS_GOOD - on success
  * - SANE_STATUS_EOF - if zero bytes have been read
- * - SANE_STATUS_IO_ERROR - if an error occured during the read
+ * - SANE_STATUS_IO_ERROR - if an error occurred during the read
  * - SANE_STATUS_INVAL - on every other error
  *
  */

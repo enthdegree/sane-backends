@@ -389,7 +389,7 @@ void sanei_genesys_create_default_gamma_table(Genesys_Device* dev,
 
   TODO: Should also consider maximum transfer rate: ~6.5MB/s.
     Note: The enhance option of the scanners does _not_ help. It only halves
-          the amount of pixels transfered.
+          the amount of pixels transferred.
  */
 SANE_Int sanei_genesys_exposure_time2(Genesys_Device * dev, const MotorProfile& profile, float ydpi,
                                       int endpixel, int exposure_by_led)
@@ -3204,7 +3204,7 @@ compute_shifted_coefficients (Genesys_Device * dev,
 			      unsigned int coeff,
 			      unsigned int target_dark,
 			      unsigned int target_bright,
-			      unsigned int patch_size)		/* contigous extent */
+			      unsigned int patch_size)		/* contiguous extent */
 {
   unsigned int x, avgpixels, basepixels, i, j, val1, val2;
   unsigned int br_tmp [3], dk_tmp [3];
@@ -3573,7 +3573,7 @@ static void genesys_send_shading_coefficient(Genesys_Device* dev, const Genesys_
 			            coeff,
  			            0x0001,      /* target_dark */
 			            0xf900,      /* target_bright */
-			            256);        /* patch_size: contigous extent */
+			            256);        /* patch_size: contiguous extent */
       break;
     default:
         throw SaneException(SANE_STATUS_UNSUPPORTED, "sensor %d not supported",
@@ -3598,7 +3598,7 @@ genesys_restore_calibration(Genesys_Device * dev, Genesys_Sensor& sensor)
 {
     DBG_HELPER(dbg);
 
-    // if no cache or no function to evaluate cache entry ther can be no match/
+    // if no cache or no function to evaluate cache entry there can be no match/
     if (dev->calibration_cache.empty()) {
         return false;
     }
@@ -4061,7 +4061,7 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
   unsigned int steps, expected;
 
 
-  /* since not all scanners are set ot wait for head to park
+  /* since not all scanners are set to wait for head to park
    * we check we are not still parking before starting a new scan */
     if (dev->parking) {
         sanei_genesys_wait_for_home(dev);
@@ -4166,7 +4166,7 @@ static void genesys_start_scan(Genesys_Device* dev, bool lamp_off)
         return;
     }
 
-  /*do we really need this? the valid data check should be sufficent -- pierre*/
+  /*do we really need this? the valid data check should be sufficient -- pierre*/
   /* waits for head to reach scanning position */
   expected = dev->reg.get8(0x3d) * 65536
            + dev->reg.get8(0x3e) * 256
@@ -4214,7 +4214,7 @@ static void genesys_read_ordered_data(Genesys_Device* dev, SANE_Byte* destinatio
   /* is there data left to scan */
   if (dev->total_bytes_read >= dev->total_bytes_to_read)
     {
-      /* issue park command immediatly in case scanner can handle it
+      /* issue park command immediately in case scanner can handle it
        * so we save time */
         if (!dev->model->is_sheetfed && !has_flag(dev->model->flags, ModelFlag::MUST_WAIT) &&
             !dev->parking)
@@ -4374,7 +4374,7 @@ static Genesys_Settings calculate_scan_settings(Genesys_Scanner* s)
         settings.true_gray = 0;
     }
 
-    // brigthness and contrast only for for 8 bit scans
+    // brightness and contrast only for for 8 bit scans
     if (s->bit_depth == 8) {
         settings.contrast = (s->contrast * 127) / 100;
         settings.brightness = (s->brightness * 127) / 100;
@@ -4479,7 +4479,7 @@ static SANE_Range create_range(float size)
 
 /** @brief generate calibration cache file nam
  * Generates the calibration cache file name to use.
- * Tries to store the chache in $HOME/.sane or
+ * Tries to store the cache in $HOME/.sane or
  * then fallbacks to $TMPDIR or TMP. The filename
  * uses the model name if only one scanner is plugged
  * else is uses the device name when several identical
@@ -4864,7 +4864,7 @@ static void init_options(Genesys_Scanner* s)
   s->opt[OPT_CALIBRATION_FILE].cap = SANE_CAP_SOFT_DETECT | SANE_CAP_SOFT_SELECT | SANE_CAP_ADVANCED;
   s->opt[OPT_CALIBRATION_FILE].constraint_type = SANE_CONSTRAINT_NONE;
   s->calibration_file.clear();
-  /* disable option if ran as root */
+  /* disable option if run as root */
 #ifdef HAVE_GETUID
   if(geteuid()==0)
     {
@@ -5348,7 +5348,7 @@ void sane_init_impl(SANE_Int * version_code, SANE_Auth_Callback authorize)
 #endif
     );
 
-    // cold-plug case :detection of allready connected scanners
+    // cold-plug case :detection of already connected scanners
     s_attach_device_by_name_evaluate_bcd_device = false;
     probe_genesys_devices();
 }
@@ -6335,7 +6335,7 @@ SANE_Status sane_read_impl(SANE_Handle handle, SANE_Byte * buf, SANE_Int max_len
     {
       DBG(DBG_proc, "%s: nothing more to scan: EOF\n", __func__);
 
-      /* issue park command immediatly in case scanner can handle it
+      /* issue park command immediately in case scanner can handle it
        * so we save time */
         if (!dev->model->is_sheetfed && !has_flag(dev->model->flags, ModelFlag::MUST_WAIT) &&
             !dev->parking)

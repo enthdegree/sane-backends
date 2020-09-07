@@ -1333,7 +1333,7 @@ sanei_pp_open( const char *dev, int *fd )
 	DBG( 6, "sanei_pp_open: basically, this backend does only compile\n" );
 	DBG( 6, "sanei_pp_open: on x86 architectures. Furthermore it\n" );
 	DBG( 6, "sanei_pp_open: needs ioperm() and inb()/outb() calls.\n" );
-	DBG( 6, "sanei_pp_open: alternativly it makes use of libieee1284\n" );
+	DBG( 6, "sanei_pp_open: alternatively it makes use of libieee1284\n" );
 	DBG( 6, "sanei_pp_open: (which isn't present either)\n");
 	return SANE_STATUS_INVAL;
 }

@@ -682,7 +682,7 @@ pixma_cmd_transaction (pixma_t * s, const void *cmd, unsigned cmdlen,
      going back to the home position after the last scan session has been
      cancelled, you won't get the response before it arrives home. This takes
      about 5 seconds. If the last session was succeeded, the scanner will
-     immediatly answer with PIXMA_STATUS_BUSY.
+     immediately answer with PIXMA_STATUS_BUSY.
 
      Is 8 seconds timeout enough? This affects ALL commands that use
      pixma_cmd_transaction(). Default value set in pixma_open(). */

@@ -549,7 +549,7 @@
 	union value *value, int base, int dosign,
 	int ljust, int len, int zpad, int precision );
 #endif
- static void fmtdouble( char **bufer, int *left,
+ static void fmtdouble( char **buffer, int *left,
 	int fmt, double value,
 	int ljust, int len, int zpad, int precision );
  static void dostr(  char **buffer, int *left, char *str );

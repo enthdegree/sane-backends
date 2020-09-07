@@ -823,7 +823,7 @@ void CommandSetGl846::end_scan(Genesys_Device* dev, Genesys_Register_Set* reg,
     }
 }
 
-// Moves the slider to the home (top) postion slowly
+// Moves the slider to the home (top) position slowly
 void CommandSetGl846::move_back_home(Genesys_Device* dev, bool wait_until_home) const
 {
     scanner_move_back_home(*dev, wait_until_home);

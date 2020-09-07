@@ -699,7 +699,7 @@ static unsigned char window_descriptor_blockC[] =
 /* 0x48 */  0x00, 0x00, 0x00, 0x00,							       /* Line Count */
 #define set_WD_line_count(sb, val)			putnbyte(sb + 0x48, val, 4)
 
-/* 0x4c */  4, 176,							/* x coordiante base 1200 (pts/inch) */
+/* 0x4c */  4, 176,							/* x coordinate base 1200 (pts/inch) */
 #define set_WD_x_coordinate_base(sb, val)		putnbyte(sb + 0x4c, val, 2)
 
 /* 0x4e */  4, 176,							/* y coordinate base 1200 (pts/inch) */

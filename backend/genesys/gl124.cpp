@@ -567,7 +567,7 @@ static void gl124_init_motor_regs_scan(Genesys_Device* dev,
     reg->set16(REG_FSHDEC, fast_table.table.size());
     reg->set16(REG_FMOVNO, fast_table.table.size());
 
-  /* substract acceleration distance from feedl */
+  /* subtract acceleration distance from feedl */
   feedl=feed_steps;
     feedl <<= static_cast<unsigned>(motor_profile.step_type);
 
@@ -1058,7 +1058,7 @@ void CommandSetGl124::send_shading_data(Genesys_Device* dev, const Genesys_Senso
   for(i=0;i<3;i++)
     {
       /* copy data to work buffer and process it */
-          /* coefficent destination */
+          /* coefficient destination */
       ptr = buffer.data();
 
       /* iterate on both sensor segment */

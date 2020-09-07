@@ -332,7 +332,7 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
 
 /**
  * Called to establish connection with the scanner. This function will
- * also establish meaningful defauls and initialize the options.
+ * also establish meaningful defaults and initialize the options.
  *
  * From the SANE spec:
  * This function is used to establish a connection to a particular
@@ -873,7 +873,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
  * handle h is a valid handle) but usually affects long-running
  * operations only (such as image is acquisition). It is safe to call
  * this function asynchronously (e.g., from within a signal handler).
- * It is important to note that completion of this operaton does not
+ * It is important to note that completion of this operation does not
  * imply that the currently pending operation has been cancelled. It
  * only guarantees that cancellation has been initiated. Cancellation
  * completes only when the cancelled call returns (typically with a
@@ -1290,7 +1290,7 @@ rt_queue_command (int command,
   unsigned char *buffer;
   unsigned char const *data = data_;
 
-  /* We add "bytes" here to account for the possiblity that all of the
+  /* We add "bytes" here to account for the possibility that all of the
    * data bytes are 0xaa and hence require a following 0x00 byte.
    */
   if (command_bytes_outstanding + len + bytes > MAX_COMMANDS_BYTES ||

@@ -367,7 +367,7 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
 			continue;
 		}
 
-		/* detect_mode suceeded, so the port is open.  This beholdens
+		/* detect_mode succeeded, so the port is open.  This beholdens
 		 * us to call ieee1284_close in any of the remaining error
 		 * cases in this loop. */
 #if 0
@@ -456,7 +456,7 @@ sane_init (SANE_Int *vc, SANE_Auth_Callback cb)
  *
  * sane_get_devices()
  *
- * Gives a list of devices avaialable.  In our case, that's the linked
+ * Gives a list of devices available.  In our case, that's the linked
  * list produced by sane_init.
  *
  *************************************************************************/
@@ -1222,7 +1222,7 @@ sane_read (SANE_Handle h, SANE_Byte *buf, SANE_Int maxlen, SANE_Int *lenp)
 
 	/* At this point we have to read more data from the scanner - or the
 	 * scan has been cancelled, which means we have to call read_segment
-	 * to leave the scanner consistant */
+	 * to leave the scanner consistent */
 
 	/* Decide how many lines we can fit into this buffer */
 	if (cs->vals[OPT_DEPTH] == 0)
@@ -1464,7 +1464,7 @@ sane_exit (void)
 
 		/* Should normally nullify pointers after freeing, but in
 		 * this case we're about to free the whole structure so
-		 * theres not a lot of point. */
+		 * there's not a lot of point. */
 
 		/* Constraints (mostly) allocated when the scanner is opened */
 		if(dev->opt[OPT_TL_X].constraint.range)
@@ -1701,7 +1701,7 @@ static SANE_Status init_device(struct parport *pp)
 
 	/*
 	 * NOTE: Ranges and lists are actually set when scanner is opened,
-	 * becase that's when we find out what sort of scanner it is
+	 * because that's when we find out what sort of scanner it is
 	 */
 
 	DBG(100, "init_device: done opts\n");

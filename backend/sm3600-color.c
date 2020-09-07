@@ -221,13 +221,13 @@ TState StartScanColor(TInstance *this)
       case 75:
 	RegWrite(this,R_XRES,1, 0x20); /* ups, can  do only 100 dpi horizontal */
 	RegWrite(this,R_SWID, 2, 0xC000 | this->state.cxWindow);
-	RegWrite(this,0x34, 1, 0x83); /* halfs the vertical resolution */
+	RegWrite(this,0x34, 1, 0x83); /* halves the vertical resolution */
 	RegWrite(this,0x47,1,0xC0); /* reduces the speed a bit */
 	break;
       case 100:
 	RegWrite(this,R_XRES,1, 0x20);
 	RegWrite(this,R_SWID, 2, 0xC000 | this->state.cxWindow);
-	RegWrite(this,0x34, 1, 0x63); /* halfs the vertical resolution */
+	RegWrite(this,0x34, 1, 0x63); /* halves the vertical resolution */
 	RegWrite(this,0x47,1,0xC0); /* reduces the speed a bit */
 	/* I have no idea, what these differences are good for. The seem to produce
 	   a slight blue presence.
@@ -243,14 +243,14 @@ TState StartScanColor(TInstance *this)
 	RegWrite(this,0x08,2, 0x6A6A);
 	RegWrite(this,R_XRES,1, 0x2A);
 	RegWrite(this,R_SWID, 2, 0x4000 | this->state.cxWindow);
-	RegWrite(this,0x34, 1, 0x03); /* halfs the vertical resolution */
+	RegWrite(this,0x34, 1, 0x03); /* halves the vertical resolution */
 	RegWrite(this,0x47,1,0xC0); /* reduces the speed a bit */
 	this->state.szOrder=ORDER_RGB;
 	break;
       case 600:
 	RegWrite(this,R_XRES,1, 0x3F);
 	RegWrite(this,R_SWID, 2, 0xC000 | this->state.cxWindow);
-	RegWrite(this,0x34, 1, 0x03); /* halfs the vertical resolution */
+	RegWrite(this,0x34, 1, 0x03); /* halves the vertical resolution */
 	RegWrite(this,0x47,1,0xC2); /* reduces the speed a bit */
 	break;
       case 1200:

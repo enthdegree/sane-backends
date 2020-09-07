@@ -47,7 +47,7 @@
  * Pieusb scanner commands
  *
  * Each scanner command has its own function.
- * See the sort description preceeding each function.
+ * See the sort description preceding each function.
  *
  * ========================================================================= */
 
@@ -245,7 +245,7 @@ sanei_pieusb_cmd_slide(SANE_Int device_number, slide_action action, struct Pieus
  * @param device_number Device number
  * @param sense Sense data
  * @param status Command result status
- * @see struc Pieusb_Sense
+ * @see struct Pieusb_Sense
  */
 void
 sanei_pieusb_cmd_get_sense(SANE_Int device_number, struct Pieusb_Sense* sense, struct Pieusb_Command_Status *status, PIEUSB_Status *ret)
@@ -269,7 +269,7 @@ sanei_pieusb_cmd_get_sense(SANE_Int device_number, struct Pieusb_Sense* sense, s
         return;
     }
 
-    /* Decode data recieved */
+    /* Decode data received */
     sense->errorCode = _get_byte (data, 0);
     sense->segment = _get_byte (data, 1);
     sense->senseKey = _get_byte (data, 2);
@@ -622,7 +622,7 @@ sanei_pieusb_cmd_get_parameters(SANE_Int device_number, struct Pieusb_Scan_Param
      * e: d7 00       available lines 215
      * 10:00 00
      */
-    /* Decode data recieved */
+    /* Decode data received */
     parameters->width = _get_short(data, 0);
     parameters->lines = _get_short(data, 2);
     parameters->bytes = _get_short(data, 4);
@@ -675,7 +675,7 @@ sanei_pieusb_cmd_inquiry(SANE_Int device_number, struct Pieusb_Scanner_Propertie
         return;
     }
 
-    /* Decode data recieved */
+    /* Decode data received */
     inq->deviceType = _get_byte(data, 0);
     inq->additionalLength = _get_byte(data, 4);
     _copy_bytes((SANE_Byte*)(inq->vendor), data+8, 8); /* Note: not 0-terminated */
@@ -859,7 +859,7 @@ sanei_pieusb_cmd_get_mode(SANE_Int device_number, struct Pieusb_Mode* mode, stru
         return;
     }
 
-    /* Decode data recieved */
+    /* Decode data received */
     mode->resolution = _get_short (data, 2);
     mode->passes = _get_byte (data, 4);
     mode->colorDepth = _get_byte (data, 5);
@@ -1185,7 +1185,7 @@ sanei_pieusb_cmd_read_state(SANE_Int device_number, struct Pieusb_Scanner_State*
       data[5] = 1;
       status->pieusb_status = PIEUSB_STATUS_GOOD;
     }
-    /* Decode data recieved */
+    /* Decode data received */
     state->buttonPushed = _get_byte(data, 0);
     state->warmingUp = _get_byte(data, 5);
     state->scanning = _get_byte(data, 6);

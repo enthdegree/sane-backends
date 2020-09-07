@@ -11,9 +11,9 @@ ieee1284 parport0
 # Parameters are:
 # calibrate /path/to/calibration-file port-name
 #
-# The format of port-name is dependant on your OS version.
+# The format of port-name is dependent on your OS version.
 #
-# If a file isn't speficied, the default name will be
+# If a file isn't specified, the default name will be
 # ~/.sane/canon_pp-calibration-[port-name]
 
 calibrate ~/.sane/canon_pp-calibration-pp0 parport0

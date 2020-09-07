@@ -212,7 +212,7 @@ _LOC void MapSetupDither( pScanData ps )
 	}
 }
 
-/** adjust acording to brightness and contrast
+/** adjust according to brightness and contrast
  */
 _LOC void MapAdjust( pScanData ps, int which )
 {

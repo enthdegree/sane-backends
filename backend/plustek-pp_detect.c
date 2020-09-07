@@ -108,7 +108,7 @@ static int detectScannerConnection( pScanData ps )
 
 	/*
 	 * as we're called during InitPorts, we can be sure
-	 * to operate in EPP-mode (hopefuly ;-)
+	 * to operate in EPP-mode (hopefully ;-)
 	 */
 	control = _INB_CTRL( ps );
 

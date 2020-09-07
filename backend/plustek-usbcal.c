@@ -14,7 +14,7 @@
  * The basic premise: The stock Plustek-usbshading.c in the plustek
  * driver is effectively nonfunctional for Canon CanoScan scanners.
  * These scanners rely heavily on all calibration steps, especially
- * fine white, to produce acceptible scan results.  However, to make
+ * fine white, to produce acceptable scan results.  However, to make
  * autocalibration work and make it work well involves some
  * substantial mucking aobut in code that supports thirty other
  * scanners with widely varying characteristics... none of which I own
@@ -102,7 +102,7 @@
 static int strip_state = 0;
 
 /** depending on the strip state, the sensor is moved to the shading position
- *  and the lamp ist switched on
+ *  and the lamp is switched on
  */
 static int
 cano_PrepareToReadWhiteCal( Plustek_Device *dev, SANE_Bool mv2shading_pos )

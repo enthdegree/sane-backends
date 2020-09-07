@@ -555,11 +555,11 @@ static void Split_into_12bit_channels (SANE_Byte * destino,
 static SANE_Int Scan_Read_BufferA (struct st_device *dev,
 				   SANE_Int buffer_size, SANE_Int arg2,
 				   SANE_Byte * pBuffer,
-				   SANE_Int * bytes_transfered);
+				   SANE_Int * bytes_transferred);
 
 static SANE_Int Bulk_Operation (struct st_device *dev, SANE_Byte op,
 				SANE_Int buffer_size, SANE_Byte * buffer,
-				SANE_Int * transfered);
+				SANE_Int * transferred);
 static SANE_Int Get_PAG_Value (SANE_Byte scantype, SANE_Byte color);
 static SANE_Int GetOneLineInfo (struct st_device *dev, SANE_Int resolution,
 				SANE_Int * maximus, SANE_Int * minimus,
@@ -909,7 +909,7 @@ Motor_Curve_Parse (SANE_Int * mtc_count, SANE_Int * buffer)
 	  if (*buffer == -2)
 	    {
 	      /* end of motorcurve */
-	      /* complete any openned phase */
+	      /* complete any opened phase */
 	      /* close phase */
 	      phase = -1;
 	    }
@@ -1597,7 +1597,7 @@ RTS_Scanner_SetParams (struct st_device *dev, struct params *param)
       data_bitset (&dev->init_regs[0x146], 0x40,
 		   ((dev->sensorcfg->type == CIS_SENSOR) ? 0 : 1));
 
-      /* turn on appropiate lamp */
+      /* turn on appropriate lamp */
       if (scan.scantype == ST_NORMAL)
 	Lamp_Status_Set (dev, NULL, TRUE, FLB_LAMP);
       else
@@ -2729,7 +2729,7 @@ Motor_Move (struct st_device *dev, SANE_Byte * Regs,
       /* unknown data */
       data_bitset (&cpRegs[0x1cf], 0x80, 1);	/*x------- */
 
-      /* sets one chanel per color */
+      /* sets one channel per color */
       data_bitset (&cpRegs[0x12], 0x3f, 0);	/* channel   */
       data_bitset (&cpRegs[0x12], 0xc0, 1);	/* 1 channel */
 
@@ -2924,7 +2924,7 @@ Load_MotorCurves (struct st_device *dev)
 
   DBG (DBG_FNC, "> Load_MotorCurves\n");
 
-  /* get motor setttings buffer for this device */
+  /* get motor settings buffer for this device */
   mtc = cfg_motorcurve_get ();
   if (mtc != NULL)
     {
@@ -4342,7 +4342,7 @@ RTS_DMA_Write (struct st_device *dev, SANE_Int dmacs, SANE_Int options,
 		}
 	      else
 		{
-		  /* for some reason it's not posible to allocate space to check
+		  /* for some reason it's not possible to allocate space to check
 		     sent buffer so we just write data */
 		  Bulk_Operation (dev, BLK_WRITE, size, buffer, &transferred);
 		  rst = OK;
@@ -4401,7 +4401,7 @@ RTS_DMA_CheckType (struct st_device *dev, SANE_Byte * Regs)
 		  if (RTS_DMA_SetType (dev, Regs, a) != OK)
 		    break;
 
-		  /* wait 1500 miliseconds */
+		  /* wait 1500 milliseconds */
 		  if (RTS_DMA_WaitReady (dev, 1500) == OK)
 		    {
 		      /* reset dma */
@@ -7693,7 +7693,7 @@ arrangeline2 = 1
 
 static SANE_Int
 Scan_Read_BufferA (struct st_device *dev, SANE_Int buffer_size, SANE_Int arg2,
-		   SANE_Byte * pBuffer, SANE_Int * bytes_transfered)
+		   SANE_Byte * pBuffer, SANE_Int * bytes_transferred)
 {
   SANE_Int rst = OK;
   SANE_Byte *ptBuffer = NULL;
@@ -7701,11 +7701,11 @@ Scan_Read_BufferA (struct st_device *dev, SANE_Int buffer_size, SANE_Int arg2,
   struct st_readimage *rd = dev->Reading;
 
   DBG (DBG_FNC,
-       "+ Scan_Read_BufferA(buffer_size=%i, arg2, *pBuffer, *bytes_transfered):\n",
+       "+ Scan_Read_BufferA(buffer_size=%i, arg2, *pBuffer, *bytes_transferred):\n",
        buffer_size);
 
   arg2 = arg2;			/* silence gcc */
-  *bytes_transfered = 0;
+  *bytes_transferred = 0;
 
   if (pBuffer != NULL)
     {
@@ -7841,7 +7841,7 @@ Scan_Read_BufferA (struct st_device *dev, SANE_Int buffer_size, SANE_Int arg2,
 				}
 			      else
 				{
-				  *bytes_transfered += iAmount;
+				  *bytes_transferred += iAmount;
 				  buffer_size -= iAmount;
 				}
 
@@ -7867,7 +7867,7 @@ Scan_Read_BufferA (struct st_device *dev, SANE_Int buffer_size, SANE_Int arg2,
 	  /* is there any data read from scanner? */
 	  if (rd->RDSize > 0)
 	    {
-	      /* Add to the given buffer so many bytes as posible */
+	      /* Add to the given buffer as many bytes as possible */
 	      SANE_Int iAmount;
 
 	      iAmount = min (buffer_size, rd->RDSize);
@@ -7889,16 +7889,16 @@ Scan_Read_BufferA (struct st_device *dev, SANE_Int buffer_size, SANE_Int arg2,
 	      ptBuffer += iAmount;
 	      rd->RDSize -= iAmount;
 	      buffer_size -= iAmount;
-	      *bytes_transfered += iAmount;
+	      *bytes_transferred += iAmount;
 
 	      /* if there isn't any data in DMABuffer we can point RDStart
-	         to the begining of DMABuffer */
+	         to the beginning of DMABuffer */
 	      if (rd->RDSize == 0)
 		rd->RDStart = rd->DMABuffer;
 	    }
 
-	  /* in case of all data is read we return OK with bytes_transfered = 0 */
-	  if ((*bytes_transfered == 0)
+	  /* in case of all data is read we return OK with bytes_transferred = 0 */
+	  if ((*bytes_transferred == 0)
 	      || ((rd->RDSize == 0) && (rd->ImageSize == 0)))
 	    break;
 	}
@@ -7907,7 +7907,7 @@ Scan_Read_BufferA (struct st_device *dev, SANE_Int buffer_size, SANE_Int arg2,
 	RTS_DMA_Cancel (dev);
     }
 
-  DBG (DBG_FNC, "->   *bytes_transfered=%i\n", *bytes_transfered);
+  DBG (DBG_FNC, "->   *bytes_transferred=%i\n", *bytes_transferred);
   DBG (DBG_FNC, "->   Reading->ImageSize=%i\n", rd->ImageSize);
   DBG (DBG_FNC, "->   Reading->DMAAmount=%i\n", rd->DMAAmount);
   DBG (DBG_FNC, "->   Reading->RDSize   =%i\n", rd->RDSize);
@@ -7921,7 +7921,7 @@ static SANE_Int
 Reading_BufferSize_Get (struct st_device *dev, SANE_Byte channels_per_dot,
 			SANE_Int channel_size)
 {
-  /* returns the ammount of bytes in scanner's buffer ready to be read */
+  /* returns the amount of bytes in scanner's buffer ready to be read */
 
   SANE_Int rst;
 
@@ -10039,7 +10039,7 @@ Shading_apply (struct st_device *dev, SANE_Byte * Regs,
 
 static SANE_Int
 Bulk_Operation (struct st_device *dev, SANE_Byte op, SANE_Int buffer_size,
-		SANE_Byte * buffer, SANE_Int * transfered)
+		SANE_Byte * buffer, SANE_Int * transferred)
 {
   SANE_Int iTransferSize, iBytesToTransfer, iPos, rst, iBytesTransfered;
 
@@ -10051,8 +10051,8 @@ Bulk_Operation (struct st_device *dev, SANE_Byte op, SANE_Int buffer_size,
   rst = OK;
   iBytesTransfered = 0;
 
-  if (transfered != NULL)
-    *transfered = 0;
+  if (transferred != NULL)
+    *transferred = 0;
 
   iTransferSize = min (buffer_size, RTS_Debug->dmatransfersize);
 
@@ -10072,8 +10072,8 @@ Bulk_Operation (struct st_device *dev, SANE_Byte op, SANE_Int buffer_size,
 	    }
 	  else
 	    {
-	      if (transfered != NULL)
-		*transfered += iBytesTransfered;
+	      if (transferred != NULL)
+		*transferred += iBytesTransfered;
 	    }
 	  iPos += iTransferSize;
 	  iBytesToTransfer -= iTransferSize;
@@ -10095,8 +10095,8 @@ Bulk_Operation (struct st_device *dev, SANE_Byte op, SANE_Int buffer_size,
 	    }
 	  else
 	    {
-	      if (transfered != NULL)
-		*transfered += iTransferSize;
+	      if (transferred != NULL)
+		*transferred += iTransferSize;
 	    }
 	  iPos += iTransferSize;
 	  iBytesToTransfer -= iTransferSize;
@@ -10763,7 +10763,7 @@ Lamp_Status_Set (struct st_device *dev, SANE_Byte * Regs, SANE_Int turn_on,
       switch (dev->chipset->model)
 	{
 	case RTS8822BL_03A:
-	  /* register 0xe946 has 2 bits and each one referres one lamp
+	  /* register 0xe946 has 2 bits and each one refers one lamp
 	     0x40: FLB_LAMP | 0x20 : TMA_LAMP
 	     if both were enabled both lamps would be switched on */
 	  data_bitset (&Regs[0x146], 0x20, ((lamp == TMA_LAMP) && (turn_on == TRUE)) ? 1 : 0);	/* TMA */
@@ -14005,7 +14005,7 @@ Free_Constrains (struct st_device *dev)
 static void
 RTS_DebugInit ()
 {
-  /* Default vaules */
+  /* Default values */
   RTS_Debug->dev_model = HP3970;
 
   RTS_Debug->DumpShadingData = FALSE;
@@ -14428,7 +14428,7 @@ WShading_Emulate (SANE_Byte * buffer, SANE_Int * chnptr, SANE_Int size,
 	      /* get channel color */
 	      chncolor = data_lsb_get (buffer + pos, chnsize);
 
-	      /* apply shading coeficient */
+	      /* apply shading coefficient */
 	      chncolor *= wshading->rates[*chnptr];
 
 	      /* care about limits */

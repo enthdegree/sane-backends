@@ -96,7 +96,7 @@ static SANE_Status Source_init (Source *pself,
  *
  * Revision 1.4  2001/09/18 15:01:07  oliverschwartz
  * - Read scanner id string again after firmware upload
- *   to indentify correct model
+ *   to identify correct model
  * - Make firmware upload work for AGFA scanners
  * - Change copyright notice
  *
@@ -105,5 +105,5 @@ static SANE_Status Source_init (Source *pself,
  * Support for 1212U_2
  *
  * Revision 1.2  2000/10/13 03:50:27  cbagwell
- * Updating to source from SANE 1.0.3.  Calling this versin 1.1
+ * Updating to source from SANE 1.0.3.  Calling this version 1.1
  * */

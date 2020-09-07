@@ -161,7 +161,7 @@ extern SANE_Byte sanei_pp_inb_ctrl( int fd );
 extern SANE_Byte sanei_pp_inb_epp ( int fd );
 
 /** Delay execution for some micro-seconds.
- *  Please not, that the accuracy highly depends on your system architechture
+ *  Please note, that the accuracy highly depends on your system architecture
  *  and the time to delay. It is internally implemented as system calls to
  *  gettimeofday().
  *

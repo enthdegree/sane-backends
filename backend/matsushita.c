@@ -934,7 +934,7 @@ matsushita_sense_handler (int scsi_fd, unsigned char *result, void __sane_unused
     case 0x06:
       if (asc == 0x29)
 	{
-	  /* Reset occured. May be the backend should retry the
+	  /* Reset occurred. May be the backend should retry the
 	   * command. */
 	  return SANE_STATUS_GOOD;
 	}

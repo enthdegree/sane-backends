@@ -393,7 +393,7 @@ return SANE_STATUS_GOOD;
   if (status == SANE_STATUS_IO_ERROR)
     {
 
-/* Now we are checking for Harware and Vendor Unique Errors for all models */
+/* Now we are checking for Hardware and Vendor Unique Errors for all models */
 /* First check the common Error conditions */
 
       if (result[18] & 0x80)
@@ -1010,7 +1010,7 @@ calc_parameters (Apple_Scanner * s)
    Looks like for two distinct val (Fixed) values we get the same
    double. How come ?
 
-   This hack fixed the looping situtation. Unfortunately SIGSEGV
+   This hack fixed the looping situation. Unfortunately SIGSEGV
    remains when you touch the slice bars (thouhg not all the
    time). But it's OK if you select scan_area from the preview window
    (cool).
@@ -1188,7 +1188,7 @@ mode_update (SANE_Handle handle, char *val)
       return SANE_STATUS_INVAL;
     }
 
-/* Second hand dependancies of mode option */
+/* Second hand dependencies of mode option */
 /* Looks like code doubling */
 
 
@@ -1546,7 +1546,7 @@ init_options (Apple_Scanner * s)
   /* Use volt_ref */
   s->opt[OPT_VOLT_REF].name = "volt-ref";
   s->opt[OPT_VOLT_REF].title = "Volt Reference";
-  s->opt[OPT_VOLT_REF].desc ="It's brightness equivalant.";
+  s->opt[OPT_VOLT_REF].desc ="It's brightness equivalent.";
   s->opt[OPT_VOLT_REF].type = SANE_TYPE_BOOL;
   if (s->hw->ScannerModel!=COLORONESCANNER)
     s->opt[OPT_VOLT_REF].cap |= SANE_CAP_INACTIVE;

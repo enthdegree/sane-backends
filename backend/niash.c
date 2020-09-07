@@ -223,7 +223,7 @@ static const char lineartStr[] = { SANE_VALUE_SCAN_MODE_LINEART };
 #define MODE_GRAY    1
 #define MODE_LINEART 2
 
-/* lineart treshold range */
+/* lineart threshold range */
 static const SANE_Range rangeThreshold = {
   0,
   100,
@@ -660,7 +660,7 @@ _InitOptions (TScanner * s)
           pDesc->constraint_type = SANE_CONSTRAINT_RANGE;
           pDesc->constraint.range = &rangeYmm;
           pDesc->cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-          pVal->w = 290 /* have a bit reserve instaed of rangeYmm.max */ ;
+          pVal->w = 290 /* have a bit reserve instead of rangeYmm.max */ ;
           break;
 
         case optDPI:

@@ -126,9 +126,9 @@
          - send_panel() can disable too
          - add cancel() to send d8 command
          - call cancel() only after final read from scanner
-         - stop button reqests cancel
+         - stop button requests cancel
       v12 2009-01-21, MAN
-         - dont export private symbols
+         - don't export private symbols
       v13 2009-03-06, MAN
          - new vendor ID for recent machines
          - add usb ids for several new machines
@@ -149,7 +149,7 @@
       v18 2009-03-21, MAN
          - rewrite config file parsing to reset options after each scanner
          - add config options for vendor, model, version
-         - dont call inquiry if those 3 options are set
+         - don't call inquiry if those 3 options are set
          - remove default config file from code
          - add initial gray deinterlacing code for DR-2510C
          - rename do_usb_reset to do_usb_clear
@@ -175,8 +175,8 @@
       v24 2009-04-02, MAN
          - fix DR-2510C duplex deinterlacing code
          - rewrite sane_read helpers to read until EOF
-         - update sane_start for scanners that dont use object_position
-         - dont call sanei_usb_clear_halt() if device is not open
+         - update sane_start for scanners that don't use object_position
+         - don't call sanei_usb_clear_halt() if device is not open
          - increase default buffer size to 4 megs
          - set buffermode on by default
          - hide modes and resolutions that DR-2510C lies about
@@ -206,8 +206,8 @@
          - merge x and y resolution options into single option
          - move scan params into two new structs, s->u and s->s
          - sane_get_parameters() just returns values from s->u
-         - dont call wait_scanner() in object_position()
-         - dont call ssm_*() from option handler
+         - don't call wait_scanner() in object_position()
+         - don't call ssm_*() from option handler
          - refactor sane_start()
          - read_from_buffer() can workaround missing res, modes and cropping
          - set most DR-2xxx machines to use the read_from_buffer workarounds
@@ -318,7 +318,7 @@
       v51 2015-08-25, MAN (SANE 1.0.25)
          - DR-C125 does not invert_tly, does need sw_lut
       v52 2015-11-03, MAN
-         - set can_color=1 by default (recent models dont have 'C' in name)
+         - set can_color=1 by default (recent models don't have 'C' in name)
          - enable jpeg for DR-6080
          - add must_downsample and must_fully_buffer
          - improve dropout option handling
@@ -3019,7 +3019,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
       DBG (20, "sane_control_option: set value for '%s' (%d)\n", s->opt[option].name,option);
 
       if ( s->started ) {
-        DBG (5, "sane_control_option: cant set, device busy\n");
+        DBG (5, "sane_control_option: can't set, device busy\n");
         return SANE_STATUS_DEVICE_BUSY;
       }
 
@@ -3034,7 +3034,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
         return status;
       }
 
-      /* may have been changed by constrain, so dont copy until now */
+      /* may have been changed by constrain, so don't copy until now */
       val_c = *(SANE_Word *)val;
 
       /*
@@ -4259,7 +4259,7 @@ update_i_params(struct scanner *s)
  *
  * this will be called between sides of a duplex scan,
  * and at the start of each page of an adf batch.
- * hence, we spend alot of time playing with s->started, etc.
+ * hence, we spend a lot of time playing with s->started, etc.
  */
 SANE_Status
 sane_start (SANE_Handle handle)
@@ -4458,10 +4458,10 @@ sane_start (SANE_Handle handle)
     }
 
     /* set clean defaults with new sheet of paper */
-    /* dont reset the transfer vars on backside of duplex page */
+    /* don't reset the transfer vars on backside of duplex page */
     /* otherwise buffered back page will be lost */
     /* ingest paper with adf (no-op for fb) */
-    /* dont call object pos or scan on back side of duplex scan */
+    /* don't call object pos or scan on back side of duplex scan */
     if(s->side == SIDE_FRONT || s->s.source == SOURCE_ADF_BACK || s->s.source == SOURCE_CARD_BACK){
 
       /* clean scan params for new scan */
@@ -5944,7 +5944,7 @@ calibrate_AFE (struct scanner *s)
     goto cleanup;
   }
 
-  /*blast the existing fine cal data so reading code wont apply it*/
+  /*blast the existing fine cal data so reading code won't apply it*/
   ret = offset_buffers(s,0);
   ret = gain_buffers(s,0);
 
@@ -6388,7 +6388,7 @@ calibrate_fine (struct scanner *s)
     goto cleanup;
   }
 
-  /*blast the existing fine cal data so reading code wont apply it*/
+  /*blast the existing fine cal data so reading code won't apply it*/
   ret = offset_buffers(s,0);
   ret = gain_buffers(s,0);
 
@@ -6701,7 +6701,7 @@ gain_buffers (struct scanner *s, int setup)
  * handle h is a valid handle) but usually affects long-running
  * operations only (such as image acquisition). It is safe to call
  * this function asynchronously (e.g., from within a signal handler).
- * It is important to note that completion of this operaton does not
+ * It is important to note that completion of this operation does not
  * imply that the currently pending operation has been cancelled. It
  * only guarantees that cancellation has been initiated. Cancellation
  * completes only when the cancelled call returns (typically with a
@@ -6727,7 +6727,7 @@ sane_cancel (SANE_Handle handle)
 
 /* checks started and cancelled flags in scanner struct,
  * sends cancel command to scanner if required. don't call
- * this function asyncronously, wait for pending operation */
+ * this function asynchronously, wait for pending operation */
 static SANE_Status
 check_for_cancel(struct scanner *s)
 {
@@ -7520,7 +7520,7 @@ do_usb_clear(struct scanner *s, int clear, int runRS)
       DBG (15, "do_usb_clear: clear halt\n");
       ret = sanei_usb_clear_halt(s->fd);
       if(ret != SANE_STATUS_GOOD){
-        DBG(5,"do_usb_clear: cant clear halt, returning %d\n", ret);
+        DBG(5,"do_usb_clear: can't clear halt, returning %d\n", ret);
         return ret;
       }
     }
@@ -7680,7 +7680,7 @@ get_page_width(struct scanner *s)
       return s->max_x_fb;
   }
 
-  /* cant overscan larger than scanner max */
+  /* can't overscan larger than scanner max */
   if(width > s->valid_x){
       return s->valid_x;
   }
@@ -7704,7 +7704,7 @@ get_page_height(struct scanner *s)
       return s->max_y_fb;
   }
 
-  /* cant overscan larger than scanner max */
+  /* can't overscan larger than scanner max */
   if(height > s->max_y){
       return s->max_y;
   }

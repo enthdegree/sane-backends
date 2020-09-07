@@ -448,7 +448,7 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
 	}
     }
 
-  /* check wether we have found a match or reach the end of the device list */
+  /* check whether we have found a match or reach the end of the device list */
   if (!device)
     {
       DBG (DBG_info, "sane_open: no device found\n");
@@ -539,7 +539,7 @@ sane_open (SANE_String_Const name, SANE_Handle * handle)
 
 
 /**
- * Set non blocking mode. In this mode, read return immediatly when
+ * Set non blocking mode. In this mode, read return immediately when
  * no data is available, instead of polling the scanner.
  */
 SANE_Status
@@ -997,7 +997,7 @@ sane_control_option (SANE_Handle handle, SANE_Int option,
 	  return status;
 	}
 
-      /* return immediatly if no change */
+      /* return immediately if no change */
       if (s->opt[option].type == SANE_TYPE_INT
 	  && *(SANE_Word *) val == s->val[option].w)
 	{
@@ -1554,7 +1554,7 @@ compute_parameters (Rts8891_Session * session)
     dev->lds_max = dev->lds_b;
 
   /* since the extra lines for reordering are before data */
-  /* we substract lds_max */
+  /* we subtract lds_max */
   dev->lds_r -= dev->lds_max;
   dev->lds_g -= dev->lds_max;
   dev->lds_b -= dev->lds_max;
@@ -1564,7 +1564,7 @@ compute_parameters (Rts8891_Session * session)
   /* decrease y start to take these extra lines into account       */
   dev->lines += (dev->lds_max + dev->ripple) / dev->bytes_per_line;
 
-  /* shading calibration is allways 66 lines regardless of ydpi, so */
+  /* shading calibration is always 66 lines regardless of ydpi, so */
   /* we take this into account to compute ystart                    */
   if (dev->ydpi > dev->model->min_ydpi)
     {
@@ -1864,7 +1864,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
 	    {			/* at max xdpi, data received is distorted and ydpi is half of xdpi */
 	      if (session->emulated_gray == SANE_TRUE)
 		{
-		  /* in emulated gray mode we are allways reading 3 bytes of raw data */
+		  /* in emulated gray mode we are always reading 3 bytes of raw data */
 		  /* at a time                                                        */
 		  switch (((session->sent * 3) % dev->bytes_per_line) % 6)
 		    {
@@ -1945,7 +1945,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
 	    {
 	      if (session->emulated_gray == SANE_TRUE)
 		{
-		  /* in emulated gray mode we are allways reading 3 bytes of raw data */
+		  /* in emulated gray mode we are always reading 3 bytes of raw data */
 		  /* at a time, so we know where we are                               */
 		  val = dev->current[dev->lds_g];
 		  if (session->params.depth == 1)
@@ -1996,7 +1996,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
 	      /* we currently handle ydi=2*dpi */
 	      if (session->emulated_gray == SANE_TRUE)
 		{
-		  /* in emulated gray mode we are allways reading 3 bytes of raw data */
+		  /* in emulated gray mode we are always reading 3 bytes of raw data */
 		  /* at a time, so we know where we are                               */
 		  val = (dev->current[dev->lds_g]
 			 + dev->current[dev->lds_g +
@@ -2086,7 +2086,7 @@ sane_read (SANE_Handle handle, SANE_Byte * buf,
  * handle h is a valid handle) but usually affects long-running
  * operations only (such as image is acquisition). It is safe to call
  * this function asynchronously (e.g., from within a signal handler).
- * It is important to note that completion of this operaton does not
+ * It is important to note that completion of this operation does not
  * imply that the currently pending operation has been cancelled. It
  * only guarantees that cancellation has been initiated. Cancellation
  * completes only when the cancelled call returns (typically with a
@@ -2131,7 +2131,7 @@ sane_cancel (SANE_Handle handle)
         }
     }
 
-  /* free ressources used by scanning */
+  /* free resources used by scanning */
   if (dev->scanned_data != NULL)
     {
       free (dev->scanned_data);
@@ -2420,7 +2420,7 @@ config_attach_rts8891 (SANEI_Config * config, const char *devname,
 /**
  * The attach tries to open the given usb device and match it
  * with devices handled by the backend. The configuration parameter
- * contains the values of the allready parsed configuration options
+ * contains the values of the already parsed configuration options
  * from the conf file.
  * @param config configuration structure filled with values read
  * 	         from configuration file
@@ -2534,7 +2534,7 @@ attach_rts8891 (const char *devicename)
   first_device = device;
 
   device->reg_count = 244;
-  /* intialization is done at sane_open */
+  /* initialization is done at sane_open */
   device->initialized = SANE_FALSE;
   device->needs_warming = SANE_TRUE;
   device->parking = SANE_FALSE;
@@ -3030,7 +3030,7 @@ find_origin (struct Rts8891_Device *dev, SANE_Bool * changed)
   DBG (DBG_proc, "find_origin: start\n");
 
   /* check if head is at home
-   * once sensor is correctly set up, we are allways park here,
+   * once sensor is correctly set up, we are always park here,
    * but in case sensor has just changed, we are not so we park head */
   sanei_rts88xx_read_reg (dev->devnum, CONTROLER_REG, &reg);
   if ((reg & 0x02) == 0)
@@ -3255,7 +3255,7 @@ find_origin (struct Rts8891_Device *dev, SANE_Bool * changed)
     {
       for (y = 1; y < height - 2; y++)
 	{
-	  /* egde detection on each line */
+	  /* edge detection on each line */
 	  if (image[x + (y + 1) * width] - image[x + y * width] >= 20)
 	    {
 	      sum += y;
@@ -3506,7 +3506,7 @@ find_margin (struct Rts8891_Device *dev)
 
 #ifdef FAST_INIT
 /*
- * This function intializes the device:
+ * This function initializes the device:
  * 	- initial registers values
  * 	- test if at home
  * 	- head parking if needed
@@ -3549,7 +3549,7 @@ initialize_device (struct Rts8891_Device *dev)
   DBG (DBG_io, "initialize_device: lamp status=0x%02x\n", dev->regs[0x8e]);
 
   /* sensor type the one for 4470c sold with XPA is slightly different
-   * than those sold bare, for this model we allways start with xpa type sensor,
+   * than those sold bare, for this model we always start with xpa type sensor,
    * and change it later if we detect black scans in find_origin(). In case the
    * attach function set up the sensor type, we don't modify it */
   if (dev->sensor == -1)
@@ -4017,7 +4017,7 @@ int i;
 }
 
 /*
- * This function intializes the device:
+ * This function initializes the device:
  * 	- initial registers values
  * 	- test if at home
  * 	- head parking if needed
@@ -4032,7 +4032,7 @@ init_device (struct Rts8891_Device *dev)
   char message[256 * 6];
   SANE_Int val;
 
-  /* these commands are used to acces NVRAM through a serial manner */
+  /* these commands are used to access NVRAM through a serial manner */
   /* we ignore NVRAM settingsd for now                              */
   SANE_Byte nv_cmd1[21] =
     { 0x28, 0x38, 0x28, 0x38, 0x08, 0x18, 0x28, 0x38, 0x28, 0x38, 0x28, 0x38,
@@ -4098,7 +4098,7 @@ init_device (struct Rts8891_Device *dev)
   sanei_rts88xx_get_lamp_status (dev->devnum, dev->regs);
   DBG (DBG_io, "init_device: lamp status=0x%02x\n", dev->regs[0x8e]);
 
-  /* initalize sensor with default from model */
+  /* initialize sensor with default from model */
   dev->sensor = dev->model->sensor;
   DBG (DBG_info, "init_device: reg[8e]=0x%02x\n", dev->regs[0x8e]);
 
@@ -4231,7 +4231,7 @@ init_device (struct Rts8891_Device *dev)
   rts8891_write_all (dev->devnum, dev->regs, dev->reg_count);
 
   /* now we are writing and reading back from memory, it is surely a memory test since the written data
-   * don't look usefull at first glance
+   * don't look useful at first glance
    */
   reg = 0x06;
   sanei_rts88xx_write_reg (dev->devnum, 0x93, &reg);
@@ -4422,14 +4422,14 @@ init_device (struct Rts8891_Device *dev)
   sanei_rts88xx_write_reg (dev->devnum, CONTROLER_REG, &reg);
 
   /* now we init nvram */
-  /* this is highly dangerous and thus desactivated
+  /* this is highly dangerous and thus deactivated
    * in sanei_rts88xx_setup_nvram (HAZARDOUS_EXPERIMENT #define) */
   sanei_rts88xx_setup_nvram (dev->devnum, 21, nv_cmd1);
   sanei_rts88xx_setup_nvram (dev->devnum, 21, nv_cmd2);
   sanei_rts88xx_setup_nvram (dev->devnum, 21, nv_cmd3);
   sanei_rts88xx_set_status (dev->devnum, dev->regs, 0x28, 0x28);
 
-  /* second occurence of this block */
+  /* second occurrence of this block */
   sanei_rts88xx_read_reg (dev->devnum, CONTROL_REG, &control);
   if (control != 0)
     {
@@ -6293,7 +6293,7 @@ send_calibration_data (struct Rts8891_Session *session)
   /* 675 pixels at 75 DPI, 16 bits values, 3 color channels */
   /* 5400 pixels at max sensor 600 dpi                      */
   /* 3 16bits 256 value gamma tables plus start/end markers */
-  /* must multple of 32 */
+  /* must multiple of 32 */
   data_size = (675 * dev->xdpi) / 75;
 
   width = dev->pixels;
@@ -6364,7 +6364,7 @@ send_calibration_data (struct Rts8891_Session *session)
   fill_gamma (calibration, &idx, gamma_b);
 
   /* compute calibration coefficients */
-  /* real witdh != 675 --> 637
+  /* real width != 675 --> 637
    * shading data calibration starts at 1542. There are 3 rows of 16 bits values
    * first row is green calibration
    */
@@ -6546,7 +6546,7 @@ move_to_scan_area (struct Rts8891_Session *session)
 /* the ultimate goal is to have no direct access to registers, but to    */
 /* set them through helper functions                                     */
 /* NOTE : I couldn't manage to get scans that really uses gray settings. */
-/* The windows driver is allways scanning in color, so we do the same.   */
+/* The windows driver is always scanning in color, so we do the same.   */
 /* For now, the only mode that could be done would be 300 dpi gray scan, */
 /* based on the register settings of find_origin()                       */
 static SANE_Status
@@ -7611,7 +7611,7 @@ setup_scan_registers (struct Rts8891_Session *session, SANE_Byte *status1, SANE_
 /* the ultimate goal is to have no direct access to registers, but to    */
 /* set them through helper functions                                     */
 /* NOTE : I couldn't manage to get scans that really uses gray settings. */
-/* The windows driver is allways scanning in color, so we do the same.   */
+/* The windows driver is always scanning in color, so we do the same.   */
 /* For now, the only mode that could be done would be 300 dpi gray scan, */
 /* based on the register settings of find_origin()                       */
 static SANE_Status
@@ -7709,7 +7709,7 @@ park_head (struct Rts8891_Device *dev, SANE_Bool wait)
 }
 
 /* update button status
- * button access is allowed during scan, which is usefull for 'cancel' button
+ * button access is allowed during scan, which is useful for 'cancel' button
  */
 static SANE_Status
 update_button_status (struct Rts8891_Session *session)

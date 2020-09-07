@@ -128,7 +128,7 @@
 2002-01-21 Oliver Rauch <Oliver.Rauch@rauch-domain.de>
 
 	* doc/sane-umax.man, backend/umax.conf:
-	  added new umax.conf options and explaination
+	  added new umax.conf options and explanation
 
 2002-01-20  Gerhard Jaeger <g.jaeger@earthling.net>
 
@@ -170,7 +170,7 @@
 	* po/Makefile.in po/README po/epson.de.po po/mustek.de.po
 	  po/mustek_usb.de.po po/plustek.de.po po/pnm.de.po po/saneopts.de.po
 	  po/umax.de.po: Moved the options contained in saneopts.h into a
-	  seperate file. So the backend po files are much smaller and easier to
+	  separate file. So the backend po files are much smaller and easier to
 	  read and the saneopts translations are consistent through backends.
 	* backend/microtek2.c backend/microtek2.h: Update to backend
 	  0.95-20020112 (from karsten.festag@t-online.de (Karsten Festag)).
@@ -251,7 +251,7 @@
 	  doc/sane-avision.man: Merged the Avision v0.3.0 backend. It
 	  includes overall cleanups, improved supported device detection,
 	  memory-leak fixes, new config-options, initial USB device and
-	  color calibration support. Also upadted the homepage-url and the
+	  color calibration support. Also updated the homepage-url and the
 	  sane-avision man-page.
 
 2002-01-16  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -291,7 +291,7 @@
 	  of an error so the "Directory Browse" camera can be used.
 	  Don't require a port to be specified for the "Directory
 	  Browse" camera.  Fixed a bug that can result in extra data
-	  at the end of the iamge.  Allow the returned image image to be
+	  at the end of the image.  Allow the returned image image to be
 	  larger than the "estimate" specified in the configuration file.
 
 2002-01-14  Henning Meier-Geinitz <henning@meier-geinitz.de>
@@ -420,7 +420,7 @@
 2002-01-09  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* ChangeLog ChangeLog-1.0.0 ChangeLog-1.0.1 ChangeLog-1.0.2
-	  ChangeLog-1.0.3 ChangeLog-1.0.4 ChangeLog-1.0.5: Splitted
+	  ChangeLog-1.0.3 ChangeLog-1.0.4 ChangeLog-1.0.5: Split
 	  ChangeLog to limit filesize. Editing became slow on smaller systems.
 
 2002-01-08  Marcio Teixeira <marciot@users.sourceforge.net>
@@ -439,7 +439,7 @@
 	* tools/sane-config.in: Use @NUMBER_VERSION@.
 	* sane-backends.lsm: Made more compatible with LSM standard. Fixed
 	  mostang.com directory. Added OpenBSD.
-	* include/Makefile.in: Added targed "dist". Moved include targets from
+	* include/Makefile.in: Added target "dist". Moved include targets from
 	  root dir to this file. Added standard variables and .PHONY.
 	* backend/Makefile.in doc/Makefile.in frontend/Makefile.in
 	  japi/Makefile.in lib/Makefile.in po/Makefile.in sanei/Makefile.in
@@ -493,7 +493,7 @@
 	  scanners (patch from Marcio Luis Teixeira
 	  <marciot@holly.colostate.edu>).
 	* doc/Makefile.in doc/sane.man doc/sane-umax1220u.man: Added
-	  documentation fo umax1220u backend (patch from from Marcio Luis
+	  documentation for umax1220u backend (patch from from Marcio Luis
 	  Teixeira <marciot@holly.colostate.edu>).
 	* AUTHORS: Added Marcio Luis Teixeira.
 	* TODO: Removed umax1220u project (now included in sane-backends).
@@ -506,7 +506,7 @@
 	* configure configure.in include/sane/config.h.in: Added check
 	  for inet_ntop().
 	* lib/inet_ntop.c lib/Makefile.in backend/Makefile.in: Added
-	  implementation of inet_ntop() for platforms withouth this
+	  implementation of inet_ntop() for platforms without this
 	  function based on inet_ntoa.
 	* backend/saned.conf frontend/saned.c doc/saned.man: Changed access
 	  control (function check host). Now IP addresses are used for
@@ -554,9 +554,9 @@
 	  sending NET_OPEN reply and net.c flushing the wire. New version:
 	  1.0.6.
 	* doc/saned.man frontend/saned.c: Changed debug handling. All debug
-	  messages use DBG now. If in inetd mode or dameon mode with "-s",
+	  messages use DBG now. If in inetd mode or daemon mode with "-s",
 	  the messages are printed to syslog as before. If option "-d" is used,
-	  the mesages are printed to stderr. Updated manual page.
+	  the messages are printed to stderr. Updated manual page.
 
 2002-01-04  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
@@ -735,8 +735,8 @@
 	  (from "Franz Bakan" <fbakan@gmx.net>). New version: 1.0-114.
 	* sanei/sanei_scsi.c: OS/2 changes: Removed semaphore code and
 	  increased MAX_DATA to 64k (from "Franz Bakan" <fbakan@gmx.net>).
-	* tools/sane-config.in: Also return -ldl (necessary fo IA64?).
-	* TODO: Added entry about .exe and similar file extentions.
+	* tools/sane-config.in: Also return -ldl (necessary for IA64?).
+	* TODO: Added entry about .exe and similar file extensions.
 	  Removed sane-config.in -ldl issue.
 
 2001-11-22  Stéphane Voltz  <svoltz@wanadoo.fr>
@@ -832,7 +832,7 @@
 	  backend/umax_pp_mid.h backend/umax_pp.c backend/umax_pp.h:
 	  use ENABLE_DIRECTIO to compile in direct I/O. Corrected the long
 	  standing scan area origin detection bug. Improved parport mode
-	  negociation.
+	  negotiation.
 
 2001-11-07  Henning Meier-Geinitz <henning@meier-geinitz.de>
 

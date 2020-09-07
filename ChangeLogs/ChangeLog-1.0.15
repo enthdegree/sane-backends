@@ -335,7 +335,7 @@
 
 2004-10-02  Thomas Soumarmon <thomas.soumarmon@cogitae.net>
 
-	* backend/hp5400_internal.c: hp5400 version mathing test
+	* backend/hp5400_internal.c: hp5400 version matching test
           has been removed by default.
           To enable it :
           CFLAGS="-DSTRING_VERSION_MATCH" ./configure
@@ -516,7 +516,7 @@
 	* doc/descriptions/teco2.desc: url and status change
 	* doc/sane-teco2.man: update info
 	* backend/teco2.c: - added for the VM6575 a WHITE_LEVEL_R, _G an _B
-	  slider opion
+	  slider option
 	  -changed for the VM656A and VM6575 and VM6586 the calibration part
 	  (subtract highest and lowest value and then divide).
 	  -default SANE_TECO_CAL_ALGO value is now 1 for the VM3564 and
@@ -716,7 +716,7 @@
 
 2004-06-21  Gerhard Jaeger <gerhard@gjaeger.de>
 
-	* po/*.po: Updated according to upcomming changes in the plustek backend.
+	* po/*.po: Updated according to upcoming changes in the plustek backend.
 
 2004-06-20  Mattias Ellert <mattias.ellert@tsl.uu.se>
 

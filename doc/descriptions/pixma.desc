@@ -13,7 +13,7 @@
 :backend "pixma"                  ; name of backend
 :version "0.28.5"                 ; version of backend (or "unmaintained")
 :manpage "sane-pixma"             ; name of manpage (if it exists)
-;:comment "Devices marked as experimantal are disabled by default. See the manual page for how to enable them."
+;:comment "Devices marked as experimental are disabled by default. See the manual page for how to enable them."
 
 :devicetype :scanner              ; start of a list of devices....
                                   ; other types:  :stillcam, :vidcam,

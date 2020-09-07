@@ -108,7 +108,7 @@ static void u12map_CheckGammaSettings( U12_Device *dev )
 	}
 }
 
-/** adjust acording to brightness and contrast
+/** adjust according to brightness and contrast
  */
 static void u12map_Adjust( U12_Device *dev, int which, SANE_Byte *buf )
 {

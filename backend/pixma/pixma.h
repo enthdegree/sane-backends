@@ -306,7 +306,7 @@ struct pixma_scan_param_t
      *   1 =  1 bit B/W lineart (flatbed)
      *   8 =  8 bit grayscale,
      *       24 bit color (both flatbed)
-     *  16 = 16 bit grayscale (TPU, flatbed not implemeted),
+     *  16 = 16 bit grayscale (TPU, flatbed not implemented),
      *       48 bit color (TPU, flatbed not implemented) */
   unsigned depth;
 

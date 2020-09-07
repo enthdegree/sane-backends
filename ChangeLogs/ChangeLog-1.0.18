@@ -70,7 +70,7 @@
 2006-06-13  m. allan noah <anoah AT pfeiffer DOT edu>
 
 	* backend/fujitsu.[ch]: update to v1.0.31, add 5220c usb id,
-	  dont show ink level buttons if no imprinter, gather button
+	  don't show ink level buttons if no imprinter, gather button
 	  presses more frequently
 	* doc/descriptions/fujitsu.desc: usb id and version update
 
@@ -116,7 +116,7 @@
 	  because the scanner was already closed before probing for the rest
 	  of the parameters (bug #301478, #303342).
 	  The Epson Perfection 4990 photo/GT-X800 wrongly return 3200 dpi as
-	  their maximum resolution. This workaround enables teh full 4800
+	  their maximum resolution. This workaround enables the full 4800
 	  dpi (bug #302090, patch from Claus Boje <claus@egehuset.dk>).
 	* backend/epson.conf.in: Detect some more epson SCSI scanners
 	  (GT-6000, GT-9000) which report "EPSON SC" instead of "EPSON" as
@@ -309,7 +309,7 @@
 
 2006-05-23  m. allan noah <anoah AT pfeiffer DOT edu>
 
-	* backend/fujitsu.c: dont send scsi cmd F1 if unsupported.
+	* backend/fujitsu.c: don't send scsi cmd F1 if unsupported.
 	* doc/descriptions/fujitsu.desc: update version number.
 
 2006-05-23  Gerhard Jaeger <gerhard@gjaeger.de>
@@ -429,7 +429,7 @@
 	* doc/descriptions/avision.desc: Used avision-desc.sh to update
 	  the .desc file to current SANE CVS avision.c code. Added USB
 	  ids.
-	* doc/descriptions/plustek.desc: Added USB ids. Splitted some
+	* doc/descriptions/plustek.desc: Added USB ids. Split some
 	  entries which have two different USB ids. Clarified comment about
 	  UMAX 3400.
 	* tools/hotplug/libsane.usermap: Removed. Will be created
@@ -543,7 +543,7 @@
 2006-03-12  Stephane Voltz <stefdev@modulonet.fr>
 
 	* backend/genesys_gl646.c: fixed gl646_send_gamma_table after
-	  endianess changes. Put again a little fix for power saving
+	  endianness changes. Put again a little fix for power saving
 
 2006-03-11  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
@@ -559,7 +559,7 @@
 
 2006-03-09  Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
 
-	* backend/genesys.c: Some annotations about endianess of scanned
+	* backend/genesys.c: Some annotations about endianness of scanned
 	  data
 	* backend/genesys_gl646.c: Convert gamma tables to little endian
 
@@ -699,7 +699,7 @@
 
 	* tools/check-usb-chip.c: Improved rts8822l-01h chipset
 	  detection by adding check for descriptor.bcdUSB == 0x110 reported
-	  by some scanners and accepting any value diferent to 0, read
+	  by some scanners and accepting any value different to 0, read
 	  from 0xfe11 register. Patch from Jonathan Bravo Lopez
 	  <JKD@JKDSoft.cjb.net>.
 	* tools/sane-desc.c: Added "ignore" parameter to :usbid
@@ -789,7 +789,7 @@
 	  prints overal statistics about known devices. Added support for
 	  more than one search directory. Removed support for deprecated
 	  backend status ("alpha", "beta" ...). Ran indent -gnu. HTML
-	  output (backends and mfgs) prints statitics now. Unify status
+	  output (backends and mfgs) prints statistics now. Unify status
 	  and device type strings. Simplified status and device type
 	  string printing. Removed any remaining links of backend status.
 

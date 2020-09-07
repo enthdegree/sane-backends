@@ -26,7 +26,7 @@
 :interface "USB"
 :usbid "0x055f" "0x0010"
 :status :good
-:comment "Works upto 600 dpi. No support for TA and ADF yet."
+:comment "Works up to 600 dpi. No support for TA and ADF yet."
 :mfg "Fujitsu"		; name a manufacturer
 :url "http://www.fujitsu.com/"
 

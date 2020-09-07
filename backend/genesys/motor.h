@@ -62,7 +62,7 @@ namespace genesys {
         s - distance travelled in steps
         t - time in pixeltime
 
-    The physical mode defines the curve in physical quantities. We asssume that the scanner head
+    The physical mode defines the curve in physical quantities. We assume that the scanner head
     accelerates from standstill to the target speed uniformly. Then:
 
     v(t) = v(0) + a * t                                                                         (2)

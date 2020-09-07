@@ -24,7 +24,7 @@ make install
 It was also required to add a generic USB kernel driver. I had to look for
 my scanner device name in output of
 prtconf -D -v
-command. My scanner is Plustek UT24 and the apropriate part of output looked
+command. My scanner is Plustek UT24 and the appropriate part of output looked
 like this:
 name='compatible' type=string items=8 value='usb7b3,17.100' + ...
 I had to remove the not used kernel driver
@@ -58,7 +58,7 @@ downloaded from www.sun.com/solaris for free.
 In my opinion it is important to be cautious when using scanner or just libusb
 on important Solaris machines (especially multi-processor ones), because unlike
 in other systems, Solaris kernel is fully preemtible, what means, that many
-instances of the same driver can ran simultanously - it's dangerous, when
+instances of the same driver can run simultaneously - it's dangerous, when
 drivers are not perfect. And Solaris USB framework is absolutely new, so it can
 contain bugs. I tried to crash my Solaris using USB subsystem and SANE, I didn't
 manage to, but it doesn't mean, it's impossible.

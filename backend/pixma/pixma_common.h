@@ -162,7 +162,7 @@ struct pixma_scan_ops_t
   void (*finish_scan) (pixma_t *);
 
     /** [Optional] Wait for a user's event, e.g. button event. \a timeout is
-     *  in milliseconds. If an event occured before it's timed out, flags in
+     *  in milliseconds. If an event occurred before it's timed out, flags in
      *  \a s->events should be set accordingly.
      *  \see PIXMA_EV_* */
   void (*wait_event) (pixma_t * s, int timeout);
@@ -176,7 +176,7 @@ struct pixma_scan_ops_t
 };
 
 
-/** \name Funtions for read and write big-endian integer values */
+/** \name Functions for read and write big-endian integer values */
 /**@{*/
 void pixma_set_be16 (uint16_t x, uint8_t * buf);
 void pixma_set_be32 (uint32_t x, uint8_t * buf);

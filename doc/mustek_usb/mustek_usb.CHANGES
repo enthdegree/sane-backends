@@ -7,7 +7,7 @@ CHANGES for the SANE Mustek USB backend
   * Added workaround for data0 toggle bug. I think this is a bug in the
     chipset. The chipset doesn't set the toggle to data0 when the endpoints
     are reset. As this is done whenever the device files/libusb is closed,
-    this backend worked ony once. Now we count the number of URBs and
+    this backend worked only once. Now we count the number of URBs and
     just read/write some crap if the number is odd.
 
 2003-09-21
@@ -20,7 +20,7 @@ CHANGES for the SANE Mustek USB backend
   * Release of version 1.0-16.
 
 2003-02-22:
-  * Iniatialize global variables explicitely.
+  * Iniatialize global variables explicitly.
   * Mention ma1509.
 
 2002-11-20:
@@ -78,7 +78,7 @@ CHANGES for the SANE Mustek USB backend
 2002-03-16:
   * mustek_usb.c: Fixed segfault when opening device again after closing.
   * mustek_usb.c: Fixed possible segfault when name="".
-  * mustek_usb.c: Type for option 0 must be set to SANE_TYPE_INT explicitely.
+  * mustek_usb.c: Type for option 0 must be set to SANE_TYPE_INT explicitly.
 
 2002-02-14:
   * Fixed some problems with wrong formats in DBG statements.
@@ -126,7 +126,7 @@ CHANGES for the SANE Mustek USB backend
 2001-11-14
 
   * Added 600 USB detection. No support at all yet.
-  * Removed unneccessary calls to usb_low_open and usb_low_close. This
+  * Removed unnecessary calls to usb_low_open and usb_low_close. This
     fixed the FreeBSD problems.
   * Updated all SANE comments ("1200UB and similar").
 
@@ -161,7 +161,7 @@ CHANGES for the SANE Mustek USB backend
 
 2001-09-13
   * Added check for negative width and height.
-  * Changed status to NEW (internaly: beta).
+  * Changed status to NEW (internally: beta).
   * Added check for too high gamma values (xscanimage is buggy).
   * Return SANE_STATUS_CANCELLED in sane_read if scan was cancelled.
   * Updated manual page.
@@ -289,7 +289,7 @@ CHANGES for the SANE Mustek USB backend
   * Check vendor/product directly after sane_open.
 
 2001-08-06
-  * Added scan buffer. It's used if the buffer suplied with sane_read is
+  * Added scan buffer. It's used if the buffer supplied with sane_read is
     smaller than one scan line.
 
 2001-08-06

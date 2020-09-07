@@ -5,9 +5,9 @@ umax -> sane-0.6:
 -----------------
 
     * umax-sane-backend created:
-      - umax.c splitted in:
+      - umax.c split in:
         umax-cli.c, umax-scsi.c, umax-driver.c, umax-text.c
-      - umax.h splitted in:
+      - umax.h split in:
         umax-scanner.h, umax-scsi.h, umax-scsidef.h, umax-struct.h
       - outputs done by DBG(level,msg,args...) defined in debug.h
       - scsi-calls changed to sane-format (of sane-0.57)
@@ -91,7 +91,7 @@ sane-0.6 / 0.61 / 0.62 -> 0.63
 
     * reset adf and uta flag when not used (in sane_start)
 
-    * added possibilty to change calibration-mode if available
+    * added possibility to change calibration-mode if available
 
     * added send_halftone_pattern to umax-scsi.c
 
@@ -119,7 +119,7 @@ sane-0.6 / 0.61 / 0.62 -> 0.63
       and added missing 3 wid-bytes in scan.cmd
 
     * removed parameter color in three_pass_function_headers,
-      the color ist taken from us->three_pass_color now.
+      the color is taken from us->three_pass_color now.
 
 
 sane-0.63/0.64/0.65 -> 0.66
@@ -189,7 +189,7 @@ sane-0.66 -> 0.67
 
     * removed bug (wrong length for 10 bit-gamma) in send_gamma_data
 
-    * changed all buffer-definitions to unsigned char and insterted
+    * changed all buffer-definitions to unsigned char and inserted
       type conversions, so there are no more warnings because of
       typemismatches.
 
@@ -201,7 +201,7 @@ sane-0.67 -> 0.68
 
     * changed open config to fp = sanei_config_open(UMAX_CONFIG_FILE)
 
-    * changed all set OPT...BIND commands, endless-loop happend in sane-0.67
+    * changed all set OPT...BIND commands, endless-loop happened in sane-0.67
       =>ane-0.67-umax-fix.diff.gz
       after that patch changed same for ten_bit_mode
 
@@ -232,7 +232,7 @@ sane-0.68 -> 0.69
 
     * changed name: umax_read_data_block -> umax_read_image_data
 
-    * changed length offest in do_inquiry from 5 to 4
+    * changed length offset in do_inquiry from 5 to 4
       and changed set_inquiry_length-offset from 5 to 4
 
     * added calib_lines to structure US and added it to
@@ -278,7 +278,7 @@ sane-0.69 -> 0.70
     * moved reader_process from umax.c to umax-scsi.c
       and added routine for color ordering.
 
-    * reset length offest in do_inquiry from 4 to 5
+    * reset length offset in do_inquiry from 4 to 5
       and set_inquiry_length-offset from 4 to 5
       because umax-S6E didn't work with it!
 
@@ -395,7 +395,7 @@ sane-0.73 -> 0.74
       There must'nt be a "wait_scanner" in calibration by driver routine!!!
 
     * added usage of driver internal values for calibration by driver if
-      the scanner does not give back the informations about the shading data:
+      the scanner does not give back the information about the shading data:
       width = dev->width * dev->inquiry_optical_res ( * 3 in RGB-mode )
 
     * added 2 calibration-routines:
@@ -497,7 +497,7 @@ build-2 -> build-3 (sane-1.0.1)
 
    * inversion of calibration is automatically set for Astra 6X0S and Vista S6E
 
-   * check for machine endianess is done only at backend start now!
+   * check for machine endianness is done only at backend start now!
 
    * made umax_do request_sense static
 
@@ -566,7 +566,7 @@ build-7 -> build-8
     * for Mirage D-16L the driver does not wait any more until scanner is repositioned
       this is experimental, it may work with other scanners too!
 
-    * Mirage D-16L does not give back informations for calibration by driver,
+    * Mirage D-16L does not give back information for calibration by driver,
       added new modus that "guesses" the values for Mirage D-16L.
 
     * Added read_shading_data to 16 bit calibration routine and made a routine for
@@ -594,7 +594,7 @@ build-8 -> build-9
 
     * gamma table is disabled in lineart and halftone modes
 
-    * if image is transmitted completly sane_read (close_pipe)
+    * if image is transmitted completely sane_read (close_pipe)
       returns with SANE_STATUS_GOOD in adf mode and in any other case
       with SANE_STATUS_EOF
 
@@ -735,7 +735,7 @@ build-19 -> build-20
     * added variable calibration_width_offset, Mirage D-16L offset of 308 is defined there
       and added offset of 28 for PowerLook III
 
-    * umax_do_calibration: guessed calibration data vaules use 2 bytes/color if scanner
+    * umax_do_calibration: guessed calibration data values use 2 bytes/color if scanner
       supports gamma input bit depth supports 2 bytes/color
 
     * calibration by driver now does work for PowerLook III
@@ -780,7 +780,7 @@ build-21 -> build-22
        higher scsi-ID (=priority) does scan without stops,
        the other scanner has to wait long time between the
        scsi-read commands, it also is possible to give
-       bothe scanners different scsi command queueing depth).
+       both scanners different scsi command queueing depth).
 
     * prepared replacement of pipe by sanei_ipc_* routines
 
@@ -915,7 +915,7 @@ build-25 -> build-26
    * added Mirage II as supported scanner
 
    * added routine umax_set_max_geometry that defines available surface
-     and resolution in dependance of scansource and double optical resolution
+     and resolution in dependence of scansource and double optical resolution
      (before this bugfix the change of dor mode overwrote the settings of
       scansource and vice versa)
 
@@ -927,7 +927,7 @@ build-25 -> build-26
 
    * sane_exit does free devlist
 
-   * added some options for Powerlook 3000 - still is not completly supported
+   * added some options for Powerlook 3000 - still is not completely supported
 
 
 build-26 -> build-27
@@ -1140,7 +1140,7 @@ build-41 -> build-42
 
   * replaced fork() routines by sanei_thread routines
 
-  * added call sanei_scsi_req_flush_all(); to do_cancel - in threaded case this is not done when reader_process is cancled
+  * added call sanei_scsi_req_flush_all(); to do_cancel - in threaded case this is not done when reader_process is canceled
 
   * in reader_process: marked freed scsi buffers as freed(NULL). This is necessary when reader_process is run as thread!
 
@@ -1156,7 +1156,7 @@ build-42 -> build-43
 build-43 -> build-44
 --------------------
 
-  * the sense_hanlder stores the sense data in buffer[0] when valid sense data is avialable
+  * the sense_handler stores the sense data in buffer[0] when valid sense data is available
 
   * do_calibration:
 	- corrected bug in reading calibration width from scanner (added /bytespp)
@@ -1167,5 +1167,5 @@ build-43 -> build-44
 build-44 -> build-45
 --------------------
 
-   * added defualt options for Linotype Opal2
+   * added default options for Linotype Opal2
    * changed bug in highlight-blue function (using green value)

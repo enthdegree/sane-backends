@@ -689,7 +689,7 @@ typedef struct
     SANE_Bool  ch_lineart;
     SANE_Int   ch_offset;         /* The number of lines to be shifted */
     SANE_Bool  ch_past_init;      /* flag indicating if we have enough data to shift pixels down */
-    SANE_Bool  ch_shift_even;     /* flag indicating wether even or odd pixels are shifted */
+    SANE_Bool  ch_shift_even;     /* flag indicating whether even or odd pixels are shifted */
 } Deinterlacer;
 
 static SANE_Int Deinterlacer_remaining (Source *pself)
@@ -1086,7 +1086,7 @@ static SANE_Status RGBRouter_init (RGBRouter *pself,
     {
         SANE_Int lines_in_buffer = 0;
 
-        /* Size the buffer to accomodate the necessary number of scan
+        /* Size the buffer to accommodate the necessary number of scan
            lines to cater for the offset between R, G and B */
         lines_in_buffer = pss->chroma + 1;
         pself->cb_line_size = pself->bytesPerLine((Source *) pself);
@@ -1216,7 +1216,7 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
         {
         case MD_COLOUR:
             status = create_RGBRouter (pss, *pps, pps);
-            /* We only have the interlace probelms on
+            /* We only have the interlace problems on
                some scanners like the Epson Perfection 2480/2580
                at 2400 dpi. */
             if (status == SANE_STATUS_GOOD &&
@@ -1334,7 +1334,7 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
  *
  * Revision 1.13  2001/09/18 15:01:07  oliverschwartz
  * - Read scanner id string again after firmware upload
- *   to indentify correct model
+ *   to identify correct model
  * - Make firmware upload work for AGFA scanners
  * - Change copyright notice
  *
@@ -1353,7 +1353,7 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
  *
  * Revision 1.8  2000/11/28 03:55:07  cbagwell
  * Reverting a fix to RGBRouter_remaining to original fix.  This allows
- * most scanners to scan at 600 dpi by ignoring insufficent data in
+ * most scanners to scan at 600 dpi by ignoring insufficient data in
  * the RGB circular buffer and always returning size = 1 in those cases.
  * This should probably be fixed at a higher level.
  *
@@ -1363,7 +1363,7 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
  * value.
  *
  * Revision 1.6  2000/11/04 01:53:58  cbagwell
- * Commiting some needed USB updates.  Added extra test logic to detect
+ * Committing some needed USB updates.  Added extra test logic to detect
  * bad bytes_expected values.  Just to help debug faster on scanners
  * that tickle the bug.
  *
@@ -1377,5 +1377,5 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
  * Add support for Acer300f
  *
  * Revision 1.2  2000/10/13 03:50:27  cbagwell
- * Updating to source from SANE 1.0.3.  Calling this versin 1.1
+ * Updating to source from SANE 1.0.3.  Calling this version 1.1
  * */

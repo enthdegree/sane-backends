@@ -65,7 +65,7 @@ void genesys_init_usb_device_tables()
     /*  Guidelines on calibration area sizes
         ------------------------------------
 
-        on many scanners scanning a single line takes aroung 10ms. In order not to take excessive
+        on many scanners scanning a single line takes around 10ms. In order not to take excessive
         amount of time, the sizes of the calibration area are limited as follows:
         2400 dpi or less: 4mm (would take ~4 seconds on 2400 dpi)
         4800 dpi or less: 3mm (would take ~6 seconds on 4800 dpi)

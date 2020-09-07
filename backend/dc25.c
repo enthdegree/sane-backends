@@ -69,7 +69,7 @@
  *	/pub/hakimian directory. The complete URL is:
  *	    ftp://ftp.eecs.wsu.edu/pub/hakimian/dc20.tar.gz
  *
- *	This package also includes a sligthly modified version of the Comet to ppm
+ *	This package also includes a slightly modified version of the Comet to ppm
  *	conversion routine written by YOSHIDA Hideki <hideki@yk.rim.or.jp>
  *
  *	This program is free software; you can redistribute it and/or modify
@@ -1107,7 +1107,7 @@ if (verbose) printf ("%s: determine_limits: low_i = %d, high_i = %d\n", __progna
 }
 
 /*
- * The original dc20ctrl program used a default gamma of 0.35, but I thougt
+ * The original dc20ctrl program used a default gamma of 0.35, but I thought
  * 0.45 looks better.  In addition, since xscanimage seems to always force
  * a resolution of 0.1, I multiply everything by 10 and make the default
  * 4.5.
@@ -1389,7 +1389,7 @@ convert_pic (char *base_name, int format)
   if (format & SAVE_ADJASPECT)
     {
       /*
-       *      Strech image
+       *      Stretch image
        */
 
       if (res)
@@ -1764,7 +1764,7 @@ erase (int fd)
       /*
        * This block may really apply to the DC20 also, but since I
        * don't have one, it's hard to say for sure.  On the DC25, erase
-       * takes long enought that the read may timeout without returning
+       * takes long enough that the read may timeout without returning
        * any data before the erase is complete.   We let this happen
        * up to 4 times, then give up.
        */
@@ -2632,7 +2632,7 @@ sane_read (SANE_Handle __sane_unused__ handle, SANE_Byte * data,
        * If outbytes is zero, then this is the first time
        * we've been called, so update the contrast table.
        * The formula is something I came up with that has the
-       * following prooperties:
+       * following properties:
        * 1) It's a smooth curve that provides the effect I wanted
        *    (bright pixels are made brighter, dim pixels are made
        *    dimmer)

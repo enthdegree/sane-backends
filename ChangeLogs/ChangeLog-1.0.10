@@ -25,7 +25,7 @@
 2003-01-29  Henning Meier-Geinitz <henning@meier-geinitz.de>
 
 	* frontend/saned.c: Fixed severe bug in saned that allowed a
-	remote frontend to crash saned (null pointer derefence) if no
+	remote frontend to crash saned (null pointer dereference) if no
 	scanners are connected.
 
 ---- CODE FREEZE FOR SANE 1.0.10 ---
@@ -61,7 +61,7 @@
 
 	* backend/bh.c backend/coolscan.c: Minor conversion fixes (from
 	  Andrea Suatoni <a.suatoni@telefonica.net>).
-	* backend/test.c: Use "Color pattern" consistantly.
+	* backend/test.c: Use "Color pattern" consistently.
 	* acinclude.m4 aclocal.m4 configure configure.in
 	  include/sane/config.h.in: Declare prototypes for all functions that
 	  may miss on some platforms.
@@ -110,7 +110,7 @@
 	* sanei/sanei_usb.c: Scanning for devices is now done in
 	  sanei_usb_init instead of every time when sanei_usb_find_devices is
 	  called. Also only devices that really exist are opened. These
-	  changes fixe the slow detection of devices on systems using devfs or
+	  changes fix the slow detection of devices on systems using devfs or
 	  old scanner drivers.
 
 2003-01-21  Karl Heinz Kremer <khk@khk.net>
@@ -458,9 +458,9 @@
 	* backend/test.c doc/descriptions/test.desc: Make sure that frontend bugs
 	  concerning the select fd are detected.
 	* doc/sane-scsi.man: Minor formatting change.
-	* sanei/sanei_usb.c: Explicitely set first configuration. When claiming
+	* sanei/sanei_usb.c: Explicitly set first configuration. When claiming
 	  the interface, use the interface number from bInterfaceNumber.
-	  Explicitely set the alternative setting. When closing, call clear_halt,
+	  Explicitly set the alternative setting. When closing, call clear_halt,
 	  and reset_ep, and release_interface explicitley. On errors in
 	  write/read, call clear_halt.
 	* TODO: Added sm3600 issue, htmla manpage issue, sanei_scsi stuff.
@@ -547,7 +547,7 @@
 	* po/Makefile.in: Added autoconf comment, removed MSGCAT variable.
 	* backend/dll.c doc/sane-dll.man doc/descriptions/dll.desc: Ignore
 	  comments that are in the same line as the backend entries. Minor
-	  manpage fixes. Intented according GNU coding standards.
+	  manpage fixes. Indented according GNU coding standards.
 	* configure.os2: Removed. No longer necessary.
 
 2002-12-04  Matthew Duggan <stauff1@users.sourceforge.net>
@@ -682,7 +682,7 @@
 	  doc/mustek_usb/mustek_usb.CHANGES doc/mustek_usb/mustek_usb.TODO:
 	  Minor manpage fixes. Added links to similar backends. More
 	  information about non-Linux OS.
-	* doc/sane-mustek.man: Minor fixes. Added links to ther backends
+	* doc/sane-mustek.man: Minor fixes. Added links to the backends
 	  providing support for Mustek scanners.
 	* backend/gt68xx.c backend/gt68xx_devices.c backend/gt68xx_gt6816.c
 	  backend/gt68xx_low.c backend/gt68xx_low.h doc/sane-gt68xx.man
@@ -773,7 +773,7 @@
 
 2002-11-12 Oliver Rauch <Oliver.Rauch@Rauch-Domain.DE>
 
-        * added several russion translations to directory po.
+        * added several russian translations to directory po.
           The translations have been created by
           Vitaly Lipatov <LAV@VL3143.spb.edu>
 
@@ -854,7 +854,7 @@
 
         * configure configure.in: Added a warning if sysconfdir is set to
           /usr/etc.
-        * backend/test.c: Explicitely close the pipe and wait until
+        * backend/test.c: Explicitly close the pipe and wait until
           reader_process is killed.
 
 2002-10-25  Henning Meier-Geinitz <henning@meier-geinitz.de>

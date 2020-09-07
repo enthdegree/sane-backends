@@ -44,7 +44,7 @@
 #ifndef lalloca_h
 #define lalloca_h
 
-/* The idea how to do this is from the autoconf documenation */
+/* The idea how to do this is from the autoconf documentation */
 
 /* AIX requires this to be the first thing in the file.  */
 #if defined(__GNUC__)

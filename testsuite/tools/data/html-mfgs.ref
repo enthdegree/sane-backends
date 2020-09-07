@@ -11406,7 +11406,7 @@ sp15c<br>(unmaintained)
 <td align=center>USB</td>
 <td align=center>0x06dc/0x0012</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
-<td>Unsuported. See link for details.</td>
+<td>Unsupported. See link for details.</td>
 <td align=center>
 <a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
@@ -12733,7 +12733,7 @@ hp5590<br>(1.0.5)
 <td align=center><a href="man/sane-genesys.5.html">sane-genesys</a></td>
 </tr>
 <tr><td align=center>ScanJet Plus</td>
-<td align=center>Propietary</td>
+<td align=center>Proprietary</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#007000">Complete</font></td>
 <td>Driver for HP parallel interface card required</td>
@@ -15994,7 +15994,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center>USB</td>
 <td align=center>0x055f/0x0010</td>
 <td align=center><font color="#90B000">Good</font></td>
-<td>Works upto 600 dpi. No support for TA and ADF yet.</td>
+<td>Works up to 600 dpi. No support for TA and ADF yet.</td>
 <td align=center>
 <a href="http://www.meier-geinitz.de/sane/ma1509-backend/">ma1509</a>
 <br>(1.0-3)
@@ -21045,7 +21045,7 @@ tamarack<br>(unmaintained)
 <td align=center>Parport</td>
 <td align=center>&nbsp;</td>
 <td align=center><font color="#F00000">Unsupported</font></td>
-<td>Unsupported at the moment. See link for a project for that scanner taht may support it in future.</td>
+<td>Unsupported at the moment. See link for a project for that scanner that may support it in future.</td>
 <td align=center>
 <a href="contrib.html">unsupported</a>
 <br>(2010-06-09)
@@ -22665,7 +22665,7 @@ artec_eplus48u<br>(unmaintained)
 <td align=center>USB</td>
 <td align=center>0x04a7/0x0444</td>
 <td align=center><font color="#90B000">Good</font></td>
-<td>Works upto 1200 dpi and 12 bits/color.</td>
+<td>Works up to 1200 dpi and 12 bits/color.</td>
 <td align=center>
 <a href="http://www.meier-geinitz.de/sane/gt68xx-backend/">gt68xx</a>
 <br>(1.0-84)

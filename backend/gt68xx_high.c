@@ -1015,7 +1015,7 @@ struct GT68xx_Afe_Values
 
 /** Calculate average black and maximum white
  *
- * This function is used for CCD scanners. The black mark to the left ist used
+ * This function is used for CCD scanners. The black mark to the left is used
  * for the calculation of average black. The remaining calibration strip
  * is used for searching the segment whose white average is the highest.
  *
@@ -2664,7 +2664,7 @@ gt68xx_read_calibration (GT68xx_Scanner * scanner)
       return SANE_STATUS_IO_ERROR;
     }
 
-  /* TODO we should check endiannes and word alignment in case of a home
+  /* TODO we should check endianness and word alignment in case of a home
    * directory used trough different archs */
 
   /* TODO check for errors */

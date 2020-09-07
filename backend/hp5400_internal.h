@@ -112,7 +112,7 @@ struct ScanRequest
    */
   uint8_t zero;			/* Seems to always be zero */
   uint16_t gamma[3];		/* Set to 100 in network order. Gamma? */
-  uint16_t pad[3];		/* Zero padding ot 32 bytes??? */
+  uint16_t pad[3];		/* Zero padding to 32 bytes??? */
 }
 PACKED;
 
@@ -154,7 +154,7 @@ PACKED;
  * what we wish change and SET it back otherwise goodness knows what evil
  * we will unleash.
  *
- * Note that for setting, different values in the buffer seem to apply betwen the copy count
+ * Note that for setting, different values in the buffer seem to apply between the copy count
  * and the colour/BW switch setting. I don't know what that means at the moment.
  *
  * I'm calling it PanelInfo because I can't think of anything better.

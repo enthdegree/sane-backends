@@ -87,7 +87,7 @@
 1998-10-29  David Mosberger-Tang  <David.Mosberger@acm.org>
 
 	* backend/mustek.c (encode_resolution): If MUSTEK_FLAG_DOUBLE_RES
-	is set, use resultion encoding reported by
+	is set, use resolution encoding reported by
 	<Heiko_Schroeder@t-online.de>
 	(attach): Set MUSTEK_FLAG_DOUBLE_RES for MSF-06000CZ.  Do other
 	models need this, too?
@@ -133,7 +133,7 @@
 1998-10-28  David Mosberger-Tang  <David.Mosberger@acm.org>
 
 	* doc/sane.tex (subsection{sane_control_option}): Clarify that
-	paramter "v" is ignored for SET_AUTO calls.
+	parameter "v" is ignored for SET_AUTO calls.
 
 	* frontend/saned.c (init): Initialize w->version.
 
@@ -569,7 +569,7 @@
 	Fixed subtle buffering bug in color scans.
 	Fixed-up active/inactive dependencies among options.
 	Make sure shadow <= midtone <= highlight.
-	Let shadow/midtone/hightlight be active during LineArt and Halftone.
+	Let shadow/midtone/highlight be active during LineArt and Halftone.
 	"Halftoning" option moved into Scan Mode Group (from Enhancement).
 	Removed some illegal "TEST_UNIT_READY" commands (during scan).
 	Removed "MODE_SENSE_1", since it didn't quite work anyway.
@@ -940,7 +940,7 @@
 	* backend/microtek.c: Don't declare strdup()---you're bound to get
 	it wrong for some platforms!
 
-	* doc/sane-scsi.man: Say explicity that generic SCSI support needs
+	* doc/sane-scsi.man: Say explicitly that generic SCSI support needs
 	to be enabled.
 
 	* doc/sane-hp.man (Problems): Document PhotoSmart problems
@@ -1245,7 +1245,7 @@
 
 1997-11-22  David Mosberger-Tang  <David.Mosberger@acm.org>
 
-	* doc/sane-mustek.man (Model): Clarify that paralell port != printer
+	* doc/sane-mustek.man (Model): Clarify that parallel port != printer
 	port.
 
 	* backend/mustek.c (fix_line_distance_mfs): Add missing SANE_UNFIX()
@@ -1643,7 +1643,7 @@ Tue Oct  7 15:44:33 1997  Kazuhiro Sasayama  <kaz@hypercore.co.jp>
 	necessary for libsane.so are installed.
 
 	* backend/dll.c (load): Change from LIBNAME to LIBPATH (as per
-	libtool-1.0c documention).
+	libtool-1.0c documentation).
 
 	* sanei/sanei_scsi.c (issue): Declare `static'.
 
@@ -1889,7 +1889,7 @@ Wed Aug 20 17:23:04 1997  David Mosberger-Tang  <David.Mosberger@acm.org>
 	(do_cancel): Rename to do_stop.  Ignore child's exist status
 	when we're really cancelling a scan.  Issue stop_scan() command
 	only if the scan got cancelled and do a wait_ready() before
-	issueing the stop_scan().
+	issuing the stop_scan().
 	(read_data): Delete.
 	(sane_init): Call attach() with MAY_WAIT set to SANE_FALSE.
 	(sane_open): Call attach() with MAY_WAIT set to SANE_TRUE.
@@ -3561,7 +3561,7 @@ Thu Mar 20 09:11:21 1997  David Mosberger-Tang  <davidm@azstarnet.com>
 	* (sanei/Makefile.in): Ditto.
 
 	* backend/mustek.c (attach): Check result[0] == 0x06 to find out
- 	whether we're dealing with a scanner (rather than attemting to
+	whether we're dealing with a scanner (rather than attempting to
  	find the string "SCANNER" ).
 
 	* backend/hp.c (sane_read): Initialize nread with max_len, not
@@ -3824,12 +3824,12 @@ Thu Jan 30 21:22:38 1997  David Mosberger-Tang  <davidm@azstarnet.com>
 	* AUTHORS (Frontends): Rename metanet -> net, metadl -> dll,
 	mention saned and xcam and sort entries alphabetically.
 
-	* backend/net.c (sane_control_option): Replace all occurances of
+	* backend/net.c (sane_control_option): Replace all occurrences of
  	metanet with net.
 	* backend/net.README: Ditto.
 	Rename env var METANETHOST to SANE_NET_HOST.
 
-	* backend/dll.README: Replace all occurances of metadl with dll.
+	* backend/dll.README: Replace all occurrences of metadl with dll.
 	* backend/dll.c: Ditto.
 
 	* backend/dll.conf: Comment out metanet since it's a bit of a
@@ -3838,7 +3838,7 @@ Thu Jan 30 21:22:38 1997  David Mosberger-Tang  <davidm@azstarnet.com>
 	* backend/Makefile.in (CONFIGS): New macro (list of config files)
 	(install): Change install rule so existing configuration files
 	are not overwritten.
-	Replace all occurances of metanet with net.
+	Replace all occurrences of metanet with net.
 
 	(V_MINOR): Bump up to 43.
 
@@ -4285,7 +4285,7 @@ Sun Dec  1 15:44:53 1996  David Mosberger-Tang  <davidm@azstarnet.com>
 
 	* Version 0.1 released.
 
-	* backend/mustek.c (attach): Fix mispelled/bad model names:
+	* backend/mustek.c (attach): Fix misspelled/bad model names:
 		MFS-12000SP -> MSF-12000SP
 		MFS-08000SP -> MSF-08000SP
 		MFS-06000SP -> MSF-06000SP

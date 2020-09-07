@@ -399,7 +399,7 @@ Date:   Fri Apr 7 20:28:02 2017 +0900
 
     Add missing double quote
 
-    Accidently removed in 38ce7fc086a6ecbee94ef31901a6eb874fb611b1.
+    Accidentally removed in 38ce7fc086a6ecbee94ef31901a6eb874fb611b1.
     Thanks to Jon Nelson for pointing this out.
 
 commit 38ce7fc086a6ecbee94ef31901a6eb874fb611b1
@@ -568,7 +568,7 @@ commit 589e011992a21ae1edb4684eb89582350c47333f
 Author: Louis Lagendijk <louis.lagendijk@gmail.com>
 Date:   Fri Jan 6 22:15:24 2017 +0100
 
-    Update the sane-pixma man-page for the new timout setting option.
+    Update the sane-pixma man-page for the new timeout setting option.
 
 commit 1b442ce1ea7068bda1129c061071dc94bfd6a8d2
 Author: Louis Lagendijk <louis.lagendijk@gmail.com>
@@ -681,7 +681,7 @@ Author: Troy Rollo <troy@kawseq.com>
 Date:   Tue Nov 29 20:47:59 2016 +1100
 
     HP3500 backend: fix #314811, greatly improve
-    	calibration, support harware calibration
+    	calibration, support hardware calibration
     	in 120DPI and 400DPI, and add support for
     	hardware gamma correction.
 
@@ -689,7 +689,7 @@ commit 6484ff8fc368db24b567e1d2fbb44cd86e0f9e43
 Author: Alex Belkin <abc@telekom.ru>
 Date:   Sun Nov 6 23:03:23 2016 +0300
 
-    Forgoten comma in backends man pages list.
+    Forgotten comma in backends man pages list.
 
 commit 69a008830b84437701022cbd96a8863ac61d3ddf
 Author: Alex Belkin <abc@telekom.ru>
@@ -1297,7 +1297,7 @@ Date:   Wed Jul 13 22:37:44 2016 +0900
     doc/sane.tex: Replace epsfig with graphicx
 
     The graphicx package allows for file specification without a hardcoded
-    extension.  This provides more freedom in chosing how to prepare images
+    extension.  This provides more freedom in choosing how to prepare images
     in *.eps and *.pdf formats.
 
     Moreover, epsfig is considered mostly obsolete in the TeX community and
@@ -1821,7 +1821,7 @@ Date:   Wed Oct 28 20:59:22 2015 +0900
 
     Upon re-reading the autoconf documentation, this seemed the right thing
     to do.  The AC_LANG_PROGRAM macro does not quote its arguments so any
-    occurence of [ and ] will get stripped out if not double quoted.
+    occurrence of [ and ] will get stripped out if not double quoted.
 
     Current code snippets passed do not use them but it is better to use a
     consistent quoting approach for such snippets.  In other places in the
@@ -2182,7 +2182,7 @@ commit 9897357727b65d13167b89cd1d1fe816f4d72563
 Author: Stéphane Voltz <stef.dev@free.fr>
 Date:   Sun Feb 28 21:26:27 2016 +0100
 
-    enable pixel averaging whne bleow 600 for all models
+    enable pixel averaging when below 600 for all models
 
 commit d784dec60b096b8e8fe18f5f7b5c1921249d6ed2
 Author: Stéphane Voltz <stef.dev@free.fr>
@@ -3935,7 +3935,7 @@ Date:   Wed Nov 4 13:05:05 2015 -0500
 
     canon_dr backend v52
 
-    set can_color=1 by default (recent models dont have 'C' in name)
+    set can_color=1 by default (recent models don't have 'C' in name)
     enable jpeg for DR-6080
 
 commit 0b822359b3e1798294e30a7ea9cfd6fd9a1e3e85

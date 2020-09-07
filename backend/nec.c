@@ -57,7 +57,7 @@
    - change some #include <> to ""
    Version 0.10
    - First release!
-   - suppoted scanner
+   - supported scanner
      PC-IN500/4C                    available
      MultiReder 300U/300S series    not available
      MultiReder 600U/600S series    not available
@@ -1317,7 +1317,7 @@ set_gamma_caps(NEC_Scanner *s)
 
 /* The next function is a slightly modified version of sanei_constrain_value
    Instead of returning status information like STATUS_INVAL, it adjusts
-   an invaild value to the nearest allowed one.
+   an invalid value to the nearest allowed one.
 */
 static void
 clip_value (const SANE_Option_Descriptor * opt, void * value)
@@ -1667,7 +1667,7 @@ init_options (NEC_Scanner * s)
 
 #ifdef USE_COLOR_THRESHOLD
   s->opt[OPT_THRESHOLD_R].name = SANE_NAME_THRESHOLD "-red";
-  /* xxx the titles and decriptions are confusing:
+  /* xxx the titles and descriptions are confusing:
      "set white point (red)"
      Any idea? maybe "threshold to get the red component on"
   */

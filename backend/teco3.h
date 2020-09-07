@@ -296,7 +296,7 @@ struct scanners_supported
 
 /*--------------------------------------------------------------------------*/
 
-/* Define a scanner occurence. */
+/* Define a scanner occurrence. */
 typedef struct Teco_Scanner
 {
   struct Teco_Scanner *next;

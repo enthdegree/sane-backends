@@ -279,7 +279,7 @@ m/PID |    0x1000    |    0x1001
 option invertNegatives b
 .RS
 .I b
-0 --> do not invert the picture during negativ scans,
+0 --> do not invert the picture during negative scans,
 .br
 1 --> invert picture
 .RE

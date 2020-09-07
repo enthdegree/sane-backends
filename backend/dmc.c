@@ -113,7 +113,7 @@ static SANE_Word ValidASAs[] = { 3, 25, 50, 100 };
 // fd -- file descriptor
 // typecode -- data type code
 // qualifier -- data type qualifier
-// maxlen -- tranfer length
+// maxlen -- transfer length
 // buf -- buffer to store data in
 // len -- set to actual length of data
 //%RETURNS:
@@ -153,7 +153,7 @@ DMCRead(int fd, unsigned int typecode, unsigned int qualifier,
 // fd -- file descriptor
 // typecode -- data type code
 // qualifier -- data type qualifier
-// maxlen -- tranfer length
+// maxlen -- transfer length
 // buf -- buffer to store data in
 //%RETURNS:
 // A SANE status code

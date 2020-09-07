@@ -143,7 +143,7 @@ static SANE_Status gt68xx_line_reader_free (GT68xx_Line_Reader * reader);
  *
  * @return
  * - SANE_STATUS_GOOD  - read completed successfully
- * - other error value - an error occured
+ * - other error value - an error occurred
  */
 static SANE_Status
 gt68xx_line_reader_read (GT68xx_Line_Reader * reader,

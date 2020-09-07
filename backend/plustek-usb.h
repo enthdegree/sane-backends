@@ -48,7 +48,7 @@
  *        - added MODEL_QSCAN_A6 (thanks to Hiroshi Miura)
  *        - changed DCapsDef, lamp -> misc_io
  *        - bPCB is now ushort to be "missused" by non Plustek
- *          devices (as threshhold for resetting sensor order)
+ *          devices (as threshold for resetting sensor order)
  *        - added _WAF_LOFF_ON_START and _WAF_ONLY_8BIT
  *        - added MODEL_TSCAN_A4
  *        - added attribute packed for data access structs
@@ -426,7 +426,7 @@ typedef struct DevCaps
 } DCapsDef;
 
 /**
- * for keeping intial illumination settings
+ * for keeping initial illumination settings
  */
 typedef struct
 {
@@ -569,7 +569,7 @@ typedef struct
 
 	/** Driver Info */
 	u_long dwValidPixels; /**< only valid pixels, not incl. pad pix(B/W,Gray)*/
-	u_long dwPhyPixels;   /**< inlcude pad pixels for ASIC (B/W, Gray)       */
+	u_long dwPhyPixels;   /**< include pad pixels for ASIC (B/W, Gray)       */
 	u_long dwPhyBytes;    /**< bytes to read from ASIC                       */
 	u_long dwPhyLines;    /**< should include the extra lines accord to the  */
 	                      /*   request dpi (CCD lines distance)              */
@@ -616,7 +616,7 @@ typedef struct
 
 struct Plustek_Device;
 
-/** structure to hold all necessary buffer informations for current scan
+/** structure to hold all necessary buffer information for current scan
  */
 typedef struct ScanDef
 {

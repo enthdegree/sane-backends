@@ -327,7 +327,7 @@ sanei_rts88xx_set_status (SANE_Int devnum, SANE_Byte * regs,
 }
 
 /*
- * get lamp status by reading registers 0x84 to 0x8f, only 0x8F is currently usefull
+ * get lamp status by reading registers 0x84 to 0x8f, only 0x8F is currently useful
  * 0x84 and following could "on" timers
  */
 SANE_Status
@@ -596,7 +596,7 @@ sanei_rts88xx_get_mem (SANE_Int devnum, SANE_Byte ctrl1,
 }
 
 /*
- * write to the nvram controler
+ * write to the nvram controller
  */
 SANE_Status
 sanei_rts88xx_nvram_ctrl (SANE_Int devnum, SANE_Int length, SANE_Byte * value)

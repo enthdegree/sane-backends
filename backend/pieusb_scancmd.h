@@ -167,7 +167,7 @@ struct Pieusb_Mode {
     SANE_Byte colorFormat;
       /* 0x04 = index, cf. INQUIRY
        * bit 7-3 : 0 (unused)
-       * bit 2 : Index = scanned data are lines preceeded by a two-byte index, 'RR', 'GG', 'BB', or 'II'
+       * bit 2 : Index = scanned data are lines preceded by a two-byte index, 'RR', 'GG', 'BB', or 'II'
        * bit 1 : Line =  scanned data are (probably) lines in RGBI order (needs testing)
        * bit 0 : Pixel = scanned data are always RGB-pixels, i.e. 3x2 bytes at depth = 16 bits, 3 bytes
        *                 at depth = 8 bits, and 3 packed bytes at depth = 1. This is also the case in

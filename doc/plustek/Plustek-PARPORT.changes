@@ -97,7 +97,7 @@ Version 0.39 08/11/2001
     3.0 Added forceMode switch
     4.0 Fixed a problem in the PT12 code that causes I/O timeouts
     5.0 Added Genius Colorpage Vivivd III V2 stuff
-    6.0 Added A3I stuff aquired from Plustek
+    6.0 Added A3I stuff acquired from Plustek
     7.0 Fixed a bug, that causes some seg-faults
 
 Version 0.40 12/17/2001
@@ -110,7 +110,7 @@ Version 0.41 01/10/2002
     1.0 Changed IOCTL interface to the kernel module to allow adjustment of some
         driver internal variables
     2.0 Changed plustek.conf configuration fileformat to reflect the enhanced
-        capabilites
+        capabilities
 
 Version 0.42 02/12/2002
     1.0 Added custom gamma table support

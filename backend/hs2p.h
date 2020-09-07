@@ -342,7 +342,7 @@ static const HS2P_Paper paper_sizes[] = {	/* Name, Width, Height in mm */
   {"Full", 0.0, 0.0},
 };
 
-#define PORTRAIT "Portait"
+#define PORTRAIT "Portrait"
 #define LANDSCAPE "Landscape"
 static SANE_String_Const orientation_list[] = {
   PORTRAIT,

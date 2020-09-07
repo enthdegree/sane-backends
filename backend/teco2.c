@@ -1368,7 +1368,7 @@ teco_do_calibration (Teco_Scanner * dev)
 	      {
 		      tmp_min_buf[3 * j + 1]  = dev->buffer[3 * j + 1];
 	      }
-	      /* get hightest value */
+	      /* get highest value */
 	      if (tmp_max_buf[3 * j + 1]  < dev->buffer[3 * j + 1])
 	      {
 		      tmp_max_buf[3 * j + 1]  = dev->buffer[3 * j + 1];
@@ -2141,7 +2141,7 @@ teco_wait_scanner (Teco_Scanner * dev)
  * sane is waiting for a group of 3 bytes per color. To make things
  * funnier, the rasters are shifted. As a result, color planes appear to be shifted be a few pixels.
  *
- * The order of the color is dependant on each scanners. Also the same
+ * The order of the color is dependent on each scanners. Also the same
  * scanner can change the order depending on the resolution.
  *
  * For instance, the VM6586 at 300dpi has a color shift of 2 lines. The rasters sent are:
@@ -2149,7 +2149,7 @@ teco_wait_scanner (Teco_Scanner * dev)
  *   then red in added            - BRBR
  *   then green                   - BRG ... (most of the picture)
  *   then blue is removed         - RGRG
- *   and finaly only green stays  - GG
+ *   and finally only green stays  - GG
  *
  * Overall there is the same number of RGB rasters.
  * The VM3575 is a variant (when factor_x is 0). It does not keep the same order,
@@ -3192,7 +3192,7 @@ sane_start (SANE_Handle handle)
 	  return SANE_STATUS_NO_MEM;
 	}
 
-      /* Rasters are meaningfull only in color mode. */
+      /* Rasters are meaningful only in color mode. */
       dev->raster_size = dev->params.pixels_per_line;
       dev->raster_real = dev->params.lines * 3;
       dev->raster_num = 0;

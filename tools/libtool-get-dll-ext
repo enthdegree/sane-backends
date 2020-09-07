@@ -3,7 +3,7 @@
 # Author: Petter Reinholdtsen <pere@td.org.uit.no>
 # Date:   2000-03-18
 #
-# Given a libtool lib*.la, return the dll extention used (ie. so, sl,
+# Given a libtool lib*.la, return the dll extension used (ie. so, sl,
 # dll, etc)
 if test "x$1" = x; then
   echo "usage: $0 <libfile.la>"

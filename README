@@ -29,6 +29,17 @@ make install
 
 man sane
 
+Pre-built binaries:
+===================
+
+In addition to versions included in releases, some platforms have more current versions available.
+
+Ubuntu PPA https://launchpad.net/~sane-project/+archive/ubuntu/sane-release
+
+sudo add-apt-repository ppa:sane-project/sane-release
+sudo apt update
+apt install libsane libsane-common sane-utils
+
 
 Prerequisites
 =============

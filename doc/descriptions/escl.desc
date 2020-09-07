@@ -13,18 +13,8 @@
 :status :good
 :comment "All resolutions supported."
 
-:model "HL-L2590DW"
-:interface "WiFi"
-:status :good
-:comment "All resolutions supported."
-
 :mfg "Canon"
 :url "https://www.canon-europe.com/support/"
-
-:model "PIXMA MG5765"
-:interface "WiFi"
-:status :good
-:comment "All resolutions supported."
 
 :model "PIXMA G7050"
 :interface "Ethernet WiFi"

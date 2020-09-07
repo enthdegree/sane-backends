@@ -13,7 +13,11 @@ Currently, the following models work with this backend (This list is not exhaust
 .RS
 BROTHER DCP-L2530
 .br
+BROTHER HL-L2590DW
+.br
 CANON IR C3520
+.br
+CANON PIXMA MG5765
 .br
 CANON PIXMA TS3100, TS3150, TS3300, TS3151, TS3350, TS3351,
 .br

@@ -29,8 +29,9 @@ Translators: I want to add a new language
 -----------------------------------------
 
 * Add the language code to po/LINGUAS
-* automake (if you have not enabled maintainer mode)
-* ./configure
+* ./config.status || ./configure
+* cp po/sane-backends.pot po/$lang.po
+  Replace $lang with the language code you added to po/LINGUAS.
 * Go ahead with "I want to update existing translations".
 
 

@@ -6518,7 +6518,7 @@ backend `hp'
    url `http://www.hp.com/'
    comment *none*
    model `ScanJet Plus'
-    interface `Propietary'
+    interface `Proprietary'
     usb-vendor-id *none*
     usb-product-id *none*
     status complete
@@ -12960,7 +12960,7 @@ backend `unsupported'
     usb-product-id `0x0012'
     status unsupported
     url `unsupported/genius-colorpage-hr7xe.html'
-    comment `Unsuported. See link for details.'
+    comment `Unsupported. See link for details.'
    model `ColorPage HR8'
     interface `USB'
     usb-vendor-id `0x0458'

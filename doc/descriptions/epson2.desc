@@ -1745,12 +1745,14 @@
 
 :model      "Perfection 1640SU"		; command spec
 :interface  "SCSI USB"
+:scsi       "EPSON" "Perfection1640" "processor"
 :usbid      "0x04b8" "0x010a"
 :status     :complete
 :comment    "overseas version of the GT-8700"
 
 :model      "Perfection 1640SU PHOTO"
 :interface  "SCSI USB"
+:scsi       "EPSON" "Perfection1640" "processor"
 :usbid      "0x04b8" "0x010a"
 :status     :good
 :comment    "overseas version of the GT-8700F"

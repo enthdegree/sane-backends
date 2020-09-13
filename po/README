@@ -18,7 +18,7 @@ Translators: I want to update existing translations
 ---------------------------------------------------
 
 * cd po ; make update-po
-* Edit lang.po, add/change translations. (with lang = your
+* Edit $lang.po, add/change translations. (with $lang = your
   language, e.g. "de"). You need an editor that is capable of using the
   encoding UTF8 (unicode).
 * Add your name to the header. Update the "last translator" field.
@@ -29,8 +29,9 @@ Translators: I want to add a new language
 -----------------------------------------
 
 * Add the language code to po/LINGUAS
-* automake (if you have not enabled maintainer mode)
-* ./configure
+* ./config.status || ./configure
+* cp po/sane-backends.pot po/$lang.po
+  Replace $lang with the language code you added to po/LINGUAS.
 * Go ahead with "I want to update existing translations".
 
 
@@ -48,7 +49,7 @@ Backend developers: I want to add internationalization support for my backend
 * Edit po/POTFILES.in. Add all source code files that contain strings marked
   by SANE_I18N() to that file.
 * If you want to also add a new language, see above.
-* ./configure
+* ./config.status || ./configure
 * See "Update existing translations" or "Add a new language".
 
 

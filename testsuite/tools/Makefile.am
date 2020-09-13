@@ -49,4 +49,5 @@ check.local:
 	  echo "========================" ; \
 	  echo "One or more tests failed" ; \
 	  echo "========================" ; \
+	  exit 1; \
 	fi

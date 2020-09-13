@@ -36,6 +36,7 @@ dnl ******************************************************************
 AC_PROG_CC
 AC_PROG_CXX
 AM_PROG_CC_C_O
+AM_PATH_PYTHON(3)
 sane_save_CC=$CC
 AC_PROG_CC_C99                  dnl enables extensions to ISO C99 :-(
 AS_IF([test xno != "x$ac_cv_prog_cc_c99"],

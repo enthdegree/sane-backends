@@ -11,10 +11,6 @@ AC_CONFIG_HEADERS([include/sane/config.h])
 
 AM_INIT_AUTOMAKE([1.15 subdir-objects -Wall])
 AM_SILENT_RULES
-dnl Turn off feature were automake will automatically run autoreconf.
-dnl This is because we used to check in generated files into CVS which
-dnl has known timestamp issues.
-AM_MAINTAINER_MODE
 
 dnl ******************************************************************
 dnl  Determine SANE version components and release status

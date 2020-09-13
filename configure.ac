@@ -2,8 +2,6 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl ******************************************************************
 dnl  Set up autoconf and automake
-dnl  When preparing a release, modify the numeric version components
-dnl  and remove the git suffix.
 dnl ******************************************************************
 AC_INIT([sane-backends],m4_esyscmd_s([git describe --dirty]),
         [sane-devel@alioth-lists.debian.net])

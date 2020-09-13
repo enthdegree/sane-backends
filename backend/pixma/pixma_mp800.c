@@ -152,6 +152,10 @@
 <ivec:param_set servicetype=\"scan\"><ivec:jobID>00000001</ivec:jobID>\
 </ivec:param_set></ivec:contents></cmd>"
 
+#if !defined(HAVE_LIBXML2)
+#define XML_OK   "<ivec:response>OK</ivec:response>"
+#endif
+
 enum mp810_state_t
 {
   state_idle,
@@ -291,7 +295,11 @@ static int send_xml_dialog (pixma_t * s, const char * xml_message)
   PDBG(pixma_dbg (10, "XML message sent to scanner:\n%s\n", xml_message));
   PDBG(pixma_dbg (10, "XML response back from scanner:\n%s\n", mp->cb.buf));
 
+#if defined(HAVE_LIBXML2)
   return pixma_parse_xml_response((const char*)mp->cb.buf) == PIXMA_STATUS_OK;
+#else
+  return (strcasestr ((const char *) mp->cb.buf, XML_OK) != NULL);
+#endif
 }
 
 static void new_cmd_tpu_msg (pixma_t *s, pixma_cmdbuf_t * cb, uint16_t cmd)

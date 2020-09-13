@@ -56,8 +56,6 @@
 
 #if defined(HAVE_LIBXML2)
 # include <libxml/parser.h>
-#else
-# error "The pixma backend requires libxml2"
 #endif
 
 #include "pixma_rename.h"
@@ -1241,6 +1239,7 @@ pixma_get_device_status (pixma_t * s, pixma_device_status_t * status)
   return s->ops->get_status (s, status);
 }
 
+#if defined(HAVE_LIBXML2)
 static const char *
 format_xml_response(const char *resp_details)
 {
@@ -1334,3 +1333,4 @@ clean:
   xmlFreeDoc(doc);
   return status;
 }
+#endif

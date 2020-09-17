@@ -71,6 +71,7 @@ static const char settings[] =
     "   <pwg:InputSource>%s</pwg:InputSource>" \
     "   <scan:InputSource>%s</scan:InputSource>" \
     "%s" \
+    "%s" \
     "</scan:ScanSettings>";
 
 /**
@@ -112,6 +113,15 @@ download_callback(void *str, size_t size, size_t nmemb, void *userp)
     download->size = download->size + realsize;
     download->memory[download->size] = 0;
     return (realsize);
+}
+
+static char*
+add_support_option(char *key, int val)
+{
+   int size = (strlen(key) * 2) +  10;
+   char *tmp = (char*)calloc(1, size);
+   snprintf (tmp, size, "<%s>%d</%s>\n", key, val, key);
+   return tmp;
 }
 
 /**
@@ -180,7 +190,45 @@ escl_newjob (capabilities_t *scanner, const ESCL_Device *device, SANE_Status *st
     if (scanner->caps[scanner->source].pos_y > scanner->caps[scanner->source].height)
          off_y = (scanner->caps[scanner->source].pos_y > scanner->caps[scanner->source].height) / 2;
     if (curl_handle != NULL) {
-		char *source = (scanner->source == PLATEN ? "Platen" : "Feeder");
+        char support_options[1024];
+        memset(support_options, 0, 1024);
+	char *source = (scanner->source == PLATEN ? "Platen" : "Feeder");
+        if (scanner->use_threshold)
+        {
+           char *tmp = add_support_option("ThresholdSupport", scanner->val_threshold);
+           if (support_options[0])
+              strcat(support_options, tmp);
+           else
+              strcpy(support_options, tmp);
+           free(tmp);
+        }
+        if (scanner->use_sharpen)
+        {
+           char *tmp = add_support_option("SharpenSupport", scanner->val_sharpen);
+           if (support_options[0])
+              strcat(support_options, tmp);
+           else
+              strcpy(support_options, tmp);
+           free(tmp);
+        }
+        if (scanner->use_contrast)
+        {
+           char *tmp = add_support_option("ContrastSupport", scanner->val_contrast);
+           if (support_options[0])
+              strcat(support_options, tmp);
+           else
+              strcpy(support_options, tmp);
+           free(tmp);
+        }
+        if (scanner->use_brightness)
+        {
+           char *tmp = add_support_option("BrightnessSupport", scanner->val_brightness);
+           if (support_options[0])
+              strcat(support_options, tmp);
+           else
+              strcpy(support_options, tmp);
+           free(tmp);
+        }
         snprintf(cap_data, sizeof(cap_data), settings,
 			scanner->caps[scanner->source].height,
 			scanner->caps[scanner->source].width,
@@ -193,7 +241,8 @@ escl_newjob (capabilities_t *scanner, const ESCL_Device *device, SANE_Status *st
 			scanner->caps[scanner->source].default_resolution,
 			source,
 			source,
-			duplex_mode[0] == 0 ? "" : duplex_mode);
+			duplex_mode[0] == 0 ? " " : duplex_mode,
+                        support_options[0] == 0 ? " " : support_options);
         DBG( 1, "Create NewJob : %s\n", cap_data);
         upload->read_data = strdup(cap_data);
         upload->size = strlen(cap_data);

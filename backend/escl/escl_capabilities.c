@@ -283,6 +283,55 @@ find_value_of_int_variables(xmlNode *node, capabilities_t *scanner, int type)
     return (0);
 }
 
+static support_t*
+print_support(xmlNode *node)
+{
+    support_t *sup = (support_t*)calloc(1, sizeof(support_t));
+    int cpt = 0;
+    while (node) {
+	if (!strcmp((const char *)node->name, "Min")){
+            sup->min = atoi((const char *)xmlNodeGetContent(node));
+            cpt++;
+	}	
+	else if (!strcmp((const char *)node->name, "Max")) {
+            sup->step = atoi((const char *)xmlNodeGetContent(node));
+            cpt++;
+	}
+	else if (!strcmp((const char *)node->name, "Normal")) {
+            sup->step = atoi((const char *)xmlNodeGetContent(node));
+            cpt++;
+	}
+	else if (!strcmp((const char *)node->name, "Step")) {
+            sup->step = atoi((const char *)xmlNodeGetContent(node));
+            cpt++;
+        }
+        node = node->next;
+    }
+    if (cpt == 4)
+        return sup;
+    free(sup);
+    return NULL;
+}
+
+static int
+find_struct_variables(xmlNode *node, capabilities_t *scanner)
+{
+    const char *name = (const char *)node->name;
+    if (strcmp(name, "BrightnessSupport") == 0)
+        scanner->brightness =
+           print_support(node->children);
+    else if (strcmp(name, "ContrastSupport") == 0)
+        scanner->contrast =
+           print_support(node->children);
+    else if (strcmp(name, "SharpenSupport") == 0)
+        scanner->sharpen =
+           print_support(node->children);
+    else if (strcmp(name, "ThresholdSupport") == 0)
+        scanner->threshold = 
+           print_support(node->children);
+    return (0);
+}
+
 /**
  * \fn static int find_true_variables(xmlNode *node, capabilities_t *scanner)
  * \brief Function that searches in the xml file if we find a scanner capability stored
@@ -312,6 +361,8 @@ find_true_variables(xmlNode *node, capabilities_t *scanner, int type)
         strcmp(name, "RiskyBottomMargin") == 0 ||
         strcmp(name, "DocumentFormatExt") == 0)
             find_value_of_int_variables(node, scanner, type);
+    else
+        find_struct_variables(node, scanner);
     return (0);
 }
 

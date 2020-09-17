@@ -36,6 +36,24 @@
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_config.h"
 
+
+#ifndef SANE_NAME_SHARPEN
+# define SANE_NAME_SHARPEN "sharpen"
+# define SANE_TITLE_SHARPEN SANE_I18N("Sharpen")
+# define SANE_DESC_SHARPEN SANE_I18N("Set sharpen value.")
+#endif
+
+#ifndef SANE_NAME_THRESHOLD
+# define SANE_NAME_THRESHOLD "threshold"
+#endif
+#ifndef SANE_TITLE_THRESHOLD
+# define SANE_TITLE_THRESHOLD SANE_I18N("Threshold")
+#endif
+#ifndef SANE_DESC_THRESHOLD
+# define SANE_DESC_THRESHOLD \
+    SANE_I18N("Set threshold for line-art scans.")
+#endif
+
 #define min(A,B) (((A)<(B)) ? (A) : (B))
 #define max(A,B) (((A)>(B)) ? (A) : (B))
 #define INPUT_BUFFER_SIZE 4096
@@ -56,6 +74,10 @@ typedef struct Handled {
     SANE_Range x_range2;
     SANE_Range y_range1;
     SANE_Range y_range2;
+    SANE_Range brightness_range;
+    SANE_Range contrast_range;
+    SANE_Range sharpen_range;
+    SANE_Range thresold_range;
     SANE_Bool cancel;
     SANE_Bool write_scan_data;
     SANE_Bool decompress_scan_data;
@@ -698,6 +720,99 @@ init_options(SANE_String_Const name_source, escl_sane_t *s)
     if (s->val[OPT_SCAN_SOURCE].s)
        free (s->val[OPT_SCAN_SOURCE].s);
     s->val[OPT_SCAN_SOURCE].s = strdup (s->scanner->Sources[s->scanner->source]);
+
+    if (s->scanner->brightness) {
+       s->opt[OPT_BRIGHTNESS].name = SANE_NAME_BRIGHTNESS;
+       s->opt[OPT_BRIGHTNESS].title = SANE_TITLE_BRIGHTNESS;
+       s->opt[OPT_BRIGHTNESS].desc = SANE_DESC_BRIGHTNESS;
+       s->opt[OPT_BRIGHTNESS].type = SANE_TYPE_INT;
+       s->opt[OPT_BRIGHTNESS].unit = SANE_UNIT_NONE;
+       s->opt[OPT_BRIGHTNESS].constraint_type = SANE_CONSTRAINT_RANGE;
+       s->opt[OPT_BRIGHTNESS].constraint.range = &s->brightness_range;
+       s->val[OPT_BRIGHTNESS].w = s->scanner->brightness->normal;
+       s->brightness_range.quant=1;
+
+       if (s->scanner->brightness->step){
+         s->brightness_range.min=s->scanner->brightness->min;
+	 s->brightness_range.max=s->scanner->brightness->max;
+      	 s->opt[OPT_BRIGHTNESS].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+       }
+       else{
+         s->opt[OPT_BRIGHTNESS].cap = SANE_CAP_INACTIVE;
+       }
+    }
+    if (s->scanner->contrast) {
+       s->opt[OPT_CONTRAST].name = SANE_NAME_CONTRAST;
+       s->opt[OPT_CONTRAST].title = SANE_TITLE_CONTRAST;
+       s->opt[OPT_CONTRAST].desc = SANE_DESC_CONTRAST;
+       s->opt[OPT_CONTRAST].type = SANE_TYPE_INT;
+       s->opt[OPT_CONTRAST].unit = SANE_UNIT_NONE;
+       s->opt[OPT_CONTRAST].constraint_type = SANE_CONSTRAINT_RANGE;
+       s->opt[OPT_CONTRAST].constraint.range = &s->contrast_range;
+       s->val[OPT_CONTRAST].w = s->scanner->contrast->normal;
+       s->contrast_range.quant=1;
+
+       if (s->scanner->contrast->step){
+         s->contrast_range.min=s->scanner->contrast->min;
+	 s->contrast_range.max=s->scanner->contrast->max;
+      	 s->opt[OPT_CONTRAST].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+       }
+       else{
+         s->opt[OPT_CONTRAST].cap = SANE_CAP_INACTIVE;
+       }
+    }
+    if (s->scanner->sharpen) {
+       s->opt[OPT_SHARPEN].name = SANE_NAME_SHARPEN;
+       s->opt[OPT_SHARPEN].title = SANE_TITLE_SHARPEN;
+       s->opt[OPT_SHARPEN].desc = SANE_DESC_SHARPEN;
+       s->opt[OPT_SHARPEN].type = SANE_TYPE_INT;
+       s->opt[OPT_SHARPEN].unit = SANE_UNIT_NONE;
+       s->opt[OPT_SHARPEN].constraint_type = SANE_CONSTRAINT_RANGE;
+       s->opt[OPT_SHARPEN].constraint.range = &s->sharpen_range;
+       s->val[OPT_SHARPEN].w = s->scanner->sharpen->normal;
+       s->sharpen_range.quant=1;
+
+       if (s->scanner->sharpen->step){
+         s->sharpen_range.min=s->scanner->sharpen->min;
+         s->sharpen_range.max=s->scanner->sharpen->max;
+         s->opt[OPT_SHARPEN].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+       }
+       else{
+         s->opt[OPT_SHARPEN].cap = SANE_CAP_INACTIVE;
+       }
+    }
+    /*threshold*/
+    if (s->scanner->threshold) {
+      s->opt[OPT_THRESHOLD].name = SANE_NAME_THRESHOLD;
+      s->opt[OPT_THRESHOLD].title = SANE_TITLE_THRESHOLD;
+      s->opt[OPT_THRESHOLD].desc = SANE_DESC_THRESHOLD;
+      s->opt[OPT_THRESHOLD].type = SANE_TYPE_INT;
+      s->opt[OPT_THRESHOLD].unit = SANE_UNIT_NONE;
+      s->opt[OPT_THRESHOLD].constraint_type = SANE_CONSTRAINT_RANGE;
+      s->opt[OPT_THRESHOLD].constraint.range = &s->thresold_range;
+      s->val[OPT_THRESHOLD].w = s->scanner->threshold->normal;
+      s->thresold_range.quant=1;
+
+      if (s->scanner->threshold->step) {
+        s->thresold_range.min= s->scanner->threshold->min;
+        s->thresold_range.max=s->scanner->threshold->max;
+        s->opt[OPT_THRESHOLD].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+        s->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
+        s->opt[OPT_CONTRAST].cap   |= SANE_CAP_INACTIVE;
+        s->opt[OPT_THRESHOLD].cap  |= SANE_CAP_INACTIVE;
+        s->opt[OPT_SHARPEN].cap  |= SANE_CAP_INACTIVE;
+        if (!strcasecmp(s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART))
+           s->opt[OPT_THRESHOLD].cap  &= ~SANE_CAP_INACTIVE;
+        else {
+           s->opt[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
+           s->opt[OPT_CONTRAST].cap   &= ~SANE_CAP_INACTIVE;
+           s->opt[OPT_SHARPEN].cap   &= ~SANE_CAP_INACTIVE;
+        }
+      }
+    }
+    else {
+       s->opt[OPT_THRESHOLD].cap = SANE_CAP_INACTIVE;
+    }
     return (status);
 }
 
@@ -902,11 +1017,25 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v, SANE_Int 
 	case OPT_RESOLUTION:
 	case OPT_PREVIEW:
 	case OPT_GRAY_PREVIEW:
+        case OPT_BRIGHTNESS:
+        case OPT_CONTRAST:
+        case OPT_SHARPEN:
 	    *(SANE_Word *) v = handler->val[n].w;
 	    break;
 	case OPT_SCAN_SOURCE:
 	case OPT_MODE:
 	    strcpy (v, handler->val[n].s);
+            handler->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
+            handler->opt[OPT_CONTRAST].cap   |= SANE_CAP_INACTIVE;
+            handler->opt[OPT_THRESHOLD].cap  |= SANE_CAP_INACTIVE;
+            handler->opt[OPT_SHARPEN].cap  |= SANE_CAP_INACTIVE;
+            if (!strcasecmp(handler->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART))
+               handler->opt[OPT_THRESHOLD].cap  &= ~SANE_CAP_INACTIVE;
+            else {
+               handler->opt[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
+               handler->opt[OPT_CONTRAST].cap   &= ~SANE_CAP_INACTIVE;
+               handler->opt[OPT_SHARPEN].cap   &= ~SANE_CAP_INACTIVE;
+            }
 	    break;
 	case OPT_MODE_GROUP:
 	default:
@@ -924,6 +1053,9 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v, SANE_Int 
 	case OPT_RESOLUTION:
 	case OPT_PREVIEW:
 	case OPT_GRAY_PREVIEW:
+        case OPT_BRIGHTNESS:
+        case OPT_CONTRAST:
+        case OPT_SHARPEN:
 	    handler->val[n].w = *(SANE_Word *) v;
 	    if (i)
 		*i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS | SANE_INFO_INEXACT;
@@ -1068,6 +1200,54 @@ sane_start(SANE_Handle h)
           DBG (10, "Default Color allocation failure.\n");
           return (SANE_STATUS_NO_MEM);
        }
+       if (handler->scanner->threshold) {
+          if (handler->opt[OPT_THRESHOLD].cap & SANE_CAP_INACTIVE) {
+            DBG(10, "Not use Thresold\n");
+            handler->scanner->use_threshold = 0;
+         }
+         else  {
+            DBG(10, "Use Thresold [%d|]\n", handler->val[OPT_THRESHOLD].w);
+            handler->scanner->val_threshold = handler->val[OPT_THRESHOLD].w;
+            handler->scanner->use_threshold = 1;
+         }
+       }
+       
+       if (handler->scanner->sharpen) {
+          if (handler->opt[OPT_SHARPEN].cap & SANE_CAP_INACTIVE) {
+             DBG(10, "Not use Sharpen\n");
+             handler->scanner->use_sharpen = 0;
+          }
+          else  {
+             DBG(10, "Use Sharpen [%d|]\n", handler->val[OPT_SHARPEN].w);
+             handler->scanner->val_sharpen = handler->val[OPT_SHARPEN].w;
+             handler->scanner->use_sharpen = 1;
+          }
+       }
+
+       if (handler->scanner->contrast) {
+          if (handler->opt[OPT_CONTRAST].cap & SANE_CAP_INACTIVE) {
+             DBG(10, "Not use Contrast\n");
+             handler->scanner->use_contrast = 0;
+          }
+          else  {
+             DBG(10, "Use Contrast [%d|]\n", handler->val[OPT_CONTRAST].w);
+             handler->scanner->val_contrast = handler->val[OPT_CONTRAST].w;
+             handler->scanner->use_contrast = 1;
+          }
+       }
+
+       if (handler->scanner->brightness) {
+          if (handler->opt[OPT_BRIGHTNESS].cap & SANE_CAP_INACTIVE) {
+             DBG(10, "Not use Brightness\n");
+             handler->scanner->use_brightness = 0;
+          }
+          else  {
+             DBG(10, "Use Brightness [%d|]\n", handler->val[OPT_BRIGHTNESS].w);
+             handler->scanner->val_brightness = handler->val[OPT_BRIGHTNESS].w;
+             handler->scanner->use_brightness = 1;
+          }
+       }
+
        handler->result = escl_newjob(handler->scanner, handler->device, &status);
        if (status != SANE_STATUS_GOOD)
           return (status);

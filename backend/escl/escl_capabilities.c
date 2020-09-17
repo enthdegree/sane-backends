@@ -292,7 +292,7 @@ print_support(xmlNode *node)
 	if (!strcmp((const char *)node->name, "Min")){
             sup->min = atoi((const char *)xmlNodeGetContent(node));
             cpt++;
-	}	
+	}
 	else if (!strcmp((const char *)node->name, "Max")) {
             sup->step = atoi((const char *)xmlNodeGetContent(node));
             cpt++;
@@ -327,7 +327,7 @@ find_struct_variables(xmlNode *node, capabilities_t *scanner)
         scanner->sharpen =
            print_support(node->children);
     else if (strcmp(name, "ThresholdSupport") == 0)
-        scanner->threshold = 
+        scanner->threshold =
            print_support(node->children);
     return (0);
 }

@@ -1211,7 +1211,7 @@ sane_start(SANE_Handle h)
             handler->scanner->use_threshold = 1;
          }
        }
-       
+
        if (handler->scanner->sharpen) {
           if (handler->opt[OPT_SHARPEN].cap & SANE_CAP_INACTIVE) {
              DBG(10, "Not use Sharpen\n");

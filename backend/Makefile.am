@@ -947,10 +947,10 @@ $(srcdir)/pixma/pixma.c: \
 
 $(srcdir)/pixma/pixma_sane_options.h:
 	@echo Generating $@ from $(@D)/pixma.c
-	@(cd $(@D); python scripts/pixma_gen_options.py h < pixma.c > $(@F))
+	@(cd $(@D); $(PYTHON) scripts/pixma_gen_options.py h < pixma.c > $(@F))
 $(srcdir)/pixma/pixma_sane_options.c:
 	@echo Generating $@ from $(@D)/pixma.c
-	@(cd $(@D); python scripts/pixma_gen_options.py   < pixma.c > $(@F))
+	@(cd $(@D); $(PYTHON) scripts/pixma_gen_options.py   < pixma.c > $(@F))
 
 EXTRA_DIST += pixma/pixma_sane_options.c
 EXTRA_DIST += pixma/pixma_sane_options.h

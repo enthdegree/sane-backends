@@ -27,9 +27,12 @@
 
 #include "../include/sane/config.h"
 
+
 #if !(HAVE_LIBCURL && defined(WITH_AVAHI) && defined(HAVE_LIBXML2))
 #error "The escl backend requires libcurl, libavahi and libxml2"
 #endif
+
+
 
 #ifndef HAVE_LIBJPEG
 /* FIXME: Make JPEG support optional.
@@ -129,6 +132,14 @@ typedef struct capst
     int duplex;
 } caps_t;
 
+typedef struct support
+{
+    int min;
+    int max;
+    int normal;
+    int step;
+} support_t;
+
 typedef struct capabilities
 {
     caps_t caps[3];
@@ -141,6 +152,18 @@ typedef struct capabilities
     long img_read;
     size_t real_read;
     SANE_Bool work;
+    support_t *brightness;
+    support_t *contrast;
+    support_t *sharpen;
+    support_t *threshold;
+    int use_brightness;
+    int val_brightness;
+    int use_contrast;
+    int val_contrast;
+    int use_sharpen;
+    int val_sharpen;
+    int use_threshold;
+    int val_threshold;
 } capabilities_t;
 
 typedef struct {
@@ -172,6 +195,11 @@ enum
     OPT_BR_Y,
 
     OPT_SCAN_SOURCE,
+
+    OPT_BRIGHTNESS,
+    OPT_CONTRAST,
+    OPT_SHARPEN,
+    OPT_THRESHOLD,
 
     NUM_OPTIONS
 };

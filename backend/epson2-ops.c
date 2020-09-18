@@ -302,6 +302,9 @@ e2_dev_post_init(struct Epson_Device *dev)
 		dev->need_reset_on_source_change = SANE_TRUE;
 	}
 
+	if (e2_dev_model(dev, "DS-G20000"))
+		dev->cmd->bright_range.min = -3;
+
 	return SANE_STATUS_GOOD;
 }
 

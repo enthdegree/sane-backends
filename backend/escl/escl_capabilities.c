@@ -317,18 +317,26 @@ static int
 find_struct_variables(xmlNode *node, capabilities_t *scanner)
 {
     const char *name = (const char *)node->name;
-    if (strcmp(name, "BrightnessSupport") == 0)
+    if (strcmp(name, "BrightnessSupport") == 0) {
         scanner->brightness =
            print_support(node->children);
-    else if (strcmp(name, "ContrastSupport") == 0)
+        return 1;
+    }
+    else if (strcmp(name, "ContrastSupport") == 0) {
         scanner->contrast =
            print_support(node->children);
-    else if (strcmp(name, "SharpenSupport") == 0)
+        return 1;
+    }
+    else if (strcmp(name, "SharpenSupport") == 0) {
         scanner->sharpen =
            print_support(node->children);
-    else if (strcmp(name, "ThresholdSupport") == 0)
+        return 1;
+    }
+    else if (strcmp(name, "ThresholdSupport") == 0) {
         scanner->threshold =
            print_support(node->children);
+        return 1;
+    }
     return (0);
 }
 
@@ -361,8 +369,6 @@ find_true_variables(xmlNode *node, capabilities_t *scanner, int type)
         strcmp(name, "RiskyBottomMargin") == 0 ||
         strcmp(name, "DocumentFormatExt") == 0)
             find_value_of_int_variables(node, scanner, type);
-    else
-        find_struct_variables(node, scanner);
     return (0);
 }
 
@@ -401,7 +407,7 @@ print_xml_c(xmlNode *node, capabilities_t *scanner, int type)
            print_xml_c(node->children, scanner, ADFDUPLEX);
 	   scanner->caps[ADFDUPLEX].duplex = 1;
 	}
-	else
+	else if (find_struct_variables(node, scanner) == 0)
            print_xml_c(node->children, scanner, type);
         node = node->next;
     }

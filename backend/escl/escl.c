@@ -797,16 +797,23 @@ init_options(SANE_String_Const name_source, escl_sane_t *s)
         s->thresold_range.min= s->scanner->threshold->min;
         s->thresold_range.max=s->scanner->threshold->max;
         s->opt[OPT_THRESHOLD].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-        s->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
-        s->opt[OPT_CONTRAST].cap   |= SANE_CAP_INACTIVE;
+        s->scanner->use_threshold = 1;
+        if (s->scanner->brightness)
+           s->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
+        if (s->scanner->contrast)
+           s->opt[OPT_CONTRAST].cap   |= SANE_CAP_INACTIVE;
+        if (s->scanner->sharpen)
+           s->opt[OPT_SHARPEN].cap  |= SANE_CAP_INACTIVE;
         s->opt[OPT_THRESHOLD].cap  |= SANE_CAP_INACTIVE;
-        s->opt[OPT_SHARPEN].cap  |= SANE_CAP_INACTIVE;
         if (!strcasecmp(s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART))
            s->opt[OPT_THRESHOLD].cap  &= ~SANE_CAP_INACTIVE;
         else {
-           s->opt[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
-           s->opt[OPT_CONTRAST].cap   &= ~SANE_CAP_INACTIVE;
-           s->opt[OPT_SHARPEN].cap   &= ~SANE_CAP_INACTIVE;
+           if (s->scanner->brightness)
+              s->opt[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
+           if (s->scanner->contrast)
+              s->opt[OPT_CONTRAST].cap   &= ~SANE_CAP_INACTIVE;
+           if (s->scanner->sharpen)
+              s->opt[OPT_SHARPEN].cap   &= ~SANE_CAP_INACTIVE;
         }
       }
     }
@@ -1025,17 +1032,6 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v, SANE_Int 
 	case OPT_SCAN_SOURCE:
 	case OPT_MODE:
 	    strcpy (v, handler->val[n].s);
-            handler->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
-            handler->opt[OPT_CONTRAST].cap   |= SANE_CAP_INACTIVE;
-            handler->opt[OPT_THRESHOLD].cap  |= SANE_CAP_INACTIVE;
-            handler->opt[OPT_SHARPEN].cap  |= SANE_CAP_INACTIVE;
-            if (!strcasecmp(handler->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART))
-               handler->opt[OPT_THRESHOLD].cap  &= ~SANE_CAP_INACTIVE;
-            else {
-               handler->opt[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
-               handler->opt[OPT_CONTRAST].cap   &= ~SANE_CAP_INACTIVE;
-               handler->opt[OPT_SHARPEN].cap   &= ~SANE_CAP_INACTIVE;
-            }
 	    break;
 	case OPT_MODE_GROUP:
 	default:
@@ -1076,6 +1072,26 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v, SANE_Int 
 	    }
 	    if (i)
 		*i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS | SANE_INFO_INEXACT;
+            if (handler->scanner->brightness)
+                handler->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
+            if (handler->scanner->contrast)
+                handler->opt[OPT_CONTRAST].cap   |= SANE_CAP_INACTIVE;
+            if (handler->scanner->threshold)
+                handler->opt[OPT_THRESHOLD].cap  |= SANE_CAP_INACTIVE;
+            if (handler->scanner->sharpen)
+                handler->opt[OPT_SHARPEN].cap  |= SANE_CAP_INACTIVE;
+            if (!strcasecmp(handler->val[n].s, SANE_VALUE_SCAN_MODE_LINEART)) {
+               if (handler->scanner->threshold)
+                  handler->opt[OPT_THRESHOLD].cap  &= ~SANE_CAP_INACTIVE;
+            }
+            else {
+               if (handler->scanner->brightness)
+                  handler->opt[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
+               if (handler->scanner->contrast)
+                  handler->opt[OPT_CONTRAST].cap   &= ~SANE_CAP_INACTIVE;
+               if (handler->scanner->sharpen)
+                  handler->opt[OPT_SHARPEN].cap   &= ~SANE_CAP_INACTIVE;
+            }
 	    break;
 	default:
 	    break;

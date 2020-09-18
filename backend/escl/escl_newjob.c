@@ -118,9 +118,9 @@ download_callback(void *str, size_t size, size_t nmemb, void *userp)
 static char*
 add_support_option(char *key, int val)
 {
-   int size = (strlen(key) * 2) +  10;
+   int size = (strlen(key) * 3) +  10;
    char *tmp = (char*)calloc(1, size);
-   snprintf (tmp, size, "<%s>%d</%s>\n", key, val, key);
+   snprintf (tmp, size, "<scan:%s>%d</scan:%s>\n", key, val, key);
    return tmp;
 }
 

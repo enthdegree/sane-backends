@@ -138,12 +138,6 @@ static const SANE_String_Const film_list[] = {
 	NULL
 };
 
-static const SANE_String_Const focus_list[] = {
-	SANE_I18N("Focus on glass"),
-	SANE_I18N("Focus 2.5mm above glass"),
-	NULL
-};
-
 #define HALFTONE_NONE 0x01
 #define HALFTONE_TET 0x03
 
@@ -302,11 +296,10 @@ static const SANE_String_Const bay_list[] = {
 };
 
 /* minimum, maximum, quantization */
+static const SANE_Range focus_range = { 0, 254, 0 };
 static const SANE_Range u8_range = { 0, 255, 0 };
 static const SANE_Range fx_range = { SANE_FIX(-2.0), SANE_FIX(2.0), 0 };
-
 static const SANE_Range outline_emphasis_range = { -2, 2, 0 };
-
 
 /*
  * List of pointers to devices - will be dynamically allocated depending
@@ -1340,6 +1333,28 @@ init_options(Epson_Scanner *s)
 	s->opt[OPT_BR_Y].constraint.range = s->hw->y_range;
 	s->val[OPT_BR_Y].w = s->hw->y_range->max;
 
+	/* "Focus" group: */
+	s->opt[OPT_FOCUS_GROUP].title = SANE_I18N("Focus");
+	s->opt[OPT_FOCUS_GROUP].desc = "";
+	s->opt[OPT_FOCUS_GROUP].type = SANE_TYPE_GROUP;
+	s->opt[OPT_FOCUS_GROUP].cap = SANE_CAP_ADVANCED;
+
+	/* focus position */
+	s->opt[OPT_FOCUS_POS].name = SANE_NAME_FOCUS;
+	s->opt[OPT_FOCUS_POS].title = SANE_TITLE_FOCUS;
+	s->opt[OPT_FOCUS_POS].desc = SANE_DESC_FOCUS;
+	s->opt[OPT_FOCUS_POS].type = SANE_TYPE_INT;
+	s->opt[OPT_FOCUS_POS].unit = SANE_UNIT_NONE;
+	s->opt[OPT_FOCUS_POS].constraint_type = SANE_CONSTRAINT_RANGE;
+	s->opt[OPT_FOCUS_POS].constraint.range = &focus_range;
+	s->val[OPT_FOCUS_POS].w = FOCUS_ON_GLASS;
+	s->opt[OPT_FOCUS_POS].cap |= SANE_CAP_ADVANCED;
+
+	if (s->hw->focusSupport == SANE_TRUE)
+		s->opt[OPT_FOCUS_POS].cap &= ~SANE_CAP_INACTIVE;
+	else
+		s->opt[OPT_FOCUS_POS].cap |= SANE_CAP_INACTIVE;
+
 	/* "Optional equipment" group: */
 	s->opt[OPT_EQU_GROUP].title = SANE_I18N("Optional equipment");
 	s->opt[OPT_EQU_GROUP].desc = "";
@@ -1375,22 +1390,6 @@ init_options(Epson_Scanner *s)
 
 	if (!s->hw->cmd->set_bay)
 		s->opt[OPT_FILM_TYPE].cap |= SANE_CAP_INACTIVE;
-
-	/* focus position */
-	s->opt[OPT_FOCUS].name = SANE_EPSON_FOCUS_NAME;
-	s->opt[OPT_FOCUS].title = SANE_EPSON_FOCUS_TITLE;
-	s->opt[OPT_FOCUS].desc = SANE_EPSON_FOCUS_DESC;
-	s->opt[OPT_FOCUS].type = SANE_TYPE_STRING;
-	s->opt[OPT_FOCUS].size = max_string_size(focus_list);
-	s->opt[OPT_FOCUS].constraint_type = SANE_CONSTRAINT_STRING_LIST;
-	s->opt[OPT_FOCUS].constraint.string_list = focus_list;
-	s->val[OPT_FOCUS].w = 0;
-	s->opt[OPT_FOCUS].cap |= SANE_CAP_ADVANCED;
-
-	if (s->hw->focusSupport == SANE_TRUE)
-		s->opt[OPT_FOCUS].cap &= ~SANE_CAP_INACTIVE;
-	else
-		s->opt[OPT_FOCUS].cap |= SANE_CAP_INACTIVE;
 
 	/* forward feed / eject */
 	s->opt[OPT_EJECT].name = "eject";
@@ -1650,6 +1649,7 @@ getvalue(SANE_Handle handle, SANE_Int option, void *value)
 	case OPT_THRESHOLD:
 	case OPT_BIT_DEPTH:
 	case OPT_WAIT_FOR_BUTTON:
+	case OPT_FOCUS_POS:
 		*((SANE_Word *) value) = sval->w;
 		break;
 
@@ -1663,7 +1663,6 @@ getvalue(SANE_Handle handle, SANE_Int option, void *value)
 	case OPT_GAMMA_CORRECTION:
 	case OPT_COLOR_CORRECTION:
 	case OPT_BAY:
-	case OPT_FOCUS:
 		strcpy((char *) value, sopt->constraint.string_list[sval->w]);
 		break;
 
@@ -1734,8 +1733,6 @@ change_source(Epson_Scanner *s, SANE_Int optindex, char *value)
 	if (s->hw->need_reset_on_source_change)
 		esci_reset(s);
 
-	s->focusOnGlass = SANE_TRUE;	/* this is the default */
-
 	if (s->val[OPT_SOURCE].w == optindex)
 		return;
 
@@ -1754,7 +1751,7 @@ change_source(Epson_Scanner *s, SANE_Int optindex, char *value)
 		s->hw->use_extension = SANE_TRUE;
 		/* disable film type option */
 		deactivateOption(s, OPT_FILM_TYPE, &dummy);
-		s->val[OPT_FOCUS].w = 0;
+		s->val[OPT_FOCUS_POS].w = FOCUS_ON_GLASS;
 		if (s->hw->duplex) {
 			activateOption(s, OPT_ADF_MODE, &dummy);
 		} else {
@@ -1786,10 +1783,8 @@ change_source(Epson_Scanner *s, SANE_Int optindex, char *value)
 			deactivateOption(s, OPT_FILM_TYPE, &dummy);
 
 		/* enable focus position if the scanner supports it */
-		if (s->hw->cmd->set_focus_position != 0) {
-			s->val[OPT_FOCUS].w = 1;
-			s->focusOnGlass = SANE_FALSE;
-		}
+		if (s->hw->focusSupport)
+			s->val[OPT_FOCUS_POS].w = FOCUS_ABOVE_25MM;
 
 		deactivateOption(s, OPT_ADF_MODE, &dummy);
 		deactivateOption(s, OPT_EJECT, &dummy);
@@ -1802,7 +1797,7 @@ change_source(Epson_Scanner *s, SANE_Int optindex, char *value)
 
 		/* disable film type option */
 		deactivateOption(s, OPT_FILM_TYPE, &dummy);
-		s->val[OPT_FOCUS].w = 0;
+		s->val[OPT_FOCUS_POS].w = FOCUS_ON_GLASS;
 		deactivateOption(s, OPT_ADF_MODE, &dummy);
 	}
 
@@ -1876,7 +1871,6 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int *info)
 	case OPT_DROPOUT:
 	case OPT_FILM_TYPE:
 	case OPT_BAY:
-	case OPT_FOCUS:
 		sval->w = optindex;	/* Simple lists */
 		break;
 
@@ -1993,6 +1987,7 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int *info)
 	case OPT_AUTO_EJECT:
 	case OPT_THRESHOLD:
 	case OPT_WAIT_FOR_BUTTON:
+	case OPT_FOCUS_POS:
 		sval->w = *((SANE_Word *) value);
 		break;
 
@@ -2117,21 +2112,9 @@ sane_start(SANE_Handle handle)
 			return status;
 	}
 
-	/*
-	 * set the focus position according to the extension used:
-	 * if the TPU is selected, then focus 2.5mm above the glass,
-	 * otherwise focus on the glass.
-	 */
-
-	if (s->hw->extension && s->hw->focusSupport == SANE_TRUE) {
-		if (s->val[OPT_FOCUS].w == 0) {
-			DBG(1, "setting focus to glass surface\n");
-			status = esci_set_focus_position(s, 0x40);
-		} else {
-			DBG(1,
-			    "setting focus to 2.5mm above glass\n");
-			status = esci_set_focus_position(s, 0x59);
-		}
+	if (s->hw->focusSupport == SANE_TRUE) {
+		DBG(1, "setting focus to %u\n", s->val[OPT_FOCUS_POS].w);
+		status = esci_set_focus_position(s, s->val[OPT_FOCUS_POS].w);
 
 		if (status != SANE_STATUS_GOOD) {
 			DBG(1, "setting focus failed\n");

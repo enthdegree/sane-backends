@@ -822,24 +822,15 @@ e2_discover_capabilities(Epson_Scanner *s)
 
 	if (esci_request_focus_position(s, &s->currentFocusPosition) ==
 	    SANE_STATUS_GOOD) {
-		DBG(1, "setting focus is supported\n");
+		DBG(1, "setting focus is supported, current focus: %u\n", s->currentFocusPosition);
 		dev->focusSupport = SANE_TRUE;
-		s->opt[OPT_FOCUS].cap &= ~SANE_CAP_INACTIVE;
-
-		/* reflect the current focus position in the GUI */
-		if (s->currentFocusPosition < 0x4C) {
-			/* focus on glass */
-			s->val[OPT_FOCUS].w = 0;
-		} else {
-			/* focus 2.5mm above glass */
-			s->val[OPT_FOCUS].w = 1;
-		}
-
+		s->opt[OPT_FOCUS_POS].cap &= ~SANE_CAP_INACTIVE;
+		s->val[OPT_FOCUS_POS].w = s->currentFocusPosition;
 	} else {
 		DBG(1, "setting focus is not supported\n");
 		dev->focusSupport = SANE_FALSE;
-		s->opt[OPT_FOCUS].cap |= SANE_CAP_INACTIVE;
-		s->val[OPT_FOCUS].w = 0;	/* on glass - just in case */
+		s->opt[OPT_FOCUS_POS].cap |= SANE_CAP_INACTIVE;
+		s->val[OPT_FOCUS_POS].w = FOCUS_ON_GLASS;	/* just in case */
 	}
 
 	/* Set defaults for no extension. */

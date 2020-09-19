@@ -911,9 +911,9 @@ sane_open(SANE_String_Const name, SANE_Handle * h)
 			o.cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
 			break;
 		case CS3_OPTION_FOCUS:
-			o.name = "focus";
-			o.title = "Focus position";
-			o.desc = "Focus position for manual focus";
+			o.name = SANE_NAME_FOCUS;
+			o.title = SANE_TITLE_FOCUS;
+			o.desc = SANE_DESC_FOCUS;
 			o.type = SANE_TYPE_INT;
 			o.unit = SANE_UNIT_NONE;
 			o.size = WSIZE;
@@ -931,9 +931,9 @@ sane_open(SANE_String_Const name, SANE_Handle * h)
 			}
 			break;
 		case CS3_OPTION_AUTOFOCUS:
-			o.name = "autofocus";
-			o.title = "Autofocus";
-			o.desc = "Perform autofocus before scan";
+			o.name = SANE_NAME_AUTOFOCUS;
+			o.title = SANE_TITLE_AUTOFOCUS;
+			o.desc = SANE_DESC_AUTOFOCUS;
 			o.type = SANE_TYPE_BOOL;
 			o.size = WSIZE;
 			o.cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;

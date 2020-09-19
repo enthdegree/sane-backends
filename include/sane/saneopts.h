@@ -140,6 +140,8 @@
 #define SANE_NAME_SCAN_LAMP_DEN		"scan-lamp-density"
 #define SANE_NAME_SELECT_LAMP_DENSITY	"select-lamp-density"
 #define SANE_NAME_LAMP_OFF_AT_EXIT	"lamp-off-at-exit"
+#define SANE_NAME_FOCUS			"focus"
+#define SANE_NAME_AUTOFOCUS		"autofocus"
 
 /* well known options from 'SENSORS' group*/
 #define SANE_NAME_SCAN			"scan"
@@ -229,6 +231,8 @@
 #define SANE_TITLE_SCAN_LAMP_DEN	SANE_I18N("Scan lamp density")
 #define SANE_TITLE_SELECT_LAMP_DENSITY	SANE_I18N("Set lamp density")
 #define SANE_TITLE_LAMP_OFF_AT_EXIT	SANE_I18N("Lamp off at exit")
+#define SANE_TITLE_FOCUS		SANE_I18N("Focus position")
+#define SANE_TITLE_AUTOFOCUS		SANE_I18N("Autofocus")
 
 /* well known options from 'SENSORS' group*/
 #define SANE_TITLE_SCAN			"Scan button"
@@ -439,6 +443,10 @@ SANE_I18N("Define lamp density for scan")
 SANE_I18N("Enable selection of lamp density")
 #define SANE_DESC_LAMP_OFF_AT_EXIT \
 SANE_I18N("Turn off lamp when program exits")
+#define SANE_DESC_FOCUS \
+SANE_I18N("Focus position for manual focus")
+#define SANE_DESC_AUTOFOCUS \
+SANE_I18N("Perform autofocus before scan")
 
 /* well known options from 'SENSORS' group*/
 #define SANE_DESC_SCAN		SANE_I18N("Scan button")

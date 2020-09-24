@@ -611,6 +611,8 @@
          - fix bug with reading hardware sensors on first invocation
       v137 2020-09-23, MAN
          - fix JPEG duplex memory corruption
+         - change window_gamma init (fixes bright/contrast for iX1500)
+         - only call send_lut after set_window (remove late_lut)
 
    SANE FLOW DIAGRAM
 
@@ -660,7 +662,7 @@
 #include "fujitsu.h"
 
 #define DEBUG 1
-#define BUILD 136
+#define BUILD 137
 
 /* values for SANE_DEBUG_FUJITSU env var:
  - errors           5
@@ -2107,11 +2109,9 @@ init_model (struct fujitsu *s)
   s->ppl_mod_by_mode[MODE_GRAYSCALE] = 1;
   s->ppl_mod_by_mode[MODE_COLOR] = 1;
 
-  /* if scanner has built-in gamma tables, we use the first one (0) */
-  /* otherwise, we use the first downloaded one (0x80) */
-  /* note that you may NOT need to send the table to use it, */
-  /* the scanner will fall back to the brightness/contrast LUT */
-  if (!s->num_internal_gamma && s->num_download_gamma){
+  /* we prefer to use the downloaded (LUT) gamma table (0x80) if possible.
+   * but if scanner has only built-in gamma tables, we use the first one (0) */
+  if (s->num_download_gamma){
     s->window_gamma = 0x80;
   }
 
@@ -2367,7 +2367,6 @@ init_model (struct fujitsu *s)
 
     /* weirdness */
     s->need_q_table = 1;
-    s->late_lut = 1;
     s->need_diag_preread = 1;
     s->ppl_mod_by_mode[MODE_COLOR] = 2;
     s->hopper_before_op = 1;
@@ -2391,7 +2390,6 @@ init_model (struct fujitsu *s)
 
     /* weirdness */
     s->need_q_table = 1;
-    s->late_lut = 1;
     s->need_diag_preread = 1;
     s->ppl_mod_by_mode[MODE_COLOR] = 2;
     s->hopper_before_op = 1;
@@ -7052,14 +7050,6 @@ sane_start (SANE_Handle handle)
       if (ret != SANE_STATUS_GOOD)
         DBG (5, "sane_start: WARNING: cannot send_endorser %d\n", ret);
 
-      /* send lut if scanner has no hardware brightness/contrast,
-       * or we are going to ask it to use a downloaded gamma table */
-      if (!s->late_lut && (!s->brightness_steps || !s->contrast_steps || s->window_gamma & 0x80)){
-        ret = send_lut(s);
-        if (ret != SANE_STATUS_GOOD)
-          DBG (5, "sane_start: WARNING: cannot early send_lut %d\n", ret);
-      }
-
       /* set window command */
       ret = set_window(s);
       if (ret != SANE_STATUS_GOOD) {
@@ -7069,7 +7059,7 @@ sane_start (SANE_Handle handle)
 
       /* send lut if scanner has no hardware brightness/contrast,
        * or we are going to ask it to use a downloaded gamma table */
-      if (s->late_lut && (!s->brightness_steps || !s->contrast_steps || s->window_gamma & 0x80)){
+      if (!s->brightness_steps || !s->contrast_steps || s->window_gamma & 0x80){
         ret = send_lut(s);
         if (ret != SANE_STATUS_GOOD)
           DBG (5, "sane_start: WARNING: cannot late send_lut %d\n", ret);

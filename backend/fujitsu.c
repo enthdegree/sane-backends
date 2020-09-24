@@ -609,6 +609,8 @@
          - add support for fi-800R
          - add support for card scanning slot (Return Path)
          - fix bug with reading hardware sensors on first invocation
+      v137 2020-09-23, MAN
+         - fix JPEG duplex memory corruption
 
    SANE FLOW DIAGRAM
 
@@ -8220,19 +8222,19 @@ read_from_JPEGduplex(struct fujitsu *s)
       int avail = s->buff_tot[SIDE_FRONT] - s->buff_rx[SIDE_FRONT];
       if(bytes > avail){
         bytes = avail;
-        /* leave space for JFIF header at start of image */
-        if(s->bytes_rx[SIDE_FRONT] < 2)
-          bytes -= JFIF_APP0_LENGTH;
       }
     }
     if(!s->eof_rx[SIDE_BACK]){
       int avail = s->buff_tot[SIDE_BACK] - s->buff_rx[SIDE_BACK];
       if(bytes > avail){
         bytes = avail;
-        /* leave space for JFIF header at start of image */
-        if(s->bytes_rx[SIDE_BACK] < 2)
-          bytes -= JFIF_APP0_LENGTH;
       }
+    }
+
+    /* leave space for JFIF header in the small front side buffer,
+     * if we are at the beginning of the image */
+    if(s->bytes_rx[SIDE_FRONT] < 3){
+      bytes -= JFIF_APP0_LENGTH;
     }
 
     DBG(15, "read_from_JPEGduplex: fto:%d frx:%d bto:%d brx:%d pa:%d\n",
@@ -8378,7 +8380,7 @@ read_from_JPEGduplex(struct fujitsu *s)
             }
 
             /* unknown, warn */
-            else if(in[i] != 0xff){
+            else if(in[i] != 0x00){
                 DBG(15, "read_from_JPEGduplex: unknown %02x\n", in[i]);
             }
         }

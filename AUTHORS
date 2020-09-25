@@ -78,6 +78,7 @@ Backends:
                 Louis Lagendijk (*)
                 Dennis Lou
                 Rolf Bensch (*)
+                Povilas Kanapickas (*)
  plustek:       Gerhard Jaeger (*)
  plustek_pp:    Rick Bronson (former pp driver-code), Gerhard Jaeger (*)
  pnm:           Andreas Beck, Gordon Matzigkeit, David Mosberger, Michael

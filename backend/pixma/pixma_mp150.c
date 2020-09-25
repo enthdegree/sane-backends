@@ -947,7 +947,10 @@ handle_interrupt (pixma_t * s, int timeout)
     /* some scanners provide additional information:
      * document type in buf[6] 01=Document; 02=Photo; 03=Auto Scan
      * ADF status in buf[8] 01 = ADF empty; 02 = ADF filled
-     * ADF orientation in buf[16] 01=Portrait; 02=Landscape */
+     * ADF orientation in buf[16] 01=Portrait; 02=Landscape
+     *
+     * ToDo: maybe this if isn't needed
+     */
     if (s->cfg->pid == TR4500_PID || s->cfg->pid == MX340_PID)
       {
         s->events |= (buf[6] & 0x0f) << 12;

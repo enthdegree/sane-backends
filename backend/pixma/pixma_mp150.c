@@ -917,6 +917,7 @@ handle_interrupt (pixma_t * s, int timeout)
       || s->cfg->pid == MG5400_PID
       || s->cfg->pid == MG6200_PID
       || s->cfg->pid == MG6300_PID
+      || s->cfg->pid == MX340_PID
       || s->cfg->pid == MX520_PID
       || s->cfg->pid == MX720_PID
       || s->cfg->pid == MX920_PID
@@ -947,7 +948,7 @@ handle_interrupt (pixma_t * s, int timeout)
      * document type in buf[6] 01=Document; 02=Photo; 03=Auto Scan
      * ADF status in buf[8] 01 = ADF empty; 02 = ADF filled
      * ADF orientation in buf[16] 01=Portrait; 02=Landscape */
-    if (s->cfg->pid == TR4500_PID)
+    if (s->cfg->pid == TR4500_PID || s->cfg->pid == MX340_PID)
       {
         s->events |= (buf[6] & 0x0f) << 12;
         s->events |= (buf[8] & 0x0f) << 20;

@@ -1339,6 +1339,14 @@ init_options(Epson_Scanner *s)
 	s->opt[OPT_FOCUS_GROUP].type = SANE_TYPE_GROUP;
 	s->opt[OPT_FOCUS_GROUP].cap = SANE_CAP_ADVANCED;
 
+	/* autofocus */
+	s->opt[OPT_AUTOFOCUS].name = SANE_NAME_AUTOFOCUS;
+	s->opt[OPT_AUTOFOCUS].title = SANE_TITLE_AUTOFOCUS;
+	s->opt[OPT_AUTOFOCUS].desc = SANE_DESC_AUTOFOCUS;
+	s->opt[OPT_AUTOFOCUS].type = SANE_TYPE_BOOL;
+	s->val[OPT_AUTOFOCUS].w = SANE_FALSE;
+	s->opt[OPT_AUTOFOCUS].cap |= SANE_CAP_ADVANCED;
+
 	/* focus position */
 	s->opt[OPT_FOCUS_POS].name = SANE_NAME_FOCUS;
 	s->opt[OPT_FOCUS_POS].title = SANE_TITLE_FOCUS;
@@ -1350,10 +1358,13 @@ init_options(Epson_Scanner *s)
 	s->val[OPT_FOCUS_POS].w = FOCUS_ON_GLASS;
 	s->opt[OPT_FOCUS_POS].cap |= SANE_CAP_ADVANCED;
 
-	if (s->hw->focusSupport == SANE_TRUE)
+	if (s->hw->focusSupport == SANE_TRUE) {
 		s->opt[OPT_FOCUS_POS].cap &= ~SANE_CAP_INACTIVE;
-	else
+		s->opt[OPT_AUTOFOCUS].cap &= ~SANE_CAP_INACTIVE;
+	} else {
 		s->opt[OPT_FOCUS_POS].cap |= SANE_CAP_INACTIVE;
+		s->opt[OPT_AUTOFOCUS].cap |= SANE_CAP_INACTIVE;
+	}
 
 	/* "Optional equipment" group: */
 	s->opt[OPT_EQU_GROUP].title = SANE_I18N("Optional equipment");
@@ -1649,6 +1660,7 @@ getvalue(SANE_Handle handle, SANE_Int option, void *value)
 	case OPT_THRESHOLD:
 	case OPT_BIT_DEPTH:
 	case OPT_WAIT_FOR_BUTTON:
+	case OPT_AUTOFOCUS:
 	case OPT_FOCUS_POS:
 		*((SANE_Word *) value) = sval->w;
 		break;
@@ -1979,6 +1991,11 @@ setvalue(SANE_Handle handle, SANE_Int option, void *value, SANE_Int *info)
 		break;
 	}
 
+	case OPT_AUTOFOCUS:
+		sval->w = *((SANE_Word *) value);
+		setOptionState(s, !sval->w, OPT_FOCUS_POS, &reload);
+		break;
+
 	case OPT_MIRROR:
 	case OPT_AAS:
 	case OPT_PREVIEW:	/* needed? */
@@ -2112,16 +2129,6 @@ sane_start(SANE_Handle handle)
 			return status;
 	}
 
-	if (s->hw->focusSupport == SANE_TRUE) {
-		DBG(1, "setting focus to %u\n", s->val[OPT_FOCUS_POS].w);
-		status = esci_set_focus_position(s, s->val[OPT_FOCUS_POS].w);
-
-		if (status != SANE_STATUS_GOOD) {
-			DBG(1, "setting focus failed\n");
-			return status;
-		}
-	}
-
 	/* set scanning parameters */
 	if (dev->extended_commands)
 		status = e2_set_extended_scanning_parameters(s);
@@ -2130,6 +2137,27 @@ sane_start(SANE_Handle handle)
 
 	if (status != SANE_STATUS_GOOD)
 		return status;
+
+	/*
+	 * set focus after we set scanning parameters because the scanner will
+	 * use the middle of the scanning area for autofocus. If we want to
+	 * support a defined x,y position for autofocus, we'd need to send
+	 * specific scanning paramters just for autofocus.
+	 */
+	if (s->hw->focusSupport == SANE_TRUE) {
+		if (s->val[OPT_AUTOFOCUS].w) {
+			DBG(1, "setting autofocus\n");
+			status = esci_set_focus_position(s, 0xff);
+		} else {
+			DBG(1, "setting focus to %u\n", s->val[OPT_FOCUS_POS].w);
+			status = esci_set_focus_position(s, s->val[OPT_FOCUS_POS].w);
+		}
+
+		if (status != SANE_STATUS_GOOD) {
+			DBG(1, "setting focus failed\n");
+			return status;
+		}
+	}
 
 	/* ESC z, user defined gamma table */
 	if (dev->cmd->set_gamma_table
@@ -2235,6 +2263,12 @@ sane_start(SANE_Handle handle)
 	status = e2_wait_warm_up(s);
 	if (status != SANE_STATUS_GOOD)
 		return status;
+
+	if (s->hw->focusSupport == SANE_TRUE && s->val[OPT_AUTOFOCUS].w) {
+		status = esci_request_focus_position(s, &s->currentFocusPosition);
+		if (status == SANE_STATUS_GOOD)
+			s->val[OPT_FOCUS_POS].w = s->currentFocusPosition;
+	}
 
 	/* start scanning */
 	DBG(1, "%s: scanning...\n", __func__);

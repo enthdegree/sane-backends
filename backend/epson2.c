@@ -2117,6 +2117,28 @@ sane_start(SANE_Handle handle)
 			return status;
 	}
 
+	/*
+	 * set the focus position according to the extension used:
+	 * if the TPU is selected, then focus 2.5mm above the glass,
+	 * otherwise focus on the glass.
+	 */
+
+	if (s->hw->extension && s->hw->focusSupport == SANE_TRUE) {
+		if (s->val[OPT_FOCUS].w == 0) {
+			DBG(1, "setting focus to glass surface\n");
+			status = esci_set_focus_position(s, 0x40);
+		} else {
+			DBG(1,
+			    "setting focus to 2.5mm above glass\n");
+			status = esci_set_focus_position(s, 0x59);
+		}
+
+		if (status != SANE_STATUS_GOOD) {
+			DBG(1, "setting focus failed\n");
+			return status;
+		}
+	}
+
 	/* set scanning parameters */
 	if (dev->extended_commands)
 		status = e2_set_extended_scanning_parameters(s);

@@ -1074,11 +1074,16 @@ e2_set_scanning_parameters(Epson_Scanner * s)
 		if (s->hw->focusSupport == SANE_TRUE) {
 			if (s->val[OPT_FOCUS].w == 0) {
 				DBG(1, "setting focus to glass surface\n");
-				esci_set_focus_position(s, 0x40);
+				status = esci_set_focus_position(s, 0x40);
 			} else {
 				DBG(1,
 				    "setting focus to 2.5mm above glass\n");
-				esci_set_focus_position(s, 0x59);
+				status = esci_set_focus_position(s, 0x59);
+			}
+
+			if (status != SANE_STATUS_GOOD) {
+				DBG(1, "setting focus failed\n");
+				return status;
 			}
 		}
 	}

@@ -303,6 +303,24 @@ static Avision_HWEntry Avision_Device_List [] =
     /* status="complete" */
 
     { NULL, NULL,
+      0x0638, 0x1A33,
+      "Avision", "AV186+",
+      AV_INT_BUTTON | AV_CANCEL_BUTTON | AV_USE_GRAY_FILTER,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
+    /* comment="duplex! sheetfed scanner" */
+    /* status="good" */
+
+    { NULL, NULL,
+      0x0638, 0x2AD9,
+      "Avision", "AV188",
+      AV_INT_BUTTON | AV_CANCEL_BUTTON | AV_USE_GRAY_FILTER,
+      { 0, {0, 0}, {{0, 0}, {0, 0}} }
+    },
+    /* comment="duplex! sheetfed scanner" */
+    /* status="untested" */
+
+    { NULL, NULL,
       0x0638, 0x0A2C,
       "Avision", "AV220+",
       AV_INT_BUTTON | AV_CANCEL_BUTTON,

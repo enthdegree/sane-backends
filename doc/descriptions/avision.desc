@@ -89,6 +89,18 @@
 :comment "sheetfed scanner"
 :status :complete
 
+:model "AV186+"
+:interface "USB"
+:usbid "0x0638" "0x1a33"
+:comment "sheetfed scanner"
+:status :good
+
+:model "AV188"
+:interface "USB"
+:usbid "0x0638" "0x2ad9"
+:comment "sheetfed scanner"
+:status :untested
+
 :model "AV210D2+"
 :interface "USB"
 :usbid "0x0638" "0x1a35"

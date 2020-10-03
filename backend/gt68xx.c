@@ -2329,7 +2329,14 @@ sane_cancel (SANE_Handle handle)
       /* some scanners don't like this command when cancelling a scan */
       sanei_usb_set_timeout (SHORT_TIMEOUT);
       gt68xx_device_fix_descriptor (s->dev);
-      gt68xx_scanner_stop_scan (s);
+
+      // FIXME: Temporary sticking plaster fix for models that cannot scan after calling this
+      // function to cancel. [RL]
+      if (s->dev->model->command_set != &mustek_gt6816_command_set)
+        {
+          gt68xx_scanner_stop_scan (s);
+        }
+
       sanei_usb_set_timeout (LONG_TIMEOUT);
 
       if (s->dev->model->flags & GT68XX_FLAG_SHEET_FED)

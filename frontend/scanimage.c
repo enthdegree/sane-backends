@@ -440,88 +440,107 @@ print_option (SANE_Device * device, int opt_num, const SANE_Option_Descriptor *o
 	  break;
 
 	case SANE_CONSTRAINT_RANGE:
-	  if (opt->type == SANE_TYPE_INT)
-	    {
-	      if (!strcmp (opt->name, "x"))
-		{
-		  printf ("%d..%d",
-                          opt->constraint.range->min,
-                          opt->constraint.range->max - tl_x);
-		}
-	      else if (!strcmp (opt->name, "y"))
-		{
-		  printf ("%d..%d",
-                          opt->constraint.range->min,
-                          opt->constraint.range->max - tl_y);
-		}
-	      else
-		{
-		  printf ("%d..%d",
-			  opt->constraint.range->min,
-			  opt->constraint.range->max);
-		}
-	      print_unit (opt->unit);
-	      if (opt->size > (SANE_Int) sizeof (SANE_Word))
-		fputs (",...", stdout);
-	      if (opt->constraint.range->quant)
-		printf (" (in steps of %d)", opt->constraint.range->quant);
-	    }
-	  else
-	    {
-	      if (!strcmp (opt->name, "x"))
-		{
-		  printf ("%g..%g",
-			  SANE_UNFIX (opt->constraint.range->min),
-			  SANE_UNFIX (opt->constraint.range->max - tl_x));
-		}
-	      else if (!strcmp (opt->name, "y"))
-		{
-		  printf ("%g..%g",
-			  SANE_UNFIX (opt->constraint.range->min),
-			  SANE_UNFIX (opt->constraint.range->max - tl_y));
-		}
-	      else
-		{
-		  printf ("%g..%g",
-			  SANE_UNFIX (opt->constraint.range->min),
-			  SANE_UNFIX (opt->constraint.range->max));
-		}
-	      print_unit (opt->unit);
-	      if (opt->size > (SANE_Int) sizeof (SANE_Word))
-		fputs (",...", stdout);
-	      if (opt->constraint.range->quant)
-		printf (" (in steps of %g)",
-			SANE_UNFIX (opt->constraint.range->quant));
-	    }
-	  break;
+	  // Check for no range - some buggy backends can miss this out.
+          if (!opt->constraint.range)
+            {
+              fputs ("{no_range}", stdout);
+            }
+          else
+            {
+              if (opt->type == SANE_TYPE_INT)
+                {
+                  if (!strcmp (opt->name, "x"))
+                    {
+                      printf ("%d..%d", opt->constraint.range->min,
+                              opt->constraint.range->max - tl_x);
+                    }
+                  else if (!strcmp (opt->name, "y"))
+                    {
+                      printf ("%d..%d", opt->constraint.range->min,
+                              opt->constraint.range->max - tl_y);
+                    }
+                  else
+                    {
+                      printf ("%d..%d", opt->constraint.range->min,
+                              opt->constraint.range->max);
+                    }
+                  print_unit (opt->unit);
+                  if (opt->size > (SANE_Int) sizeof(SANE_Word))
+                    fputs (",...", stdout);
+                  if (opt->constraint.range->quant)
+                    printf (" (in steps of %d)", opt->constraint.range->quant);
+                }
+              else
+                {
+                  if (!strcmp (opt->name, "x"))
+                    {
+                      printf ("%g..%g", SANE_UNFIX(opt->constraint.range->min),
+                              SANE_UNFIX(opt->constraint.range->max - tl_x));
+                    }
+                  else if (!strcmp (opt->name, "y"))
+                    {
+                      printf ("%g..%g", SANE_UNFIX(opt->constraint.range->min),
+                              SANE_UNFIX(opt->constraint.range->max - tl_y));
+                    }
+                  else
+                    {
+                      printf ("%g..%g", SANE_UNFIX(opt->constraint.range->min),
+                              SANE_UNFIX(opt->constraint.range->max));
+                    }
+                  print_unit (opt->unit);
+                  if (opt->size > (SANE_Int) sizeof(SANE_Word))
+                    fputs (",...", stdout);
+                  if (opt->constraint.range->quant)
+                    printf (" (in steps of %g)",
+                            SANE_UNFIX(opt->constraint.range->quant));
+                }
+            }
+          break;
 
 	case SANE_CONSTRAINT_WORD_LIST:
-	  for (i = 0; i < opt->constraint.word_list[0]; ++i)
-	    {
-	      if (not_first)
-		fputc ('|', stdout);
+	  // Check no words in list or no list -  - some buggy backends can miss this out.
+          if (!opt->constraint.word_list || !opt->constraint.word_list[0])
+            {
+              fputs ("{no_wordlist}", stdout);
+            }
+          else
+            {
+              for (i = 0; i < opt->constraint.word_list[0]; ++i)
+                {
+                  if (not_first)
+                    fputc ('|', stdout);
 
-	      not_first = SANE_TRUE;
+                  not_first = SANE_TRUE;
 
-	      if (opt->type == SANE_TYPE_INT)
-		printf ("%d", opt->constraint.word_list[i + 1]);
-	      else
-		printf ("%g", SANE_UNFIX (opt->constraint.word_list[i + 1]));
-	    }
+                  if (opt->type == SANE_TYPE_INT)
+                    printf ("%d", opt->constraint.word_list[i + 1]);
+                  else
+                    printf ("%g", SANE_UNFIX(opt->constraint.word_list[i + 1]));
+                }
+            }
+
 	  print_unit (opt->unit);
 	  if (opt->size > (SANE_Int) sizeof (SANE_Word))
 	    fputs (",...", stdout);
 	  break;
 
 	case SANE_CONSTRAINT_STRING_LIST:
-	  for (i = 0; opt->constraint.string_list[i]; ++i)
-	    {
-	      if (i > 0)
-		fputc ('|', stdout);
+          // Check for missing strings - some buggy backends can miss this out.
+          if (!opt->constraint.string_list || !opt->constraint.string_list[0])
+            {
+              fputs ("{no_stringlist}", stdout);
+            }
+          else
+            {
+              for (i = 0; opt->constraint.string_list[i]; ++i)
+                {
+                  if (i > 0)
+                    fputc ('|', stdout);
 
-	      fputs (opt->constraint.string_list[i], stdout);
-	    }
-	  break;
+                  fputs (opt->constraint.string_list[i], stdout);
+                }
+            }
+          break;
 	}
     }
 

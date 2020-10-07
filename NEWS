@@ -1,5 +1,12 @@
 <!-- -*- Mode: markdown -*- -->
 
+## New with 1.0.32 (released 2021)
+
+### Backends
+
+- the `canon_lide70` backend now also supports document scanning on the
+  Canon LiDE 600(F), thanks to a hardware donation by Georg Sauthoff
+
 ## New with 1.0.31 (released 2020-08-23)
 
 ### Backends

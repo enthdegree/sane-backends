@@ -402,20 +402,6 @@
 :status :unsupported
 :comment "GL841 based, to be added to genesys backend"
 
-:model "CanoScan LiDE 600"
-:interface "USB"
-:url "http://www.juergen-ernst.de/info_sane.html"
-:usbid "0x04a9" "0x2224"
-:status :unsupported
-:comment "Philips chip. Backend started, see link"
-
-:model "CanoScan LiDE 600F"
-:interface "USB"
-:url "http://www.juergen-ernst.de/info_sane.html"
-:usbid "0x04a9" "0x2224"
-:status :unsupported
-:comment "Philips chip. Backend started, see link"
-
 :model "FS4000"
 :url "unsupported/canon-fs4000.html"
 :interface "USB SCSI"

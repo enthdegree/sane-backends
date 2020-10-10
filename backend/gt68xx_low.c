@@ -176,6 +176,8 @@ gt68xx_device_new (GT68xx_Device ** dev_return)
 
   dev->manual_selection = SANE_FALSE;
 
+  dev->scan_started = SANE_FALSE;
+
 #ifdef USE_FORK
   dev->shm_channel = NULL;
 #endif /* USE_FORK */
@@ -626,7 +628,14 @@ gt68xx_device_start_scan (GT68xx_Device * dev)
 {
   CHECK_DEV_ACTIVE (dev, "gt68xx_device_start_scan");
   if (dev->model->command_set->start_scan)
-    return (*dev->model->command_set->start_scan) (dev);
+    {
+      if (!dev->scan_started)
+        {
+          dev->scan_started = SANE_TRUE;
+          return (*dev->model->command_set->start_scan) (dev);
+        }
+      return SANE_STATUS_DEVICE_BUSY;
+    }
   else
     return SANE_STATUS_UNSUPPORTED;
 }
@@ -681,7 +690,14 @@ gt68xx_device_stop_scan (GT68xx_Device * dev)
 {
   CHECK_DEV_ACTIVE (dev, "gt68xx_device_stop_scan");
   if (dev->model->command_set->stop_scan)
-    return (*dev->model->command_set->stop_scan) (dev);
+    {
+      if (dev->scan_started)
+        {
+          dev->scan_started = SANE_FALSE;
+          return (*dev->model->command_set->stop_scan) (dev);
+        }
+      return SANE_STATUS_GOOD;  // Essentially a NOP.
+    }
   else
     return SANE_STATUS_UNSUPPORTED;
 }

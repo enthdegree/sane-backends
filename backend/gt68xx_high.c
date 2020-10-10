@@ -979,9 +979,11 @@ gt68xx_scanner_read_line (GT68xx_Scanner * scanner,
 SANE_Status
 gt68xx_scanner_stop_scan (GT68xx_Scanner * scanner)
 {
-  gt68xx_line_reader_free (scanner->reader);
-  scanner->reader = NULL;
-
+  if (scanner->reader)
+    {
+      gt68xx_line_reader_free (scanner->reader);
+      scanner->reader = NULL;
+    }
   return gt68xx_device_stop_scan (scanner->dev);
 }
 

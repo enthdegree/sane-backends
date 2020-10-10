@@ -38,6 +38,7 @@
 #include "../include/sane/sanei.h"
 
 static AvahiSimplePoll *simple_poll = NULL;
+static int count_finish = 0;
 
 /**
  * \fn static void resolve_callback(AvahiServiceResolver *r, AVAHI_GCC_UNUSED
@@ -107,7 +108,11 @@ browse_callback(AvahiServiceBrowser *b, AvahiIfIndex interface,
     case AVAHI_BROWSER_ALL_FOR_NOW:
     case AVAHI_BROWSER_CACHE_EXHAUSTED:
         if (event != AVAHI_BROWSER_CACHE_EXHAUSTED)
-            avahi_simple_poll_quit(simple_poll);
+           {
+		count_finish++;
+		if (count_finish == 2)
+            		avahi_simple_poll_quit(simple_poll);
+	   }
         break;
     }
 }
@@ -142,6 +147,8 @@ escl_devices(SANE_Status *status)
     AvahiClient *client = NULL;
     AvahiServiceBrowser *sb = NULL;
     int error;
+
+    count_finish = 0;
 
     *status = SANE_STATUS_GOOD;
     if (!(simple_poll = avahi_simple_poll_new())) {

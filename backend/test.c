@@ -320,6 +320,38 @@ check_handle (SANE_Handle handle)
   return SANE_FALSE;
 }
 
+static void
+cleanup_options (Test_Device * test_device)
+{
+  DBG (2, "cleanup_options: test_device=%p\n", (void *) test_device);
+
+  free(test_device->val[opt_mode].s);
+  test_device->val[opt_mode].s = NULL;
+
+  free(test_device->val[opt_three_pass_order].s);
+  test_device->val[opt_three_pass_order].s = NULL;
+
+  free(test_device->val[opt_scan_source].s);
+  test_device->val[opt_scan_source].s = NULL;
+
+  free(test_device->val[opt_test_picture].s);
+  test_device->val[opt_test_picture].s = NULL;
+
+  free(test_device->val[opt_read_status_code].s);
+  test_device->val[opt_read_status_code].s = NULL;
+
+  free(test_device->val[opt_string].s);
+  test_device->val[opt_string].s = NULL;
+
+  free(test_device->val[opt_string_constraint_string_list].s);
+  test_device->val[opt_string_constraint_string_list].s = NULL;
+
+  free(test_device->val[opt_string_constraint_long_string_list].s);
+  test_device->val[opt_string_constraint_long_string_list].s = NULL;
+
+  test_device->options_initialized = SANE_FALSE;
+}
+
 static SANE_Status
 init_options (Test_Device * test_device)
 {
@@ -368,7 +400,7 @@ init_options (Test_Device * test_device)
   od->constraint.string_list = mode_list;
   test_device->val[opt_mode].s = malloc (od->size);
   if (!test_device->val[opt_mode].s)
-    return SANE_STATUS_NO_MEM;
+    goto fail;
   strcpy (test_device->val[opt_mode].s, init_mode);
 
   /* opt_depth */
@@ -435,7 +467,7 @@ init_options (Test_Device * test_device)
   od->constraint.string_list = order_list;
   test_device->val[opt_three_pass_order].s = malloc (od->size);
   if (!test_device->val[opt_three_pass_order].s)
-    return SANE_STATUS_NO_MEM;
+    goto fail;
   strcpy (test_device->val[opt_three_pass_order].s, init_three_pass_order);
 
   /* opt_resolution */
@@ -464,7 +496,7 @@ init_options (Test_Device * test_device)
   od->constraint.string_list = source_list;
   test_device->val[opt_scan_source].s = malloc (od->size);
   if (!test_device->val[opt_scan_source].s)
-    return SANE_STATUS_NO_MEM;
+    goto fail;
   strcpy (test_device->val[opt_scan_source].s, init_scan_source);
 
   /* opt_special_group */
@@ -500,7 +532,7 @@ init_options (Test_Device * test_device)
   od->constraint.string_list = test_picture_list;
   test_device->val[opt_test_picture].s = malloc (od->size);
   if (!test_device->val[opt_test_picture].s)
-    return SANE_STATUS_NO_MEM;
+    goto fail;
   strcpy (test_device->val[opt_test_picture].s, init_test_picture);
 
   /* opt_invert_endianness */
@@ -595,7 +627,7 @@ init_options (Test_Device * test_device)
   od->constraint.string_list = read_status_code_list;
   test_device->val[opt_read_status_code].s = malloc (od->size);
   if (!test_device->val[opt_read_status_code].s)
-    return SANE_STATUS_NO_MEM;
+    goto fail;
   strcpy (test_device->val[opt_read_status_code].s, init_read_status_code);
 
   /* opt_ppl_loss */
@@ -1129,7 +1161,7 @@ init_options (Test_Device * test_device)
   od->constraint.string_list = 0;
   test_device->val[opt_string].s = malloc (od->size);
   if (!test_device->val[opt_string].s)
-    return SANE_STATUS_NO_MEM;
+    goto fail;
   strcpy (test_device->val[opt_string].s, init_string);
 
   /* opt_string_constraint_string_list */
@@ -1148,7 +1180,7 @@ init_options (Test_Device * test_device)
   od->constraint.string_list = string_constraint_string_list;
   test_device->val[opt_string_constraint_string_list].s = malloc (od->size);
   if (!test_device->val[opt_string_constraint_string_list].s)
-    return SANE_STATUS_NO_MEM;
+    goto fail;
   strcpy (test_device->val[opt_string_constraint_string_list].s,
 	  init_string_constraint_string_list);
 
@@ -1169,7 +1201,7 @@ init_options (Test_Device * test_device)
   test_device->val[opt_string_constraint_long_string_list].s =
     malloc (od->size);
   if (!test_device->val[opt_string_constraint_long_string_list].s)
-    return SANE_STATUS_NO_MEM;
+    goto fail;
   strcpy (test_device->val[opt_string_constraint_long_string_list].s,
 	  init_string_constraint_long_string_list);
 
@@ -1202,6 +1234,10 @@ init_options (Test_Device * test_device)
   test_device->val[opt_button].w = 0;
 
   return SANE_STATUS_GOOD;
+
+fail:
+  cleanup_options (test_device);
+  return SANE_STATUS_NO_MEM;
 }
 
 static SANE_Status
@@ -1718,7 +1754,7 @@ sane_init (SANE_Int * __sane_unused__ version_code, SANE_Auth_Callback __sane_un
     {
       SANE_Char number_string[PATH_MAX];
 
-      test_device = malloc (sizeof (*test_device));
+      test_device = calloc (sizeof (*test_device), 1);
       if (!test_device)
 	return SANE_STATUS_NO_MEM;
       test_device->sane.vendor = "Noname";
@@ -1740,6 +1776,7 @@ sane_init (SANE_Int * __sane_unused__ version_code, SANE_Auth_Callback __sane_un
       test_device->eof = SANE_FALSE;
       test_device->scanning = SANE_FALSE;
       test_device->cancelled = SANE_FALSE;
+      test_device->options_initialized = SANE_FALSE;
       sanei_thread_initialize (test_device->reader_pid);
       test_device->pipe = -1;
       DBG (4, "sane_init: new device: `%s' is a %s %s %s\n",
@@ -1772,6 +1809,8 @@ sane_exit (void)
       DBG (4, "sane_exit: freeing device %s\n", test_device->name);
       previous_device = test_device;
       test_device = test_device->next;
+      if (previous_device->options_initialized)
+	cleanup_options (previous_device);
       if (previous_device->name)
 	free (previous_device->name);
       free (previous_device);
@@ -1855,9 +1894,12 @@ sane_open (SANE_String_Const devicename, SANE_Handle * handle)
   test_device->open = SANE_TRUE;
   *handle = test_device;
 
-  status = init_options (test_device);
-  if (status != SANE_STATUS_GOOD)
-    return status;
+  if (!test_device->options_initialized) {
+    status = init_options (test_device);
+    if (status != SANE_STATUS_GOOD)
+      return status;
+    test_device->options_initialized = SANE_TRUE;
+  }
 
   test_device->open = SANE_TRUE;
   test_device->scanning = SANE_FALSE;

@@ -1451,6 +1451,14 @@ usb_ResetRegisters( Plustek_Device *dev )
 			 * CanoScan devices to work properly after power-up
 			 */
 			sanei_lm983x_write_byte( dev->fd, 0x5b, regs[0x5b] );
+
+			/* At least CanoScan N650U can have a problem with writing
+			 * to register 0x59 due XHCI USB controller is too
+			 * fast for him. Simulate EHCI USB controller's
+			 * behavior here - wait 1ms.
+			 */
+			usleep(1000);
+
 			sanei_lm983x_write_byte( dev->fd, 0x59, regs[0x59] );
 			sanei_lm983x_write_byte( dev->fd, 0x5a, regs[0x5a] );
 		} else {

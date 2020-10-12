@@ -237,35 +237,34 @@ static SANE_String_Const source_list[] = {
 
 static double random_factor;	/* use for fuzzyness of parameters */
 
-/* initial values */
+/* initial values. Initial string values are set in sane_init() */
 static SANE_Word init_number_of_devices = 2;
 static SANE_Fixed init_tl_x = SANE_FIX (0.0);
 static SANE_Fixed init_tl_y = SANE_FIX (0.0);
 static SANE_Fixed init_br_x = SANE_FIX (80.0);
 static SANE_Fixed init_br_y = SANE_FIX (100.0);
 static SANE_Word init_resolution = 50;
-static SANE_String init_mode =SANE_VALUE_SCAN_MODE_GRAY;
+static SANE_String init_mode = NULL;
 static SANE_Word init_depth = 8;
 static SANE_Bool init_hand_scanner = SANE_FALSE;
 static SANE_Bool init_three_pass = SANE_FALSE;
-static SANE_String init_three_pass_order = "RGB";
-static SANE_String init_scan_source = "Flatbed";
-static SANE_String init_test_picture = "Solid black";
+static SANE_String init_three_pass_order = NULL;
+static SANE_String init_scan_source = NULL;
+static SANE_String init_test_picture = NULL;
 static SANE_Bool init_invert_endianess = SANE_FALSE;
 static SANE_Bool init_read_limit = SANE_FALSE;
 static SANE_Word init_read_limit_size = 1;
 static SANE_Bool init_read_delay = SANE_FALSE;
 static SANE_Word init_read_delay_duration = 1000;
-static SANE_String init_read_status_code = "Default";
+static SANE_String init_read_status_code = NULL;
 static SANE_Bool init_fuzzy_parameters = SANE_FALSE;
 static SANE_Word init_ppl_loss = 0;
 static SANE_Bool init_non_blocking = SANE_FALSE;
 static SANE_Bool init_select_fd = SANE_FALSE;
 static SANE_Bool init_enable_test_options = SANE_FALSE;
-static SANE_String init_string = "This is the contents of the string option. "
-  "Fill some more words to see how the frontend behaves.";
-static SANE_String init_string_constraint_string_list = "First entry";
-static SANE_String init_string_constraint_long_string_list = "First entry";
+static SANE_String init_string = NULL;
+static SANE_String init_string_constraint_string_list = NULL;
+static SANE_String init_string_constraint_long_string_list = NULL;
 
 /* Test if this machine is little endian (from coolscan.c) */
 static SANE_Bool
@@ -1240,6 +1239,39 @@ fail:
   return SANE_STATUS_NO_MEM;
 }
 
+static void
+cleanup_initial_string_values ()
+{
+  // Cleanup backing memory for initial values of string options.
+  free (init_mode);
+  init_mode = NULL;
+  free (init_three_pass_order);
+  init_three_pass_order = NULL;
+  free (init_scan_source);
+  init_scan_source = NULL;
+  free (init_test_picture);
+  init_test_picture = NULL;
+  free (init_read_status_code);
+  init_read_status_code = NULL;
+  free (init_string);
+  init_string = NULL;
+  free (init_string_constraint_string_list);
+  init_string_constraint_string_list = NULL;
+  free (init_string_constraint_long_string_list);
+  init_string_constraint_long_string_list = NULL;
+}
+
+static void
+cleanup_test_device (Test_Device * test_device)
+{
+  DBG (2, "cleanup_test_device: test_device=%p\n", (void *) test_device);
+  if (test_device->options_initialized)
+    cleanup_options (test_device);
+  if (test_device->name)
+    free (test_device->name);
+  free (test_device);
+}
+
 static SANE_Status
 read_option (SANE_String line, SANE_String option_string,
 	     parameter_type p_type, void *value)
@@ -1367,7 +1399,11 @@ read_option (SANE_String line, SANE_String option_string,
 	  {
 	    DBG (3, "read_option: set option `%s' to `%s'\n", option_string,
 		 word);
+	    if (*(SANE_String *) value)
+	      free (*(SANE_String *) value);
 	    *(SANE_String *) value = strdup (word);
+	    if (!*(SANE_String *) value)
+	      return SANE_STATUS_NO_MEM;
 	  }
 	break;
       }
@@ -1611,6 +1647,49 @@ sane_init (SANE_Int * __sane_unused__ version_code, SANE_Auth_Callback __sane_un
   if (inited)
     DBG (3, "sane_init: warning: already inited\n");
 
+  // Setup initial values of string options. Call free initially in case we've
+  // already called sane_init and these values are already non-null.
+  free (init_mode);
+  init_mode = strdup (SANE_VALUE_SCAN_MODE_GRAY);
+  if (!init_mode)
+    goto fail;
+
+  free (init_three_pass_order);
+  init_three_pass_order = strdup ("RGB");
+  if (!init_three_pass_order)
+    goto fail;
+
+  free (init_scan_source);
+  init_scan_source = strdup ("Flatbed");
+  if (!init_scan_source)
+    goto fail;
+
+  free (init_test_picture);
+  init_test_picture = strdup ("Solid black");
+  if (!init_test_picture)
+    goto fail;
+
+  free (init_read_status_code);
+  init_read_status_code = strdup ("Default");
+  if (!init_read_status_code)
+    goto fail;
+
+  free (init_string);
+  init_string = strdup ("This is the contents of the string option. "
+    "Fill some more words to see how the frontend behaves.");
+  if (!init_string)
+    goto fail;
+
+  free (init_string_constraint_string_list);
+  init_string_constraint_string_list = strdup ("First entry");
+  if (!init_string_constraint_string_list)
+    goto fail;
+
+  free (init_string_constraint_long_string_list);
+  init_string_constraint_long_string_list = strdup ("First entry");
+  if (!init_string_constraint_long_string_list)
+    goto fail;
+
   fp = sanei_config_open (TEST_CONFIG_FILE);
   if (fp)
     {
@@ -1749,14 +1828,14 @@ sane_init (SANE_Int * __sane_unused__ version_code, SANE_Auth_Callback __sane_un
   sane_device_list =
     malloc ((init_number_of_devices + 1) * sizeof (sane_device));
   if (!sane_device_list)
-    return SANE_STATUS_NO_MEM;
+    goto fail;
   for (num = 0; num < init_number_of_devices; num++)
     {
       SANE_Char number_string[PATH_MAX];
 
       test_device = calloc (sizeof (*test_device), 1);
       if (!test_device)
-	return SANE_STATUS_NO_MEM;
+	goto fail_device;
       test_device->sane.vendor = "Noname";
       test_device->sane.type = "virtual device";
       test_device->sane.model = "frontend-tester";
@@ -1764,7 +1843,7 @@ sane_init (SANE_Int * __sane_unused__ version_code, SANE_Auth_Callback __sane_un
       number_string[sizeof (number_string) - 1] = '\0';
       test_device->name = strdup (number_string);
       if (!test_device->name)
-	return SANE_STATUS_NO_MEM;
+	goto fail_name;
       test_device->sane.name = test_device->name;
       if (previous_device)
 	previous_device->next = test_device;
@@ -1789,6 +1868,25 @@ sane_init (SANE_Int * __sane_unused__ version_code, SANE_Auth_Callback __sane_un
   random_factor = ((double) rand ()) / RAND_MAX + 0.5;
   inited = SANE_TRUE;
   return SANE_STATUS_GOOD;
+
+fail_name:
+  // test_device refers to the last device we were creating, which has not
+  // yet been added to the linked list of devices.
+  free (test_device);
+fail_device:
+  // Now, iterate through the linked list of devices to clean up any successful
+  // devices.
+  test_device = first_test_device;
+  while (test_device)
+    {
+      previous_device = test_device;
+      test_device = test_device->next;
+      cleanup_test_device (previous_device);
+    }
+  free (sane_device_list);
+fail:
+  cleanup_initial_string_values ();
+  return SANE_STATUS_NO_MEM;
 }
 
 void
@@ -1809,17 +1907,15 @@ sane_exit (void)
       DBG (4, "sane_exit: freeing device %s\n", test_device->name);
       previous_device = test_device;
       test_device = test_device->next;
-      if (previous_device->options_initialized)
-	cleanup_options (previous_device);
-      if (previous_device->name)
-	free (previous_device->name);
-      free (previous_device);
+      cleanup_test_device (previous_device);
     }
   DBG (4, "sane_exit: freeing device list\n");
   if (sane_device_list)
     free (sane_device_list);
   sane_device_list = NULL;
   first_test_device = NULL;
+
+  cleanup_initial_string_values ();
   inited = SANE_FALSE;
   return;
 }

@@ -1727,7 +1727,7 @@ const pixma_config_t pixma_mp150_devices[] = {
   DEVICE ("Canon PIXMA MP190", "MP190", MP190_PID, 0, 600, 0, 0, 638, 877, PIXMA_CAP_CIS),
 
   /* PIXMA 2009 vintage */
-  DEVICE ("Canon PIXMA MX320", "MX320", MX320_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
+  DEVICE ("Canon PIXMA MX320", "MX320", MX320_PID, 0, 1200, 0, 600, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA MX330", "MX330", MX330_PID, 0, 1200, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADF),
   DEVICE ("Canon PIXMA MX860", "MX860", MX860_PID, 0, 2400, 0, 0, 638, 1050, PIXMA_CAP_CIS | PIXMA_CAP_ADFDUP),
 /* width and height adjusted to flatbed size 21.8 x 30.2 cm^2 respective

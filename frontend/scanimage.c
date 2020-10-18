@@ -499,7 +499,8 @@ print_option (SANE_Device * device, int opt_num, const SANE_Option_Descriptor *o
 
 	case SANE_CONSTRAINT_WORD_LIST:
 	  // Check no words in list or no list -  - some buggy backends can miss this out.
-          if (!opt->constraint.word_list || !opt->constraint.word_list[0])
+	  // Note the check on < 1 as SANE_Int is signed.
+          if (!opt->constraint.word_list || (opt->constraint.word_list[0] < 1))
             {
               fputs ("{no_wordlist}", stdout);
             }

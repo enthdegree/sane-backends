@@ -477,9 +477,6 @@ load (struct backend *be)
 	  DBG (1, "load: malloc failed: %s\n", strerror (errno));
 	  return SANE_STATUS_NO_MEM;
 	}
-      if (orig_src)
-        free (orig_src);
-      orig_src = src;
       snprintf (src, src_len, "%s%s%s", path, DIR_SEP, LIBDIR);
     }
   else
@@ -494,6 +491,7 @@ load (struct backend *be)
     }
   DBG (3, "load: searching backend `%s' in `%s'\n", be->name, src);
 
+  orig_src = src;
   dir = strsep (&src, DIR_SEP);
 
   while (dir)

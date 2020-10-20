@@ -143,6 +143,7 @@ typedef struct Test_Device
   SANE_Bool scanning;
   SANE_Bool cancelled;
   SANE_Bool eof;
+  SANE_Bool options_initialized;
   SANE_Int number_of_scans;
 }
 Test_Device;

@@ -3496,7 +3496,7 @@ print_udev (void)
   int i;
 
   print_udev_header ();
-  printf("ACTION!=\"add\", GOTO=\"libsane_rules_end\"\n"
+  printf("ACTION==\"remove\", GOTO=\"libsane_rules_end\"\n"
 	 "ENV{DEVTYPE}==\"usb_device\", GOTO=\"libsane_create_usb_dev\"\n"
 	 "SUBSYSTEMS==\"scsi\", GOTO=\"libsane_scsi_rules_begin\"\n"
 	 "SUBSYSTEM==\"usb_device\", GOTO=\"libsane_usb_rules_begin\"\n"
@@ -3679,7 +3679,7 @@ print_udevhwdb (void)
   int i;
 
   print_udevhwdb_header ();
-  printf("ACTION!=\"add\", GOTO=\"libsane_rules_end\"\n\n");
+  printf("ACTION==\"remove\", GOTO=\"libsane_rules_end\"\n\n");
 
   printf("# The following rule will disable USB autosuspend for the device\n");
   printf("ENV{DEVTYPE}==\"usb_device\", ENV{libsane_matched}==\"yes\", TEST==\"power/control\", ATTR{power/control}=\"on\"\n\n");

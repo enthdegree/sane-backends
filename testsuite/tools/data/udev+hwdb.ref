@@ -20,7 +20,7 @@
 # If the scanner is supported by sane-backends, please mail the entry to
 # the sane-devel mailing list (sane-devel@alioth-lists.debian.net).
 #
-ACTION!="add", GOTO="libsane_rules_end"
+ACTION=="remove", GOTO="libsane_rules_end"
 
 # The following rule will disable USB autosuspend for the device
 ENV{DEVTYPE}=="usb_device", ENV{libsane_matched}=="yes", TEST=="power/control", ATTR{power/control}="on"

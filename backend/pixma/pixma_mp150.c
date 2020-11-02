@@ -713,10 +713,7 @@ send_scan_param (pixma_t * s)
         {
           data[0x03] = 0x01;
         }
-      else
-        {
-          data[0x05] = 0x01;	/* This one also seen at 0. Don't know yet what's used for */
-        }
+      data[0x05] = pixma_calc_calibrate (s);
       pixma_set_be16 (xdpi | 0x8000, data + 0x08);
       pixma_set_be16 (ydpi | 0x8000, data + 0x0a);
       pixma_set_be32 (x - xs, data + 0x0c);

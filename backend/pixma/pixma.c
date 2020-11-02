@@ -116,6 +116,8 @@ typedef struct pixma_sane_t
   uint8_t gamma_table[4096];
   SANE_String_Const source_list[4];
   pixma_paper_source_t source_map[4];
+  SANE_String_Const calibrate_list[PIXMA_CALIBRATE_NUM_OPTS + 1];
+  pixma_calibrate_option_t calibrate_map[PIXMA_CALIBRATE_NUM_OPTS + 1];
 
   unsigned byte_pos_in_line, output_line_size;
   uint64_t image_bytes_read;
@@ -503,6 +505,22 @@ create_dpi_list (pixma_sane_t * ss)
   while ((unsigned) ss->dpi_list[i] < max_dpi);
   ss->dpi_list[0] = i;
   /*PDBG (pixma_dbg (4, "*create_dpi_list***** min_dpi = %d, max_dpi = %d\n", min_dpi, max_dpi));*/
+}
+
+
+static void
+create_calibrate_list (pixma_sane_t * ss)
+{
+  int i = 0;
+  ss->calibrate_list[i] = SANE_I18N ("Once");
+  ss->calibrate_map[i] = PIXMA_CALIBRATE_ONCE;
+  i++;
+  ss->calibrate_list[i] = SANE_I18N ("Always");
+  ss->calibrate_map[i] = PIXMA_CALIBRATE_ALWAYS;
+  i++;
+  ss->calibrate_list[i] = SANE_I18N ("Never");
+  ss->calibrate_map[i] = PIXMA_CALIBRATE_NEVER;
+  i++;
 }
 
 static void
@@ -936,6 +954,7 @@ calc_scan_param (pixma_sane_t * ss, pixma_scan_param_t * sp)
   sp->threshold = 2.55 * OVAL (opt_threshold).w;
   sp->threshold_curve = OVAL (opt_threshold_curve).w;
   sp->adf_wait = OVAL (opt_adf_wait).w;
+  sp->calibrate = ss->calibrate_map[OVAL (opt_calibrate).w];
 
   error = pixma_check_scan_param (ss->s, sp);
   if (error < 0)
@@ -997,6 +1016,8 @@ init_option_descriptors (pixma_sane_t * ss)
       ss->source_map[i] = PIXMA_SOURCE_TPU;
       i++;
     }
+
+  create_calibrate_list (ss);
 
   build_option_descriptors (ss);
 
@@ -2258,6 +2279,13 @@ type int adf-wait
   title ADF Waiting Time
   desc  When set, the scanner waits up to the specified time in seconds for a new document inserted into the automatic document feeder.
   cap soft_select soft_detect automatic inactive
+
+type string calibrate[30]
+  constraint @string_list = ss->calibrate_list
+  title Calibration
+  desc When to perform scanner calibration. If you choose \"Once\" it will be performed a single time per driver init for single page scans, and for the first page for each ADF scans.
+  default Once
+  cap soft_select soft_detect automatic
 
 rem -------------------------------------------
 END SANE_Option_Descriptor

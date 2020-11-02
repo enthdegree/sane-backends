@@ -119,6 +119,7 @@ struct pixma_t
   uint32_t events;
   void *subdriver;		/* can be used by model driver. */
   int rec_tmo;                  /* receive timeout [s] */
+  pixma_paper_source_t last_source; /* used for calibrate=once */
 
   /* private */
   uint64_t cur_image_size;

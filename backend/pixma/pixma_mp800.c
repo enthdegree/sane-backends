@@ -409,6 +409,10 @@ static int select_source (pixma_t * s)
       data[0] = 4;
       data[1] = 2;
       break;
+
+    case PIXMA_SOURCE_NONE:
+      /* this source can not be selected */
+      break;
   }
   return pixma_exec (s, &mp->cb);
 }
@@ -937,8 +941,7 @@ static int send_scan_param (pixma_t * s)
       data[0x02] = 0x03;
       data[0x03] = 0x03;
     }
-    if (s->cfg->pid != MG8200_PID)
-      data[0x05] = 0x01; /* This one also seen at 0. Don't know yet what's used for */
+    data[0x05] = pixma_calc_calibrate (s);
     /* the scanner controls the scan */
     /* no software control needed */
     pixma_set_be16 (s->param->xdpi | 0x8000, data + 0x08);

@@ -225,7 +225,8 @@ typedef enum pixma_paper_source_t
   PIXMA_SOURCE_FLATBED,
   PIXMA_SOURCE_ADF,
   PIXMA_SOURCE_TPU,
-  PIXMA_SOURCE_ADFDUP		/* duplex */
+  PIXMA_SOURCE_ADFDUP,		/* duplex */
+  PIXMA_SOURCE_NONE
 } pixma_paper_source_t;
 
 /** Scan modes */
@@ -276,6 +277,14 @@ typedef enum pixma_calibration_status_t
   PIXMA_CALIBRATION_OFF,
   PIXMA_CALIBRATION_ERROR
 } pixma_calibration_status_t;
+
+typedef enum pixma_calibrate_option_t
+{
+  PIXMA_CALIBRATE_ONCE,
+  PIXMA_CALIBRATE_ALWAYS,
+  PIXMA_CALIBRATE_NEVER,
+  PIXMA_CALIBRATE_NUM_OPTS
+} pixma_calibrate_option_t;
 
 /** Device status. */
 struct pixma_device_status_t
@@ -359,6 +368,9 @@ struct pixma_scan_param_t
 
   /** \see #pixma_scan_mode_t */
   pixma_scan_mode_t mode;
+
+  /** \see #pixma_calibrate_option_t */
+  pixma_calibrate_option_t calibrate;
 
     /** The current page # in the same ADF scan session, 0 in non ADF */
   unsigned adf_pageid;
@@ -510,6 +522,12 @@ int pixma_enable_background (pixma_t *, int enabled);
  *  \return 0 if succeeded. Otherwise, failed.
  */
 int pixma_get_device_status (pixma_t *, pixma_device_status_t * status);
+
+/** Decide whether to run calibration or not.
+ *  Decision takes into account scan_param, source and last_source.
+ *  \return 0x01 for calibration and 0x00 for no calibration
+ */
+unsigned pixma_calc_calibrate (pixma_t *);
 
 const char *pixma_get_string (pixma_t *, pixma_string_index_t);
 const pixma_config_t *pixma_get_config (pixma_t *);

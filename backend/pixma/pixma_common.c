@@ -812,6 +812,7 @@ pixma_open (unsigned devnr, pixma_t ** handle)
   strncpy (s->id, pixma_get_device_id (devnr), sizeof (s->id) - 1);
   s->ops = s->cfg->ops;
   s->scanning = 0;
+  s->last_source = PIXMA_SOURCE_NONE;
   error = s->ops->open (s);
   if (error < 0)
     goto rollback;
@@ -965,6 +966,8 @@ pixma_read_image (pixma_t * s, void *buf, unsigned len)
           if (result == 0)
             {			/* end of image? */
               s->ops->finish_scan (s);
+              /* set last source after successful scan */
+              s->last_source = s->param->source;
               if ((s->cur_image_size != s->param->image_size) && !s->param->mode_jpeg)
                 {
                   pixma_dbg (1, "WARNING:image size mismatches\n");
@@ -1138,6 +1141,9 @@ pixma_check_scan_param (pixma_t * s, pixma_scan_param_t * sp)
            sp->source));
         }
       break;
+    case PIXMA_SOURCE_NONE:
+      /* this source can not be selected */
+      break;
     }
 
   if (sp->depth == 0)
@@ -1237,6 +1243,21 @@ pixma_get_device_status (pixma_t * s, pixma_device_status_t * status)
     return PIXMA_EINVAL;
   memset (status, 0, sizeof (*status));
   return s->ops->get_status (s, status);
+}
+
+unsigned
+pixma_calc_calibrate (pixma_t * p)
+{
+    pixma_scan_param_t * sp = p->param;
+    if (sp->calibrate == PIXMA_CALIBRATE_ALWAYS)
+        return 0x01;
+    if (sp->calibrate == PIXMA_CALIBRATE_NEVER)
+        return 0x00;
+    /* sp->calibrate == PIXMA_CALIBRATE_ONCE */
+    if (sp->source == PIXMA_SOURCE_ADF || sp->source == PIXMA_SOURCE_ADFDUP)
+        return sp->adf_pageid == 0 ? 0x01 : 0x00;
+    /* sp->source == PIXMA_SOURCE_FLATBED | TPU */
+    return sp->source == p->last_source ? 0x00 : 0x01;
 }
 
 #if defined(HAVE_LIBXML2)

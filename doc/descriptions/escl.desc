@@ -46,6 +46,11 @@
 :status :good
 :comment "All resolutions supported."
 
+:model "PIXMA TS5351"
+:interface "WiFi"
+:status :good
+:comment "All resolutions supported."
+
 :model "PIXMA TS6150"
 :interface "Wifi"
 :status :untested

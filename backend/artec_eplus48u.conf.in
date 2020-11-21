@@ -86,6 +86,7 @@ usb 0x05d8 0x4009
 option artecFirmwareFile @DATADIR@/sane/artec_eplus48u/Artec48.usb
 option vendorString "UMAX"
 option modelString "AstraSlim SE"
+option ePlusPro 0
 
 # ----------------------------------------------------------------------------
 

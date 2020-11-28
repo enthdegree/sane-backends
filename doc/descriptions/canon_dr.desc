@@ -11,7 +11,7 @@
 
 :backend "canon_dr"              ; name of backend
 :url "http://www.thebility.com/canon/"
-:version "59"                    ; version of backend
+:version "60"                    ; version of backend
 :manpage "sane-canon_dr"         ; name of manpage (if it exists)
 :comment "Backend updated for SANE release 1.0.32, see sane-canon_dr manpage"
 :devicetype :scanner             ; start of a list of devices....
@@ -268,7 +268,8 @@
 :model "DR-C120"
 :interface "USB"
 :usbid "0x1083" "0x1651"
-:status :untested
+:status :basic
+:comment "Gray and color work, may always scan in duplex, lower edge may be cropped"
 
 :model "DR-C125"
 :interface "USB"
@@ -279,6 +280,7 @@
 :interface "USB"
 :usbid "0x1083" "0x164a"
 :status :untested
+:comment "May be compatible with DR-C120"
 
 :model "DR-C225"
 :interface "USB"

@@ -344,6 +344,10 @@
          - restructure fine calibration code
          - initial support for uploading fine calibration payloads
          - improve DR-C225 support
+      v60 2020-11-28, MAN
+         - add new gray and color interlacing options for DR-C120
+         - initial support for DR-C120 and C130
+         - enable fine calibration for P-208 (per @sashacmc in !546)
 
    SANE FLOW DIAGRAM
 
@@ -394,7 +398,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 59
+#define BUILD 60
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -1495,6 +1499,8 @@ init_model (struct scanner *s)
     s->gray_interlace[SIDE_BACK] = GRAY_INTERLACE_gG;
     s->duplex_interlace = DUPLEX_INTERLACE_FBfb;
     s->need_ccal = 1;
+    s->fcal_src = FCAL_SRC_SCAN;
+    s->fcal_dest = FCAL_DEST_SW;
     s->invert_tly = 1;
     s->unknown_byte2 = 0x88;
     s->rgb_format = 1;
@@ -1600,6 +1606,39 @@ init_model (struct scanner *s)
     s->can_monochrome=0;
   }
 
+  else if (strstr (s->model_name,"DR-C120")
+    || strstr (s->model_name,"DR-C130")
+  ){
+
+    /*confirmed settings*/
+    s->need_ccal = 1;
+    s->ccal_version = 3;
+
+    s->gray_interlace[SIDE_FRONT] = GRAY_INTERLACE_C120;
+    s->gray_interlace[SIDE_BACK] = GRAY_INTERLACE_C120;
+    s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_C120;
+    s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_C120;
+    s->duplex_interlace = DUPLEX_INTERLACE_2510;
+    s->duplex_offset_side = SIDE_BACK;
+    s->unknown_byte2 = 0x88;
+    s->fcal_src = FCAL_SRC_SCAN;
+    s->fcal_dest = FCAL_DEST_SW;
+    s->sw_lut = 1;
+    s->rgb_format = 1;
+    /*s->duplex_offset = 400; now set in config file*/
+
+    /*only in Y direction, so we trash them in X*/
+    s->std_res_x[DPI_100]=0;
+    s->std_res_x[DPI_150]=0;
+    s->std_res_x[DPI_200]=0;
+    s->std_res_x[DPI_240]=0;
+    s->std_res_x[DPI_400]=0;
+
+    /*suspected settings*/
+    s->always_op = 0;
+    s->fixed_width = 1;
+    s->valid_x = 8.5 * 1200;
+  }
   else if (strstr (s->model_name,"DR-C125")){
 
     /*confirmed settings*/
@@ -5374,6 +5413,23 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
             line[line_next++] = 0;
           }
           break;
+
+        case GRAY_INTERLACE_C120:
+          DBG (17, "copy_simplex: gray, C120\n");
+
+          /* first read head (third byte of every three) */
+          for(j=bwidth-1;j>=0;j-=3){
+            line[line_next++] = buf[i+j];
+          }
+          /* second read head (first byte of every three) */
+          for(j=bwidth-3;j>=0;j-=3){
+            line[line_next++] = buf[i+j];
+          }
+          /* third read head (second byte of every three) */
+          for(j=bwidth-2;j>=0;j-=3){
+            line[line_next++] = buf[i+j];
+          }
+          break;
       }
     }
 
@@ -5456,6 +5512,29 @@ copy_simplex(struct scanner *s, unsigned char * buf, int len, int side)
           /* padding */
           for(j=0;j<tw;j++){
             line[line_next++] = 0;
+          }
+          break;
+
+        case COLOR_INTERLACE_C120:
+          DBG (17, "copy_simplex: color, C120\n");
+
+          /* first read head (third byte of every three) */
+          for(j=t-1;j>=0;j-=3){
+            line[line_next++] = buf[i+j];
+            line[line_next++] = buf[i+t+j];
+            line[line_next++] = buf[i+2*t+j];
+          }
+          /* second read head (first byte of every three) */
+          for(j=t-3;j>=0;j-=3){
+            line[line_next++] = buf[i+j];
+            line[line_next++] = buf[i+t+j];
+            line[line_next++] = buf[i+2*t+j];
+          }
+          /* third read head (second byte of every three) */
+          for(j=t-2;j>=0;j-=3){
+            line[line_next++] = buf[i+j];
+            line[line_next++] = buf[i+t+j];
+            line[line_next++] = buf[i+2*t+j];
           }
           break;
       }

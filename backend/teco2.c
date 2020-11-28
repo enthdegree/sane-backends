@@ -43,7 +43,6 @@
 */
 
 /*
-   $Id$
    TECO scanner VM3575, VM656A, VM6575, VM6586, VM356A, VM3564
    update 2003/02/14, Patch for VM356A Gerard Klaver
    update 2003/03/19, traces, tests VM356A Gerard Klaver, Michael Hoeller

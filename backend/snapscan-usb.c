@@ -68,8 +68,9 @@
      So far this strategy has worked flawlessly. Thanks Dmitri!
 */
 
-/* $Id$
-   SnapScan backend scan data sources */
+/*
+   SnapScan backend scan data sources
+*/
 
 #include "snapscan-usb.h"
 #include "snapscan-mutex.c"

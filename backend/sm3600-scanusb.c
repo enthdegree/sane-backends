@@ -43,8 +43,6 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id$
-
 (C) Marian Eichholz 2001
 
 26.4.2001: Added an abstraction layer for TransferControlMsg.

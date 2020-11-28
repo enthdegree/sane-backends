@@ -42,9 +42,6 @@
    HP Scanner Control Language (SCL).
 */
 
-/*
-   $Id$
-*/
 #ifndef HP_OPTION_H_INCLUDED
 #define HP_OPTION_H_INCLUDED
 #include "hp.h"

@@ -45,8 +45,9 @@
   backend.
 */
 
-/* $Id$
-   SnapScan backend scan data sources */
+/*
+   SnapScan backend scan data sources
+*/
 
 #ifndef snapscan_usb_h
 #define snapscan_usb_h

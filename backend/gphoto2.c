@@ -671,8 +671,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback __sane_unused__ authorize
 
   DBG_INIT ();
 
-  DBG (1,
-       "GPHOTO2 Backend $Id$\n");
+  DBG (1, "GPHOTO2 Backend\n");
 
   if (getenv ("GP_DEBUG"))
     {

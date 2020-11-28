@@ -37,15 +37,12 @@
 
    If you write modifications of your own for SANE, it is your choice
    whether to permit this exception to apply to your modifications.
-   If you do not wish that, delete this exception notice. */
-
-/*
-	$Id$
-	This file implements the low-level scsi-commands.
+   If you do not wish that, delete this exception notice.
 */
 
-
-
+/*
+	This file implements the low-level scsi-commands.
+*/
 
 /* SCSI commands that the Ricoh scanners understand: */
 #define RICOH_SCSI_TEST_UNIT_READY	0x00

@@ -38,8 +38,6 @@
    whether to permit this exception to apply to your modifications.
    If you do not wish that, delete this exception notice.  */
 
-/* $Id$ */
-
 #ifndef polaroid_dmc_h
 #define polaroid_dmc_h
 

@@ -40,7 +40,6 @@
 */
 
 /*
-	$Id$
         This file implements a SANE backend for Ricoh flatbed scanners.
 */
 

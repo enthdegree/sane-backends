@@ -48,7 +48,6 @@ static char *hp_backend_revision = "$Revision$";
 /* Changes:
 
    V 1.06:
-   $Log$
    Revision 1.22  2008/11/26 21:21:25  kitno-guest
    * backend/ *.[ch]: nearly every backend used V_MAJOR
    instead of SANE_CURRENT_MAJOR in sane_init()

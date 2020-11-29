@@ -88,7 +88,6 @@ static SANE_Status Source_init (Source *pself,
 #endif
 
 /*
- * $Log$
  * Revision 1.5  2001/12/17 22:51:50  oliverschwartz
  * Update to snapscan-20011212 (snapscan 1.4.3)
  *

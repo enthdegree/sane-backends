@@ -43,14 +43,11 @@
 */
 
 /*
-   $Log$
    Revision 1.13  2005/04/13 12:50:07  ellert-guest
    Add missing SANE_I18N, Regenerate .po files accordingly, Update Swedish translations
 
    Revision 1.12  2003/10/09 19:32:50  kig-guest
    Bug #300241: fix inverse image on 3c/4c/6100C at 10 bit depth
-
-
 */
 
 /* pwd.h not available ? */

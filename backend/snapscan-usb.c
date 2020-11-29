@@ -580,7 +580,6 @@ static void snapscani_usb_shm_exit(void)
 }
 #endif
 /*
- * $Log$
  * Revision 1.22  2006/01/26 17:42:30  hmg-guest
  * Added #defines for SHM_R/W for cygwin (patch from Philip Aston <philipa@mail.com>).
  *

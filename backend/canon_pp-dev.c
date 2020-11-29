@@ -43,8 +43,6 @@
    This file is part of the canon_pp backend, supporting Canon CanoScan
    Parallel scanners and also distributed as part of the stand-alone driver.
 
-   canon_pp-dev.c: $Revision$
-
    Misc constants for Canon CanoScan Parallel scanners and high-level scan
    functions.
 

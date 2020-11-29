@@ -1978,7 +1978,6 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 }
 
 /*
- * $Log$
  * Revision 1.73  2008/11/26 21:21:29  kitno-guest
  * * backend/ *.[ch]: nearly every backend used V_MAJOR
  * instead of SANE_CURRENT_MAJOR in sane_init()

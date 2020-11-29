@@ -1262,7 +1262,6 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
 }
 
 /*
- * $Log$
  * Revision 1.21  2005/12/02 19:12:54  oliver-guest
  * Another fix for lineart mode for the Epson 3490 @ 3200 DPI
  *

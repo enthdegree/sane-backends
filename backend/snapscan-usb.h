@@ -105,7 +105,6 @@ static SANE_Status usb_cmd(int fd, const void *src, size_t src_size,
 #endif
 
 /*
- * $Log$
  * Revision 1.6  2003/07/26 17:16:55  oliverschwartz
  * Changed licence to GPL + SANE exception for snapscan-usb.[ch]
  *

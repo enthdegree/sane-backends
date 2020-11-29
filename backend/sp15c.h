@@ -47,7 +47,6 @@
 
 /* ------------------------------------------------------------------------- */
 /*
- * $Log$
  * Revision 1.8  2008/05/15 12:50:24  ellert-guest
  * Fix for bug #306751: sanei-thread with pthreads on 64 bit
  *

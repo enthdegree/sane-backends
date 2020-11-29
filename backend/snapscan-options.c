@@ -1807,7 +1807,6 @@ SANE_Status sane_control_option (SANE_Handle h,
 }
 
 /*
- * $Log$
  * Revision 1.35  2006/01/06 20:59:17  oliver-guest
  * Some fixes for the Epson Stylus CX 1500
  *

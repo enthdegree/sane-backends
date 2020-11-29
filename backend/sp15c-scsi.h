@@ -47,7 +47,6 @@
 
 /* ------------------------------------------------------------------------- */
 /*
- * $Log$
  * Revision 1.6  2005/09/19 19:57:48  fzago-guest
  * Replaced __unused__ with __sane_unused__ to avoid a namespace conflict.
  *

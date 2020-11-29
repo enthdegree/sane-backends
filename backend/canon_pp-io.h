@@ -40,8 +40,6 @@
 
    -----
 
-   canon_pp-io.h: $Revision$
-
    This file is part of the canon_pp backend, supporting Canon FBX30P
    and NX40P scanners and also distributed as part of the stand-alone
    driver.

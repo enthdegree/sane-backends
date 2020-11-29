@@ -1711,7 +1711,6 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 }
 
 /*
- * $Log$
  * Revision 1.58  2006/09/03 10:00:11  oliver-guest
  * Bugfix for firmware download by Paul Smedley
  *

@@ -43,8 +43,6 @@
    This file is part of the canon_pp backend, supporting Canon CanoScan
    Parallel scanners and also distributed as part of the stand-alone driver.
 
-   canon_pp-io.c: $Revision$
-
    Low Level Function library for Canon CanoScan Parallel Scanners by
    Simon Krix <kinsei@users.sourceforge.net>
    */

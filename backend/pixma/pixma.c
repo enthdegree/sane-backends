@@ -1455,8 +1455,8 @@ static void
 pixma_jpeg_read(pixma_sane_t *ss, SANE_Byte *data,
            SANE_Int max_length, SANE_Int *length)
 {
-  struct jpeg_decompress_struct cinfo = ss->jpeg_cinfo;
-  pixma_jpeg_src_mgr *src = (pixma_jpeg_src_mgr *)ss->jpeg_cinfo.src;
+  struct jpeg_decompress_struct *cinfo = &ss->jpeg_cinfo;
+  pixma_jpeg_src_mgr *src = (pixma_jpeg_src_mgr *)cinfo->src;
 
   int l;
 
@@ -1476,7 +1476,7 @@ pixma_jpeg_read(pixma_sane_t *ss, SANE_Byte *data,
       return;
     }
 
-  if (cinfo.output_scanline >= cinfo.output_height)
+  if (cinfo->output_scanline >= cinfo->output_height)
     {
       *length = 0;
       return;
@@ -1486,7 +1486,7 @@ pixma_jpeg_read(pixma_sane_t *ss, SANE_Byte *data,
    * only one line at time is supported
    */
 
-  l = jpeg_read_scanlines(&cinfo, ss->jdst->buffer, 1);
+  l = jpeg_read_scanlines(cinfo, ss->jdst->buffer, 1);
   if (l == 0)
     return;
 
@@ -1494,7 +1494,7 @@ pixma_jpeg_read(pixma_sane_t *ss, SANE_Byte *data,
    * linebuffer holds width * bytesperpixel
    */
 
-  (*ss->jdst->put_pixel_rows)(&cinfo, ss->jdst, 1, (char *)src->linebuffer);
+  (*ss->jdst->put_pixel_rows)(cinfo, ss->jdst, 1, (char *)src->linebuffer);
 
   *length = ss->sp.w * ss->sp.channels;
   /* Convert RGB into grayscale */

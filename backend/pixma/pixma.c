@@ -1527,9 +1527,9 @@ pixma_jpeg_read(pixma_sane_t *ss, SANE_Byte *data,
             b = (b << 1) | 0;
          else
             b = (b << 1) | 1;
+          if ((i % 8) == 0)
+            *(d++) = b;
         }
-      if ((i % 8) == 0)
-        *(d++) = b;
     }
 
   src->linebuffer_size = *length;

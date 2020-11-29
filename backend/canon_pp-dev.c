@@ -82,11 +82,6 @@ static void DBG(int level, const char *format, ...)
 }
 #else
 
-/* Definitions which only apply to SANE compiles */
-#ifndef VERSION
-#define VERSION "$Revision$"
-#endif
-
 #define DEBUG_DECLARE_ONLY
 #include "canon_pp.h"
 #include "../include/sane/sanei_config.h"

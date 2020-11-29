@@ -72,11 +72,6 @@ static void DBG(int level, const char *format, ...)
 }
 #else
 
-/* Definitions which only apply to SANE compiles */
-#ifndef VERSION
-#define VERSION "$Revision$"
-#endif
-
 /* Fix problem with DBG macro definition having a - in the name */
 #define DEBUG_DECLARE_ONLY
 #include "canon_pp.h"

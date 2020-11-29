@@ -58,10 +58,6 @@
 #include "../include/sane/config.h"
 #endif
 
-#ifndef VERSION
-#define VERSION "$Revision$"
-#endif
-
 #include  <string.h>
 #include  <math.h>
 #include  <unistd.h>

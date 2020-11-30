@@ -45,11 +45,12 @@
    If you do not wish that, delete this exception notice.
 
    This file is a component of the implementation of a backend for many
-   of the AGFA SnapScan and Acer Vuego/Prisa flatbed scanners. */
+   of the AGFA SnapScan and Acer Vuego/Prisa flatbed scanners.
+*/
 
-
-/* $Id$
-   SANE SnapScan backend */
+/*
+   SANE SnapScan backend
+*/
 
 #include "../include/sane/config.h"
 
@@ -1977,7 +1978,6 @@ SANE_Status sane_get_select_fd (SANE_Handle h, SANE_Int * fd)
 }
 
 /*
- * $Log$
  * Revision 1.73  2008/11/26 21:21:29  kitno-guest
  * * backend/ *.[ch]: nearly every backend used V_MAJOR
  * instead of SANE_CURRENT_MAJOR in sane_init()

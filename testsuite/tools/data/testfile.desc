@@ -1919,7 +1919,6 @@
 
 :devicetype :meta
 :desc "Dynamic loading of shared-library backends."
-; $Id$
 ;
 ; SANE Backend specification file (Matto Marjanovic's format)
 ;
@@ -7593,7 +7592,7 @@
 :devicetype :meta
 :desc "Network access to saned servers"
 :comment "Can be used to access any scanner supported by SANE over the net. Supports IPv4 and IPv6."
-; $Id$
+
 ; SANE Backend specification file
 ;
 ; It's basically emacs-lisp --- so ";" indicates comment to end of line.
@@ -9383,9 +9382,6 @@
 
 ; :status specifier is optional after :model and at the top-level
 
-
-; $Id$
-;
 ; SANE Backend specification file (Matto Marjanovic's format)
 ;
 ; It's basically emacs-lisp --- so ";" indicates comment to end of line.

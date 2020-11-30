@@ -44,11 +44,12 @@
    If you do not wish that, delete this exception notice.
 
    This file is a component of the implementation of a backend for many
-   of the AGFA SnapScan and Acer Vuego/Prisa flatbed scanners. */
+   of the AGFA SnapScan and Acer Vuego/Prisa flatbed scanners.
+*/
 
-
-/* $Id$
-   SnapScan backend scsi command functions */
+/*
+   SnapScan backend scsi command functions
+*/
 
 /* scanner scsi commands */
 
@@ -1710,7 +1711,6 @@ static SANE_Status download_firmware(SnapScan_Scanner * pss)
 }
 
 /*
- * $Log$
  * Revision 1.58  2006/09/03 10:00:11  oliver-guest
  * Bugfix for firmware download by Paul Smedley
  *

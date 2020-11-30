@@ -44,11 +44,12 @@
    If you do not wish that, delete this exception notice.
 
    This file is a component of the implementation of a backend for many
-   of the AGFA SnapScan and Acer Vuego/Prisa flatbed scanners. */
+   of the AGFA SnapScan and Acer Vuego/Prisa flatbed scanners.
+*/
 
-
-/* $Id$
-   SnapScan backend data sources (implementation) */
+/*
+   SnapScan backend data sources (implementation)
+*/
 
 /**************************************************************************************
 If you get confused from all the structs (like I did when I first saw them),
@@ -1261,7 +1262,6 @@ static SANE_Status create_source_chain (SnapScan_Scanner *pss,
 }
 
 /*
- * $Log$
  * Revision 1.21  2005/12/02 19:12:54  oliver-guest
  * Another fix for lineart mode for the Epson 3490 @ 3200 DPI
  *

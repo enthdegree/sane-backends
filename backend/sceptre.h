@@ -40,10 +40,6 @@
    If you do not wish that, delete this exception notice.
 */
 
-/*
-	$Id$
-*/
-
 /* Commands supported by the Sceptre S1200 scanner. */
 #define SCSI_TEST_UNIT_READY			0x00
 #define SCSI_GET_STATUS					0x02

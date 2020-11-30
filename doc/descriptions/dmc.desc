@@ -1,5 +1,3 @@
-; $Id$
-;
 ; SANE Backend specification file (Matto Marjanovic's format)
 ;
 ; It's basically emacs-lisp --- so ";" indicates comment to end of line.

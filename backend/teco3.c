@@ -42,7 +42,6 @@
 */
 
 /*
-   $Id$
    VM3552 (and maybe VM4552 and VM6552)
 */
 

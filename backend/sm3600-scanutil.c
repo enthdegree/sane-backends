@@ -43,8 +43,6 @@
 
 Userspace scan tool for the Microtek 3600 scanner
 
-$Id$
-
 ====================================================================== */
 
 #include <unistd.h>

@@ -44,11 +44,12 @@
    If you do not wish that, delete this exception notice.
 
    This file is a component of the implementation of a backend for many
-   of the AGFA SnapScan and Acer Vuego/Prisa flatbed scanners. */
+   of the AGFA SnapScan and Acer Vuego/Prisa flatbed scanners.
+*/
 
-
-/* $Id$
-   SnapScan backend scan data sources */
+/*
+   SnapScan backend scan data sources
+*/
 
 #ifndef SNAPSCAN_SOURCES_H
 #define SNAPSCAN_SOURCES_H
@@ -87,7 +88,6 @@ static SANE_Status Source_init (Source *pself,
 #endif
 
 /*
- * $Log$
  * Revision 1.5  2001/12/17 22:51:50  oliverschwartz
  * Update to snapscan-20011212 (snapscan 1.4.3)
  *

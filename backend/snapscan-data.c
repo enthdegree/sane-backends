@@ -43,11 +43,11 @@
    This file contains static calibration data for the Benq 5150C scanner.
    Once it is known how calibration for this scanner works this file
    becomes obsolete.
-   */
+*/
 
-
-/* $Id$
-   SANE SnapScan backend */
+/*
+   SANE SnapScan backend
+*/
 
 static const SANE_Byte calibration_data_5150[] =
 {

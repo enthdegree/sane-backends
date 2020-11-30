@@ -43,7 +43,6 @@
 */
 
 /*
-   $Log$
    Revision 1.15  2008/03/28 14:37:36  kitno-guest
    add usleep to improve usb performance, from jim a t meyering d o t net
 
@@ -56,8 +55,6 @@
    Revision 1.12  2003/10/09 19:34:57  kig-guest
    Redo when TEST UNIT READY failed
    Redo when read returns with 0 bytes (non-SCSI only)
-
-
 */
 
 /*

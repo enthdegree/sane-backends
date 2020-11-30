@@ -43,7 +43,6 @@
    Written by Randolph Bentson <bentson@holmsjoen.com> */
 
 /*
- * $Log$
  * Revision 1.17  2008/11/26 21:21:30  kitno-guest
  * * backend/ *.[ch]: nearly every backend used V_MAJOR
  * instead of SANE_CURRENT_MAJOR in sane_init()

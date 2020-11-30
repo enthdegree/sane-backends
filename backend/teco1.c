@@ -42,7 +42,6 @@
 */
 
 /*
-   $Id$
    Some Relisys scanners AVEC and RELI series
 */
 

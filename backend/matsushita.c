@@ -43,7 +43,6 @@
 */
 
 /*
-   $Id$
    Matsushita/Panasonic KV-SS25, KV-SS50, KV-SS55, KV-SS50EX,
                         KV-SS55EX, KV-SS850, KV-SS855 SCSI scanners.
 

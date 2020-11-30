@@ -43,7 +43,6 @@
 */
 
 /*
-   $Id$
    Sceptre S1200 SCSI scanner (sometimes also called S120)
 */
 

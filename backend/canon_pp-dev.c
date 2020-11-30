@@ -43,8 +43,6 @@
    This file is part of the canon_pp backend, supporting Canon CanoScan
    Parallel scanners and also distributed as part of the stand-alone driver.
 
-   canon_pp-dev.c: $Revision$
-
    Misc constants for Canon CanoScan Parallel scanners and high-level scan
    functions.
 
@@ -83,11 +81,6 @@ static void DBG(int level, const char *format, ...)
 	va_end(args);
 }
 #else
-
-/* Definitions which only apply to SANE compiles */
-#ifndef VERSION
-#define VERSION "$Revision$"
-#endif
 
 #define DEBUG_DECLARE_ONLY
 #include "canon_pp.h"

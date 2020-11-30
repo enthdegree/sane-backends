@@ -3,8 +3,6 @@
 
    dc25.c
 
-   $Id$
-
    This file (C) 1998 Peter Fales
 
    This file is part of the SANE package.
@@ -1841,8 +1839,7 @@ sane_init (SANE_Int * version_code, SANE_Auth_Callback __sane_unused__ authorize
 
   fp = sanei_config_open (DC25_CONFIG_FILE);
 
-  DBG (127,
-       "sane_init() $Id$\n");
+  DBG (127, "sane_init()\n");
 
   if (!fp)
     {

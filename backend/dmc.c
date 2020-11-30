@@ -44,8 +44,6 @@
    This file implements a SANE backend for the Polaroid Digital
    Microscope Camera. */
 
-/* $Id$ */
-
 #include "../include/sane/config.h"
 
 #include <limits.h>

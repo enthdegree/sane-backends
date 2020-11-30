@@ -44,10 +44,12 @@
    If you do not wish that, delete this exception notice.
 
    This file is a component of the implementation of a backend for many
-   of the AGFA SnapScan and Acer Vuego/Prisa flatbed scanners. */
+   of the AGFA SnapScan and Acer Vuego/Prisa flatbed scanners.
+*/
 
-/* $Id$
-   SANE SnapScan backend */
+/*
+   SANE SnapScan backend
+*/
 
 #ifndef snapscan_h
 #define snapscan_h
@@ -437,7 +439,6 @@ struct snapscan_scanner
 #endif
 
 /*
- * $Log$
  * Revision 1.42  2008/05/15 12:50:24  ellert-guest
  * Fix for bug #306751: sanei-thread with pthreads on 64 bit
  *

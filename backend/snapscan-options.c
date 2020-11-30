@@ -44,10 +44,12 @@
    If you do not wish that, delete this exception notice.
 
    This file is a component of the implementation of a backend for many
-   of the AGFA SnapScan and Acer Vuego/Prisa flatbed scanners. */
+   of the AGFA SnapScan and Acer Vuego/Prisa flatbed scanners.
+*/
 
-/* $Id$
-   SANE SnapScan backend */
+/*
+   SANE SnapScan backend
+*/
 
 /* default option values */
 
@@ -1805,7 +1807,6 @@ SANE_Status sane_control_option (SANE_Handle h,
 }
 
 /*
- * $Log$
  * Revision 1.35  2006/01/06 20:59:17  oliver-guest
  * Some fixes for the Epson Stylus CX 1500
  *

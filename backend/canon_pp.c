@@ -40,8 +40,6 @@
 
    -----
 
-   canon_pp.c: $Revision$
-
    This file is part of the canon_pp backend, supporting Canon FBX30P
    and NX40P scanners
    */
@@ -58,10 +56,6 @@
 
 #ifndef NOSANE
 #include "../include/sane/config.h"
-#endif
-
-#ifndef VERSION
-#define VERSION "$Revision$"
 #endif
 
 #include  <string.h>

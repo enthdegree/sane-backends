@@ -44,11 +44,9 @@
 */
 
 static char *hp_backend_version = "1.06";
-static char *hp_backend_revision = "$Revision$";
 /* Changes:
 
    V 1.06:
-   $Log$
    Revision 1.22  2008/11/26 21:21:25  kitno-guest
    * backend/ *.[ch]: nearly every backend used V_MAJOR
    instead of SANE_CURRENT_MAJOR in sane_init()
@@ -654,8 +652,8 @@ hp_read_config (void)
   is_df_config = 1;
   cu_device[0] = '\0';
 
-  DBG(1, "hp_read_config: hp backend v%s/%s starts reading config file\n",
-      hp_backend_version, hp_backend_revision);
+  DBG(1, "hp_read_config: hp backend v%s starts reading config file\n",
+      hp_backend_version);
 
   if ((fp = sanei_config_open(HP_CONFIG_FILE)) != 0)
     {

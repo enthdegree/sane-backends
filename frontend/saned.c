@@ -256,6 +256,7 @@ static int run_once;
 static int data_connect_timeout = 4000;
 static Handle *handle;
 static char *bind_addr;
+static short bind_port = -1;
 static union
 {
   int w;
@@ -2841,6 +2842,7 @@ do_bindings_family (int family, int *nfds, struct pollfd **fds, struct addrinfo 
   int on = 1;
   int i;
 
+  sane_port = bind_port;
   fdp = *fds;
 
   for (resp = res, i = 0; resp != NULL; resp = resp->ai_next, i++)
@@ -2851,12 +2853,18 @@ do_bindings_family (int family, int *nfds, struct pollfd **fds, struct addrinfo 
 
       if (resp->ai_family == AF_INET)
 	{
-	  sane_port = ntohs (((struct sockaddr_in *) resp->ai_addr)->sin_port);
+          if (sane_port != -1)
+	      ((struct sockaddr_in *) resp->ai_addr)->sin_port = htons(sane_port);
+          else
+	      sane_port = ntohs(((struct sockaddr_in *) resp->ai_addr)->sin_port);
 	}
 #ifdef ENABLE_IPV6
       else if (resp->ai_family == AF_INET6)
 	{
-	  sane_port = ntohs (((struct sockaddr_in6 *) resp->ai_addr)->sin6_port);
+          if (sane_port != -1)
+              ((struct sockaddr_in6 *) resp->ai_addr)->sin6_port = htons(sane_port);
+          else
+              sane_port = ntohs (((struct sockaddr_in6 *) resp->ai_addr)->sin6_port);
 	}
 #endif /* ENABLE_IPV6 */
       else
@@ -2901,6 +2909,28 @@ do_bindings_family (int family, int *nfds, struct pollfd **fds, struct addrinfo 
 	  close (fd);
 
 	  continue;
+	}
+
+      if (sane_port == 0)
+	{
+	  /* sane was asked to bind to an ephemeral port, log it */
+	  socklen_t len = sizeof (*resp->ai_addr);
+	  if (getsockname(fd, resp->ai_addr, &len) != -1)
+	    {
+	      if (resp->ai_family == AF_INET)
+		{
+		  DBG (DBG_INFO, "do_bindings: [%d] selected ephemeral port: %d\n", i, ntohs(((struct sockaddr_in *) resp->ai_addr)->sin_port));
+		}
+
+#ifdef ENABLE_IPV6
+	      if (resp->ai_family == AF_INET6)
+		{
+		  DBG (DBG_INFO, "do_bindings: [%d] selected ephemeral port: %d\n", i, ntohs(((struct sockaddr_in6 *) resp->ai_addr)->sin6_port));
+		}
+
+#endif /* ENABLE_IPV6 */
+
+	    }
 	}
 
       fdp->fd = fd;
@@ -3391,6 +3421,7 @@ static void usage(char *me, int err)
        "  -d, --debug=level	set debug level `level' (default is 2)\n"
        "  -e, --stderr		output to stderr\n"
        "  -b, --bind=addr	bind address `addr' (default all interfaces)\n"
+       "  -p, --port=port	bind port `port` (default sane-port or 6566)\n"
        "  -h, --help		show this help message and exit\n", me);
 
   exit(err);
@@ -3410,6 +3441,7 @@ static struct option long_options[] =
   {"debug",	required_argument,	0, 'd'},
   {"stderr",	no_argument,		0, 'e'},
   {"bind",	required_argument,	0, 'b'},
+  {"port",	required_argument,	0, 'p'},
   {0,		0,			0,  0 }
 };
 
@@ -3435,7 +3467,7 @@ main (int argc, char *argv[])
   run_foreground = SANE_TRUE;
   run_once = SANE_FALSE;
 
-  while((c = getopt_long(argc, argv,"ha::lu:Dod:eb:", long_options, &long_index )) != -1)
+  while((c = getopt_long(argc, argv,"ha::lu:Dod:eb:p:", long_options, &long_index )) != -1)
     {
       switch(c) {
       case 'a':
@@ -3464,6 +3496,9 @@ main (int argc, char *argv[])
 	break;
       case 'b':
 	bind_addr = optarg;
+	break;
+      case 'p':
+	bind_port = atoi(optarg);
 	break;
       case 'h':
 	usage(argv[0], EXIT_SUCCESS);

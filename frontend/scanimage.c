@@ -1144,6 +1144,8 @@ process_backend_option (SANE_Handle device, int optnum, const char *optarg)
       return;
     }
   set_option (device, optnum, valuep);
+  if (opt->type == SANE_TYPE_STRING && valuep)
+    free(valuep);
 }
 
 static void

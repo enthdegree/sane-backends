@@ -578,8 +578,25 @@ init_options(SANE_String_Const name_source, escl_sane_t *s)
 	       s->scanner->source = PLATEN;
 	   if (source == s->scanner->source) return status;
     }
-    else
-	   s->scanner->source = PLATEN;
+    if (s->scanner->caps[s->scanner->source].ColorModes == NULL) {
+        if (s->scanner->caps[PLATEN].ColorModes)
+            s->scanner->source = PLATEN;
+        else if (s->scanner->caps[ADFSIMPLEX].ColorModes)
+            s->scanner->source = ADFSIMPLEX;
+        else if (s->scanner->caps[ADFDUPLEX].ColorModes)
+            s->scanner->source = ADFDUPLEX;
+        else
+            return SANE_STATUS_INVAL;
+    }
+    if (s->scanner->source == PLATEN) {
+        DBG (10, "SOURCE PLATEN.\n");
+    }
+    else if (s->scanner->source == ADFDUPLEX) {
+        DBG (10, "SOURCE ADFDUPLEX.\n");
+    }
+    else if (s->scanner->source == ADFSIMPLEX) {
+        DBG (10, "SOURCE ADFSIMPLEX.\n");
+    }
     memset (s->opt, 0, sizeof (s->opt));
     memset (s->val, 0, sizeof (s->val));
     for (i = 0; i < NUM_OPTIONS; ++i) {

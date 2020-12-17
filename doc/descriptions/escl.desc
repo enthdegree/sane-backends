@@ -107,6 +107,11 @@
 :status :good
 :comment "All resolutions supported."
 
+:model "DeskJet 3760"
+:interface "WiFi"
+:status :good
+:comment "All resolutions supported."
+
 :model "LaserJet MFP M28w"
 :interface "WiFi"
 :status :untested

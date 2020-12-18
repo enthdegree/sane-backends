@@ -28,6 +28,105 @@
 ; Canon MFP2 conf file
 ;
 
+; ---- V410 --------------------------
+:model "TS3400 series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x18b7"
+:status :good
+
+:model "E3400 series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x18b8"
+:status :good
+
+:model "TR7000 series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x18b9"
+:status :good
+
+:model "G2020 series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x18bd"
+:status :good
+
+:model "G3060 series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x18c3"
+:status :good
+
+:model "G2060 series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x18c1"
+:status :good
+
+:model "G3020 series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x18bf"
+:status :good
+
+:model "TS7430 series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x18b2"
+:status :good
+
+:model "XK90 series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x18b6"
+:status :good
+
+:model "TS8430 series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x18b5"
+:status :good
+
+:model "TR7600 series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x18aa"
+:status :good
+
+:model "TR8600 series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x18ad"
+:status :good
+
+:model "TR8630 series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x18af"
+:status :good
+
+:model "TS6400 series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x18a9"
+:status :good
+
+:model "TS7400 series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x18a9"
+:status :good
+
+
+; ---- V400 --------------------------
+:model "G7000 series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1863"
+:status :good
+
+:model "G7080 series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1864"
+:status :good
+
+:model "GM4000 series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x1869"
+:status :good
+
+:model "GM4080 series"
+:interface "USB WiFi"
+:usbid "0x04a9" "0x186a"
+:status :good
+
+
 ; ---- V390 --------------------------
 :model "G6000 series"
 :interface "USB WiFi"

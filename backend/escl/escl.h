@@ -130,6 +130,10 @@ typedef struct capst
     int RiskyTopMargin;
     int RiskyBottomMargin;
     int duplex;
+    int have_jpeg;
+    int have_png;
+    int have_tiff;
+    int have_pdf;
 } caps_t;
 
 typedef struct support
@@ -185,8 +189,7 @@ enum
     OPT_MODE_GROUP,
     OPT_MODE,
     OPT_RESOLUTION,
-    OPT_PREVIEW,
-    OPT_GRAY_PREVIEW,
+    OPT_SCAN_SOURCE,
 
     OPT_GEOMETRY_GROUP,
     OPT_TL_X,
@@ -194,8 +197,9 @@ enum
     OPT_BR_X,
     OPT_BR_Y,
 
-    OPT_SCAN_SOURCE,
-
+    OPT_ENHANCEMENT_GROUP,
+    OPT_PREVIEW,
+    OPT_GRAY_PREVIEW,
     OPT_BRIGHTNESS,
     OPT_CONTRAST,
     OPT_SHARPEN,

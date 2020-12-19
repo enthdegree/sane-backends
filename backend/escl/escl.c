@@ -631,6 +631,7 @@ init_options(SANE_String_Const name_source, escl_sane_t *s)
     s->opt[OPT_MODE_GROUP].desc = "";
     s->opt[OPT_MODE_GROUP].type = SANE_TYPE_GROUP;
     s->opt[OPT_MODE_GROUP].cap = 0;
+    s->opt[OPT_MODE_GROUP].size = 0;
     s->opt[OPT_MODE_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
     s->opt[OPT_MODE].name = SANE_NAME_SCAN_MODE;
@@ -679,6 +680,7 @@ init_options(SANE_String_Const name_source, escl_sane_t *s)
     s->opt[OPT_GEOMETRY_GROUP].desc = SANE_DESC_GEOMETRY;
     s->opt[OPT_GEOMETRY_GROUP].type = SANE_TYPE_GROUP;
     s->opt[OPT_GEOMETRY_GROUP].cap = SANE_CAP_ADVANCED;
+    s->opt[OPT_GEOMETRY_GROUP].size = 0;
     s->opt[OPT_GEOMETRY_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
 
     s->opt[OPT_TL_X].name = SANE_NAME_SCAN_TL_X;
@@ -738,13 +740,22 @@ init_options(SANE_String_Const name_source, escl_sane_t *s)
        free (s->val[OPT_SCAN_SOURCE].s);
     s->val[OPT_SCAN_SOURCE].s = strdup (s->scanner->Sources[s->scanner->source]);
 
+    /* "Enhancement" group: */
+    s->opt[OPT_ENHANCEMENT_GROUP].title = SANE_I18N ("Enhancement");
+    s->opt[OPT_ENHANCEMENT_GROUP].desc = "";    /* not valid for a group */
+    s->opt[OPT_ENHANCEMENT_GROUP].type = SANE_TYPE_GROUP;
+    s->opt[OPT_ENHANCEMENT_GROUP].cap = SANE_CAP_ADVANCED;
+    s->opt[OPT_ENHANCEMENT_GROUP].size = 0;
+    s->opt[OPT_ENHANCEMENT_GROUP].constraint_type = SANE_CONSTRAINT_NONE;
+
+
+    s->opt[OPT_BRIGHTNESS].name = SANE_NAME_BRIGHTNESS;
+    s->opt[OPT_BRIGHTNESS].title = SANE_TITLE_BRIGHTNESS;
+    s->opt[OPT_BRIGHTNESS].desc = SANE_DESC_BRIGHTNESS;
+    s->opt[OPT_BRIGHTNESS].type = SANE_TYPE_INT;
+    s->opt[OPT_BRIGHTNESS].unit = SANE_UNIT_NONE;
+    s->opt[OPT_BRIGHTNESS].constraint_type = SANE_CONSTRAINT_RANGE;
     if (s->scanner->brightness) {
-       s->opt[OPT_BRIGHTNESS].name = SANE_NAME_BRIGHTNESS;
-       s->opt[OPT_BRIGHTNESS].title = SANE_TITLE_BRIGHTNESS;
-       s->opt[OPT_BRIGHTNESS].desc = SANE_DESC_BRIGHTNESS;
-       s->opt[OPT_BRIGHTNESS].type = SANE_TYPE_INT;
-       s->opt[OPT_BRIGHTNESS].unit = SANE_UNIT_NONE;
-       s->opt[OPT_BRIGHTNESS].constraint_type = SANE_CONSTRAINT_RANGE;
        s->opt[OPT_BRIGHTNESS].constraint.range = &s->brightness_range;
        s->val[OPT_BRIGHTNESS].w = s->scanner->brightness->normal;
        s->brightness_range.quant=1;
@@ -752,19 +763,29 @@ init_options(SANE_String_Const name_source, escl_sane_t *s)
        if (s->scanner->brightness->step){
          s->brightness_range.min=s->scanner->brightness->min;
 	 s->brightness_range.max=s->scanner->brightness->max;
-      	 s->opt[OPT_BRIGHTNESS].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+         s->opt[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
+      	 s->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
        }
        else{
-         s->opt[OPT_BRIGHTNESS].cap = SANE_CAP_INACTIVE;
+	 SANE_Range range = { 0, 255, 0 };
+         s->opt[OPT_BRIGHTNESS].constraint.range = &range;
+         s->val[OPT_BRIGHTNESS].w = 0;
+         s->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
        }
     }
+    else{
+      SANE_Range range = { 0, 255, 0 };
+      s->opt[OPT_BRIGHTNESS].constraint.range = &range;
+      s->val[OPT_BRIGHTNESS].w = 0;
+      s->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
+    }
+    s->opt[OPT_CONTRAST].name = SANE_NAME_CONTRAST;
+    s->opt[OPT_CONTRAST].title = SANE_TITLE_CONTRAST;
+    s->opt[OPT_CONTRAST].desc = SANE_DESC_CONTRAST;
+    s->opt[OPT_CONTRAST].type = SANE_TYPE_INT;
+    s->opt[OPT_CONTRAST].unit = SANE_UNIT_NONE;
+    s->opt[OPT_CONTRAST].constraint_type = SANE_CONSTRAINT_RANGE;
     if (s->scanner->contrast) {
-       s->opt[OPT_CONTRAST].name = SANE_NAME_CONTRAST;
-       s->opt[OPT_CONTRAST].title = SANE_TITLE_CONTRAST;
-       s->opt[OPT_CONTRAST].desc = SANE_DESC_CONTRAST;
-       s->opt[OPT_CONTRAST].type = SANE_TYPE_INT;
-       s->opt[OPT_CONTRAST].unit = SANE_UNIT_NONE;
-       s->opt[OPT_CONTRAST].constraint_type = SANE_CONSTRAINT_RANGE;
        s->opt[OPT_CONTRAST].constraint.range = &s->contrast_range;
        s->val[OPT_CONTRAST].w = s->scanner->contrast->normal;
        s->contrast_range.quant=1;
@@ -772,19 +793,29 @@ init_options(SANE_String_Const name_source, escl_sane_t *s)
        if (s->scanner->contrast->step){
          s->contrast_range.min=s->scanner->contrast->min;
 	 s->contrast_range.max=s->scanner->contrast->max;
-      	 s->opt[OPT_CONTRAST].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+         s->opt[OPT_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
+      	 s->opt[OPT_CONTRAST].cap |= SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
        }
        else{
-         s->opt[OPT_CONTRAST].cap = SANE_CAP_INACTIVE;
+	 SANE_Range range = { 0, 255, 0 };
+         s->opt[OPT_CONTRAST].constraint.range = &range;
+         s->val[OPT_CONTRAST].w = 0;
+         s->opt[OPT_CONTRAST].cap |= SANE_CAP_INACTIVE;
        }
     }
+    else{
+      SANE_Range range = { 0, 255, 0 };
+      s->opt[OPT_CONTRAST].constraint.range = &range;
+      s->val[OPT_CONTRAST].w = 0;
+      s->opt[OPT_CONTRAST].cap |= SANE_CAP_INACTIVE;
+    }
+    s->opt[OPT_SHARPEN].name = SANE_NAME_SHARPEN;
+    s->opt[OPT_SHARPEN].title = SANE_TITLE_SHARPEN;
+    s->opt[OPT_SHARPEN].desc = SANE_DESC_SHARPEN;
+    s->opt[OPT_SHARPEN].type = SANE_TYPE_INT;
+    s->opt[OPT_SHARPEN].unit = SANE_UNIT_NONE;
+    s->opt[OPT_SHARPEN].constraint_type = SANE_CONSTRAINT_RANGE;
     if (s->scanner->sharpen) {
-       s->opt[OPT_SHARPEN].name = SANE_NAME_SHARPEN;
-       s->opt[OPT_SHARPEN].title = SANE_TITLE_SHARPEN;
-       s->opt[OPT_SHARPEN].desc = SANE_DESC_SHARPEN;
-       s->opt[OPT_SHARPEN].type = SANE_TYPE_INT;
-       s->opt[OPT_SHARPEN].unit = SANE_UNIT_NONE;
-       s->opt[OPT_SHARPEN].constraint_type = SANE_CONSTRAINT_RANGE;
        s->opt[OPT_SHARPEN].constraint.range = &s->sharpen_range;
        s->val[OPT_SHARPEN].w = s->scanner->sharpen->normal;
        s->sharpen_range.quant=1;
@@ -792,20 +823,30 @@ init_options(SANE_String_Const name_source, escl_sane_t *s)
        if (s->scanner->sharpen->step){
          s->sharpen_range.min=s->scanner->sharpen->min;
          s->sharpen_range.max=s->scanner->sharpen->max;
-         s->opt[OPT_SHARPEN].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+         s->opt[OPT_SHARPEN].cap &= ~SANE_CAP_INACTIVE;
+         s->opt[OPT_SHARPEN].cap |= SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
        }
        else{
-         s->opt[OPT_SHARPEN].cap = SANE_CAP_INACTIVE;
+         SANE_Range range = { 0, 255, 0 };
+         s->opt[OPT_SHARPEN].constraint.range = &range;
+         s->val[OPT_SHARPEN].w = 0;
+         s->opt[OPT_SHARPEN].cap |= SANE_CAP_INACTIVE;
        }
     }
+    else{
+      SANE_Range range = { 0, 255, 0 };
+      s->opt[OPT_SHARPEN].constraint.range = &range;
+      s->val[OPT_SHARPEN].w = 0;
+      s->opt[OPT_SHARPEN].cap |= SANE_CAP_INACTIVE;
+    }
     /*threshold*/
+    s->opt[OPT_THRESHOLD].name = SANE_NAME_THRESHOLD;
+    s->opt[OPT_THRESHOLD].title = SANE_TITLE_THRESHOLD;
+    s->opt[OPT_THRESHOLD].desc = SANE_DESC_THRESHOLD;
+    s->opt[OPT_THRESHOLD].type = SANE_TYPE_INT;
+    s->opt[OPT_THRESHOLD].unit = SANE_UNIT_NONE;
+    s->opt[OPT_THRESHOLD].constraint_type = SANE_CONSTRAINT_RANGE;
     if (s->scanner->threshold) {
-      s->opt[OPT_THRESHOLD].name = SANE_NAME_THRESHOLD;
-      s->opt[OPT_THRESHOLD].title = SANE_TITLE_THRESHOLD;
-      s->opt[OPT_THRESHOLD].desc = SANE_DESC_THRESHOLD;
-      s->opt[OPT_THRESHOLD].type = SANE_TYPE_INT;
-      s->opt[OPT_THRESHOLD].unit = SANE_UNIT_NONE;
-      s->opt[OPT_THRESHOLD].constraint_type = SANE_CONSTRAINT_RANGE;
       s->opt[OPT_THRESHOLD].constraint.range = &s->thresold_range;
       s->val[OPT_THRESHOLD].w = s->scanner->threshold->normal;
       s->thresold_range.quant=1;
@@ -813,29 +854,41 @@ init_options(SANE_String_Const name_source, escl_sane_t *s)
       if (s->scanner->threshold->step) {
         s->thresold_range.min= s->scanner->threshold->min;
         s->thresold_range.max=s->scanner->threshold->max;
-        s->opt[OPT_THRESHOLD].cap = SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-        s->scanner->use_threshold = 1;
-        if (s->scanner->brightness)
-           s->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
-        if (s->scanner->contrast)
-           s->opt[OPT_CONTRAST].cap   |= SANE_CAP_INACTIVE;
-        if (s->scanner->sharpen)
-           s->opt[OPT_SHARPEN].cap  |= SANE_CAP_INACTIVE;
-        s->opt[OPT_THRESHOLD].cap  |= SANE_CAP_INACTIVE;
-        if (!strcasecmp(s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART))
-           s->opt[OPT_THRESHOLD].cap  &= ~SANE_CAP_INACTIVE;
-        else {
-           if (s->scanner->brightness)
-              s->opt[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
-           if (s->scanner->contrast)
-              s->opt[OPT_CONTRAST].cap   &= ~SANE_CAP_INACTIVE;
-           if (s->scanner->sharpen)
-              s->opt[OPT_SHARPEN].cap   &= ~SANE_CAP_INACTIVE;
-        }
-      }
+        s->opt[OPT_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
+        s->opt[OPT_THRESHOLD].cap |= SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
+       }
+       else{
+         SANE_Range range = { 0, 255, 0 };
+         s->opt[OPT_THRESHOLD].constraint.range = &range;
+         s->val[OPT_THRESHOLD].w = 0;
+         s->opt[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
+       }
+    }
+    else{
+      SANE_Range range = { 0, 255, 0 };
+      s->opt[OPT_THRESHOLD].constraint.range = &range;
+      s->val[OPT_THRESHOLD].w = 0;
+      s->opt[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
+    }
+    if (!strcasecmp(s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART)) {
+       if (s->scanner->threshold)
+       	  s->opt[OPT_THRESHOLD].cap  &= ~SANE_CAP_INACTIVE;
+       if (s->scanner->brightness)
+       	  s->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
+       if (s->scanner->contrast)
+       	  s->opt[OPT_CONTRAST].cap |= SANE_CAP_INACTIVE;
+       if (s->scanner->sharpen)
+          s->opt[OPT_SHARPEN].cap |= SANE_CAP_INACTIVE;
     }
     else {
-       s->opt[OPT_THRESHOLD].cap = SANE_CAP_INACTIVE;
+       if (s->scanner->threshold)
+       	  s->opt[OPT_THRESHOLD].cap  |= SANE_CAP_INACTIVE;
+       if (s->scanner->brightness)
+          s->opt[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
+       if (s->scanner->contrast)
+          s->opt[OPT_CONTRAST].cap   &= ~SANE_CAP_INACTIVE;
+       if (s->scanner->sharpen)
+          s->opt[OPT_SHARPEN].cap   &= ~SANE_CAP_INACTIVE;
     }
     return (status);
 }

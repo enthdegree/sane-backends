@@ -7856,6 +7856,7 @@ reader_process (void *data)
 	  s->avdimen.hw_yres == s->avdimen.yres) /* No scaling */
 	{
           fwrite (out_data, useful_bytes, 1, fp);
+          line += useful_bytes / s->avdimen.hw_bytes_per_line;
 	}
       else /* Software scaling - watch out - this code bites back! */
 	{

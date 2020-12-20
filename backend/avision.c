@@ -4170,7 +4170,7 @@ attach (SANE_String_Const devname, Avision_ConnectionType con_type,
     av_con.usb_status = AVISION_USB_UNTESTED_STATUS;
 
   /* set known USB status type */
-  if (attaching_hw && attaching_hw->feature_type & AV_INT_STATUS)
+  if (attaching_hw && (attaching_hw->feature_type & AV_INT_STATUS))
     av_con.usb_status = AVISION_USB_INT_STATUS;
 
   DBG (3, "attach: opening %s\n", devname);
@@ -6479,7 +6479,7 @@ get_background_raster (Avision_Scanner* s)
     } /* end line pack */
 
   /* deinterlace? */
-  if (s->avdimen.interlaced_duplex && dev->hw->feature_type & AV_2ND_LINE_INTERLACED)
+  if (s->avdimen.interlaced_duplex && (dev->hw->feature_type & AV_2ND_LINE_INTERLACED))
     {
       uint8_t* deinterlaced = malloc (size * 2);
       if (!deinterlaced)
@@ -6492,7 +6492,7 @@ get_background_raster (Avision_Scanner* s)
 	  uint8_t* src_raster;
 
 	  /* for the quirky devices and some resolutions the interlacing differs */
-	  if (dev->hw->feature_type & AV_BACKGROUND_QUIRK && s->avdimen.hw_xres >= 150)
+	  if ((dev->hw->feature_type & AV_BACKGROUND_QUIRK) && (s->avdimen.hw_xres >= 150))
 	    dst_i = i / 2 + ((i+1) % 2) * (lines / 2);
 
 	  dst_raster = deinterlaced + bytes_per_line * dst_i;
@@ -7644,7 +7644,7 @@ reader_process (void *data)
 	      /* interlaced? save the back data to the rear buffer */
 	      if ( (deinterlace == STRIPE && absline % (lines_per_stripe*2) >= lines_per_stripe) ||
 		   (deinterlace == HALF   && absline >= total_size / s->avdimen.hw_bytes_per_line / 2) ||
-		   (deinterlace == LINE   && absline & 0x1) ) /* last bit equals % 2 */
+		   (deinterlace == LINE   && (absline & 0x1)) ) /* last bit equals % 2 */
 		{
 		  DBG (9, "reader_process: saving rear line %d to temporary file.\n", absline);
 		  fwrite (ptr, s->avdimen.hw_bytes_per_line, 1, rear_fp);
@@ -7662,7 +7662,7 @@ reader_process (void *data)
 	  DBG (9, "reader_process: after deinterlacing: useful_bytes: %d, stripe_fill: %d\n",
 	       useful_bytes, stripe_fill);
 	}
-      if (dev->hw->feature_type & AV_ADF_FLIPPING_DUPLEX && s->source_mode == AV_ADF_DUPLEX && !(s->page % 2) && !s->duplex_rear_valid) {
+      if ((dev->hw->feature_type & AV_ADF_FLIPPING_DUPLEX) && s->source_mode == AV_ADF_DUPLEX && !(s->page % 2) && !s->duplex_rear_valid) {
         /* Here we flip the image by writing the lines from the end of the file to the beginning. */
 	unsigned int absline = (processed_bytes - stripe_fill) / s->avdimen.hw_bytes_per_line;
 	unsigned int abslines = absline + useful_bytes / s->avdimen.hw_bytes_per_line;
@@ -7856,6 +7856,7 @@ reader_process (void *data)
 	  s->avdimen.hw_yres == s->avdimen.yres) /* No scaling */
 	{
           fwrite (out_data, useful_bytes, 1, fp);
+          line += useful_bytes / s->avdimen.hw_bytes_per_line;
 	}
       else /* Software scaling - watch out - this code bites back! */
 	{

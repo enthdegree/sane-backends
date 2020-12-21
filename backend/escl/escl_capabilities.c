@@ -194,32 +194,40 @@ find_valor_of_array_variables(xmlNode *node, capabilities_t *scanner, int type)
         int i = 0;
         SANE_Bool have_jpeg = SANE_FALSE, have_png = SANE_FALSE, have_tiff = SANE_FALSE, have_pdf = SANE_FALSE;
         scanner->caps[type].DocumentFormats = char_to_array(scanner->caps[type].DocumentFormats, &scanner->caps[type].DocumentFormatsSize, (SANE_String_Const)xmlNodeGetContent(node), 0);
+	scanner->caps[type].have_jpeg = -1;
+	scanner->caps[type].have_png = -1;
+	scanner->caps[type].have_tiff = -1;
+	scanner->caps[type].have_pdf = -1;
         for(; i < scanner->caps[type].DocumentFormatsSize; i++)
          {
             if (!strcmp(scanner->caps[type].DocumentFormats[i], "image/jpeg"))
             {
 			   have_jpeg = SANE_TRUE;
+			   scanner->caps[type].have_jpeg = i;
             }
 #if(defined HAVE_LIBPNG)
             else if(!strcmp(scanner->caps[type].DocumentFormats[i], "image/png"))
             {
                have_png = SANE_TRUE;
+	       scanner->caps[type].have_png = i;
             }
 #endif
 #if(defined HAVE_TIFFIO_H)
             else if(type == PLATEN && !strcmp(scanner->caps[type].DocumentFormats[i], "image/tiff"))
             {
                have_tiff = SANE_TRUE;
+	       scanner->caps[type].have_tiff = i;
             }
 #endif
 #if(defined HAVE_POPPLER_GLIB)
             else if(type == PLATEN && !strcmp(scanner->caps[type].DocumentFormats[i], "application/pdf"))
             {
                have_pdf = SANE_TRUE;
+	       scanner->caps[type].have_pdf = i;
             }
 #endif
          }
-         if (have_pdf)
+	 if (have_pdf)
              scanner->caps[type].default_format = strdup("application/pdf");
          else if (have_tiff)
              scanner->caps[type].default_format = strdup("image/tiff");
@@ -288,18 +296,20 @@ print_support(xmlNode *node)
 {
     support_t *sup = (support_t*)calloc(1, sizeof(support_t));
     int cpt = 0;
+    int have_norm = 0;
     while (node) {
 	if (!strcmp((const char *)node->name, "Min")){
             sup->min = atoi((const char *)xmlNodeGetContent(node));
             cpt++;
 	}
 	else if (!strcmp((const char *)node->name, "Max")) {
-            sup->step = atoi((const char *)xmlNodeGetContent(node));
+            sup->max = atoi((const char *)xmlNodeGetContent(node));
             cpt++;
 	}
 	else if (!strcmp((const char *)node->name, "Normal")) {
-            sup->step = atoi((const char *)xmlNodeGetContent(node));
+            sup->normal = atoi((const char *)xmlNodeGetContent(node));
             cpt++;
+            have_norm = 1;
 	}
 	else if (!strcmp((const char *)node->name, "Step")) {
             sup->step = atoi((const char *)xmlNodeGetContent(node));
@@ -309,6 +319,10 @@ print_support(xmlNode *node)
     }
     if (cpt == 4)
         return sup;
+    if (cpt == 3 && have_norm == 0) {
+	sup->normal = (sup->max / 2 );
+        return sup;
+    }
     free(sup);
     return NULL;
 }

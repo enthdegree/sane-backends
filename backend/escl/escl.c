@@ -56,6 +56,7 @@
 
 #define min(A,B) (((A)<(B)) ? (A) : (B))
 #define max(A,B) (((A)>(B)) ? (A) : (B))
+#define IS_ACTIVE(OPTION) (((handler->opt[OPTION].cap) & SANE_CAP_INACTIVE) == 0)
 #define INPUT_BUFFER_SIZE 4096
 
 static const SANE_Device **devlist = NULL;
@@ -550,6 +551,30 @@ _source_size_max (SANE_String_Const * sources)
   return size;
 }
 
+static int
+_get_resolution(escl_sane_t *handler, int resol)
+{
+    int x = 1;
+    int n = handler->scanner->caps[handler->scanner->source].SupportedResolutions[0] + 1;
+    int old = -1;
+    for (; x < n; x++) {
+      DBG(10, "SEARCH RESOLUTION [ %d | %d]\n", resol, (int)handler->scanner->caps[handler->scanner->source].SupportedResolutions[x]);
+      if (resol == handler->scanner->caps[handler->scanner->source].SupportedResolutions[x])
+         return resol;
+      else if (resol < handler->scanner->caps[handler->scanner->source].SupportedResolutions[x])
+      {
+          if (old == -1)
+             return handler->scanner->caps[handler->scanner->source].SupportedResolutions[1];
+          else
+             return old;
+      }
+      else
+          old = handler->scanner->caps[handler->scanner->source].SupportedResolutions[x];
+    }
+    return old;
+}
+
+
 /**
  * \fn static SANE_Status init_options(SANE_String_Const name, escl_sane_t *s)
  * \brief Function thzt initializes all the needed options of the received scanner
@@ -759,19 +784,8 @@ init_options(SANE_String_Const name_source, escl_sane_t *s)
        s->opt[OPT_BRIGHTNESS].constraint.range = &s->brightness_range;
        s->val[OPT_BRIGHTNESS].w = s->scanner->brightness->normal;
        s->brightness_range.quant=1;
-
-       if (s->scanner->brightness->step){
-         s->brightness_range.min=s->scanner->brightness->min;
-	 s->brightness_range.max=s->scanner->brightness->max;
-         s->opt[OPT_BRIGHTNESS].cap &= ~SANE_CAP_INACTIVE;
-      	 s->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-       }
-       else{
-	 SANE_Range range = { 0, 255, 0 };
-         s->opt[OPT_BRIGHTNESS].constraint.range = &range;
-         s->val[OPT_BRIGHTNESS].w = 0;
-         s->opt[OPT_BRIGHTNESS].cap |= SANE_CAP_INACTIVE;
-       }
+       s->brightness_range.min=s->scanner->brightness->min;
+       s->brightness_range.max=s->scanner->brightness->max;
     }
     else{
       SANE_Range range = { 0, 255, 0 };
@@ -789,19 +803,8 @@ init_options(SANE_String_Const name_source, escl_sane_t *s)
        s->opt[OPT_CONTRAST].constraint.range = &s->contrast_range;
        s->val[OPT_CONTRAST].w = s->scanner->contrast->normal;
        s->contrast_range.quant=1;
-
-       if (s->scanner->contrast->step){
-         s->contrast_range.min=s->scanner->contrast->min;
-	 s->contrast_range.max=s->scanner->contrast->max;
-         s->opt[OPT_CONTRAST].cap &= ~SANE_CAP_INACTIVE;
-      	 s->opt[OPT_CONTRAST].cap |= SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-       }
-       else{
-	 SANE_Range range = { 0, 255, 0 };
-         s->opt[OPT_CONTRAST].constraint.range = &range;
-         s->val[OPT_CONTRAST].w = 0;
-         s->opt[OPT_CONTRAST].cap |= SANE_CAP_INACTIVE;
-       }
+       s->contrast_range.min=s->scanner->contrast->min;
+       s->contrast_range.max=s->scanner->contrast->max;
     }
     else{
       SANE_Range range = { 0, 255, 0 };
@@ -819,19 +822,8 @@ init_options(SANE_String_Const name_source, escl_sane_t *s)
        s->opt[OPT_SHARPEN].constraint.range = &s->sharpen_range;
        s->val[OPT_SHARPEN].w = s->scanner->sharpen->normal;
        s->sharpen_range.quant=1;
-
-       if (s->scanner->sharpen->step){
-         s->sharpen_range.min=s->scanner->sharpen->min;
-         s->sharpen_range.max=s->scanner->sharpen->max;
-         s->opt[OPT_SHARPEN].cap &= ~SANE_CAP_INACTIVE;
-         s->opt[OPT_SHARPEN].cap |= SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-       }
-       else{
-         SANE_Range range = { 0, 255, 0 };
-         s->opt[OPT_SHARPEN].constraint.range = &range;
-         s->val[OPT_SHARPEN].w = 0;
-         s->opt[OPT_SHARPEN].cap |= SANE_CAP_INACTIVE;
-       }
+       s->sharpen_range.min=s->scanner->sharpen->min;
+       s->sharpen_range.max=s->scanner->sharpen->max;
     }
     else{
       SANE_Range range = { 0, 255, 0 };
@@ -850,19 +842,8 @@ init_options(SANE_String_Const name_source, escl_sane_t *s)
       s->opt[OPT_THRESHOLD].constraint.range = &s->thresold_range;
       s->val[OPT_THRESHOLD].w = s->scanner->threshold->normal;
       s->thresold_range.quant=1;
-
-      if (s->scanner->threshold->step) {
-        s->thresold_range.min= s->scanner->threshold->min;
-        s->thresold_range.max=s->scanner->threshold->max;
-        s->opt[OPT_THRESHOLD].cap &= ~SANE_CAP_INACTIVE;
-        s->opt[OPT_THRESHOLD].cap |= SANE_CAP_SOFT_SELECT | SANE_CAP_SOFT_DETECT;
-       }
-       else{
-         SANE_Range range = { 0, 255, 0 };
-         s->opt[OPT_THRESHOLD].constraint.range = &range;
-         s->val[OPT_THRESHOLD].w = 0;
-         s->opt[OPT_THRESHOLD].cap |= SANE_CAP_INACTIVE;
-       }
+      s->thresold_range.min= s->scanner->threshold->min;
+      s->thresold_range.max=s->scanner->threshold->max;
     }
     else{
       SANE_Range range = { 0, 255, 0 };
@@ -1091,9 +1072,9 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v, SANE_Int 
 	case OPT_BR_X:
 	case OPT_BR_Y:
 	case OPT_NUM_OPTS:
-	case OPT_RESOLUTION:
 	case OPT_PREVIEW:
 	case OPT_GRAY_PREVIEW:
+	case OPT_RESOLUTION:
         case OPT_BRIGHTNESS:
         case OPT_CONTRAST:
         case OPT_SHARPEN:
@@ -1116,7 +1097,6 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v, SANE_Int 
 	case OPT_BR_X:
 	case OPT_BR_Y:
 	case OPT_NUM_OPTS:
-	case OPT_RESOLUTION:
 	case OPT_PREVIEW:
 	case OPT_GRAY_PREVIEW:
         case OPT_BRIGHTNESS:
@@ -1162,6 +1142,11 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v, SANE_Int 
                if (handler->scanner->sharpen)
                   handler->opt[OPT_SHARPEN].cap   &= ~SANE_CAP_INACTIVE;
             }
+	    break;
+	case OPT_RESOLUTION:
+            handler->val[n].w = _get_resolution(handler, (int)(*(SANE_Word *) v));
+	    if (i)
+		*i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS | SANE_INFO_INEXACT;
 	    break;
 	default:
 	    break;
@@ -1286,53 +1271,66 @@ sane_start(SANE_Handle h)
           DBG (10, "Default Color allocation failure.\n");
           return (SANE_STATUS_NO_MEM);
        }
+
        if (handler->scanner->threshold) {
-          if (handler->opt[OPT_THRESHOLD].cap & SANE_CAP_INACTIVE) {
-            DBG(10, "Not use Thresold\n");
-            handler->scanner->use_threshold = 0;
-         }
-         else  {
-            DBG(10, "Use Thresold [%d|]\n", handler->val[OPT_THRESHOLD].w);
+          DBG(10, "Have Thresold\n");
+          if (IS_ACTIVE(OPT_THRESHOLD)) {
+            DBG(10, "Use Thresold [%d]\n", handler->val[OPT_THRESHOLD].w);
             handler->scanner->val_threshold = handler->val[OPT_THRESHOLD].w;
             handler->scanner->use_threshold = 1;
          }
+         else  {
+            DBG(10, "Not use Thresold\n");
+            handler->scanner->use_threshold = 0;
+         }
        }
+       else
+          DBG(10, "Don't have Thresold\n");
 
        if (handler->scanner->sharpen) {
-          if (handler->opt[OPT_SHARPEN].cap & SANE_CAP_INACTIVE) {
-             DBG(10, "Not use Sharpen\n");
-             handler->scanner->use_sharpen = 0;
-          }
-          else  {
-             DBG(10, "Use Sharpen [%d|]\n", handler->val[OPT_SHARPEN].w);
+          DBG(10, "Have Sharpen\n");
+           if (IS_ACTIVE(OPT_SHARPEN)) {
+             DBG(10, "Use Sharpen [%d]\n", handler->val[OPT_SHARPEN].w);
              handler->scanner->val_sharpen = handler->val[OPT_SHARPEN].w;
              handler->scanner->use_sharpen = 1;
           }
+         else  {
+            DBG(10, "Not use Thresold\n");
+            handler->scanner->use_threshold = 0;
+         }
        }
+       else
+          DBG(10, "Don't have Thresold\n");
 
        if (handler->scanner->contrast) {
-          if (handler->opt[OPT_CONTRAST].cap & SANE_CAP_INACTIVE) {
-             DBG(10, "Not use Contrast\n");
-             handler->scanner->use_contrast = 0;
-          }
-          else  {
-             DBG(10, "Use Contrast [%d|]\n", handler->val[OPT_CONTRAST].w);
+          DBG(10, "Have Contrast\n");
+          if (IS_ACTIVE(OPT_CONTRAST)) {
+             DBG(10, "Use Contrast [%d]\n", handler->val[OPT_CONTRAST].w);
              handler->scanner->val_contrast = handler->val[OPT_CONTRAST].w;
              handler->scanner->use_contrast = 1;
           }
+          else  {
+             DBG(10, "Not use Contrast\n");
+             handler->scanner->use_contrast = 0;
+          }
        }
+       else
+          DBG(10, "Don't have Contrast\n");
 
        if (handler->scanner->brightness) {
-          if (handler->opt[OPT_BRIGHTNESS].cap & SANE_CAP_INACTIVE) {
-             DBG(10, "Not use Brightness\n");
-             handler->scanner->use_brightness = 0;
-          }
-          else  {
-             DBG(10, "Use Brightness [%d|]\n", handler->val[OPT_BRIGHTNESS].w);
+          DBG(10, "Have Brightness\n");
+          if (IS_ACTIVE(OPT_BRIGHTNESS)) {
+             DBG(10, "Use Brightness [%d]\n", handler->val[OPT_BRIGHTNESS].w);
              handler->scanner->val_brightness = handler->val[OPT_BRIGHTNESS].w;
              handler->scanner->use_brightness = 1;
           }
+          else  {
+             DBG(10, "Not use Brightness\n");
+             handler->scanner->use_brightness = 0;
+          }
        }
+       else
+          DBG(10, "Don't have Brightness\n");
 
        handler->result = escl_newjob(handler->scanner, handler->device, &status);
        if (status != SANE_STATUS_GOOD)

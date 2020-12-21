@@ -169,6 +169,33 @@ escl_newjob (capabilities_t *scanner, const ESCL_Device *device, SANE_Status *st
         return (NULL);
     }
     curl_handle = curl_easy_init();
+    if (scanner->caps[scanner->source].default_format)
+        free(scanner->caps[scanner->source].default_format);
+    scanner->caps[scanner->source].default_format = NULL;
+    int have_png = scanner->caps[scanner->source].have_png;
+    int have_jpeg = scanner->caps[scanner->source].have_jpeg;
+    int have_tiff = scanner->caps[scanner->source].have_tiff;
+    int have_pdf = scanner->caps[scanner->source].have_pdf;
+
+    if ((scanner->source == PLATEN && have_pdf == -1) ||
+        (scanner->source > PLATEN)) {
+	    if (have_tiff != -1) {
+		    scanner->caps[scanner->source].default_format =
+			    strdup(scanner->caps[scanner->source].DocumentFormats[have_tiff]);
+	    }
+	    else if (have_png != -1) {
+		    scanner->caps[scanner->source].default_format =
+			    strdup(scanner->caps[scanner->source].DocumentFormats[have_png]);
+	    }
+	    else if (have_jpeg != -1) {
+		    scanner->caps[scanner->source].default_format =
+			    strdup(scanner->caps[scanner->source].DocumentFormats[have_jpeg]);
+	    }
+    }
+    else {
+	    scanner->caps[scanner->source].default_format =
+		    strdup(scanner->caps[scanner->source].DocumentFormats[have_pdf]);
+    }
     if (scanner->caps[scanner->source].format_ext == 1)
     {
         char f_ext_tmp[1024];

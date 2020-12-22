@@ -1295,12 +1295,12 @@ sane_start(SANE_Handle h)
              handler->scanner->use_sharpen = 1;
           }
          else  {
-            DBG(10, "Not use Thresold\n");
-            handler->scanner->use_threshold = 0;
+            DBG(10, "Not use Sharpen\n");
+            handler->scanner->use_sharpen = 0;
          }
        }
        else
-          DBG(10, "Don't have Thresold\n");
+          DBG(10, "Don't have Sharpen\n");
 
        if (handler->scanner->contrast) {
           DBG(10, "Have Contrast\n");

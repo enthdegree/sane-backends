@@ -1124,6 +1124,19 @@ static void sanei_usb_replay_debug_msg(SANE_String_Const message)
     }
 }
 
+extern void sanei_usb_testing_record_clear()
+{
+  if (testing_mode != sanei_usb_testing_mode_record)
+    return;
+
+  // we only need to indicate that we never opened a device and sanei_usb_record_open() will
+  // reinitialize everything for us.
+  testing_already_opened = 0;
+  testing_known_commands_input_failed = 0;
+  testing_last_known_seq = 0;
+  testing_append_commands_node = NULL;
+}
+
 extern void sanei_usb_testing_record_message(SANE_String_Const message)
 {
   if (testing_mode == sanei_usb_testing_mode_record)
@@ -1354,6 +1367,10 @@ SANE_String sanei_usb_testing_get_backend()
 SANE_Bool sanei_usb_is_replay_mode_enabled()
 {
   return SANE_FALSE;
+}
+
+void sanei_usb_testing_record_clear()
+{
 }
 
 void sanei_usb_testing_record_message(SANE_String_Const message)

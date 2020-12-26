@@ -224,6 +224,19 @@ extern SANE_String sanei_usb_testing_get_backend();
  */
 extern SANE_Bool sanei_usb_is_replay_mode_enabled();
 
+/** Clears currently recorded data.
+
+    This is useful on certain backends to clear the currently recorded data if it relates to
+    other devices than the one that the scan will be performed on. On these backends all
+    devices that the backend supports are opened multiple times. Recording this interaction
+    to XML file makes it impossible to replay it, as the existence of these devices is not mocked
+    currently.
+
+    This function may only be called when no USB devices are open, otherwise the behavior is
+    unpredictable.
+ */
+extern void sanei_usb_testing_record_clear();
+
 /** Records a debug message in the captured USB data if testing mode is enabled. If testing mode
  * is not enabled, this function does nothing.
  *

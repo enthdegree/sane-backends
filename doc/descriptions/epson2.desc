@@ -528,6 +528,11 @@
 :status     :good
 :comment    "network interface supported via DFSG non-free iscan-network-nt package"
 
+:model      "ET-2600"
+:interface  "USB"
+:usbid      "0x04b8" "0x1122"
+:status     "good"
+
 :model      "ET-2650"
 :interface  "USB Ethernet"
 :usbid      "0x04b8" "0x1121"

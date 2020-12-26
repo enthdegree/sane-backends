@@ -1,5 +1,5 @@
 ;;;  utsushi.desc                               -*- emacs-lisp -*- (sort of)
-;;;  Copyright (C) 2015-2019  Olaf Meeuwissen
+;;;  Copyright (C) 2015-2020  Olaf Meeuwissen
 ;;;
 ;;;  License: GPL-3.0+
 ;;;  Author : Olaf Meeuwissen
@@ -190,6 +190,11 @@
 :model     "ET-2550"
 :interface "USB"
 :usbid     "0x04b8" "0x1106"
+:status    :good
+
+:model     "ET-2600"
+:interface "USB"
+:usbid     "0x04b8" "0x1122"
 :status    :good
 
 :model     "ET-2720"
@@ -590,6 +595,7 @@
 :interface "USB"
 :usbid     "0x04b8" "0x1122"
 :status    :good
+:comment   "ET-2600"
 
 :model     "PID 1123"
 :interface "USB"
@@ -875,7 +881,7 @@
 :interface "USB"
 :usbid     "0x04b8" "0x1157"
 :status    :good
-:comment   "L3xxx"
+:comment   "ET-2720, L3xxx"
 
 :model     "PID 1158"
 :interface "USB"

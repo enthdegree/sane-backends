@@ -21,6 +21,7 @@ SANE_Word sanei_epson_usb_product_ids[] = {
   0x112, /* GT-9700F, Perfection 2450 PHOTO */
   0x1120, /* L380 */
   0x1121, /* ET-2650, L495 */
+  0x1122, /* ET-2600 */
   0x113d, /* XP-255 */
   0x11b, /* GT-9300UF, Perfection 2400 PHOTO */
   0x11c, /* GT-9800F, Perfection 3200 PHOTO */

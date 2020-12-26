@@ -73,6 +73,7 @@ typedef struct
   int height;
   int x;
   int y;
+  int num_channels;
 }
 Image;
 
@@ -1307,10 +1308,10 @@ advance (Image * image)
 	  size_t old_size = 0, new_size;
 
 	  if (image->data)
-	    old_size = image->height * image->width;
+	    old_size = image->height * image->width * image->num_channels;
 
 	  image->height += STRIP_HEIGHT;
-	  new_size = image->height * image->width;
+	  new_size = image->height * image->width * image->num_channels;
 
 	  if (image->data)
 	    image->data = realloc (image->data, new_size);
@@ -1334,7 +1335,7 @@ scan_it (FILE *ofp)
   SANE_Byte min = 0xff, max = 0;
   SANE_Parameters parm;
   SANE_Status status;
-  Image image = { 0, 0, 0, 0, 0 };
+  Image image = { 0, 0, 0, 0, 0, 0 };
   static const char *format_name[] = {
     "gray", "RGB", "red", "green", "blue"
   };
@@ -1404,6 +1405,7 @@ scan_it (FILE *ofp)
 
       if (first_frame)
 	{
+          image.num_channels = 1;
 	  switch (parm.format)
 	    {
 	    case SANE_FRAME_RED:
@@ -1412,6 +1414,7 @@ scan_it (FILE *ofp)
 	      assert (parm.depth == 8);
 	      must_buffer = 1;
 	      offset = parm.format - SANE_FRAME_RED;
+	      image.num_channels = 3;
 	      break;
 
 	    case SANE_FRAME_RGB:
@@ -1539,6 +1542,7 @@ scan_it (FILE *ofp)
 		case SANE_FRAME_RED:
 		case SANE_FRAME_GREEN:
 		case SANE_FRAME_BLUE:
+		  image.num_channels = 3;
 		  for (i = 0; i < len; ++i)
 		    {
 		      image.data[offset + 3 * i] = buffer[i];
@@ -1552,6 +1556,7 @@ scan_it (FILE *ofp)
 		  break;
 
 		case SANE_FRAME_RGB:
+		  image.num_channels = 1;
 		  for (i = 0; i < len; ++i)
 		    {
 		      image.data[offset + i] = buffer[i];
@@ -1565,6 +1570,7 @@ scan_it (FILE *ofp)
 		  break;
 
 		case SANE_FRAME_GRAY:
+		  image.num_channels = 1;
 		  for (i = 0; i < len; ++i)
 		    {
 		      image.data[offset + i] = buffer[i];
@@ -1747,7 +1753,7 @@ scan_it (FILE *ofp)
 	}
 #endif
 
-	fwrite (image.data, 1, image.height * image.width, ofp);
+	fwrite (image.data, 1, image.height * image.width * image.num_channels, ofp);
     }
 #ifdef HAVE_LIBPNG
     if(output_format == OUTPUT_PNG)
@@ -1822,7 +1828,7 @@ test_it (void)
   int i, len;
   SANE_Parameters parm;
   SANE_Status status;
-  Image image = { 0, 0, 0, 0, 0 };
+  Image image = { 0, 0, 0, 0, 0, 0 };
   static const char *format_name[] =
     { "gray", "RGB", "red", "green", "blue" };
 

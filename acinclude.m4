@@ -73,9 +73,6 @@ AC_DEFUN([SANE_CHECK_MISSING_HEADERS],
   if test "${ac_cv_header_unistd_h}" != "yes" ; then
     MISSING_HEADERS="${MISSING_HEADERS}\"unistd.h\" "
   fi
-  if test "${ac_cv_header_stdc}" != "yes" ; then
-    MISSING_HEADERS="${MISSING_HEADERS}\"ANSI C headers\" "
-  fi
   if test "${MISSING_HEADERS}" != "" ; then
     echo "*** The following essential header files couldn't be found:"
     echo "*** ${MISSING_HEADERS}"

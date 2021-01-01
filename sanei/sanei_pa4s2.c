@@ -150,11 +150,9 @@ static int sanei_pa4s2_dbg_init_called = SANE_FALSE;
 
 #endif /* NDEBUG */
 
-#if defined(STDC_HEADERS)
-# include <errno.h>
-# include <stdio.h>
-# include <stdlib.h>
-#endif
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
 #if defined(HAVE_STRING_H)
 # include <string.h>
 #elif defined(HAVE_STRINGS_H)

@@ -609,6 +609,128 @@ _get_resolution(escl_sane_t *handler, int resol)
  * \return status (if everything is OK, status = SANE_STATUS_GOOD)
  */
 static SANE_Status
+init_options_small(SANE_String_Const name_source, escl_sane_t *s)
+{
+    int found = 0;
+    DBG (10, "escl init_options\n");
+
+    SANE_Status status = SANE_STATUS_GOOD;
+    if (!s->scanner) return SANE_STATUS_INVAL;
+    if (name_source) {
+	   int source = s->scanner->source;
+	   if (!strcmp(name_source, SANE_I18N ("ADF Duplex")))
+	       s->scanner->source = ADFDUPLEX;
+	   else if (!strncmp(name_source, "A", 1) ||
+	            !strcmp(name_source, SANE_I18N ("ADF")))
+	       s->scanner->source = ADFSIMPLEX;
+	   else
+	       s->scanner->source = PLATEN;
+	   if (source == s->scanner->source) return status;
+           s->scanner->caps[s->scanner->source].default_color =
+                strdup(s->scanner->caps[source].default_color);
+           s->scanner->caps[s->scanner->source].default_resolution =
+                _get_resolution(s, s->scanner->caps[source].default_resolution);
+    }
+    if (s->scanner->caps[s->scanner->source].ColorModes == NULL) {
+        if (s->scanner->caps[PLATEN].ColorModes)
+            s->scanner->source = PLATEN;
+        else if (s->scanner->caps[ADFSIMPLEX].ColorModes)
+            s->scanner->source = ADFSIMPLEX;
+        else if (s->scanner->caps[ADFDUPLEX].ColorModes)
+            s->scanner->source = ADFDUPLEX;
+        else
+            return SANE_STATUS_INVAL;
+    }
+    if (s->scanner->source == PLATEN) {
+        DBG (10, "SOURCE PLATEN.\n");
+    }
+    else if (s->scanner->source == ADFDUPLEX) {
+        DBG (10, "SOURCE ADFDUPLEX.\n");
+    }
+    else if (s->scanner->source == ADFSIMPLEX) {
+        DBG (10, "SOURCE ADFSIMPLEX.\n");
+    }
+    s->x_range1.min = 0;
+    s->x_range1.max =
+	    PIXEL_TO_MM((s->scanner->caps[s->scanner->source].MaxWidth -
+		         s->scanner->caps[s->scanner->source].MinWidth),
+			300.0);
+    s->x_range1.quant = 0;
+    s->x_range2.min = PIXEL_TO_MM(s->scanner->caps[s->scanner->source].MinWidth, 300.0);
+    s->x_range2.max = PIXEL_TO_MM(s->scanner->caps[s->scanner->source].MaxWidth, 300.0);
+    s->x_range2.quant = 0;
+    s->y_range1.min = 0;
+    s->y_range1.max =
+	    PIXEL_TO_MM((s->scanner->caps[s->scanner->source].MaxHeight -
+	                 s->scanner->caps[s->scanner->source].MinHeight),
+			300.0);
+    s->y_range1.quant = 0;
+    s->y_range2.min = PIXEL_TO_MM(s->scanner->caps[s->scanner->source].MinHeight, 300.0);
+    s->y_range2.max = PIXEL_TO_MM(s->scanner->caps[s->scanner->source].MaxHeight, 300.0);
+    s->y_range2.quant = 0;
+
+    s->opt[OPT_MODE].constraint.string_list = s->scanner->caps[s->scanner->source].ColorModes;
+    if (s->val[OPT_MODE].s)
+        free(s->val[OPT_MODE].s);
+    s->val[OPT_MODE].s = NULL;
+
+    if (s->scanner->caps[s->scanner->source].default_color) {
+        int x = 0;
+        if (!strcmp(s->scanner->caps[s->scanner->source].default_color, "Grayscale8"))
+           s->val[OPT_MODE].s = (char *)strdup(SANE_VALUE_SCAN_MODE_GRAY);
+        else if (!strcmp(s->scanner->caps[s->scanner->source].default_color, "BlackAndWhite1"))
+           s->val[OPT_MODE].s = (char *)strdup(SANE_VALUE_SCAN_MODE_LINEART);
+        else
+           s->val[OPT_MODE].s = (char *)strdup(SANE_VALUE_SCAN_MODE_COLOR);
+        for (x = 0; s->scanner->caps[s->scanner->source].ColorModes[x]; x++) {
+            if (s->scanner->caps[s->scanner->source].ColorModes[x] &&
+              !strcasecmp(s->scanner->caps[s->scanner->source].ColorModes[x], s->val[OPT_MODE].s)) {
+              found = 1;
+              break;
+            }
+        }
+    }
+    if (!s->scanner->caps[s->scanner->source].default_color || found == 0) {
+        if (s->scanner->caps[s->scanner->source].default_color)
+           free(s->scanner->caps[s->scanner->source].default_color);
+        s->val[OPT_MODE].s = strdup(s->scanner->caps[s->scanner->source].ColorModes[0]);
+        if (!strcasecmp(s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY))
+            s->scanner->caps[s->scanner->source].default_color = strdup("Grayscale8");
+        else if (!strcasecmp(s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART))
+            s->scanner->caps[s->scanner->source].default_color = strdup("BlackAndWhite1");
+        else
+            s->scanner->caps[s->scanner->source].default_color = strdup("RGB24");
+    }
+    if (!s->val[OPT_MODE].s) {
+       DBG (10, "Color Mode Default allocation failure.\n");
+       return (SANE_STATUS_NO_MEM);
+    }
+    if (!s->scanner->caps[s->scanner->source].default_color) {
+       DBG (10, "Color Mode Default allocation failure.\n");
+       return (SANE_STATUS_NO_MEM);
+    }
+    s->val[OPT_RESOLUTION].w = s->scanner->caps[s->scanner->source].default_resolution;
+    s->opt[OPT_TL_X].constraint.range = &s->x_range1;
+    s->opt[OPT_TL_Y].constraint.range = &s->y_range1;
+    s->opt[OPT_BR_X].constraint.range = &s->x_range2;
+    s->opt[OPT_BR_Y].constraint.range = &s->y_range2;
+
+    if (s->val[OPT_SCAN_SOURCE].s)
+      free (s->val[OPT_SCAN_SOURCE].s);
+    s->val[OPT_SCAN_SOURCE].s = strdup (s->scanner->Sources[s->scanner->source]);
+
+    return (SANE_STATUS_GOOD);
+}
+
+/**
+ * \fn static SANE_Status init_options(SANE_String_Const name, escl_sane_t *s)
+ * \brief Function thzt initializes all the needed options of the received scanner
+ *        (the resolution / the color / the margins) thanks to the information received with
+ *        the 'escl_capabilities' function, called just before.
+ *
+ * \return status (if everything is OK, status = SANE_STATUS_GOOD)
+ */
+static SANE_Status
 init_options(SANE_String_Const name_source, escl_sane_t *s)
 {
     DBG (10, "escl init_options\n");
@@ -691,17 +813,39 @@ init_options(SANE_String_Const name_source, escl_sane_t *s)
     s->opt[OPT_MODE].unit = SANE_UNIT_NONE;
     s->opt[OPT_MODE].constraint_type = SANE_CONSTRAINT_STRING_LIST;
     s->opt[OPT_MODE].constraint.string_list = s->scanner->caps[s->scanner->source].ColorModes;
-    s->val[OPT_MODE].s = (char *)strdup(s->scanner->caps[s->scanner->source].ColorModes[0]);
+    if (s->scanner->caps[s->scanner->source].default_color) {
+        if (!strcasecmp(s->scanner->caps[s->scanner->source].default_color, "Grayscale8"))
+           s->val[OPT_MODE].s = (char *)strdup(SANE_VALUE_SCAN_MODE_GRAY);
+        else if (!strcasecmp(s->scanner->caps[s->scanner->source].default_color, "BlackAndWhite1"))
+           s->val[OPT_MODE].s = (char *)strdup(SANE_VALUE_SCAN_MODE_LINEART);
+        else
+           s->val[OPT_MODE].s = (char *)strdup(SANE_VALUE_SCAN_MODE_COLOR);
+    }
+    else {
+        s->val[OPT_MODE].s = (char *)strdup(s->scanner->caps[s->scanner->source].ColorModes[0]);
+        if (!strcasecmp(s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY)) {
+           s->scanner->caps[s->scanner->source].default_color = strdup("Grayscale8");
+        }
+        else if (!strcasecmp(s->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART)) {
+           s->scanner->caps[s->scanner->source].default_color =
+                strdup("BlackAndWhite1");
+        }
+        else {
+           s->scanner->caps[s->scanner->source].default_color =
+               strdup("RGB24");
+       }
+    }
     if (!s->val[OPT_MODE].s) {
        DBG (10, "Color Mode Default allocation failure.\n");
        return (SANE_STATUS_NO_MEM);
     }
+    DBG (10, "++ Color Mode Default allocation [%s].\n", s->scanner->caps[s->scanner->source].default_color);
     s->opt[OPT_MODE].size = max_string_size(s->scanner->caps[s->scanner->source].ColorModes);
-    s->scanner->caps[s->scanner->source].default_color = (char *)strdup(s->scanner->caps[s->scanner->source].ColorModes[0]);
     if (!s->scanner->caps[s->scanner->source].default_color) {
        DBG (10, "Color Mode Default allocation failure.\n");
        return (SANE_STATUS_NO_MEM);
     }
+    DBG (10, "Color Mode Default allocation (%s).\n", s->scanner->caps[s->scanner->source].default_color);
 
     s->opt[OPT_RESOLUTION].name = SANE_NAME_SCAN_RESOLUTION;
     s->opt[OPT_RESOLUTION].title = SANE_TITLE_SCAN_RESOLUTION;
@@ -1133,7 +1277,7 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v, SANE_Int 
 	    break;
 	case OPT_SCAN_SOURCE:
 	    DBG(10, "SET OPT_SCAN_SOURCE(%s)\n", (SANE_String_Const)v);
-	    init_options((SANE_String_Const)v, handler);
+	    init_options_small((SANE_String_Const)v, handler);
 	    if (i)
 		*i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS | SANE_INFO_INEXACT;
 	    break;
@@ -1145,6 +1289,23 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v, SANE_Int 
 	      DBG (10, "OPT_MODE allocation failure.\n");
 	      return (SANE_STATUS_NO_MEM);
 	    }
+	    DBG(10, "SET OPT_MODE(%s)\n", (SANE_String_Const)v);
+
+            if (!strcasecmp(handler->val[n].s, SANE_VALUE_SCAN_MODE_GRAY)) {
+              handler->scanner->caps[handler->scanner->source].default_color = strdup("Grayscale8");
+	    DBG(10, "SET OPT_MODE(Grayscale8)\n");
+            }
+            else if (!strcasecmp(handler->val[n].s, SANE_VALUE_SCAN_MODE_LINEART)) {
+              handler->scanner->caps[handler->scanner->source].default_color =
+                 strdup("BlackAndWhite1");
+	    DBG(10, "SET OPT_MODE(BlackAndWhite1)\n");
+            }
+            else {
+              handler->scanner->caps[handler->scanner->source].default_color =
+                 strdup("RGB24");
+	         DBG(10, "SET OPT_MODE(RGB24)\n");
+            }
+            DBG (10, "Color Mode allocation (%s).\n", handler->scanner->caps[handler->scanner->source].default_color);
 	    if (i)
 		*i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS | SANE_INFO_INEXACT;
             if (handler->scanner->brightness)
@@ -1235,11 +1396,13 @@ sane_start(SANE_Handle h)
                                     NULL);
        if (st != SANE_STATUS_GOOD)
           return st;
-       if(handler->scanner->caps[handler->scanner->source].default_color)
-          free(handler->scanner->caps[handler->scanner->source].default_color);
        if (handler->val[OPT_PREVIEW].w == SANE_TRUE)
        {
-          int i = 0, val = 9999;;
+          int i = 0, val = 9999;
+
+          if(handler->scanner->caps[handler->scanner->source].default_color)
+             free(handler->scanner->caps[handler->scanner->source].default_color);
+
           if (handler->val[OPT_GRAY_PREVIEW].w == SANE_TRUE ||
 	      !strcasecmp(handler->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY))
 	     handler->scanner->caps[handler->scanner->source].default_color =
@@ -1262,15 +1425,18 @@ sane_start(SANE_Handle h)
        {
           handler->scanner->caps[handler->scanner->source].default_resolution =
 	     handler->val[OPT_RESOLUTION].w;
-          if (!strcasecmp(handler->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY))
-	     handler->scanner->caps[handler->scanner->source].default_color = strdup("Grayscale8");
-          else if (!strcasecmp(handler->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART))
-	     handler->scanner->caps[handler->scanner->source].default_color =
-	         strdup("BlackAndWhite1");
-          else
-	     handler->scanner->caps[handler->scanner->source].default_color =
-	         strdup("RGB24");
+          if (!handler->scanner->caps[handler->scanner->source].default_color) {
+             if (!strcasecmp(handler->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_GRAY))
+	        handler->scanner->caps[handler->scanner->source].default_color = strdup("Grayscale8");
+             else if (!strcasecmp(handler->val[OPT_MODE].s, SANE_VALUE_SCAN_MODE_LINEART))
+	        handler->scanner->caps[handler->scanner->source].default_color =
+	            strdup("BlackAndWhite1");
+             else
+	        handler->scanner->caps[handler->scanner->source].default_color =
+	            strdup("RGB24");
+          }
        }
+       DBG (10, "Before newjob Color Mode allocation (%s).\n", handler->scanner->caps[handler->scanner->source].default_color);
        handler->scanner->caps[handler->scanner->source].height =
             MM_TO_PIXEL(handler->val[OPT_BR_Y].w, 300.0);
        handler->scanner->caps[handler->scanner->source].width =

@@ -63,6 +63,9 @@ resolve_callback(AvahiServiceResolver *r, AVAHI_GCC_UNUSED AvahiIfIndex interfac
                             void __sane_unused__ *userdata)
 {
     char a[AVAHI_ADDRESS_STR_MAX], *t;
+    const char *is;
+    const char *uuid;
+    AvahiStringList   *s;
     assert(r);
     switch (event) {
     case AVAHI_RESOLVER_FAILURE:
@@ -70,8 +73,19 @@ resolve_callback(AvahiServiceResolver *r, AVAHI_GCC_UNUSED AvahiIfIndex interfac
     case AVAHI_RESOLVER_FOUND:
         avahi_address_snprint(a, sizeof(a), address);
         t = avahi_string_list_to_string(txt);
-        if (strstr(t, "\"rs=eSCL\"") || strstr(t, "\"rs=/eSCL\""))
-            escl_device_add(port, name, a, (char*)type);
+        if (strstr(t, "\"rs=eSCL\"") || strstr(t, "\"rs=/eSCL\"")) {
+	    s = avahi_string_list_find(txt, "is");
+	    if (s && s->size > 3)
+	       is = (const char*)s->text + 3;
+	    else
+	       uuid = (const char*)NULL;
+	    s = avahi_string_list_find(txt, "uuid");
+	    if (s && s->size > 5)
+	       uuid = (const char*)s->text + 5;
+	    else
+	       uuid = (const char*)NULL;
+            escl_device_add(port, name, a, is, uuid, (char*)type);
+        }
     }
 }
 

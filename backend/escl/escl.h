@@ -90,12 +90,14 @@ typedef struct {
 typedef struct ESCL_Device {
     struct ESCL_Device *next;
 
-    char    *model_name;
-    int             port_nb;
-    char      *ip_address;
-    char *type;
+    char     *model_name;
+    int       port_nb;
+    char     *ip_address;
+    char     *is;
+    char     *uuid;
+    char     *type;
     SANE_Bool https;
-    char      *unix_socket;
+    char     *unix_socket;
 } ESCL_Device;
 
 typedef struct capst
@@ -212,35 +214,68 @@ enum
 #define MM_TO_PIXEL(millimeters, dpi) (SANE_Word)round(SANE_UNFIX(millimeters) * (dpi) / 25.4)
 
 ESCL_Device *escl_devices(SANE_Status *status);
-SANE_Status escl_device_add(int port_nb, const char *model_name,
-		            char *ip_address, char *type);
+SANE_Status escl_device_add(int port_nb,
+                            const char *model_name,
+                            char *ip_address,
+                            const char *is,
+                            const char *uuid,
+                            char *type);
+
 SANE_Status escl_status(const ESCL_Device *device,
                         int source,
                         const char* jobId,
                         SANE_Status *job);
-capabilities_t *escl_capabilities(const ESCL_Device *device, SANE_Status *status);
-char *escl_newjob(capabilities_t *scanner, const ESCL_Device *device,
-		  SANE_Status *status);
-SANE_Status escl_scan(capabilities_t *scanner, const ESCL_Device *device,
-	              char *result);
-void escl_scanner(const ESCL_Device *device, char *result);
+
+capabilities_t *escl_capabilities(const ESCL_Device *device,
+                                  SANE_Status *status);
+
+char *escl_newjob(capabilities_t *scanner,
+                  const ESCL_Device *device,
+                  SANE_Status *status);
+
+SANE_Status escl_scan(capabilities_t *scanner,
+                      const ESCL_Device *device,
+                      char *result);
+
+void escl_scanner(const ESCL_Device *device,
+                  char *result);
 
 typedef void CURL;
-void escl_curl_url(CURL *handle, const ESCL_Device *device, SANE_String_Const path);
 
-unsigned char *escl_crop_surface(capabilities_t *scanner, unsigned char *surface,
-	                      int w, int h, int bps, int *width, int *height);
+void escl_curl_url(CURL *handle,
+                   const ESCL_Device *device,
+                   SANE_String_Const path);
+
+unsigned char *escl_crop_surface(capabilities_t *scanner,
+                                 unsigned char *surface,
+                                 int w,
+                                 int h,
+                                 int bps,
+                                 int *width,
+                                 int *height);
 
 // JPEG
-SANE_Status get_JPEG_data(capabilities_t *scanner, int *width, int *height, int *bps);
+SANE_Status get_JPEG_data(capabilities_t *scanner,
+                          int *width,
+                          int *height,
+                          int *bps);
 
 // PNG
-SANE_Status get_PNG_data(capabilities_t *scanner, int *width, int *height, int *bps);
+SANE_Status get_PNG_data(capabilities_t *scanner,
+                         int *width,
+                         int *height,
+                         int *bps);
 
 // TIFF
-SANE_Status get_TIFF_data(capabilities_t *scanner, int *width, int *height, int *bps);
+SANE_Status get_TIFF_data(capabilities_t *scanner,
+                          int *width,
+                          int *height,
+                          int *bps);
 
 // PDF
-SANE_Status get_PDF_data(capabilities_t *scanner, int *width, int *height, int *bps);
+SANE_Status get_PDF_data(capabilities_t *scanner,
+                         int *width,
+                         int *height,
+                         int *bps);
 
 #endif

@@ -93,7 +93,9 @@ escl_free_device(ESCL_Device *current)
     free((void*)current->ip_address);
     free((void*)current->model_name);
     free((void*)current->type);
-    free(current->unix_socket);
+    free((void*)current->is);
+    free((void*)current->uuid);
+    free((void*)current->unix_socket);
     free(current);
     return NULL;
 }
@@ -131,6 +133,10 @@ escl_check_and_add_device(ESCL_Device *current)
     }
     if (!current->type) {
       DBG (10, "Scanner Type allocation failure.\n");
+      return (SANE_STATUS_NO_MEM);
+    }
+    if (!current->is) {
+      DBG (10, "Scanner Is allocation failure.\n");
       return (SANE_STATUS_NO_MEM);
     }
     ++num_devices;
@@ -173,14 +179,20 @@ escl_add_in_list(ESCL_Device *current)
  * \return escl_add_in_list(current)
  */
 SANE_Status
-escl_device_add(int port_nb, const char *model_name, char *ip_address, char *type)
+escl_device_add(int port_nb,
+                const char *model_name,
+                char *ip_address,
+                const char *is,
+                const char *uuid,
+                char *type)
 {
     char tmp[PATH_MAX] = { 0 };
     char *model = NULL;
     ESCL_Device *current = NULL;
     DBG (10, "escl_device_add\n");
     for (current = list_devices_primary; current; current = current->next) {
-	if (strcmp(current->ip_address, ip_address) == 0)
+	if ((strcmp(current->ip_address, ip_address) == 0) ||
+            (uuid && current->uuid && !strcmp(current->uuid, uuid)))
            {
 	      if (strcmp(current->type, type))
                 {
@@ -189,6 +201,10 @@ escl_device_add(int port_nb, const char *model_name, char *ip_address, char *typ
                     {
                        free (current->type);
                        current->type = strdup(type);
+                       if (strcmp(current->ip_address, ip_address)) {
+                           free (current->ip_address);
+                           current->ip_address = strdup(ip_address);
+                       }
                        current->port_nb = port_nb;
                        current->https = SANE_TRUE;
                     }
@@ -214,7 +230,12 @@ escl_device_add(int port_nb, const char *model_name, char *ip_address, char *typ
     model = (char*)(tmp[0] != 0 ? tmp : model_name);
     current->model_name = strdup(model);
     current->ip_address = strdup(ip_address);
+    memset(tmp, 0, PATH_MAX);
+    snprintf(tmp, sizeof(tmp), "%s scanner", (is ? is : "flatbed or ADF"));
+    current->is = strdup(tmp);
     current->type = strdup(type);
+    if (uuid)
+       current->uuid = strdup(uuid);
     return escl_add_in_list(current);
 }
 
@@ -331,7 +352,7 @@ convertFromESCLDev(ESCL_Device *cdev)
        DBG (10, "Model allocation failure.\n");
        goto freename;
     }
-    sdev->type = strdup("flatbed scanner");
+    sdev->type = strdup(cdev->is);
     if (!sdev->type) {
        DBG (10, "Scanner Type allocation failure.\n");
        goto freevendor;
@@ -443,7 +464,9 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line,
             return status;
         }
         escl_device->model_name = opt_model ? opt_model : strdup("Unknown model");
-        escl_device->type = strdup("flatbed scanner");
+        escl_device->is = strdup("flatbed or ADF scanner");
+        escl_device->type = strdup("In url");
+        escl_device->uuid = NULL;
     }
 
     if (strncmp(line, "[device]", 8) == 0) {
@@ -485,6 +508,8 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line,
 	    escl_device->type = strdup(type_space);
 	}
     }
+    escl_device->is = strdup("flatbed or ADF scanner");
+    escl_device->uuid = NULL;
     status = escl_check_and_add_device(escl_device);
     if (status == SANE_STATUS_GOOD)
        escl_device = NULL;

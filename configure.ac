@@ -628,8 +628,8 @@ esac
 dnl Check for lock dir
 
 AC_ARG_WITH(lockdir, AS_HELP_STRING([--with-lockdir=DIR],
-                                    [set SANE lockdir @<:@localstatedir/lock/sane@:>@]),
-                                    [locksanedir=$withval],[locksanedir=${localstatedir}/lock/sane])
+                                    [set SANE lockdir @<:@localstatedir/lock@:>@]),
+                                    [locksanedir=$withval],[locksanedir=${localstatedir}/lock])
 AC_SUBST(locksanedir)
 
 configdir="${sysconfdir}/sane.d"

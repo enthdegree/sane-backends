@@ -134,10 +134,12 @@ configure options, there are the following SANE specific options:
 	Means, that some backends will use a lockfile for allowing multiple
 	access to one scanner. This is useful, i.e. one frontend is scanning
 	the button status and another one will scan. The path to the lock
-	files is define by --localstatedir at the configure step and is
-	$localstatedir/lock/sane. The default group is uucp and can be
-	changed by using --with-group=newgroup. If you do not want any
-	backend to use a lockfile, simply use --disable-locking.
+	files is defined by --localstatedir at the configure step and is
+	$localstatedir/lock. The default group is uucp and can be changed
+	by using --with-group=newgroup. If you do not want any backend to
+	use a lockfile, simply use --disable-locking.
+	Note: The Plustek backend is currently the only backend that makes
+	      use of this feature.
 
 To limit the backends that are compiled, set the variable BACKENDS to
 the list of backends to compile.  The following will limit compiling

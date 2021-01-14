@@ -35,14 +35,14 @@
 
 #include <errno.h>
 
-#if(defined HAVE_POPPLER_GLIB)
+#if HAVE_POPPLER_GLIB
 #include <poppler/glib/poppler.h>
 #endif
 
 #include <setjmp.h>
 
 
-#if(defined HAVE_POPPLER_GLIB)
+#if HAVE_POPPLER_GLIB
 
 #define INPUT_BUFFER_SIZE 4096
 

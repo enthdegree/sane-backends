@@ -90,9 +90,9 @@ char_to_array(SANE_String_Const *tab, int *tabsize, SANE_String_Const mode, int 
     }
     (*tabsize)++;
     if (*tabsize == 1)
-        board = (SANE_String_Const *)malloc(sizeof(SANE_String_Const) * (*tabsize) + 1);
+        board = (SANE_String_Const *)malloc(sizeof(SANE_String_Const) * ((*tabsize) + 1));
     else
-        board = (SANE_String_Const *)realloc(tab, sizeof(SANE_String_Const) * (*tabsize) + 1);
+        board = (SANE_String_Const *)realloc(tab, sizeof(SANE_String_Const) * ((*tabsize) + 1));
     board[*tabsize - 1] = (SANE_String_Const)strdup(convert);
     board[*tabsize] = NULL;
     return (board);

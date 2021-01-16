@@ -99,7 +99,7 @@ typedef struct ESCL_Device {
     char     *uuid;
     char     *type;
     SANE_Bool https;
-    struct curl_slist *localhost;
+    struct curl_slist *hack;
     char     *unix_socket;
 } ESCL_Device;
 

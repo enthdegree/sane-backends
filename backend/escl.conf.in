@@ -13,6 +13,7 @@
 
 #device http://123.456.789.10:8080 OptionalModel1
 #device https://123.456.789.10:443 "Optional Model 2"
+#device https://123.456.789.10:443 ""HP Color LaserJet FlowMFP M578" "hack=localhost"
 #device unix:/run/proxy.sock:http://123.456.789.10:80
 
 #[device]

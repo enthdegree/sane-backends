@@ -29,8 +29,6 @@
 
 #include <setjmp.h>
 
-#include <curl/curl.h>
-
 #include "../include/sane/saneopts.h"
 #include "../include/sane/sanei.h"
 #include "../include/sane/sanei_backend.h"
@@ -96,6 +94,7 @@ escl_free_device(ESCL_Device *current)
     free((void*)current->is);
     free((void*)current->uuid);
     free((void*)current->unix_socket);
+    curl_slist_free_all(current->localhost);
     free(current);
     return NULL;
 }
@@ -229,6 +228,9 @@ escl_device_add(int port_nb,
     }
     model = (char*)(tmp[0] != 0 ? tmp : model_name);
     current->model_name = strdup(model);
+    if (strcasestr(current->model_name, "LaserJet FlowMFP M578") ||
+        strcasestr(current->model_name, "LaserJet MFP M630"))
+	 current->localhost = curl_slist_append(NULL, "Host: localhost");
     current->ip_address = strdup(ip_address);
     memset(tmp, 0, PATH_MAX);
     snprintf(tmp, sizeof(tmp), "%s scanner", (is ? is : "flatbed or ADF"));
@@ -1714,6 +1716,8 @@ escl_curl_url(CURL *handle, const ESCL_Device *device, SANE_String_Const path)
     DBG( 1, "escl_curl_url: URL: %s\n", url );
     curl_easy_setopt(handle, CURLOPT_URL, url);
     free(url);
+    if (device->localhost)
+        curl_easy_setopt(handle, CURLOPT_HTTPHEADER, device->localhost);
     if (device->https) {
         DBG( 1, "Ignoring safety certificates, use https\n");
         curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, 0L);

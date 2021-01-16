@@ -48,6 +48,8 @@
 #include <stdio.h>
 #include <math.h>
 
+#include <curl/curl.h>
+
 #ifndef BACKEND_NAME
 #define BACKEND_NAME escl
 #endif
@@ -97,6 +99,7 @@ typedef struct ESCL_Device {
     char     *uuid;
     char     *type;
     SANE_Bool https;
+    struct curl_slist *localhost;
     char     *unix_socket;
 } ESCL_Device;
 

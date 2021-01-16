@@ -30,8 +30,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <curl/curl.h>
-
 #ifdef PATH_MAX
 # undef PATH_MAX
 #endif

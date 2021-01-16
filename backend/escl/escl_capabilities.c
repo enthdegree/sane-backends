@@ -30,7 +30,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <curl/curl.h>
 #include <libxml/parser.h>
 
 #include "../include/sane/saneopts.h"

@@ -29,8 +29,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <curl/curl.h>
-
 static size_t
 write_callback(void __sane_unused__*str,
                size_t __sane_unused__ size,

@@ -29,8 +29,6 @@
 
 #include <setjmp.h>
 
-#include <curl/curl.h>
-
 #include "../include/sane/saneopts.h"
 #include "../include/sane/sanei.h"
 #include "../include/sane/sanei_backend.h"
@@ -96,6 +94,7 @@ escl_free_device(ESCL_Device *current)
     free((void*)current->is);
     free((void*)current->uuid);
     free((void*)current->unix_socket);
+    curl_slist_free_all(current->hack);
     free(current);
     return NULL;
 }
@@ -229,6 +228,9 @@ escl_device_add(int port_nb,
     }
     model = (char*)(tmp[0] != 0 ? tmp : model_name);
     current->model_name = strdup(model);
+    if (strcasestr(current->model_name, "LaserJet FlowMFP M578") ||
+        strcasestr(current->model_name, "LaserJet MFP M630"))
+	 current->hack = curl_slist_append(NULL, "Host: localhost");
     current->ip_address = strdup(ip_address);
     memset(tmp, 0, PATH_MAX);
     snprintf(tmp, sizeof(tmp), "%s scanner", (is ? is : "flatbed or ADF"));
@@ -437,6 +439,7 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line,
     if (strncmp(line, "device", 6) == 0) {
         char *name_str = NULL;
         char *opt_model = NULL;
+        char *opt_hack = NULL;
 
         line = sanei_config_get_string(line + 6, &name_str);
         DBG (10, "New Escl_Device URL [%s].\n", (name_str ? name_str : "VIDE"));
@@ -447,6 +450,10 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line,
         if (*line) {
             line = sanei_config_get_string(line, &opt_model);
             DBG (10, "New Escl_Device model [%s].\n", opt_model);
+        }
+        if (*line) {
+            line = sanei_config_get_string(line, &opt_hack);
+            DBG (10, "New Escl_Device hack [%s].\n", opt_hack);
         }
 
         escl_free_device(escl_device);
@@ -467,6 +474,8 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line,
         escl_device->is = strdup("flatbed or ADF scanner");
         escl_device->type = strdup("In url");
         escl_device->uuid = NULL;
+	if (opt_hack && !strcmp(opt_hack, "hack=localhost"))
+	   escl_device->hack = curl_slist_append(NULL, "Host: localhost");
     }
 
     if (strncmp(line, "[device]", 8) == 0) {
@@ -477,7 +486,7 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line,
 	   return (SANE_STATUS_NO_MEM);
 	}
     }
-    if (strncmp(line, "ip", 2) == 0) {
+    else if (strncmp(line, "ip", 2) == 0) {
 	const char *ip_space = sanei_config_skip_whitespace(line + 2);
 	DBG (10, "New Escl_Device IP [%s].", (ip_space ? ip_space : "VIDE"));
 	if (escl_device != NULL && ip_space != NULL) {
@@ -485,14 +494,14 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line,
 	    escl_device->ip_address = strdup(ip_space);
 	}
     }
-    if (sscanf(line, "port %i", &port) == 1 && port != 0) {
+    else if (sscanf(line, "port %i", &port) == 1 && port != 0) {
 	DBG (10, "New Escl_Device PORT [%d].", port);
 	if (escl_device != NULL) {
 	    DBG (10, "New Escl_Device PORT Affected.");
 	    escl_device->port_nb = port;
 	}
     }
-    if (strncmp(line, "model", 5) == 0) {
+    else if (strncmp(line, "model", 5) == 0) {
 	const char *model_space = sanei_config_skip_whitespace(line + 5);
 	DBG (10, "New Escl_Device MODEL [%s].", (model_space ? model_space : "VIDE"));
 	if (escl_device != NULL && model_space != NULL) {
@@ -500,7 +509,7 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line,
 	    escl_device->model_name = strdup(model_space);
 	}
     }
-    if (strncmp(line, "type", 4) == 0) {
+    else if (strncmp(line, "type", 4) == 0) {
 	const char *type_space = sanei_config_skip_whitespace(line + 4);
 	DBG (10, "New Escl_Device TYPE [%s].", (type_space ? type_space : "VIDE"));
 	if (escl_device != NULL && type_space != NULL) {
@@ -1714,6 +1723,8 @@ escl_curl_url(CURL *handle, const ESCL_Device *device, SANE_String_Const path)
     DBG( 1, "escl_curl_url: URL: %s\n", url );
     curl_easy_setopt(handle, CURLOPT_URL, url);
     free(url);
+    if (device->hack)
+        curl_easy_setopt(handle, CURLOPT_HTTPHEADER, device->hack);
     if (device->https) {
         DBG( 1, "Ignoring safety certificates, use https\n");
         curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, 0L);

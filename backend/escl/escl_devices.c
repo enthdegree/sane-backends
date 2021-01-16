@@ -78,7 +78,7 @@ resolve_callback(AvahiServiceResolver *r, AVAHI_GCC_UNUSED AvahiIfIndex interfac
 	    if (s && s->size > 3)
 	       is = (const char*)s->text + 3;
 	    else
-	       uuid = (const char*)NULL;
+	       is = (const char*)NULL;
 	    s = avahi_string_list_find(txt, "uuid");
 	    if (s && s->size > 5)
 	       uuid = (const char*)s->text + 5;

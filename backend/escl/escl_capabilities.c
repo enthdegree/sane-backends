@@ -392,36 +392,39 @@ find_true_variables(xmlNode *node, capabilities_t *scanner, int type)
  * \return 0
  */
 static int
-print_xml_c(xmlNode *node, capabilities_t *scanner, int type)
+print_xml_c(xmlNode *node, ESCL_Device *device, capabilities_t *scanner, int type)
 {
     while (node) {
         if (node->type == XML_ELEMENT_NODE) {
             if (find_nodes_c(node) && type != -1)
                 find_true_variables(node, scanner, type);
         }
-	if (!strcmp((const char *)node->name, "PlatenInputCaps")) {
+        if (!strcmp((const char *)node->name, "MakeAndModel")){
+            device->model_name = strdup((const char *)xmlNodeGetContent(node));
+	}
+	else if (!strcmp((const char *)node->name, "PlatenInputCaps")) {
            scanner->Sources[PLATEN] = (SANE_String_Const)strdup(SANE_I18N ("Flatbed"));
            scanner->SourcesSize++;
 	   scanner->source = PLATEN;
-           print_xml_c(node->children, scanner, PLATEN);
+           print_xml_c(node->children, device, scanner, PLATEN);
 	   scanner->caps[PLATEN].duplex = 0;
 	}
 	else if (!strcmp((const char *)node->name, "AdfSimplexInputCaps")) {
            scanner->Sources[ADFSIMPLEX] = (SANE_String_Const)strdup(SANE_I18N("ADF"));
            scanner->SourcesSize++;
 	   if (scanner->source == -1) scanner->source = ADFSIMPLEX;
-           print_xml_c(node->children, scanner, ADFSIMPLEX);
+           print_xml_c(node->children, device, scanner, ADFSIMPLEX);
 	   scanner->caps[ADFSIMPLEX].duplex = 0;
 	}
 	else if (!strcmp((const char *)node->name, "AdfDuplexInputCaps")) {
            scanner->Sources[ADFDUPLEX] = (SANE_String_Const)strdup(SANE_I18N ("ADF Duplex"));
            scanner->SourcesSize++;
 	   if (scanner->source == -1) scanner->source = ADFDUPLEX;
-           print_xml_c(node->children, scanner, ADFDUPLEX);
+           print_xml_c(node->children, device, scanner, ADFDUPLEX);
 	   scanner->caps[ADFDUPLEX].duplex = 1;
 	}
 	else if (find_struct_variables(node, scanner) == 0)
-           print_xml_c(node->children, scanner, type);
+           print_xml_c(node->children, device, scanner, type);
         node = node->next;
     }
     return (0);
@@ -460,7 +463,7 @@ _reduce_color_modes(capabilities_t *scanner)
  * \return scanner (the structure that stocks all the capabilities elements)
  */
 capabilities_t *
-escl_capabilities(const ESCL_Device *device, SANE_Status *status)
+escl_capabilities(ESCL_Device *device, SANE_Status *status)
 {
     capabilities_t *scanner = (capabilities_t*)calloc(1, sizeof(capabilities_t));
     CURL *curl_handle = NULL;
@@ -504,7 +507,7 @@ escl_capabilities(const ESCL_Device *device, SANE_Status *status)
     scanner->Sources = (SANE_String_Const *)malloc(sizeof(SANE_String_Const) * 4);
     for (i = 0; i < 4; i++)
        scanner->Sources[i] = NULL;
-    print_xml_c(node, scanner, -1);
+    print_xml_c(node, device, scanner, -1);
     _reduce_color_modes(scanner);
 clean:
     xmlFreeDoc(data);

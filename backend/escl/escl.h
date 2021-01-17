@@ -229,7 +229,7 @@ SANE_Status escl_status(const ESCL_Device *device,
                         const char* jobId,
                         SANE_Status *job);
 
-capabilities_t *escl_capabilities(const ESCL_Device *device,
+capabilities_t *escl_capabilities(ESCL_Device *device,
                                   SANE_Status *status);
 
 char *escl_newjob(capabilities_t *scanner,

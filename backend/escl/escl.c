@@ -228,9 +228,6 @@ escl_device_add(int port_nb,
     }
     model = (char*)(tmp[0] != 0 ? tmp : model_name);
     current->model_name = strdup(model);
-    if (strcasestr(current->model_name, "LaserJet FlowMFP M578") ||
-        strcasestr(current->model_name, "LaserJet MFP M630"))
-	 current->hack = curl_slist_append(NULL, "Host: localhost");
     current->ip_address = strdup(ip_address);
     memset(tmp, 0, PATH_MAX);
     snprintf(tmp, sizeof(tmp), "%s scanner", (is ? is : "flatbed or ADF"));
@@ -474,8 +471,6 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line,
         escl_device->is = strdup("flatbed or ADF scanner");
         escl_device->type = strdup("In url");
         escl_device->uuid = NULL;
-	if (opt_hack && !strcmp(opt_hack, "hack=localhost"))
-	   escl_device->hack = curl_slist_append(NULL, "Host: localhost");
     }
 
     if (strncmp(line, "[device]", 8) == 0) {
@@ -1098,6 +1093,50 @@ escl_parse_name(SANE_String_Const name, ESCL_Device *device)
     return SANE_STATUS_GOOD;
 }
 
+static void
+_get_hack(SANE_String_Const name, ESCL_Device *device)
+{
+  FILE *fp;
+  SANE_Char line[PATH_MAX];
+  DBG (3, "_get_hack: start\n");
+  if (device->model_name &&
+      (strcasestr(device->model_name, "LaserJet FlowMFP M578") ||
+       strcasestr(device->model_name, "LaserJet MFP M630"))) {
+       device->hack = curl_slist_append(NULL, "Host: localhost");
+       DBG (3, "_get_hack: finish\n");
+       return;
+  }
+
+  /* open configuration file */
+  fp = sanei_config_open (ESCL_CONFIG_FILE);
+  if (!fp)
+    {
+      DBG (2, "_get_hack: couldn't access %s\n", ESCL_CONFIG_FILE);
+      DBG (3, "_get_hack: exit\n");
+    }
+
+  /* loop reading the configuration file, all line beginning by "option " are
+   * parsed for value to store in configuration structure, other line are
+   * used are device to try to attach
+   */
+  while (sanei_config_read (line, PATH_MAX, fp))
+    {
+       if (strstr(line, name)) {
+          DBG (3, "_get_hack: idevice found\n");
+	  if (strstr(line, "hack=localhost")) {
+              DBG (3, "_get_hack: device found\n");
+	      device->hack = curl_slist_append(NULL, "Host: localhost");
+	  }
+	  goto finish_hack;
+       }
+    }
+finish_hack:
+  DBG (3, "_get_hack: finish\n");
+  fclose(fp);
+}
+
+
+
 /**
  * \fn SANE_Status sane_open(SANE_String_Const name, SANE_Handle *h)
  * \brief Function that establishes a connection with the device named by 'name',
@@ -1139,6 +1178,8 @@ sane_open(SANE_String_Const name, SANE_Handle *h)
         escl_free_handler(handler);
         return (status);
     }
+    _get_hack(name, device);
+
     status = init_options(NULL, handler);
     if (status != SANE_STATUS_GOOD) {
         escl_free_handler(handler);
@@ -1723,8 +1764,12 @@ escl_curl_url(CURL *handle, const ESCL_Device *device, SANE_String_Const path)
     DBG( 1, "escl_curl_url: URL: %s\n", url );
     curl_easy_setopt(handle, CURLOPT_URL, url);
     free(url);
-    if (device->hack)
+    DBG( 1, "Before use hack\n");
+    if (device->hack) {
+        DBG( 1, "Use hack\n");
         curl_easy_setopt(handle, CURLOPT_HTTPHEADER, device->hack);
+    }
+    DBG( 1, "After use hack\n");
     if (device->https) {
         DBG( 1, "Ignoring safety certificates, use https\n");
         curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, 0L);

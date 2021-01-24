@@ -1,22 +1,22 @@
 # Copyright (C) 2009
 # This file is distributed under the same license as the sane-backends package.
 #
-# Yuri Chornoivan <yurchor@ukr.net>, 2009, 2010, 2011, 2012, 2013, 2015, 2017, 2018, 2019, 2020.
+# Yuri Chornoivan <yurchor@ukr.net>, 2009-2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.31\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
 "POT-Creation-Date: 2020-08-02 12:33+0000\n"
-"PO-Revision-Date: 2020-07-22 15:32+0300\n"
+"PO-Revision-Date: 2021-01-18 11:24+0200\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <translation@linux.org.ua>\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Lokalize 20.07.70\n"
-"Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: Lokalize 20.11.70\n"
+"Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: include/sane/saneopts.h:154
 #, no-c-format
@@ -527,8 +527,7 @@ msgstr "Визначає роздільну здатність сканован�
 #: include/sane/saneopts.h:295
 #, no-c-format
 msgid "Sets the horizontal resolution of the scanned image."
-msgstr ""
-"Визначає горизонтальну роздільну здатність засканованого зображення."
+msgstr "Визначає горизонтальну роздільну здатність засканованого зображення."
 
 #: include/sane/saneopts.h:298
 #, no-c-format
@@ -551,8 +550,7 @@ msgstr "Визначає висоту носія."
 
 #: include/sane/saneopts.h:308
 #, no-c-format
-msgid ""
-"Determines whether a builtin or a custom gamma-table should be used."
+msgid "Determines whether a builtin or a custom gamma-table should be used."
 msgstr "Визначає буде використано вбудовану чи нетипову таблицю гами."
 
 #: include/sane/saneopts.h:312
@@ -603,8 +601,7 @@ msgstr ""
 #: include/sane/saneopts.h:336
 #, no-c-format
 msgid "Selects whether the acquired image should be halftoned (dithered)."
-msgstr ""
-"Визначає, чи має бути отримане зображення напівтоновим (з дизерингом)."
+msgstr "Визначає, чи має бути отримане зображення напівтоновим (з дизерингом)."
 
 #: include/sane/saneopts.h:339 include/sane/saneopts.h:354
 #, no-c-format
@@ -654,17 +651,14 @@ msgstr ""
 
 #: include/sane/saneopts.h:367
 #, no-c-format
-msgid ""
-"Selects what green radiance level should be considered \"full green\"."
+msgid "Selects what green radiance level should be considered \"full green\"."
 msgstr ""
 "Визначає рівень світності зеленого, який слід вважати «цілком зеленим»."
 
 #: include/sane/saneopts.h:370
 #, no-c-format
-msgid ""
-"Selects what blue radiance level should be considered \"full blue\"."
-msgstr ""
-"Визначає рівень світності синього, який слід вважати «цілком синім»."
+msgid "Selects what blue radiance level should be considered \"full blue\"."
+msgstr "Визначає рівень світності синього, який слід вважати «цілком синім»."
 
 #: include/sane/saneopts.h:374
 #, no-c-format
@@ -706,8 +700,7 @@ msgstr ""
 #: include/sane/saneopts.h:393
 #, no-c-format
 msgid "Use same values for X and Y resolution"
-msgstr ""
-"Використовувати однакові значення для роздільних здатностей за X та Y"
+msgstr "Використовувати однакові значення для роздільних здатностей за X та Y"
 
 #: include/sane/saneopts.h:395
 #, no-c-format
@@ -1033,8 +1026,7 @@ msgstr "Двобічне сканування"
 
 #: backend/avision.h:839
 #, no-c-format
-msgid ""
-"Duplex scan provides a scan of the front and back side of the document"
+msgid "Duplex scan provides a scan of the front and back side of the document"
 msgstr ""
 "За використання двобічного сканування ви отримаєте одразу зображення "
 "лицьового та зворотного боків документа"
@@ -1236,8 +1228,7 @@ msgstr "Помилка парності SCSI"
 #: backend/canon.c:504
 #, no-c-format
 msgid "initiator detected error message received"
-msgstr ""
-"Отримано повідомлення про помилку виявлення інструменту ініціалізації"
+msgstr "Отримано повідомлення про помилку виявлення інструменту ініціалізації"
 
 #: backend/canon.c:509
 #, no-c-format
@@ -1413,8 +1404,7 @@ msgstr "Виштовхувати плівку після кожного скан
 #: backend/canon.c:1664
 #, no-c-format
 msgid "Automatically eject the film from the device after each scan"
-msgstr ""
-"Автоматично виштовхувати плівку з пристрою після кожного сканування"
+msgstr "Автоматично виштовхувати плівку з пристрою після кожного сканування"
 
 #: backend/canon.c:1675
 #, no-c-format
@@ -1423,8 +1413,7 @@ msgstr "Виштовхувати плівку перед завершенням 
 
 #: backend/canon.c:1676
 #, no-c-format
-msgid ""
-"Automatically eject the film from the device before exiting the program"
+msgid "Automatically eject the film from the device before exiting the program"
 msgstr ""
 "Автоматично виштовхувати плівку з пристрою перед завершенням роботи "
 "програми"
@@ -1452,8 +1441,7 @@ msgstr "Лише планшетний"
 #: backend/canon.c:1703
 #, no-c-format
 msgid "Disable auto document feeder and use flatbed only"
-msgstr ""
-"Вимкнути автоматичну подачу, використовувати лише планшетний механізм"
+msgstr "Вимкнути автоматичну подачу, використовувати лише планшетний механізм"
 
 #: backend/canon.c:1713 backend/canon.c:1723
 #, no-c-format
@@ -2106,8 +2094,7 @@ msgstr "Позиція фокусування"
 
 #: backend/epson.h:73 backend/epson2.h:72
 #, no-c-format
-msgid ""
-"Sets the focus position to either the glass or 2.5mm above the glass"
+msgid "Sets the focus position to either the glass or 2.5mm above the glass"
 msgstr ""
 "Визначає позицію фокусування на рівень від поверхні скла до висоти 2,5 "
 "мм над склом"
@@ -2413,8 +2400,7 @@ msgstr "Порогова крива"
 
 #: backend/fujitsu.c:3423
 #, no-c-format
-msgid ""
-"Threshold curve, from light to dark, but upper two may not be linear"
+msgid "Threshold curve, from light to dark, but upper two may not be linear"
 msgstr ""
 "Порогова крива, від світлого до темного, але верхні дві не можуть бути "
 "лінійними"
@@ -2634,8 +2620,7 @@ msgstr "Колір тла"
 
 #: backend/fujitsu.c:3865
 #, no-c-format
-msgid ""
-"Set color of background for scans. May conflict with overscan option"
+msgid "Set color of background for scans. May conflict with overscan option"
 msgstr ""
 "Встановити колір для тла сканованих зображень. Може конфліктувати із "
 "параметром полів."
@@ -2702,8 +2687,7 @@ msgstr "Таймер присипляння"
 
 #: backend/fujitsu.c:3969
 #, no-c-format
-msgid ""
-"Time in minutes until the internal power supply switches to sleep mode"
+msgid "Time in minutes until the internal power supply switches to sleep mode"
 msgstr ""
 "Час у хвилинах, по завершенню якого внутрішнє живлення буде переведено у "
 "режим сну"
@@ -2839,8 +2823,7 @@ msgstr "Перервати при скасуванні"
 
 #: backend/fujitsu.c:4160
 #, no-c-format
-msgid ""
-"Request driver to halt the paper feed instead of eject during a cancel."
+msgid "Request driver to halt the paper feed instead of eject during a cancel."
 msgstr ""
 "Наказати драйверу перервати подавання паперу, замість його "
 "виштовхування, якщо сканування скасовано."
@@ -4092,8 +4075,7 @@ msgstr "Документ доступний у АПД"
 #: backend/hp5590.c:128
 #, no-c-format
 msgid "Get state of document-available indicator in ADF (read only)"
-msgstr ""
-"Отримати стан індикатора доступності документа у АПД (лише читання)"
+msgstr "Отримати стан індикатора доступності документа у АПД (лише читання)"
 
 #: backend/hp5590.c:130
 #, no-c-format
@@ -4102,8 +4084,7 @@ msgstr "Приховувати кінцевий піксель сторінки"
 
 #: backend/hp5590.c:131
 #, no-c-format
-msgid ""
-"Hide end-of-page indicator pixels and overwrite with neighbor pixels"
+msgid "Hide end-of-page indicator pixels and overwrite with neighbor pixels"
 msgstr ""
 "Приховувати пікселі-індикатори кінця сторінки і перезаписувати їх "
 "сусідніми пікселями"
@@ -4126,8 +4107,7 @@ msgstr ""
 #: backend/hp5590.c:137
 #, no-c-format
 msgid "RGB or gray color value for filling mode 'color'"
-msgstr ""
-"Значення кольору у RGB або тонах сірого для режиму заповнення «color»"
+msgstr "Значення кольору у RGB або тонах сірого для режиму заповнення «color»"
 
 #: backend/hp5590.c:138
 #, no-c-format
@@ -4581,8 +4561,7 @@ msgstr "Обернути зображення за год. стрілкою"
 #: backend/kvs1025_opt.c:861
 #, no-c-format
 msgid "Request driver to rotate pages by a fixed amount"
-msgstr ""
-"Вимагати від драйвера обертання сторінок на фіксований вказаний кут"
+msgstr "Вимагати від драйвера обертання сторінок на фіксований вказаний кут"
 
 #: backend/kvs1025_opt.c:873
 #, no-c-format
@@ -5046,8 +5025,7 @@ msgstr "Калібрування програмою обробки"
 
 #: backend/microtek2.h:617
 #, no-c-format
-msgid ""
-"If checked the color calibration before a scan is done by the backend"
+msgid "If checked the color calibration before a scan is done by the backend"
 msgstr ""
 "Якщо позначено цей пункт, калібрування кольорів перед скануванням "
 "виконується програмою обробки"
@@ -5131,8 +5109,7 @@ msgstr "Скалярна гама червоного"
 #: backend/microtek2.h:655
 #, no-c-format
 msgid "Selects a value for scalar gamma correction (red channel)"
-msgstr ""
-"Визначає значення для скалярного виправлення гами (канал червоного)."
+msgstr "Визначає значення для скалярного виправлення гами (канал червоного)."
 
 #: backend/microtek2.h:659
 #, no-c-format
@@ -5142,8 +5119,7 @@ msgstr "Скалярна гама зеленого"
 #: backend/microtek2.h:660
 #, no-c-format
 msgid "Selects a value for scalar gamma correction (green channel)"
-msgstr ""
-"Визначає значення для скалярного виправлення гами (канал зеленого)."
+msgstr "Визначає значення для скалярного виправлення гами (канал зеленого)."
 
 #: backend/microtek2.h:664
 #, no-c-format
@@ -5164,8 +5140,7 @@ msgstr "Канал"
 #, no-c-format
 msgid ""
 "Selects the colour band, \"Master\" means that all colours are affected."
-msgstr ""
-"Визначає зв’язок кольорів. «Основний» визначає зв’язок всіх кольорів."
+msgstr "Визначає зв’язок кольорів. «Основний» визначає зв’язок всіх кольорів."
 
 #: backend/microtek2.h:674
 #, no-c-format
@@ -5533,13 +5508,14 @@ msgid "16 bits gray"
 msgstr "16-бітовий сірий"
 
 #: backend/pixma/pixma.c:1011
-#, fuzzy, no-c-format
+#, no-c-format
 msgid ""
 "Gamma-correction table with 4096 entries. In color mode this option "
 "equally affects the red, green, and blue channels simultaneously (i.e., "
 "it is an intensity gamma table)."
 msgstr ""
-"Таблиця виправлення гами. В кольоровому режимі цей параметр одночасно "
+"Таблиця виправлення гами із 4096 записів. В кольоровому режимі цей параметр"
+" одночасно "
 "змінює параметри червоного, зеленого та синього каналів (тобто є "
 "таблицею інтенсивності гами)."
 
@@ -5570,13 +5546,14 @@ msgstr ""
 "«COLOR» (для інших моделей). Для скасування натисніть кнопку «GRAY»."
 
 #: backend/pixma/pixma_sane_options.c:134
-#, fuzzy, no-c-format
+#, no-c-format
 msgid ""
 "Gamma-correction table with 1024 entries. In color mode this option "
 "equally affects the red, green, and blue channels simultaneously (i.e., "
 "it is an intensity gamma table)."
 msgstr ""
-"Таблиця виправлення гами. В кольоровому режимі цей параметр одночасно "
+"Таблиця виправлення гами із 1024 записів. В кольоровому режимі цей параметр"
+" одночасно "
 "змінює параметри червоного, зеленого та синього каналів (тобто є "
 "таблицею інтенсивності гами)."
 
@@ -5606,19 +5583,19 @@ msgid "Target operation type"
 msgstr "Тип дії для отримання результату"
 
 #: backend/pixma/pixma_sane_options.c:315
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Document type"
-msgstr "Подача документів"
+msgstr "Тип документа"
 
 #: backend/pixma/pixma_sane_options.c:329
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "ADF status"
-msgstr "Стан лампи"
+msgstr "Стан АПД"
 
 #: backend/pixma/pixma_sane_options.c:343
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "ADF orientation"
-msgstr "Дія ПП"
+msgstr "Орієнтація АПД"
 
 #: backend/pixma/pixma_sane_options.c:379
 #, no-c-format
@@ -5864,8 +5841,7 @@ msgstr ""
 
 #: backend/pnm.c:283
 #, no-c-format
-msgid ""
-"Set default values for enhancement controls (brightness & contrast)."
+msgid "Set default values for enhancement controls (brightness & contrast)."
 msgstr ""
 "Встановити типові значення керування покращенням (яскравістю і "
 "контрастністю)."
@@ -6228,8 +6204,7 @@ msgstr "Другий запис"
 msgid ""
 "This is the very long third entry. Maybe the frontend has an idea how to "
 "display it"
-msgstr ""
-"Третій запис є затримується. Можливо, оболонка не може його показати."
+msgstr "Третій запис є затримується. Можливо, оболонка не може його показати."
 
 #: backend/test.c:390
 #, no-c-format
@@ -6345,8 +6320,7 @@ msgstr "Розмір границі читання"
 
 #: backend/test.c:541
 #, no-c-format
-msgid ""
-"The (maximum) amount of data transferred with each call to sane_read()."
+msgid "The (maximum) amount of data transferred with each call to sane_read()."
 msgstr ""
 "Об’єм (максимальний) даних, які буде передано під час кожного з викликів "
 "sane_read()."

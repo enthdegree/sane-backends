@@ -2283,7 +2283,7 @@ type int adf-wait
 type string calibrate[30]
   constraint @string_list = ss->calibrate_list
   title Calibration
-  desc When to perform scanner calibration. If you choose \"Once\" it will be performed a single time per driver init for single page scans, and for the first page for each ADF scans.
+  desc When to perform scanner calibration. If you choose \"Once\" it will be performed a single time per driver init for single page scans, and for the first page for each ADF scan.
   default Once
   cap soft_select soft_detect automatic
 

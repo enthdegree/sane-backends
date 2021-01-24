@@ -23,7 +23,7 @@
 # If the scanner is supported by sane-backends, please mail the entry to
 # the sane-devel mailing list (sane-devel@alioth-lists.debian.net).
 #
-ACTION!="add", GOTO="libsane_rules_end"
+ACTION=="remove", GOTO="libsane_rules_end"
 ENV{DEVTYPE}=="usb_device", GOTO="libsane_create_usb_dev"
 SUBSYSTEMS=="scsi", GOTO="libsane_scsi_rules_begin"
 SUBSYSTEM=="usb_device", GOTO="libsane_usb_rules_begin"

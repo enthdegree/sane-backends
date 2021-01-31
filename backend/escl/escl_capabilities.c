@@ -40,6 +40,25 @@ struct cap
     size_t size;
 };
 
+static size_t
+header_callback(void *str, size_t size, size_t nmemb, void *userp)
+{
+    struct cap *header = (struct cap *)userp;
+    size_t realsize = size * nmemb;
+    char *content = realloc(header->memory, header->size + realsize + 1);
+
+    if (content == NULL) {
+        DBG( 1, "Not enough memory (realloc returned NULL)\n");
+        return (0);
+    }
+    header->memory = content;
+    memcpy(&(header->memory[header->size]), str, realsize);
+    header->size = header->size + realsize;
+    header->memory[header->size] = 0;
+    return (realsize);
+}
+
+
 /**
  * \fn static SANE_String_Const convert_elements(SANE_String_Const str)
  * \brief Function that converts the 'color modes' of the scanner (color/gray) to be understood by SANE.
@@ -468,6 +487,7 @@ escl_capabilities(ESCL_Device *device, SANE_Status *status)
     capabilities_t *scanner = (capabilities_t*)calloc(1, sizeof(capabilities_t));
     CURL *curl_handle = NULL;
     struct cap *var = NULL;
+    struct cap *header = NULL;
     xmlDoc *data = NULL;
     xmlNode *node = NULL;
     int i = 0;
@@ -481,11 +501,20 @@ escl_capabilities(ESCL_Device *device, SANE_Status *status)
         *status = SANE_STATUS_NO_MEM;
     var->memory = malloc(1);
     var->size = 0;
+    header = (struct cap *)calloc(1, sizeof(struct cap));
+    if (header == NULL)
+        *status = SANE_STATUS_NO_MEM;
+    header->memory = malloc(1);
+    header->size = 0;
     curl_handle = curl_easy_init();
     escl_curl_url(curl_handle, device, scanner_capabilities);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, memory_callback_c);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)var);
+    curl_easy_setopt(curl_handle, CURLOPT_HEADERFUNCTION, header_callback);
+    curl_easy_setopt(curl_handle, CURLOPT_HEADERDATA, (void *)header);
     CURLcode res = curl_easy_perform(curl_handle);
+    if (res == CURLE_OK)
+        DBG( 1, "Create NewJob : the scanner header responded : [%s]\n", header->memory);
     if (res != CURLE_OK) {
         DBG( 1, "The scanner didn't respond: %s\n", curl_easy_strerror(res));
         *status = SANE_STATUS_INVAL;
@@ -503,6 +532,12 @@ escl_capabilities(ESCL_Device *device, SANE_Status *status)
         goto clean;
     }
 
+    if (device->hack &&
+        header &&
+        header->memory &&
+        strstr(header->memory, "Server: HP_Compact_Server"))
+        device->hack = curl_slist_append(NULL, "Host: localhost");
+
     scanner->source = 0;
     scanner->Sources = (SANE_String_Const *)malloc(sizeof(SANE_String_Const) * 4);
     for (i = 0; i < 4; i++)
@@ -515,6 +550,9 @@ clean_data:
     xmlCleanupParser();
     xmlMemoryDump();
     curl_easy_cleanup(curl_handle);
+    if (header)
+      free(header->memory);
+    free(header);
     if (var)
       free(var->memory);
     free(var);

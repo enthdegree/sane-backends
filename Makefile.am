@@ -47,6 +47,13 @@ dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.0
 
 EXTRA_DIST  = .editorconfig
 EXTRA_DIST += po/README
+# Just in case these come in handy during development started from a
+# regular source tarball.  They are not needed otherwise as they are
+# already applied to the files in the source tarball.
+EXTRA_DIST += patches/ltmain.sh.patch
+EXTRA_DIST += patches/Rules-quot.patch
+EXTRA_DIST += patches/ax_create_stdint_h.19-20.m4.patch
+EXTRA_DIST += patches/ax_create_stdint_h.20-21.m4.patch
 
 #
 # Keep the .gitignore files sorted, and use this target to do it.

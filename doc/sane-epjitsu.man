@@ -7,7 +7,9 @@ sane\-epjitsu \- SANE backend for Epson-based Fujitsu USB scanners.
 .SH DESCRIPTION
 The
 .B sane\-epjitsu
-library implements a SANE (Scanner Access Now Easy) backend which provides basic access the Fujitsu fi\-60F/fi\-65F and ScanSnap S300/S1300(i)/S1100(i) scanners.
+library implements a
+.B SANE
+(Scanner Access Now Easy) backend which provides basic access the Fujitsu fi\-60F/fi\-65F and ScanSnap S300/S1300(i)/S1100(i) scanners.
 
 .SH HARDWARE SUPPORT
 These scanners are fairly limited, only supporting a couple of modes and resolutions, and always scanning full width. The backend supports missing modes (binary, grayscale) and intermediate resolutions in software, but provides only minimal scan area controls. See
@@ -18,25 +20,32 @@ This backend may support other scanners. If physical inspection reveals an Epson
 .SH OPTIONS
 A limited effort has been made to expose the standard options to the API.  This allows a frontend to set resolution, color mode, and choose the ADF setting. The epjitsu backend supports the following basic options for most scanners:
 .PP
-source s
+.BR source s
 .RS
 Selects the source for the scan. Options may include "Flatbed", "ADF Front", "ADF Back", "ADF Duplex".
 .RE
 .PP
-mode m
+.BR mode m
 .RS
 Selects the mode for the scan. Options may include "Lineart", "Gray", "Color".
 .RE
 .PP
-resolution, y\-resolution
+.BR resolution , y\-resolution
 .RS
-Controls scan resolution. Setting \-\-resolution also sets \-\-y\-resolution, though this behavior is overridden by some frontends.
+Controls scan resolution. Setting
+.B \-\-resolution
+also sets
+.B \-\-y\-resolution, though this behavior is overridden by some frontends.
 .RE
 .PP
-Other options will be available based on the capabilities of the scanner. Use 'scanimage \-\-help' to get a list. Be aware that some options may appear only when another option has been set, and that advanced options may be hidden by the frontend.
+Other options will be available based on the capabilities of the scanner. Use
+.I 'scanimage \-\-help'
+to get a list. Be aware that some options may appear only when another option has been set, and that advanced options may be hidden by the frontend.
 .PP
 .SH CONFIGURATION FILE
-The configuration file "@CONFIGDIR@/epjitsu.conf" is used to tell the backend how to look for scanners, and provide options controlling the operation of the backend. This file is read each time the frontend asks the backend for a list of scanners, generally only when the frontend starts. If the configuration file is missing, the backend will not work.
+The configuration file
+.I "@CONFIGDIR@/epjitsu.conf"
+is used to tell the backend how to look for scanners, and provide options controlling the operation of the backend. This file is read each time the frontend asks the backend for a list of scanners, generally only when the frontend starts. If the configuration file is missing, the backend will not work.
 .PP
 Scanners can be specified in the configuration file in two ways:
 .PP
@@ -63,7 +72,9 @@ This option may appear multiple times in the configuration file. It only applies
 .PP
 
 .SH ENVIRONMENT
-The backend uses a single environment variable, SANE_DEBUG_EPJITSU, which enables debugging output to stderr. Valid values are:
+The backend uses a single environment variable,
+.BR SANE_DEBUG_EPJITSU,
+which enables debugging output to stderr. Valid values are:
 .PP
 .RS
 5  Errors
@@ -98,8 +109,9 @@ fi\-60F support funded by TrueCheck, Inc.
 Improved calibration code provided by Richard Goedeken.
 
 .SH "SEE ALSO"
-sane(7),
-sane\-usb(5)
+.BR sane (7),
+.BR sane\-usb (5)
+.BR scanimage (1)
 
 .SH AUTHOR
 m. allan noah: <kitno455 a t gmail d o t com>

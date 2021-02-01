@@ -7,8 +7,10 @@ sane\-fujitsu \- SANE backend for Fujitsu flatbed and ADF scanners
 .SH DESCRIPTION
 The
 .B sane\-fujitsu
-library implements a SANE (Scanner Access Now Easy) backend which
-provides access to most Fujitsu flatbed and ADF scanners.
+library implements a
+.B SANE
+(Scanner Access Now Easy) backend which provides access to most Fujitsu flatbed
+and ADF scanners.
 
 This document describes backend version 136, which shipped with SANE 1.0.30.
 
@@ -51,31 +53,35 @@ SP\-600C/620C              fi\-5015C
 .SH OPTIONS
 Effort has been made to expose all hardware options, including:
 .PP
-source s
+.B source s
 .RS
 Selects the source for the scan. Options
 may include "Flatbed", "ADF Front", "ADF Back", "ADF Duplex", "Card Front", "Card Back", "Card Duplex".
 .RE
 .PP
-mode m
+.B mode m
 .RS
 Selects the mode for the scan. Options
 may include "Lineart", "Halftone", "Gray", and "Color".
 .RE
 .PP
-resolution, y\-resolution
+.B resolution, y\-resolution
 .RS
-Controls scan resolution. Setting \-\-resolution also sets \-\-y\-resolution,
+Controls scan resolution. Setting
+.B \-\-resolution
+also sets
+.BR \-\-y\-resolution,
 though this behavior is overridden by some frontends.
 .RE
 .PP
-tl\-x, tl\-y, br\-x, br\-y
+.B tl\-x, tl\-y, br\-x, br\-y
 .RS
 Sets scan area upper left and lower right coordinates. These are renamed
-t, l, x, y by some frontends.
+.B t, l, x, y
+by some frontends.
 .RE
 .PP
-page\-width, page\-height
+.B page\-width, page\-height
 .RS
 Sets paper size. Used by scanner to determine centering of scan
 coordinates when using ADF and to detect double feed errors.
@@ -94,7 +100,9 @@ may not perform as well as the native implementations. Note also that these
 features all require that the driver cache the entire image in memory. This
 will almost certainly result in a reduction of scanning speed.
 
-Use 'scanimage \-\-help' to get a list, but be aware that some options may
+Use
+.I 'scanimage \-\-help'
+to get a list, but be aware that some options may
 be settable only when another option has been set, and that advanced options
 may be hidden by some frontend programs.
 .PP
@@ -225,12 +233,12 @@ iX500 support funded by:
   www.prefixservice.com
 
 .SH "SEE ALSO"
-sane(7),
-sane\-scsi(5),
-sane\-usb(5),
-sane\-sp15c(5),
-sane\-avision(5),
-sane\-epjitsu(5)
+.BR sane (7),
+.BR sane\-scsi (5),
+.BR sane\-usb (5),
+.BR sane\-sp15c (5),
+.BR sane\-avision (5),
+.BR sane\-epjitsu (5)
 
 .SH AUTHOR
 m. allan noah: <kitno455 a t gmail d o t com>

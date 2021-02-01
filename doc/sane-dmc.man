@@ -5,7 +5,9 @@ sane\-dmc \- SANE backend for the Polaroid Digital Microscope Camera
 .SH DESCRIPTION
 The
 .B sane\-dmc
-library implements a SANE (Scanner Access Now Easy) backend that
+library implements a
+.B SANE
+(Scanner Access Now Easy) backend that
 provides access to the Polaroid Digital Microscope Camera.
 .SH "DEVICE NAMES"
 This backend expects device names of the form:
@@ -49,8 +51,13 @@ This image is a 1599-by-1200 pixel full-color image constructed by filtering
 and interpolating the "raw" image.  The filtering and interpolation is
 done in software, so this mode is very slow.  Also, this mode places
 restrictions on how the image is read which means that the "preview" mode
-of xscanimage does not work in Super Resolution mode.  (xcam and the
-non-preview modes of scanimage and xscanimage work fine, however.)
+of xscanimage does not work in Super Resolution mode.
+.RB ( xcam (1)
+and the non-preview modes of
+.BR scanimage (1)
+and
+.BR xscanimage (1)
+work fine, however.)
 .PP
 .SH OTHER SETTINGS
 .TP
@@ -106,8 +113,12 @@ environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"@CONFIGDIR@" being searched (in this order).
+to "/tmp/config:" would result in directories
+.IR "tmp/config",
+.IR ".",
+and
+.I "@CONFIGDIR@"
+being searched (in this order).
 .TP
 .B SANE_DEBUG_DMC
 If the library was compiled with debug support enabled, this
@@ -131,7 +142,8 @@ be read in one SCSI transfer.  In this case, the driver performs
 buffering and you can read the image in as small an increment as you
 like.
 .SH "SEE ALSO"
-sane(7), sane\-scsi(5)
+.BR sane (7),
+.BR  sane\-scsi (5)
 .SH AUTHOR
 David F. Skoll
 .PP

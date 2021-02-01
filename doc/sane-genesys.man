@@ -5,7 +5,9 @@ sane\-genesys \- SANE backend for GL646, GL841, GL843, GL847 and GL124 based USB
 .SH "DESCRIPTION"
 The
 .B sane\-genesys
-library implements a SANE (Scanner Access Now Easy) backend that provides
+library implements a
+.B SANE
+(Scanner Access Now Easy) backend that provides
 access to USB flatbed scanners based on the Genesys GL646, GL841, GL843, GL847 and GL124 chips.
 At present, the following scanners are known to work with this backend:
 .PP
@@ -54,7 +56,12 @@ frontend. The result of the calibration is stored in a file in the home director
 If you plug the scanner in another machine or use it with another account, calibration
 will have to be redone, unless you use the \-\-calibration\-file option.
 If no home directory is defined,
-USERAPPPROFILE will be used, then TMPDIR or TMP. If none of these directories exist, the backend will try
+.B USERAPPPROFILE
+will be used, then
+.B TMPDIR
+or
+.BR TMP.
+If none of these directories exist, the backend will try
 to write in the current working directory. Flatbed scanners also make use of the calibration file as a cache
 to avoid calibration before each scan. Calibration file name is the name of the scanner model if only
 one scanner is detected. In the case of several identical model, the file name will be the name
@@ -275,17 +282,23 @@ Luc Verhaegen for donating a Canoscan LiDE 120.
 .SH "AUTHOR"
 Oliver Rauch
 .br
-Henning Meier-Geinitz <henning@meier\-geinitz.de>
+Henning Meier-Geinitz
+.I <henning@meier\-geinitz.de>
 .br
-Gerhard Jaeger <gerhard@gjaeger.de>
+Gerhard Jaeger
+.I<gerhard@gjaeger.de>
 .br
-St\['e]phane Voltz <stef.dev@free.fr>
+St\['e]phane Voltz
+.I<stef.dev@free.fr>
 .br
-Philipp Schmid <philipp8288@web.de>
+Philipp Schmid
+.I <philipp8288@web.de>
 .br
-Pierre Willenbrock <pierre@pirsoft.dnsalias.org>
+Pierre Willenbrock
+.I <pierre@pirsoft.dnsalias.org>
 .br
-Alexey Osipov <simba@lerlan.ru> for HP2400 final support
+Alexey Osipov
+.I <simba@lerlan.ru> for HP2400 final support
 
 .SH "LIMITATIONS"
 

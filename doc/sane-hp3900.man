@@ -5,7 +5,9 @@ sane\-hp3900 \- SANE backend for RTS8822 chipset based scanners
 .SH DESCRIPTION
 The
 .B sane\-hp3900
-library implements a SANE (Scanner Access Now Easy) backend that provides
+library implements a
+.B SANE
+(Scanner Access Now Easy) backend that provides
 access at least to the following USB flatbed scanners:
 .PP
 .RS
@@ -26,7 +28,9 @@ BenQ 5550                  RTS8823L-01E *
 .ft R
 .RE
 .PP
-More details can be found on the hp3900 backend homepage
+More details can be found on the
+.BR sane\-hp3900 (1)
+backend homepage
 .IR http://sourceforge.net/projects/hp3900\-series/ .
 .PP
 This is ALPHA software. Keep your hand at the scanner's plug and unplug it, if
@@ -36,7 +40,7 @@ If you own a scanner other than the ones listed above that works with this
 backend, please let us know this by sending the scanner's exact model name and
 the USB vendor and device ids (e.g. from
 .IR /proc/bus/usb/devices ,
-.I sane\-find\-scanner
+.BR sane\-find\-scanner (1)
 or syslog) to us. Even if the scanner's name is only slightly different from
 the models mentioned above, please let us know.
 .PP
@@ -77,13 +81,21 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in @CONFIGDIR@.  If the value of the
+directory
+.RI ( "." )
+and then in
+.IR @CONFIGDIR@ .
+If the value of the
 environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"/etc/sane.d" being searched (in this order).
+to "/tmp/config:" would result in directories
+.IR "tmp/config" ,
+.IR "." ,
+and
+.I "/etc/sane.d"
+being searched (in this order).
 .TP
 .B SANE_DEBUG_HP3900
 If the library was compiled with debug support enabled, this
@@ -96,8 +108,10 @@ export SANE_DEBUG_HP3900=4
 .SH "SEE ALSO"
 .BR sane (7),
 .BR sane\-usb (5),
+.BR sane\-find\-scanner (1),
 .br
 .I http://sourceforge.net/projects/hp3900\-series/
+.br
 .I http://jkdsoftware.dyndns.org/drupal/?q=es/books/151
 
 .SH AUTHOR

@@ -22,7 +22,9 @@ Print the currently installed version of libsane on the standard output.
 .TP 8
 .B  \-\-help OPTION
 Print a short usage message. If OPTION is specified, help for that option
-(e.g. \-\-libs) is printed (if available).
+(e.g.
+.BR \-\-libs)
+is printed (if available).
 .TP 8
 .B  \-\-libs
 Print the additional libraries that are necessary to link a
@@ -47,5 +49,6 @@ Print the exec\-prefix used during compilation of libsane.
 .SH "SEE ALSO"
 .BR sane (7)
 .SH AUTHOR
-This manual page was written by Julien BLACHE <jblache@debian.org>, for the
-Debian GNU/Linux system (but may be used by others).
+This manual page was written by Julien BLACHE
+.RI < jblache@debian.org >,
+for the Debian GNU/Linux system (but may be used by others).

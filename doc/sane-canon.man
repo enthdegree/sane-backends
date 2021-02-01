@@ -24,8 +24,11 @@ CanoScan FS2710S
 .RE
 .PP
 Parallel port and USB scanners are not supported by this backend; see
-the manual pages for sane\-canon_pp and sane\-canon630u for further
-information.
+the manual pages for
+.BR sane\-canon_pp (5)
+and
+.BR sane\-canon630u (5)
+for further information.
 .PP
 IMPORTANT: This is beta code. We tested the code on the scanners listed
 above, using the computers and operating systems available to us, but we
@@ -88,11 +91,10 @@ Example:
 export SANE_DEBUG_CANON=4
 
 .SH "SEE ALSO"
-sane\-scsi(5)
+.BR sane\-scsi (5)
 .br
-http://www.rzg.mpg.de/~mpd/sane/
-.br
-doc/canon.install2700F.txt (installation of a CanoScan 2700F
+.I http://www.rzg.mpg.de/~mpd/sane/doc/canon.install2700F.txt
+(installation of a CanoScan 2700F)
 .br
 .SH AUTHOR
 Helmut Koeberle, Manuel Panea, and Markus Mertinat; FB620S and FB1200S support

@@ -29,15 +29,19 @@ USB scanners.  Empty lines and lines starting with a hash mark (#) are
 ignored.  Only one device name can be listed in
 .IR canon630u.conf .
 The program
-.IR sane\-find\-scanner
+.BR sane\-find\-scanner (1)
 helps to find out the correct device. Under Linux, such a device name
 could be
 .I /dev/usb/scanner0
-for example.  See sane\-usb(5) for details.
+for example.  See
+.BR sane\-usb (5)
+for details.
 .PP
 This product-specific scanner driver uses the lower-level kernel USB driver
-"scanner".  Check for "Driver=usbscanner" under /proc/bus/usb/devices.  If
-"Driver=(none)", try forcing it with "insmod scanner vendor=0x04a9 product=0x2204"
+"scanner".  Check for "Driver=usbscanner" under
+.IR /proc/bus/usb/devices.
+If "Driver=(none)", try forcing it with
+.I "insmod scanner vendor=0x04a9 product=0x2204"
 .SH NOTES
 .PP
 Due to Canon's unwillingness to provide scanner documentation, this
@@ -49,10 +53,16 @@ This driver requires the ability to send USB Control Messages, available in
 kernel 2.4.12 or later.
 .PP
 Some users have reported that this driver doesn't work at all.  This seems
-to be a hardware specific issue, although I don't know what exactly the
+to be a hardware specific issue, although I dsane\-uson't know what exactly the
 problem is.  If you are having problems, please send me the info in
-/proc/bus/usb/devices, /proc/pci, the kernel scanner.c driver version from
-/var/log/messages, and the output from "SANE_DEBUG_CANON630U=12 scanimage > /dev/null"
+.IR /proc/bus/usb/devices,
+.IR /proc/pci,
+the kernel
+.I scanner.c
+driver version from
+.IR /var/log/messages,
+and the output from
+.I "SANE_DEBUG_CANON630U=12 scanimage > /dev/null"
 .PP
 .SH FILES
 .TP
@@ -85,8 +95,12 @@ environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"@CONFIGDIR@" being searched (in this order).
+to "/tmp/config:" would result in directories
+.IR tmp/config,
+.IR ".",
+and
+.I "@CONFIGDIR@"
+being searched (in this order).
 .TP
 .B SANE_DEBUG_CANON630U
 If the library was compiled with debug support enabled, this
@@ -97,9 +111,11 @@ Example:
 .br
 SANE_DEBUG_CANON630U=12 scanimage > /dev/null
 .SH "SEE ALSO"
-sane(7), sane\-usb(5), sane\-find\-scanner(1)
+.BR sane (7),
+.BR sane\-usb (5),
+.BR sane\-find\-scanner (1)
 .br
-http://canon-fb630u.sourceforge.net/
+.I http://canon-fb630u.sourceforge.net/
 .br
 .SH AUTHOR
 Nathan Rutman

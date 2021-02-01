@@ -44,7 +44,7 @@ contains backends, documentation, networking support, and the
 command line frontend
 .BR scanimage (1).
 The frontends
-.BR xscanimage (1), 
+.BR xscanimage (1),
 .BR xcam (1),
 and
 .BR scanadf (1)
@@ -227,7 +227,7 @@ Supports the CanoScan LiDE 70 USB scanner. See
 for details.
 .TP
 .B canon_pp
-Supports the CanoScan FB330P, FB630P, N340P and N640P parallel port 
+Supports the CanoScan FB330P, FB630P, N340P and N640P parallel port
 scanners.  See
 .BR sane\-canon_pp (5)
 for details.
@@ -241,7 +241,7 @@ for details.
 Supports Nikon Coolscan film-scanners. See
 .BR sane\-coolscan (5),
 .BR sane\-coolscan2 (5)
-and 
+and
 .BR sane\-coolscan3 (5)
 for details.
 .TP
@@ -390,7 +390,7 @@ Supports some Mustek ScanExpress USB flatbed scanners. See
 for details.
 .TP
 .B mustek_usb2
-Supports scanners using the SQ113 chipset like the Mustek BearPaw 2448 TA Pro 
+Supports scanners using the SQ113 chipset like the Mustek BearPaw 2448 TA Pro
 USB flatbed scanner. See
 .BR sane\-mustek_usb2 (5)
 for details.
@@ -433,7 +433,7 @@ Epson, and Canon. See
 for details.
 .TP
 .B plustek_pp
-Supports Plustek parallel port flatbed scanners using the Plustek ASIC P96001, 
+Supports Plustek parallel port flatbed scanners using the Plustek ASIC P96001,
 P96003, P98001 and P98003, which includes some
 models from Plustek, KYE/Genius, Primax. See
 .BR sane\-plustek_pp (5)
@@ -475,7 +475,7 @@ Supports the Microtek ScanMaker 3840 USB scanner.  See
 for details.
 .TP
 .B snapscan
-Supports AGFA SnapScan flatbed scanners including some which are 
+Supports AGFA SnapScan flatbed scanners including some which are
 rebadged to other brands. See
 .BR sane\-snapscan (5)
 for details.
@@ -496,11 +496,11 @@ Supports Tamarack Artiscan flatbed scanners. See
 for details.
 .TP
 .B teco1 teco2 teco3
-Supports some TECO scanners, usually sold under the Relisys, Trust, 
+Supports some TECO scanners, usually sold under the Relisys, Trust,
 Primax, Piotech, Dextra names. See
 .BR sane\-teco1 (5),
 .BR sane\-teco2 (5)
-and 
+and
 .BR sane\-teco3 (5)
 for details.
 .TP
@@ -593,12 +593,12 @@ backends by dynamic loading. See
 .B net
 The
 .B SANE
-network daemon 
+network daemon
 .BR saned (8)
 provides access to scanners located on different
 computers in connection with the net backend. See
 .BR sane\-net (5)
-and 
+and
 .BR saned (8).
 .TP
 .B pnm
@@ -685,7 +685,7 @@ There are some links on how to find out about the protocol of a scanner:
 .PP
 If you start writing a backend or frontend or any other part of
 .BR SANE,
-please contact the sane\-devel mailing list for coordination so 
+please contact the sane\-devel mailing list for coordination so
 that work is not duplicated.
 
 .SH "FILES"
@@ -710,7 +710,7 @@ sure that it is detected by your operating system. For SCSI and USB scanners,
 use the
 .BR sane\-find\-scanner (1)
 utility.
-It prints one line for each scanner it has detected and some comments (#). 
+It prints one line for each scanner it has detected and some comments (#).
 If
 .BR sane\-find\-scanner (1)
 finds your scanner only as root but not as normal user, the permissions for

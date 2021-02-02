@@ -5,7 +5,9 @@ sane\-hpsj5s \- SANE backend for HP ScanJet 5S sheet-fed scanner
 .SH DESCRIPTION
 The
 .B sane\-hpsj5s
-library implements a SANE (Scanner Access Now Easy) backend that
+library implements a
+.B SANE
+(Scanner Access Now Easy) backend that
 provides access to a parallel port Hewlett-Packard ScanJet 5S scanner.
 .PP
 IMPORTANT: this is alpha code. Don't expect this to work
@@ -15,9 +17,13 @@ I consider it extremely improbable) that your scanner will be
 damaged.
 .PP
 LIMITATIONS: For now this backend works only on Linux.  This limitation
-is due to dependence on the libieee1284 library. If your system supports libieee1284 too,
-this backend should work. If you ported libieee1284 for your platform, please let
-me know. Your system should support
+is due to dependence on the
+.BR libieee1284 (3)
+library. If your system supports
+.BR libieee1284 (3)
+too,this backend should work. If you ported
+.BR libieee1284 (3)
+for your platform, please let me know. Your system should support
 .B EPP
 (or
 .B EPP+ECP
@@ -41,8 +47,9 @@ This backend expects device names of the form:
 .PP
 Where
 .I special
-is the parallel port name in form, libieee1284 expects. It seems to be system dependent.
-Under Linux it's parport0, parport1, etc.
+is the parallel port name in form,
+.BR libieee1284 (3)
+expects. It seems to be system dependent. Under Linux it's parport0, parport1, etc.
 .SH CONFIGURATION
 The contents of the
 .I hpsj5s.conf
@@ -88,10 +95,15 @@ directories.  For example, setting
 .B SANE_CONFIG_DIR
 to "/tmp/config:" would result in directories "tmp/config", ".", and
 "@CONFIGDIR@" being searched (in this order).
-
 .TP
+.B SANE_DEBUG_HPSJ5S
+If the library was compiled with debug support enabled, this environment
+variable controls the debug level for this backend.  Higher debug levels
+increase the verbosity of the output.
+
 .SH "SEE ALSO"
-sane(7)
+.BR sane (7),
+.BR libieee1284 (3)
 .br
 http://hpsj5s.sourceforge.net
 .br

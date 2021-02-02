@@ -5,7 +5,9 @@ sane\-hs2p \- SANE backend for Ricoh SCSI flatbed/ADF scanners
 .SH DESCRIPTION
 The
 .B sane\-hs2p
-library implements a SANE (Scanner Access Now Easy) backend that provides
+library implements a
+.B SANE
+(Scanner Access Now Easy) backend that provides
 access to the Ricoh IS450 family of scanners. Should also work with the IS420,
 IS410, and IS430 scanners, but these are untested.
 Please contact the maintainer or the sane\-devel mailing list if you own such a scanner.
@@ -115,6 +117,8 @@ wish to use their IPU for image data processing.
 .BR sane\-scsi (5),
 
 .SH AUTHOR
-jeremy <jeremy@acjlaw.net>
+jeremy
+.RI < jeremy@acjlaw.net >
 .br
-Maintained by Jeremy Johnson <jeremy@acjlaw.net>
+Maintained by Jeremy Johnson
+.RI < jeremy@acjlaw.net >

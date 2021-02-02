@@ -5,7 +5,9 @@ sane\-ibm \- SANE backend for IBM and Ricoh SCSI flatbed scanners
 .SH DESCRIPTION
 The
 .B sane\-ibm
-library implements a SANE (Scanner Access Now Easy) backend that provides
+library implements a
+.B SANE
+(Scanner Access Now Easy) backend that provides
 access to the IBM 2456 and the Ricoh IS-410, IS-420, and IS-430 flatbed
 scanners. Support for the IS-410 and IS-430 is untested. Please contact the
 maintainer or the sane\-devel mailing list if you own such a scanner.
@@ -83,6 +85,8 @@ debug levels increase the verbosity of the output.
 .BR sane\-scsi (5),
 
 .SH AUTHOR
-mf <massifr@tiscalinet.it>
+mf
+.RI < massifr@tiscalinet.it >
 .br
-Maintained by Henning Meier-Geinitz <henning@meier\-geinitz.de>
+Maintained by Henning Meier-Geinitz
+.RI < henning@meier\-geinitz.de >

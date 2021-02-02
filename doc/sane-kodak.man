@@ -16,7 +16,8 @@ This document describes backend version 7, which shipped with SANE 1.0.21.
 This version should support models which speak the Kodak SCSI and Firewire
 protocols. The i1860 was used to develop the backend, but other models may
 work with only minimal modifications. Please see the list at
-http://www.sane\-project.org/sane\-supported\-devices.html for an updated list.
+.I http://www.sane\-project.org/sane\-supported\-devices.html
+for an updated list.
 
 If you have a machine not on that list, or reported as 'untested': the best way
 to determine level of support is to test the scanner directly, or to collect a
@@ -31,30 +32,31 @@ may be supported by another backend.
 .SH OPTIONS
 Effort has been made to expose the basic hardware options, including:
 .PP
-source s
+.B --source s
 .RS
 Selects the source for the scan. Options
 may include "Flatbed", "ADF Front", "ADF Back", "ADF Duplex".
 .RE
 .PP
-mode m
+.B --mode m
 .RS
 Selects the mode for the scan. Options
 may include "Lineart", "Halftone", "Gray", and "Color".
 .RE
 .PP
-resolution
+.B --resolution
 .RS
 Controls scan resolution. Available choices may be limited by mode.
 .RE
 .PP
-tl\-x, tl\-y, br\-x, br\-y
+.BR --tl\-x ", " --tl\-y ", " --br\-x ", "  --br\-y
 .RS
 Sets scan area upper left and lower right coordinates. These are renamed
-t, l, x, y by some frontends.
+.BR -t ", " -l ", " -x ", " -y
+by some frontends.
 .RE
 .PP
-page\-width, page\-height
+.BR --page\-width ", " --page\-height
 .RS
 Sets paper size. Used by scanner to determine centering of scan
 coordinates when using ADF and to detect double feed errors.
@@ -66,7 +68,9 @@ be settable only when another option has been set, and that advanced options
 may be hidden by some frontend programs.
 .PP
 .SH CONFIGURATION FILE
-The configuration file "kodak.conf" is used to tell the backend how to look
+The configuration file
+.I kodak.conf
+is used to tell the backend how to look
 for scanners, and provide options controlling the operation of the backend.
 This file is read each time the frontend asks the backend for a list
 of scanners, generally only when the frontend starts. If the configuration
@@ -130,13 +134,16 @@ endorser, iThresholding, multi\-stream, etc.
 .PP
 
 .SH CREDITS
-The various authors of the sane\-fujitsu backend provided useful code.
+The various authors of the
+.BR sane\-fujitsu (5)
+backend provided useful code.
 .br
 Kodak provided access to hardware, documentation and personnel.
 
 .SH "SEE ALSO"
-sane(7),
-sane\-scsi(5)
+.BR sane (7),
+.BR sane\-scsi (5),
+.BR scanimage (1)
 
 .SH AUTHOR
 m. allan noah: <kitno455 a t gmail d o t com>

@@ -22,6 +22,9 @@
 #define BACKEND_NAME epson2
 #define DEBUG_NOT_STATIC
 
+#define mode_params epson2_mode_params
+#define source_list epson2_source_list
+
 #ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
 #endif

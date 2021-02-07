@@ -31,5 +31,18 @@ test_LDADD = ../lib/liblib.la ../backend/libsane.la
 tstbackend_SOURCES = tstbackend.c
 tstbackend_LDADD = ../lib/liblib.la ../backend/libsane.la
 
+if preloadable_backends_enabled
+if WITH_GENESYS_TESTS
+##  Because the genesys backend is implemented in C++, programs need
+##  to link against the standard C++ library.  The work-around below
+##  will work for the GNU C++ compiler with the GNU standard library
+##  for C++.  Other build scenarios may need work.
+scanimage_LDADD += -lstdc++
+saned_LDADD += -lstdc++
+test_LDADD += -lstdc++
+tstbackend_LDADD += -lstdc++
+endif
+endif
+
 clean-local:
 	rm -f test tstbackend

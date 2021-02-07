@@ -55,6 +55,15 @@ EXTRA_DIST += patches/Rules-quot.patch
 EXTRA_DIST += patches/ax_create_stdint_h.19-20.m4.patch
 EXTRA_DIST += patches/ax_create_stdint_h.20-21.m4.patch
 
+EXTRA_DIST += tools/git-version-gen
+EXTRA_DIST += $(top_srcdir)/.version
+BUILT_SOURCES = $(top_srcdir)/.version
+
+$(top_srcdir)/.version:
+	echo $(VERSION) > $@-t && mv $@-t $@
+dist-hook:
+	echo $(VERSION) > $(distdir)/.tarball-version
+
 #
 # Keep the .gitignore files sorted, and use this target to do it.
 # Note that git's negated ignore patterns introduce order dependency

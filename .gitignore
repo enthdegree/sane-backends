@@ -6,6 +6,7 @@
 *.po~
 .deps/
 .libs/
+.version
 
 # files generated during the configure step
 Makefile

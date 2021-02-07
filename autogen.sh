@@ -9,7 +9,7 @@ ac_dir=$(aclocal --print-ac-dir)
 if test -r "$ac_dir/ax_create_stdint_h.m4"; then
     serial=$(awk '/#serial/{ print $2 }' "$ac_dir/ax_create_stdint_h.m4")
     if test "$serial" -lt 21; then
-	m4_dir=$(autoconf -t 'AC_CONFIG_MACRO_DIR:$%')
+	m4_dir=$(cd $srcdir; autoconf -t 'AC_CONFIG_MACRO_DIR:$%')
 	target="$srcdir/$m4_dir/ax_create_stdint_h.m4"
 	echo "Copying file to $target"
 	cp "$ac_dir/ax_create_stdint_h.m4" "$srcdir/$m4_dir"

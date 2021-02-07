@@ -3,7 +3,8 @@ dnl Process this file with autoconf to produce a configure script.
 dnl ******************************************************************
 dnl  Set up autoconf and automake
 dnl ******************************************************************
-AC_INIT([sane-backends],m4_esyscmd_s([git describe --dirty]),
+AC_INIT([sane-backends],
+        m4_esyscmd_s([tools/git-version-gen --prefix '' .tarball-version]),
         [sane-devel@alioth-lists.debian.net])
 AC_PREREQ([2.69])               dnl minimum autoconf version required
 AC_CONFIG_MACRO_DIR([m4])

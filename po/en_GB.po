@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sane-backends 1.0.31\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
-"POT-Creation-Date: 2021-01-24 09:53-0800\n"
+"POT-Creation-Date: 2021-02-08 11:58+0000\n"
 "PO-Revision-Date: 2021-01-24 09:57-0800\n"
 "Last-Translator: Ralph Little <littlesincanada@yahoo.co.uk>\n"
 "Language-Team: British English <kde-i18n-doc@kde.org>\n"
@@ -1533,7 +1533,7 @@ msgstr "Analogue Gain"
 msgid "Increase or decrease the analog gain of the CCD array"
 msgstr "Increase or decrease the analogue gain of the CCD array"
 
-#: backend/canon630u.c:347 backend/epson.h:68 backend/epson2.h:67
+#: backend/canon630u.c:347 backend/epson.h:68 backend/epson2.h:70
 #, no-c-format
 msgid "Gamma Correction"
 msgstr "Gamma Correction"
@@ -1545,7 +1545,7 @@ msgstr "Selects the gamma corrected transfer curve"
 
 #: backend/canon_dr.c:421 backend/epjitsu.c:233 backend/epson.c:501
 #: backend/epson2-ops.c:101 backend/epson2.c:115 backend/epsonds-ops.c:32
-#: backend/epsonds.c:97 backend/epsonds.h:62 backend/fujitsu.c:685
+#: backend/epsonds.c:97 backend/epsonds.h:65 backend/fujitsu.c:685
 #: backend/genesys/genesys.h:78 backend/gt68xx.c:148
 #: backend/hp3900_sane.c:418 backend/hp3900_sane.c:427
 #: backend/hp3900_sane.c:1017 backend/hp5590.c:92 backend/kodakaio.c:617
@@ -1695,13 +1695,13 @@ msgid "Duplex"
 msgstr "Duplex"
 
 #: backend/epson.c:502 backend/epson2-ops.c:102 backend/epson2.c:116
-#: backend/epsonds-ops.c:33 backend/epsonds.h:63 backend/pixma/pixma.c:1015
+#: backend/epsonds-ops.c:33 backend/epsonds.h:66 backend/pixma/pixma.c:1015
 #, no-c-format
 msgid "Transparency Unit"
 msgstr "Transparency Unit"
 
 #: backend/epson.c:503 backend/epson2-ops.c:104 backend/epson2.c:118
-#: backend/epsonds-ops.c:34 backend/epsonds.c:98 backend/epsonds.h:64
+#: backend/epsonds-ops.c:34 backend/epsonds.c:98 backend/epsonds.h:67
 #: backend/kodakaio.c:618 backend/magicolor.c:182 backend/mustek.c:160
 #: backend/pixma/pixma.c:1003 backend/test.c:234 backend/umax.c:183
 #, no-c-format
@@ -2086,7 +2086,7 @@ msgstr "Bay"
 msgid "Select bay to scan"
 msgstr "Select bay to scan"
 
-#: backend/epson.h:69 backend/epson2.h:68
+#: backend/epson.h:69 backend/epson2.h:71
 #, no-c-format
 msgid ""
 "Selects the gamma correction value from a list of pre-defined devices or "
@@ -2095,24 +2095,24 @@ msgstr ""
 "Selects the gamma correction value from a list of pre-defined devices or "
 "the user defined table, which can be downloaded to the scanner"
 
-#: backend/epson.h:72 backend/epson2.h:71
+#: backend/epson.h:72 backend/epson2.h:74
 #, no-c-format
 msgid "Focus Position"
 msgstr "Focus Position"
 
-#: backend/epson.h:73 backend/epson2.h:72
+#: backend/epson.h:73 backend/epson2.h:75
 #, no-c-format
 msgid ""
 "Sets the focus position to either the glass or 2.5mm above the glass"
 msgstr ""
 "Sets the focus position to either the glass or 2.5mm above the glass"
 
-#: backend/epson.h:75 backend/epson2.h:74
+#: backend/epson.h:75 backend/epson2.h:77
 #, no-c-format
 msgid "Wait for Button"
 msgstr "Wait for Button"
 
-#: backend/epson.h:76 backend/epson2.h:75
+#: backend/epson.h:76 backend/epson2.h:78
 #, no-c-format
 msgid ""
 "After sending the scan command, wait until the button on the scanner is "

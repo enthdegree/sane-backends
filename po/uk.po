@@ -4,12 +4,12 @@
 # Yuri Chornoivan <yurchor@ukr.net>, 2009-2021.
 msgid ""
 msgstr ""
-"Project-Id-Version: sane-backends 1.0.31\n"
+"Project-Id-Version: sane-backends 1.0.32\n"
 "Report-Msgid-Bugs-To: sane-devel@alioth-lists.debian.net\n"
-"POT-Creation-Date: 2021-02-08 11:58+0000\n"
-"PO-Revision-Date: 2021-01-18 11:24+0200\n"
+"POT-Creation-Date: 2021-02-08 15:30+0200\n"
+"PO-Revision-Date: 2021-02-07 15:24+0200\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
-"Language-Team: Ukrainian <translation@linux.org.ua>\n"
+"Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -418,14 +418,14 @@ msgid "Lamp off at exit"
 msgstr "Вимикати лампу при виході"
 
 #: include/sane/saneopts.h:234
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Focus position"
 msgstr "Позиція фокусування"
 
 #: include/sane/saneopts.h:235
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Autofocus"
-msgstr "Автоматичне фокусування"
+msgstr "Автофокус"
 
 #: include/sane/saneopts.h:249
 #, no-c-format
@@ -835,14 +835,14 @@ msgid "Turn off lamp when program exits"
 msgstr "Вимкнути лампу під час виходу з програми"
 
 #: include/sane/saneopts.h:447
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Focus position for manual focus"
-msgstr "Автоматичне або ручне фокусування"
+msgstr "Позиція фокусування для ручного фокусування"
 
 #: include/sane/saneopts.h:449
-#, fuzzy, no-c-format
+#, no-c-format
 msgid "Perform autofocus before scan"
-msgstr "Очікувати на натискання кнопки, перш ніж почати сканування"
+msgstr "Виконати автофокусування до сканування"
 
 #: include/sane/saneopts.h:452
 #, no-c-format
@@ -5556,17 +5556,17 @@ msgstr "16-бітовий сірий"
 #: backend/pixma/pixma.c:515 backend/pixma/pixma_sane_options.c:415
 #, no-c-format
 msgid "Once"
-msgstr ""
+msgstr "Один раз"
 
 #: backend/pixma/pixma.c:518
 #, no-c-format
 msgid "Always"
-msgstr ""
+msgstr "Завжди"
 
 #: backend/pixma/pixma.c:521
 #, no-c-format
 msgid "Never"
-msgstr ""
+msgstr "Ніколи"
 
 #: backend/pixma/pixma.c:1033
 #, no-c-format
@@ -5669,7 +5669,7 @@ msgid "ADF Waiting Time"
 msgstr "Час очікування АПД"
 
 #: backend/pixma/pixma_sane_options.c:392
-#, fuzzy, no-c-format
+#, no-c-format
 msgid ""
 "When set, the scanner waits up to the specified time in seconds for a "
 "new document inserted into the automatic document feeder."
@@ -5682,8 +5682,12 @@ msgstr ""
 msgid ""
 "When to perform scanner calibration. If you choose \"Once\" it will be "
 "performed a single time per driver init for single page scans, and for "
-"the first page for each ADF scan."
+"the first page for each ADF scans."
 msgstr ""
+"При виконання калібрування сканера. Якщо ви виберете «Лише раз», його "
+"буде виконано один раз під час ініціалізації сканера для сканування "
+"окремих сторінок і для першої сторінки для кожного сканування із "
+"автоматичною подачею документів."
 
 #: backend/plustek.c:235 backend/plustek_pp.c:204 backend/u12.c:156
 #, no-c-format

@@ -196,7 +196,7 @@ _UnityGammaTable (unsigned char *hwGamma)
 }
 
 static const SANE_Range rangeXmm = { 0, 220, 1 };
-static const SANE_Range rangeYmm = { 0, 296, 1 };
+static const SANE_Range rangeYmm = { 0, 297, 1 };
 static const SANE_Int startUpGamma = SANE_FIX (1.6);
 
 static const char colorStr[] = { SANE_VALUE_SCAN_MODE_COLOR };

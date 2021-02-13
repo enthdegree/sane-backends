@@ -13,6 +13,9 @@ saned \- SANE network daemon
 .B [ \-b
 .I address
 .B ]
+.B [ \-p
+.I port
+.B ]
 .B [ \-l ]
 .B [ \-D ]
 .B [ \-o ]
@@ -44,6 +47,14 @@ flag tells
 to bind to the
 .I address
 given.  The
+.B \-p
+flags tells
+.B saned
+to listen on the port given.  A value of 0 tells
+.B saned
+to pick an unused port.  The default is the
+.B sane-port (6566).
+The
 .B \-u
 flag requests that
 .B saned

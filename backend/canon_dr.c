@@ -348,6 +348,10 @@
          - add new gray and color interlacing options for DR-C120
          - initial support for DR-C120 and C130
          - enable fine calibration for P-208 (per @sashacmc in !546)
+      v61 2021-02-13, MAN
+         - treat DR-P208 like P-208 (#356)
+         - treat DR-P215 like P-215 (#356)
+         - adjust wait_scanner to try one TUR with a long timeout (#142)
 
    SANE FLOW DIAGRAM
 
@@ -398,7 +402,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 60
+#define BUILD 61
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -1493,7 +1497,8 @@ init_model (struct scanner *s)
     s->has_card = 1;
   }
 
-  else if (strstr (s->model_name, "P-208")) {
+  else if (strstr (s->model_name, "P-208")
+   || strstr (s->model_name,"DR-P208")){
     s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_RRGGBB;
     s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_rRgGbB;
     s->gray_interlace[SIDE_BACK] = GRAY_INTERLACE_gG;
@@ -1510,7 +1515,8 @@ init_model (struct scanner *s)
     s->can_read_sensors = 1;
   }
 
-  else if (strstr (s->model_name, "P-215")) {
+  else if (strstr (s->model_name, "P-215")
+   || strstr (s->model_name,"DR-P215")){
     s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_rRgGbB;
     s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_RRGGBB;
     s->gray_interlace[SIDE_FRONT] = GRAY_INTERLACE_gG;
@@ -7834,9 +7840,9 @@ wait_scanner(struct scanner *s)
     );
   }
   if (ret != SANE_STATUS_GOOD) {
-    DBG(5,"WARNING: Brain-dead scanner. Hitting with stick a third time.\n");
+    DBG(5,"WARNING: Brain-dead scanner. Hitting with a slow stick.\n");
     ret = do_cmd (
-      s, 0, 1,
+      s, 0, 0,
       cmd, cmdLen,
       NULL, 0,
       NULL, NULL

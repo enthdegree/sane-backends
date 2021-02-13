@@ -117,6 +117,16 @@
 :status :untested
 :comment "Testers needed!"
 
+:model "LaserJet FlowMFP M578"
+:interface "WiFi"
+:status :basic
+:comment "Issues with duplex ADF"
+
+:model "LaserJet MFP M630"
+:interface "WiFi"
+:status :basic
+:comment "Issues with duplex ADF"
+
 :model "OfficeJet 4630"
 :interface "WiFi"
 :status :untested

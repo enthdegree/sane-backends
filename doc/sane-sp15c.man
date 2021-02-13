@@ -35,11 +35,16 @@ and to contact the author with test results.
 
 .SH CONFIGURATION
 A modest effort has been made to expose the standard options to the API.
-This allows frontends such as xscanimage to set scanning region,
+This allows frontends such as
+.BR xscanimage (1)
+to set scanning region,
 resolution, bit-depth (and color), and enable the automatic document feeder.
 
 .SH "SEE ALSO"
-sane(7), sane\-scsi(5), sane\-fujitsu(5)
+.BR sane (7) ,
+.BR sane\-scsi (5) ,
+.BR sane\-fujitsu (5),
+.BR xscanimage (1)
 .br
 Fujitsu ScanPartner 15C OEM Manual, Doc. No. 250-0081-0
 .br
@@ -49,7 +54,7 @@ Fujitsu M3096GX/M3093GX/M3093DG OEM Manual, part number C150-E015...03
 
 .SH AUTHOR
 Randolph Bentson
-<bentson@holmsjoen.com>,
+.RI < bentson@holmsjoen.com >,
 with credit to the unnamed author of the coolscan driver
 
 .SH LIMITATIONS
@@ -63,9 +68,10 @@ I'm sure there are plenty, and not too well hidden,
 but I haven't seen them yet.
 .br
 Both scanners claim to have separate control
-of resolution in X and Y directions.
-I confess I haven't tested this yet.
-I have found that xsane doesn't even display this capability.
+of resolution in X and Y directions. I confess I haven't tested this yet.
+I have found that
+.BR xsane (1)
+doesn't even display this capability.
 .br
 Threshold settings on the SP15C don't seem to
 affect the results of lineart mode scans.

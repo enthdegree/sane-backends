@@ -50,7 +50,9 @@ the kernel scanner driver or libusb. See
 .BR sane\-usb (5)
 for more details.
 .PP
-The "hp" backend no longer supports OfficeJet multi-function peripherals.
+The
+.B sane\-hp
+backend no longer supports OfficeJet multi-function peripherals.
 For these devices use the external "hpoj" backend in version 0.90 and later of
 the "HP OfficeJet Linux driver", available at
 .br
@@ -60,8 +62,9 @@ the "HP OfficeJet Linux driver", available at
 Because Hewlett-Packard does no longer produce scanners that support
 SCL (beside the OfficeJets), the above list of supported scanners is
 complete.
-Other HP scanners are not supported by the "hp" backend, but might be supported
-by another one. See
+Other HP scanners are not supported by the
+.B sane\-hp
+backend, but might be supported by another one. See
 .IR http://www.sane\-project.org/ .
 You can also watch the sane\-devel mailing list at
 .IR http://www.sane\-project.org/mailing\-lists.html .
@@ -91,8 +94,11 @@ that corresponds to the parallel interface card that was shipped with the
 scanner. That is
 .IR /dev/hpscan .
 A special driver is required for this card.
-See ftp://rvs.ctrl\-c.liu.se/pub/wingel/hpscan for details. If the link
-does not work, try ftp://sunsite.unc.edu/pub/Linux/kernel/patches/scanners.
+See
+.I ftp://rvs.ctrl\-c.liu.se/pub/wingel/hpscan
+for details. If the link
+does not work, try
+.IR ftp://sunsite.unc.edu/pub/Linux/kernel/patches/scanners .
 .SH CONFIGURATION
 The contents of the
 .I hp.conf
@@ -126,10 +132,12 @@ the scanner is connected by USB.
 Option
 .B connect\-device
 specifies that the scanner is connected to the system by a special
-device. Input/output is performed by read()/write()-operations
+device. Input/output is performed by
+.BR read ()/ write "()-operations"
 on the device. This option must be used for HP ScanJet Plus
 or scanners connected to USB which are accessed through a named device
-(e.g. /dev/usb/scanner0).
+(e.g.
+.IR /dev/usb/scanner0 ).
 For device names that contain "usb", "uscanner" or "ugen", it is not
 necessary to specify option connect\-device.
 
@@ -153,12 +161,13 @@ A sample configuration file is shown below:
 /dev/scanner
 # this is a comment
 /dev/hpscan
-  option connect\-device
+option connect\-device
 .fi
 .ft R
 .RE
 .PP
-/dev/scanner is typically a symlink to the actual SCSI scanner device.
+.I /dev/scanner
+is typically a symlink to the actual SCSI scanner device.
 .RE
 .SH FILES
 .TP
@@ -187,13 +196,21 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in @CONFIGDIR@.  If the value of the
+directory
+.RI ( "." )
+and then in
+.IR @CONFIGDIR@ .
+If the value of the
 environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"@CONFIGDIR@" being searched (in this order).
+to "/tmp/config:" would result in directories
+.IR "tmp/config" ,
+.IR "." ,
+and
+.I "@CONFIGDIR@"
+being searched (in this order).
 .TP
 .B SANE_DEBUG_HP
 If the library was compiled with debug support enabled, this
@@ -235,19 +252,26 @@ The backend will simulate this by software, but only for gray
 and 24 bit color.
 .TP
 .B Automatic Document Feeder (ADF)
-For use of the ADF with xscanimage(1), first place paper in the ADF and
+For use of the ADF with
+.BR xscanimage (1),
+first place paper in the ADF and
 then change option scan source to 'ADF'. Press 'change document'
 to load a sheet. Then press 'scan' to start a scan.
 Maybe it is sufficient to press 'scan' without 'change document'
 for repeated scans. The use of the preview window is not recommended
 when working with the ADF.
-Setting a window to scan from ADF is not supported with xscanimage(1).
-Try xsane(1).
+Setting a window to scan from ADF is not supported with
+.BR xscanimage (1).
+Try
+.BR xsane (1).
 .TP
 .B Immediate actions
-Some actions in xscanimage(1) (i.e. unload, select media, calibrate)
+Some actions in
+.BR xscanimage (1)
+(i.e. unload, select media, calibrate)
 have an immediate effect on the scanner without starting a scan.
-These options can not be used with scanimage.
+These options can not be used with
+.BR scanimage (1).
 
 .SH TODO
 .TP
@@ -267,7 +291,14 @@ These scanners are using an internal parallel-to-SCSI converter which
 is supported by the ppSCSI-driver (see above).
 
 .SH "SEE ALSO"
-sane(7), sane\-scsi(5), sane\-usb(5)
+.BR sane (7),
+.BR sane\-scsi (5),
+.BR sane\-usb (5)
+.BR scanimage (1),
+.BR xscanimage (1),
+.BR scanimage (1)
+
 .SH AUTHOR
-The sane\-hp backend was written by Geoffrey T. Dairiki. HP PhotoSmart
-PhotoScanner support by Peter Kirchgessner.
+The sane\-hp backend was written by Geoffrey T. Dairiki.
+.br
+HP PhotoSmart PhotoScanner support by Peter Kirchgessner.

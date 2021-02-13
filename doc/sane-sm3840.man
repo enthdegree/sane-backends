@@ -10,10 +10,15 @@ provides access to some Microtek scanners with the SCAN08
 USB chip.
 .PP
 There exist backends for Microtek scanners with SCSI command set.
-Refer to sane\-microtek(5) and sane\-microtek2(5) for details.
+Refer to
+.BR sane\-microtek (5)
+and
+.BR sane\-microtek2 (5)
+for details.
 .PP
-There also exists a Microtek 3600 series driver, see sane\-sm3600(5) for
-details.
+There also exists a Microtek 3600 series driver, see
+.BR sane\-sm3600 (5)
+for details.
 .PP
 At present, the following
 scanners are known positively to work with this backend:
@@ -31,36 +36,38 @@ Microtek   ScanMaker 4800  All modes OK
 .PP
 If you own a Microtek scanner with the SCAN08 chip other than the ones
 listed above, it may or may not work with SANE.  Feel free to contact the
-backend author (earle@ziplabel.com) to report results with scanners not
-on the list.
+backend author
+.RI ( earle@ziplabel.com )
+to report results with scanners not on the list.
 
 
 .SH "FRONTEND OPTIONS"
 .PP
-The following options are supported by the sm3840-driver:
-.PP
+The following options are supported by the
+.BR sane\-sm3840
+driver:
+.TP
 .B \-\-mode color|gray|lineart|halftone
-.br
 Color or grayscale mode.
 
+.TP
 .B \-\-resolution 150|300|600|1200
-.br
 Pixels per inch for scans.
 
+.TP
 .B \-\-depth 8|16
-.br
 Note that the least significant bits of 16bpp mode may be noise.
 
+.TP
 .B \-\-brightness 1..4096
-.br
 Higher numbers increase brightness of returned image.
 
+.TP
 .B \-\-contrast 0.1..9.9
-.br
 Larger numbers decrease contrast of returned image.
 
+.TP
 .B \-\-lamp\-timeout 1..15
-.br
 Time in minutes until the lamp is turned off after a scan.
 
 .SH CONFIGURATION
@@ -83,12 +90,17 @@ If the library was compiled with debug support enabled, this
 environment variable controls the debug level for this backend.  E.g.,
 a value of 128 requests all debug output to be printed.  Smaller
 levels reduce verbosity. To see error messages on stderr set
-SANE_DEBUG_SM3840 to 1.
+.B SANE_DEBUG_SM3840
+to 1.
 
 .SH "SEE ALSO"
-sane\-microtek2(5), sane\-sm3600(5), http://www.ziplabel.com/sm3840
+.BR sane (7),
+.BR sane\-microtek (5),
+.BR sane\-microtek2 (5),
+.BR sane\-sm3600 (5)
+.br
+.I http://www.ziplabel.com/sm3840
 
 .SH AUTHOR
-.br
-Earle F. Philhower III (earle@ziplabel.com)
-.br
+Earle F. Philhower III
+.RI < earle@ziplabel.com >

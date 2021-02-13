@@ -27,9 +27,15 @@ Sceptre VividScan S1200      SCSI
 The make of this scanner is KINPO, so other scanners from that manufacturer may also work (eg. the S600).
 .SH OPTIONS
 The options the backend supports can either be selected through command line
-options to programs like scanimage or through GUI elements in xscanimage or xsane.
+options to programs like
+.BR scanimage (1)
+or through GUI elements in
+.BR xscanimage (1)
+or
+.BR xsane (1).
 
 Valid command line options and their syntax can be listed by using
+
 .RS
 scanimage \-\-help \-d sceptre
 .RE
@@ -38,58 +44,73 @@ scanimage \-\-help \-d sceptre
 .B Scan Mode
 
 .TP
-.B \-\-mode
-selects the basic mode of operation of the scanner valid choices are
-.I Lineart, Halftone, Gray and Color.
-The Lineart and Halftone mode are black and white only (1 bit). Gray
-will produce 256 levels of gray (8 bits). Color will produce a 24 bits
+.B \-\-mode Lineart|Halftone|Gray|Color
+Selects the basic mode of operation of the scanner.
+The
+.I Lineart
+and
+.I Halftone
+mode are black and white only (1 bit).
+.I Gray
+will produce 256 levels of gray (8 bits).
+.I Color
+will produce a 24 bits
 color image. The scanner supports 30 bits internally but it only
 exports 24.
 
 .TP
-.B \-\-resolution
-selects the resolution for a scan. The scanner can do several
+.B \-\-resolution 50..1200
+Selects the resolution for a scan. The scanner can do several
 resolutions between 50 and 1200.
 
 .TP
-.B \-\-halftone\-pattern
-selects the pattern mode that is used in Halftone mode. Valid options
-are 1, 2, 3 and 4.
+.B \-\-halftone\-pattern 1|2|3|4
+Selects the pattern mode that is used in
+.I Halftone
+mode.
 
 .TP
-.B \-\-gamma\-correction
-controls the scanner internal gamma correction. Valid options are
-"Default", "User defined", "High density printing" "Low density
-printing" and "High contrast printing".
+.B \-\-gamma\-correction Default|User Defined|High Density Printing|\
+Low density printing|High contrast printing
+controls the scanner internal gamma correction.
 
 .TP
 .B \-\-custom\-gamma
-(color mode only) allows the user to specify a gamma table (see the
+Allows the user to specify a gamma table (see the
 next 3 parameters).
+.I Color
+mode only.
 
 .TP
 .B \-\-red\-gamma\-table
-(color mode only) can be used to download a user defined
+Can be used to download a user defined
 gamma table for the red channel. The table must be 256 bytes long.
+.I Color
+mode only.
 
 .TP
 .B \-\-green\-gamma\-table
-(color mode only) can be used to download a user defined
+Can be used to download a user defined
 gamma table for the green channel. The table must be 256 bytes long.
+.I Color
+mode only.
 
 .TP
 .B \-\-blue\-gamma\-table
-(color mode only) can be used to download a user defined gamma table
+Can be used to download a user defined gamma table
 for the blue channel. The table must be 256 bytes long.
+.I Color
+mode only.
 
 .TP
-.B \-\-threshold
-sets the threshold for black and white pixels in lineart
+.B \-\-threshold 0..255
+Sets the threshold for black and white pixels in
+.I Lineart
 mode. Possible values are from 0 (darker) to 255 (lighter).
 
 .TP
 .B \-\-preview
-requests a preview scan. The resolution used for that scan is 30 dpi
+Requests a preview scan. The resolution used for that scan is 30 dpi
 and the scan area is the maximum allowed. The scan mode is user
 selected. The default is "no".
 
@@ -98,13 +119,22 @@ selected. The default is "no".
 
 .TP
 .B \-l \-t \-x \-y
-control the scan area: \-l sets the top left x coordinate, \-t the top
-left y coordinate, \-x selects the width and \-y the height of the scan
-area. All parameters are specified in millimeters by default.
+control the scan area:
+.B -l
+sets the top left x coordinate,
+.B \-t
+the top left y coordinate,
+.B \-x
+selects the width and
+.B \-y
+the height of the scan area. All parameters are specified in millimeters by default.
 
 
 .SH CONFIGURATION FILE
-The configuration file @CONFIGDIR@/sceptre.conf supports only one information: the device name to use (eg /dev/scanner).
+The configuration file
+.I @CONFIGDIR@/sceptre.conf
+supports only one item: the device name to use
+.RI "(eg " /dev/scanner ).
 
 
 .SH FILES
@@ -136,13 +166,15 @@ enough.
 
 
 .SH BUGS
-
 None known.
 
 
 .SH "SEE ALSO"
-
-sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
+.BR sane\-scsi (5),
+.BR scanimage (1),
+.BR xscanimage (1),
+.BR xsane (1),
+.BR sane (7)
 
 
 .SH AUTHOR

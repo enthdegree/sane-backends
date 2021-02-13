@@ -97,23 +97,31 @@ systems. If that is the case for you, you can either disable ECP/EPP in your
 BIOS or disable it in the backend itself (see GLOBAL OPTIONS).
 .PP
 Note that the backend needs to run as root or has to have appropriate access
-rights to /dev/parport* if libieee1284 support is compiled in. To allow user
+rights to
+.I /dev/parport*
+if libieee1284 support is compiled in. To allow user
 access to the scanner run the backend through the network interface (See
-saned(8) and sane\-net(5)). Note also that the backend
+.BR saned (8)
+and
+.BR sane\-net (5)).
+Note also that the backend
 .I does not
 support
 .IR "parport sharing" ,
 i.e. if you try printing while scanning, your computer may crash. To enable
 parport sharing, you have to enable libieee1284 at compile time. This backend
 also conflicts with the
-.I sane\-musteka4s2
-backend. You can only enable one of them in your dll.conf. However, you have
-to enable the backend explicitly in your dll.conf, just remove the hash mark
-in the line "mustek_pp".
+.BR sane\-musteka4s2 (5)
+backend. You can only enable one of them in your
+.IR dll.conf .
+However, you have
+to enable the backend explicitly in your
+.IR dll.conf ,
+just remove the hash mark in the line "mustek_pp".
 
 .SH "DEVICE DEFINITION"
 This backend allows multiple devices being defined and configured via the
-.B mustek_pp.conf
+.I mustek_pp.conf
 file (even simultaneously, provided that they are connected to different
 parallel ports). Please make sure to edit this file
 .B before
@@ -155,8 +163,11 @@ can be different for different Linux kernel versions. For instance,
 if you are using a Kernel 2.2.x or better and you have only one
 parallel port, this port is named lp0 regardless of the base address. However,
 this backend requires the base address of your port. If you are not sure which
-port your scanner is connected to, have a look at your /etc/conf.modules,
-/etc/modules.conf and/or /proc/ioports.
+port your scanner is connected to, have a look at your
+.IR /etc/conf.modules ,
+.I /etc/modules.conf
+and/or
+.IR /proc/ioports .
 .PP
 If you are unsure which port to use, you can use the magic value
 .BR *
@@ -202,13 +213,13 @@ scanner Mustek_600IIIEP * ccd300
 
 If in doubt which port you have to use, or whether your scanner is
 detected at all, you can use
-.B sane\-find\-scanner \-p
+.I sane\-find\-scanner \-p
 to probe all configured ports.
 
 .SH CONFIGURATION
 .PP
 The contents of the
-.B mustek_pp.conf
+.I mustek_pp.conf
 file is a list of device definitions and device options that correspond to
 Mustek scanners.  Empty lines and lines starting with a hash mark (#) are
 ignored. Options have the following format:
@@ -362,8 +373,12 @@ option top 56
 
 .SH GLOBAL OPTIONS
 .PP
-You can control the overall behaviour of the mustek_pp backend by global
-options which precede any scanner definition in the mustek_pp.conf file.
+You can control the overall behaviour of the
+.B sane-\mustek_pp
+backend by global
+options which precede any scanner definition in the
+.I mustek_pp.conf
+file.
 .sp
 Currently, there is only one global option:
 
@@ -400,13 +415,19 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in @CONFIGDIR@.  If the value of the
+directory (".") and then in
+.IR @CONFIGDIR@ .
+If the value of the
 environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"@CONFIGDIR@" being searched (in this order).
+to "/tmp/config:" would result in directories
+.IR "tmp/config" ,
+.IR "." ,
+and
+.I "@CONFIGDIR@"
+being searched (in this order).
 .TP
 .B SANE_DEBUG_MUSTEK_PP
 If the library was compiled with debug support enabled, this
@@ -442,7 +463,12 @@ level   debug output
 .EE
 
 .SH "SEE ALSO"
-sane(7), sane\-mustek(5), sane\-net(5), saned(8), sane\-find\-scanner(1)
+.BR sane (7),
+.BR sane\-mustek (5),
+.BR sane\-net (5),
+.BR saned (8),
+.BR sane\-find\-scanner (1),
+.BR scanimage (1)
 
 .TP
 For latest bug fixes and information see
@@ -454,15 +480,18 @@ For additional information on the CIS driver, see
 
 .SH AUTHORS
 .nf
-Jochen Eisinger <jochen at penguin\-breeder dot org>
-Eddy De Greef <eddy_de_greef at scarlet dot be>
+Jochen Eisinger
+.RI < "jochen at penguin\-breeder dot org" >
+Eddy De Greef
+.RI < "eddy_de_greef at scarlet dot be" >
 .fi
 
 .SH BUGS
 Too many... please send bug reports to
 .I sane\-devel@alioth-lists.debian.net
 (note that you have to subscribe first to the list before you can send
-emails... see http://www.sane\-project.org/mailing\-lists.html)
+emails... see
+.IR http://www.sane\-project.org/mailing\-lists.html ).
 
 .SH BUG REPORTS
 If something doesn't work, please contact us (Jochen for the CCD scanners,
@@ -471,17 +500,24 @@ your scanner to be able to help you...
 
 .TP
 .I SANE version
-run "scanimage \-V" to determine this
+Run
+.I scanimage \-V
+to determine this.
 .TP
 .I the backend version and your scanner hardware
-run "SANE_DEBUG_MUSTEK_PP=128 scanimage \-L" as root. If you don't get any output
-from the mustek_pp backend, make sure a line "mustek_pp" is included into
-your @CONFIGDIR@/dll.conf.
+Run
+.I SANE_DEBUG_MUSTEK_PP=128 scanimage \-L
+as root. If you don't get any output from the
+.BR sane\-mustek_pp
+backend, make sure a line "mustek_pp" is included into your
+.IR @CONFIGDIR@/dll.conf .
 If your scanner isn't detected, make sure you've defined the right port address
-in your mustek_pp.conf.
+in your
+.IR mustek_pp.conf .
 .TP
-.I the name of your scanner/vendor
-also a worthy information. Please also include the optical resolution and lamp type of your scanner, both can be found in the manual of your scanner.
+.I the name of your scanner/vendor also a worthy information. Please also include the
+optical resolution and lamp type of your scanner, both can be found in the manual of
+your scanner.
 .TP
 .I any further comments
 if you have comments about the documentation (what could be done better), or you

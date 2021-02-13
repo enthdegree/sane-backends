@@ -25,7 +25,7 @@ Where
 .I special
 is either the path-name for the special device that corresponds to a SCSI
 scanner. The program
-.I sane\-find\-scanner
+.BR sane\-find\-scanner (1)
 helps to find out the correct device. Under Linux, such a device name could be
 .I /dev/sg0
 or
@@ -64,13 +64,19 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in @CONFIGDIR@.  If the value of the
+directory (".") and then in
+.IR @CONFIGDIR@ .
+If the value of the
 environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"@CONFIGDIR@" being searched (in this order).
+to "/tmp/config:" would result in directories
+.IR tmp/config ,
+.IR . ,
+and
+.I "@CONFIGDIR@
+being searched (in this order).
 .TP
 .B SANE_DEBUG_IBM
 If the library was compiled with debug support enabled, this
@@ -83,6 +89,8 @@ debug levels increase the verbosity of the output.
 .BR sane\-scsi (5),
 
 .SH AUTHOR
-mf <massifr@tiscalinet.it>
+mf
+.RI < massifr@tiscalinet.it >
 .br
-Maintained by Henning Meier-Geinitz <henning@meier\-geinitz.de>
+Maintained by Henning Meier-Geinitz
+.RI < henning@meier\-geinitz.de >

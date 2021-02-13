@@ -8,9 +8,10 @@ sane-hp5590 - SANE backend for Hewlett-Packard
 4500C/4570C/5500C/5550C/5590/7650 Workgroup/Document scanners
 .SH DESCRIPTION
 .PP
-The \f[B]sane-hp5590\f[R] library implements a SANE (Scanner Access Now
-Easy) backend that provides access to the following Hewlett-Packard
-Workgroup/Document scanners:
+The
+.B sane-hp5590
+library implements a SANE (Scanner Access Now Easy) backend that provides access
+to the following Hewlett-Packard Workgroup/Document scanners:
 .IP \[bu] 2
 ScanJet 4500C
 .IP \[bu] 2
@@ -27,15 +28,20 @@ ScanJet 7650
 If you own a scanner other than the ones listed above that works with
 this backend, please let us know this by sending the scanner\[cq]s exact
 model name and the USB vendor and device ids (e.g.\ from
-\f[I]/sys/bus/usb/devices\f[R], \f[I]sane-find-scanner\f[R] or syslog)
-to us.
+.IR /sys/bus/usb/devices ,
+.BR sane-find-scanner (1)
+or syslog) to us.
 Even if the scanner\[cq]s name is only slightly different from the
 models mentioned above, please let us know.
 .SH OPTIONS
 .PP
 The options the backend supports can either be selected through command
-line options to programs like scanimage or through GUI elements in
-\f[I]xscanimage\f[R] or \f[I]xsane\f[R].
+line options to programs like
+.BR scanimage (1)
+or through GUI elements in
+.BR xscanimage (1)
+or
+.BR xsane (1).
 Valid command line options and their syntax can be listed by using:
 .IP
 .nf
@@ -46,8 +52,12 @@ scanimage --help -d hp5590:interface:device
 .PP
 where \f[I]interface\f[R] and \f[I]device\f[R] specify the device in
 question, as in the configuration file.
-Add \f[I]--all-options\f[R] to also list the hardware read-out options.
-The -d parameter and its argument can be omitted to obtain information
+Add
+.B --all-options
+to also list the hardware read-out options.
+The
+.B \-d
+parameter and its argument can be omitted to obtain information
 on the first scanner identified.
 .PP
 Use the command:
@@ -148,9 +158,7 @@ Request a preview-quality scan.
 Hide end-of-page indicator pixels and overwrite with color of next
 neighbor pixels.
 (Default: yes)
-.PD 0
-.P
-.PD
+.br
 The scanner uses the last pixel in every scan line for storing the
 end-of-page status.
 This is needed to detect the end of the document sheet when the
@@ -184,9 +192,7 @@ feeder (ADF) is used.
 Set color value for filling trailing scan lines in trailing lines mode
 \[lq]color\[rq] (see previous option).
 (Default color: violet)
-.PD 0
-.P
-.PD
+.br
 The RGB color value must be specified and calculated as 65536 * r + 256
 * g + b, with r, g, b being values in the range of 0 ..
 255.
@@ -196,47 +202,57 @@ The following options allow reading out the button state, counter value,
 color setting, and the state of document in ADF.
 This can be used to programmatically control corresponding scanner
 options like switching between \f[I]flatbed\f[R] and \f[I]ADF\f[R] mode,
-or triggering prost processing tasks after scanning.
+or triggering post processing tasks after scanning.
 .TP
 .B --button-pressed
 Get the id of the last button pressed.
 Id is one of \[lq]none\[rq], \[lq]power\[rq], \[lq]scan\[rq],
 \[lq]collect\[rq], \[lq]file\[rq], \[lq]email\[rq], \[lq]copy\[rq],
 \[lq]up\[rq], \[lq]down\[rq], \[lq]mode\[rq], \[lq]cancel\[rq].
-.PD 0
-.P
-.PD
+.br
 The scanner stores the id of the last button pressed until it is read.
 After read out, the state is reset and subsequent readings will return
 \[lq]none\[rq].
+
 .TP
 .B --color-led
 Get the state of the color LED indicators.
 The state is either \[lq]color\[rq] or \[lq]black_white\[rq].
+
 .TP
 .B --counter-value
 Get the counter value as shown on LCD.
 The value is in the range of 1 ..
 99.
+
 .TP
 .B --doc-in-adf
 Get the state of the document-available indicator of the automatic
 document feeder (ADF).
 The state is either \[lq]yes\[rq] or \[lq]no\[rq].
+
 .SH HINTS FOR USERS OF SCANBD
 .PP
-\f[I]Scanbd\f[R] is a scanner button daemon, which can read scanner
+.BR scanbd (8)
+is a scanner button daemon, which can read scanner
 buttons and trigger scan actions.
 .PP
-Do not use the old \f[I]scanbuttond\f[R] interface with hp5590.
+Do not use the old
+.BR scanbuttond (8)
+interface with hp5590.
 It is outdated and shall not be used any more.
-Scanbd\[cq]s regular interface is fully supported by the current version
+The regular interface of
+.BR scanbd (8)
+is fully supported by the current version
 of the \f[I]hp5590\f[R] backend.
 .PP
 This example shows a minimum configuration file and the corresponding
-script file for scanbd to be included in \f[I]scanbd.conf\f[R].
+script file for
+.BR scanbd (8)
+to be included in
+.IR scanbd.conf .
 .IP \[bu] 2
-\f[B]hp5590.conf\f[R]
+.I hp5590.conf
 .IP
 .nf
 \f[C]
@@ -315,6 +331,13 @@ Higher debug levels increase the verbosity of the output:
 export SANE_DEBUG_HP5590=50
 .SH SEE ALSO
 .PP
-\f[B]sane\f[R](7), \f[B]sane-usb\f[R](5)
+.BR sane (7),
+.BR sane\-usb (5)
+.BR scanbd (8),
+.BR scanimage (1),
+.BR xscanimage (1),
+.BR xsane (1)
+
 .SH AUTHORS
-Ilia Sotnikov <hostcc@gmail.com>.
+Ilia Sotnikov
+.RI < hostcc@gmail.com >.

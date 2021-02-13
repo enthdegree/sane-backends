@@ -27,7 +27,7 @@ CanoScan N640P ex
 .PP
 No USB scanners are supported and there are no plans to support them in the
 future.  Other projects are working on support for USB scanners. See the
-.B PROJECTS
+.I PROJECTS
 file for more detail.  The FB310P and FB610P are re-badged Avision scanners
 which use a different command set, so are unlikely to be supported by this
 backend in the future.
@@ -38,12 +38,11 @@ appreciated.  Please send any bug reports to the maintainers as listed on the
 web page (listed in
 .B SEE ALSO
 below).
-.PP
-.
-.PP
+
 .SH "DEVICE NAMES"
-This backend expects device names of the form presented by libieee1284.  These
-names are highly dependent on operating system and version.
+This backend expects device names of the form presented by
+.BR libieee1284 (3).
+These names are highly dependent on operating system and version.
 
 On Linux 2.4 kernels this will be of the form
 .I "parport0"
@@ -136,13 +135,18 @@ This environment variable specifies the list of directories that may contain
 the configuration file.  Under UNIX, the directories are separated by a colon
 (`:'), under OS/2, they are separated by a semi-colon (`;').  If this variable
 is not set, the configuration file is searched in two default directories:
-first, the current working directory (".") and then in @CONFIGDIR@.  If the
-value of the environment variable ends with the directory separator character,
-then the default directories are searched after the explicitly specified
-directories.  For example, setting
+first, the current working directory (".") and then in
+.IR @CONFIGDIR@ .
+If the value of the environment variable ends with the directory separator
+character, then the default directories are searched after the explicitly
+specified directories. For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"@CONFIGDIR@" being searched (in this order).
+to "/tmp/config:" would result in directories
+.IR tmp/config ,
+.IR . ,
+and
+.I @CONFIGDIR@
+being searched (in this order).
 .TP
 .B SANE_DEBUG_CANON_PP
 If the library was compiled with debug support enabled, this environment
@@ -219,9 +223,11 @@ but not where another scan can be made.
 
 
 .SH "SEE ALSO"
-sane(7), sane\-dll(5)
-.BR
-http://canon\-fb330p.sourceforge.net/
+.BR sane (7),
+.BR sane\-dll(5),
+.BR libieee1284 (3),
+.br
+.I http://canon\-fb330p.sourceforge.net/
 
 .SH AUTHOR
 This backend is primarily the work of Simon Krix (Reverse Engineering), and

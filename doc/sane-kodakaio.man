@@ -8,7 +8,7 @@ sane\-kodakaio \- SANE backend for Kodak aio printer / scanners
 The
 .B sane\-kodakaio
 library implements a SANE (Scanner Access Now Easy) backend which
-provides access to Kodak aio printer / scanners, like the ESP and Hero series.
+provides access to Kodak aio printer/scanners, like the ESP and Hero series.
 
 This document describes backend version 2.4, which is the first candidate for
 incorporation in sane-backends.
@@ -22,19 +22,27 @@ If you have a model not on that list, or reported as 'untested': the best way
 to determine level of support is to test the scanner directly.
 
 .SH CONFIGURATION FILE
-The configuration file "kodakaio.conf" is used to tell the backend how to look
+The configuration file
+.I kodakaio.conf
+is used to tell the backend how to look
 for scanners, and provide options controlling the operation of the backend.
 This file is read each time the frontend asks the backend for a list
 of scanners, generally only when the frontend starts.
 
 .SH ENVIRONMENT
-The backend uses a single environment variable, SANE_DEBUG_KODAKAIO, which
-enables debugging output to stderr.
+.TP
+.B SANE_DEBUG_KODAKAIO
+If the library was compiled with debug support enabled, this
+environment variable controls the debug level for this backend.  Higher
+debug levels increase the verbosity of the output.
 
 .SH KNOWN ISSUES
 Most hardware options are either not supported or not exposed for control by
 the user, including: multifeed detection, image compression etc.
 .PP
+
+.SH "SEE ALSO"
+.BR sane (7)
 
 .SH AUTHOR
 P. Newall

@@ -26,7 +26,7 @@ If you own a scanner other than the ones listed above that works with this
 backend, please let us know this by sending the scanner's exact model name and
 the USB vendor and device ids (e.g. from
 .IR /proc/bus/usb/devices ,
-.I sane\-find\-scanner
+.BR sane\-find\-scanner (1)
 or syslog) to us. Even if the scanner's name is only slightly different from
 the models mentioned above, please let us know.
 .PP
@@ -68,13 +68,21 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in @CONFIGDIR@.  If the value of the
+directory
+.RI ( "." )
+and then in
+.IR @CONFIGDIR@ .
+If the value of the
 environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"@CONFIGDIR@" being searched (in this order).
+to "/tmp/config:" would result in directories
+.IR "tmp/config" ,
+.IR "." ,
+and
+.I "@CONFIGDIR@"
+being searched (in this order).
 .TP
 .B SANE_DEBUG_HP5400
 If the library was compiled with debug support enabled, this
@@ -87,13 +95,17 @@ export SANE_DEBUG_HP5400=4
 .SH "SEE ALSO"
 .BR sane (7),
 .BR sane\-usb (5),
+.BR sane\-find\-scanner (1),
 .br
 .I http://hp5400backend.sourceforge.net/
 
 .SH AUTHOR
-Martijn van Oosterhout <kleptog@svana.org>, Thomas Soumarmon
-<soumarmt@nerim.net>. Manpage by Henning Meier-Geinitz
-<henning@meier\-geinitz.de>.
+Martijn van Oosterhout
+.RI < kleptog@svana.org >,
+Thomas Soumarmon
+.RI < soumarmt@nerim.net >.
+Manpage by Henning Meier-Geinitz
+.RI < henning@meier\-geinitz.de >.
 
 .SH BUGS
 Scanning is only tested with Linux/ix86/gcc. Be careful when testing on other

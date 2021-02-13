@@ -20,7 +20,8 @@ specifies the maximum rate to use while downloading pictures.  (The
 camera is always initialized using 9600 baud, then switches to the
 higher rate).  On my 90MHz Pentium, I usually have no problems downloading
 at 115200 baud as long as the system is not excessively busy and
-the "interrupt-unmask flag" is set in the IDE driver (hdparm \-u1).
+the "interrupt-unmask flag" is set in the IDE driver
+.RI ( "hdparm \-u1" ).
 Supported baud rates are: 9600, 19200, 38400, 57600, and 115200.
 .PP
 The dumpinquiry line causes some information about the camera to
@@ -64,13 +65,19 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in @CONFIGDIR@.  If the value of the
+directory (".") and then in
+.IR @CONFIGDIR@ .
+If the value of the
 environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"@CONFIGDIR@" being searched (in this order).
+to "/tmp/config:" would result in directories
+.IR tmp/config ,
+.IR . ,
+and
+.I "@CONFIGDIR@"
+being searched (in this order).
 .TP
 .B SANE_DEBUG_DC25
 If the library was compiled with debugging support enabled, this
@@ -79,10 +86,11 @@ A value of 128 requests maximally copious debug output; smaller
 levels reduce verbosity.
 
 .SH "SEE ALSO"
-sane(7)
+.BR sane (7)
 
 .SH AUTHOR
-Peter Fales, dc25\-devel@fales\-lorenz.net
+Peter Fales,
+.IR dc25\-devel@fales\-lorenz.net .
 
 .SH BUGS
 Known bugs/limitations are:
@@ -94,6 +102,8 @@ updated immediately.
 .PP
 More general comments, suggestions, and inquiries about frontends
 or SANE should go to the SANE Developers mailing list
-(see http://www.sane\-project.org/mailing\-lists.html for details).
+(see
+.I http://www.sane\-project.org/mailing\-lists.html
+for details).
 You must be subscribed to the list, otherwise your mail won't be
 sent to the subscribers.

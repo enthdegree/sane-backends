@@ -26,41 +26,57 @@ and maximum output value
 of the gamma table.
 .PP
 .BR gamma
-is a floating point value, neutral value is 1.0, if the value is larger than
-1.0 then the image gets brighter.
+is a floating point value, neutral value being 1.0. If the value is larger than
+1.0 then the image is brighter.
 .PP
 .BR shadow
 defines the minimum input value that is necessary to create an output value
-larger than zero.  shadow has to be in the range [0..maxin]. Its default value
-is 0.
+larger than zero.  shadow has to be in the range
+.RB "[0.." "maxin" "]."
+Its default value is 0.
 .PP
 .BR highlight
 defines the maximum input value that produces an output value smaller than
-maxout.  highlight has to be in the range [0..maxin], highlight has to be
-larger than shadow. Its default value is the same as maxin (16383 if not set).
+maxout.  highlight must be in the range
+.RB "[0.." "maxin" "]"
+and
+larger than shadow. Its default value is the same as
+.B maxin
+(16383 if not set).
 .PP
-.BR maxin
+.B maxin
 defines the size of the gamma table. The size depends on the scanner/backend.
-If the scanner uses 8 bits gamma input then maxin has to be set to 255, for 10
-bits 1023, for 12 bits 4095, for 14 bits 16383. The default is 16383.  To find
-out what value maxin has to be call scanimage with a very large gamma table
-[0]0-[99999]255 then scanimage prints an error message with the needed size of
-the gamma table.
+If the scanner uses 8 bit gamma input then
+.B maxin
+must be set to 255, 1023 for 10
+bits, 4095 for 12 bits, and 16383 for 14 bits. The default is 16383.  To find
+out what value
+.B maxin
+has to be, call
+.BR scanimage (1)
+with a very large gamma table
+[0]0-[99999]255 and
+.BR scanimage (1)
+will print an error message with the needed gamma table size.
 .PP
-.BR maxout
-defines the maximum output value. Take a look at the output of scanimage \-h to
-find out what maxout has to be. The default value is 255.
+.B maxout
+defines the maximum output value. Take a look at the output of
+.I scanimage \-h
+to find out what
+.B maxout
+must be. The default value is 255.
 .PP
 .SH EXAMPLE
-.B scanimage \-\-custom\-gamma=yes \-\-gamma\-table
-.I `gamma4scanimage 1.8 0 11500 16383 255`
+scanimage \-\-custom\-gamma=yes \-\-gamma\-table
+`gamma4scanimage 1.8 0 11500 16383 255`
 >image.pnm
 
 .SH SEE ALSO
+.BR sane (7),
 .BR scanimage (1)
 
 .SH AUTHOR
 Oliver Rauch
 
 .SH EMAIL-CONTACT
-Oliver.Rauch@Rauch-Domain.DE
+.I Oliver.Rauch@Rauch-Domain.DE

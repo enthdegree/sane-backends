@@ -24,7 +24,10 @@ The backend was ported to sane-backends 1.0.23 and downgraded to C89
 by m. allan noah.
 
 .SH "SEE ALSO"
-sane(7), sane\-usb(5), sane\-scsi(5)
+.BR sane (7),
+.BR sane\-usb (5),
+.BR sane\-scsi (5)
 
 .SH AUTHOR
-m. allan noah: <kitno455 a t gmail d o t com>
+m. allan noah:
+.RI < "kitno455 a t gmail d o t com" >

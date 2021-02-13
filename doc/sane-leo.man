@@ -19,14 +19,18 @@ The scanners that should work with this backend are:
    Vendor Model           status
 ----------------------  -----------
   Across FS-1130          tested
-  Leo S3                  tested
+  LEO S3                  tested
 .fi
 .ft R
 .RE
 
 The options the backend supports can either be selected through
-command line options to programs like scanimage or through GUI
-elements in xscanimage or xsane.
+command line options to programs like
+.BR scanimage (1)
+or through GUI elements in
+.BR xscanimage (1)
+or
+.BR xsane (1).
 
 .br
 If you have any strange behavior, please report to the backend
@@ -112,7 +116,10 @@ selected. The default is "no".
 
 
 .SH CONFIGURATION FILE
-The configuration file @CONFIGDIR@/leo.conf supports only one information: the device name to use (eg /dev/scanner).
+The configuration file
+.I @CONFIGDIR@/leo.conf
+supports only one information: the device name to use (eg
+.IR /dev/scanner ).
 
 
 .SH FILES
@@ -140,14 +147,17 @@ backend. However they are only software adjustments. This backend only
 implements what the scanner can support.
 
 
-.SH BUGS
-
+SH BUGS
 None known.
 
 
 .SH "SEE ALSO"
 
-sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
+.BR sane\-scsi (5),
+.BR scanimage (1),
+.BR xscanimage (1),
+.BR xsane (1),
+.BR sane (7)
 
 
 .SH AUTHOR

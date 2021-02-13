@@ -305,8 +305,11 @@ be better revised).
 E.g. just say:
 .br
 export SANE_DEBUG_MICROTEK2=128
+
 .SH "SEE ALSO"
-sane\-scsi(5), sane(7)
+.BR sane\-scsi(5) ,
+.BR sane (7)
+
 .SH "AUTHORS"
 Bernd Schroeder (not active anymore)
 .br

@@ -19,14 +19,15 @@ the scan area.
 If you own a scanner other than the ones listed on the mustek_usb2 homepage that works with this
 backend, please let me know this by sending the scanner's exact model name and
 the USB vendor and device ids (e.g. from
-.I sane\-find\-scanner
+.BR sane\-find\-scanner (1)
 or syslog) to me. Even if the scanner's name is only slightly different from
 the models already listed as supported, please let me know.
 .PP
 .SH LIBUSB ISSUES
 Please use libusb-0.1.8 or later. Without libusb or with older libusb versions
 all kinds of trouble can be expected. The scanner should be found by
-sane\-find\-scanner without further actions. For setting permissions and general
+.BR sane\-find\-scanner (1)
+without further actions. For setting permissions and general
 USB information looks at
 .BR sane\-usb (5).
 .PP
@@ -56,7 +57,9 @@ export SANE_DEBUG_MUSTEK_USB2=4
 .BR sane\-ma1509 (5),
 .BR sane\-mustek_usb (5),
 .BR sane\-mustek (5),
-.BR sane\-mustek_pp (5)
+.BR sane\-mustek_pp (5),
+.BR sane\-find\-scanner (1)
+
 .br
 .I @DOCDIR@/mustek_usb2/mustek_usb2.CHANGES
 .br
@@ -69,4 +72,6 @@ Mustek. Adjustments to SANE by Henning Meier-Geinitz.
 .SH BUGS
 Please contact me if you find a bug or missing feature:
 <henning@meier\-geinitz.de>. Please send a debug log if your scanner isn't
-detected correctly (see SANE_DEBUG_MUSTEK_USB2 above).
+detected correctly (see 
+.B SANE_DEBUG_MUSTEK_USB2
+above).

@@ -33,6 +33,7 @@ Other Panasonic high speed scanners may or may not work with that backend.
 
 Valid command line options and their syntax can be listed by using
 .RS
+.PP
 scanimage \-\-help \-d matsushita
 .RE
 
@@ -103,8 +104,11 @@ options set the gamma curve. It is only valid for Gray modes, and is not availab
 
 
 .SH CONFIGURATION FILE
-The configuration file @CONFIGDIR@/matsushita.conf supports the device name to use (eg /dev/scanner) and the SCSI option to auto-detect the scanners supported.
-
+The configuration file 
+.I @CONFIGDIR@/matsushita.conf
+supports the device name to use (eg 
+.IR /dev/scanner )
+and the SCSI option to auto-detect the scanners supported.
 
 .SH FILES
 .TP
@@ -153,13 +157,15 @@ scanadf \-d matsushita \-\-output\-file scan%04d.pbm \-\-start\-count 0 \-\-dupl
 
 
 .SH BUGS
-
 None known.
 
 
 .SH "SEE ALSO"
-
-sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
+.BR sane\-scsi (5),
+.BR scanimage (1),
+.BR xscanimage (1),
+.BR xsane (1),
+.BR sane (7)
 
 
 .SH AUTHOR

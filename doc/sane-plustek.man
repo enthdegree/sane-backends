@@ -11,7 +11,7 @@ provides access to USB flatbed scanners based on National Semiconductor
 Merlin chipsets (LM9831, 9832 and 9833).
 If you're looking for parallel-port support for Plustek scanner
 please refer to the
-.B sane\-plustek_pp
+.BR sane\-plustek_pp (5)
 backend.
 
 .SH "SUPPORTED DEVICES"
@@ -217,6 +217,7 @@ To use your scanner with this backend, you need at least two
 entries in the configuration file
 .I @CONFIGDIR@/plustek.conf
 .RS
+.PP
 .I [usb] vendor-id product-id
 .br
 .I device /dev/usbscanner
@@ -415,9 +416,9 @@ See the plustek.conf file for examples.
 You have to make sure, that the USB subsystem is loaded
 correctly and you have access to the device-node. For
 more details see
-.B sane\-usb (5)
+.BR sane\-usb (5)
 manpage. You might use
-.B sane\-find\-scanner
+.BR sane\-find\-scanner (1)
 to check that you have access to your device.
 .PP
 .B Note:
@@ -445,13 +446,19 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in @CONFIGDIR@.  If the value of the
+directory (".") and then in 
+.IR @CONFIGDIR@ .
+If the value of the
 environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"@CONFIGDIR@" being searched (in this order).
+to "/tmp/config:" would result in directories 
+.IR "tmp/config" ,
+.IR "." ,
+and
+.I "@CONFIGDIR@" 
+being searched (in this order).
 .TP
 .B SANE_DEBUG_PLUSTEK
 If the library was compiled with debug support enabled, this
@@ -466,6 +473,9 @@ export SANE_DEBUG_PLUSTEK=10
 .BR sane\-usb (5),
 .BR sane\-u12 (5),
 .BR sane\-gt68xx (5),
+.BR sane-\mustek_pp (5),
+.BR sane\-find\-scanner (1),
+.BR scanimage (1),
 .br
 .I @DOCDIR@/plustek/Plustek-USB.changes
 

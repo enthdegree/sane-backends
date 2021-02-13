@@ -17,9 +17,14 @@ capabilities of SANE.  Therefore
 implements functions and options that are not (or seldom) found in other
 backends.
 .PP
-The backend is commented out in @CONFIGDIR@/dll.conf, so either the comment
+The backend is commented out in 
+.IR @CONFIGDIR@/dll.conf ,
+so either the comment
 character must be removed or the backend must be called explicitly.  E.g.
-`scanimage \-d test' or `xscanimage test'.
+.I scanimage \-d test
+or
+.IR "xscanimage test" .
+
 
 .SH SCAN MODE OPTIONS
 Option
@@ -288,6 +293,7 @@ The static library implementing this backend.
 .I @LIBDIR@/libsane\-test.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
+
 .SH ENVIRONMENT
 .TP
 .B SANE_CONFIG_DIR
@@ -296,13 +302,19 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in @CONFIGDIR@.  If the value of the
+directory (".") and then in 
+.IR @CONFIGDIR@ .
+If the value of the
 environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"@CONFIGDIR@" being searched (in this order).
+to "/tmp/config:" would result in directories 
+.IR tmp/config ,
+.IR . ,
+and
+.I "@CONFIGDIR@"
+being searched (in this order).
 .TP
 .B SANE_DEBUG_TEST
 If the library was compiled with debug support enabled, this
@@ -313,12 +325,16 @@ Example:
 export SANE_DEBUG_TEST=4
 
 .SH "SEE ALSO"
-sane(7),
+.BR sane (7),
+.BR scanimage (1),
+.BR xscanimage (1)
+.br
 .IR http://www.meier\-geinitz.de/sane/test\-backend/
 
 
 .SH AUTHOR
-Henning Meier-Geinitz <henning@meier\-geinitz.de>
+Henning Meier-Geinitz 
+.I <henning@meier\-geinitz.de>
 
 .SH BUGS
 \- config file values aren't tested for correctness

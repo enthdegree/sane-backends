@@ -19,13 +19,16 @@ This is a short HOWTO-like section. For the full details, read the following
 sections. The goal of this section is to get the scanner detected by
 .BR sane\-find\-scanner (1).
 .PP
-Run sane\-find\-scanner. If it lists your scanner with the correct vendor and
+Run 
+.BR sane\-find\-scanner (1).
+If it lists your scanner with the correct vendor and
 product ids, you are done. See section
 .B "SANE ISSUES"
 for details on how to go on.
 .PP
-sane\-find\-scanner doesn't list your scanner? Does it work as root? If yes,
-there is a permission issue. See the
+.BR sane\-find\-scanner (1)
+doesn't list your scanner? Does it work as root? If yes, there is a permission issue. 
+See the
 .B LIBUSB
 section for details.
 .PP
@@ -81,8 +84,10 @@ Use chmod to apply appropriate permissions.
 
 .SH "SANE ISSUES"
 .PP
-This section assumes that your scanner is detected by sane\-find\-scanner. It
-doesn't make sense to go on, if this is not the case. While sane\-find\-scanner
+This section assumes that your scanner is detected by 
+.BR sane\-find\-scanner (1).
+It doesn't make sense to go on, if this is not the case. While 
+.BR sane\-find\-scanner (1)
 is able to detect any USB scanner, actual scanning will only work if the
 scanner is supported by a SANE backend. Information on the level of support
 can be found on the SANE webpage
@@ -104,9 +109,13 @@ is the USB vendor id, and
 .I PRODUCT
 is the USB product id of the scanner. Both ids are non-negative integer numbers
 in decimal or hexadecimal format. The correct values for these fields can be
-found by running sane\-find\-scanner, looking into the syslog (e.g.,
-/var/log/messages) or under Linux by issuing the command "cat
-/proc/bus/usb/devices".  This is an example of a config file line:
+found by running 
+.BR sane\-find\-scanner (1),
+looking into the syslog (e.g.,
+.IR /var/log/messages )
+or under Linux by issuing the command 
+.IR "cat /proc/bus/usb/devices" .
+This is an example of a config file line:
 .PP
 .RS
 usb 0x055f 0x0006
@@ -137,14 +146,17 @@ If the library was compiled with debug support enabled, this
 environment variable controls the debug level for the USB I/O
 subsystem.  E.g., a value of 128 requests all debug output to be
 printed.  Smaller levels reduce verbosity. Values greater than 4 enable
-libusb debugging (if available). Example: export SANE_DEBUG_SANEI_USB=4.
+libusb debugging (if available). Example: 
+.IR "export SANE_DEBUG_SANEI_USB=4" .
 .PP
 .TP
 .B SANE_USB_WORKAROUND
 If your scanner does not work when plugged into a USB3 port, try
-setting the environment variable SANE_USB_WORKAROUND to 1. This
-may work around issues which happen with particular kernel
-versions. Example: export SANE_USB_WORKAROUND=1.
+setting the environment variable 
+.B SANE_USB_WORKAROUND
+to 1. This may work around issues which happen with particular kernel
+versions. Example: 
+.I export SANE_USB_WORKAROUND=1.
 
 .SH "SEE ALSO"
 .BR sane (7),
@@ -153,4 +165,5 @@ versions. Example: export SANE_USB_WORKAROUND=1.
 .BR sane\-scsi (5)
 
 .SH AUTHOR
-Henning Meier-Geinitz <henning@meier\-geinitz.de>
+Henning Meier-Geinitz 
+.I <henning@meier\-geinitz.de>

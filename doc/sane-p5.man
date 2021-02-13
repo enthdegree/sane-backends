@@ -52,14 +52,11 @@ You can rename any device using the
 option. This option apply to the last port option.
 
 .SH "CONFIGURATION"
-Please make sure to edit dll.conf
+Please make sure to edit 
+.I dll.conf
 .B before
 you use the backend, since this backend isn't enabled by default.
 .PP
-
-.PP
-
-
 
 .SH "FILES"
 .TP
@@ -83,13 +80,19 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in @CONFIGDIR@.  If the value of the
+directory (".") and then in 
+.IR @CONFIGDIR@ .
+If the value of the
 environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"@CONFIGDIR@" being searched (in this order).
+to "/tmp/config:" would result in directories 
+.IR "tmp/config" ,
+.IR "." ,
+and
+.I "@CONFIGDIR@"
+being searched (in this order).
 .TP
 .B SANE_DEBUG_P5
 If the library was compiled with debug support enabled, this
@@ -114,19 +117,12 @@ level   debug output
  128     scanned/calibration data
 .fi
 .ft R
-.RE
-.PP
-.TP
 
-.PP
-.RS
-.ft CR
-.nf
-.PP
-
-.PP
 .SH "SEE ALSO"
-sane(7), sane\-net(5), saned(8)
+.BR sane (7),
+.BR sane\-net (5),
+.BR saned (8),
+.BR scanimage (1)
 
 .SH "AUTHOR"
 St\['e]phane Voltz <stef.dev@free.fr>
@@ -148,7 +144,8 @@ run "scanimage \-V" to determine this
 .I the backend version and your scanner hardware
 run "SANE_DEBUG_P5=255 scanimage \-L 2>log" as root. If you don't get any output
 from the p5 backend, make sure a line "p5" is included into
-your @CONFIGDIR@/dll.conf.
+your 
+.IR @CONFIGDIR@/dll.conf .
 If your scanner isn't detected, make sure you've defined the right port address, or the
 correct device
 in your p5.conf.

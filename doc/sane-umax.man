@@ -213,7 +213,8 @@ other scsi devices, I suggest you use an own SCSI-adapter for your UMAX-scanner.
 If you have any problems with your Umax scanner, check your scsi chain
 (cable length, termination, ...).
 
-See also: sane\-scsi(5)
+See also: 
+.BR sane\-scsi (5)
 
 .SH FILES
 
@@ -235,7 +236,8 @@ The shared library implementing this backend:
 If the library was compiled with debug support enabled, this environment
 variable controls the debug level for this backend. E.g., a value of 128
 requests all debug output to be printed. Smaller levels reduce verbosity:
-SANE_DEBUG_UMAX values
+.B SANE_DEBUG_UMAX
+values.
 
 .ft CR
 .nf
@@ -262,15 +264,14 @@ Example:
 export SANE_DEBUG_UMAX=8
 
 .SH BUGS
-
-X-resolutions greater than 600 dpi sometimes make problems
+X-resolutions greater than 600 dpi sometimes cause problems.
 
 .SH SEE ALSO
-sane(7)
+.BR sane (7),
+.BR sane\-scsi (5)
 
 .SH AUTHOR
-
 Oliver Rauch
 
 .SH EMAIL-CONTACT
-Oliver.Rauch@Rauch-Domain.DE
+.I Oliver.Rauch@Rauch-Domain.DE

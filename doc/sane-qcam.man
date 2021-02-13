@@ -14,7 +14,7 @@ This backend expects device names of the form:
 .I port
 .RE
 .PP
-Where
+where
 .I port
 is the I/O port address at which the device resides.  This address is
 normally specified in hexadecimal using C syntax (e.g., 0x37b) and may
@@ -69,16 +69,22 @@ environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"@CONFIGDIR@" being searched (in this order).
+to "/tmp/config:" would result in directories 
+.IR "tmp/config" ,
+.IR "." ,
+and
+.I "@CONFIGDIR@"
+being searched (in this order).
 .TP
 .B SANE_DEBUG_QCAM
 If the library was compiled with debug support enabled, this
 environment variable controls the debug level for this backend.  E.g.,
 a value of 128 requests all debug output to be printed.  Smaller
 levels reduce verbosity.
+
 .SH AUTHOR
 David Mosberger
+
 .SH BUGS
 Support is currently limited to the color version of the QuickCam.
 The black-and-white camera is starting to work too, but I don't
@@ -88,5 +94,6 @@ like a problem due to byte-padding).
 .PP
 The program needs root-privileges since it needs to be able to access
 the camera's I/O ports.
+
 .SH SEE ALSO
-sane(7)
+.BR sane (7)

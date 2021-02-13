@@ -26,7 +26,7 @@ The scanners that should work with this backend are:
   Lexmark X1180           good
   Lexmark X1185           complete
   Lexmark X12xx           good in USB1.1,
-  			  not fully tested in USB2.0
+                          not fully tested in USB2.0
   Dell    A920            good
 .fi
 .ft R
@@ -42,6 +42,7 @@ maintainer or to the SANE mailing list.
 
 Valid command line options and their syntax can be listed by using
 .RS
+.PP
 scanimage \-\-help \-d lexmark:usb:<usb port>
 .RE
 
@@ -92,7 +93,9 @@ The default value of the threshold option is 50.
 
 
 .SH "CONFIGURATION FILE"
-The configuration file @CONFIGDIR@/lexmark.conf contains only the usb device id (eg usb 0x043d 0x007c).
+The configuration file 
+.I @CONFIGDIR@/lexmark.conf
+contains only the usb device id (eg usb 0x043d 0x007c).
 
 
 .SH "FILES"
@@ -108,12 +111,13 @@ support dynamic loading).
 .SH "ENVIRONMENT"
 .TP
 .B SANE_DEBUG_LEXMARK
-.B SANE_DEBUG_LEXMARK_LOW
 If the library was compiled with debug support enabled, this
 environment variable controls the debug level for this backend. E.g.,
 a value of 255 requests all debug output to be printed. Smaller levels
 reduce verbosity.
-
+.TP
+.B SANE_DEBUG_LEXMARK_LOW
+Provides debug output for low level Lexmark functions.
 
 .SH "LIMITATIONS"
 The windows TWAIN driver has many more options than this SANE
@@ -131,7 +135,11 @@ No bugs currently known.
 
 
 .SH "SEE ALSO"
-sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
+.BR sane\-scsi (5),
+.BR scanimage (1),
+.BR xscanimage (1),
+.BR xsane (1), 
+.BR sane (7)
 
 
 .SH "AUTHOR"
@@ -146,6 +154,6 @@ X74 support was written by Torsten Houwaart (<ToHo@gmx.de>)
 .SH "CREDITS"
 .TP
 Many thanks go to:
-Julien Furgerot who lend me a Dell A920.
+Julien Furgerot who lent me a Dell A920.
 Robert Price, Dani Ele  and Dalai Felinto for the time they spent recording
 USB activity and testing the experimental version.

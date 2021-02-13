@@ -95,8 +95,9 @@ and a debug output to
 .IR sane\-devel@alioth-lists.debian.net .
 You can get the debug output by setting the environment variable
 .B SANE_DEBUG_MUSTEK
-to 5 and showing the list of available scanners with scanimage \-L. Please
-send all of it to the mailing list. You must be subscribed to sane\-devel
+to 5 and showing the list of available scanners with 
+.IR "scanimage \-L" .
+Please send all of it to the mailing list. You must be subscribed to sane\-devel
 before you can send mail to the list. See
 .I http://www.sane\-project.org/mailing\-lists.html
 for details.
@@ -220,8 +221,9 @@ Finally,
 is a global option. If set, the backend will wait until the device is ready
 before sending the inquiry command. Further more the backend will force the
 scan slider to return to its starting position (not implemented for all
-scanners). This option may be necessary with the 600 II N or when scanimage is
-used multiple times (e.g. in scripts). The default is off (not set).
+scanners). This option may be necessary with the 600 II N or when 
+.BR scanimage (1)
+is used multiple times (e.g. in scripts). The default is off (not set).
 .PP
 A sample configuration file is shown below:
 .PP
@@ -349,13 +351,19 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in @CONFIGDIR@.  If the value of the
+directory (".") and then in 
+.IR @CONFIGDIR@ .
+If the value of the
 environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"@CONFIGDIR@" being searched (in this order).
+to "/tmp/config:" would result in directories 
+.IR "tmp/config" ,
+.IR "." ,
+and
+.I "@CONFIGDIR@"
+being searched (in this order).
 .TP
 .B SANE_DEBUG_MUSTEK
 If the library was compiled with debug support enabled, this
@@ -384,7 +392,11 @@ export SANE_DEBUG_MUSTEK=4
 .BR sane\-mustek_usb (5),
 .BR sane\-gt68xx (5),
 .BR sane\-plustek (5),
-.BR sane\-mustek_pp (5)
+.BR sane\-mustek_pp (5),
+.BR sane\-ma1509 (5),
+.BR scanimage (1),
+.BR xscanimage (1)
+
 .br
 .I @DOCDIR@/mustek/mustek.CHANGES
 .br

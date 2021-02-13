@@ -1,4 +1,4 @@
-.TH sane\-fujitsu 5 "07 Feb 2020" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane\-fujitsu 5 "13 Feb 2021" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-fujitsu
 
 .SH NAME
@@ -10,7 +10,7 @@ The
 library implements a SANE (Scanner Access Now Easy) backend which
 provides access to most Fujitsu flatbed and ADF scanners.
 
-This document describes backend version 136, which shipped with SANE 1.0.30.
+This document describes backend version 137, which shipped with SANE 1.0.32.
 
 .SH SUPPORTED HARDWARE
 This version supports every known model which speaks the Fujitsu SCSI and
@@ -93,6 +93,24 @@ capabilities. Please note that these features are somewhat simplistic, and
 may not perform as well as the native implementations. Note also that these
 features all require that the driver cache the entire image in memory. This
 will almost certainly result in a reduction of scanning speed.
+.PP
+swcrop
+.RS
+Requests the driver to detect the extremities of the paper within the larger
+image, and crop the empty edges.
+.RE
+.PP
+swdeskew
+.RS
+Requests the driver to detect the rotation of the paper within the larger
+image, and counter the rotation.
+.RE
+.PP
+swdespeck X
+.RS
+Requests the driver to find and remove dots of X diameter or smaller from the
+image, and fill the space with the average surrounding color.
+.RE
 
 Use 'scanimage \-\-help' to get a list, but be aware that some options may
 be settable only when another option has been set, and that advanced options

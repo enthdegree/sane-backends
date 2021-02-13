@@ -12,9 +12,9 @@
 
 :backend "fujitsu"               ; name of backend
 :url "http://www.thebility.com/fujitsu/"
-:version "134"                   ; version of backend
+:version "137"                   ; version of backend
 :manpage "sane-fujitsu"          ; name of manpage (if it exists)
-:comment "Backend updated for SANE release 1.0.28, see sane-fujitsu manpage"
+:comment "Backend updated for SANE release 1.0.32, see sane-fujitsu manpage"
 :devicetype :scanner             ; start of a list of devices....
                                  ; other types:  :stillcam, :vidcam,
                                  ;               :meta, :api
@@ -579,7 +579,7 @@
 
 :model "fi-7140"
 :interface "USB"
-:status :untested
+:status :good
 :usbid "0x04c5" "0x14df"
 
 :model "fi-7240"
@@ -673,3 +673,9 @@
 :interface "USB"
 :status :good
 :usbid "0x04c5" "0x160b"
+
+:model "ScanSnap iX1600"
+:interface "USB WiFi"
+:status :good
+:usbid "0x04c5" "0x1632"
+:comment "small, current, WiFi not supported."

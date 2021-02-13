@@ -3,7 +3,7 @@
    This file is part of the SANE package, and implements a SANE backend
    for various Canon DR-series scanners.
 
-   Copyright (C) 2008-2020 m. allan noah
+   Copyright (C) 2008-2021 m. allan noah
 
    Yabarana Corp. www.yabarana.com provided significant funding
    EvriChart, Inc. www.evrichart.com provided funding and loaned equipment

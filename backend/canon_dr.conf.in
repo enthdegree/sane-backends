@@ -173,6 +173,7 @@ usb 0x1083 0x164a
 usb 0x1083 0x164b
 
 # P-208
+option duplex-offset 260
 usb 0x1083 0x164c
 
 # DR-G1130

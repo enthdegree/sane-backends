@@ -72,10 +72,11 @@ scanimage \-\-custom\-gamma=yes \-\-gamma\-table
 >image.pnm
 
 .SH SEE ALSO
+.BR sane (7),
 .BR scanimage (1)
 
 .SH AUTHOR
 Oliver Rauch
 
 .SH EMAIL-CONTACT
-Oliver.Rauch@Rauch-Domain.DE
+.I Oliver.Rauch@Rauch-Domain.DE

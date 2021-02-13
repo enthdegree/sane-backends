@@ -7,9 +7,7 @@ sane\-kodakaio \- SANE backend for Kodak aio printer / scanners
 .SH DESCRIPTION
 The
 .B sane\-kodakaio
-library implements a
-.B SANE
-(Scanner Access Now Easy) backend which
+library implements a SANE (Scanner Access Now Easy) backend which
 provides access to Kodak aio printer/scanners, like the ESP and Hero series.
 
 This document describes backend version 2.4, which is the first candidate for

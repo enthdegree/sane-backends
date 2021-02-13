@@ -98,7 +98,7 @@ formats cannot handle depths greater than 8 bits.
 .TP
 .B \-\-autofocus
 Perform autofocus operation. Unless otherwise specified by the other options (
-.I \-\-focus\-on\-centre
+.B \-\-focus\-on\-centre
 and friends), focusing is performed on the centre of the selected scan area.
 .TP
 .B \-\-ae\-wb
@@ -129,7 +129,9 @@ which
 does not work.
 
 .SH CONFIGURATION FILE
-The configuration file @CONFIGDIR@/coolscan2.conf specifies the device(s)
+The configuration file
+.I @CONFIGDIR@/coolscan2.conf
+specifies the device(s)
 that the backend will use. Owing to the nature of the supported connection
 types SCSI, USB, and IEEE 1394, the default configuration file supplied with
 the SANE distribution should work without being edited.
@@ -198,4 +200,4 @@ or the SANE developers' email list.
 
 .SH AUTHORS
 The backend is written and maintained by Andr\['a]s Major
-(andras@users.sourceforge.net).
+.IR <andras@users.sourceforge.net> .

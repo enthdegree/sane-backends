@@ -33,11 +33,15 @@ The scanners that should work with this backend are:
 .RE
 
 The options the backend supports can either be selected through
-command line options to programs like scanimage or through GUI
-elements in xscanimage or xsane.
+command line options to programs like
+.BR scanimage (1)
+or through GUI elements in
+.BR xscanimage (1)
+or
+.BR xsane (1).
 
 .br
-If you have any strange behavior, please report to the backend
+If you notice any strange behavior, please report to the backend
 maintainer or to the SANE mailing list.
 
 Valid command line options and their syntax can be listed by using
@@ -93,7 +97,7 @@ The default value of the threshold option is 50.
 
 
 .SH "CONFIGURATION FILE"
-The configuration file 
+The configuration file
 .I @CONFIGDIR@/lexmark.conf
 contains only the usb device id (eg usb 0x043d 0x007c).
 
@@ -138,7 +142,7 @@ No bugs currently known.
 .BR sane\-scsi (5),
 .BR scanimage (1),
 .BR xscanimage (1),
-.BR xsane (1), 
+.BR xsane (1),
 .BR sane (7)
 
 
@@ -150,7 +154,9 @@ The backend was originally written by Fred Odendaal.
 The new version is currently developed by St\['e]phane Voltz.
 .I http://stef.dev.free.fr/sane/lexmark
 .TP
-X74 support was written by Torsten Houwaart (<ToHo@gmx.de>)
+X74 support was written by Torsten Houwaart
+.RI < ToHo@gmx.de >
+
 .SH "CREDITS"
 .TP
 Many thanks go to:

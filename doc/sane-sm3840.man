@@ -10,13 +10,13 @@ provides access to some Microtek scanners with the SCAN08
 USB chip.
 .PP
 There exist backends for Microtek scanners with SCSI command set.
-Refer to 
+Refer to
 .BR sane\-microtek (5)
 and
 .BR sane\-microtek2 (5)
 for details.
 .PP
-There also exists a Microtek 3600 series driver, see 
+There also exists a Microtek 3600 series driver, see
 .BR sane\-sm3600 (5)
 for details.
 .PP
@@ -36,14 +36,14 @@ Microtek   ScanMaker 4800  All modes OK
 .PP
 If you own a Microtek scanner with the SCAN08 chip other than the ones
 listed above, it may or may not work with SANE.  Feel free to contact the
-backend author 
+backend author
 .RI ( earle@ziplabel.com )
 to report results with scanners not on the list.
 
 
 .SH "FRONTEND OPTIONS"
 .PP
-The following options are supported by the 
+The following options are supported by the
 .BR sane\-sm3840
 driver:
 .TP
@@ -102,6 +102,5 @@ to 1.
 .I http://www.ziplabel.com/sm3840
 
 .SH AUTHOR
-.br
-Earle F. Philhower III (earle@ziplabel.com)
-.br
+Earle F. Philhower III
+.RI < earle@ziplabel.com >

@@ -77,7 +77,7 @@ To print all available options:
 .SH OPTIONS
 Parameters are separated by a blank from single-character options (e.g.
 .BR "\-d epson" )
-and by a "=" from multi-character options (e.g. 
+and by a "=" from multi-character options (e.g.
 .BR \-\-device\-name=epson ).
 
 .PP
@@ -103,7 +103,7 @@ The
 .B \-\-format
 .I format
 option selects how image data is written to standard output or the file specified by
-the 
+the
 .B \-\-output\-file
 option.
 .I format
@@ -171,21 +171,21 @@ feeders.
 is used to specify the format of the filename that each page will be written
 to.  Each page is written out to a single file.  If
 .I format
-is not specified, the default of 
+is not specified, the default of
 .I out%d.pnm
 (or
 .I out%d.tif
-for 
+for
 .BR "\-\-format tiff" ,
 .I out%d.png
 for
 .B "\-\-format png"
 or
 .I out%d.jpg
-for 
+for
 .BR "\-\-format jpeg" )
 will be used.
-This option is incompatible with the 
+This option is incompatible with the
 .B \-\-output\-path
 option.
 .I format
@@ -240,7 +240,7 @@ or
 option requests that
 .B scanimage
 saves the scanning output to the given path. This option is incompatible with the
-\-\-batch option. The program will try to guess 
+\-\-batch option. The program will try to guess
 .B \-\-format
 from the file name. If that is not possible, it will print an error message and exit.
 .PP
@@ -312,7 +312,7 @@ distribution that it came with and the version of the backend that it
 loads. Usually that's the dll backend. If more information about the version
 numbers of the backends are necessary, the
 .B DEBUG
-variable for the dll backend can be used. Example: 
+variable for the dll backend can be used. Example:
 .I "SANE_DEBUG_DLL=3 scanimage \-L" .
 .PP
 As you might imagine, much of the power of
@@ -491,7 +491,7 @@ user:password:resource
 .B scanimage
 uses this information to answer user authorization requests
 automatically. The file must have 0600 permissions or stricter. You should
-use this file in conjunction with the 
+use this file in conjunction with the
 .B \-\-accept\-md5\-only
 option to avoid
 server-side attacks. The resource may contain any character but is limited

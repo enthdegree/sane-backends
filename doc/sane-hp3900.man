@@ -5,9 +5,7 @@ sane\-hp3900 \- SANE backend for RTS8822 chipset based scanners
 .SH DESCRIPTION
 The
 .B sane\-hp3900
-library implements a
-.B SANE
-(Scanner Access Now Easy) backend that provides
+library implements a SANE (Scanner Access Now Easy) backend that provides
 access at least to the following USB flatbed scanners:
 .PP
 .RS
@@ -34,7 +32,9 @@ backend homepage
 .IR http://sourceforge.net/projects/hp3900\-series/ .
 .PP
 This is ALPHA software. Keep your hand at the scanner's plug and unplug it, if
-scanner does not start to scan. See also the BUGS section.
+scanner does not start to scan. See also the
+.B BUGS
+section.
 .PP
 If you own a scanner other than the ones listed above that works with this
 backend, please let us know this by sending the scanner's exact model name and
@@ -94,7 +94,7 @@ to "/tmp/config:" would result in directories
 .IR "tmp/config" ,
 .IR "." ,
 and
-.I "/etc/sane.d"
+.I @CONFIGDIR@
 being searched (in this order).
 .TP
 .B SANE_DEBUG_HP3900
@@ -115,7 +115,8 @@ export SANE_DEBUG_HP3900=4
 .I http://jkdsoftware.dyndns.org/drupal/?q=es/books/151
 
 .SH AUTHOR
-Jonathan Bravo Lopez <jkdsoft@gmail.com>
+Jonathan Bravo Lopez
+.RI < jkdsoft@gmail.com >
 
 .SH BUGS
 Scanning is only tested with Linux/ix86/gcc. Be careful when testing on other

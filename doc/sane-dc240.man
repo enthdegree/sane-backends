@@ -5,9 +5,7 @@ sane\-dc240 \- SANE backend for Kodak DC240 Digital Camera
 .SH DESCRIPTION
 The
 .B sane\-dc240
-library implements a
-.B SANE
-(Scanner Access Now Easy) backend that
+library implements a SANE (Scanner Access Now Easy) backend that
 provides access to the Kodak DC240 camera. THIS IS EXTREMELY ALPHA
 CODE!  USE AT YOUR OWN RISK!!
 .SH "DEVICE NAMES"
@@ -23,7 +21,8 @@ camera is always initialized using 9600 baud, then switches to the
 higher rate).  On a 450MHz Pentium, I usually have no problems downloading
 at 115200 baud, though the camera sometimes has to resend packets due
 to lost characters.  Results are better when
-the "interrupt-unmask flag" is set in the IDE driver (hdparm \-u1).
+the "interrupt-unmask flag" is set in the IDE driver
+.RI ( "hdparm \-u1" ).
 Supported baud rates are: 9600, 19200, 38400, 57600, and 115200.
 .PP
 The
@@ -99,7 +98,7 @@ A value of 128 requests maximally copious debug output; smaller
 levels reduce verbosity.
 
 .SH "SEE ALSO"
-.BT sane (7)
+.BR sane (7)
 
 .SH AUTHOR
 Peter S. Fales
@@ -118,11 +117,7 @@ Not only should we check for the additional directory, but pictures may
 actually be found in multiple directories.
 .PP
 More general comments, suggestions, and inquiries about frontends
-or
-.B SANE
-should go to the
-.B SANE
-Developers mailing list
+or SANE should go to the SANE Developers mailing list
 (see
 .I http://www.sane\-project.org/mailing\-lists.html
 for details).

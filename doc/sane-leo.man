@@ -25,10 +25,10 @@ The scanners that should work with this backend are:
 .RE
 
 The options the backend supports can either be selected through
-command line options to programs like 
+command line options to programs like
 .BR scanimage (1)
-or through GUI elements in 
-.BR xscanimage (1) 
+or through GUI elements in
+.BR xscanimage (1)
 or
 .BR xsane (1).
 
@@ -116,9 +116,9 @@ selected. The default is "no".
 
 
 .SH CONFIGURATION FILE
-The configuration file 
+The configuration file
 .I @CONFIGDIR@/leo.conf
-supports only one information: the device name to use (eg 
+supports only one information: the device name to use (eg
 .IR /dev/scanner ).
 
 
@@ -147,8 +147,7 @@ backend. However they are only software adjustments. This backend only
 implements what the scanner can support.
 
 
-.SH BUGS
-
+SH BUGS
 None known.
 
 
@@ -156,7 +155,7 @@ None known.
 
 .BR sane\-scsi (5),
 .BR scanimage (1),
-.BR xscanimage (1), 
+.BR xscanimage (1),
 .BR xsane (1),
 .BR sane (7)
 
@@ -166,4 +165,3 @@ None known.
 .TP
 The package is actively maintained by Frank Zago.
 .I http://www.zago.net/sane/#leo
-

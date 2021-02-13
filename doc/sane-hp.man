@@ -5,9 +5,7 @@ sane\-hp \- SANE backend for HP ScanJet scanners
 .SH DESCRIPTION
 The
 .B sane\-hp
-library implements a
-.B SANE
-(Scanner Access Now Easy) backend that
+library implements a SANE (Scanner Access Now Easy) backend that
 provides access to HP ScanJet scanners which support SCL (Scanner
 Control Language by HP).  The following
 scanners are known positively to work with this backend:
@@ -52,7 +50,9 @@ the kernel scanner driver or libusb. See
 .BR sane\-usb (5)
 for more details.
 .PP
-The "hp" backend no longer supports OfficeJet multi-function peripherals.
+The
+.B sane\-hp
+backend no longer supports OfficeJet multi-function peripherals.
 For these devices use the external "hpoj" backend in version 0.90 and later of
 the "HP OfficeJet Linux driver", available at
 .br
@@ -62,8 +62,9 @@ the "HP OfficeJet Linux driver", available at
 Because Hewlett-Packard does no longer produce scanners that support
 SCL (beside the OfficeJets), the above list of supported scanners is
 complete.
-Other HP scanners are not supported by the "hp" backend, but might be supported
-by another one. See
+Other HP scanners are not supported by the
+.B sane\-hp
+backend, but might be supported by another one. See
 .IR http://www.sane\-project.org/ .
 You can also watch the sane\-devel mailing list at
 .IR http://www.sane\-project.org/mailing\-lists.html .
@@ -131,10 +132,12 @@ the scanner is connected by USB.
 Option
 .B connect\-device
 specifies that the scanner is connected to the system by a special
-device. Input/output is performed by read()/write()-operations
+device. Input/output is performed by
+.BR read ()/ write "()-operations"
 on the device. This option must be used for HP ScanJet Plus
 or scanners connected to USB which are accessed through a named device
-(e.g. /dev/usb/scanner0).
+(e.g.
+.IR /dev/usb/scanner0 ).
 For device names that contain "usb", "uscanner" or "ugen", it is not
 necessary to specify option connect\-device.
 
@@ -296,5 +299,6 @@ is supported by the ppSCSI-driver (see above).
 .BR scanimage (1)
 
 .SH AUTHOR
-The sane\-hp backend was written by Geoffrey T. Dairiki. HP PhotoSmart
-PhotoScanner support by Peter Kirchgessner.
+The sane\-hp backend was written by Geoffrey T. Dairiki.
+.br
+HP PhotoSmart PhotoScanner support by Peter Kirchgessner.

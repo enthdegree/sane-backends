@@ -47,14 +47,16 @@ Note that the untested scanner will not be directly supported. You
 should contact the author for that.
 
 The TECO VM number can usually be found at the back of the scanner. It
-is also part of the FCC ID. 
+is also part of the FCC ID.
 .I sane\-find\-scanner \-v
 will also show the
 SCSI inquiry, and if it is a TECO scanner, the name will be there too.
 
 The options the backend supports can either be selected through
-command line options to programs like scanimage or through GUI
-elements in 
+command line options to programs like
+.BR scanimage (1)
+or through GUI
+elements in
 .BR xscanimage (1)
 or
 .BR xsane (1).
@@ -76,7 +78,7 @@ scanimage \-\-help \-d teco1
 .TP
 .B \-\-mode Black & White|Grayscale|Color
 Selects the basic mode of operation of the scanner valid choices are
-The 
+The
 .I Black & White
 mode is black and white only (1 bit).
 .I Grayscale
@@ -95,7 +97,7 @@ between 1 and 600, in increments of 1.
 
 .TP
 .B \-l \-t \-x \-y
-Controls the scan area: 
+Controls the scan area:
 .B \-l
 sets the top left x coordinate,
 .B \-t
@@ -142,9 +144,9 @@ selected. The default is "no".
 
 
 .SH CONFIGURATION FILE
-The configuration file 
+The configuration file
 .I @CONFIGDIR@/teco1.conf
-supports only one item: the device name to use (eg 
+supports only one item: the device name to use (eg
 .IR /dev/scanner ).
 
 

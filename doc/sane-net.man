@@ -123,15 +123,15 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in 
+directory (".") and then in
 .IR @CONFIGDIR@ .
 If the value of the
 environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories 
-.IR "tmp/config" , 
+to "/tmp/config:" would result in directories
+.IR "tmp/config" ,
 .IR "." ,
 and
 .I "@CONFIGDIR@"
@@ -152,7 +152,7 @@ environment variable controls the debug level for this backend.  E.g.,
 a value of 128 requests all debug output to be printed.  Smaller
 levels reduce verbosity.
 .SH BUGS
-If 
+If
 .BR saned (8)
 has timed out, the net backend may loop with authorization requests.
 
@@ -165,4 +165,3 @@ has timed out, the net backend may loop with authorization requests.
 .I http://www.penguin-breeder.org/?page=sane\-net
 .SH AUTHOR
 David Mosberger and Andreas Beck
-

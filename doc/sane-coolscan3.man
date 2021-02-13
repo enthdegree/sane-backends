@@ -5,9 +5,7 @@ sane\-coolscan3 \- SANE backend for Nikon Coolscan film scanners
 .SH DESCRIPTION
 The
 .B sane\-coolscan3
-library implements a
-.B SANE
-(Scanner Access Now Easy) backend that
+library implements a SANE (Scanner Access Now Easy) backend that
 provides access to Nikon Coolscan film scanners.  Some functions of this
 backend should be considered
 .B beta-quality
@@ -42,7 +40,8 @@ The options the backend supports can either be selected through command line
 options to programs like
 .BR scanimage (1)
 or through GUI elements in
-.BR xscanimage (1) or
+.BR xscanimage (1)
+or
 .BR xsane (1).
 
 Valid command line options and their syntax can be listed by using:
@@ -61,9 +60,7 @@ first scanner identified. Use the command:
 scanimage \-L
 .RE
 .PP
-to list all devices recognized by your
-.B SANE
-installation.
+to list all devices recognized by your SANE installation.
 
 The options should be fully described by the description or tooltips given by
 frontend. Here is a description of some of the most important options, in the
@@ -130,12 +127,12 @@ which
 does not work.
 
 .SH CONFIGURATION FILE
-The configuration file @CONFIGDIR@/coolscan3.conf specifies the device(s)
-that the backend will use. Owing to the nature of the supported connection
-types SCSI, USB, and IEEE 1394, the default configuration file supplied with
-the
-.B SANE
-distribution should work without being edited.
+The configuration file
+.I @CONFIGDIR@/coolscan3.conf
+specifies the device(s) that the backend will use. Owing to the nature of
+the supported connection types SCSI, USB, and IEEE 1394, the default
+configuration file supplied with the SANE distribution should work without
+being edited.
 
 Each line in the configuration file is either of the following, where all
 entries are case-sensitive:
@@ -151,9 +148,7 @@ configuration file is present.
 .I a line of the form <interface>:<device>
 Here <interface> can be one of "scsi" or "usb", and <device> is the device
 file of the scanner. Note that IEEE 1394 devices are handled by the SBP-2
-module in the kernel and appear to
-.B SANE
-as SCSI devices.
+module in the kernel and appear to SANE as SCSI devices.
 
 .SH FILES
 .TP
@@ -184,9 +179,7 @@ levels reduce verbosity.
 .BR xsane(1)
 
 .SH BUGS
-Currently, the
-.B SANE
-protocol does not allow automatically updating options
+Currently, the SANE protocol does not allow automatically updating options
 whenever the hardware changes. Thus the number of choices for the
 .B \-\-frame
 option will be fixed when the backend is initialized (usually when the user
@@ -200,12 +193,10 @@ from IEEE 1394 scanners to 36 bytes, discarding vital information
 about the scanner. The IEEE 1394 models therefore only work with
 2.4.19 or later.
 
-No real bugs currently known, please report any to the
-.B SANE
-developers' list.
+No real bugs currently known, please report any to the SANE developers' list.
 
 .SH AUTHORS
 coolscan3 written by A. Zummo
-.RI ( a.zummo@towertech.it ),
+.RI < a.zummo@towertech.it >,
 based heavily on coolscan2 written by Andr\['a]s Major
-.RI ( andras@users.sourceforge.net ).
+.RI < andras@users.sourceforge.net >.

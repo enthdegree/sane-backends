@@ -29,4 +29,5 @@ by m. allan noah.
 .BR sane\-scsi (5)
 
 .SH AUTHOR
-m. allan noah: <kitno455 a t gmail d o t com>
+m. allan noah:
+.RI < "kitno455 a t gmail d o t com" >

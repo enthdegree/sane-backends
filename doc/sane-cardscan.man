@@ -7,9 +7,7 @@ sane\-cardscan \- SANE backend for Corex CardScan usb scanners
 .SH DESCRIPTION
 The
 .B sane\-cardscan
-library implements a
-.B SANE
-(Scanner Access Now Easy) backend which
+library implements a SANE (Scanner Access Now Easy) backend which
 provides access to the Corex CardScan 800c & 600c small-format scanners.
 
 The backend supports only grayscale and color modes and media of
@@ -21,12 +19,11 @@ driver in action, and send it to the author.
 
 .SH OPTIONS
 The cardscan backend supports the following options:
-.PP
-mode m
-.RS
-Selects the mode for the scan. Options are "Gray" and "Color".
-.RE
-.PP
+
+.TP
+.B --mode Gray|Color
+Selects the mode for the scan.
+
 .SH CONFIGURATION FILE
 The configuration file
 .I cardscan.conf
@@ -35,8 +32,7 @@ for scanners, and provide options controlling the operation of the backend.
 This file is read each time the frontend asks the backend for a list
 of scanners, generally only when the frontend starts. If the configuration
 file is missing, the backend will use a set of compiled defaults, which
-are identical to the default configuration file shipped with
-.BR SANE .
+are identical to the default configuration file shipped with SANE.
 .PP
 Scanners can be specified in the configuration file in 2 ways:
 .PP
@@ -109,11 +105,13 @@ windows driver.
 
 .SH CREDITS
 The hardware to build this driver was provided to the author by:
-  Jeff Kowalczyk <jtk a t yahoo d o t com>
+Jeff Kowalczyk
+.IR "<jtk a t yahoo d o t com>" .
 
 .SH "SEE ALSO"
 .BR sane (7),
 .BR sane\-usb (5)
 
 .SH AUTHOR
-m. allan noah: <kitno455 a t gmail d o t com>
+m. allan noah:
+.I "<kitno455 a t gmail d o t com>" .

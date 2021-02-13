@@ -63,14 +63,14 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in 
+directory (".") and then in
 .IR @CONFIGDIR@ .
 If the value of the
 environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories 
+to "/tmp/config:" would result in directories
 .IR tmp/config ,
 .IR . ,
 and
@@ -98,4 +98,3 @@ for details.
 .SH SEE ALSO
 .BR sane (7),
 .BR xcam (1)
-

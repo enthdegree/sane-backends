@@ -34,7 +34,7 @@ flag requests that
 run in standalone daemon mode.  In this mode,
 .B saned
 will listen for incoming client connections;
-.B inetd
+.BR inetd (8)
 is not required for
 .B saned
 operations in this mode. The
@@ -91,8 +91,12 @@ flag displays a short help message.
 .PP
 If
 .B saned
-is run from other programs such as inetd, xinetd and systemd, check that
-program's documentation on how to pass command-line options.
+is run from other programs such as
+.BR inetd (8),
+.BR xinetd (8)
+and
+.BR systemd (1),
+check that program's documentation on how to pass command-line options.
 .SH CONFIGURATION
 First and foremost:
 .B saned
@@ -116,13 +120,16 @@ list.
 \fBdata_portrange\fP = \fImin_port\fP - \fImax_port\fP
 Specify the port range to use for the data connection. Pick a port
 range between 1024 and 65535; don't pick a too large port range, as it
-may have performance issues. Use this option if your \fBsaned\fP
+may have performance issues. Use this option if your
+.B saned
 server is sitting behind a firewall. If that firewall is a Linux
 machine, we strongly recommend using the Netfilter
 \fInf_conntrack_sane\fP module instead.
 .TP
 \fBdata_connect_timeout\fP = \fItimeout\fP
-Specify the time in milliseconds that saned will wait for a data
+Specify the time in milliseconds that
+.B saned
+will wait for a data
 connection. Without this option, if the data connection is not done
 before the scanner reaches the end of scan, the scanner will continue
 to scan past the end and may damage it depending on the
@@ -167,16 +174,29 @@ For
 .B saned
 to work properly in its default mode of operation, it is also necessary to
 add the appropriate configuration for
-.I (x)inetd or systemd.
+.BR xinetd (8),
+.BR inetd (8)
+or
+.BR systemd (1)
 (see below).
-Note that your inetd must support IPv6 if you
-want to connect to saned over IPv6 ; xinetd, openbsd-inetd and systemd
-are known to support IPv6, check the documentation for your inetd daemon.
+Note that your
+.BR inetd (8)
+must support IPv6 if you want to connect to
+.B saned
+over IPv6;
+.BR xinetd (8),
+.BR openbsd-inetd (8)
+and
+.BR systemd (1)
+are known to support IPv6, check the documentation for your
+.BR inetd (8)
+daemon.
 .PP
 In the sections below the configuration for
-.I inetd, xinetd
+.BR inetd (8),
+.BR xinetd (8)
 and
-.I systemd
+.BR systemd (1)
 are described in more detail.
 .PP
 For the configurations below it is necessary to add a line of the following
@@ -189,8 +209,11 @@ sane\-port 6566/tcp # SANE network scanner daemon
 .PP
 The official IANA short name for port 6566 is "sane\-port". The older name
 "sane" is now deprecated.
+
 .SH INETD CONFIGURATION
-It is required to add a single line to the inetd configuration file
+It is required to add a single line to the
+.BR inetd (8)
+configuration file
 .IR (/etc/inetd.conf)
 .
 .PP
@@ -202,7 +225,8 @@ sane\-port stream tcp nowait saned.saned @SBINDIR@/saned saned
 .PP
 However, if your system uses
 .BR tcpd (8)
-for additional security screening, you may want to disable saned
+for additional security screening, you may want to disable
+.B saned
 access control by putting ``+'' in
 .IR saned.conf
 and use a line of the following form in
@@ -222,9 +246,13 @@ access permissions on the special device are set such that
 .B saned
 can access the scanner (the program generally needs read and
 write access to scanner devices).
+
 .SH XINETD CONFIGURATION
-If xinetd is installed on your system instead of inetd the following example
-for
+If
+.BR xinetd (8)
+is installed on your system instead of
+.BR inetd (8)
+the following example for
 .I /etc/xinetd.conf
 may be helpful:
 .PP
@@ -247,20 +275,34 @@ service sane\-port
 .fi
 .ft R
 .RE
+
 .SH SYSTEMD CONFIGURATION
-Saned can be compiled with explicit systemd support. This
+.B saned
+can be compiled with explicit
+.BR systemd (1) support. This
 will allow logging debugging information to be forwarded
-to the systemd journal. The systemd support
-requires compilation with the systemd-devel package
+to the
+.BR systemd (1)
+journal. The
+.BR systemd (1)
+support requires compilation with the systemd-devel package
 installed on the system. this is the preferred option.
 
-Saned can be used with systemd without the systemd integration
-compiled in, but then logging of debug information is not supported.
+.B saned
+can be used with
+.BR systemd (1)
+without the
+.BR systemd (1)
+integration compiled in, but then logging of debug information is not supported.
 
-The systemd configuration is different for the 2 options, so
-both are described below.
+The
+.BR systemd (1)
+configuration is different for the 2 options, so both are described below.
+
 .SH Systemd configuration for saned with systemd support compiled in
-for the systemd configuration we need to add 2 configuration files in
+For
+.BR systemd (1)
+configuration we need to add 2 configuration files in
 .I /etc/systemd/system.
 .PP
 The first file we need to add here is called
@@ -316,15 +358,20 @@ Also=saned.socket
 .PP
 You need to set an environment variable for
 .B SANE_CONFIG_DIR
-pointing to the directory where saned can find its configuration files.
+pointing to the directory where
+.B saned
+can find its configuration files.
 you will have to remove the # on the last line and set the variables
 for the desired debugging information if required.  Multiple variables
 can be set by separating the assignments by spaces as shown in the
 example above.
 .PP
 Unlike
-.I (x)inetd
-, systemd allows debugging output from backends set using
+.BR xinetd (8)
+and
+.BR inetd (8),
+.BR systemd (1)
+allows debugging output from backends set using
 .B SANE_DEBUG_XXX
 to be captured. See the man-page for your backend to see what options
 are  supported.
@@ -332,15 +379,24 @@ With the service unit as described above, the debugging output is
 forwarded to the system log.
 
 .SH Systemd configuration when saned is compiled without systemd support
-This configuration will also work when Saned is compiled WITH systemd integration
-support, but it does not allow debugging information to be logged.
+This configuration will also work when
+.B saned
+is compiled WITH
+.BR systemd (1) integration support, but it does not allow debugging
+information to be logged.
 .PP
-for systemd configuration for saned, we need to add 2 configuration files in
+For
+.BR systemd (1)
+configuration for
+.BR saned ,
+we need to add 2 configuration files in
 .I /etc/systemd/system.
 .PP
 The first file we need to add here is called
 .I saned.socket.
-It is identical to the version for systemd with the support compiled in.
+It is identical to the version for
+.BR systemd (1)
+with the support compiled in.
 It shall have the following contents:
 .PP
 .RS
@@ -362,7 +418,9 @@ WantedBy=sockets.target
 .PP
 The second file to be added is
 .I saned@.service
-This one differs from the version with systemd integration compiled in:
+This one differs from the version with
+.BR systemd (1)
+integration compiled in:
 .PP
 .RS
 .ft CR
@@ -415,13 +473,19 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in @CONFIGDIR@.  If the value of the
+directory (".") and then in
+.IR @CONFIGDIR@ .
+If the value of the
 environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"@CONFIGDIR@" being searched (in this order).
+to "/tmp/config:" would result in directories
+.IR tmp/config ,
+.IR . ,
+and
+.I "@CONFIGDIR@"
+being searched (in this order).
 
 .SH "SEE ALSO"
 .BR sane (7),
@@ -430,7 +494,10 @@ to "/tmp/config:" would result in directories "tmp/config", ".", and
 .BR xcam (1),
 .BR sane\-dll (5),
 .BR sane\-net (5),
-.BR sane\-"backendname" (5)
+.BR sane\-"backendname" (5),
+.BR inetd (8),
+.BR xinetd (8),
+.BR systemd (1),
 .br
 .I http://www.penguin-breeder.org/?page=sane\-net
 .SH AUTHOR

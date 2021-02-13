@@ -27,7 +27,7 @@ Sceptre VividScan S1200      SCSI
 The make of this scanner is KINPO, so other scanners from that manufacturer may also work (eg. the S600).
 .SH OPTIONS
 The options the backend supports can either be selected through command line
-options to programs like 
+options to programs like
 .BR scanimage (1)
 or through GUI elements in
 .BR xscanimage (1)
@@ -46,8 +46,15 @@ scanimage \-\-help \-d sceptre
 .TP
 .B \-\-mode Lineart|Halftone|Gray|Color
 Selects the basic mode of operation of the scanner.
-The Lineart and Halftone mode are black and white only (1 bit). Gray
-will produce 256 levels of gray (8 bits). Color will produce a 24 bits
+The
+.I Lineart
+and
+.I Halftone
+mode are black and white only (1 bit).
+.I Gray
+will produce 256 levels of gray (8 bits).
+.I Color
+will produce a 24 bits
 color image. The scanner supports 30 bits internally but it only
 exports 24.
 
@@ -58,7 +65,9 @@ resolutions between 50 and 1200.
 
 .TP
 .B \-\-halftone\-pattern 1|2|3|4
-Selects the pattern mode that is used in Halftone mode.
+Selects the pattern mode that is used in
+.I Halftone
+mode.
 
 .TP
 .B \-\-gamma\-correction Default|User Defined|High Density Printing|\
@@ -69,29 +78,34 @@ controls the scanner internal gamma correction.
 .B \-\-custom\-gamma
 Allows the user to specify a gamma table (see the
 next 3 parameters).
-Color mode only. 
+.I Color
+mode only.
 
 .TP
 .B \-\-red\-gamma\-table
 Can be used to download a user defined
 gamma table for the red channel. The table must be 256 bytes long.
-Color mode only. 
+.I Color
+mode only.
 
 .TP
 .B \-\-green\-gamma\-table
 Can be used to download a user defined
 gamma table for the green channel. The table must be 256 bytes long.
-Color mode only.
+.I Color
+mode only.
 
 .TP
 .B \-\-blue\-gamma\-table
 Can be used to download a user defined gamma table
 for the blue channel. The table must be 256 bytes long.
-Color mode only. 
+.I Color
+mode only.
 
 .TP
 .B \-\-threshold 0..255
-Sets the threshold for black and white pixels in lineart
+Sets the threshold for black and white pixels in
+.I Lineart
 mode. Possible values are from 0 (darker) to 255 (lighter).
 
 .TP
@@ -105,11 +119,11 @@ selected. The default is "no".
 
 .TP
 .B \-l \-t \-x \-y
-control the scan area: 
+control the scan area:
 .B -l
 sets the top left x coordinate,
 .B \-t
-the top left y coordinate, 
+the top left y coordinate,
 .B \-x
 selects the width and
 .B \-y
@@ -117,9 +131,9 @@ the height of the scan area. All parameters are specified in millimeters by defa
 
 
 .SH CONFIGURATION FILE
-The configuration file 
+The configuration file
 .I @CONFIGDIR@/sceptre.conf
-supports only one item: the device name to use 
+supports only one item: the device name to use
 .RI "(eg " /dev/scanner ).
 
 

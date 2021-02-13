@@ -34,11 +34,11 @@ The TECO VM number can usually be found at the back of the
 scanner. It is also part of the FCC ID.
 
 The options the backend supports can either be selected through
-command line options to programs like 
-.BR scanimage (1) 
+command line options to programs like
+.BR scanimage (1)
 or through GUI
-elements in 
-.BR xscanimage (1) 
+elements in
+.BR xscanimage (1)
 or
 .BR xsane (1).
 
@@ -60,7 +60,7 @@ scanimage \-\-help \-d teco3
 .TP
 .B \-\-mode Black & White|Grayscale|Color
 Selects the basic mode of operation of the scanner.
-The 
+The
 .I Black & White
 mode is black and white only (1 bit).
 .I Grayscale
@@ -84,7 +84,7 @@ selected. The default is "no".
 
 .TP
 .B \-l \-t \-x \-y
-Control the scan area: 
+Control the scan area:
 .B \-l
 sets the top left x coordinate,
 .B \-t
@@ -92,7 +92,7 @@ the top left y coordinate,
 .B \-x
 selects the width and
 .B \-y
-the height of the scan area. 
+the height of the scan area.
 All parameters are specified in millimeters by default.
 
 .SH OPTIONS FOR COLOR MODE ONLY
@@ -119,7 +119,7 @@ for the blue channel. The table must be 1024 bytes long.
 
 
 .SH CONFIGURATION FILE
-The configuration file 
+The configuration file
 .I @CONFIGDIR@/teco3.conf
 supports only one item: the device name to use (eg
 .IR /dev/scanner ).
@@ -158,7 +158,7 @@ Not much.
 .BR sane\-scsi (5),
 .BR scanimage (1),
 .BR xscanimage (1),
-.BR xsane (1), 
+.BR xsane (1),
 .BR sane (7)
 
 

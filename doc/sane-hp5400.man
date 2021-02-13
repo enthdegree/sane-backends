@@ -5,9 +5,7 @@ sane\-hp5400 \- SANE backend for Hewlett-Packard 54XX scanners
 .SH DESCRIPTION
 The
 .B sane\-hp5400
-library implements a
-.B SANE
-(Scanner Access Now Easy) backend that provides
+library implements a SANE (Scanner Access Now Easy) backend that provides
 access to the following Hewlett-Packard USB flatbed scanners:
 .PP
 .RS

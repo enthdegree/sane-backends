@@ -35,7 +35,7 @@ and to contact the author with test results.
 
 .SH CONFIGURATION
 A modest effort has been made to expose the standard options to the API.
-This allows frontends such as 
+This allows frontends such as
 .BR xscanimage (1)
 to set scanning region,
 resolution, bit-depth (and color), and enable the automatic document feeder.
@@ -54,7 +54,7 @@ Fujitsu M3096GX/M3093GX/M3093DG OEM Manual, part number C150-E015...03
 
 .SH AUTHOR
 Randolph Bentson
-.IR <bentson@holmsjoen.com> ,
+.RI < bentson@holmsjoen.com >,
 with credit to the unnamed author of the coolscan driver
 
 .SH LIMITATIONS
@@ -69,7 +69,7 @@ but I haven't seen them yet.
 .br
 Both scanners claim to have separate control
 of resolution in X and Y directions. I confess I haven't tested this yet.
-I have found that 
+I have found that
 .BR xsane (1)
 doesn't even display this capability.
 .br

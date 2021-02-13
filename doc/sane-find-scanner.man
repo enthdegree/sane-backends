@@ -28,7 +28,7 @@ and
 The test is done by sending a SCSI inquiry command and looking for a device
 type of "scanner" or "processor" (some old HP scanners seem to send
 "processor"). So
-.BR sane\-find\-scanner (1)
+.B sane\-find\-scanner
 will find any SCSI scanner connected to those default device files even if it
 isn't supported by any SANE backend.
 .PP
@@ -43,23 +43,23 @@ are tested. The files are opened and the vendor and device ids are determined,
 if the operating system supports this feature. Currently USB scanners are only
 found this way if they are supported by the Linux scanner module or the
 FreeBSD or OpenBSD uscanner driver. After that test,
-.BR sane\-find\-scanner (1)
+.B sane\-find\-scanner
 tries to scan for USB devices found by the USB library libusb (if
 available). There is no special USB class for scanners, so the heuristics used
 to distinguish scanners from other USB devices is not
 perfect.
-.BR sane\-find\-scanner (1)
+.B sane\-find\-scanner
 also tries to find out the type of USB chip used in the scanner. If detected,
 it will be printed after the vendor and product ids.
-.BR sane\-find\-scanner (1)
+.B sane\-find\-scanner
 will even find USB scanners, that are not supported by any SANE backend.
 .PP
-.BR sane\-find\-scanner (1)
+.B sane\-find\-scanner
 won't find most
 parallel port scanners, or scanners connected to proprietary ports. Some
 .B parallel port
 scanners may be detected by
-.B sane\-find\-scanner -p.
+.I sane\-find\-scanner -p.
 At the time of writing this will only detect Mustek parallel port scanners.
 
 .SH OPTIONS
@@ -69,7 +69,7 @@ Prints a short usage message.
 .TP 8
 .B \-v
 Verbose output. If used once,
-.BR sane\-find\-scanner (1)
+.B sane\-find\-scanner
 shows every device name and the test result.  If used twice, SCSI inquiry
 information and the USB device descriptors are also printed.
 .TP 8
@@ -82,13 +82,13 @@ Probe parallel port scanners.
 .B \-f
 Force opening all explicitly given devices as SCSI and USB devices. That's
 useful if
-.BR sane\-find\-scanner (1)
+.B sane\-find\-scanner
 is wrong in determining the device type.
 .TP 8
 .B \-F filename
 filename is a file that contains USB descriptors in the format of
 /proc/bus/usb/devices as used by Linux.
-.BR sane\-find\-scanner (1)
+.B sane\-find\-scanner
 tries to identify the chipset(s) of all USB scanners found in such a file. This
 option is useful for developers when the output of
 .I "cat /proc/bus/usb/devices"
@@ -97,16 +97,16 @@ is available but the scanner itself isn't.
 .B devname
 Test device file "devname". No other devices are checked if devname is given.
 .SH EXAMPLE
-.B sane\-find\-scanner \-v
+.I sane\-find\-scanner \-v
 .br
 Check all SCSI and USB devices for available scanners and print a line for
 every device file.
 .PP
-.B sane\-find\-scanner /dev/scanner
+.I sane\-find\-scanner /dev/scanner
 .br
 Look for a (SCSI) scanner only at /dev/scanner and print the result.
 .PP
-.B sane\-find\-scanner \-p
+.I sane\-find\-scanner \-p
 .br
 Probe for parallel port scanners.
 .SH "SEE ALSO"

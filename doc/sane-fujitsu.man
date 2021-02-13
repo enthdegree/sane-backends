@@ -7,10 +7,8 @@ sane\-fujitsu \- SANE backend for Fujitsu flatbed and ADF scanners
 .SH DESCRIPTION
 The
 .B sane\-fujitsu
-library implements a
-.B SANE
-(Scanner Access Now Easy) backend which provides access to most Fujitsu flatbed
-and ADF scanners.
+library implements a SANE (Scanner Access Now Easy) backend which provides
+access to most Fujitsu flatbed and ADF scanners.
 
 This document describes backend version 136, which shipped with SANE 1.0.30.
 
@@ -19,7 +17,8 @@ This version supports every known model which speaks the Fujitsu SCSI and
 SCSI\-over\-USB protocols. Specifically, the SCSI M309x and M409x series, the
 SCSI fi\-series, most of the USB fi\-series, the USB ScanSnap S5xx/S15xx, and
 the USB iX1xx/5xx series scanners are supported. Please see the list at
-http://www.sane\-project.org/sane\-supported\-devices.html for details.
+.I http://www.sane\-project.org/sane\-supported\-devices.html
+for details.
 
 This backend may support other Fujitsu scanners. The best
 way to determine level of support is to test the scanner directly,
@@ -105,9 +104,11 @@ Use
 to get a list, but be aware that some options may
 be settable only when another option has been set, and that advanced options
 may be hidden by some frontend programs.
-.PP
+
 .SH CONFIGURATION FILE
-The configuration file "fujitsu.conf" is used to tell the backend how to look
+The configuration file
+.I fujitsu.conf
+is used to tell the backend how to look
 for scanners, and provide options controlling the operation of the backend.
 This file is read each time the frontend asks the backend for a list
 of scanners, generally only when the frontend starts. If the configuration
@@ -157,8 +158,9 @@ warned.
 .PP
 
 .SH ENVIRONMENT
-The backend uses a single environment variable, SANE_DEBUG_FUJITSU, which
-enables debugging output to stderr. Valid values are:
+The backend uses a single environment variable,
+.BR SANE_DEBUG_FUJITSU ,
+which enables debugging output to stderr. Valid values are:
 .PP
 .RS
 5  Errors
@@ -191,26 +193,32 @@ JPEG output is supported by the backend, but not by the SANE protocol, so is
 disabled in this release. It can be enabled if you rebuild from source.
 
 .SH CREDITS
-m3091 backend: Frederik Ramm <frederik a t remote d o t org>
+m3091 backend: Frederik Ramm
+.RI < "frederik a t remote d o t org" >
 .br
-m3096g backend: Randolph Bentson <bentson a t holmsjoen d o t com>
+m3096g backend: Randolph Bentson
+.RI < "bentson a t holmsjoen d o t com" >
 .br
   (with credit to the unnamed author of the coolscan driver)
 .br
 fujitsu backend, m3093, fi\-4340C, ipc, cmp, long\-time maintainer:
 .br
-  Oliver Schirrmeister <oschirr a t abm d o t de>
+  Oliver Schirrmeister
+.RI < "oschirr a t abm d o t de" >
 .br
-m3092: Mario Goppold <mgoppold a t tbzpariv d o t tcc\-chemnitz dot de>
+m3092: Mario Goppold
+.RI < "mgoppold a t tbzpariv d o t tcc\-chemnitz dot de" >
 .br
-fi\-4220C and basic USB support: Ron Cemer <ron a t roncemer d o t com>
+fi\-4220C and basic USB support: Ron Cemer
+.RI < "ron a t roncemer d o t com" >
 .br
 fi\-4120, fi\-series color, backend re\-write, jpeg, current maintainer:
-  m. allan noah: <kitno455 a t gmail d o t com>
+  m. allan noah:
+.RI < "kitno455 a t gmail d o t com" >
 
 JPEG output and low memory usage support funded by:
   Archivista GmbH
-  www.archivista.ch
+.I www.archivista.ch
 
 Endorser support funded by:
   O A S Oilfield Accounting Service Ltd
@@ -218,19 +226,19 @@ Endorser support funded by:
   Calgary, Alberta
   T2P 3G2 Canada
   1\-403\-263\-2600
-  www.oas.ca
+.I  www.oas.ca
 
 Automatic length detection support funded by:
   Martin G. Miller
-  mgmiller at optonline.net
+.I  mgmiller at optonline.net
 
 Hardware donated, software image enhancement and fi-6/7xxx support funded by:
   Fujitsu Computer Products of America, Inc.
-  www.fcpa.com
+.I  www.fcpa.com
 
 iX500 support funded by:
   Prefix Computer Services
-  www.prefixservice.com
+.I  www.prefixservice.com
 
 .SH "SEE ALSO"
 .BR sane (7),

@@ -46,7 +46,8 @@ is the SCSI model string,
 .I TYPE
 is type SCSI device type string,
 .I BUS
-is the SCSI bus number (named "host" in /proc/scsi/scsi),
+is the SCSI bus number (named "host" in
+.IR /proc/scsi/scsi ),
 .I CHANNEL
 is the SCSI channel number,
 .I ID
@@ -56,7 +57,7 @@ is the logical unit number of the scanner device.  The first two fields are
 strings which must be enclosed in double-quotes if they contain any
 whitespace.  The remaining four fields are non-negative integer numbers.  The
 correct values for these fields can be found by using operating system
-specific tools, e.g. for Linux by looking at the output of the command 
+specific tools, e.g. for Linux by looking at the output of the command
 .IR "cat /proc/scsi/scsi" .
 To simplify configuration, a field's value can be replaced
 with an asterisk symbol (``*'').  An asterisk has the effect that any value is
@@ -104,7 +105,7 @@ form.  This is explained below in the relevant platform-specific section.
 .PP
 When using a SCSI scanner, ensure that the access permission for the
 generic SCSI device is set appropriately.  We recommend to add a group
-"scanner" to 
+"scanner" to
 .I /etc/group
 which contains all users that should have
 access to the scanner.  The permission of the device should then be
@@ -136,11 +137,11 @@ REGISTER ^sg4 PERMISSIONS root.scanner 0660
 .PP
 .SH FREEBSD INFO
 Auto-configuration using the "scsi *" lines in the config files only works if
-the user running the frontend has read/write access to 
+the user running the frontend has read/write access to
 .IR /dev/xpt0 .
 Instead, you can also set a link
 .I /dev/scanner
-to the appropriate 
+to the appropriate
 .I /dev/uk
 device.
 .RS
@@ -168,7 +169,7 @@ Works on FreeBSD 2.2.5R and 3.0 using the
 driver, provided that Plug-and-Play support is disabled on the card.
 If there are no
 .I uk
-devices, just do a 
+devices, just do a
 .I sh MAKEDEV uk0
 in the
 .i /dev
@@ -192,7 +193,7 @@ To keep scanning times to a minimum, it is strongly recommended to use a large
 buffer size for the generic SCSI driver. From SG driver version 2.0 on, the
 maximum buffer size can be changed at program run time, and there is no restriction in size. This driver version is part of the Linux kernels from
 version 2.2.7 on. If the new SG driver is available some backends
-(e.g. 
+(e.g.
 .BR sane\-umax (5),
 .BR sane\-mustek (5) ,
 .BR sane\-sharp (5))
@@ -204,7 +205,7 @@ to the desired buffer size in bytes. It is not recommended to use more
 than 1 MB, because for large values the probability increases that the
 SG driver cannot allocate the necessary buffer(s). For ISA cards, even
 1 MB might be a too large value. For a detailed discussion of memory
-issues of the SG driver, see 
+issues of the SG driver, see
 .I http://www.torque.net/sg.
 .PP
 For Linux kernels before version 2.2.7 the size of the buffer is only 32KB.
@@ -245,7 +246,7 @@ list isn't complete, usually any SCSI adapter supported by Linux should work.
 .RS
 .TP
 Acard/Advance SCSI adapters
-Some old versions of the kernel driver 
+Some old versions of the kernel driver
 .RI ( atp870u.c )
 cut the inquiry information.
 Therefore the scanner couldn't be detected correctly. Use a current kernel.
@@ -274,15 +275,15 @@ NCR/Symbios 53c400/53c400a or Domex DTC3181E/L/LE (DTCT436/436P) ISA SCSI card
 This card is supplied by Mustek (and other vendors). It's supported since
 Linux 2.2.  The SCSI cards are supported by the module g_NCR5380.  It's
 necessary to tell the kernel the io port and type of card.  Example for a
-53c400a: 
+53c400a:
 .I "modprobe g_NCR5380 ncr_addr=0x280 ncr_53c400a=1" .
-Once the kernel detects the card, it should work all right.  
+Once the kernel detects the card, it should work all right.
 However, while it should work, do not expect good performance out of this
 card---it has no interrupt line and therefore while a scan is in progress,
-the system becomes almost unusable. You may change the values of the USLEEP 
-macros in 
+the system becomes almost unusable. You may change the values of the USLEEP
+macros in
 .IR drivers/scsi/g_NCR5380.c .
-Some documentation is in this file and 
+Some documentation is in this file and
 .IR NCR5380.c .
 .TP
 NCR/Symbios 810
@@ -294,21 +295,21 @@ both if you have trouble.
 For Linux kernels before 2.0.33 it may be necessary to increase the SCSI
 timeout. The default timeout for the Linux kernels before 2.0.33 is 10
 seconds, which is way too low when scanning large area.  If you get messages
-of the form ``restart (ncr dead ?)'' in your 
+of the form ``restart (ncr dead ?)'' in your
 .I /var/log/messages
 file or on the system console, it's an indication that the timeout is too short.
-In this case, find the line ``if (np->latetime>10)'' in file 
+In this case, find the line ``if (np->latetime>10)'' in file
 .I ncr53c8xx.
-(normally in directory 
+(normally in directory
 .IR /usr/src/linux/drivers/scsi )
-and change the constant 10 to, say, 60 (one minute).  
+and change the constant 10 to, say, 60 (one minute).
 Then rebuild the kernel/module and try again.
 .TP
 Tekram DC315
-The driver can be downloaded from 
+The driver can be downloaded from
 .IR http://www.garloff.de/kurt/linux/dc395/ .
 For some older scanners it may be necessary to disable all the more advanced
-features by using e.g. 
+features by using e.g.
 .IR "modprobe dc395x_trm dc395x_trm=7,5,1,32" .
 .TP
 Tekram DC390

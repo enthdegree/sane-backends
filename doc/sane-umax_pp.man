@@ -55,12 +55,12 @@ if you have a kernel with ppdev support.
 .PP
 Note that if you don't use the ppdev character device, the backend
 needs to run as root. To allow user access to the scanner
-run the backend through the network interface (See 
+run the backend through the network interface (See
 .BR saned (8)
 and
 .BR sane\-net (5)).
 A more relaxed solution (security wise) is to add suid bit to the frontend
-(See 
+(See
 .BR chmod (1)).
 The backend drop root privileges as soon as it can, right after gaining direct
 access to IO ports, which lessen risks when being root.
@@ -89,14 +89,14 @@ hardware access
 .I /dev/ppi0
 uses *BSD ppi device, depending on the
 number of available parallel port, you
-have to use 
+have to use
 .IR /dev/ppi1 ,
 .IR /dev/ppi2 ", ..."
 .TP
 .I /dev/parport0
 uses Linux ppdev device, depending on the
 number of available parallel port, you
-have to use 
+have to use
 .IR /dev/parport1 ,
 .IR /dev/parport2 ", ..."
 .TP
@@ -111,7 +111,7 @@ OS/2
 \fBNOTE:\fR in all cases, you must have sufficient privileges
 to get access to the chosen device or address. Depending on the
 security settings, devices may not be available for all users.
-You have to change permissions on the 
+You have to change permissions on the
 .I /dev/ppi*
 or
 .I /dev/parport*
@@ -131,7 +131,7 @@ You can rename any device using the
 options. These options apply to the last port option.
 
 .SH "CONFIGURATION"
-Please make sure to edit 
+Please make sure to edit
 .I umax_pp.conf
 .B before
 you use the backend.
@@ -221,14 +221,14 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in 
+directory (".") and then in
 .IR @CONFIGDIR@ .
 If the value of the
 environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories 
+to "/tmp/config:" would result in directories
 .IR tmp/config ,
 .IR . ,
 and
@@ -293,7 +293,7 @@ For latest bug fixes and information see
 
 .SH "AUTHOR"
 St\['e]phane Voltz
-.I <stef.dev@free.fr>
+.RI < stef.dev@free.fr >
 
 .SH "CREDITS"
 Support for the 610P has been made possible thank to an hardware donation
@@ -305,22 +305,22 @@ your scanner to be able to help you...
 
 .TP
 .I SANE version
-Run 
+Run
 .I "scanimage \-V"
 to determine this
 .TP
 .I the backend version and your scanner hardware
-Run 
+Run
 .I "SANE_DEBUG_UMAX_PP=255 scanimage \-L 2>log"
 as root. If you don't get any output
-from the 
+from the
 .B sane\-umax_pp
-backend, make sure a line "umax_pp" is included into your 
+backend, make sure a line "umax_pp" is included into your
 .I @CONFIGDIR@/dll.conf
 file.
 If your scanner isn't detected, make sure you've defined the right port address, or the
 correct device
-in your 
+in your
 .I umax_pp.conf
 file.
 .TP

@@ -55,4 +55,5 @@ support dynamic loading).
 .SH "CONTACT AND BUG-REPORTS"
 Please send any information and bug-reports to:
 .br
-.B Simon Munton <simon@munton.demon.co.uk>
+Simon Munton
+.RI < simon@munton.demon.co.uk >

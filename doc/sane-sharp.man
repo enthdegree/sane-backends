@@ -62,7 +62,7 @@ for example.  See sane\-scsi(5) for details.
 
 .SH SCAN OPTIONS
 .TP
-.B \-\-mode 
+.B \-\-mode
 Scan Mode. Possible settings are:
 .I Lineart
 (1 bit black & white scans),
@@ -79,7 +79,7 @@ Scan Mode. Possible settings are:
 Halftone Pattern. Available only for the JX-330 series scanners.
 Possible settings:
 .IR none ", " "Dither Bayer" ", " "Dither Spiral" ", " "Dither Dispersed"
-and 
+and
 .IR "Error Diffusion" .
 The default value is
 .IR none .
@@ -109,9 +109,9 @@ Gamma. This option is only available if
 .B Custom Gamma
 is set to
 .IR no .
-Possible values are: 
+Possible values are:
 .IR 1.0 " or " 2.2 "."
-The default value is 
+The default value is
 .IR 2.2 .
 (The JX-250 and JX-350 have no built in gamma
 correction; for these scanners, a gamma table is downloaded to the scanner
@@ -149,8 +149,8 @@ The default value is 150.
 
 .TP
 .BR \-l ", " \-t ", " \-x ", " \-y
-Scan Window. 
-Top-left x position of scan area 
+Scan Window.
+Top-left x position of scan area
 .RB ( \-l ),
 top-left y position of scan area
 .RB ( \-t ),
@@ -160,13 +160,13 @@ and bottom right y position of scan area
 .RB ( \-y ).
 The possible settings depend on the scanner model and, for the
 JX-250 and the JX-350, also on the usage of the automatic document feeder resp. the
-transparency adapter. Please refer to the values allowed by 
+transparency adapter. Please refer to the values allowed by
 .BR xscanimage (1),
 or
 .BR xsane (1).
 With
 .BR scanimage (1),
-enter one of the following commands in order to see the allowed parameter values for 
+enter one of the following commands in order to see the allowed parameter values for
 the scan window:
 
 .RS
@@ -187,10 +187,10 @@ The default value is
 
 .TP
 .B \-\-threshold
-Sets the threshold for black and white pixels in lineart mode. 
+Sets the threshold for black and white pixels in lineart mode.
 Possible values are 1..255.
 The default value is 128.
-This option is only available in scan mode 
+This option is only available in scan mode
 .IR lineart .
 
 .TP
@@ -198,7 +198,7 @@ This option is only available in scan mode
 Sets the threshold for the red component of a pixel in
 in lineart color scan mode. Possible values are 1..255.
 The default value is 128.
-This option is only available in scan mode color 
+This option is only available in scan mode color
 .IR lineart .
 
 .TP
@@ -206,7 +206,7 @@ This option is only available in scan mode color
 Sets the threshold for the green component of a pixel in
 in lineart color scan mode. Possible values are 1..255.
 The default value is 128.
-This option is only available in scan mode color 
+This option is only available in scan mode color
 .I lineart .
 
 .TP
@@ -222,7 +222,7 @@ This option is only available in scan mode color
 Sets the color of the light source. Possible values are
 .IR white ,
 .IR red ,
-.I green 
+.I green
 and
 .IR blue .
 The default value is
@@ -244,7 +244,7 @@ The contents of the
 .I sharp.conf
 file is a list of options and device names that correspond to Sharp
 scanners. Empty lines and lines beginning with a hash mark (#) are
-ignored. See 
+ignored. See
 .BR sane\-scsi (5)
 for details about device names.
 .PP
@@ -365,7 +365,7 @@ of the data is too slow, set the environment variable
 .B SANE_DEBUG_SHARP
 to 1. When a scan is finished, the backend writes the line "buffer full
 conditions:
-.I nn"
+.IR nn """
 to stderr. If
 .I nn
 is zero, carriage stops are caused by too slow responses of the backend

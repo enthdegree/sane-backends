@@ -48,8 +48,10 @@ The TECO VM number can usually be found at the back of the
 scanner. It is also part of the FCC ID.
 
 The options the backend supports can either be selected through
-command line options to programs like scanimage or through GUI
-elements in 
+command line options to programs like
+.BR scanimage (1)
+or through GUI
+elements in
 .BR xscanimage (1),
 .BR xsane (1),
 .BR quiteinsane (1)
@@ -74,7 +76,7 @@ scanimage \-\-help \-d teco2
 .TP
 .B \-\-mode Lineart|Gray|Color
 selects the basic mode of operation of the scanner.
-The 
+The
 .I Lineart
 mode is black and white only (1 bit).
 .I Gray
@@ -85,9 +87,9 @@ will produce a 24 bits color image.
 .TP
 .B \-\-resolution 1..600
 Selects the resolution for a scan. The scanner can do all resolutions
-between 1 and 600, in increments of 1, for 
+between 1 and 600, in increments of 1, for
 .IR Lineart " and " Gray .
-For 
+For
 .IR Color ,
 a restricted set of resolutions are available.
 
@@ -95,7 +97,9 @@ a restricted set of resolutions are available.
 All values with ydpi > 300 (300 x 600) or 600 (600 x 1200) result in
 a wrong proportion for the scan. The proportion can be adjusted with
 the following imagemagick command:
-convert \-geometry (dpi/max_xdpi * 100%)x100%
+.br
+.I convert \-geometry (dpi/max_xdpi * 100%)x100%
+.br
 max_xdpi is for the vm3575 constant with 300 dpi
 e.g. 600dpi adjust with: convert \-geometry 200%x100%
 
@@ -110,7 +114,7 @@ The scan mode is user selected. The default is "no".
 
 .TP
 .B \-l, \-t, \-x, " \-y
-Control the scan area: 
+Control the scan area:
 .B \-l
 sets the top left x coordinate,
 .B \-t
@@ -130,7 +134,7 @@ the height of the scan area. All parameters are specified in millimeters by defa
 next 3 parameters).
 
 .SH OPTIONS FOR COLOR MODE
-These options are valid for scan mode 
+These options are valid for scan mode
 .I Color
 only.
 
@@ -171,7 +175,7 @@ value loaded into the scanner. Scale 0..64 in steps of 1.
 
 
 .SH CONFIGURATION FILE
-The configuration file 
+The configuration file
 .I @CONFIGDIR@/teco2.conf
 supports only one item: the device name to use (eg
 .IR /dev/scanner ).

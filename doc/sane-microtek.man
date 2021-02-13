@@ -65,7 +65,7 @@ are available from the backend homepage:
 .br
 .PP
 .RS
-.B http://www.mir.com/mtek/
+.I http://www.mir.com/mtek/
 .RE
 
 .SH "DEVICE NAMES"
@@ -135,14 +135,14 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in 
+directory (".") and then in
 .IR @CONFIGDIR@ .
 If the value of the
 environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories 
+to "/tmp/config:" would result in directories
 .IR "tmp/config" ,
 .IR "." ,
 and
@@ -186,11 +186,12 @@ option in the configuration file (first one, then both), and see if it helps.
 (If it does, report it.)
 .PP
 Send lengthy bug reports and new scanner information to
-.BR mtek\-bugs@mir.com .
+.IR mtek\-bugs@mir.com .
 All bug reports and new scanner inquiries should include an error log file.
 You can generate copious
-stderr output by setting the SANE_DEBUG_MICROTEK environment variable
-described above.  For example:
+stderr output by setting the
+.B SANE_DEBUG_MICROTEK
+environment variable described above.  For example:
 .PP
 .RS
 setenv SANE_DEBUG_MICROTEK 128
@@ -198,6 +199,7 @@ setenv SANE_DEBUG_MICROTEK 128
 .PP
 More general comments, suggestions, and inquiries about frontends
 or SANE should go to
-.BR sane\-devel@alioth-lists.debian.net ,
+.IR sane\-devel@alioth-lists.debian.net ,
 the SANE Developers mailing list. Have a look at
-http://www.sane\-project.org/mailing\-lists.html concerning subscription to sane\-devel.
+.I http://www.sane\-project.org/mailing\-lists.html
+concerning subscription to sane\-devel.

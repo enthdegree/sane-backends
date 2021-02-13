@@ -37,7 +37,7 @@ configuration file is shown below:
  /dev/usb/scanner0
 .fi
 
-See 
+See
 .BR sane\-usb (5)
 for information on how to set the access permissions on the usb device files.
 
@@ -90,7 +90,7 @@ export SANE_DEBUG_UMAX1220U=10
 
 If you keep getting I/O errors, try cycling the power on your scanner to reset it.
 
-There is no way to cancel a scan, since the driver ignores 
+There is no way to cancel a scan, since the driver ignores
 .BR sane_cancel ().
 
 If you try scanning an image which is too small, you will get I/O errors. Be
@@ -106,17 +106,15 @@ area is zero.
 .I http://umax1220u\-sane.sourceforge.net/
 
 .SH AUTHOR
-
-Marcio Luis Teixeira 
-.I <marciot@users.sourceforge.net>
+Marcio Luis Teixeira
+.RI < marciot@users.sourceforge.net >
 
 .SH EMAIL-CONTACT
 .I sane\-devel@alioth-lists.debian.net
 
 .SH REPORTING BUGS
-
 This backend isn't actively maintained. Nevertheless, bug reports and comments
 should be sent to the sane\-devel mailing list.  When reporting bugs, please run
-the backend with 
+the backend with
 .B SANE_DEBUG_UMAX1220U
 set to 10 and attach a copy of the log messages.

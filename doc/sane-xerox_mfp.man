@@ -23,7 +23,7 @@ For SCX\-4500W in network mode you need to specify
 .PP
 The
 .B host_address
-is passed through resolver, thus can be a dotted quad or a name from 
+is passed through resolver, thus can be a dotted quad or a name from
 .I /etc/hosts
 or resolvable through DNS.
 .SH FILES
@@ -54,24 +54,23 @@ Multicast autoconfiguration for LAN scanners is not implemented yet. IPv6 addres
 
 .SH BUGS AND SUPPORT
 If you have found a bug or need support please follow open\-source way of acquiring support via
-mail\-lists 
+mail\-lists
 .I http://www.sane\-project.org/mailing\-lists.html
 or SANE bug tracker
 .IR http://www.sane\-project.org/bugs.html .
 
 .SH AUTHORS
 Alex Belkin
-.IR <abc@telekom.ru> .
+.RI < abc@telekom.ru >.
 .br
 Samsung SCX\-4500W scan over network support by
-Alexander Kuznetsov 
-.IR <acca(at)cpan.org> .
+Alexander Kuznetsov
+.RI  < acca(at)cpan.org >.
 .br
 Color scanning on Samsung M2870 model and Xerox Cognac 3215 & 3225 models by
-Laxmeesh Onkar Markod 
-.IR <m.laxmeesh@samsung.com> .
+Laxmeesh Onkar Markod
+.RI < m.laxmeesh@samsung.com >.
 
 .SH "SEE ALSO"
 .BR sane (7),
 .BR sane\-usb (5)
-

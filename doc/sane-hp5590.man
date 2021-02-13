@@ -8,9 +8,10 @@ sane-hp5590 - SANE backend for Hewlett-Packard
 4500C/4570C/5500C/5550C/5590/7650 Workgroup/Document scanners
 .SH DESCRIPTION
 .PP
-The \f[B]sane-hp5590\f[R] library implements a SANE (Scanner Access Now
-Easy) backend that provides access to the following Hewlett-Packard
-Workgroup/Document scanners:
+The
+.B sane-hp5590
+library implements a SANE (Scanner Access Now Easy) backend that provides access
+to the following Hewlett-Packard Workgroup/Document scanners:
 .IP \[bu] 2
 ScanJet 4500C
 .IP \[bu] 2
@@ -27,8 +28,9 @@ ScanJet 7650
 If you own a scanner other than the ones listed above that works with
 this backend, please let us know this by sending the scanner\[cq]s exact
 model name and the USB vendor and device ids (e.g.\ from
-\f[I]/sys/bus/usb/devices\f[R], \f[I]sane-find-scanner\f[R] or syslog)
-to us.
+.IR /sys/bus/usb/devices ,
+.BR sane-find-scanner (1)
+or syslog) to us.
 Even if the scanner\[cq]s name is only slightly different from the
 models mentioned above, please let us know.
 .SH OPTIONS
@@ -207,26 +209,28 @@ Get the id of the last button pressed.
 Id is one of \[lq]none\[rq], \[lq]power\[rq], \[lq]scan\[rq],
 \[lq]collect\[rq], \[lq]file\[rq], \[lq]email\[rq], \[lq]copy\[rq],
 \[lq]up\[rq], \[lq]down\[rq], \[lq]mode\[rq], \[lq]cancel\[rq].
-.PD 0
-.P
-.PD
+.br
 The scanner stores the id of the last button pressed until it is read.
 After read out, the state is reset and subsequent readings will return
 \[lq]none\[rq].
+
 .TP
 .B --color-led
 Get the state of the color LED indicators.
 The state is either \[lq]color\[rq] or \[lq]black_white\[rq].
+
 .TP
 .B --counter-value
 Get the counter value as shown on LCD.
 The value is in the range of 1 ..
 99.
+
 .TP
 .B --doc-in-adf
 Get the state of the document-available indicator of the automatic
 document feeder (ADF).
 The state is either \[lq]yes\[rq] or \[lq]no\[rq].
+
 .SH HINTS FOR USERS OF SCANBD
 .PP
 .BR scanbd (8)

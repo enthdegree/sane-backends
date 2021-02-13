@@ -5,9 +5,8 @@ sane\-epsonds \- SANE backend for EPSON ESC/I-2 scanners
 .SH DESCRIPTION
 The
 .B sane\-epsonds
-library implements a
-.B SANE
-(Scanner Access Now Easy) backend that provides access to Epson ESC/I-2 scanners.
+library implements a SANE (Scanner Access Now Easy) backend that provides access
+to Epson ESC/I-2 scanners.
 .PP
 Valid command line options and their syntax can be listed by using
 .PP
@@ -70,8 +69,9 @@ The
 option select the ADF mode (simplex/duplex).
 
 .SH CONFIGURATION FILE
-The configuration file @CONFIGDIR@/epsonds.conf specifies the device(s) that the
-backend will use. Possible connection types are:
+The configuration file
+.I @CONFIGDIR@/epsonds.conf
+specifies the device(s) that the backend will use. Possible connection types are:
 .TP
 .B USB
 For not automatically detected USB scanners, their VENDOR and PRODUCT ID can
@@ -99,7 +99,7 @@ support dynamic loading).
 If the library was compiled with debug support enabled, this
 environment variable controls the debug level for this backend.  E.g.,
 a value of 128 requests all debug output to be printed.  Smaller
-levels reduce verbosity. Values around 11-16 will usuallybe enough for
+levels reduce verbosity. Values around 11-16 will usually be enough for
 a bug report.
 
 .SH "SEE ALSO"

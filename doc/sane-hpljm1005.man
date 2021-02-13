@@ -5,9 +5,7 @@ sane\-hpljm1005 \- SANE backend for Hewlett-Packard LaserJet M1005 MFP Scanner
 .SH DESCRIPTION
 The
 .B sane\-hpljm1005
-library implements a
-.B SANE
-(Scanner Access Now Easy) backend that provides
+library implements a SANE (Scanner Access Now Easy) backend that provides
 access to the following Hewlett-Packard scanner:
 .PP
 .RS

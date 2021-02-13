@@ -95,7 +95,7 @@ and a debug output to
 .IR sane\-devel@alioth-lists.debian.net .
 You can get the debug output by setting the environment variable
 .B SANE_DEBUG_MUSTEK
-to 5 and showing the list of available scanners with 
+to 5 and showing the list of available scanners with
 .IR "scanimage \-L" .
 Please send all of it to the mailing list. You must be subscribed to sane\-devel
 before you can send mail to the list. See
@@ -117,7 +117,7 @@ be found (see section
 .B "PARALLEL PORT SCANNERS"
 below).  For SCSI scanners, the special device name must be a generic SCSI
 device or a symlink to such a device.  The program
-.I sane\-find\-scanner
+.BR sane\-find\-scanner (1)
 helps to find out the correct device. Under Linux, such a device name
 could be
 .I /dev/sg0
@@ -221,7 +221,7 @@ Finally,
 is a global option. If set, the backend will wait until the device is ready
 before sending the inquiry command. Further more the backend will force the
 scan slider to return to its starting position (not implemented for all
-scanners). This option may be necessary with the 600 II N or when 
+scanners). This option may be necessary with the 600 II N or when
 .BR scanimage (1)
 is used multiple times (e.g. in scripts). The default is off (not set).
 .PP
@@ -330,6 +330,7 @@ you use the scanner again, the lamp turns back on to the normal high
 brightness. However, the first image scanned after such a shutdown may
 have stripes and appear to be over-exposed.  When this happens, just
 take another scan, and the image will be fine.
+
 .SH FILES
 .TP
 .I @CONFIGDIR@/mustek.conf
@@ -343,6 +344,7 @@ The static library implementing this backend.
 .I @LIBDIR@/libsane\-mustek.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
+
 .SH ENVIRONMENT
 .TP
 .B SANE_CONFIG_DIR
@@ -351,14 +353,14 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in 
+directory (".") and then in
 .IR @CONFIGDIR@ .
 If the value of the
 environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories 
+to "/tmp/config:" would result in directories
 .IR "tmp/config" ,
 .IR "." ,
 and

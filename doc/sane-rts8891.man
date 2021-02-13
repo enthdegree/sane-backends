@@ -25,7 +25,7 @@ The scanners that work with this backend are:
 The options the backend supports can either be selected through
 command line options to programs like
 .BR scanimage (1)
-or through GUI elements in 
+or through GUI elements in
 .BR xscanimage (1)
 or
 .BR xsane (1).

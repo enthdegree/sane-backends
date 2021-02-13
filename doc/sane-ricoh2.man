@@ -29,7 +29,7 @@ support dynamic loading).
 
 .SH OPTIONS
 The options the backend supports can either be selected through command line
-options to programs like 
+options to programs like
 .BR scanimage (1)
 or through GUI elements in programs like
 .BR xscanimage (1)

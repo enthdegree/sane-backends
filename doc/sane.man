@@ -255,6 +255,11 @@ Supports Epson SCSI, parallel port and USB flatbed scanners. See
 .BR sane\-epson (5)
 for details.
 .TP
+.B escl
+Supports scanners through the eSCL protocol. See
+.BR sane\-escl (5)
+for details.
+.TP
 .B fujitsu
 Supports most Fujitsu SCSI and USB, flatbed and adf scanners. See
 .BR sane\-fujitsu (5)
@@ -861,6 +866,7 @@ for details).
 .BR sane\-dll (5),
 .BR sane\-dmc (5),
 .BR sane\-epson (5),
+.BR sane\-escl (5),
 .BR sane\-fujitsu (5),
 .BR sane\-genesys (5),
 .BR sane\-gphoto2 (5),

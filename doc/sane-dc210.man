@@ -5,9 +5,7 @@ sane\-dc210 \- SANE backend for Kodak DC210 Digital Camera
 .SH DESCRIPTION
 The
 .B sane\-dc210
-library implements a
-.B SANE
-(Scanner Access Now Easy) backend that
+library implements a SANE (Scanner Access Now Easy) backend that
 provides access to the Kodak DC210 camera. THIS IS EXTREMELY ALPHA
 CODE!  USE AT YOUR OWN RISK!!
 .SH "DEVICE NAMES"
@@ -22,7 +20,8 @@ rate specifies the maximum rate to use while downloading pictures.  (The
 camera is always initialized using 9600 baud, then switches to the
 higher rate).  On my 90MHz Pentium, I usually have no problems downloading
 at 115200 baud as long as the system is not excessively busy and
-the "interrupt-unmask flag" is set in the IDE driver (hdparm \-u1).
+the "interrupt-unmask flag" is set in the IDE driver
+.RI ( "hdparm \-u1" ).
 Supported baud rates are: 9600, 19200, 38400, 57600, and 115200.
 .PP
 The
@@ -114,11 +113,7 @@ Henning Meier-Geinitz.
 Known bugs/limitations are: ?
 .PP
 More general comments, suggestions, and inquiries about frontends
-or
-.B SANE
-should go to the
-.B SANE
-Developers mailing list
+or SANE should go to the SANE Developers mailing list
 (see
 .I http://www.sane\-project.org/mailing\-lists.html
 for details).

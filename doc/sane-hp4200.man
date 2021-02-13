@@ -5,9 +5,7 @@ sane\-hp4200 \- SANE backend for Hewlett-Packard 4200 scanners
 .SH DESCRIPTION
 The
 .B sane\-hp4200
-library implements a
-.B SANE
-(Scanner Access Now Easy) backend that provides
+library implements a SANE (Scanner Access Now Easy) backend that provides
 access to the following Hewlett-Packard USB flatbed scanners:
 .PP
 .RS

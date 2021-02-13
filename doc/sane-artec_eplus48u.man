@@ -17,14 +17,19 @@ the scan area.
 .PP
 If you own a scanner other than the ones mentioned on the list that works with this
 backend, please let us know this by sending the scanner's exact model name and
-the USB vendor and product ids (e.g. from /proc/bus/usb/devices,
-sane\-find\-scanner or syslog) to me. Even if the scanner's name is only
+the USB vendor and product ids (e.g. from
+.IR /proc/bus/usb/devices ,
+.BR sane\-find\-scanner (1)
+or syslog) to me. Even if the scanner's name is only
 slightly different from the models mentioned above, please let me know.
 .PP
 .SH KERNEL ISSUES
 If libusb-0.1.6 or later is installed, this section can be skipped. The
-scanner should be found by sane\-find\-scanner without further actions. For
-setting permissions and general USB information look at sane\-usb(5).
+scanner should be found by
+.BR sane\-find\-scanner (1)
+without further actions. For setting permissions and general USB information
+look at
+.BR sane\-usb (5).
 .PP
 When you are using the scanner module, a Linux kernel 2.4.12 or newer is
 required.
@@ -32,11 +37,16 @@ required.
 .SH FIRMWARE FILE
 You need a firmware file for your scanner. That's a small file containing
 software that will be uploaded to the scanner's memory. For the scanners
-mentioned above, it's usually named Artec48.usb or 1200.usb. You can find it on
-the installation CD that was provided by the manufacturer, normally in the
-directory Win98, WinMe or similar. If the Windows-driver is installed on your
-computer, then you can also find the firmware file under
-c:\\windows\\system32\\drivers.
+mentioned above, it's usually named
+.I Artec48.usb
+or
+.IR 1200.usb .
+You can find it on the installation CD that was provided by the manufacturer,
+normally in the directory Win98, WinMe or similar.
+If the Windows-driver is installed on your computer, then you can also
+find the firmware file under
+.IR c:\\windows\\system32\\drivers .
+
 .SH CONFIGURATION
 The contents of the
 .I artec_eplus48u.conf
@@ -105,13 +115,18 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in /usr/local/etc/sane.d.  If the value of the
-environment variable ends with the directory separator character, then
-the default directories are searched after the explicitly specified
-directories.  For example, setting
+directory (".") and then in
+.IR @CONFIGDIR@ .
+If the value of the environment variable ends with the directory
+separator character, then the default directories are searched after
+the explicitly specified directories. For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"/usr/local/etc/sane.d" being searched (in this order).
+to "/tmp/config:" would result in directories
+.IR tmp/config ,
+.IR . ,
+and
+.I @CONFIGDIR@
+being searched (in this order).
 .TP
 .B SANE_DEBUG_ARTEC_EPLUS48U
 If the library was compiled with debug support enabled, this
@@ -122,15 +137,19 @@ Example:
 export SANE_DEBUG_ARTEC_EPLUS48U=3
 
 .SH "SEE ALSO"
-sane(7), sane\-usb(5)
+.BR sane (7),
+.BR sane\-usb (5)
 
 .SH AUTHOR
-Michael Herder
+Michael Herder.
 .br
 This backend is based on the gt68xx test-program written by Sergey Vlasov, Andreas Nowack, and
 David Stevenson. Thanks to everyone who tested the backend or reported bugs.
 .br
-This man page is based on man sane\-gt68xx, written by Henning Meier-Geinitz.
+This man page is based on man
+.BR sane\-gt68xx (5),
+written by Henning Meier-Geinitz.
+
 .SH BUGS
 This backend has been tested on Linux only. If you are using it on a different platform, please
 contact us.

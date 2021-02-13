@@ -13,11 +13,13 @@ This file is a short description of the coolscan backend for
 
 The
 .B sane\-coolscan
-library implements a
-.B SANE
-backend that provides the interface to the following Nikon Coolscan Film scanners: Nikon LS20, LS30, LS1000, LS2000.
+library implements a SANE backend that provides the interface to the following Nikon
+Coolscan Film scanners: Nikon LS20, LS30, LS1000, LS2000.
 
-.B Even though the backend has worked for a number of people, there are still some problems, especially in combination with some SCSI card/drivers (AHA-1505/aha152x.o) and the autofocus command. You should consider this backend 'alpha' and be careful when using it the first time.
+.B Even though the backend has worked for a number of people, there are still some
+problems, especially in combination with some SCSI card/drivers (AHA-1505/aha152x.o)
+and the autofocus command.
+You should consider this backend 'alpha' and be careful when using it the first time.
 
 .SH CONFIGURATION
 
@@ -46,10 +48,7 @@ Coolscan scanners. These systems hang when the autofocus command is send to the 
 To see a list of which card/driver combinations work or don't work have a look at:
 .I http://andreas.rick.free.fr/sane/autofocus.html.
 
-
-
 .SH FILES
-
 .TP
 The backend configuration file:
 .I @CONFIGDIR@/coolscan.conf
@@ -88,6 +87,8 @@ The gamma table is not implemented for the LS1000 yet.
 The dust-removal is not working yet.
 
 .SH SEE ALSO
+.BR sane (7),
+.BR sane\-scsi (5)
 
 .TP
 .I http://andreas.rick.free.fr/sane/
@@ -95,22 +96,16 @@ The homepage of this backend.
 .TP
 .I http://www.sema.be/coolscan/
 The original version of the coolscan backend by Didier.
-.PP
-.BR sane (7),
-.BR sane\-scsi (5)
 
 .SH THANKS TO
-
-.PP
 Didier Carlier \- For writing the original Coolscan backend (without it I would not have started this).
 .PP
 Oliver Rauch \- For adapting xsane so quickly to the infrared stuff.
 .PP
-All the other people working on
-.BR SANE .
+All the other people working on SANE.
 
 .SH AUTHOR
 Andreas Rick
 
 .SH EMAIL-CONTACT
-andreas.rick@free.fr
+.I andreas.rick@free.fr

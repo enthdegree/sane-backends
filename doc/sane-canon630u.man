@@ -19,7 +19,8 @@ Color scanning is supported at 75, 150, 300, and 600 dpi, and gamma and
 analog gain are adjustable.
 .PP
 TESTERS ARE WELCOME. Send your bug reports and comments to
-Nathan Rutman <nthn1@yahoo.com>
+Nathan Rutman
+.IR <nthn1@yahoo.com> .
 .PP
 .SH CONFIGURATION
 The contents of the
@@ -90,16 +91,17 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in @CONFIGDIR@.  If the value of the
-environment variable ends with the directory separator character, then
-the default directories are searched after the explicitly specified
-directories.  For example, setting
+directory (".") and then in
+.IR @CONFIGDIR@ .
+If the value of the environment variable ends with the directory
+separator character, then the default directories are searched after
+the explicitly specified directories.  For example, setting
 .B SANE_CONFIG_DIR
 to "/tmp/config:" would result in directories
-.IR tmp/config,
-.IR ".",
+.IR tmp/config ,
+.IR . ,
 and
-.I "@CONFIGDIR@"
+.I @CONFIGDIR@
 being searched (in this order).
 .TP
 .B SANE_DEBUG_CANON630U

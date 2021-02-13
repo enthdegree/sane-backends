@@ -5,9 +5,7 @@ sane\-epson2 \- SANE backend for EPSON scanners
 .SH DESCRIPTION
 The
 .B sane\-epson2
-library implements a
-.B SANE
-(Scanner Access Now Easy) backend that
+library implements a SANE (Scanner Access Now Easy) backend that
 provides access to Epson flatbed scanners.  This library supports
 a similar set of scanners as the sane\-epson driver but was
 developed to support a wider range of connections to the scanner;
@@ -279,7 +277,9 @@ The
 option select the ADF mode (simplex/duplex).
 
 .SH CONFIGURATION FILE
-The configuration file @CONFIGDIR@/epson2.conf specifies the device(s) that the
+The configuration file
+.I @CONFIGDIR@/epson2.conf
+specifies the device(s) that the
 backend will use. Possible connection types are:
 .TP
 .B SCSI
@@ -371,9 +371,7 @@ If the scanner is not even recognized as an Epson scanner this is
 probably because the device name reported by the scanner is not in the
 correct format. Please send this information to the backend maintainer
 (email address is in the AUTHOR section of this man page or in the
-AUTHORS file of the
-.B SANE
-distribution).
+AUTHORS file of the SANE distribution).
 
 .SH AUTHOR
 

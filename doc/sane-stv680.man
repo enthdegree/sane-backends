@@ -32,18 +32,20 @@ for the exact status of each camera.
 For startup of this backend check that if present the stv680 kernel module is
 removed or disabled.
 .br
-Also before using, enable the backend by editing the 
+Also before using, enable the backend by editing the
 .I @CONFIGDIR@/dll.conf
 file, change #stv680 to stv680.
 
 For problems with the untested cameras, you should contact the author for that.
 
 The options the backend supports can either be selected through
-command line options to programs like 
+command line options to programs like
 .BR scanimage (1)
-or through GUI elements in 
+or through GUI elements in
 .BR xcam (1).
-For both programs use the \-B option needed for size buffer.
+For both programs use the
+.B \-B
+option needed for size buffer.
 
 Some frontends examples:
 
@@ -121,7 +123,7 @@ considered "white", when scanning some sheets by changing the calibration
 value loaded into the scanner. Scale \-32 .. 0 .. +32 in steps of 1.
 
 .SH CONFIGURATION FILE
-The configuration file 
+The configuration file
 .I @CONFIGDIR@/stv680.conf
 supports only one item: the device name to use (eg usb 0x.... 0x....).
 
@@ -176,4 +178,3 @@ pencam2 program
 .br
 .BR libghoto2 (3)
 program (camlib stv0680)
-

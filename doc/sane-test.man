@@ -17,7 +17,7 @@ capabilities of SANE.  Therefore
 implements functions and options that are not (or seldom) found in other
 backends.
 .PP
-The backend is commented out in 
+The backend is commented out in
 .IR @CONFIGDIR@/dll.conf ,
 so either the comment
 character must be removed or the backend must be called explicitly.  E.g.
@@ -78,7 +78,8 @@ and "Solid black" are quite obvious, the other options need some more
 explanation.  Color patterns are used to determine if all modes and their
 colors are represented correctly by the frontend.  The grid should look like the
 same in every mode and resolution.  A table of all the test pictures can be
-found at: http://www.meier\-geinitz.de/sane/test\-backend/test\-pictures.html.
+found at:
+.IR http://www.meier\-geinitz.de/sane/test\-backend/test\-pictures.html .
 .PP
 If option
 .B invert\-endianness
@@ -88,8 +89,9 @@ frontend uses the correct endianness.
 .PP
 If option
 .B read\-limit
-is set, the maximum amount of data transferred with each call to sane_read() is
-limited.
+is set, the maximum amount of data transferred with each call to
+.BR sane_read ()
+is limited.
 .PP
 Option
 .B read\-limit\-size
@@ -110,8 +112,9 @@ used over the network.
 If option
 .B read\-return\-value
 is different from "Default", the selected status will be returned by every
-call to sane_read().  This is useful to test the frontend's handling of the
-SANE statuses.
+call to
+.BR sane_read ().
+This is useful to test the frontend's handling of the SANE statuses.
 .PP
 If option
 .B ppl\-loss
@@ -126,13 +129,15 @@ parameters it got before the start of the scan (which it shouldn't).
 .PP
 Option
 .B non\-blocking
-determines if non-blocking IO for sane_read() should be used if supported by
-the frontend.
+determines if non-blocking IO for
+.BR sane_read ()
+should be used if supported by the frontend.
 .PP
 If option
 .B select\-fd
 is set, the backend offers a select filedescriptor for detecting if
-sane_read() will return data.
+.BR sane_read()
+will return data.
 .PP
 If option
 .B enable\-test\-options
@@ -302,14 +307,14 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in 
+directory (".") and then in
 .IR @CONFIGDIR@ .
 If the value of the
 environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories 
+to "/tmp/config:" would result in directories
 .IR tmp/config ,
 .IR . ,
 and
@@ -333,8 +338,8 @@ export SANE_DEBUG_TEST=4
 
 
 .SH AUTHOR
-Henning Meier-Geinitz 
-.I <henning@meier\-geinitz.de>
+Henning Meier-Geinitz
+.RI < henning@meier\-geinitz.de >
 
 .SH BUGS
 \- config file values aren't tested for correctness

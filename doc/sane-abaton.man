@@ -16,7 +16,8 @@ works with this backend, or if you own an Abaton scanner that does not
 work with this backend, please contact
 .IR sane\-devel@alioth-lists.debian.net
 with the model number, so that arrangements can be made to include
-support for it. Have a look at http://www.sane\-project.org/mailing\-lists.html
+support for it. Have a look at
+.I http://www.sane\-project.org/mailing\-lists.html
 concerning subscription to sane\-devel.
 .PP
 Abaton is out of business, and these scanners are not supported by
@@ -48,13 +49,17 @@ name takes a format such as
 .I /dev/sga
 or
 .IR /dev/sg0 ,
-for example.  See sane\-scsi(5) for details.
+for example.  See
+.BR sane\-scsi (5)
+for details.
+
 .SH CONFIGURATION
 The contents of the
 .I abaton.conf
 file is a list of device names that correspond to Abaton scanners.
 Empty lines and lines starting with a hash mark (#) are ignored.  See
-sane\-scsi(5) on details of what constitutes a valid device name.
+.BR sane\-scsi (5)
+on details of what constitutes a valid device name.
 
 .SH FILES
 .TP
@@ -77,13 +82,18 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in @CONFIGDIR@.  If the value of the
-environment variable ends with the directory separator character, then
-the default directories are searched after the explicitly specified
-directories.  For example, setting
+directory (".") and then in
+.IR @CONFIGDIR@ .
+If the value of the environment variable ends with the directory separator
+character, then the default directories are searched after the explicitly
+specified directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"@CONFIGDIR@" being searched (in this order).
+to "/tmp/config:" would result in directories
+.IR tmp/config ,
+.IR . ,
+and
+.I @CONFIGDIR@
+being searched (in this order).
 .TP
 .B SANE_DEBUG_ABATON
 If the library was compiled with debug support enabled, this
@@ -119,8 +129,14 @@ confidence that it will work, as well as to fully exploit the
 information returned by the INQUIRY command.
 
 .SH "SEE ALSO"
-sane(7), sane\-scsi(5), scanimage(1)
+.BR sane (7),
+.BR sane\-scsi (5),
+.BR scanimage (1)
 
 .SH AUTHOR
-The sane\-abaton backend was partially written by David Huggins-Daines,
-based on the sane\-apple backend by Milon Firikis.
+The
+.B sane\-abaton
+backend was partially written by David Huggins-Daines,
+based on the
+.BR sane\-apple (5)
+backend by Milon Firikis.

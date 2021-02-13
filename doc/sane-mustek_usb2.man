@@ -67,11 +67,14 @@ export SANE_DEBUG_MUSTEK_USB2=4
 
 .SH AUTHOR
 The driver has been written Roy Zhou, Jack Xu, and Vinci Cen from
-Mustek. Adjustments to SANE by Henning Meier-Geinitz.
+Mustek.
+.br
+Adjustments to SANE by Henning Meier-Geinitz.
 
 .SH BUGS
 Please contact me if you find a bug or missing feature:
-<henning@meier\-geinitz.de>. Please send a debug log if your scanner isn't
-detected correctly (see 
+.RI < henning@meier\-geinitz.de >.
+.br
+Please send a debug log if your scanner isn't detected correctly (see
 .B SANE_DEBUG_MUSTEK_USB2
 above).

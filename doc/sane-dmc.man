@@ -5,9 +5,7 @@ sane\-dmc \- SANE backend for the Polaroid Digital Microscope Camera
 .SH DESCRIPTION
 The
 .B sane\-dmc
-library implements a
-.B SANE
-(Scanner Access Now Easy) backend that
+library implements a SANE (Scanner Access Now Easy) backend that
 provides access to the Polaroid Digital Microscope Camera.
 .SH "DEVICE NAMES"
 This backend expects device names of the form:
@@ -108,10 +106,11 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in @CONFIGDIR@.  If the value of the
-environment variable ends with the directory separator character, then
-the default directories are searched after the explicitly specified
-directories.  For example, setting
+directory (".") and then in
+.IR @CONFIGDIR@ .
+If the value of the environment variable ends with the directory separator
+character, then the default directories are searched after the explicitly
+specified directories.  For example, setting
 .B SANE_CONFIG_DIR
 to "/tmp/config:" would result in directories
 .IR "tmp/config",
@@ -133,7 +132,7 @@ may read less than you ask for.  If you ask sane_read to read
 less than a single line, it returns SANE_STATUS_INVAL.
 .PP
 In the "Super Resolution" mode, images must be read in units of
-\fItwo\fR lines (3198 pixels or 9594 bytes.)  If you try to read less
+\fItwo\fR lines (3198 pixels or 9594 bytes).  If you try to read less
 than two lines, you get SANE_STATUS_INVAL.  The Super Resolution mode
 is very slow.
 .PP
@@ -141,12 +140,14 @@ In the "Viewfinder" and "Thumbnail" modes, the entire image must
 be read in one SCSI transfer.  In this case, the driver performs
 buffering and you can read the image in as small an increment as you
 like.
+
 .SH "SEE ALSO"
 .BR sane (7),
 .BR  sane\-scsi (5)
+
 .SH AUTHOR
 David F. Skoll
 .PP
 The backend is derived from
-.BR sane\-hp
+.BR sane\-hp (5)
 by David Mosberger

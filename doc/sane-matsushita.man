@@ -104,9 +104,9 @@ options set the gamma curve. It is only valid for Gray modes, and is not availab
 
 
 .SH CONFIGURATION FILE
-The configuration file 
+The configuration file
 .I @CONFIGDIR@/matsushita.conf
-supports the device name to use (eg 
+supports the device name to use (eg
 .IR /dev/scanner )
 and the SCSI option to auto-detect the scanners supported.
 
@@ -148,10 +148,11 @@ The backend does not support the setting of different options for each side. The
 
 .SH SCANNING EXAMPLE
 To date, the only frontend capable of using this scanner at full speed is
-.B
-scanadf.
+.BR scanadf (1).
 
-A scanadf command line would be:
+A
+.BR scanadf (1)
+command line would be:
 
 scanadf \-d matsushita \-\-output\-file scan%04d.pbm \-\-start\-count 0 \-\-duplex \-\-resolution 300 \-\-feeder\-mode="All pages" \-\-paper\-size="A4"
 

@@ -7,18 +7,23 @@ sane\-epjitsu \- SANE backend for Epson-based Fujitsu USB scanners.
 .SH DESCRIPTION
 The
 .B sane\-epjitsu
-library implements a
-.B SANE
-(Scanner Access Now Easy) backend which provides basic access the Fujitsu fi\-60F/fi\-65F and ScanSnap S300/S1300(i)/S1100(i) scanners.
+library implements a SANE (Scanner Access Now Easy) backend which provides basic access the
+Fujitsu fi\-60F/fi\-65F and ScanSnap S300/S1300(i)/S1100(i) scanners.
 
 .SH HARDWARE SUPPORT
-These scanners are fairly limited, only supporting a couple of modes and resolutions, and always scanning full width. The backend supports missing modes (binary, grayscale) and intermediate resolutions in software, but provides only minimal scan area controls. See
+These scanners are fairly limited, only supporting a couple of modes and resolutions, and
+always scanning full width. The backend supports missing modes (binary, grayscale) and
+intermediate resolutions in software, but provides only minimal scan area controls. See
 .B KNOWN ISSUES.
 
-This backend may support other scanners. If physical inspection reveals an Epson chipset, please contact the author for instructions on collecting a USB trace under Windows to verify.
+This backend may support other scanners. If physical inspection reveals an Epson chipset,
+please contact the author for instructions on collecting a USB trace under Windows to verify.
 
 .SH OPTIONS
-A limited effort has been made to expose the standard options to the API.  This allows a frontend to set resolution, color mode, and choose the ADF setting. The epjitsu backend supports the following basic options for most scanners:
+A limited effort has been made to expose the standard options to the API.  This allows a
+frontend to set resolution, color mode, and choose the ADF setting. The
+.B sane\-epjitsu
+backend supports the following basic options for most scanners:
 .PP
 .BR source s
 .RS
@@ -114,4 +119,5 @@ Improved calibration code provided by Richard Goedeken.
 .BR scanimage (1)
 
 .SH AUTHOR
-m. allan noah: <kitno455 a t gmail d o t com>
+m. allan noah:
+.RI < "kitno455 a t gmail d o t com" >

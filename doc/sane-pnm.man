@@ -37,21 +37,26 @@ a value of 128 requests all debug output to be printed.  Smaller
 levels reduce verbosity.
 
 .SH BUGS
-If the pnm backend is installed and 
+If the
+.B sane\-pnm
+backend is installed and
 .BR saned (8)
 is used to allow users on remote
-computers to scan on the local machine, pnm files can be read by the remote
-user. This is limited to the files 
+computers to scan on the local machine, PNM files can be read by the remote
+user. This is limited to the files
 .BR saned (8)
 can access (usually it's running as
-user "sane"). All pnm files can be read if 
+user "sane"). All PNM files can be read if
 .BR saned (8)
 runs as root which isn't
-recommended anyway. The pnm backend is disabled by default. If you want to use
-it, enable it with configure (see 
+recommended anyway. The
+.B sane\-pnm
+backend is disabled by default. If you want to use it, enable it with configure (see
 .I configure \-\-help
 for details). Be sure that
-only trusted users can access the pnm backend over 
+only trusted users can access the
+.B sane\-pnm
+backend over
 .BR saned (8).
 
 .SH AUTHOR

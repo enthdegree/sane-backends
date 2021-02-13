@@ -5,9 +5,7 @@ sane\-epson \- SANE backend for EPSON scanners
 .SH DESCRIPTION
 The
 .B sane\-epson
-library implements a
-.B SANE
-Scanner Access Now Easy) backend that
+library implements a SANE Scanner Access Now Easy) backend that
 provides access to Epson flatbed scanners.  Some functions of this
 backend should be considered
 .B beta-quality

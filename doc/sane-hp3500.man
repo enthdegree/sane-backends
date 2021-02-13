@@ -5,9 +5,7 @@ sane\-hp3500 \- SANE backend for Hewlett-Packard ScanJet 3500 series scanners
 .SH DESCRIPTION
 The
 .B sane\-hp3500
-library implements a
-.B SANE
-(Scanner Access Now Easy) backend that provides
+library implements a SANE (Scanner Access Now Easy) backend that provides
 access to the following Hewlett-Packard USB flatbed scanners:
 .PP
 .RS
@@ -51,4 +49,5 @@ export SANE_DEBUG_HP3500=4
 .I http://projects.troy.rollo.name/rt-scanners/
 
 .SH AUTHOR
-Troy Rollo <sane@troy.rollo.name>
+Troy Rollo
+.RI < sane@troy.rollo.name >

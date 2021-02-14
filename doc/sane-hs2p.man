@@ -25,7 +25,7 @@ Where
 .I special
 is either the path-name for the special device that corresponds to a SCSI
 scanner. The program
-.I sane\-find\-scanner
+.BR sane\-find\-scanner (1)
 helps to find out the correct device. Under Linux, such a device name could be
 .I /dev/sg0
 or
@@ -64,13 +64,19 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in @CONFIGDIR@.  If the value of the
+directory (".") and then in
+.IR @CONFIGDIR@ .
+If the value of the
 environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"@CONFIGDIR@" being searched (in this order).
+to "/tmp/config:" would result in directories
+.IR tmp/config ,
+.IR . ,
+and
+.I "@CONFIGDIR@"
+being searched (in this order).
 .TP
 .B SANE_DEBUG_HS2P
 If the library was compiled with debug support enabled, this
@@ -78,7 +84,9 @@ environment variable controls the debug level for this backend.
 A value of 255 prints all debug output.  Smaller values reduce verbosity.
 
 .SH CURRENT STATUS
-The hs2p backend is now in version 1.00. All major scanning-related features
+The
+.B sane\-hs2p
+backend is now in version 1.00. All major scanning-related features
 are supported, except for those features requiring the optional IPU. Scanning
 from the flatbed or ADF (either simplex or duplex) is supported. Lineart,
 halftone, 4-bit gray, and 8-bit gray are supported. Pre-set gamma tables and
@@ -106,8 +114,9 @@ suited to a stand-alone utility to be used by a technician when
 replacing the lamp or ADF unit. Nor is support for reading or changing
 IPU (93H) parameters and adjustments planned, since my IS450 lacks
 such a unit. The 31-byte Auto Photo/Letter struct and 21-byte Dynamic
-threshold struct are documented in the hs2p-scsi.h file should someone
-wish to use their IPU for image data processing.
+threshold struct are documented in the
+.I hs2p-scsi.h
+file should someone wish to use their IPU for image data processing.
 
 .SH "SEE ALSO"
 .BR sane (7),
@@ -115,6 +124,8 @@ wish to use their IPU for image data processing.
 .BR sane\-scsi (5),
 
 .SH AUTHOR
-jeremy <jeremy@acjlaw.net>
+jeremy
+.RI < jeremy@acjlaw.net >
 .br
-Maintained by Jeremy Johnson <jeremy@acjlaw.net>
+Maintained by Jeremy Johnson
+.RI < jeremy@acjlaw.net >

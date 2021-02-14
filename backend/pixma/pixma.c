@@ -17,9 +17,7 @@
    General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-   MA 02111-1307, USA.
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
    As a special exception, the authors of SANE give permission for
    additional uses of the libraries contained in this release of SANE.
@@ -2283,7 +2281,7 @@ type int adf-wait
 type string calibrate[30]
   constraint @string_list = ss->calibrate_list
   title Calibration
-  desc When to perform scanner calibration. If you choose \"Once\" it will be performed a single time per driver init for single page scans, and for the first page for each ADF scans.
+  desc When to perform scanner calibration. If you choose \"Once\" it will be performed a single time per driver init for single page scans, and for the first page for each ADF scan.
   default Once
   cap soft_select soft_detect automatic
 

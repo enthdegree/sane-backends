@@ -11,7 +11,7 @@ provides access to USB flatbed scanners based on National Semiconductor
 Merlin chipsets (LM9831, 9832 and 9833).
 If you're looking for parallel-port support for Plustek scanner
 please refer to the
-.B sane\-plustek_pp
+.BR sane\-plustek_pp (5)
 backend.
 
 .SH "SUPPORTED DEVICES"
@@ -184,12 +184,12 @@ Strobe XP100       LM9833  600x1200dpi 48bit 512Kb 0x0427
 
 .SH "OTHER PLUSTEK SCANNERS"
 For parallelport device support see the
-.B plustek_pp
+.BR sane\-plustek_pp (5)
 backend.
 .br
 The SCSI scanner OpticPro 19200S is a rebadged Artec AM12S scanner
 and is supported by the
-.B Artec
+.BR sane\-artec (5)
 backend.
 .br
 Only the National Semiconductor LM983[1/2/] based devices of Plustek
@@ -210,13 +210,14 @@ UT12               P98003     u12
 .fi
 .ft R
 For a more complete and up to date list see:
-.B http://www.sane\-project.org/sane\-supported\-devices.html
+.IR http://www.sane\-project.org/sane\-supported\-devices.html .
 
 .SH "CONFIGURATION"
 To use your scanner with this backend, you need at least two
 entries in the configuration file
 .I @CONFIGDIR@/plustek.conf
 .RS
+.PP
 .I [usb] vendor-id product-id
 .br
 .I device /dev/usbscanner
@@ -289,7 +290,9 @@ option cacheCalData b
 .I b
 0 --> do not save calibration results,
 .br
-1 --> save results of calibration in ~/.sane/ directory
+1 --> save results of calibration in
+.I ~/.sane/
+directory
 .RE
 .PP
 option altCalibration b
@@ -415,9 +418,9 @@ See the plustek.conf file for examples.
 You have to make sure, that the USB subsystem is loaded
 correctly and you have access to the device-node. For
 more details see
-.B sane\-usb (5)
+.BR sane\-usb (5)
 manpage. You might use
-.B sane\-find\-scanner
+.BR sane\-find\-scanner (1)
 to check that you have access to your device.
 .PP
 .B Note:
@@ -445,13 +448,19 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in @CONFIGDIR@.  If the value of the
+directory (".") and then in
+.IR @CONFIGDIR@ .
+If the value of the
 environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"@CONFIGDIR@" being searched (in this order).
+to "/tmp/config:" would result in directories
+.IR "tmp/config" ,
+.IR "." ,
+and
+.I "@CONFIGDIR@"
+being searched (in this order).
 .TP
 .B SANE_DEBUG_PLUSTEK
 If the library was compiled with debug support enabled, this
@@ -466,6 +475,9 @@ export SANE_DEBUG_PLUSTEK=10
 .BR sane\-usb (5),
 .BR sane\-u12 (5),
 .BR sane\-gt68xx (5),
+.BR sane-\mustek_pp (5),
+.BR sane\-find\-scanner (1),
+.BR scanimage (1),
 .br
 .I @DOCDIR@/plustek/Plustek-USB.changes
 
@@ -478,14 +490,16 @@ Additional info and hints can be obtained from our
 .br
 Mailing-List archive at:
 .br
-.B http://www.sane\-project.org/mailing\-lists.html
+.I http://www.sane\-project.org/mailing\-lists.html
 .PP
 To obtain debug messages from the backend, please set the
 environment-variable
-.I SANE_DEBUG_PLUSTEK
-before calling your favorite scan-frontend (i.e. scanimage).
+.B SANE_DEBUG_PLUSTEK
+before calling your favorite scan-frontend (i.e.
+.BR scanimage (1)), i.e.:
+
 .br
-.B i.e.: export SANE_DEBUG_PLUSTEK=20 ; scanimage
+.I export SANE_DEBUG_PLUSTEK=20 ; scanimage
 .PP
 The value controls the verbosity of the backend. Please note, that
 values greater than 24 force the backend to output raw data files,

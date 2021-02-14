@@ -15,13 +15,17 @@ I consider it extremely improbable) that your scanner will be
 damaged.
 .PP
 LIMITATIONS: For now this backend works only on Linux.  This limitation
-is due to dependence on the libieee1284 library. If your system supports libieee1284 too,
-this backend should work. If you ported libieee1284 for your platform, please let
-me know. Your system should support
+is due to dependence on the
+.BR libieee1284 (3)
+library. If your system supports
+.BR libieee1284 (3)
+too,this backend should work. If you ported
+.BR libieee1284 (3)
+for your platform, please let me know. Your system should support
 .B EPP
 (or
-.B EPP+ECP
-) mode to operate this scanner. Future versions will support ECP and SPP
+.BR EPP+ECP )
+mode to operate this scanner. Future versions will support ECP and SPP
 (Nibble and Byte) modes also. It's planned to support scanners not only
 at daisy-chain position 0, but anywhere. Support for multiple scanners could
 be implemented too.
@@ -30,7 +34,8 @@ Current version implements only gray scale scanning. True Color and B/W modes ar
 not supported for now.
 .PP
 That said, TESTERS ARE WELCOME. Send your bug reports and comments to
-Max Vorobiev <pcwizard@yandex.ru>.
+Max Vorobiev
+.RI < pcwizard@yandex.ru >.
 .PP
 .SH "DEVICE NAMES"
 This backend expects device names of the form:
@@ -41,8 +46,9 @@ This backend expects device names of the form:
 .PP
 Where
 .I special
-is the parallel port name in form, libieee1284 expects. It seems to be system dependent.
-Under Linux it's parport0, parport1, etc.
+is the parallel port name in form,
+.BR libieee1284 (3)
+expects. It seems to be system dependent. Under Linux it's parport0, parport1, etc.
 .SH CONFIGURATION
 The contents of the
 .I hpsj5s.conf
@@ -81,23 +87,35 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in @CONFIGDIR@.  If the value of the
+directory (".") and then in
+.IR @CONFIGDIR@ .
+If the value of the
 environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"@CONFIGDIR@" being searched (in this order).
-
+to "/tmp/config:" would result in directories
+.IR tmp/config ,
+.IR . ,
+and
+.I "@CONFIGDIR@"
+being searched (in this order).
 .TP
+.B SANE_DEBUG_HPSJ5S
+If the library was compiled with debug support enabled, this environment
+variable controls the debug level for this backend.  Higher debug levels
+increase the verbosity of the output.
+
 .SH "SEE ALSO"
-sane(7)
+.BR sane (7),
+.BR libieee1284 (3)
 .br
-http://hpsj5s.sourceforge.net
+.I http://hpsj5s.sourceforge.net
 .br
-http://cyberelk.net/tim/libieee1284
+.I http://cyberelk.net/tim/libieee1284
 .br
 .SH AUTHOR
 Max Vorobiev
 .br
-Man page mostly based on canon.man
+Man page mostly based on
+.IR canon.man .

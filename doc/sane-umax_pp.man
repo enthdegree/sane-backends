@@ -35,7 +35,7 @@ levels, there is a software lineart mode.
 The new generation models share a newer version of the 610P ASIC embedded in an EPAT chip.
 Only parts such as CCD and ADC change from
 one to another. They even all reports being UMAX Astra 1220P via IEEE1284.
-There isn't software way to recognize them properly. Under windows, model is
+There isn't a software method to recognize them properly. Under windows, model is
 set by the driver installed, regardless of the hardware.
 .PP
 .TP
@@ -55,9 +55,13 @@ if you have a kernel with ppdev support.
 .PP
 Note that if you don't use the ppdev character device, the backend
 needs to run as root. To allow user access to the scanner
-run the backend through the network interface (See saned(8) and sane\-net(5)).
+run the backend through the network interface (See
+.BR saned (8)
+and
+.BR sane\-net (5)).
 A more relaxed solution (security wise) is to add suid bit to the frontend
-(See chmod(1)).
+(See
+.BR chmod (1)).
 The backend drop root privileges as soon as it can, right after gaining direct
 access to IO ports, which lessen risks when being root.
 
@@ -82,28 +86,36 @@ autodetect all parallel ports and probe
 them for scanner, but does not try direct
 hardware access
 .TP
-/dev/ppi0
+.I /dev/ppi0
 uses *BSD ppi device, depending on the
 number of available parallel port, you
-have to use /dev/ppi1, /dev/ppi2, ...
+have to use
+.IR /dev/ppi1 ,
+.IR /dev/ppi2 ", ..."
 .TP
-/dev/parport0
-uses linux ppdev device, depending on the
+.I /dev/parport0
+uses Linux ppdev device, depending on the
 number of available parallel port, you
-have to use /dev/parport1, /dev/parport2, ...
+have to use
+.IR /dev/parport1 ,
+.IR /dev/parport2 ", ..."
 .TP
 0x378
 does direct hardware access on the given
 address. Usual values are 0x378, 0x278, 0x3BC
 In this case, you have to run the scanner as
-root (*BSD and linux), or with 'IOPL=yes' on
+root (*BSD and Linux), or with 'IOPL=yes' on
 OS/2
 .PP
 .RE
 \fBNOTE:\fR in all cases, you must have sufficient privileges
 to get access to the chosen device or address. Depending on the
 security settings, devices may not be available for all users.
-You have to change permissions on the dev/ppi* or /dev/parport* devices.
+You have to change permissions on the
+.I /dev/ppi*
+or
+.I /dev/parport*
+devices.
 .PP
 .RE
 You can rename any device using the
@@ -119,12 +131,13 @@ You can rename any device using the
 options. These options apply to the last port option.
 
 .SH "CONFIGURATION"
-Please make sure to edit umax_pp.conf
+Please make sure to edit
+.I umax_pp.conf
 .B before
 you use the backend.
 .PP
 The contents of the
-.B umax_pp.conf
+.I umax_pp.conf
 file is a list of options and device names that correspond to Umax
 scanners.  Empty lines and lines starting with a hash mark (#) are
 ignored.
@@ -141,8 +154,7 @@ and
 .BR buffer .
 
 Options
-.B red\-gain
-,
+.BR red\-gain ,
 .B green\-gain
 and
 .B blue\-gain
@@ -209,13 +221,19 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in @CONFIGDIR@.  If the value of the
+directory (".") and then in
+.IR @CONFIGDIR@ .
+If the value of the
 environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"@CONFIGDIR@" being searched (in this order).
+to "/tmp/config:" would result in directories
+.IR tmp/config ,
+.IR . ,
+and
+.I @CONFIGDIR@
+being searched (in this order).
 .TP
 .B SANE_DEBUG_UMAX_PP
 If the library was compiled with debug support enabled, this
@@ -265,14 +283,17 @@ level   debug output
 
 .PP
 .SH "SEE ALSO"
-sane(7), sane\-net(5), saned(8)
+.BR sane (7),
+.BR sane\-net (5),
+.BR saned (8)
 
 .TP
 For latest bug fixes and information see
 .I http://umax1220p.sourceforge.net/
 
 .SH "AUTHOR"
-St\['e]phane Voltz <stef.dev@free.fr>
+St\['e]phane Voltz
+.RI < stef.dev@free.fr >
 
 .SH "CREDITS"
 Support for the 610P has been made possible thank to an hardware donation
@@ -284,15 +305,24 @@ your scanner to be able to help you...
 
 .TP
 .I SANE version
-run "scanimage \-V" to determine this
+Run
+.I "scanimage \-V"
+to determine this
 .TP
 .I the backend version and your scanner hardware
-run "SANE_DEBUG_UMAX_PP=255 scanimage \-L 2>log" as root. If you don't get any output
-from the umax_pp backend, make sure a line "umax_pp" is included into
-your @CONFIGDIR@/dll.conf.
+Run
+.I "SANE_DEBUG_UMAX_PP=255 scanimage \-L 2>log"
+as root. If you don't get any output
+from the
+.B sane\-umax_pp
+backend, make sure a line "umax_pp" is included into your
+.I @CONFIGDIR@/dll.conf
+file.
 If your scanner isn't detected, make sure you've defined the right port address, or the
 correct device
-in your umax_pp.conf.
+in your
+.I umax_pp.conf
+file.
 .TP
 .I the name of your scanner/vendor
 also a worthy information. Please also include the optical resolution and lamp type of your scanner, both can be found in the manual of your scanner.

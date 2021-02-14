@@ -34,15 +34,22 @@ The TECO VM number can usually be found at the back of the
 scanner. It is also part of the FCC ID.
 
 The options the backend supports can either be selected through
-command line options to programs like scanimage or through GUI
-elements in xscanimage or xsane.
+command line options to programs like
+.BR scanimage (1)
+or through GUI
+elements in
+.BR xscanimage (1)
+or
+.BR xsane (1).
 
 .br
-If you have any success with a scanner not listed here, or if you have
+If you have any success with a scanner not listed here, or if you notice
 any strange behavior, please report to the backend maintainer or to
 the SANE mailing list.
 
-Valid command line options and their syntax can be listed by using
+.SH OPTIONS
+Valid command line options and their syntax can be listed by using:
+
 .RS
 scanimage \-\-help \-d teco3
 .RE
@@ -51,66 +58,71 @@ scanimage \-\-help \-d teco3
 .B Scan Mode
 
 .TP
-.B \-\-mode
-selects the basic mode of operation of the scanner valid choices are
+.B \-\-mode Black & White|Grayscale|Color
+Selects the basic mode of operation of the scanner.
+The
 .I Black & White
-,
+mode is black and white only (1 bit).
 .I Grayscale
-and
+will produce 256 levels of gray (8 bits).
 .I Color
-The Black & White mode is black and white only (1 bit). Grayscale
-will produce 256 levels of gray (8 bits). Color will produce a 24 bits
-color image.
+will produce a 24-bit color image.
 
 .TP
-.B \-\-resolution
-selects the resolution for a scan. The scanner can do all resolutions
+.B \-\-resolution 1..1200
+Selects the resolution for a scan. The scanner can do all resolutions
 between 1 and 1200, in increments of 1.
 
+.TP
+.B \-\-preview
+Requests a preview scan. The resolution used for that scan is 22 dpi
+and the scan area is the maximum allowed. The scan mode is user
+selected. The default is "no".
 
 .TP
 .B Geometry options
 
 .TP
 .B \-l \-t \-x \-y
-control the scan area: \-l sets the top left x coordinate, \-t the top
-left y coordinate, \-x selects the width and \-y the height of the scan
-area. All parameters are specified in millimeters by default.
+Control the scan area:
+.B \-l
+sets the top left x coordinate,
+.B \-t
+the top left y coordinate,
+.B \-x
+selects the width and
+.B \-y
+the height of the scan area.
+All parameters are specified in millimeters by default.
 
-
-.TP
-.B Enhancement options
+.SH OPTIONS FOR COLOR MODE ONLY
 
 .TP
 .B \-\-custom\-gamma
-(color mode only) allows the user to specify a gamma table (see the
+Allows the user to specify a gamma table (see the
 next 3 parameters).
 
 .TP
 .B \-\-red\-gamma\-table
-(color mode only) can be used to download a user defined
+Can be used to download a user defined
 gamma table for the red channel. The table must be 1024 bytes long.
 
 .TP
 .B \-\-green\-gamma\-table
-(color mode only) can be used to download a user defined
+Can be used to download a user defined
 gamma table for the green channel. The table must be 1024 bytes long.
 
 .TP
 .B \-\-blue\-gamma\-table
-(color mode only) can be used to download a user defined gamma table
+Can be used to download a user defined gamma table
 for the blue channel. The table must be 1024 bytes long.
 
 
-.TP
-.B \-\-preview
-requests a preview scan. The resolution used for that scan is 22 dpi
-and the scan area is the maximum allowed. The scan mode is user
-selected. The default is "no".
-
-
 .SH CONFIGURATION FILE
-The configuration file @CONFIGDIR@/teco3.conf supports only one information: the device name to use (eg /dev/scanner).
+The configuration file
+.I @CONFIGDIR@/teco3.conf
+supports only one item: the device name to use (eg
+.IR /dev/scanner ).
 
 
 .SH FILES
@@ -139,13 +151,15 @@ implements what the scanner can support.
 
 
 .SH BUGS
-
 Not much.
 
 
 .SH "SEE ALSO"
-
-sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
+.BR sane\-scsi (5),
+.BR scanimage (1),
+.BR xscanimage (1),
+.BR xsane (1),
+.BR sane (7)
 
 
 .SH AUTHOR

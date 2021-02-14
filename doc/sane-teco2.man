@@ -18,20 +18,20 @@ The scanners that should work with this backend are:
 .RS
 .ft CR
 .nf
-   Vendor Model           TECO model       status
-----------------------  --------------  -----------
-  Mustek ScanMagic 4830S   VM3575        untested
-  Primax Jewel 4800        VM356A         good
-  Primax Profi 9600        VM6575         basic
-  Primax Profi 19200       VM6586         good
-  Relisys APOLLO Express 3 VM356A         basic
-  Relisys APOLLO Express 6 VM6565         good
-  Relisys APOLLO Express 12   ?          untested
-  Relisys AVEC II S3       VM3564         good
-  Relisys AVEC Super 3     VM3575         basic
-  Relisys SCORPIO Pro      VM6575         good
-  Relisys SCORPIO Pro-S    VM6586        untested
-  Relisys SCORPIO Super 3  VM3575         good
+   Vendor Model               TECO model      status
+--------------------------- --------------  -----------
+  Mustek ScanMagic 4830S      VM3575         untested
+  Primax Jewel 4800           VM356A         good
+  Primax Profi 9600           VM6575         basic
+  Primax Profi 19200          VM6586         good
+  Relisys APOLLO Express 3    VM356A         basic
+  Relisys APOLLO Express 6    VM6565         good
+  Relisys APOLLO Express 12   ?              untested
+  Relisys AVEC II S3          VM3564         good
+  Relisys AVEC Super 3        VM3575         basic
+  Relisys SCORPIO Pro         VM6575         good
+  Relisys SCORPIO Pro-S       VM6586         untested
+  Relisys SCORPIO Super 3     VM3575         good
 .fi
 .ft R
 .RE
@@ -48,15 +48,24 @@ The TECO VM number can usually be found at the back of the
 scanner. It is also part of the FCC ID.
 
 The options the backend supports can either be selected through
-command line options to programs like scanimage or through GUI
-elements in xscanimage, xsane, quiteinsane or kooka.
+command line options to programs like
+.BR scanimage (1)
+or through GUI
+elements in
+.BR xscanimage (1),
+.BR xsane (1),
+.BR quiteinsane (1)
+or
+.BR kooka (1).
 
 .br
-If you have any success with a scanner not listed here, or if you have
+If you have any success with a scanner not listed here, or if you notice
 any strange behavior, please report to the backend maintainer or to
 the SANE mailing list.
 
-Valid command line options and their syntax can be listed by using
+.SH OPTIONS
+Valid command line options and their syntax can be listed by using:
+
 .RS
 scanimage \-\-help \-d teco2
 .RE
@@ -65,43 +74,55 @@ scanimage \-\-help \-d teco2
 .B Scan Mode
 
 .TP
-.B \-\-mode
-selects the basic mode of operation of the scanner valid choices are
+.B \-\-mode Lineart|Gray|Color
+selects the basic mode of operation of the scanner.
+The
 .I Lineart
-,
+mode is black and white only (1 bit).
 .I Gray
-and
+mode will produce 256 levels of gray (8 bits).
 .I Color
-The Lineart mode is black and white only (1 bit). Gray mode
-will produce 256 levels of gray (8 bits). Color will produce a 24 bits
-color image.
+will produce a 24 bits color image.
 
 .TP
-.B \-\-resolution
-Lineart and Gray
-selects the resolution for a scan. The scanner can do all resolutions
-between 1 and 600, in increments of 1.
+.B \-\-resolution 1..600
+Selects the resolution for a scan. The scanner can do all resolutions
+between 1 and 600, in increments of 1, for
+.IR Lineart " and " Gray .
+For
+.IR Color ,
+a restricted set of resolutions are available.
 
-
-Color
-selects the resolution for a scan. The scanner can do only the
-resolutions listed.
-
+.B Note:
 All values with ydpi > 300 (300 x 600) or 600 (600 x 1200) result in
 a wrong proportion for the scan. The proportion can be adjusted with
 the following imagemagick command:
-convert \-geometry (dpi/max_xdpi * 100%)x100%
+.br
+.I convert \-geometry (dpi/max_xdpi * 100%)x100%
+.br
 max_xdpi is for the vm3575 constant with 300 dpi
 e.g. 600dpi adjust with: convert \-geometry 200%x100%
+
+.TP
+.B \-\-preview
+requests a preview scan. The resolution used for that scan is 50  dpi
+(for VM356A and VM6575 75 dpi) and the scan area is the maximum allowed.
+The scan mode is user selected. The default is "no".
 
 .TP
 .B Geometry options
 
 .TP
-.B \-l \-t \-x \-y
-control the scan area: \-l sets the top left x coordinate, \-t the top
-left y coordinate, \-x selects the width and \-y the height of the scan
-area. All parameters are specified in millimeters by default.
+.B \-l, \-t, \-x, " \-y
+Control the scan area:
+.B \-l
+sets the top left x coordinate,
+.B \-t
+the top left y coordinate,
+.B \-x
+selects the width and
+.B \-y
+the height of the scan area. All parameters are specified in millimeters by default.
 
 
 .TP
@@ -112,49 +133,52 @@ area. All parameters are specified in millimeters by default.
 (color mode only) allows the user to specify a gamma table (see the
 next 3 parameters).
 
+.SH OPTIONS FOR COLOR MODE
+These options are valid for scan mode
+.I Color
+only.
+
 .TP
 .B \-\-red\-gamma\-table
-(color mode only) can be used to download a user defined
+Can be used to download a user defined
 gamma table for the red channel. The table must be 256 bytes long.
 
 .TP
 .B \-\-green\-gamma\-table
-(color mode only) can be used to download a user defined
+Can be used to download a user defined
 gamma table for the green channel. The table must be 256 bytes long.
 
 .TP
 .B \-\-blue\-gamma\-table
-(color mode only) can be used to download a user defined gamma table
+Can be used to download a user defined gamma table
 for the blue channel. The table must be 256 bytes long.
 
+.SH OPTIONS ONLY FOR VM3564, VM356A, VM3575 and VM6575
+These options are only available for VM3564, VM356A, VM3575 and VM6575 models.
 .TP
-.B \-\-white\-level\-r
-(VM3564, VM356A, VM3575 and VM6575 only) Selects what red radiance level should be
+.B \-\-white\-level\-r 0..64
+Selects what red radiance level should be
 considered "white", when scanning some sheets by changing the calibration
 value loaded into the scanner. Scale 0..64 in steps of 1.
 
 .TP
-.B \-\-white\-level\-g
-(VM3564, VM356A, VM3575 and VM6575 only) Selects what green radiance level should be
+.B \-\-white\-level\-g 0..64
+Selects what green radiance level should be
 considered "white", when scanning some sheets by changing the calibration i
 value loaded into the scanner. Scale 0..64 in steps of 1.
 
 .TP
-.B \-\-white\-level\-b
-(VM3564, VM356A, VM3575 and VM6575 only) Selects what blue radiance level should be
+.B \-\-white\-level\-b 0..64
+Selects what blue radiance level should be
 considered "white", when scanning some sheets by changing the calibration
 value loaded into the scanner. Scale 0..64 in steps of 1.
 
-.TP
-.B \-\-preview
-requests a preview scan. The resolution used for that scan is 50  dpi
-(for VM356A and VM6575 75 dpi) and the scan area is the maximum allowed.
-The scan mode is user selected. The default is "no".
-
 
 .SH CONFIGURATION FILE
-The configuration file @CONFIGDIR@/teco2.conf supports only one
-information: the device name to use (eg /dev/scanner).
+The configuration file
+.I @CONFIGDIR@/teco2.conf
+supports only one item: the device name to use (eg
+.IR /dev/scanner ).
 
 
 .SH FILES
@@ -190,13 +214,15 @@ implements what the scanner can support.
 
 
 .SH BUGS
-
 Plenty. Parts of this backend are still under development.
 
 
 .SH "SEE ALSO"
-
-sane\-scsi(5), scanimage(1), xscanimage(1), xsane(1), sane(7)
+.BR sane (7),
+.BR sane\-scsi (5),
+.BR scanimage (1),
+.BR xscanimage (1),
+.BR xsane (1)
 
 
 .SH AUTHORS

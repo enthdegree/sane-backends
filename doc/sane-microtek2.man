@@ -9,15 +9,17 @@ provides access to Microtek scanners with a SCSI-2 command set.
 This backend can be considered alpha to beta. Some scanner models are reported
 to work well, others not. New development versions of this backend can be
 obtained from
-.B http://karstenfestag.gmxhome.de
+.IR http://karstenfestag.gmxhome.de .
 .PP
 There exists a different backend for Microtek scanners with SCSI-1 command
 set.
-Refer to sane\-microtek(5) for details.
+Refer to
+.BR sane\-microtek (5)
+for details.
 .PP
 And there is work in progress for the ScanMaker 3600.
 See
-.B http://sourceforge.net/projects/sm3600
+.IR http://sourceforge.net/projects/sm3600 .
 .PP
 At present, the following scanners are known positively to work with this
 backend:
@@ -53,7 +55,7 @@ Scanpaq    SQ2030            Parport
 .ft R
 .PP
 Additional information can be found at
-.BR http://www.sane\-project.org/ .
+.IR http://www.sane\-project.org/ .
 .PP
 If you own a Microtek scanner other than the ones listed above,
 it may or may not work with SANE! Because equal scanners are sold under
@@ -109,7 +111,9 @@ supported by the scanner in dependence of the scanning-mode and other
 options.
 Not supported options are disabled.
 .PP
-The following options are supported by the Microtek2-driver:
+The following options are supported by the
+.B sane\-microtek2
+driver:
 .PP
 Color, grayscale, halftone and lineart scans.
 .PP
@@ -299,15 +303,19 @@ If the library was compiled with debug support enabled, this
 environment variable controls the debug level for this backend.  E.g.,
 a value of 255 requests all debug output to be printed.  Smaller
 levels reduce verbosity. To see error messages on stderr set
-SANE_DEBUG_MICROTEK2 to 1 (Remark: The whole debugging levels should
-be better revised).
+.B SANE_DEBUG_MICROTEK2
+to 1 (Remark: The whole debugging levels should be better revised).
 .br
 E.g. just say:
 .br
 export SANE_DEBUG_MICROTEK2=128
+
 .SH "SEE ALSO"
-sane\-scsi(5), sane(7)
+.BR sane\-scsi(5) ,
+.BR sane (7)
+
 .SH "AUTHORS"
 Bernd Schroeder (not active anymore)
 .br
-Karsten Festag  karsten.festag@gmx.de
+Karsten Festag
+.RI < karsten.festag@gmx.de >.

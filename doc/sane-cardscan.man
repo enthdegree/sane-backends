@@ -19,14 +19,15 @@ driver in action, and send it to the author.
 
 .SH OPTIONS
 The cardscan backend supports the following options:
-.PP
-mode m
-.RS
-Selects the mode for the scan. Options are "Gray" and "Color".
-.RE
-.PP
+
+.TP
+.B --mode Gray|Color
+Selects the mode for the scan.
+
 .SH CONFIGURATION FILE
-The configuration file "cardscan.conf" is used to tell the backend how to look
+The configuration file
+.I cardscan.conf
+is used to tell the backend how to look
 for scanners, and provide options controlling the operation of the backend.
 This file is read each time the frontend asks the backend for a list
 of scanners, generally only when the frontend starts. If the configuration
@@ -64,8 +65,9 @@ Older scanners do not support this request, and must be set to 0.
 .RE
 
 .SH ENVIRONMENT
-The backend uses a single environment variable, SANE_DEBUG_CARDSCAN, which
-enables debugging output to stderr. Valid values are:
+The backend uses a single environment variable,
+.BR SANE_DEBUG_CARDSCAN,
+which enables debugging output to stderr. Valid values are:
 .PP
 .RS
 5  Errors
@@ -103,11 +105,13 @@ windows driver.
 
 .SH CREDITS
 The hardware to build this driver was provided to the author by:
-  Jeff Kowalczyk <jtk a t yahoo d o t com>
+Jeff Kowalczyk
+.IR "<jtk a t yahoo d o t com>" .
 
 .SH "SEE ALSO"
-sane(7),
-sane\-usb(5)
+.BR sane (7),
+.BR sane\-usb (5)
 
 .SH AUTHOR
-m. allan noah: <kitno455 a t gmail d o t com>
+m. allan noah:
+.I "<kitno455 a t gmail d o t com>" .

@@ -24,8 +24,11 @@ CanoScan FS2710S
 .RE
 .PP
 Parallel port and USB scanners are not supported by this backend; see
-the manual pages for sane\-canon_pp and sane\-canon630u for further
-information.
+the manual pages for
+.BR sane\-canon_pp (5)
+and
+.BR sane\-canon630u (5)
+for further information.
 .PP
 IMPORTANT: This is beta code. We tested the code on the scanners listed
 above, using the computers and operating systems available to us, but we
@@ -36,25 +39,30 @@ It cannot be excluded (although we consider it extremely unlikely) that your
 scanner will be damaged.
 .PP
 That said, TESTERS ARE WELCOME. Send your bug reports and comments to
-Manuel Panea <mpd@rzg.mpg.de>; for questions concerning the FB620 and
-FB1200S contact Mitsuru Okaniwa <m\-okaniwa@bea.hi\-ho.ne.jp>, for the
-FS2710S Ulrich Deiters <ukd@xenon.pc.uni\-koeln.de>.
-.PP
+Manuel Panea
+.IR <mpd@rzg.mpg.de> ;
+for questions concerning the FB620 and FB1200S contact Mitsuru Okaniwa
+.IR <m\-okaniwa@bea.hi\-ho.ne.jp> ,
+for the FS2710S Ulrich Deiters
+.IR <ukd@xenon.pc.uni\-koeln.de> .
 
 .SH TIPS (FS2700F)
 .PP
 Scanning either slides or negatives has been found to require rather
 large gamma corrections of about 2.2 to 2.4 (same value for red, green,
 and blue). It is recommended to use the automatic exposure controls
-of the frontend xsane for best results.
+of the frontend
+.BR xsane (1)
+for best results.
 .PP
 The "Auto Focus" function triggers a special pass to determine the focus
 value. After that, the real scanning pass takes place.
 .PP
 Even with "Auto Focus" turned on, the scanned image is often a bit too
-blurred. Using the GIMP to do a "Filter->Enhance->Sharpen" at about 40
-to 60 improves the image considerably.
-.PP
+blurred. Using the
+.BR gimp (1)
+to do a "Filter->Enhance->Sharpen" at about 40 to 60 improves the image
+considerably.
 
 .SH TIPS (FS2710S)
 .PP
@@ -88,14 +96,16 @@ Example:
 export SANE_DEBUG_CANON=4
 
 .SH "SEE ALSO"
-sane\-scsi(5)
+.BR sane\-scsi (5)
 .br
-http://www.rzg.mpg.de/~mpd/sane/
-.br
-doc/canon.install2700F.txt (installation of a CanoScan 2700F
+.I http://www.rzg.mpg.de/~mpd/sane/doc/canon.install2700F.txt
+(installation of a CanoScan 2700F)
 .br
 .SH AUTHOR
-Helmut Koeberle, Manuel Panea, and Markus Mertinat; FB620S and FB1200S support
-by Mitsuru Okaniwa; FS2710S support by Ulrich Deiters
+Helmut Koeberle, Manuel Panea, and Markus Mertinat;
+.br
+FB620S and FB1200S support by Mitsuru Okaniwa;
+.br
+FS2710S support by Ulrich Deiters
 .br
 Man page by Henning Meier-Geinitz (mostly based on canon.README)

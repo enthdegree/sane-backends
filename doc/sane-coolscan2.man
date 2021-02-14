@@ -36,44 +36,59 @@ report successes or failures.
 
 .SH OPTIONS
 The options the backend supports can either be selected through command line
-options to programs like scanimage or through GUI elements in xscanimage or xsane.
+options to programs like
+.BR scanimage (1)
+or through GUI elements in
+.BR xscanimage (1)
+or
+.BR xsane (1).
 
-Valid command line options and their syntax can be listed by using
+Valid command line options and their syntax can be listed by using:
+.PP
 .RS
 scanimage \-\-help \-d coolscan2:<interface>:<device>
 .RE
+.PP
 where <interface> and <device> specify the device in question, as in the
-configuration file (see next section). The \-d parameter and its argument
+configuration file (see next section). The
+.B \-d
+parameter and its argument
 can be omitted to obtain information on the first scanner identified. Use
-the command
+the command:
+.PP
 .RS
 scanimage \-L
 .RE
+.PP
 to list all devices recognized by your SANE installation.
 
 The options should be fully described by the description or tooltips given by
 frontend. Here is a description of some of the most important options, in the
-syntax with which they must be supplied to scanimage:
+syntax with which they must be supplied to
+.BR scanimage (1):
 .TP
-.I \-\-frame <n>
+.B \-\-frame <n>
 This option specifies which frame to operate on, if a motorized film strip
 feeder or APS adapter are used. The frame number
 .I <n>
 ranges from 1 to the number of frames available, which is sensed each time
 the backend is initialized (usually each time you start the frontend).
 .TP
-.I \-\-subframe <x>
+.B \-\-subframe <x>
 This option shifts the scan window by the specified amount (default
 unit is mm).
 .TP
-.I \-\-infrared=yes/no
+.B \-\-infrared=yes/no
 If set to "yes", the scanner will read the infrared channel, thus allowing
 defect removal in software. The infrared image is read during a second scan,
 with no options altered. The backend must not be restarted between the scans.
-If you use scanimage, perform a batch scan with batch\-count=2 to obtain the
-IR information.
+If you use
+.BR scanimage (1),
+perform a batch scan with
+.B batch\-count=2
+to obtain the IR information.
 .TP
-.I \-\-depth <n>
+.B \-\-depth <n>
 Here <n> can either be 8 or the maximum number of bits supported by the
 scanner (10, 12, or 14). It specifies whether or not the scanner reduces
 the scanned data to 8 bits before sending it to the backend. If 8 bits are
@@ -81,40 +96,42 @@ used, some information and thus image quality is lost, but the amount of data
 is smaller compared to higher depths. Also, many imaging programs and image
 formats cannot handle depths greater than 8 bits.
 .TP
-.I \-\-autofocus
+.B \-\-autofocus
 Perform autofocus operation. Unless otherwise specified by the other options (
-.I \-\-focus\-on\-centre
+.B \-\-focus\-on\-centre
 and friends), focusing is performed on the centre of the selected scan area.
 .TP
-.I \-\-ae\-wb
+.B \-\-ae\-wb
 .TP
-.I \-\-ae
+.B \-\-ae
 Perform a pre-scan to calculate exposure values automatically.
-.I \-\-ae\-wb
+.B \-\-ae\-wb
 will maintain the white balance, while
-.I \-\-ae
+.B \-\-ae
 will adjust each channel separately.
 .TP
-.I \-\-exposure
+.B \-\-exposure
 Multiply all exposure times with this value. This allows exposure
 correction without modifying white balance.
 .TP
-.I \-\-load
+.B \-\-load
 Load the next slide when using the slide loader.
 .TP
-.I \-\-eject
+.B \-\-eject
 Eject the film strip or mounted slide when using the slide loader.
 .TP
-.I \-\-reset
+.B \-\-reset
 Reset scanner. The scanner will perform the same action as when power is
 turned on: it will eject the film strip and calibrate itself. Use this
 whenever the scanner refuses to load a film strip properly, as a result of
 which
-.I \-\-eject
+.B \-\-eject
 does not work.
 
 .SH CONFIGURATION FILE
-The configuration file @CONFIGDIR@/coolscan2.conf specifies the device(s)
+The configuration file
+.I @CONFIGDIR@/coolscan2.conf
+specifies the device(s)
 that the backend will use. Owing to the nature of the supported connection
 types SCSI, USB, and IEEE 1394, the default configuration file supplied with
 the SANE distribution should work without being edited.
@@ -127,7 +144,7 @@ These lines are ignored, thus '#' can be used to include comments.
 .TP
 .I containing only the word """auto"""
 This instructs the backend to probe for a scanner by scanning the buses for
-devices with know identifiers. This is the action taken when no
+devices with known identifiers. This is the default action when no
 configuration file is present.
 .TP
 .I a line of the form <interface>:<device>
@@ -157,7 +174,11 @@ a value of 128 requests all debug output to be printed.  Smaller
 levels reduce verbosity.
 
 .SH "SEE ALSO"
-sane\-scsi(5), sane\-usb(5), scanimage(1), xscanimage(1), xsane(1)
+.BR sane\-scsi (5),
+.BR sane\-usb (5),
+.BR scanimage (1),
+.BR xscanimage (1),
+.BR xsane (1)
 
 .SH BUGS
 Currently, the SANE protocol does not allow automatically updating options
@@ -179,4 +200,4 @@ or the SANE developers' email list.
 
 .SH AUTHORS
 The backend is written and maintained by Andr\['a]s Major
-(andras@users.sourceforge.net).
+.IR <andras@users.sourceforge.net> .

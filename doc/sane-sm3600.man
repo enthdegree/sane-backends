@@ -10,7 +10,11 @@ provides access to some Microtek scanners with the Toshiba M011 custom
 USB chip.  This backend should be considered alpha.
 .PP
 There are also backends for Microtek scanners with SCSI command set.
-Refer to sane\-microtek(5) and sane\-microtek2(5) for details.
+Refer to
+.BR sane\-microtek (5)
+and
+.BR sane\-microtek2 (5)
+for details.
 .PP
 At present, the following
 scanners are known positively to work with this backend:
@@ -32,8 +36,8 @@ listed above, it may or may not work with SANE!
 
 .SH "FRONTEND OPTIONS"
 This backend dynamically enables the options for the frontend,
-that are supported by the scanner in dependence of the scanning-mode
-and other options. Not supported options are disabled.
+that are supported by the scanner dependent on the scanning-mode
+and other options. Unsupported options are disabled.
 .PP
 The following options are supported by the Microtek2-driver:
 .PP
@@ -63,7 +67,8 @@ If the library was compiled with debug support enabled, this
 environment variable controls the debug level for this backend.  E.g.,
 a value of 128 requests all debug output to be printed.  Smaller
 levels reduce verbosity. To see error messages on stderr set
-SANE_DEBUG_SM3600 to 1.
+.B SANE_DEBUG_SM3600
+to 1.
 
 .br
 E.g. just say:
@@ -71,11 +76,17 @@ E.g. just say:
 export SANE_DEBUG_SM3600=5
 
 .SH "SEE ALSO"
-sane\-microtek2(5), http://sm3600.sourceforge.net
+.BR sane (7) ,
+.BR sane\-microtek (5),
+.BR sane\-microtek2 (5)
+.br
+.I http://sm3600.sourceforge.net
 
 .SH AUTHOR
 .br
-Marian Eichholz (eichholz@computer.org)
+Marian Eichholz
+.RI < eichholz@computer.org >
 .br
-Glenn Ramsey (glenn@componic.com)
+Glenn Ramsey
+.RI < glenn@componic.com >
 .br

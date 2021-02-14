@@ -63,13 +63,19 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in @CONFIGDIR@.  If the value of the
+directory (".") and then in
+.IR @CONFIGDIR@ .
+If the value of the
 environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"@CONFIGDIR@" being searched (in this order).
+to "/tmp/config:" would result in directories
+.IR tmp/config ,
+.IR . ,
+and
+.I @CONFIGDIR@
+being searched (in this order).
 .TP
 .B SANE_DEBUG_V4L
 If the library was compiled with debug support enabled, this
@@ -83,9 +89,12 @@ Juergen G. Schimmer, Henning Meier-Geinitz
 If more than one video card is present, a crash may occur. Frequency and geometry
 selection is missing.
 .br
-Send bug reports to the SANE mailing list: sane\-devel@alioth-lists.debian.net.  You must
-be subscribed to the list to send mail. See
-http://www.sane\-project.org/mailing\-lists.html for details.
+Send bug reports to the SANE mailing list:
+.IR sane\-devel@alioth-lists.debian.net .
+You must be subscribed to the list to send mail. See
+.I http://www.sane\-project.org/mailing\-lists.html
+for details.
 
 .SH SEE ALSO
-sane(7), xcam(1).
+.BR sane (7),
+.BR xcam (1)

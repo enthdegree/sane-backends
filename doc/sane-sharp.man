@@ -61,260 +61,192 @@ or
 for example.  See sane\-scsi(5) for details.
 
 .SH SCAN OPTIONS
-
-.B Scan Mode
-(parameter
+.TP
 .B \-\-mode
-for scanimage). Possible settings:
-.RS
-.B Lineart
+Scan Mode. Possible settings are:
+.I Lineart
 (1 bit black & white scans),
-.br
-.B Gray
+.I Gray
 (8 bit gray scale scans),
-.br
-.B Lineart Color
-(bi-level color scans),
-.br
-.B Color
-(8 bit RGB scans).
-.RE
-The default value is
-.B Color.
+.I Lineart Color
+(bi-level color scans), and
+.I Color
+(8 bit RGB scans). The default value is
+.I Color.
 
-.B Halftone Pattern
-(parameter
+.TP
 .B \-\-halftone\-pattern
-for scanimage). Available only for the JX-330 series scanners.
+Halftone Pattern. Available only for the JX-330 series scanners.
 Possible settings:
-.RS
-.B none
-.br
-.B Dither Bayer
-.br
-.B Dither Spiral
-.br
-.B Dither Dispersed
-.br
-.B Error Diffusion
-.RE
+.IR none ", " "Dither Bayer" ", " "Dither Spiral" ", " "Dither Dispersed"
+and
+.IR "Error Diffusion" .
 The default value is
-.B none.
+.IR none .
 
-.B Paper Source
-(parameter
+.TP
 .B \-\-source
-for scanimage). This option is only available, if an automatic document
-feeder or a transparency adapter is installed. Possible settings:
-.RS
-.B Flatbed
-.br
-.B Automatic Document Feeder
-.br
-.B Transparency Adapter
-.RE
+Paper Source. This option is only available if an automatic document
+feeder or a transparency adapter is installed. Possible settings are:
+.IR Flatbed ", " "Automatic Document Feeder" ,
+and
+.IR "Transparency Adapter" .
 If an ADF or a transparency adapter is installed, using it is the
 default selection.
 
-.B Custom Gamma
-(parameter
+.TP
 .B \-\-custom\-gamma
-for scanimage). This option determines whether a builtin or a custom
-gamma-table is used. Possible settings:
-.RS
-.B yes
-enables custom gamma tables
-.br
-.B no
-enables a built gamma table
-.RE
+Custom Gamma  This option determines whether a builtin or a custom
+gamma table is used. Possible settings are:
+.I yes
+(enables custom gamma tables) or
+.I no
+(enables a built gamma table).
 
-.B Gamma
-(parameter
-.B \-\-Gamma
-for scanimage). This option is only available, if
+.TP
+.B \-\-gamma
+Gamma. This option is only available if
 .B Custom Gamma
 is set to
-.B no.
-Possible values:
-.RS
-.B 1.0
-.br
-.B 2.2
-.RE
-The default value is 2.2. (The JX-250 and JX-350 have no built in gamma
-correction; for these scanner, a gamma table is downloaded to the scanner
+.IR no .
+Possible values are:
+.IR 1.0 " or " 2.2 "."
+The default value is
+.IR 2.2 .
+(The JX-250 and JX-350 have no built in gamma
+correction; for these scanners, a gamma table is downloaded to the scanner
 by the backend.)
 
-.B Gamma Table
-(parameter
+.TP
 .B \-\-gamma\-table
-for scanimage). Allowed values: 0..255; 256 numbers must be defined.
+Gamma Table. Allowed values: 0..255; 256 numbers must be defined.
 The default values are 0, 1, 2, .. 255 (i.e., gamma == 1). This table
 is only used for gray scale scans.
 
-.B Red Gamma Table
-(parameter
+.TP
 .B \-\-red\-gamma\-table
-for scanimage). Allowed values: 0..255; 256 numbers must be defined.
+Red Gamma Table. Allowed values: 0..255; 256 numbers must be defined.
 The default values are 0, 1, 2, .. 255 (i.e., gamma == 1).
 
-.B Green Gamma Table
-(parameter
+.TP
 .B \-\-green\-gamma\-table
-for scanimage). Allowed values: 0..255; 256 numbers must be defined.
+Green Gamma Table. Allowed values: 0..255; 256 numbers must be defined.
 The default values are 0, 1, 2, .. 255 (i.e., gamma == 1).
 
-.B Blue Gamma Table
-(parameter
+.TP
 .B \-\-blue\-gamma\-table
-for scanimage). Allowed values: 0..255; 256 numbers must be defined.
+Blue Gamma Table. Allowed values: 0..255; 256 numbers must be defined.
 The default values are 0, 1, 2, .. 255 (i.e., gamma == 1).
 
-.B Resolution
-in pixel per inch (parameter
+.TP
 .B \-\-resolution
-for scanimage). Selects the resolution of the scanned image. Allowed values:
-.RS
-.B 30..600
-(JX-330, JX-350 and JX-610) resp.
-.B 30..400
-(JX-250)
-.RE
+Selects the resolution of the scanned image. Allowed values:
+.I 30..600
+(JX-330, JX-350 and JX-610) and
+.I 30..400
+(JX-250).
 The default value is 150.
 
-.B Scan Window
-
+.TP
+.BR \-l ", " \-t ", " \-x ", " \-y
+Scan Window.
+Top-left x position of scan area
+.RB ( \-l ),
+top-left y position of scan area
+.RB ( \-t ),
+bottom right x position of scan area
+.RB ( \-x )
+and bottom right y position of scan area
+.RB ( \-y ).
 The possible settings depend on the scanner model and, for the
 JX-250 and the JX-350, also on the usage of the automatic document feeder resp. the
-transparency adapter. Please refer to the values allowed by xscanimage, or
-xsane. With scanimage, enter one of the following commands:
+transparency adapter. Please refer to the values allowed by
+.BR xscanimage (1),
+or
+.BR xsane (1).
+With
+.BR scanimage (1),
+enter one of the following commands in order to see the allowed parameter values for
+the scan window:
 
 .RS
-.I scanimage \-d sharp \-\-source """Automatic Document Feeder""" \-\-help
+scanimage \-d sharp \-\-source "Automatic Document Feeder" \-\-help
 
-.I scanimage \-d sharp \-\-source Flatbed \-\-help
+scanimage \-d sharp \-\-source Flatbed \-\-help
 
-.I scanimage \-d sharp \-\-source """Transparency Adapter""" \-\-help
+scanimage \-d sharp \-\-source "Transparency Adapter" \-\-help
 .RE
 
-in order to see the allowed parameter values for the scan window.
-
-The scan window parameters are:
-
-.RS
-Top-left x position of scan area (parameter
-.B \-l
-for scanimage);
-.br
-Top-left y position of scan area (parameter
-.B \-t
-for scanimage);
-.br
-bottom right x position of scan area (parameter
-.B \-x
-for scanimage);
-.br
-bottom right y position of scan area (parameter
-.B \-y
-for scanimage);
-.RE
-
-.B Edge emphasis
-(parameter
-.B \-\-Edge emphasis
-for scanimage). This option is not available for the JX-250 and the JX-350.
+.TP
+.B \-\-edge emphasis
+Edge emphasis. This option is not available for the JX-250 and the JX-350.
 Possible settings:
-.RS
-.B None
-.br
-.B Middle
-.br
-.B Strong
-.br
-.B Blur
-.RE
+.IR None ", " Middle ", " Strong ", and " Blur .
 The default value is
-.B None.
+.IR None .
 
-.B Threshold
-(parameter
+.TP
 .B \-\-threshold
-for scanimage). Sets the threshold for black and white pixels in lineart
-mode. Possible values:
-.RS
-.B 1..255
-.RE
-The default value is
-.B 128.
-This option is only available in scan mode lineart.
+Sets the threshold for black and white pixels in lineart mode.
+Possible values are 1..255.
+The default value is 128.
+This option is only available in scan mode
+.IR lineart .
 
-.B Threshold Red
-(parameter
+.TP
 .B \-\-threshold-red
-for scanimage). Sets the threshold for the red component of a pixel in
-in lineart color scan mode. Possible values:
-.RS
-.B 1..255
-.RE
-The default value is
-.B 128.
-This option is only available in scan mode color lineart.
+Sets the threshold for the red component of a pixel in
+in lineart color scan mode. Possible values are 1..255.
+The default value is 128.
+This option is only available in scan mode color
+.IR lineart .
 
-.B Threshold Green
-(parameter
+.TP
 .B \-\-threshold-green
-for scanimage). Sets the threshold for the green component of a pixel in
-in lineart color scan mode. Possible values:
-.RS
-.B 1..255
-.RE
-The default value is
-.B 128.
-This option is only available in scan mode color lineart.
+Sets the threshold for the green component of a pixel in
+in lineart color scan mode. Possible values are 1..255.
+The default value is 128.
+This option is only available in scan mode color
+.I lineart .
 
-.B Threshold Blue
-(parameter
+.TP
 .B \-\-threshold-blue
-for scanimage). Sets the threshold for the blue component of a pixel in
-in lineart color scan mode. Possible values:
-.RS
-.B 1..255
-.RE
-The default value is
-.B 128.
-This option is only available in scan mode color lineart.
+Sets the threshold for the blue component of a pixel in
+in lineart color scan mode. Possible values are 1..255.
+The default value is 128.
+This option is only available in scan mode color
+.IR lineart .
 
-.B Light Color
-(parameter
-.B \-\-LightColor
-for scanimage). Sets the color of the light source. Possible values:
-.RS
-.B white
-.br
-.B red
-.br
-.B green
-.br
-.B blue
-.RE
+.TP
+.B \-\-lightcolor
+Sets the color of the light source. Possible values are
+.IR white ,
+.IR red ,
+.I green
+and
+.IR blue .
 The default value is
-.B white.
-This option is only available in scan modes lineart color and color.
+.IR white .
+This option is only available in scan modes
+.I "lineart color"
+and
+.IR color .
 
 .SH ADF USAGE
-If a paper jam occurred, the maintenance cover
+If a paper jam occurrs, the maintenance cover
 .I
 must
 be opened and closed, even if the jammed paper can be removed without opening
-the maintenance cover. Otherwise, the error condition cannot be cleared.
+the maintenance cover. Otherwise, the error condition will not be cleared.
 
 .SH CONFIGURATION
 The contents of the
 .I sharp.conf
 file is a list of options and device names that correspond to Sharp
 scanners. Empty lines and lines beginning with a hash mark (#) are
-ignored. See sane\-scsi(5) for details about device names.
+ignored. See
+.BR sane\-scsi (5)
+for details about device names.
 .PP
 Lines setting an option start with the key word
 .B option,
@@ -401,7 +333,7 @@ during a scan. If this is the case, you should consider to connect the
 scanner to a separate SCSI adapter.
 .PP
 Slow responses by the backend to the scanner: Unfortunately,
-Unix-like operating systems generally have no real time capabilities.
+UNIX-like operating systems generally have no real time capabilities.
 Thus there is no guarantee that the backend is under any circumstances
 able to communicate with the scanner as fast as required. To minimize this
 problem, the backend should be compiled so that a separate reader process
@@ -433,7 +365,7 @@ of the data is too slow, set the environment variable
 .B SANE_DEBUG_SHARP
 to 1. When a scan is finished, the backend writes the line "buffer full
 conditions:
-.I nn"
+.IR nn """
 to stderr. If
 .I nn
 is zero, carriage stops are caused by too slow responses of the backend
@@ -488,18 +420,22 @@ scans. This happens for
 every
 scan, in contrast to the calibration, which is done after 10 scans. (For the
 calibration, the carriage is also moved to the idle position.) We do not
-know, if this behavior is caused by the backend, or if it is a bug in the
+know if this behavior is caused by the backend, or if it is a bug in the
 firmware of the scanner.
 .PP
 5. Usage of a transparency adapter (film scan unit) is supported, but not
 tested.
 
 .SH "SEE ALSO"
-sane(7), sane\-scsi(5)
+.BR sane (7),
+.BR sane\-scsi (5)
+
 .SH AUTHORS
 Kazuya Fukuda, Abel Deuring
+
 .SH CREDITS
 The Sharp backend is based on the Canon backend written by Helmut Koeberle
 .PP
-Parts of this man page are a plain copy of sane\-mustek(5) by David
-Mosberger-Tang, Andreas Czechanowski and Andreas Bolsch
+Parts of this man page are a plain copy of
+.BR sane\-mustek (5)
+by David Mosberger-Tang, Andreas Czechanowski and Andreas Bolsch

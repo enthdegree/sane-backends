@@ -31,7 +31,9 @@ symlink to such a device.  Under Linux, such a device name could be
 .I /dev/sga
 or
 .IR /dev/sge ,
-for example.  See sane\-scsi(5) for details.
+for example.  See
+.BR sane\-scsi (5)
+for details.
 .P
 For USB scanners the devicename must contain the keyword "usb", as in
 .I /dev/usbscanner
@@ -45,14 +47,17 @@ e.g.
 firmware @DATADIR@/sane/snapscan/firmware.bin
 .RE
 .PP
-For further details read http://snapscan.sourceforge.net.
+For further details read
+.IR http://snapscan.sourceforge.net .
 
 .SH CONFIGURATION
 The contents of the
 .I snapscan.conf
 file is a list of device names that correspond to SnapScan
 scanners.  Empty lines and lines starting with a hash mark (#) are
-ignored.  See sane\-scsi(5) on details of what constitutes a valid
+ignored.  See
+.BR sane\-scsi (5)
+on details of what constitutes a valid
 device name.
 
 .SH FILES
@@ -76,13 +81,19 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in @CONFIGDIR@.  If the value of the
+directory (".") and then in
+.IR @CONFIGDIR@ .
+If the value of the
 environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"@CONFIGDIR@" being searched (in this order).
+to "/tmp/config:" would result in directories
+.IR "tmp/config" ,
+.IR "." ,
+and
+.I "@CONFIGDIR@"
+being searched (in this order).
 .TP
 .B SANE_DEBUG_SNAPSCAN
 If the library was compiled with debug support enabled, this
@@ -95,11 +106,11 @@ levels reduce verbosity.
 Man page doesn't provide much information yet.
 
 .SH "SEE ALSO"
-sane(7), sane\-scsi(5)
+.BR sane (7),
+.BR sane\-scsi (5),
 .br
-http://www.cs.ualberta.ca/~charter/SnapScan/snapscan.html
-.br
-http://sourceforge.net/projects/snapscan/ (new development website)
+.I http://sourceforge.net/projects/snapscan/
+(new development website)
 
 .SH AUTHOR
 Kevin Charter, Franck Schneider, Michel Roelofs, Emmanuel Blot,

@@ -18,7 +18,7 @@ the scan area.
 If you own a scanner other than the ones listed on the gt68xx homepage that works with this
 backend, please let me know this by sending the scanner's exact model name and
 the USB vendor and device ids (e.g. from
-.I sane\-find\-scanner
+.BR sane\-find\-scanner (1)
 or syslog) to me. Even if the scanner's name is only slightly different from
 the models already listed as supported, please let me know.
 .PP
@@ -30,8 +30,8 @@ following web page:
 .SH LIBUSB ISSUES
 Please use libusb-0.1.8 or later. Without libusb or with older libusb versions
 all kinds of trouble can be expected. The scanner should be found by
-sane\-find\-scanner without further actions. For setting permissions and general
-USB information looks at
+.BR sane\-find\-scanner (1)
+without further actions. For setting permissions and general USB information looks at
 .BR sane\-usb (5).
 .PP
 
@@ -163,13 +163,19 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in @CONFIGDIR@.  If the value of the
+directory (".") and then in
+.IR @CONFIGDIR@ .
+If the value of the
 environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"@CONFIGDIR@" being searched (in this order).
+to "/tmp/config:" would result in directories
+.IR tmp/config ,
+.IR . ,
+and
+.I "@CONFIGDIR@"
+being searched (in this order).
 .TP
 .B SANE_DEBUG_GT68XX
 If the library was compiled with debug support enabled, this environment
@@ -196,7 +202,8 @@ export SANE_DEBUG_GT68XX=4
 .I http://www.meier\-geinitz.de/sane/gt68xx
 
 .SH AUTHOR
-Henning Meier-Geinitz <henning@meier\-geinitz.de>
+Henning Meier-Geinitz
+.RI < henning@meier\-geinitz.de >
 .br
 The original gt68xx driver was written by Sergey Vlasov, Andreas Nowack, and
 David Stevenson. Thanks for sending patches and answering questions to them
@@ -213,6 +220,11 @@ Support for buttons is missing.
 .PP
 More detailed bug information is available at the gt68xx backend homepage
 .IR http://www.meier\-geinitz.de/sane/gt68xx\-backend/ .
+.br
 Please contact us if you find a bug or missing feature:
-<sane\-devel@alioth-lists.debian.net>. Please send a debug log if your scanner isn't
-detected correctly (see SANE_DEBUG_GT68XX above).
+.RI < sane\-devel@alioth-lists.debian.net >.
+.br
+Please send a debug log if your scanner isn't
+detected correctly (see
+.B SANE_DEBUG_GT68XX
+above).

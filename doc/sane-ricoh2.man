@@ -29,8 +29,12 @@ support dynamic loading).
 
 .SH OPTIONS
 The options the backend supports can either be selected through command line
-options to programs like scanimage or through GUI elements in programs like
-xscanimage or xsane.
+options to programs like
+.BR scanimage (1)
+or through GUI elements in programs like
+.BR xscanimage (1)
+or
+.BR xsane (1).
 .PP
 The following options are supported by ricoh2:
 
@@ -54,6 +58,11 @@ environment variable controls the debug level for this backend. Higher
 debug levels increase the verbosity of the output.
 
 .SH "SEE ALSO"
-sane(7), sane\-usb(5)
+.BR sane (7),
+.BR sane\-usb (5),
+.BR scanimage (1),
+.BR xscanimage (1),
+.BR xsane (1)
+
 .SH AUTHOR
 Stanislav Yuzvinsky

@@ -20,7 +20,7 @@ If you own a scanner other than the ones listed above that works with this
 backend, please let us know this by sending the scanner's exact model name and
 the USB vendor and device ids (e.g. from
 .IR /proc/bus/usb/devices ,
-.I sane\-find\-scanner
+.B sane\-find\-scanner (1)
 or syslog) to us. Even if the scanner's name is only slightly different from
 the models mentioned above, please let us know.
 .SH CONFIGURATION
@@ -49,4 +49,5 @@ export SANE_DEBUG_HP3500=4
 .I http://projects.troy.rollo.name/rt-scanners/
 
 .SH AUTHOR
-Troy Rollo <sane@troy.rollo.name>
+Troy Rollo
+.RI < sane@troy.rollo.name >

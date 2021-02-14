@@ -45,15 +45,23 @@ detection and re-orientation when scanning multiple slides. You have
 to put all slides into one orientation first !
 
 .SH "DIRT REMOVAL"
-If available, pieusb supports infrared scans for dirt detection and
+If available,
+.B sane\-pieusb
+supports infrared scans for dirt detection and
 removal. This must be enabled via the 'Clean image' setting.
 
 .SH "KNOWN PROBLEMS"
-The pieusb backend supports dirt removal based on infrared scan
+The
+.B sane\-pieusb
+backend supports dirt removal based on infrared scan
 information. Since SANE does not provide post-processing in the
-backend, pieusb does the scanning and dirt removal during the setup
+backend,
+.B sane\-pieusb
+does the scanning and dirt removal during the setup
 phase. The 'scan' phase is only used to transfer the completed image.
-Therefore pieusb does not multi-thread making a typical frontend
+Therefore
+.B sane\-pieusb
+does not multi-thread making a typical frontend
 appear as 'blocked'. Also cancel requests are only honored between
 scans.
 
@@ -99,12 +107,13 @@ support dynamic loading).
 .PP
 
 .SH SEE ALSO
-sane(7)
+.BR sane (7)
 
 .SH "CONTACT AND BUG-REPORTS"
 Please send any information and bug-reports to:
 .br
-.B Klaus Kämpf <kkaempf@suse.com>
+Klaus Kämpf
+.RI < kkaempf@suse.com >
 
 .SH AUTHORS
 The pieusb backend is based on work by Jan Vleeshouwers, Michael

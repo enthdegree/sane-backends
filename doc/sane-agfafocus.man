@@ -32,7 +32,8 @@ If you own a scanner other than the ones listed above that works with
 this backend, please let us know by sending the scanner's model name,
 SCSI id, and firmware revision to
 .IR sane\-devel@alioth-lists.debian.net .
-Have a look at http://www.sane\-project.org/mailing\-lists.html
+Have a look at
+.I http://www.sane\-project.org/mailing\-lists.html
 concerning subscription to sane\-devel.
 .PP
 All of these scanners are pre-SCSI-2, and do not even report properly
@@ -55,7 +56,10 @@ a device name could be
 .I /dev/sga
 or
 .IR /dev/sge ,
-for example.  See sane\-scsi(5) for details.
+for example.  See
+.BR sane\-scsi (5)
+for details.
+
 .SH CONFIGURATION
 The contents of the
 .I agfafocus.conf
@@ -93,19 +97,25 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in /etc/sane.d.  If the value of the
-environment variable ends with the directory separator character, then
-the default directories are searched after the explicitly specified
-directories.  For example, setting
+directory (".") and then in
+.IR @CONFIGDIR@ .
+If the value of the environment variable ends with the directory separator
+character, then the default directories are searched after the
+explicitly specified directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"/etc/sane.d" being searched (in this order).
+to "/tmp/config:" would result in directories
+.IR tmp/config ,
+.IR . ,
+and
+.I @CONFIGDIR@
+being searched (in this order).
 .TP
 .B SANE_DEBUG_AGFAFOCUS
 If the library was compiled with debug support enabled, this environment
 variable controls the debug level for this backend. E.g., a value of 128
 requests all debug output to be printed. Smaller levels reduce verbosity.
-SANE_DEBUG_AGFAFOCUS values:
+.B SANE_DEBUG_AGFAFOCUS
+values:
 
 .sp
 .ft CR
@@ -138,8 +148,9 @@ these options have been disabled.
 The scanners that do not support disconnect have problems with SCSI
 timeouts if the SCSI bus gets loaded, eg. if you do a kernel build at
 the same time as scanning.  To see if your scanner supports
-disconnect, run "SANE_DEBUG_AGFAFOCUS=128 scanimage \-L" in sh and look
-for the "disconnect:" line)
+disconnect, run
+.I "SANE_DEBUG_AGFAFOCUS=128 scanimage \-L"
+in a terminal and look for the "disconnect:" line.
 
 .SH DEBUG
 If you have problems with SANE not detecting your scanner, make sure the
@@ -147,12 +158,14 @@ Artec backend is disabled.  Somehow, this backend causes at least my scanner
 not to respond correctly to SCSI inquiry commands.
 .PP
 If you encounter a bug please set the environment variable
-SANE_DEBUG_AGFAFOCUS to 128 and try to regenerate the problem. Then
-send me a report with the log attached.
+.B SANE_DEBUG_AGFAFOCUS
+to 128 and try to regenerate the problem. Then send me a report with the
+log attached.
 .PP
 If you encounter a SCSI bus error or trimmed and/or displaced images please
-also set the environment variable SANE_DEBUG_SANEI_SCSI to 128 before sending
-me the report.
+also set the environment variable
+.B SANE_DEBUG_SANEI_SCSI
+to 128 before sending me the report.
 
 .SH TODO
 .TP
@@ -166,9 +179,10 @@ a scanner, I could be helpful in adding support for these scanners.
 
 The AGFA HORIZON scanners are SCSI-2 scanners, and it would probably
 be easier to support these scanners in a SCSI-2 compliant backend.
+
 .SH SEE ALSO
-sane(7), sane\-scsi(5)
+.BR sane (7),
+.BR sane\-scsi (5)
 
 .SH AUTHOR
-
 Ingo Schneider and Karl Anders \[/O]ygard.

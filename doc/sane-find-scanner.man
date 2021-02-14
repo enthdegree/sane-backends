@@ -15,7 +15,7 @@ sane\-find\-scanner \- find SCSI and USB scanners and their device files
 
 .SH DESCRIPTION
 .B sane\-find\-scanner
-is a command-line tool to find SCSI and USB scanners and determine their Unix
+is a command-line tool to find SCSI and USB scanners and determine their UNIX
 device files. Its primary aim is to make sure that scanners can be detected by
 SANE backends.
 .PP
@@ -59,7 +59,7 @@ won't find most
 parallel port scanners, or scanners connected to proprietary ports. Some
 .B parallel port
 scanners may be detected by
-.B sane\-find\-scanner -p.
+.I sane\-find\-scanner -p.
 At the time of writing this will only detect Mustek parallel port scanners.
 
 .SH OPTIONS
@@ -90,22 +90,23 @@ filename is a file that contains USB descriptors in the format of
 /proc/bus/usb/devices as used by Linux.
 .B sane\-find\-scanner
 tries to identify the chipset(s) of all USB scanners found in such a file. This
-option is useful for developers when the output of "cat /proc/bus/usb/devices"
+option is useful for developers when the output of
+.I "cat /proc/bus/usb/devices"
 is available but the scanner itself isn't.
 .TP 8
 .B devname
 Test device file "devname". No other devices are checked if devname is given.
 .SH EXAMPLE
-.B sane\-find\-scanner \-v
+.I sane\-find\-scanner \-v
 .br
 Check all SCSI and USB devices for available scanners and print a line for
 every device file.
 .PP
-.B sane\-find\-scanner /dev/scanner
+.I sane\-find\-scanner /dev/scanner
 .br
 Look for a (SCSI) scanner only at /dev/scanner and print the result.
 .PP
-.B sane\-find\-scanner \-p
+.I sane\-find\-scanner \-p
 .br
 Probe for parallel port scanners.
 .SH "SEE ALSO"

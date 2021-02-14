@@ -49,8 +49,13 @@ This image is a 1599-by-1200 pixel full-color image constructed by filtering
 and interpolating the "raw" image.  The filtering and interpolation is
 done in software, so this mode is very slow.  Also, this mode places
 restrictions on how the image is read which means that the "preview" mode
-of xscanimage does not work in Super Resolution mode.  (xcam and the
-non-preview modes of scanimage and xscanimage work fine, however.)
+of xscanimage does not work in Super Resolution mode.
+.RB ( xcam (1)
+and the non-preview modes of
+.BR scanimage (1)
+and
+.BR xscanimage (1)
+work fine, however.)
 .PP
 .SH OTHER SETTINGS
 .TP
@@ -101,13 +106,18 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in @CONFIGDIR@.  If the value of the
-environment variable ends with the directory separator character, then
-the default directories are searched after the explicitly specified
-directories.  For example, setting
+directory (".") and then in
+.IR @CONFIGDIR@ .
+If the value of the environment variable ends with the directory separator
+character, then the default directories are searched after the explicitly
+specified directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"@CONFIGDIR@" being searched (in this order).
+to "/tmp/config:" would result in directories
+.IR "tmp/config",
+.IR ".",
+and
+.I "@CONFIGDIR@"
+being searched (in this order).
 .TP
 .B SANE_DEBUG_DMC
 If the library was compiled with debug support enabled, this
@@ -122,7 +132,7 @@ may read less than you ask for.  If you ask sane_read to read
 less than a single line, it returns SANE_STATUS_INVAL.
 .PP
 In the "Super Resolution" mode, images must be read in units of
-\fItwo\fR lines (3198 pixels or 9594 bytes.)  If you try to read less
+\fItwo\fR lines (3198 pixels or 9594 bytes).  If you try to read less
 than two lines, you get SANE_STATUS_INVAL.  The Super Resolution mode
 is very slow.
 .PP
@@ -130,11 +140,14 @@ In the "Viewfinder" and "Thumbnail" modes, the entire image must
 be read in one SCSI transfer.  In this case, the driver performs
 buffering and you can read the image in as small an increment as you
 like.
+
 .SH "SEE ALSO"
-sane(7), sane\-scsi(5)
+.BR sane (7),
+.BR  sane\-scsi (5)
+
 .SH AUTHOR
 David F. Skoll
 .PP
 The backend is derived from
-.BR sane\-hp
+.BR sane\-hp (5)
 by David Mosberger

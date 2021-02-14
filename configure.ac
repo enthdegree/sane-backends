@@ -3,7 +3,8 @@ dnl Process this file with autoconf to produce a configure script.
 dnl ******************************************************************
 dnl  Set up autoconf and automake
 dnl ******************************************************************
-AC_INIT([sane-backends],m4_esyscmd_s([git describe --dirty]),
+AC_INIT([sane-backends],
+        m4_esyscmd_s([tools/git-version-gen --prefix '' .tarball-version]),
         [sane-devel@alioth-lists.debian.net])
 AC_PREREQ([2.69])               dnl minimum autoconf version required
 AC_CONFIG_MACRO_DIR([m4])
@@ -716,11 +717,15 @@ for backend in ${BACKENDS} ; do
   BACKEND_LIBS_ENABLED="${BACKEND_LIBS_ENABLED} libsane-${backend}.la"
   BACKEND_CONFS_ENABLED="${BACKEND_CONFS_ENABLED} ${backend}.conf"
   BACKEND_MANS_ENABLED="${BACKEND_MANS_ENABLED} sane-${backend}.5"
+  if test x$backend = xgenesys; then
+    with_genesys_tests=yes
+  fi
   if test x$backend = xumax_pp; then
     install_umax_pp_tools=yes
   fi
 done
 AC_SUBST(BACKEND_LIBS_ENABLED)
+AM_CONDITIONAL(WITH_GENESYS_TESTS, test xyes = x$with_genesys_tests)
 AM_CONDITIONAL(INSTALL_UMAX_PP_TOOLS, test xyes = x$install_umax_pp_tools)
 
 AC_ARG_VAR(PRELOADABLE_BACKENDS, [list of backends to preload into single DLL])

@@ -51,9 +51,9 @@ Backends:
  ibm:           M.F., Henning Geinitz
  kodak:         m. allan noah (*)
  kodakaio:	Paul Newall (*)
- kvs1025:       Tao Zhang, m. allan noah (*)
- kvs20xx:       unknown, m. allan noah (*)
- kvs40xx:       unknown, m. allan noah (*)
+ kvs1025:       Tao Zhang
+ kvs20xx:       Panasonic Russia Ltd
+ kvs40xx:       Panasonic Russia Ltd
  leo:           Frank Zago
  lexmark:       Fred Odendaal, Stéphane Voltz
  ma1509:        Henning Geinitz

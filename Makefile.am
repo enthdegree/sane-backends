@@ -46,6 +46,8 @@ dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.1
 dist_changelogs_DATA += ChangeLogs/ChangeLog-1.0.0
 
 EXTRA_DIST  = .editorconfig
+EXTRA_DIST += INSTALL.linux
+EXTRA_DIST += autogen.sh
 EXTRA_DIST += po/README
 # Just in case these come in handy during development started from a
 # regular source tarball.  They are not needed otherwise as they are

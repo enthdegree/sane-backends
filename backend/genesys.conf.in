@@ -43,7 +43,8 @@ usb 0x04a9 0x2214
 usb 0x04a9 0x1900
 
 # Canon 4400F
-usb 0x04a9 0x2228
+# Disabled to prevent possible physical damage due to overheating (#436)
+#usb 0x04a9 0x2228
 
 # Canon LiDE 100
 usb 0x04a9 0x1904

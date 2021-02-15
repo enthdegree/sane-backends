@@ -2013,6 +2013,102 @@ static void debug_print_window_descriptor (int dbg_level, char* func,
        func, window->avision.type.normal.background_lines);
 }
 
+static SANE_String_Const
+avision_strdatatypecode (uint8_t datatypecode)
+{
+  static char buf[80];
+
+  switch (datatypecode)
+    {
+    case AVISION_DATATYPECODE_LIGHT_STATUS:
+      return "Light status";
+    case AVISION_DATATYPECODE_POWER_SAVING_TIMER:
+      return "Power saving timer";
+    case AVISION_DATATYPECODE_FIRMWARE_STATUS:
+      return "Firmware status";
+    case AVISION_DATATYPECODE_FLASH_RAM_INFO:
+      return "Flash RAM info";
+    case AVISION_DATATYPECODE_READ_NVRAM_DATA:
+      return "Read NVRAM data";
+    case AVISION_DATATYPECODE_SEND_NVRAM_DATA:
+      return "Send NVRAM data";
+    case AVISION_DATATYPECODE_FLASH_DATA:
+      return "Flash data";
+    case AVISION_DATATYPECODE_UNKNOWN:
+      return "Unknown";
+    case AVISION_DATATYPECODE_DETECT_ACCESSORIES:
+      return "Detect accessories";
+    case AVISION_DATATYPECODE_BUTTON_STATUS:
+      return "Button status";
+    case AVISION_DATATYPECODE_FILM_HOLDER_SENSE:
+      return "Film holder sense";
+    case AVISION_DATATYPECODE_READ_DUPLEX_INFO:
+      return "Read duplex info";
+    case AVISION_DATATYPECODE_READ_GENERAL_ABILITY_PARAM:
+      return "Read general ability/parameter";
+    case AVISION_DATATYPECODE_ATTACH_TRUNCATE_HEAD:
+      return "Attach/Truncate head (left) of scan length";
+    case AVISION_DATATYPECODE_ATTACH_TRUNCATE_TAIL:
+      return "Attach/Truncate tail (right) of scan length";
+    case AVISION_DATATYPECODE_GET_CALIBRATION_FORMAT:
+      return "Get calibration format";
+    case AVISION_DATATYPECODE_DOWNLOAD_GAMMA_TABLE:
+      return "Download gamma table";
+    case AVISION_DATATYPECODE_3X3_COLOR_MATRIX:
+      return "3x3 color matrix";
+    case AVISION_DATATYPECODE_ACCELERATION_TABLE:
+      return "Acceleration table";
+    case AVISION_DATATYPECODE_GET_BACKGROUND_RASTER:
+      return "Get background raster";
+    case AVISION_DATATYPECODE_READ_IMAGE_DATA:
+      return "Read image data";
+    default:
+      /* non-reentrant, but better than nothing */
+      sprintf (buf, "Unknown data type code %02X", datatypecode);
+      return buf;
+    }
+}
+
+static int
+avision_strcmd (SANE_String buffer, size_t size, const void* cmd)
+{
+  const uint8_t* m_cmd = (const uint8_t*)cmd;
+  uint8_t opc = m_cmd[0];
+  uint8_t datatypecode = m_cmd[2];
+
+  switch (opc)
+    {
+    case AVISION_SCSI_TEST_UNIT_READY:
+      return snprintf (buffer, size, "Test unit ready");
+    case AVISION_SCSI_REQUEST_SENSE:
+      return snprintf (buffer, size, "Request sense");
+    case AVISION_SCSI_MEDIA_CHECK:
+      return snprintf (buffer, size, "Media check");
+    case AVISION_SCSI_INQUIRY:
+      return snprintf (buffer, size, "Inquiry");
+    case AVISION_SCSI_MODE_SELECT:
+      return snprintf (buffer, size, "Mode select");
+    case AVISION_SCSI_RESERVE_UNIT:
+      return snprintf (buffer, size, "Reserve unit");
+    case AVISION_SCSI_RELEASE_UNIT:
+      return snprintf (buffer, size, "Release unit");
+    case AVISION_SCSI_SCAN:
+      return snprintf (buffer, size, "Scan");
+    case AVISION_SCSI_SET_WINDOW:
+      return snprintf (buffer, size, "Set window");
+    case AVISION_SCSI_READ:
+      return snprintf (buffer, size, "Read (%s)", avision_strdatatypecode (datatypecode));
+    case AVISION_SCSI_SEND:
+      return snprintf (buffer, size, "Send (%s)", avision_strdatatypecode (datatypecode));
+    case AVISION_SCSI_OBJECT_POSITION:
+      return snprintf (buffer, size, "Object position");
+    case AVISION_SCSI_GET_DATA_STATUS:
+      return snprintf (buffer, size, "Get data status");
+    default:
+      return snprintf (buffer, size, "Unknown OPC %d", opc);
+    }
+}
+
 static int write_pnm_header (FILE* f, color_mode m, int depth, int width, int height)
 {
   int maxval = (1 << depth) - 1;
@@ -2378,6 +2474,9 @@ static SANE_Status avision_cmd (Avision_Connection* av_con,
 				const void* src, size_t src_size,
 				void* dst, size_t* dst_size)
 {
+  SANE_Char strcmd[80];
+  avision_strcmd (strcmd, sizeof (strcmd), cmd);
+  DBG (7, "avision_cmd: %s\n", strcmd);
   if (av_con->connection_type == AV_SCSI) {
     return sanei_scsi_cmd2 (av_con->scsi_fd, cmd, cmd_size,
 			    src, src_size, dst, dst_size);
@@ -3224,7 +3323,7 @@ wait_4_light (Avision_Scanner* s)
   memset (&rcmd, 0, sizeof (rcmd));
 
   rcmd.opc = AVISION_SCSI_READ;
-  rcmd.datatypecode = 0xa0; /* get light status */
+  rcmd.datatypecode = AVISION_DATATYPECODE_LIGHT_STATUS; /* get light status */
   set_double (rcmd.datatypequal, dev->data_dq);
   set_triple (rcmd.transferlen, size);
 
@@ -3263,7 +3362,7 @@ wait_4_light (Avision_Scanner* s)
       memset (&scmd, 0, sizeof (scmd));
 
       scmd.opc = AVISION_SCSI_SEND;
-      scmd.datatypecode = 0xa0; /* send light status */
+      scmd.datatypecode = AVISION_DATATYPECODE_LIGHT_STATUS; /* send light status */
       set_double (scmd.datatypequal, dev->data_dq);
       set_triple (scmd.transferlen, size);
 
@@ -3297,7 +3396,7 @@ set_power_save_time (Avision_Scanner* s, int time)
 
   memset (&scmd, 0, sizeof (scmd));
   scmd.cmd.opc = AVISION_SCSI_SEND;
-  scmd.cmd.datatypecode = 0xA2; /* power-saving timer */
+  scmd.cmd.datatypecode = AVISION_DATATYPECODE_POWER_SAVING_TIMER; /* power-saving timer */
   set_double (scmd.cmd.datatypequal, dev->data_dq);
   set_triple (scmd.cmd.transferlen, sizeof (scmd.time) );
 
@@ -3327,7 +3426,7 @@ get_firmware_status (Avision_Connection* av_con)
   memset (&rcmd, 0, sizeof (rcmd));
   rcmd.opc = AVISION_SCSI_READ;
 
-  rcmd.datatypecode = 0x90; /* firmware status */
+  rcmd.datatypecode = AVISION_DATATYPECODE_FIRMWARE_STATUS; /* firmware status */
   set_double (rcmd.datatypequal, 0); /* dev->data_dq not available */
   set_triple (rcmd.transferlen, size);
 
@@ -3364,7 +3463,7 @@ get_flash_ram_info (Avision_Connection* av_con)
   memset (&rcmd, 0, sizeof (rcmd));
   rcmd.opc = AVISION_SCSI_READ;
 
-  rcmd.datatypecode = 0x6a; /* flash ram information */
+  rcmd.datatypecode = AVISION_DATATYPECODE_FLASH_RAM_INFO; /* flash ram information */
   set_double (rcmd.datatypequal, 0); /* dev->data_dq not available */
   set_triple (rcmd.transferlen, size);
 
@@ -3433,7 +3532,7 @@ get_nvram_data (Avision_Scanner* s, nvram_data* nvram)
 
   rcmd.opc = AVISION_SCSI_READ;
 
-  rcmd.datatypecode = 0x69; /* Read NVM RAM data */
+  rcmd.datatypecode = AVISION_DATATYPECODE_READ_NVRAM_DATA; /* Read NVM RAM data */
   set_double (rcmd.datatypequal, 0); /* dev->data_dq not available */
   set_triple (rcmd.transferlen, size);
 
@@ -3547,7 +3646,7 @@ send_nvram_data (Avision_Connection* av_con)
   memset (&scmd, 0, sizeof (scmd));
   scmd.opc = AVISION_SCSI_SEND;
 
-  scmd.datatypecode = 0x85; /* nvram data */
+  scmd.datatypecode = AVISION_DATATYPECODE_SEND_NVRAM_DATA; /* nvram data */
   set_double (scmd.datatypequal, 0); /* dev->data_dq not available */
   set_triple (scmd.transferlen, size);
 
@@ -3577,7 +3676,7 @@ send_flash_ram_data (Avision_Connection* av_con)
   memset (&scmd, 0, sizeof (scmd));
   scmd.opc = AVISION_SCSI_SEND;
 
-  scmd.datatypecode = 0x86; /* flash data */
+  scmd.datatypecode = AVISION_DATATYPECODE_FLASH_DATA; /* flash data */
   set_double (scmd.datatypequal, 0);
   set_triple (scmd.transferlen, size);
 
@@ -3613,7 +3712,7 @@ adf_reset (Avision_Scanner* s)
     memset (&scmd, 0, sizeof (scmd));
     memset (&payload, 0, sizeof (payload));
     scmd.opc = AVISION_SCSI_SEND;
-    scmd.datatypecode = 0xD0; /* unknown */
+    scmd.datatypecode = AVISION_DATATYPECODE_UNKNOWN; /* unknown */
     set_double (scmd.datatypequal, 0);
     size = 2;
     set_triple (scmd.transferlen, size);
@@ -3629,7 +3728,7 @@ adf_reset (Avision_Scanner* s)
     memset (&rcmd, 0, sizeof (rcmd));
     memset (&payload, 0, sizeof (payload));
     rcmd.opc = AVISION_SCSI_READ;
-    rcmd.datatypecode = 0x69; /* Read NVRAM data */
+    rcmd.datatypecode = AVISION_DATATYPECODE_READ_NVRAM_DATA; /* Read NVRAM data */
     set_double (rcmd.datatypequal, dev->data_dq);
     size = 4 - i; /* read 3 bytes the first time, 4 the second */
     set_triple (rcmd.transferlen, size);
@@ -3668,7 +3767,7 @@ get_accessories_info (Avision_Scanner* s)
   memset (&rcmd, 0, sizeof (rcmd));
   rcmd.opc = AVISION_SCSI_READ;
 
-  rcmd.datatypecode = 0x64; /* detect accessories */
+  rcmd.datatypecode = AVISION_DATATYPECODE_DETECT_ACCESSORIES; /* detect accessories */
   set_double (rcmd.datatypequal, dev->data_dq);
   set_triple (rcmd.transferlen, size);
 
@@ -3825,7 +3924,7 @@ get_button_status (Avision_Scanner* s)
       memset (&rcmd, 0, sizeof (rcmd));
       rcmd.opc = AVISION_SCSI_READ;
 
-      rcmd.datatypecode = 0xA1; /* button status */
+      rcmd.datatypecode = AVISION_DATATYPECODE_BUTTON_STATUS; /* button status */
       set_double (rcmd.datatypequal, dev->data_dq);
       set_triple (rcmd.transferlen, size);
 
@@ -3927,7 +4026,7 @@ get_button_status (Avision_Scanner* s)
 	    memset (&scmd, 0, sizeof (scmd));
 
 	    scmd.opc = AVISION_SCSI_SEND;
-	    scmd.datatypecode = 0xA1; /* button control */
+	    scmd.datatypecode = AVISION_DATATYPECODE_BUTTON_STATUS; /* button control */
 	    set_double (scmd.datatypequal, dev->data_dq);
 	    set_triple (scmd.transferlen, size);
 
@@ -3984,7 +4083,7 @@ get_frame_info (Avision_Scanner* s)
   memset (&rcmd, 0, sizeof (rcmd));
   rcmd.opc = AVISION_SCSI_READ;
 
-  rcmd.datatypecode = 0x87; /* film holder sense */
+  rcmd.datatypecode = AVISION_DATATYPECODE_FILM_HOLDER_SENSE; /* film holder sense */
   set_double (rcmd.datatypequal, dev->data_dq);
   set_triple (rcmd.transferlen, size);
 
@@ -4051,7 +4150,7 @@ get_duplex_info (Avision_Scanner* s)
   memset (&rcmd, 0, sizeof (rcmd));
   rcmd.opc = AVISION_SCSI_READ;
 
-  rcmd.datatypecode = 0xB1; /* read duplex info */
+  rcmd.datatypecode = AVISION_DATATYPECODE_READ_DUPLEX_INFO; /* read duplex info */
   set_double (rcmd.datatypequal, dev->data_dq);
   set_triple (rcmd.transferlen, size);
 
@@ -4117,7 +4216,7 @@ set_frame (Avision_Scanner* s, SANE_Word frame)
 
   memset (&scmd, 0, sizeof (scmd));
   scmd.cmd.opc = AVISION_SCSI_SEND;
-  scmd.cmd.datatypecode = 0x87; /* send film holder "sense" */
+  scmd.cmd.datatypecode = AVISION_DATATYPECODE_FILM_HOLDER_SENSE; /* send film holder "sense" */
   set_double (scmd.cmd.datatypequal, dev->data_dq);
   set_triple (scmd.cmd.transferlen, sizeof (scmd.data) );
 
@@ -4817,7 +4916,7 @@ get_tune_scan_length (Avision_Scanner* s)
   size = sizeof (payload);
 
   rcmd.opc = AVISION_SCSI_READ;
-  rcmd.datatypecode = 0xD2; /* Read General Ability/Parameter */
+  rcmd.datatypecode = AVISION_DATATYPECODE_READ_GENERAL_ABILITY_PARAM; /* Read General Ability/Parameter */
 
   for (i = 1; i <= 8; ++i) {
     memset (&payload, 0, sizeof (payload));
@@ -4860,7 +4959,7 @@ send_tune_scan_length (Avision_Scanner* s)
 
   size = sizeof (payload);
   scmd.opc = AVISION_SCSI_SEND;
-  scmd.datatypecode = 0x96; /* Attach/Truncate head(left) of scan length */
+  scmd.datatypecode = AVISION_DATATYPECODE_ATTACH_TRUNCATE_HEAD; /* Attach/Truncate head(left) of scan length */
   set_triple (scmd.transferlen, size);
 
   /* the SPEC says optical DPI, but real world measuring suggests it is 1200
@@ -4907,7 +5006,7 @@ send_tune_scan_length (Avision_Scanner* s)
     return status;
   }
 
-  scmd.datatypecode = 0x95; /* Attach/Truncate tail(right) of scan length */
+  scmd.datatypecode = AVISION_DATATYPECODE_ATTACH_TRUNCATE_TAIL; /* Attach/Truncate tail(right) of scan length */
   bottom = dpi * SANE_UNFIX (s->val[OPT_OVERSCAN_BOTTOM].w) / MM_PER_INCH;
   DBG (3, "send_tune_scan_length: bottom: %d\n", bottom);
 
@@ -5055,7 +5154,7 @@ get_calib_format (Avision_Scanner* s, struct calibration_format* format)
 
   memset (&rcmd, 0, sizeof (rcmd));
   rcmd.opc = AVISION_SCSI_READ;
-  rcmd.datatypecode = 0x60; /* get calibration format */
+  rcmd.datatypecode = AVISION_DATATYPECODE_GET_CALIBRATION_FORMAT; /* get calibration format */
   set_double (rcmd.datatypequal, s->hw->data_dq);
   set_triple (rcmd.transferlen, size);
 
@@ -5720,7 +5819,7 @@ send_gamma (Avision_Scanner* s)
   memset (&scmd, 0, sizeof (scmd) );
 
   scmd.opc = AVISION_SCSI_SEND;
-  scmd.datatypecode = 0x81; /* 0x81 for download gamma table */
+  scmd.datatypecode = AVISION_DATATYPECODE_DOWNLOAD_GAMMA_TABLE; /* 0x81 for download gamma table */
   set_triple (scmd.transferlen, gamma_table_raw_size);
 
   for (color = 0; color < 3 && status == SANE_STATUS_GOOD; ++ color)
@@ -5872,7 +5971,7 @@ send_3x3_matrix (Avision_Scanner* s)
     }
 
   cmd.scmd.opc = AVISION_SCSI_SEND;
-  cmd.scmd.datatypecode = 0x83; /* 0x83 for 3x3 color matrix */
+  cmd.scmd.datatypecode = AVISION_DATATYPECODE_3X3_COLOR_MATRIX; /* 0x83 for 3x3 color matrix */
   set_triple (cmd.scmd.transferlen, sizeof (struct matrix_3x3));
 
   if (1) {
@@ -5903,7 +6002,7 @@ get_acceleration_info (Avision_Scanner* s, struct acceleration_info* info)
 
   memset (&rcmd, 0, sizeof (rcmd));
   rcmd.opc = AVISION_SCSI_READ;
-  rcmd.datatypecode = 0x6c; /* get acceleration information */
+  rcmd.datatypecode = AVISION_DATATYPECODE_ACCELERATION_TABLE; /* get acceleration information */
   set_double (rcmd.datatypequal, s->hw->data_dq);
   set_triple (rcmd.transferlen, size);
 
@@ -5967,7 +6066,7 @@ send_acceleration_table (Avision_Scanner* s)
 
     memset (&scmd, 0x00, sizeof (scmd));
     scmd.opc = AVISION_SCSI_SEND;
-    scmd.datatypecode = 0x6c; /* send acceleration table */
+    scmd.datatypecode = AVISION_DATATYPECODE_ACCELERATION_TABLE; /* send acceleration table */
 
     set_double (scmd.datatypequal, table);
     set_triple (scmd.transferlen, accel_info.total_steps);
@@ -6393,7 +6492,7 @@ get_background_raster (Avision_Scanner* s)
 
   memset (&rcmd, 0, sizeof (rcmd));
   rcmd.opc = AVISION_SCSI_READ;
-  rcmd.datatypecode = 0x9b; /* get background raster */
+  rcmd.datatypecode = AVISION_DATATYPECODE_GET_BACKGROUND_RASTER; /* get background raster */
   set_double (rcmd.datatypequal, s->hw->data_dq);
 
   /* Ok, well - this part is very messy. The AV122 and DM152 appear to
@@ -6792,6 +6891,11 @@ do_cancel (Avision_Scanner* s)
       DBG (1, "do_cancel: release_unit failed\n");
   }
 
+  DBG (4, "FORCE RELEASE UNIT ON CANCEL\n");
+  status = release_unit (s, 1);
+  if (status != SANE_STATUS_GOOD)
+    DBG (1, "do_cancel: release_unit failed\n");
+
   return SANE_STATUS_CANCELLED;
 }
 
@@ -6806,7 +6910,7 @@ read_data (Avision_Scanner* s, SANE_Byte* buf, size_t* count)
   memset (&rcmd, 0, sizeof (rcmd));
 
   rcmd.opc = AVISION_SCSI_READ;
-  rcmd.datatypecode = 0x00; /* read image data */
+  rcmd.datatypecode = AVISION_DATATYPECODE_READ_IMAGE_DATA; /* read image data */
   set_double (rcmd.datatypequal, s->hw->data_dq);
   set_triple (rcmd.transferlen, *count);
 
@@ -8081,15 +8185,15 @@ reader_process (void *data)
 	  exit_status =  SANE_STATUS_CANCELLED;
       }
 
-      status = release_unit (s, 0);
-      if (status != SANE_STATUS_GOOD)
-	DBG (1, "reader_process: release_unit failed\n");
-
       if (dev->inquiry_new_protocol && dev->scanner_type == AV_FILM) {
 	status = object_position (s, AVISION_SCSI_OP_GO_HOME);
 	if (status != SANE_STATUS_GOOD)
 	  DBG (1, "reader_process: object position go-home failed!\n");
       }
+
+      status = release_unit (s, 0);
+      if (status != SANE_STATUS_GOOD)
+	DBG (1, "reader_process: release_unit failed\n");
     }
 
   if ((dev->hw->feature_type & AV_ADF_FLIPPING_DUPLEX) && s->source_mode == AV_ADF_DUPLEX && s->page % 2) {

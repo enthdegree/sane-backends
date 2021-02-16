@@ -86,7 +86,7 @@ all: bemans html-pages
 
 dist_doc_DATA = backend-writing.txt
 nobase_dist_doc_DATA = $(BEDOCS)
-EXTRA_DIST += descriptions.txt releases.txt sane-logo2.jpg sane-logo.png \
+EXTRA_DIST += descriptions.txt releases.md sane-logo2.jpg sane-logo.png \
   sane.png
 
 MAN2HTML = nroff -c -man |\

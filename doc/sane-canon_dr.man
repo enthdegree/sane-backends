@@ -161,7 +161,7 @@ Some scanners pad the upper edge of one side of a duplex scan. There is some var
 .RE
 .PP
 .BR NOTE :
-'option' lines may appear multiple times in the configuration file.
+"option" lines may appear multiple times in the configuration file.
 They only apply to scanners discovered by the next 'scsi/usb' line.
 .PP
 

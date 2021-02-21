@@ -184,7 +184,7 @@ an up-to-date status at the project homepage. (See below).
 Users feedback is essential to help improve features and performances.
 .SH OPTIONS
 Besides "well-known" options (e.g. resolution, mode etc.)
-.Bsane\-pixma
+.B sane\-pixma
 backend also
 provides the following options, i.e. the options might change in the future.
 .br

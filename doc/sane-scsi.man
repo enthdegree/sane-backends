@@ -122,7 +122,7 @@ $ chmod 660 /dev/sg0
 .RE
 .PP
 When your system uses the device filesystem (devfs), you have to edit
-.BIR /etc/devfs/perms.
+.IR /etc/devfs/perms.
 There you should search the line
 .PP
 .RS
@@ -172,7 +172,7 @@ If there are no
 devices, just do a
 .I sh MAKEDEV uk0
 in the
-.i /dev
+.I /dev
 directory. The scanner should then be accessible as
 .I /dev/uk0
 if it was probed during boot.

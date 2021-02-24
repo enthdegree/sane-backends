@@ -16,7 +16,8 @@ incorporation in sane-backends.
 .SH SUPPORTED HARDWARE
 This version should support models of the Kodak ESP and Hero series, and possibly some
 Advent AiO scanners. The ESP 5250 and Hero 9.1 were used to develop the backend,
-but other models may work. Please see the desc file.
+but other models may work. Please see the supported devices list at
+.IR http://www.sane-project.org/sane-backends.html#S-KODAKAIO .
 
 If you have a model not on that list, or reported as 'untested': the best way
 to determine level of support is to test the scanner directly.

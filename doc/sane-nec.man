@@ -10,7 +10,7 @@ provides access to NEC SCSI scanners.  This backend should be
 considered
 .B alpha-quality
 software!  In the current state it is known to work with PC-IN500/4C
-scanners. Another MultiReader scanner series is not supported. PC-IN
+scanners. Other MultiReader scanner series are not supported. PC-IN
 500/4C and MultiReader scanner are only sold in Japan (except Multi
 Reader PetiScan).
 

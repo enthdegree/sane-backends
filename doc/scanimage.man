@@ -288,14 +288,14 @@ The
 .B \-v
 or
 .B \-\-verbose
-options increase the verbosity of the operation of
+options increase the verbosity of the output of
 .B scanimage.
 The option may be specified repeatedly, each time increasing the verbosity
 level.
 .PP
 The
 .B \-B
-option without argument changes the input buffer size from the default 32KB to 1MB.  For finer grained control, use
+option without argument changes the input buffer size from the default 32 KB to 1 MB.  For finer grained control, use
 .B \-\-buffer-size=
 followed by the number of KB.
 .PP

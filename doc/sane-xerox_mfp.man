@@ -8,7 +8,7 @@ The
 library implements a SANE (Scanner Access Now Easy) backend that provides
 access to several Samsung-based Samsung, Xerox, and Dell scanners.
 Please see full list of supported devices at
-http://www.sane\-project.org/sane\-supported\-devices.html
+.IR http://www.sane\-project.org/sane\-supported\-devices.html .
 
 .SH CONFIGURATION
 .TP
@@ -50,7 +50,7 @@ Example:
 export SANE_DEBUG_XEROX_MFP=4
 
 .SH LIMITATIONS
-Multicast autoconfiguration for LAN scanners is not implemented yet. IPv6 addressing never been tested.
+Multicast autoconfiguration for LAN scanners is not implemented yet. IPv6 addressing has never been tested.
 
 .SH BUGS AND SUPPORT
 If you have found a bug or need support please follow open\-source way of acquiring support via

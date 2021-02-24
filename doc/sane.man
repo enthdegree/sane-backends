@@ -222,7 +222,7 @@ Supports the Canon DR-Series ADF SCSI and USB scanners. See
 for details.
 .TP
 .B canon_lide70
-Supports the CanoScan LiDE 70 USB scanner. See
+Supports the CanoScan LiDE 70 and 600 USB scanners. See
 .BR sane\-canon_lide70 (5)
 for details.
 .TP

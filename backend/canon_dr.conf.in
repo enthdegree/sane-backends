@@ -195,6 +195,8 @@ option duplex-offset 1640
 usb 0x1083 0x1654
 
 # DR-M1060
+option inquiry-length 0x24
+option vpd-length 0x30
 usb 0x1083 0x1657
 
 # DR-C225

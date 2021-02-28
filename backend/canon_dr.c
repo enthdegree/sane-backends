@@ -350,6 +350,8 @@
          - treat DR-P208 like P-208 (#356)
          - treat DR-P215 like P-215 (#356)
          - adjust wait_scanner to try one TUR with a long timeout (#142)
+      v62 2021-02-13, MAN
+         - allow config file to set inq and vpd lengths for DR-M1060 (#263)
 
    SANE FLOW DIAGRAM
 
@@ -388,6 +390,7 @@
 #include <math.h> /*tan*/
 #include <unistd.h> /*usleep*/
 #include <sys/time.h> /*gettimeofday*/
+#include <stdlib.h> /*strtol*/
 
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_scsi.h"
@@ -400,7 +403,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 61
+#define BUILD 62
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -452,6 +455,8 @@ static int global_extra_status;
 static int global_extra_status_default = 0;
 static int global_duplex_offset;
 static int global_duplex_offset_default = 0;
+static int global_inquiry_length;
+static int global_vpd_length;
 static char global_vendor_name[9];
 static char global_model_name[17];
 static char global_version_name[5];
@@ -679,6 +684,58 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
                   global_duplex_offset = buf;
               }
 
+              /* INQUIRY_LENGTH: <= 0x30 */
+              else if (!strncmp (lp, "inquiry-length", 14) && isspace (lp[14])) {
+
+                  int buf;
+                  lp += 14;
+                  lp = sanei_config_skip_whitespace (lp);
+                  buf = (int) strtol (lp,NULL,16);
+
+                  if (buf > INQUIRY_std_max_len) {
+                    DBG (5, "sane_get_devices: config option \"inquiry-length\" "
+                      "(%#04x) is > %#04x, ignoring!\n", buf, INQUIRY_std_max_len);
+                    continue;
+                  }
+
+                  if (buf < 0) {
+                    DBG (5, "sane_get_devices: config option \"inquiry-length\" "
+                      "(%#04x) is < 0, ignoring!\n", buf);
+                    continue;
+                  }
+
+                  DBG (15, "sane_get_devices: setting \"inquiry-length\" to %#04x\n",
+                    buf);
+
+                  global_inquiry_length = buf;
+              }
+
+              /* VPD_LENGTH: <= 0x30 */
+              else if (!strncmp (lp, "vpd-length", 10) && isspace (lp[10])) {
+
+                  int buf;
+                  lp += 10;
+                  lp = sanei_config_skip_whitespace (lp);
+                  buf = (int) strtol (lp,NULL,16);
+
+                  if (buf > INQUIRY_vpd_max_len) {
+                    DBG (5, "sane_get_devices: config option \"vpd-length\" "
+                      "(%#04x) is > %#04x, ignoring!\n", buf, INQUIRY_vpd_max_len);
+                    continue;
+                  }
+
+                  if (buf < 0) {
+                    DBG (5, "sane_get_devices: config option \"vpd-length\" "
+                      "(%#04x) is < 0, ignoring!\n", buf);
+                    continue;
+                  }
+
+                  DBG (15, "sane_get_devices: setting \"vpd-length\" to %#04x\n",
+                    buf);
+
+                  global_vpd_length = buf;
+              }
+
               /* VENDOR: we ingest up to 8 bytes */
               else if (!strncmp (lp, "vendor-name", 11) && isspace (lp[11])) {
 
@@ -845,6 +902,8 @@ attach_one (const char *device_name, int connType)
   s->padded_read = global_padded_read;
   s->extra_status = global_extra_status;
   s->duplex_offset = global_duplex_offset;
+  s->inquiry_length = global_inquiry_length;
+  s->vpd_length = global_vpd_length;
 
   /* copy the device name */
   strcpy (s->device_name, device_name);
@@ -1021,8 +1080,8 @@ init_inquire (struct scanner *s)
   unsigned char cmd[INQUIRY_len];
   size_t cmdLen = INQUIRY_len;
 
-  unsigned char in[INQUIRY_std_len];
-  size_t inLen = INQUIRY_std_len;
+  unsigned char in[INQUIRY_std_max_len];
+  size_t inLen = s->inquiry_length;
 
   DBG (10, "init_inquire: start\n");
 
@@ -1103,8 +1162,8 @@ init_vpd (struct scanner *s)
   unsigned char cmd[INQUIRY_len];
   size_t cmdLen = INQUIRY_len;
 
-  unsigned char in[INQUIRY_vpd_len];
-  size_t inLen = INQUIRY_vpd_len;
+  unsigned char in[INQUIRY_vpd_max_len];
+  size_t inLen = s->vpd_length;
 
   DBG (10, "init_vpd: start\n");
 
@@ -7085,6 +7144,8 @@ default_globals(void)
   global_padded_read = global_padded_read_default;
   global_extra_status = global_extra_status_default;
   global_duplex_offset = global_duplex_offset_default;
+  global_inquiry_length = INQUIRY_std_typ_len;
+  global_vpd_length = INQUIRY_vpd_typ_len;
   global_vendor_name[0] = 0;
   global_model_name[0] = 0;
   global_version_name[0] = 0;

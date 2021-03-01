@@ -103,6 +103,7 @@ option duplex-offset 400
 usb 0x1083 0x1617
 
 # DR-X10C
+option tur-timeout 5000
 usb 0x1083 0x1618
 
 # CR-25

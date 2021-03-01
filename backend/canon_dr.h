@@ -116,12 +116,18 @@ struct scanner
 
   /* --------------------------------------------------------------------- */
   /* immutable values which are set during reading of config file.         */
+  int connection;       /* hardware interface type */
   int buffer_size;
-  int connection;               /* hardware interface type */
+  int duplex_offset;    /* number of lines of padding added to front (1/1200)*/
+  int extra_status;     /* some machines need extra status read after cmd */
+  int inquiry_length;   /* some models are particular about inquiry size */
+  int padded_read;      /* some machines need extra 12 bytes on reads */
+  int tur_timeout;      /* some models are slow to wake up */
+  int vpd_length;       /* some models are particular about vpd size */
 
   /* --------------------------------------------------------------------- */
   /* immutable values which are set during inquiry probing of the scanner. */
-  /* members in order found in scsi data...                                */
+  /* members in order found in scsi data. These can also be in config file */
   char vendor_name[9];          /* raw data as returned by SCSI inquiry.   */
   char model_name[17];          /* raw data as returned by SCSI inquiry.   */
   char version_name[5];         /* raw data as returned by SCSI inquiry.   */
@@ -207,8 +213,6 @@ struct scanner
   int always_op;        /* send object pos between pages */
   int invert_tly;       /* weird bug in some smaller scanners */
   int unknown_byte2;    /* weird byte, required, meaning unknown */
-  int padded_read;      /* some machines need extra 12 bytes on reads */
-  int extra_status;     /* some machines need extra status read after cmd */
   int fixed_width;      /* some machines always scan full width */
   int even_Bpl;         /* some machines require even bytes per line */
 
@@ -217,10 +221,7 @@ struct scanner
   int color_inter_by_res[16]; /* and some even change by resolution */
   int duplex_interlace; /* different models interlace sides differently      */
   int jpeg_interlace;   /* different models interlace jpeg sides differently */
-  int duplex_offset;    /* number of lines of padding added to front (1/1200)*/
   int duplex_offset_side; /* padding added to front or back? */
-  int inquiry_length;   /* some models are particular about inquiry/vpd size */
-  int vpd_length;
 
   int sw_lut;           /* no hardware brightness/contrast support */
   int bg_color;         /* needed to fill in after rotation */

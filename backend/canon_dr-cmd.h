@@ -11,9 +11,7 @@
 #define USB_HEADER_LEN     12
 #define USB_COMMAND_LEN    12
 #define USB_STATUS_LEN     4
-#define USB_COMMAND_TIME   30000
-#define USB_DATA_TIME      30000
-#define USB_STATUS_TIME    30000
+#define USB_PACKET_TIMEOUT 30000
 
 /*static inline void */
 static void

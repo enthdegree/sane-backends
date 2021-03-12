@@ -333,7 +333,7 @@
 :model "Perfection 600"
 :interface "SCSI"
 :status :good
-:comment "OK, SCSI-ID=EPSON Perfection600"
+:comment "OK, SCSI-ID=EPSON Perfection600<br>rebadged UMAX Astra 1200S"
 
 :mfg "Escom"                      ; another manufacturer...
 

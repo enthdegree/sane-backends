@@ -698,12 +698,6 @@
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
 
-:model      "GT-7400U"			; product spec (JP)
-:interface  "USB"
-:usbid      "0x04b8" "0x0120"
-:status     :unsupported
-:comment    "supported by the snapscan backend"
-
 :model      "GT-7600S"			; product spec (JP)
 :interface  "SCSI"
 :status     :complete
@@ -744,11 +738,6 @@
 :interface  "USB"
 :usbid      "0x04b8" "0x011e"
 :status     :complete
-
-:model      "GT-8400UF"			; product spec (JP)
-:interface  "USB"
-:usbid      "0x04b8" "0x011f"
-:status     :unsupported
 
 :model      "GT-8500"
 :status     :untested
@@ -1655,11 +1644,6 @@
 :status     :complete
 :comment    "network interface supported via DFSG non-free iscan-network-nt package<br>all-in-one"
 
-:model      "Perfection 600"
-:interface  "SCSI"
-:status     :unsupported
-:comment    "supported by the umax backend<br>rebadged UMAX Astra 1200S"
-
 :model      "Perfection 610"		; command spec
 :interface  "USB"
 :usbid      "0x04b8" "0x0103"
@@ -1683,12 +1667,6 @@
 :usbid      "0x04b8" "0x010c"
 :status     :complete
 :comment    "overseas version of the GT-6700U"
-
-:model      "Perfection 660"
-:interface  "USB"
-:usbid      "0x04b8" "0x0114"
-:status     :unsupported
-:comment    "supported by the snapscan backend"
 
 :model      "Perfection 1200S"		; command spec
 :interface  "SCSI"
@@ -1738,12 +1716,6 @@
 :status     :unsupported
 :comment    "supported by the epkowa backend plus non-free interpreter"
 
-:model      "Perfection 1270"
-:interface  "USB"
-:usbid      "0x04b8" "0x0120"
-:status     :unsupported
-:comment    "supported by the snapscan backend<br>overseas version of the GT-7400"
-
 :model      "Perfection 1600"
 :interface  "SCSI"
 :status     :unsupported
@@ -1779,18 +1751,6 @@
 :usbid      "0x04b8" "0x011e"
 :status     :complete
 :comment    "overseas version of the GT-8300UF"
-
-:model      "Perfection 1670"
-:interface  "USB"
-:usbid      "0x04b8" "0x011f"
-:status     :unsupported
-:comment    "supported by the snapscan backend"
-
-:model      "Perfection 1670 PHOTO"
-:interface  "USB"
-:usbid      "0x04b8" "0x011f"
-:status     :unsupported
-:comment    "supported by the snapscan backend<br>overseas version of the GT-8400UF"
 
 :model      "Perfection 2400 PHOTO"	; command spec
 :interface  "USB"
@@ -1985,12 +1945,6 @@
 :usbid      "0x04b8" "0x0151"
 :status     :good
 :comment    "overseas version of the GT-X980"
-
-:model      "Stylus CX1500"		; Australia
-:interface  "USB"
-:usbid      "0x04b8" "0x080c"
-:status     :unsupported
-:comment    "supported by the snapscan backend<br>all-in-one"
 
 :model      "Stylus CX2800"
 :interface  "USB"

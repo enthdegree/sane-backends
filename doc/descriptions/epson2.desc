@@ -164,7 +164,7 @@
 :model      "DS-G20000"
 :interface  "USB"
 :usbid      "0x04b8" "0x015b"
-:status     :good
+:status     :complete
 
 :model      "EP-702A"
 :interface  "USB"
@@ -606,7 +606,7 @@
 :model      "Expression 12000XL"
 :interface  "USB"
 :usbid      "0x04b8" "0x015b"
-:status     :good
+:status     :complete
 :comment    "overseas version of the DS-G20000"
 
 :model      "F-3200"			; product spec (JP)
@@ -750,7 +750,7 @@
 :model      "GT-8700F"			; product spec (JP)
 :interface  "SCSI USB"
 :usbid      "0x04b8" "0x010a"
-:status     :good
+:status     :complete
 :comment    "GT-8700U with TPU option bundled"
 
 :model      "GT-9000"
@@ -1731,7 +1731,7 @@
 :interface  "SCSI USB"
 :scsi       "EPSON" "Perfection1640" "processor"
 :usbid      "0x04b8" "0x010a"
-:status     :good
+:status     :complete
 :comment    "overseas version of the GT-8700F"
 
 :model      "Perfection 1650"		; command spec

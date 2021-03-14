@@ -1497,7 +1497,7 @@ do_fine_calibration (HP4200_Scanner * s, struct coarse_t *coarse)
     int i;
     for (i = 0; i < 12; i++)
       {
-        memset (registro[i], 0, 5460 * 3 * sizeof(registro[0]));
+        memset (registro[i], 0, 5460 * 3 * sizeof(int));
       }
   }
 

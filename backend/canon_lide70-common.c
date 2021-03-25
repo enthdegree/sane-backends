@@ -2,7 +2,7 @@
 
    BACKEND canon_lide70
 
-   Copyright (C) 2019 Juergen Ernst and pimvantend.
+   Copyright (C) 2019-2021 Juergen Ernst and pimvantend.
 
    This file is part of the SANE package.
 
@@ -76,12 +76,15 @@ typedef struct CANON_Handle
   unsigned char value_0a, value_0b;	/* right */
   unsigned char value_67, value_68;	/* bottom */
   unsigned char value_51;	/* lamp colors */
+  unsigned char value_90;	/* motor mode */
   int resolution;		/* dpi */
   char *fname;			/* output file name */
   FILE *fp;			/* output file pointer (for reading) */
   unsigned char absolute_threshold;
   double table_gamma;
+  double table_gamma_blue;
   unsigned char highlight_red_enhanced;
+  unsigned char highlight_blue_reduced;
   unsigned char highlight_other;
 }
 CANON_Handle;
@@ -279,15 +282,14 @@ cp2155_set_gamma_red_enhanced (int fd, CANON_Handle * chndl)
   cp2155_write_gamma_block (fd, 0x000, buf);
   makegammatable (chndl->table_gamma, chndl->highlight_other, buf);
   cp2155_write_gamma_block (fd, 0x100, buf);
+  makegammatable (chndl->table_gamma_blue, chndl->highlight_blue_reduced, buf);
   cp2155_write_gamma_block (fd, 0x200, buf);
 }
 
 void
-make_buf (size_t count, unsigned char *buf)
+make_constant_buf (size_t count, unsigned int hiword, unsigned int loword, unsigned char *buf)
 {
   size_t i = 4;
-  int hiword = 62756;
-  int loword = 20918;
   unsigned char hihi = (hiword >> 8) & 0xff;
   unsigned char hilo = (hiword) & 0xff;
   unsigned char lohi = (loword >> 8) & 0xff;
@@ -334,7 +336,7 @@ write_buf (int fd, size_t count, unsigned char *buf,
 void
 big_write (int fd, size_t count, unsigned char *buf)
 {
-  make_buf (count, buf);
+  make_constant_buf (count, 62756, 20918, buf);
   write_buf (fd, count, buf, 0x00, 0x00);
   write_buf (fd, count, buf, 0x00, 0xb0);
   write_buf (fd, count, buf, 0x01, 0x60);
@@ -511,24 +513,8 @@ startblob_2225_0075 (CANON_Handle * chndl, unsigned char *buf)
   cp2155_set (fd, 0xca, 0x11);
   cp2155_set (fd, 0x18, 0x00);
 
-  memcpy (buf + 0x00000000,
-	  "\x04\x70\x00\x01\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000010,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000020,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000030,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000040,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000050,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
+  count = 260;
+  make_constant_buf (count, 0x2580, 0x2580, buf);
   memcpy (buf + 0x00000060,
 	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\xf0\x23\x80\x22\x2c\x21",
 	  16);
@@ -560,7 +546,6 @@ startblob_2225_0075 (CANON_Handle * chndl, unsigned char *buf)
 	  "\x7a\x09\x60\x09\x46\x09\x2c\x09\x14\x09\xfc\x08\xe4\x08\xcd\x08",
 	  16);
   memcpy (buf + 0x00000100, "\xb6\x08\xa0\x08", 4);
-  count = 260;
   write_buf (fd, count, buf, 0x03, 0x00);
   write_buf (fd, count, buf, 0x03, 0x02);
   write_buf (fd, count, buf, 0x03, 0x06);
@@ -709,18 +694,7 @@ startblob_2225_0150 (CANON_Handle * chndl, unsigned char *buf)
   cp2155_set (fd, 0xca, 0x01);
   cp2155_set (fd, 0xca, 0x11);
   cp2155_set (fd, 0x18, 0x00);
-  cp2155_set (fd, 0x71, 0x01);
-  cp2155_set (fd, 0x0230, 0x11);
-  cp2155_set (fd, 0x71, 0x14);
-  cp2155_set (fd, 0x72, 0x01);
-  cp2155_set (fd, 0x73, 0x00);
-  cp2155_set (fd, 0x74, 0x03);
-  cp2155_set (fd, 0x75, 0x00);
-  cp2155_set (fd, 0x76, 0x00);
-  cp2155_set (fd, 0x0239, 0x40);
-  cp2155_set (fd, 0x0238, 0x89);
-  cp2155_set (fd, 0x023c, 0x2f);
-  cp2155_set (fd, 0x0264, 0x20);
+
   memcpy (buf + 0x00000000,
 	  "\x04\x70\x00\x01\x80\x25\xd7\x24\x35\x24\x98\x23\x00\x23\x6d\x22",
 	  16);
@@ -1251,6 +1225,7 @@ startblob_2225_0600_extra (CANON_Handle * chndl, unsigned char *buf)
 	  16);
   memcpy (buf + 0x00000020, "\x00\x00\x00\x00", 4);
   count = 36;
+  make_constant_buf (count, 0x7f80, 0x7f80, buf);
   write_buf (fd, count, buf, 0x03, 0x00);
   write_buf (fd, count, buf, 0x03, 0x02);
   write_buf (fd, count, buf, 0x03, 0x06);
@@ -1391,14 +1366,8 @@ startblob_2225_1200 (CANON_Handle * chndl, unsigned char *buf)
   cp2155_set (fd, 0xca, 0x00);
   cp2155_set (fd, 0x18, 0x01);
 
-  memcpy (buf + 0x00000000,
-	  "\x04\x70\x18\x00\x00\xff\x00\xff\x00\xff\x00\xff\x00\xff\x00\xff",
-	  16);
-  memcpy (buf + 0x00000010,
-	  "\x00\xff\x00\xff\x00\xff\x00\xff\x00\xff\x00\xff\x00\x00\x00\x00",
-	  16);
-  memcpy (buf + 0x00000020, "\x00\x00\x00\x00", 4);
   count = 36;
+  make_constant_buf (count, 0xff00, 0xff00, buf);
   write_buf (fd, count, buf, 0x03, 0x00);
   write_buf (fd, count, buf, 0x03, 0x02);
   write_buf (fd, count, buf, 0x03, 0x06);
@@ -1542,24 +1511,9 @@ startblob_2224_0075 (CANON_Handle * chndl, unsigned char *buf)
   cp2155_set (fd, 0xca, 0x00);
   cp2155_set (fd, 0x18, 0x00);
 
-  memcpy (buf + 0x00000000,
-	  "\x04\x70\xf4\x01\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000010,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000020,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000030,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000040,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000050,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
+  count = 516;
+  make_constant_buf (count, 0x2580, 0x2580, buf);
+
   memcpy (buf + 0x00000060,
 	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\xe1\x24\x47\x24\xb2\x23",
 	  16);
@@ -1639,7 +1593,7 @@ startblob_2224_0075 (CANON_Handle * chndl, unsigned char *buf)
 	  "\xb9\x08\xb1\x08\xa8\x08\xa0\x08\x00\x00\x00\x00\x00\x00\x00\x00",
 	  16);
   memcpy (buf + 0x00000200, "\x00\x00\x00\x00", 4);
-  count = 516;
+
   write_buf (fd, count, buf, 0x03, 0x00);
   write_buf (fd, count, buf, 0x03, 0x02);
   write_buf (fd, count, buf, 0x03, 0x06);
@@ -1651,6 +1605,7 @@ startblob_2224_0075 (CANON_Handle * chndl, unsigned char *buf)
 	  "\x44\x0d\xfa\x0b\xea\x0a\x07\x0a\x46\x09\xa0\x08\x80\x25\x80\x25",
 	  16);
   memcpy (buf + 0x00000020, "\x80\x25\x80\x25", 4);
+
   count = 36;
   write_buf (fd, count, buf, 0x03, 0x04);
   write_buf (fd, count, buf, 0x03, 0x08);
@@ -1793,30 +1748,9 @@ startblob_2224_0150 (CANON_Handle * chndl, unsigned char *buf)
   cp2155_set (fd, 0xca, 0x00);
   cp2155_set (fd, 0x18, 0x00);
 
-  memcpy (buf + 0x00000000,
-	  "\x04\x70\x00\x01\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000010,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000020,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000030,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000040,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000050,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000060,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
-  memcpy (buf + 0x00000070,
-	  "\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25\x80\x25",
-	  16);
+  count = 260;
+  make_constant_buf (count, 0x2580, 0x2580, buf);
+
   memcpy (buf + 0x00000080,
 	  "\x80\x25\x80\x25\x80\x25\x32\x24\xfb\x22\xd9\x21\xc8\x20\xc9\x1f",
 	  16);
@@ -1842,7 +1776,7 @@ startblob_2224_0150 (CANON_Handle * chndl, unsigned char *buf)
 	  "\xbf\x0c\x98\x0c\x71\x0c\x4b\x0c\x27\x0c\x03\x0c\xe0\x0b\xbe\x0b",
 	  16);
   memcpy (buf + 0x00000100, "\x9c\x0b\x7c\x0b", 4);
-  count = 260;
+
   write_buf (fd, count, buf, 0x03, 0x00);
   write_buf (fd, count, buf, 0x03, 0x02);
   write_buf (fd, count, buf, 0x03, 0x06);
@@ -1854,7 +1788,9 @@ startblob_2224_0150 (CANON_Handle * chndl, unsigned char *buf)
 	  "\xc6\x10\x5b\x0f\x2a\x0e\x24\x0d\x41\x0c\x7c\x0b\x80\x25\x80\x25",
 	  16);
   memcpy (buf + 0x00000020, "\x80\x25\x80\x25", 4);
+
   count = 36;
+
   write_buf (fd, count, buf, 0x03, 0x04);
   write_buf (fd, count, buf, 0x03, 0x08);
 
@@ -1993,24 +1929,9 @@ startblob_2224_0300 (CANON_Handle * chndl, unsigned char *buf)
   cp2155_set (fd, 0xca, 0x00);
   cp2155_set (fd, 0x18, 0x00);
 
-  memcpy (buf + 0x0000,
-	  "\x04\x70\x00\x01\x00\x32\x00\x32\x00\x32\x00\x32\x00\x32\x00\x32",
-	  16);
-  memcpy (buf + 0x0010,
-	  "\x00\x32\x00\x32\x00\x32\x00\x32\x00\x32\x00\x32\x00\x32\x00\x32",
-	  16);
-  memcpy (buf + 0x0020,
-	  "\x00\x32\x00\x32\x00\x32\x00\x32\x00\x32\x00\x32\x00\x32\x00\x32",
-	  16);
-  memcpy (buf + 0x0030,
-	  "\x00\x32\x00\x32\x00\x32\x00\x32\x00\x32\x00\x32\x00\x32\x00\x32",
-	  16);
-  memcpy (buf + 0x0040,
-	  "\x00\x32\x00\x32\x00\x32\x00\x32\x00\x32\x00\x32\x00\x32\x00\x32",
-	  16);
-  memcpy (buf + 0x0050,
-	  "\x00\x32\x00\x32\x00\x32\x00\x32\x00\x32\x00\x32\x00\x32\x00\x32",
-	  16);
+  count = 260;
+  make_constant_buf (count, 0x3200, 0x3200, buf);
+
   memcpy (buf + 0x0060,
 	  "\x00\x32\x00\x32\x00\x32\xbc\x30\x89\x2f\x64\x2e\x4d\x2d\x43\x2c",
 	  16);
@@ -2042,7 +1963,7 @@ startblob_2224_0300 (CANON_Handle * chndl, unsigned char *buf)
 	  "\xc4\x11\x9a\x11\x71\x11\x49\x11\x22\x11\xfb\x10\xd5\x10\xb0\x10",
 	  16);
   memcpy (buf + 0x0100, "\x8c\x10\x68\x10", 4);
-  count = 260;
+
   write_buf (fd, count, buf, 0x03, 0x00);
   write_buf (fd, count, buf, 0x03, 0x02);
   write_buf (fd, count, buf, 0x03, 0x06);
@@ -2054,6 +1975,7 @@ startblob_2224_0300 (CANON_Handle * chndl, unsigned char *buf)
 	  "\x9e\x17\xb5\x15\x16\x14\xb0\x12\x79\x11\x68\x10\x00\x00\x00\x00",
 	  16);
   memcpy (buf + 0x0020, "\x00\x00\x00\x00", 4);
+
   count = 36;
   write_buf (fd, count, buf, 0x03, 0x04);
   write_buf (fd, count, buf, 0x03, 0x08);
@@ -2195,14 +2117,10 @@ startblob_2224_0600 (CANON_Handle * chndl, unsigned char *buf)
   cp2155_set (fd, 0xca, 0x00);
   cp2155_set (fd, 0xca, 0x00);
   cp2155_set (fd, 0x18, 0x00);
-  memcpy (buf + 0x00000000,
-	  "\x04\x70\x18\x00\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f",
-	  16);
-  memcpy (buf + 0x00000010,
-	  "\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x00\x00\x00\x00",
-	  16);
-  memcpy (buf + 0x00000020, "\x00\x00\x00\x00", 4);
+
   count = 36;
+  unsigned int constantvalue = 0x7f80;
+  make_constant_buf (count, constantvalue, constantvalue, buf);
   write_buf (fd, count, buf, 0x03, 0x00);
   write_buf (fd, count, buf, 0x03, 0x02);
   write_buf (fd, count, buf, 0x03, 0x06);
@@ -2349,81 +2267,16 @@ startblob_2224_1200 (CANON_Handle * chndl, unsigned char *buf)
   cp2155_set (fd, 0xca, 0x00);
   cp2155_set (fd, 0x18, 0x00);
 
-  memcpy (buf + 0x00000000,
-	  "\x04\x70\x40\x01\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f",
-	  16);
-  memcpy (buf + 0x00000010,
-	  "\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f",
-	  16);
-  memcpy (buf + 0x00000020,
-	  "\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f",
-	  16);
-  memcpy (buf + 0x00000030,
-	  "\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f",
-	  16);
-  memcpy (buf + 0x00000040,
-	  "\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f",
-	  16);
-  memcpy (buf + 0x00000050,
-	  "\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f",
-	  16);
-  memcpy (buf + 0x00000060,
-	  "\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f",
-	  16);
-  memcpy (buf + 0x00000070,
-	  "\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f",
-	  16);
-  memcpy (buf + 0x00000080,
-	  "\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f",
-	  16);
-  memcpy (buf + 0x00000090,
-	  "\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f",
-	  16);
-  memcpy (buf + 0x000000a0,
-	  "\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f",
-	  16);
-  memcpy (buf + 0x000000b0,
-	  "\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f",
-	  16);
-  memcpy (buf + 0x000000c0,
-	  "\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f",
-	  16);
-  memcpy (buf + 0x000000d0,
-	  "\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f",
-	  16);
-  memcpy (buf + 0x000000e0,
-	  "\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f",
-	  16);
-  memcpy (buf + 0x000000f0,
-	  "\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f",
-	  16);
-  memcpy (buf + 0x00000100,
-	  "\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f",
-	  16);
-  memcpy (buf + 0x00000110,
-	  "\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f",
-	  16);
-  memcpy (buf + 0x00000120,
-	  "\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f",
-	  16);
-  memcpy (buf + 0x00000130,
-	  "\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f",
-	  16);
-  memcpy (buf + 0x00000140, "\x80\x7f\x80\x7f", 4);
   count = 324;
+  unsigned int constantvalue = 0x7f80;
+  make_constant_buf (count, constantvalue, constantvalue, buf);
 
   write_buf (fd, count, buf, 0x03, 0x00);
   write_buf (fd, count, buf, 0x03, 0x02);
   write_buf (fd, count, buf, 0x03, 0x06);
 
-  memcpy (buf + 0x00000000,
-	  "\x04\x70\x18\x00\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f",
-	  16);
-  memcpy (buf + 0x00000010,
-	  "\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f\x80\x7f",
-	  16);
-  memcpy (buf + 0x00000020, "\x80\x7f\x80\x7f", 4);
   count = 36;
+  make_constant_buf (count, constantvalue, constantvalue, buf);
 
   write_buf (fd, count, buf, 0x03, 0x04);
   write_buf (fd, count, buf, 0x03, 0x08);
@@ -2731,15 +2584,22 @@ static int
 init (CANON_Handle * chndl)
 {
   int result;
-  chndl->table_gamma = 2.2;
-  chndl->highlight_red_enhanced = 191;
-  chndl->highlight_other = 240;
   if (chndl->productcode == 0x2225)
     {
+      chndl->table_gamma = 2.2;
+      chndl->table_gamma_blue = 2.2;
+      chndl->highlight_red_enhanced = 190;
+      chndl->highlight_other = 240;
+      chndl->highlight_blue_reduced = 240;
       result = init_2225 (chndl);
     }
   else
     {
+      chndl->table_gamma = 2.2;
+      chndl->table_gamma_blue = 1.95;
+      chndl->highlight_red_enhanced = 190;
+      chndl->highlight_other = 215;
+      chndl->highlight_blue_reduced = 255;
       result = init_2224 (chndl);
     }
   return result;

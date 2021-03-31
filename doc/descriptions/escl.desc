@@ -71,6 +71,16 @@
 :status :good
 :comment "All resolutions supported, Flatted and ADF supported."
 
+:model "PIXMA TR4550 Series"
+:interface "Wifi"
+:status :good
+:comment "All resolutions supported, Flatted and ADF supported."
+
+:model "PIXMA TR4551 Series"
+:interface "Wifi"
+:status :good
+:comment "All resolutions supported, Flatted and ADF supported."
+
 :model "PIXMA TR8500 Series"
 :interface "Ethernet WiFi"
 :status :good

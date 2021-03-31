@@ -1381,6 +1381,7 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v, SANE_Int 
 	    break;
 	case OPT_RESOLUTION:
             handler->val[n].w = _get_resolution(handler, (int)(*(SANE_Word *) v));
+	    handler->scanner->caps[handler->scanner->source].default_resolution = handler->val[n].w;
 	    if (i)
 		*i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS | SANE_INFO_INEXACT;
 	    break;

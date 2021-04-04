@@ -146,6 +146,9 @@ usb 0x07b3 0x0c3a
 # Plustek OpticFilm 7500i
 usb 0x07b3 0x0c13
 
+# Plustek OpticFilm 8100
+usb 0x07b3 0x130c
+
 # Plustek OpticFilm 8200i
 usb 0x07b3 0x130d
 

@@ -2606,6 +2606,13 @@ void genesys_init_usb_device_tables()
     // same as 7400-v2
     model.name = "plustek-opticfilm-8100";
     model.model = "OpticFilm 8100";
+
+    // Modify to allow scanning deeper into the stage
+    model.y_size = 60.0;
+    model.y_offset = 0.0; 
+    model.y_offset_ta = 0.0; // TA = Transparency adapter
+    model.y_size_ta = 60.0;
+     
     s_usb_devices->emplace_back(0x07b3, 0x130c, model);
 
 

@@ -8,3 +8,19 @@ No real code is needed. Only two files have changed:
  - `backend/genesys/tables_model.cpp`
  - `backend/genesys.conf.in`
  
+# Instructions
+
+    ./autogen.sh    
+    ./configure --prefix="$HOME/local_sane/" BACKENDS="genesys"
+    make
+    make install 
+
+Add the following line to your `udev` rules (e.g. as a line in `/etc/udev/rules.d/10-local.rules`):
+
+    ATTRS{idVendor}=="07b3", ATTRS{idProduct}=="130c", MODE="0666"
+
+Ensure that the following reports the local build.
+
+    LD_LIBRARY_PATH="$HOME/local_sane/lib" ~/local_sane/bin/scanimage -V
+
+

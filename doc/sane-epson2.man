@@ -99,18 +99,24 @@ the sane-backend mailing list to report success with scanners not on
 the list or problems with scanners that are listed.
 .SH OPTIONS
 The options the backend supports can either be selected through command line
-options to programs like scanimage or through GUI elements in programs like
-xscanimage or xsane.
+options to programs like
+.BR scanimage (1)
+or through GUI elements in programs like
+.BR xscanimage (1)
+or
+.BR xsane (1).
 
 Valid command line options and their syntax can be listed by using
+.PP
 .RS
 scanimage \-\-help \-d epson2
 .RE
+.PP
 Not all devices support all options.
 .TP
 .I Scan Mode
 The
-.I \-\-mode
+.B \-\-mode
 switch selects the basic mode of operation of the scanner. Valid choices
 are Binary, Gray and Color.  The Binary mode is black and white only,
 Gray will produce 256 levels of gray or more depending on the scanner
@@ -119,7 +125,7 @@ Some scanners will internally use 36 bit color, their external interface
 however may only support 24 bits.
 
 The
-.I \-\-depth
+.B \-\-depth
 option selects the bit depth the scanner is using. This option is only
 available for scanners that support more than one bit depth. Older
 scanners will always transfer the image in 8bit mode. Newer scanners
@@ -128,7 +134,7 @@ color scan this means an effective color depth of 36 or 42 bits over
 all three channels. The valid choices depend on the scanner model.
 
 The
-.I \-\-halftoning
+.B \-\-halftoning
 switch selects the mode that is used in Binary mode. Valid options
 are "None", "Halftone A (Hard Tone)", "Halftone B (Soft Tone)", "Halftone C
 (Net Screen)", "Dither A (4x4 Bayer)", "Dither B (4x4 Spiral)", "Dither C
@@ -136,114 +142,121 @@ are "None", "Halftone A (Hard Tone)", "Halftone B (Soft Tone)", "Halftone C
 "Download pattern A", and "Download pattern B".
 
 The
-.I \-\-dropout
+.B \-\-dropout
 switch selects the so called dropout color. Valid options are None,
 Red, Green and Blue. The default is None. The dropout color is used for
 monochrome scanning and selects the color that is not scanned. This can
 be used to e.g. scan an original with a colored background.
 
 The
-.I \-\-brightness
+.B \-\-brightness
 switch controls the brightness of the scan. Valid options are integer
 values from \-3 to 3. The default is 0. The larger the brightness value,
 the brighter the image gets. If a user defined table for the gamma
 correction is selected, the brightness parameter is not available.
 
 The
-.I \-\-sharpness
+.B \-\-sharpness
 switch sets the sharpness of the image data. Valid options are integer
 values from \-2 to 2, with \-2 meaning "Defocus", \-1 "Defocus slightly",
 0 "Normal", 1 "Sharpen slightly" and 2 "Sharpen".
 
 The
-.I \-\-gamma\-correction
+.B \-\-gamma\-correction
 switch controls the scanner's internal gamma correction. Valid options are
 "Default", "User defined", "High density printing" "Low density printing"
 and "High contrast printing".
 
 The
-.I \-\-color\-correction
+.B \-\-color\-correction
 switch controls the scanner's internal color correction function. Valid
 options are "No Correction", "Impact\-dot printers", "Thermal printers",
 "Ink\-jet printers" and "CRT monitors". The default is "CRT monitors".
 
 The
-.I \-\-resolution
+.B \-\-resolution
 switch selects the resolution for a scan. Some EPSON scanners will scan in
 any resolution between the lowest and highest possible value. The list
 reported by the scanner can be displayed using the "\-\-help \-d epson"
-parameters to scanimage.
+parameters to
+.BR scanimage (1).
 
 The
-.I \-\-threshold
+.B \-\-threshold
 switch selects the minimum brightness to get a white point.
 
 The
-.I \-\-mirror
+.B \-\-mirror
 option controls the way the image is scanned. By reading the image data
 from right to left the image is mirrored. Valid options are "yes" and
 "no". The default is "no".
 
 The
-.I \-\-auto\-area\-segmentation
+.B \-\-auto\-area\-segmentation
 switch activates the automatic area segmentation for monochrome scans. The
 scanner will try to determine which areas are text and which contain
 images. The image areas will be halftoned, and the text will be
 improved. Valid options are "yes" and "no". The default is "yes".
 
 The
-.I \-\-red\-gamma\-table
+.B \-\-red\-gamma\-table
 parameter can be used to download a user defined gamma table for the
 red channel. The valid options are the same as for \-\-gamma\-table.
 
 The
-.I \-\-green\-gamma\-table
+.B \-\-green\-gamma\-table
 parameter can be used to download a user defined gamma table for the
 green channel. The valid options are the same as for \-\-gamma\-table.
 
 The
-.I \-\-blue\-gamma\-table
+.B \-\-blue\-gamma\-table
 parameter can be used to download a user defined gamma table for the
 blue channel. The valid options are the same as for \-\-gamma\-table.
 
 The
-.I --wait-for-button
+.B --wait-for-button
 parameter can be used to wait until the button on the scanner is
 pressed to actually start the scan process.
 
 The color correction coefficients
-.I \-\-cct\-1 \-\-cct\-2 \-\-cct\-3 ... \-\-cct\-9
+.B \-\-cct\-1 \-\-cct\-2 \-\-cct\-3 ... \-\-cct\-9
 will install color correction coefficients for the user defined color
 correction. Values are specified as integers in the range \-127..127.
 
 The
-.I \-\-preview
+.B \-\-preview
 option requests a preview scan. The frontend software automatically selects a low
 resolution. Valid options are "yes" and "no". The default is "no".
 
 The geometry options
-.I \-l \-t \-x \-y
-control the scan area: \-l sets the top left x coordinate, \-t the top
-left y coordinate, \-x selects the width and \-y the height of the scan
-area. All parameters are specified in millimeters.
+.B \-l \-t \-x \-y
+control the scan area:
+.B \-l
+sets the top left x coordinate,
+.BR \-t
+the top left y coordinate,
+.BR \-x
+selects the width and
+.BR \-y
+the height of the scan area. All parameters are specified in millimeters.
 
 The
-.I \-\-source
+.B \-\-source
 option selects the scan source. Valid options depend on the installed
 options. The default is "Flatbed".
 
 The
-.I \-\-auto\-eject
+.B \-\-auto\-eject
 option will eject a page after scanning from the document feeder.
 
 The
-.I \-\-film\-type
+.B \-\-film\-type
 option will select the film type for scans with the transparency
 unit. This option is only activated if the TPU is selected as scan
 source. Valid options are "Negative Film" and "Positive Film".
 
 The
-.I \-\-focus\-position
+.B \-\-focus\-position
 option selects the focus position for all scans. Valid options are "Focus
 2.5mm above glass" and "Focus on glass". The focus on the 2.5mm point
 above the glass is necessary for scans with the transparency unit, so
@@ -252,48 +265,53 @@ This option is only functional for selected scanners, all other scanners
 will ignore this option.
 
 The
-.I \-\-bay
+.B \-\-bay
 option selects which bay to scan
 
 The
-.I \-\-eject
+.B \-\-eject
 option ejects the sheet in the ADF.
 
 The
-.I \-\-adf-mode
+.B \-\-adf-mode
 option select the ADF mode (simplex/duplex).
 
 .SH CONFIGURATION FILE
-The configuration file @CONFIGDIR@/epson2.conf specifies the device(s) that the
+The configuration file
+.I @CONFIGDIR@/epson2.conf
+specifies the device(s) that the
 backend will use. Possible connection types are:
 .TP
-.I SCSI
+.B SCSI
 This is the default, and if nothing else is specified the backend software will
 open a given path as SCSI device. More information about valid syntax for SCSI
-devices can be found in sane\-scsi(5).
+devices can be found in
+.BR sane\-scsi (5).
 .br
 Usually SCSI scanners are configured with a line "scsi EPSON" in this file. In
 some cases it may be necessary to only use the string "scsi" (e.g. for the GT-6500).
 .TP
-.I PIO \- Parallel Interface
+.B PIO \- Parallel Interface
 The parallel interface can be configured in two ways: An integer value starting
 at the beginning of a line will be interpreted as the IO address of the parallel
 port. To make it clearer that a configured IO address is a parallel port the
 port address can be preceded by the string "PIO". The PIO connection does not
-use a special device file in the /dev directory. The IO address can be specified
+use a special device file in the
+.I /dev
+directory. The IO address can be specified
 in hex mode (prefixed with "0x").
 .TP
-.I USB
+.B USB
 For USB scanners not automatically detect, their VENDOR and PRODUCT ID can
 be specified manually in the config file.
-More information about valid syntax for USB devices can be found in sane\-usb(5).
+More information about valid syntax for USB devices can be found in
+.BR sane\-usb (5).
 .TP
-.I Network
+.B Network
 Network scanners can be auto-discovered if
-.I autodiscovery
+.B autodiscovery
 is specified after
-.I
-net
+.B net
 keyword.  An IP address to connect to can also be used.
 .SH FILES
 .TP
@@ -333,7 +351,11 @@ only if you know what you are doing!
 
 .SH "SEE ALSO"
 
-sane\-scsi(5), sane\-usb(5), scanimage(1), xscanimage(1), xsane(1)
+.BR sane\-scsi (5),
+.BR sane\-usb (5),
+.BR scanimage (1),
+.BR xscanimage (1),
+.BR xsane (1)
 
 .SH BUGS
 
@@ -355,4 +377,4 @@ AUTHORS file of the SANE distribution).
 
 The package is written by Alessandro Zummo and is based on previous
 work done by Karl Hienz Kremer in the epson package as well as based
-on work by Christian Bucher and Kazuhiro Sasayama
+on work by Christian Bucher and Kazuhiro Sasayama.

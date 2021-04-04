@@ -16,8 +16,8 @@
    for more details.
 
    You should have received a copy of the GNU General Public License
-   along with sane; see the file COPYING.  If not, write to the Free
-   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+   along with sane; see the file COPYING.
+   If not, see <https://www.gnu.org/licenses/>.
 
    This file implements a SANE backend for eSCL scanners.  */
 
@@ -192,34 +192,41 @@ get_JPEG_data(capabilities_t *scanner, int *width, int *height, int *bps)
     cinfo.out_color_space = JCS_RGB;
     cinfo.quantize_colors = FALSE;
     jpeg_calc_output_dimensions(&cinfo);
-    if (cinfo.output_width < (unsigned int)scanner->caps[scanner->source].width)
-          scanner->caps[scanner->source].width = cinfo.output_width;
-    if (scanner->caps[scanner->source].pos_x < 0)
-          scanner->caps[scanner->source].pos_x = 0;
+    double ratio = (double)cinfo.output_width / (double)scanner->caps[scanner->source].width;
+    int rw = (int)((double)scanner->caps[scanner->source].width * ratio);
+    int rh = (int)((double)scanner->caps[scanner->source].height * ratio);
+    int rx = (int)((double)scanner->caps[scanner->source].pos_x * ratio);
+    int ry = (int)((double)scanner->caps[scanner->source].pos_y * ratio);
 
-    if (cinfo.output_height < (unsigned int)scanner->caps[scanner->source].height)
-           scanner->caps[scanner->source].height = cinfo.output_height;
-    if (scanner->caps[scanner->source].pos_y < 0)
-          scanner->caps[scanner->source].pos_y = 0;
+
+    if (cinfo.output_width < (unsigned int)rw)
+          rw = cinfo.output_width;
+    if (rx < 0)
+          rx = 0;
+
+    if (cinfo.output_height < (unsigned int)rh)
+          rh = cinfo.output_height;
+    if (ry < 0)
+          ry = 0;
     DBG(10, "1-JPEF Geometry [%dx%d|%dx%d]\n",
-	        scanner->caps[scanner->source].pos_x,
-	        scanner->caps[scanner->source].pos_y,
-	        scanner->caps[scanner->source].width,
-	        scanner->caps[scanner->source].height);
-    x_off = scanner->caps[scanner->source].pos_x;
-    if (x_off > (unsigned int)scanner->caps[scanner->source].width) {
-       w = scanner->caps[scanner->source].width;
+	        rx,
+	        ry,
+	        rw,
+	        rh);
+    x_off = rx;
+    if (x_off > (unsigned int)rw) {
+       w = rw;
        x_off = 0;
     }
     else
-       w = scanner->caps[scanner->source].width - x_off;
-    y_off = scanner->caps[scanner->source].pos_y;
-    if(y_off > (unsigned int)scanner->caps[scanner->source].height) {
-       h = scanner->caps[scanner->source].height;
+       w = rw - x_off;
+    y_off = ry;
+    if(y_off > (unsigned int)rh) {
+       h = rh;
        y_off = 0;
     }
     else
-       h = scanner->caps[scanner->source].height - y_off;
+       h = rh - y_off;
     DBG(10, "2-JPEF Geometry [%dx%d|%dx%d]\n",
 	        x_off,
 	        y_off,
@@ -242,7 +249,7 @@ get_JPEG_data(capabilities_t *scanner, int *width, int *height, int *bps)
     if (y_off > 0)
         jpeg_skip_scanlines(&cinfo, y_off);
     pos = 0;
-    while (cinfo.output_scanline < (unsigned int)scanner->caps[scanner->source].height) {
+    while (cinfo.output_scanline < (unsigned int)rh) {
         rowptr[0] = (JSAMPROW)surface + (lineSize * pos); // ..cinfo.output_scanline);
         jpeg_read_scanlines(&cinfo, rowptr, (JDIMENSION) 1);
        pos++;
@@ -253,7 +260,7 @@ get_JPEG_data(capabilities_t *scanner, int *width, int *height, int *bps)
     *width = w;
     *height = h;
     *bps = cinfo.output_components;
-    jpeg_finish_decompress(&cinfo);
+    // jpeg_finish_decompress(&cinfo);
     jpeg_destroy_decompress(&cinfo);
     fclose(scanner->tmp);
     scanner->tmp = NULL;

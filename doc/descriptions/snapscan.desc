@@ -305,6 +305,18 @@
 :mfg "Epson"
 :url "http://www.epson.com"
 
+:model "GT-7400U"	; product spec (JP)
+:interface "USB"
+:usbid "0x04b8" "0x0120"
+:status :good
+:comment "Requires firmware esfw3e.bin."
+
+:model "GT-8400UF"	; product spec (JP)
+:interface "USB"
+:usbid "0x04b8" "0x011f"
+:status :good
+:comment "Requires firmware esfw30.bin, film scanning unit untested."
+
 :model "Perfection 660"
 :interface "USB"
 :usbid "0x04b8" "0x0114"
@@ -315,13 +327,19 @@
 :interface "USB"
 :usbid "0x04b8" "0x0120"
 :status :good
-:comment "Requires firmware esfw3e.bin."
+:comment "Requires firmware esfw3e.bin.<br>overseas version of the GT-7400U"
 
 :model "Perfection 1670"
 :interface "USB"
 :usbid "0x04b8" "0x011f"
 :status :good
 :comment "Requires firmware esfw30.bin."
+
+:model "Perfection 1670 PHOTO"
+:interface "USB"
+:usbid "0x04b8" "0x011f"
+:status :good
+:comment "Requires firmware esfw30.bin, film scanning unit untested.<br>overseas version of the GT-8400UF"
 
 :model "Perfection 2480 PHOTO"
 :interface "USB"

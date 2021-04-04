@@ -183,10 +183,13 @@ it as well as we could, but it may not work in all situations. You will find
 an up-to-date status at the project homepage. (See below).
 Users feedback is essential to help improve features and performances.
 .SH OPTIONS
-Besides "well-known" options (e.g. resolution, mode etc.) pixma backend also
+Besides "well-known" options (e.g. resolution, mode etc.)
+.B sane\-pixma
+backend also
 provides the following options, i.e. the options might change in the future.
 .br
-The button status can be polled i.e. with 'scanimage \-A'.
+The button status can be polled i.e. with
+.I scanimage \-A.
 .br
 Button scan is disabled on MAC OS X due to darwin libusb not handling
 timeouts in usb interrupt reads, but may work when using the network protocol.
@@ -220,7 +223,7 @@ and
 .I button\-2.
 The
 .B sane\-pixma
-no longer requires this option to be used: if no fresh data is available, it
+backend no longer requires this option to be used: if no fresh data is available, it
 will be now requested automatically from the scanner. This option is left for
 backward compatibility reasons.
 .TP
@@ -282,10 +285,12 @@ The file contains an optional list of networked scanners using the BJNP or MFNP 
 (See below for datails on networking support for scanners). Normally
 only scanners that cannot be auto-detected because they are on a different
 subnet shall be listed here. If you do not use Linux and your OS does not allow enumeration of
-interfaces (i.e. it does not support the getifaddrs() function) you also may need
+interfaces (i.e. it does not support the
+.BR getifaddrs ()
+qfunction) you also may need
 to add your scanner here as well.
 .PP
-.I Scanners shall be listed in the configuration file as follows:
+Scanners shall be listed in the configuration file as follows:
 .PP
 .RS
 .I <method>://<host>[:port][/timeout=<value>]
@@ -336,12 +341,15 @@ will cause auto-detection to be skipped. Explicitly defined network scanners wil
 .SH USB SUPPORT
 USB scanners will be auto-detected and require no configuration.
 .SH NETWORKING SUPPORT
-The pixma backend supports network scanners using the so called Canon BJNP
+The
+.B sane\-pixma
+backend supports network scanners using the so called Canon BJNP
 and MFNP protocols.
 .PP
 Canon seems to be dropping support for these protocols in recent scanners.
 To verify if your scanner supports one of these protocols, check the content of
-the _scanner._tcp service entry in mDNS/DNS-SD (using for example  avahi-discover).
+the _scanner._tcp service entry in mDNS/DNS-SD (using for example
+.BR avahi-discover (1)).
 If that does not list port 8610
 or 8612 your scanner probably does not support the mfmp or bjnp protols.
 .PP
@@ -349,18 +357,25 @@ Both IPv4 and IPv6 are supported, but IPv6 is as
 yet untested with MFNP. Please report your results on the mailing list.
 .PP
 Configuration is normally not required.
-The pixma backend will auto-detect your scanner if it is within
+The
+.B sane\-pixma
+backend will auto-detect your scanner if it is within
 the same subnet as your computer if your OS does support this.
 .PP
-If your scanner can not be auto-detected, you can add it to the pixma
+If your scanner can not be auto-detected, you can add it to the
+.B sane\-pixma
 configuration file (see above).
 .SH FIREWALLING FOR NETWORKED SCANNERS
-The sane pixma backend communicates with port 8610 for MFNP or port 8612
+The
+.B sane\-pixma
+backend communicates with port 8610 for MFNP or port 8612
 for BJNP on the scanner. So
 you will have to allow outgoing traffic TO port 8610 or 8612 on the
 common subnet for scanning.
 .PP
-Scanner detection is slightly more complicated. The pixma backend sends
+Scanner detection is slightly more complicated. The
+.B sane\-pixma
+backend sends
 a broadcast on all direct connected subnets it can find (provided your OS
 allows for enumeration of all network interfaces). The broadcast is sent FROM
 port 8612 TO port 8610 or 8612 on the broadcast address of each interface.
@@ -378,7 +393,8 @@ So in short: open the firewall for all traffic from your computer to port
 AND to port 8612 (for both BJNP and MFNP) to your computer.
 .PP
 With the firewall rules above there is no need to add the scanner to the
-pixma.conf file, unless the scanner is on a network that is not directly
+.I pixma.conf
+file, unless the scanner is on a network that is not directly
 connected to your computer.
 .SH ENVIRONMENT
 .TP
@@ -433,21 +449,31 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in @CONFIGDIR@.  If the value of the
+directory (".") and then in
+.IR @CONFIGDIR@ .
+If the value of the
 environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"@CONFIGDIR@" being searched (in this order).
+to "/tmp/config:" would result in directories
+.IR "tmp/config" ,
+.IR "." ,
+and
+.I "@CONFIGDIR@"
+being searched (in this order).
 .SH "SEE ALSO"
 .BR sane (7),
 .BR sane\-dll (5),
 .BR scanimage (1),
+.BR scanadf (1),
 .BR gamma4scanimage (1),
+.BR getifaddrs (3)
 .PP
 In case of trouble with a recent Pixma model, try the latest code for
-the pixma backend, available in the Sane git repository at:
+the
+.B sane\-pixma
+backend, available in the Sane git repository at:
 .br
 .I https://gitlab.com/sane-project/backends.git
 .PP

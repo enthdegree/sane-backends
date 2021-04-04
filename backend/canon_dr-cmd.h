@@ -11,9 +11,7 @@
 #define USB_HEADER_LEN     12
 #define USB_COMMAND_LEN    12
 #define USB_STATUS_LEN     4
-#define USB_COMMAND_TIME   30000
-#define USB_DATA_TIME      30000
-#define USB_STATUS_TIME    30000
+#define USB_PACKET_TIMEOUT 30000
 
 /*static inline void */
 static void
@@ -116,8 +114,10 @@ putnbyte (unsigned char *pnt, unsigned int value, unsigned int nbytes)
 #define INQUIRY_code            0x12
 #define INQUIRY_len             6
 
-#define INQUIRY_std_len         0x30
-#define INQUIRY_vpd_len         0x1e
+#define INQUIRY_std_max_len     0x30
+#define INQUIRY_std_typ_len     0x30
+#define INQUIRY_vpd_max_len     0x30
+#define INQUIRY_vpd_typ_len     0x1e
 
 #define set_IN_evpd(icb, val)              setbitfield(icb + 1, 1, 0, val)
 #define set_IN_page_code(icb, val)         icb[0x02]=val

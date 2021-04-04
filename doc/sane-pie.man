@@ -50,9 +50,10 @@ support dynamic loading).
 .PP
 
 .SH SEE ALSO
-sane(7)
+.BR sane (7)
 
 .SH "CONTACT AND BUG-REPORTS"
 Please send any information and bug-reports to:
 .br
-.B Simon Munton <simon@munton.demon.co.uk>
+Simon Munton
+.RI < simon@munton.demon.co.uk >

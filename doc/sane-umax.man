@@ -6,8 +6,12 @@ sane\-umax \- SANE backend for UMAX scanners
 
 .SH ABOUT THIS FILE
 
-This file only is a short description of the umax-backend for sane! For detailed information take a look at
-sane\-umax\-doc.html (it is included in the sane source directory and in the xsane online help)!
+This file only is a short description of the
+.B sane\-umax
+backend for sane! For detailed information take a look at
+sane\-umax\-doc.html (it is included in the sane source directory and in the
+.BR xsane (1)
+online help)!
 
 .SH DESCRIPTION
 
@@ -80,7 +84,7 @@ able to send gamma tables to the scanner or to
 do a correct color calibration. This may result in
 strange color effects. If the minimum value is set
 too large then the backend is not able to allocate
-the requested scsi buffer size and aborts with
+the requested SCSI buffer size and aborts with
 out of memory error. The default is 32KB, for
 some scanners it should be increased to 64KB.
 .TP
@@ -186,15 +190,16 @@ values:
 .br
 default = 2
 .br
-most scsi drivers allow internal command queueing with a depth
+most SCSI drivers allow internal command queueing with a depth
 of 2 commands. In most cases it does not mprove anything when you
-increase this value. When your scsi driver does not support any
+increase this value. When your SCSI driver does not support any
 command queueing you can try to set this value to 1.
 
 .PP
 The special device name must be a generic SCSI device or a symlink to such a device.
 To find out to which device your scanner is assigned and how you have to set the
-permissions of that device, have a look at sane\-scsi.
+permissions of that device, have a look at
+.BR sane\-scsi (5).
 
 .SH SCSI ADAPTER TIPS
 
@@ -205,15 +210,16 @@ SCSI-adapters are not supported. So you typically need to purchase another SCSI-
 that is supported by your platform. See the relevant hardware FAQs and HOWTOs for your
 platform for more information.
 
-The UMAX-scanners do block the scsi-bus for a few seconds while scanning. It is not
+The UMAX-scanners do block the SCSI-bus for a few seconds while scanning. It is not
 necessary to connect the scanner to its own SCSI-adapter. But if you need short
 response time for your SCSI-harddisk (e.g. if your computer is a file-server) or
-other scsi devices, I suggest you use an own SCSI-adapter for your UMAX-scanner.
+other SCSI devices, I suggest you use an own SCSI-adapter for your UMAX-scanner.
 
-If you have any problems with your Umax scanner, check your scsi chain
+If you have any problems with your Umax scanner, check your SCSI chain
 (cable length, termination, ...).
 
-See also: sane\-scsi(5)
+See also:
+.BR sane\-scsi (5)
 
 .SH FILES
 
@@ -235,7 +241,8 @@ The shared library implementing this backend:
 If the library was compiled with debug support enabled, this environment
 variable controls the debug level for this backend. E.g., a value of 128
 requests all debug output to be printed. Smaller levels reduce verbosity:
-SANE_DEBUG_UMAX values
+.B SANE_DEBUG_UMAX
+values.
 
 .ft CR
 .nf
@@ -262,15 +269,14 @@ Example:
 export SANE_DEBUG_UMAX=8
 
 .SH BUGS
-
-X-resolutions greater than 600 dpi sometimes make problems
+X-resolutions greater than 600 dpi sometimes cause problems.
 
 .SH SEE ALSO
-sane(7)
+.BR sane (7),
+.BR sane\-scsi (5)
 
 .SH AUTHOR
-
 Oliver Rauch
 
 .SH EMAIL-CONTACT
-Oliver.Rauch@Rauch-Domain.DE
+.I Oliver.Rauch@Rauch-Domain.DE

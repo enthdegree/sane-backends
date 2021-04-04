@@ -103,6 +103,7 @@ option duplex-offset 400
 usb 0x1083 0x1617
 
 # DR-X10C
+option tur-timeout 5000
 usb 0x1083 0x1618
 
 # CR-25
@@ -173,6 +174,7 @@ usb 0x1083 0x164a
 usb 0x1083 0x164b
 
 # P-208
+option duplex-offset 260
 usb 0x1083 0x164c
 
 # DR-G1130
@@ -194,6 +196,8 @@ option duplex-offset 1640
 usb 0x1083 0x1654
 
 # DR-M1060
+option inquiry-length 0x24
+option vpd-length 0x30
 usb 0x1083 0x1657
 
 # DR-C225

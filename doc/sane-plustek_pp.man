@@ -11,7 +11,9 @@ provides access to Plustek ASIC 9600[1/3] and P9800[1/3] based
 parallel port flatbed scanners.
 The access of the scanner is either done directly by the backend
 or via kernel module, called pt_drv which can be created out of
-the plustek_pp backend code \- see also section
+the
+.B sane\-plustek_pp
+backend code \- see also section
 .B "BUILDING THE KERNEL MODULE"
 for further information.
 
@@ -136,12 +138,13 @@ See this file for examples.
 
 .SH "CONFIGURATION"
 .PP
-This section describes the backends' configuration file entries.
+This section describes the backend's configuration file entries.
 The file is located at:
 .I @CONFIGDIR@/plustek_pp.conf
 .PP
 For a proper setup, you will need at least two entries:
 .RS
+.PP
 .I [direct]
 .br
 .I device 0x378
@@ -227,32 +230,31 @@ Primax 4800Direct 30bit override (works if
 OP4830 has been detected)
 .RE
 .PP
-See the plustek_pp.conf file for examples.
+See the
+.I plustek_pp.conf
+file for examples.
 .PP
 
 .SH "BUILDING THE KERNEL MODULE"
-As mentioned before, the plustek_pp backend code can also
-be compiled and installed as linux kernel module. To do so,
+As mentioned before, the
+.B sane\-plustek_pp
+backend code can also be compiled and installed as linux kernel module. To do so,
 you will need the source-files of this sane\-backend installation.
 Unpack this tar-ball and go to the directory:
-.br
-.I sane\-backends/doc/plustek
-.br
+.IR sane\-backends/doc/plustek .
 Within this directory, you should find a script called:
-.br
-.I MakeModule.sh
-.br
+.IR MakeModule.sh .
 Now if your Linux kernelsources are installed correctly,
 it should be possible to build, install and load the
 module
-.B pt_drv.
+.BR pt_drv .
 .B Please note,
 that the kernelsources need to be configured correctly.
 Refer to your distributions
 manual on how this is done. As root user, try
-.br
+.PP
 .I ./MakeModule.sh
-.br
+.PP
 the script will try and get all necessary information about your
 running kernel and will lead you through the whole installation
 process.
@@ -264,11 +266,12 @@ superuser.
 .SH "KERNEL MODULE SETUP"
 The configuration of the kernel module is done by providing
 some or more options found below to the kernel module at
-load time. This can be done by invoking insmod with the
-appropriate parameters or appending the options to the file
-.B /etc/modules.conf (kernel < 2.6.x)
+load time. This can be done by invoking
+.BR insmod (8)
+with the appropriate parameters or appending the options to the file
+.I /etc/modules.conf (kernel < 2.6.x)
 or
-.B /etc/modprobe.conf (kernel >= 2.6.x)
+.I /etc/modprobe.conf (kernel >= 2.6.x)
 .PP
 .B
 The Options:
@@ -360,21 +363,27 @@ OP4830 has been detected)
 .RE
 .PP
 Sample entry for file
-.B "/etc/modules.conf"
-:
+.IR /etc/modules.conf :
+.PP
+.RS
+alias char\-major\-40 pt_drv
 .br
-.I alias char\-major\-40 pt_drv
+pre-install pt_drv modprobe -k parport
 .br
-.I pre-install pt_drv modprobe -k parport
-.br
-.I options pt_drv lampoff=180 warmup=15 port=0x378 lOffonEnd=0 mov=0 slowIO=0 forceMode=0
+options pt_drv lampoff=180 warmup=15 port=0x378 lOffonEnd=0 mov=0 slowIO=0 forceMode=0
+.RE
 .PP
 For multidevice support, simply add values separated by commas to
 the different options
-.br
-.I options pt_drv port=0x378,0x278 mov=0,4 slowIO=0,1 forceMode=0,1
 .PP
-Remember to call depmod after changing /etc/conf.modules.
+.RS
+options pt_drv port=0x378,0x278 mov=0,4 slowIO=0,1 forceMode=0,1
+.RE
+.PP
+Remember to call
+.BR depmod (8)
+after changing
+.IR /etc/conf.modules .
 .PP
 
 .SH "PARALLEL PORT MODES"
@@ -398,7 +407,9 @@ images (parts duplicated or shifted horizontally) kill all
 other applications before scanning and (if sufficient
 memory available) disable swapping.
 .PP
-See the plustek_pp.conf file for examples.
+See the
+.I plustek_pp.conf
+file for examples.
 .PP
 
 .SH FILES
@@ -428,13 +439,19 @@ contain the configuration file.  Under UNIX, the directories are
 separated by a colon (`:'), under OS/2, they are separated by a
 semi-colon (`;').  If this variable is not set, the configuration file
 is searched in two default directories: first, the current working
-directory (".") and then in @CONFIGDIR@.  If the value of the
+directory (".") and then in
+.IR @CONFIGDIR@ .
+If the value of the
 environment variable ends with the directory separator character, then
 the default directories are searched after the explicitly specified
 directories.  For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"@CONFIGDIR@" being searched (in this order).
+to "/tmp/config:" would result in directories
+.IR "tmp/config" ,
+.IR "." ,
+and
+.I "@CONFIGDIR@"
+being searched (in this order).
 .TP
 .B SANE_DEBUG_PLUSTEK_PP
 If the library was compiled with debug support enabled, this
@@ -446,6 +463,7 @@ export SANE_DEBUG_PLUSTEK_PP=10
 
 .SH "SEE ALSO"
 .BR sane (7),
+.BR xscanimage (1),
 .br
 .I @DOCDIR@/plustek/Plustek\-PARPORT.changes
 
@@ -458,14 +476,15 @@ Additional info and hints can be obtained from our
 .br
 Mailing-List archive at:
 .br
-.B http://www.sane\-project.org/mailing\-lists.html
+.I http://www.sane\-project.org/mailing\-lists.html
 .PP
 To obtain debug messages from the backend, please set the
 environment-variable
-.I SANE_DEBUG_PLUSTEK_PP
-before calling your favorite scan-frontend (i.e. xscanimage).
+.B SANE_DEBUG_PLUSTEK_PP
+before calling your favorite scan-frontend (i.e.
+.BR xscanimage (1)), i.e.:
 .br
-.B i.e.: export SANE_DEBUG_PLUSTEK_PP=20 ; xscanimage
+.I export SANE_DEBUG_PLUSTEK_PP=20 ; xscanimage
 .PP
 The value controls the verbosity of the backend.
 .PP
@@ -509,4 +528,4 @@ corruption or cause the sensor to hit the scan bed.
 .PP
 * The scanning speed on 600x1200 dpi models is slow.
 .PP
-* The scanning quality of the A3I is poor
+* The scanning quality of the A3I is poor.

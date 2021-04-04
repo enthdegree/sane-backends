@@ -16,8 +16,8 @@
    for more details.
 
    You should have received a copy of the GNU General Public License
-   along with sane; see the file COPYING.  If not, write to the Free
-   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+   along with sane; see the file COPYING.
+   If not, see <https://www.gnu.org/licenses/>.
 
    This file implements a SANE backend for eSCL scanners.  */
 
@@ -30,7 +30,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <curl/curl.h>
 #include <libxml/parser.h>
 
 #include "../include/sane/saneopts.h"
@@ -40,6 +39,25 @@ struct cap
     char *memory;
     size_t size;
 };
+
+static size_t
+header_callback(void *str, size_t size, size_t nmemb, void *userp)
+{
+    struct cap *header = (struct cap *)userp;
+    size_t realsize = size * nmemb;
+    char *content = realloc(header->memory, header->size + realsize + 1);
+
+    if (content == NULL) {
+        DBG( 1, "Not enough memory (realloc returned NULL)\n");
+        return (0);
+    }
+    header->memory = content;
+    memcpy(&(header->memory[header->size]), str, realsize);
+    header->size = header->size + realsize;
+    header->memory[header->size] = 0;
+    return (realsize);
+}
+
 
 /**
  * \fn static SANE_String_Const convert_elements(SANE_String_Const str)
@@ -393,36 +411,39 @@ find_true_variables(xmlNode *node, capabilities_t *scanner, int type)
  * \return 0
  */
 static int
-print_xml_c(xmlNode *node, capabilities_t *scanner, int type)
+print_xml_c(xmlNode *node, ESCL_Device *device, capabilities_t *scanner, int type)
 {
     while (node) {
         if (node->type == XML_ELEMENT_NODE) {
             if (find_nodes_c(node) && type != -1)
                 find_true_variables(node, scanner, type);
         }
-	if (!strcmp((const char *)node->name, "PlatenInputCaps")) {
+        if (!strcmp((const char *)node->name, "MakeAndModel")){
+            device->model_name = strdup((const char *)xmlNodeGetContent(node));
+	}
+	else if (!strcmp((const char *)node->name, "PlatenInputCaps")) {
            scanner->Sources[PLATEN] = (SANE_String_Const)strdup(SANE_I18N ("Flatbed"));
            scanner->SourcesSize++;
 	   scanner->source = PLATEN;
-           print_xml_c(node->children, scanner, PLATEN);
+           print_xml_c(node->children, device, scanner, PLATEN);
 	   scanner->caps[PLATEN].duplex = 0;
 	}
 	else if (!strcmp((const char *)node->name, "AdfSimplexInputCaps")) {
            scanner->Sources[ADFSIMPLEX] = (SANE_String_Const)strdup(SANE_I18N("ADF"));
            scanner->SourcesSize++;
 	   if (scanner->source == -1) scanner->source = ADFSIMPLEX;
-           print_xml_c(node->children, scanner, ADFSIMPLEX);
+           print_xml_c(node->children, device, scanner, ADFSIMPLEX);
 	   scanner->caps[ADFSIMPLEX].duplex = 0;
 	}
 	else if (!strcmp((const char *)node->name, "AdfDuplexInputCaps")) {
            scanner->Sources[ADFDUPLEX] = (SANE_String_Const)strdup(SANE_I18N ("ADF Duplex"));
            scanner->SourcesSize++;
 	   if (scanner->source == -1) scanner->source = ADFDUPLEX;
-           print_xml_c(node->children, scanner, ADFDUPLEX);
+           print_xml_c(node->children, device, scanner, ADFDUPLEX);
 	   scanner->caps[ADFDUPLEX].duplex = 1;
 	}
 	else if (find_struct_variables(node, scanner) == 0)
-           print_xml_c(node->children, scanner, type);
+           print_xml_c(node->children, device, scanner, type);
         node = node->next;
     }
     return (0);
@@ -461,11 +482,12 @@ _reduce_color_modes(capabilities_t *scanner)
  * \return scanner (the structure that stocks all the capabilities elements)
  */
 capabilities_t *
-escl_capabilities(const ESCL_Device *device, SANE_Status *status)
+escl_capabilities(ESCL_Device *device, SANE_Status *status)
 {
     capabilities_t *scanner = (capabilities_t*)calloc(1, sizeof(capabilities_t));
     CURL *curl_handle = NULL;
     struct cap *var = NULL;
+    struct cap *header = NULL;
     xmlDoc *data = NULL;
     xmlNode *node = NULL;
     int i = 0;
@@ -479,11 +501,20 @@ escl_capabilities(const ESCL_Device *device, SANE_Status *status)
         *status = SANE_STATUS_NO_MEM;
     var->memory = malloc(1);
     var->size = 0;
+    header = (struct cap *)calloc(1, sizeof(struct cap));
+    if (header == NULL)
+        *status = SANE_STATUS_NO_MEM;
+    header->memory = malloc(1);
+    header->size = 0;
     curl_handle = curl_easy_init();
     escl_curl_url(curl_handle, device, scanner_capabilities);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, memory_callback_c);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)var);
+    curl_easy_setopt(curl_handle, CURLOPT_HEADERFUNCTION, header_callback);
+    curl_easy_setopt(curl_handle, CURLOPT_HEADERDATA, (void *)header);
     CURLcode res = curl_easy_perform(curl_handle);
+    if (res == CURLE_OK)
+        DBG( 1, "Create NewJob : the scanner header responded : [%s]\n", header->memory);
     if (res != CURLE_OK) {
         DBG( 1, "The scanner didn't respond: %s\n", curl_easy_strerror(res));
         *status = SANE_STATUS_INVAL;
@@ -501,11 +532,17 @@ escl_capabilities(const ESCL_Device *device, SANE_Status *status)
         goto clean;
     }
 
+    if (device->hack &&
+        header &&
+        header->memory &&
+        strstr(header->memory, "Server: HP_Compact_Server"))
+        device->hack = curl_slist_append(NULL, "Host: localhost");
+
     scanner->source = 0;
     scanner->Sources = (SANE_String_Const *)malloc(sizeof(SANE_String_Const) * 4);
     for (i = 0; i < 4; i++)
        scanner->Sources[i] = NULL;
-    print_xml_c(node, scanner, -1);
+    print_xml_c(node, device, scanner, -1);
     _reduce_color_modes(scanner);
 clean:
     xmlFreeDoc(data);
@@ -513,6 +550,9 @@ clean_data:
     xmlCleanupParser();
     xmlMemoryDump();
     curl_easy_cleanup(curl_handle);
+    if (header)
+      free(header->memory);
+    free(header);
     if (var)
       free(var->memory);
     free(var);

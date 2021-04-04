@@ -16,9 +16,7 @@
    General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-   MA 02111-1307, USA.
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
    As a special exception, the authors of SANE give permission for
    additional uses of the libraries contained in this release of SANE.
@@ -852,5 +850,30 @@ SANE_Avision_Status;
 extern SANE_Status ENTRY(media_check) (SANE_Handle handle);
 
 #endif
+
+typedef enum
+{
+  AVISION_DATATYPECODE_READ_IMAGE_DATA = 0x00,
+  AVISION_DATATYPECODE_GET_CALIBRATION_FORMAT = 0x60,
+  AVISION_DATATYPECODE_DETECT_ACCESSORIES = 0x64,
+  AVISION_DATATYPECODE_READ_NVRAM_DATA = 0x69,
+  AVISION_DATATYPECODE_FLASH_RAM_INFO = 0x6a,
+  AVISION_DATATYPECODE_ACCELERATION_TABLE = 0x6c,
+  AVISION_DATATYPECODE_DOWNLOAD_GAMMA_TABLE = 0x81,
+  AVISION_DATATYPECODE_3X3_COLOR_MATRIX = 0x83,
+  AVISION_DATATYPECODE_SEND_NVRAM_DATA = 0x85,
+  AVISION_DATATYPECODE_FLASH_DATA = 0x86,
+  AVISION_DATATYPECODE_FILM_HOLDER_SENSE = 0x87,
+  AVISION_DATATYPECODE_FIRMWARE_STATUS = 0x90,
+  AVISION_DATATYPECODE_ATTACH_TRUNCATE_TAIL = 0x95,
+  AVISION_DATATYPECODE_ATTACH_TRUNCATE_HEAD = 0x96,
+  AVISION_DATATYPECODE_GET_BACKGROUND_RASTER = 0x9b,
+  AVISION_DATATYPECODE_LIGHT_STATUS = 0xa0,
+  AVISION_DATATYPECODE_BUTTON_STATUS = 0xa1,
+  AVISION_DATATYPECODE_POWER_SAVING_TIMER = 0xa2,
+  AVISION_DATATYPECODE_READ_DUPLEX_INFO = 0xb1,
+  AVISION_DATATYPECODE_UNKNOWN = 0xd0,
+  AVISION_DATATYPECODE_READ_GENERAL_ABILITY_PARAM = 0xd2,
+} Avision_Datatypecode;
 
 #endif /* avision_h */

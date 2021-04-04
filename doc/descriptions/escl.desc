@@ -71,6 +71,16 @@
 :status :good
 :comment "All resolutions supported, Flatted and ADF supported."
 
+:model "PIXMA TR4550 Series"
+:interface "Wifi"
+:status :good
+:comment "All resolutions supported, Flatted and ADF supported."
+
+:model "PIXMA TR4551 Series"
+:interface "Wifi"
+:status :good
+:comment "All resolutions supported, Flatted and ADF supported."
+
 :model "PIXMA TR8500 Series"
 :interface "Ethernet WiFi"
 :status :good
@@ -116,6 +126,16 @@
 :interface "WiFi"
 :status :untested
 :comment "Testers needed!"
+
+:model "LaserJet FlowMFP M578"
+:interface "WiFi"
+:status :basic
+:comment "Issues with duplex ADF"
+
+:model "LaserJet MFP M630"
+:interface "WiFi"
+:status :basic
+:comment "Issues with duplex ADF"
 
 :model "OfficeJet 4630"
 :interface "WiFi"

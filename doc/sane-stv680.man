@@ -32,24 +32,32 @@ for the exact status of each camera.
 For startup of this backend check that if present the stv680 kernel module is
 removed or disabled.
 .br
-Also before using, enable the backend by editing the /etc/sane.d/dll.conf file,
-change #stv680 to stv680.
+Also before using, enable the backend by editing the
+.I @CONFIGDIR@/dll.conf
+file, change #stv680 to stv680.
 
-For problems with the untested cameras, you
-should contact the author for that.
+For problems with the untested cameras, you should contact the author for that.
 
 The options the backend supports can either be selected through
-command line options to programs like scanimage or through GUI
-elements in xcam. For both programs use the \-B option needed for size buffer.
+command line options to programs like
+.BR scanimage (1)
+or through GUI elements in
+.BR xcam (1).
+For both programs use the
+.B \-B
+option needed for size buffer.
 
 Some frontends examples:
+
 .br
-xcam
+.BR xcam (1)
 .RS
 xcam \-B
 .RE
 
-scanimage: for writing in batch mode to a file or to a new file each time.
+.BR scanimage (1):
+for writing in batch mode to a file or to a new file each time:
+
 .RS
 scanimage \-B \-d stv680:libusb:001:002 \-\-batch=out.ppm \-\-batch-count 5 \-\-mode "Color RGB"
 .RE
@@ -58,11 +66,12 @@ scanimage \-B \-d stv680:libusb:001:002 \-\-batch=out%d.ppm \-\-batch-count 5 \-
 .RE
 
 .br
-If you have any success with a camera not listed here, or if you have
+If you have any success with a camera not listed here, or if you observe
 any strange behavior, please report to the backend maintainer or to
 the SANE mailing list.
 
-Valid command line options and their syntax can be listed by using
+Valid command line options and their syntax can be listed by using:
+
 .RS
 scanimage \-\-help \-d stv680
 .RE
@@ -96,27 +105,27 @@ Bayer unshuffle, color correction, textline with date and time is added
 .B Enhancement options
 
 .TP
-.B \-\-white\-level\-r
+.B \-\-white\-level\-r \-32..+32
 Selects what red radiance level should be
 considered "white", when scanning some sheets by changing the calibration
 value loaded into the scanner. Scale \-32 .. 0 .. +32 in steps of 1.
 
 .TP
-.B \-\-white\-level\-g
+.B \-\-white\-level\-g \-32..+32
 Selects what green radiance level should be
 considered "white", when scanning some sheets by changing the calibration i
 value loaded into the scanner. Scale \-32 .. 0 .. +32 in steps of 1.
 
 .TP
-.B \-\-white\-level\-b
+.B \-\-white\-level\-b \-32..+32
 Selects what blue radiance level should be
 considered "white", when scanning some sheets by changing the calibration
 value loaded into the scanner. Scale \-32 .. 0 .. +32 in steps of 1.
 
 .SH CONFIGURATION FILE
-The configuration file @CONFIGDIR@/stv680.conf supports only one
-information: the device name to use (eg usb 0x.... 0x....).
-
+The configuration file
+.I @CONFIGDIR@/stv680.conf
+supports only one item: the device name to use (eg usb 0x.... 0x....).
 
 .SH FILES
 .TP
@@ -126,7 +135,6 @@ The static library implementing this backend.
 .I @LIBDIR@/libsane\-stv680.so
 The shared library implementing this backend (present on systems that
 support dynamic loading).
-
 
 .SH ENVIRONMENT
 .TP
@@ -141,9 +149,7 @@ The windows TWAIN driver has many more options than this SANE
 backend. However they are only software adjustments. This backend only
 implements what the webcam can support.
 
-
 .SH BUGS
-
 .TP
 Plenty. Parts of this backend are still under development.
 1. Some untested cameras.
@@ -154,22 +160,21 @@ Plenty. Parts of this backend are still under development.
 
 
 .SH "SEE ALSO"
-
-sane\-usb(5), scanimage(1), xcam(1), sane(7)
-
+.BR sane(7),
+.BR sane\-usb (5),
+.BR scanimage (1),
+.BR xcam (1)
 
 .SH AUTHORS
-
-Gerard Klaver http://gkall.hobby.nl/stv680-aiptek.html
-
-
+Gerard Klaver
+.I http://gkall.hobby.nl/stv680-aiptek.html
 
 .SH CREDITS
-
 .TP
 Thanks to developers of the other stv680 programs:
 STV680 kernel module
 .br
 pencam2 program
 .br
-libghoto2 program (camlib stv0680)
+.BR libghoto2 (3)
+program (camlib stv0680)

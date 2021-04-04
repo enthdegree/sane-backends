@@ -2,7 +2,7 @@
 .IX sane\-niash
 
 .SH NAME
-sane\-niash \- SANE backend for scanners based on the NIASH chipset.
+sane\-niash \- SANE backend for scanners based on the NIASH chipset
 
 .SH DESCRIPTION
 The
@@ -75,6 +75,7 @@ export SANE_DEBUG_NIASH=255
 .BR sane (7),
 .BR sane\-usb (5)
 .br
-http://www.sourceforge.net/projects/hp3300backend
+.I http://www.sourceforge.net/projects/hp3300backend
 .SH AUTHOR
-Bertrik Sikken <bertrik@zonnet.nl>
+Bertrik Sikken
+.RI < bertrik@zonnet.nl >

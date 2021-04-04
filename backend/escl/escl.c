@@ -16,8 +16,8 @@
    for more details.
 
    You should have received a copy of the GNU General Public License
-   along with sane; see the file COPYING.  If not, write to the Free
-   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+   along with sane; see the file COPYING.
+   If not, see <https://www.gnu.org/licenses/>.
 
    This file implements a SANE backend for eSCL scanners.  */
 
@@ -28,8 +28,6 @@
 #include <string.h>
 
 #include <setjmp.h>
-
-#include <curl/curl.h>
 
 #include "../include/sane/saneopts.h"
 #include "../include/sane/sanei.h"
@@ -96,6 +94,7 @@ escl_free_device(ESCL_Device *current)
     free((void*)current->is);
     free((void*)current->uuid);
     free((void*)current->unix_socket);
+    curl_slist_free_all(current->hack);
     free(current);
     return NULL;
 }
@@ -437,6 +436,7 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line,
     if (strncmp(line, "device", 6) == 0) {
         char *name_str = NULL;
         char *opt_model = NULL;
+        char *opt_hack = NULL;
 
         line = sanei_config_get_string(line + 6, &name_str);
         DBG (10, "New Escl_Device URL [%s].\n", (name_str ? name_str : "VIDE"));
@@ -447,6 +447,10 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line,
         if (*line) {
             line = sanei_config_get_string(line, &opt_model);
             DBG (10, "New Escl_Device model [%s].\n", opt_model);
+        }
+        if (*line) {
+            line = sanei_config_get_string(line, &opt_hack);
+            DBG (10, "New Escl_Device hack [%s].\n", opt_hack);
         }
 
         escl_free_device(escl_device);
@@ -477,7 +481,7 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line,
 	   return (SANE_STATUS_NO_MEM);
 	}
     }
-    if (strncmp(line, "ip", 2) == 0) {
+    else if (strncmp(line, "ip", 2) == 0) {
 	const char *ip_space = sanei_config_skip_whitespace(line + 2);
 	DBG (10, "New Escl_Device IP [%s].", (ip_space ? ip_space : "VIDE"));
 	if (escl_device != NULL && ip_space != NULL) {
@@ -485,14 +489,14 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line,
 	    escl_device->ip_address = strdup(ip_space);
 	}
     }
-    if (sscanf(line, "port %i", &port) == 1 && port != 0) {
+    else if (sscanf(line, "port %i", &port) == 1 && port != 0) {
 	DBG (10, "New Escl_Device PORT [%d].", port);
 	if (escl_device != NULL) {
 	    DBG (10, "New Escl_Device PORT Affected.");
 	    escl_device->port_nb = port;
 	}
     }
-    if (strncmp(line, "model", 5) == 0) {
+    else if (strncmp(line, "model", 5) == 0) {
 	const char *model_space = sanei_config_skip_whitespace(line + 5);
 	DBG (10, "New Escl_Device MODEL [%s].", (model_space ? model_space : "VIDE"));
 	if (escl_device != NULL && model_space != NULL) {
@@ -500,7 +504,7 @@ attach_one_config(SANEI_Config __sane_unused__ *config, const char *line,
 	    escl_device->model_name = strdup(model_space);
 	}
     }
-    if (strncmp(line, "type", 4) == 0) {
+    else if (strncmp(line, "type", 4) == 0) {
 	const char *type_space = sanei_config_skip_whitespace(line + 4);
 	DBG (10, "New Escl_Device TYPE [%s].", (type_space ? type_space : "VIDE"));
 	if (escl_device != NULL && type_space != NULL) {
@@ -1089,6 +1093,50 @@ escl_parse_name(SANE_String_Const name, ESCL_Device *device)
     return SANE_STATUS_GOOD;
 }
 
+static void
+_get_hack(SANE_String_Const name, ESCL_Device *device)
+{
+  FILE *fp;
+  SANE_Char line[PATH_MAX];
+  DBG (3, "_get_hack: start\n");
+  if (device->model_name &&
+      (strcasestr(device->model_name, "LaserJet FlowMFP M578") ||
+       strcasestr(device->model_name, "LaserJet MFP M630"))) {
+       device->hack = curl_slist_append(NULL, "Host: localhost");
+       DBG (3, "_get_hack: finish\n");
+       return;
+  }
+
+  /* open configuration file */
+  fp = sanei_config_open (ESCL_CONFIG_FILE);
+  if (!fp)
+    {
+      DBG (2, "_get_hack: couldn't access %s\n", ESCL_CONFIG_FILE);
+      DBG (3, "_get_hack: exit\n");
+    }
+
+  /* loop reading the configuration file, all line beginning by "option " are
+   * parsed for value to store in configuration structure, other line are
+   * used are device to try to attach
+   */
+  while (sanei_config_read (line, PATH_MAX, fp))
+    {
+       if (strstr(line, name)) {
+          DBG (3, "_get_hack: idevice found\n");
+	  if (strstr(line, "hack=localhost")) {
+              DBG (3, "_get_hack: device found\n");
+	      device->hack = curl_slist_append(NULL, "Host: localhost");
+	  }
+	  goto finish_hack;
+       }
+    }
+finish_hack:
+  DBG (3, "_get_hack: finish\n");
+  fclose(fp);
+}
+
+
+
 /**
  * \fn SANE_Status sane_open(SANE_String_Const name, SANE_Handle *h)
  * \brief Function that establishes a connection with the device named by 'name',
@@ -1130,6 +1178,8 @@ sane_open(SANE_String_Const name, SANE_Handle *h)
         escl_free_handler(handler);
         return (status);
     }
+    _get_hack(name, device);
+
     status = init_options(NULL, handler);
     if (status != SANE_STATUS_GOOD) {
         escl_free_handler(handler);
@@ -1331,6 +1381,7 @@ sane_control_option(SANE_Handle h, SANE_Int n, SANE_Action a, void *v, SANE_Int 
 	    break;
 	case OPT_RESOLUTION:
             handler->val[n].w = _get_resolution(handler, (int)(*(SANE_Word *) v));
+	    handler->scanner->caps[handler->scanner->source].default_resolution = handler->val[n].w;
 	    if (i)
 		*i |= SANE_INFO_RELOAD_PARAMS | SANE_INFO_RELOAD_OPTIONS | SANE_INFO_INEXACT;
 	    break;
@@ -1714,6 +1765,12 @@ escl_curl_url(CURL *handle, const ESCL_Device *device, SANE_String_Const path)
     DBG( 1, "escl_curl_url: URL: %s\n", url );
     curl_easy_setopt(handle, CURLOPT_URL, url);
     free(url);
+    DBG( 1, "Before use hack\n");
+    if (device->hack) {
+        DBG( 1, "Use hack\n");
+        curl_easy_setopt(handle, CURLOPT_HTTPHEADER, device->hack);
+    }
+    DBG( 1, "After use hack\n");
     if (device->https) {
         DBG( 1, "Ignoring safety certificates, use https\n");
         curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, 0L);

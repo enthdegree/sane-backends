@@ -1,5 +1,5 @@
 ;;;  utsushi.desc                               -*- emacs-lisp -*- (sort of)
-;;;  Copyright (C) 2015-2020  Olaf Meeuwissen
+;;;  Copyright (C) 2015-2021  Olaf Meeuwissen
 ;;;
 ;;;  License: GPL-3.0+
 ;;;  Author : Olaf Meeuwissen
@@ -291,6 +291,16 @@
 :interface "USB"
 :usbid     "0x04b8" "0x112e"
 :status    :good
+
+:model     "RR-60"
+:interface "USB"
+:status    :good
+:comment   "USB ID 0x018b or 0x018c"
+
+:model     "RR-70W"
+:interface "USB"
+:status    :good
+:comment   "USB ID 0x018b or 0x018c"
 
 :model     "WF-2850"
 :interface "USB"

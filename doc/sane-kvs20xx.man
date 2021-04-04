@@ -2,7 +2,7 @@
 .IX sane\-kvs20xx
 
 .SH NAME
-sane\-kvs20xx \- SANE backend for Panasonic KV-S20xxC USB/SCSI ADF scanners.
+sane\-kvs20xx \- SANE backend for Panasonic KV-S20xxC USB/SCSI ADF scanners
 
 .SH DESCRIPTION
 The
@@ -22,7 +22,10 @@ The backend was ported to sane-backends 1.0.22 and downgraded to C89
 by m. allan noah.
 
 .SH "SEE ALSO"
-sane(7), sane\-usb(5), sane\-scsi(5)
+.BR sane (7),
+.BR sane\-usb (5),
+.BR sane\-scsi (5)
 
 .SH AUTHOR
-m. allan noah: <kitno455 a t gmail d o t com>
+m. allan noah:
+.RI < "kitno455 a t gmail d o t com" >

@@ -24,8 +24,9 @@ If you own a Apple scanner other than the ones listed above that
 works with this backend, please let us know by sending the scanner's
 model name, SCSI id, and firmware revision to
 .IR sane\-devel@alioth-lists.debian.net .
-See http://www.sane\-project.org/mailing\-lists.html for details on how to subscribe to
-sane\-devel.
+See
+.I http://www.sane\-project.org/mailing\-lists.html
+for details on how to subscribe to sane\-devel.
 
 .SH "DEVICE NAMES"
 This backend expects device names of the form:
@@ -43,14 +44,18 @@ symlink to such a device.  Under Linux, such a device name could be
 .I /dev/sga
 or
 .IR /dev/sge ,
-for example.  See sane\-scsi(5) for details.
+for example.  See
+.BR sane\-scsi (5)
+for details.
+
 .SH CONFIGURATION
 The
 .I apple.conf
 file is a list of options and device names that correspond to Apple
 scanners.  Empty lines and lines starting with a hash mark (#) are
-ignored.  See sane\-scsi(5) on details of what constitutes a valid
-device name.
+ignored.  See
+.BR sane\-scsi (5)
+on details of what constitutes a valid device name.
 .PP
 Options come in two flavors: global and positional ones.  Global
 options apply to all devices managed by the backend, whereas positional
@@ -83,13 +88,18 @@ This environment variable is list of directories where SANE looks
 for the configuration file.  Under UNIX directory names are
 separated by a colon (`:'), under OS/2 by a semi-colon (`;').
 If SANE_CONFIG_DIR is not set, SANE defaults to
-searching the current working directory (".") and then /etc/sane.d.
+searching the current working directory (".") and then
+.IR @CONFIGDIR@ .
 If the value of $SANE_CONFIG_DIR ends with the separator
 character, the default directories are searched after the directory list.
 For example, setting
 .B SANE_CONFIG_DIR
-to "/tmp/config:" would result in directories "tmp/config", ".", and
-"@CONFIGDIR@" being searched (in that order).
+to "/tmp/config:" would result in directories
+.IR tmp/config ,
+.IR . ,
+and
+.I "@CONFIGDIR@"
+being searched (in that order).
 .TP
 .B SANE_DEBUG_APPLE
 Controls the debug level.  A value of 255 prints
@@ -100,7 +110,7 @@ library compiled with debug support.
 The apple backend is now in version 0.3 (Tue Jul 21 1998). Since
 I only have the AppleScanner and not the other models (OneScanner,
 ColorOneScanner) I can only develop/test for the AppleScanner effectively.
-However with this release I almost completed the gui part of all scanners.
+However with this release I almost completed the GUI part of all scanners.
 Most of the functionality is there. At least OneScanner should scan
 at the AppleScanner's compatible modes (LineArt, HalfTone, Gray16). My
 personal belief is that with a slight touch of debugging the OneScanner
@@ -167,7 +177,7 @@ bugs.
 We know we have a GUI bug when a parameter is not showing up when it
 should (active) or vice versa. Finding out which parameters are active
 across various Apple modes and models from the documentation
-.B ftp://ftpdev.info.apple.com/devworld/Technical_Documentation/Peripherals_Documentation/
+.I ftp://ftpdev.info.apple.com/devworld/Technical_Documentation/Peripherals_Documentation/
 is an interesting exercise. I may have missed some dependencies. For example
 of the threshold parameter the Apple Scanners Programming Guide says
 nothing. I had to assume it is valid only in LineArt mode.
@@ -212,7 +222,8 @@ hardware, or may be bugs in your driver or in SANE itself...
 
 .SH DEBUG
 If you encounter a GUI bug please set the environmental variable
-SANE_DEBUG_APPLE to 255 and rerun the exact sequence of keystrokes
+.B SANE_DEBUG_APPLE
+to 255 and rerun the exact sequence of keystrokes
 and menu selections to reproduce it. Then send me a report with the
 log attached.
 .PP
@@ -223,9 +234,16 @@ would be very helpful.
 If you want to offer some help but you don't have a scanner, or you
 don't have the model you would like to help with, or you are
 a SANE developer and you just want to take a look at how the apple backend
-looks like, goto to apple.h and #define the NEUTRALIZE_BACKEND
+looks like, goto to
+.I apple.h
+and #define the
+.B NEUTRALIZE_BACKEND
 macro. You can select the scanner model through the APPLE_MODEL_SELECT
-macro. Available options are APPLESCANNER, ONESCANNER, COLORONESCANNER.
+macro. Available options are
+.BR APPLESCANNER ,
+.BR ONESCANNER ,
+and
+.BR COLORONESCANNER .
 .PP
 If you encounter a SCSI bus error or trimmed and/or displaced images please
 set the environment variable SANE_DEBUG_SANEI_SCSI to 255 before sending me
@@ -234,10 +252,12 @@ the report.
 .SH TODO
 .TP
 .B Non Blocking Support
-Make sane\-apple a non blocking backend. Properly support
-.B sane_set_io_mode
+Make
+.B sane\-apple
+a non blocking backend. Properly support
+.BR sane_set_io_mode ()
 and
-.B sane_get_select_fd
+.BR sane_get_select_fd ()
 .TP
 .B Scan
 Make scanning possible for all models in all supported modes.
@@ -245,9 +265,13 @@ Make scanning possible for all models in all supported modes.
 Add other missing functionality
 
 .SH "SEE ALSO"
-sane(7), sane\-scsi(5)
+.BR sane (7),
+.BR sane\-scsi (5)
 
 .SH AUTHOR
-The sane\-apple backend was written not entirely from scratch by
-Milon Firikis. It is mostly based on the mustek backend from
-David Mosberger and Andreas Czechanowski
+The
+.B sane\-apple
+backend was written not entirely from scratch by
+Milon Firikis. It is mostly based on the
+.BR sane\-mustek (5)
+backend from David Mosberger and Andreas Czechanowski

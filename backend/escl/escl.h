@@ -16,8 +16,8 @@
    for more details.
 
    You should have received a copy of the GNU General Public License
-   along with sane; see the file COPYING.  If not, write to the Free
-   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+   along with sane; see the file COPYING.
+   If not, see <https://www.gnu.org/licenses/>.
 
    This file implements a SANE backend for eSCL scanners.  */
 
@@ -47,6 +47,8 @@
 
 #include <stdio.h>
 #include <math.h>
+
+#include <curl/curl.h>
 
 #ifndef BACKEND_NAME
 #define BACKEND_NAME escl
@@ -97,6 +99,7 @@ typedef struct ESCL_Device {
     char     *uuid;
     char     *type;
     SANE_Bool https;
+    struct curl_slist *hack;
     char     *unix_socket;
 } ESCL_Device;
 
@@ -226,7 +229,7 @@ SANE_Status escl_status(const ESCL_Device *device,
                         const char* jobId,
                         SANE_Status *job);
 
-capabilities_t *escl_capabilities(const ESCL_Device *device,
+capabilities_t *escl_capabilities(ESCL_Device *device,
                                   SANE_Status *status);
 
 char *escl_newjob(capabilities_t *scanner,

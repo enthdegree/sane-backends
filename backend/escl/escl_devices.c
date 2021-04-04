@@ -16,8 +16,8 @@
    for more details.
 
    You should have received a copy of the GNU General Public License
-   along with sane; see the file COPYING.  If not, write to the Free
-   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+   along with sane; see the file COPYING.
+   If not, see <https://www.gnu.org/licenses/>.
 
    This file implements a SANE backend for eSCL scanners.  */
 
@@ -78,7 +78,7 @@ resolve_callback(AvahiServiceResolver *r, AVAHI_GCC_UNUSED AvahiIfIndex interfac
 	    if (s && s->size > 3)
 	       is = (const char*)s->text + 3;
 	    else
-	       uuid = (const char*)NULL;
+	       is = (const char*)NULL;
 	    s = avahi_string_list_find(txt, "uuid");
 	    if (s && s->size > 5)
 	       uuid = (const char*)s->text + 5;

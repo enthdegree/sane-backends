@@ -3,7 +3,7 @@
    This file is part of the SANE package, and implements a SANE backend
    for various Canon DR-series scanners.
 
-   Copyright (C) 2008-2020 m. allan noah
+   Copyright (C) 2008-2021 m. allan noah
 
    Yabarana Corp. www.yabarana.com provided significant funding
    EvriChart, Inc. www.evrichart.com provided funding and loaned equipment
@@ -25,9 +25,7 @@
    General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-   MA 02111-1307, USA.
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
    As a special exception, the authors of SANE give permission for
    additional uses of the libraries contained in this release of SANE.
@@ -348,6 +346,15 @@
          - add new gray and color interlacing options for DR-C120
          - initial support for DR-C120 and C130
          - enable fine calibration for P-208 (per @sashacmc in !546)
+      v61 2021-02-13, MAN
+         - treat DR-P208 like P-208 (#356)
+         - treat DR-P215 like P-215 (#356)
+         - adjust wait_scanner to try one TUR with a long timeout (#142)
+      v62 2021-02-13, MAN
+         - allow config file to set inq and vpd lengths for DR-M1060 (#263)
+         - rewrite do_cmd() timeout handling
+         - remove long timeout TUR from v61 (did not help)
+         - allow config file to set initial tur timeout for DR-X10C (#142)
 
    SANE FLOW DIAGRAM
 
@@ -386,6 +393,7 @@
 #include <math.h> /*tan*/
 #include <unistd.h> /*usleep*/
 #include <sys/time.h> /*gettimeofday*/
+#include <stdlib.h> /*strtol*/
 
 #include "../include/sane/sanei_backend.h"
 #include "../include/sane/sanei_scsi.h"
@@ -398,7 +406,7 @@
 #include "canon_dr.h"
 
 #define DEBUG 1
-#define BUILD 60
+#define BUILD 62
 
 /* values for SANE_DEBUG_CANON_DR env var:
  - errors           5
@@ -450,6 +458,10 @@ static int global_extra_status;
 static int global_extra_status_default = 0;
 static int global_duplex_offset;
 static int global_duplex_offset_default = 0;
+static int global_inquiry_length;
+static int global_vpd_length;
+static int global_tur_timeout;
+static int global_tur_timeout_default = USB_PACKET_TIMEOUT/60; /* half second */
 static char global_vendor_name[9];
 static char global_model_name[17];
 static char global_version_name[5];
@@ -677,6 +689,84 @@ sane_get_devices (const SANE_Device *** device_list, SANE_Bool local_only)
                   global_duplex_offset = buf;
               }
 
+              /* INQUIRY_LENGTH: <= 0x30 */
+              else if (!strncmp (lp, "inquiry-length", 14) && isspace (lp[14])) {
+
+                  int buf;
+                  lp += 14;
+                  lp = sanei_config_skip_whitespace (lp);
+                  buf = (int) strtol (lp,NULL,16);
+
+                  if (buf > INQUIRY_std_max_len) {
+                    DBG (5, "sane_get_devices: config option \"inquiry-length\" "
+                      "(%#04x) is > %#04x, ignoring!\n", buf, INQUIRY_std_max_len);
+                    continue;
+                  }
+
+                  if (buf < 0) {
+                    DBG (5, "sane_get_devices: config option \"inquiry-length\" "
+                      "(%#04x) is < 0, ignoring!\n", buf);
+                    continue;
+                  }
+
+                  DBG (15, "sane_get_devices: setting \"inquiry-length\" to %#04x\n",
+                    buf);
+
+                  global_inquiry_length = buf;
+              }
+
+              /* VPD_LENGTH: <= 0x30 */
+              else if (!strncmp (lp, "vpd-length", 10) && isspace (lp[10])) {
+
+                  int buf;
+                  lp += 10;
+                  lp = sanei_config_skip_whitespace (lp);
+                  buf = (int) strtol (lp,NULL,16);
+
+                  if (buf > INQUIRY_vpd_max_len) {
+                    DBG (5, "sane_get_devices: config option \"vpd-length\" "
+                      "(%#04x) is > %#04x, ignoring!\n", buf, INQUIRY_vpd_max_len);
+                    continue;
+                  }
+
+                  if (buf < 0) {
+                    DBG (5, "sane_get_devices: config option \"vpd-length\" "
+                      "(%#04x) is < 0, ignoring!\n", buf);
+                    continue;
+                  }
+
+                  DBG (15, "sane_get_devices: setting \"vpd-length\" to %#04x\n",
+                    buf);
+
+                  global_vpd_length = buf;
+              }
+
+              /* TUR_TIMEOUT <= 60000 */
+              else if (!strncmp (lp, "tur-timeout", 11) && isspace (lp[11])) {
+
+                  int buf;
+                  lp += 11;
+                  lp = sanei_config_skip_whitespace (lp);
+                  buf = atoi (lp);
+
+                  if (buf > 60000) {
+                    DBG (5, "sane_get_devices: config option \"tur-timeout\" "
+                      "(%d) is > 60000, ignoring!\n", buf);
+                    continue;
+                  }
+
+                  if (buf < 0) {
+                    DBG (5, "sane_get_devices: config option \"tur-timeout\" "
+                      "(%d) is < 0, ignoring!\n", buf);
+                    continue;
+                  }
+
+                  DBG (15, "sane_get_devices: setting \"tur-timeout\" to %d\n",
+                    buf);
+
+                  global_tur_timeout = buf;
+              }
+
               /* VENDOR: we ingest up to 8 bytes */
               else if (!strncmp (lp, "vendor-name", 11) && isspace (lp[11])) {
 
@@ -843,6 +933,9 @@ attach_one (const char *device_name, int connType)
   s->padded_read = global_padded_read;
   s->extra_status = global_extra_status;
   s->duplex_offset = global_duplex_offset;
+  s->inquiry_length = global_inquiry_length;
+  s->vpd_length = global_vpd_length;
+  s->tur_timeout = global_tur_timeout;
 
   /* copy the device name */
   strcpy (s->device_name, device_name);
@@ -1019,8 +1112,8 @@ init_inquire (struct scanner *s)
   unsigned char cmd[INQUIRY_len];
   size_t cmdLen = INQUIRY_len;
 
-  unsigned char in[INQUIRY_std_len];
-  size_t inLen = INQUIRY_std_len;
+  unsigned char in[INQUIRY_std_max_len];
+  size_t inLen = s->inquiry_length;
 
   DBG (10, "init_inquire: start\n");
 
@@ -1101,8 +1194,8 @@ init_vpd (struct scanner *s)
   unsigned char cmd[INQUIRY_len];
   size_t cmdLen = INQUIRY_len;
 
-  unsigned char in[INQUIRY_vpd_len];
-  size_t inLen = INQUIRY_vpd_len;
+  unsigned char in[INQUIRY_vpd_max_len];
+  size_t inLen = s->vpd_length;
 
   DBG (10, "init_vpd: start\n");
 
@@ -1493,7 +1586,8 @@ init_model (struct scanner *s)
     s->has_card = 1;
   }
 
-  else if (strstr (s->model_name, "P-208")) {
+  else if (strstr (s->model_name, "P-208")
+   || strstr (s->model_name,"DR-P208")){
     s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_RRGGBB;
     s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_rRgGbB;
     s->gray_interlace[SIDE_BACK] = GRAY_INTERLACE_gG;
@@ -1510,7 +1604,8 @@ init_model (struct scanner *s)
     s->can_read_sensors = 1;
   }
 
-  else if (strstr (s->model_name, "P-215")) {
+  else if (strstr (s->model_name, "P-215")
+   || strstr (s->model_name,"DR-P215")){
     s->color_interlace[SIDE_FRONT] = COLOR_INTERLACE_rRgGbB;
     s->color_interlace[SIDE_BACK] = COLOR_INTERLACE_RRGGBB;
     s->gray_interlace[SIDE_FRONT] = GRAY_INTERLACE_gG;
@@ -7081,6 +7176,9 @@ default_globals(void)
   global_padded_read = global_padded_read_default;
   global_extra_status = global_extra_status_default;
   global_duplex_offset = global_duplex_offset_default;
+  global_inquiry_length = INQUIRY_std_typ_len;
+  global_vpd_length = INQUIRY_vpd_typ_len;
+  global_tur_timeout = global_tur_timeout_default;
   global_vendor_name[0] = 0;
   global_model_name[0] = 0;
   global_version_name[0] = 0;
@@ -7334,21 +7432,21 @@ sense_handler (int fd, unsigned char * sensed_data, void *arg)
  * take a bunch of pointers, send commands to scanner
  */
 static SANE_Status
-do_cmd(struct scanner *s, int runRS, int shortTime,
+do_cmd(struct scanner *s, int runRS, int timeout,
  unsigned char * cmdBuff, size_t cmdLen,
  unsigned char * outBuff, size_t outLen,
  unsigned char * inBuff, size_t * inLen
 )
 {
     if (s->connection == CONNECTION_SCSI) {
-        return do_scsi_cmd(s, runRS, shortTime,
+        return do_scsi_cmd(s, runRS, timeout,
                  cmdBuff, cmdLen,
                  outBuff, outLen,
                  inBuff, inLen
         );
     }
     if (s->connection == CONNECTION_USB) {
-        return do_usb_cmd(s, runRS, shortTime,
+        return do_usb_cmd(s, runRS, timeout,
                  cmdBuff, cmdLen,
                  outBuff, outLen,
                  inBuff, inLen
@@ -7358,7 +7456,7 @@ do_cmd(struct scanner *s, int runRS, int shortTime,
 }
 
 static SANE_Status
-do_scsi_cmd(struct scanner *s, int runRS, int shortTime,
+do_scsi_cmd(struct scanner *s, int runRS, int timeout,
  unsigned char * cmdBuff, size_t cmdLen,
  unsigned char * outBuff, size_t outLen,
  unsigned char * inBuff, size_t * inLen
@@ -7368,7 +7466,7 @@ do_scsi_cmd(struct scanner *s, int runRS, int shortTime,
 
   /*shut up compiler*/
   runRS=runRS;
-  shortTime=shortTime;
+  timeout=timeout;
 
   DBG(10, "do_scsi_cmd: start\n");
 
@@ -7406,7 +7504,7 @@ do_scsi_cmd(struct scanner *s, int runRS, int shortTime,
 }
 
 static SANE_Status
-do_usb_cmd(struct scanner *s, int runRS, int shortTime,
+do_usb_cmd(struct scanner *s, int runRS, int timeout,
  unsigned char * cmdBuff, size_t cmdLen,
  unsigned char * outBuff, size_t outLen,
  unsigned char * inBuff, size_t * inLen
@@ -7416,21 +7514,19 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
     size_t cmdLength = 0;
     size_t cmdActual = 0;
     unsigned char * cmdBuffer = NULL;
-    int cmdTimeout = 0;
 
     size_t outOffset = 0;
     size_t outLength = 0;
     size_t outActual = 0;
     unsigned char * outBuffer = NULL;
-    int outTimeout = 0;
 
     size_t inOffset = 0;
     size_t inLength = 0;
     size_t inActual = 0;
     unsigned char * inBuffer = NULL;
-    int inTimeout = 0;
 
     size_t extraLength = 0;
+    int actTimeout = timeout ? timeout : USB_PACKET_TIMEOUT;
 
     int ret = 0;
     int ret2 = 0;
@@ -7440,18 +7536,15 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
 
     DBG (10, "do_usb_cmd: start %lu %lu\n", (long unsigned int)timer.tv_sec, (long unsigned int)timer.tv_usec);
 
+    /* change timeout */
+    sanei_usb_set_timeout(actTimeout);
+
     /****************************************************************/
     /* the command stage */
     {
       cmdOffset = USB_HEADER_LEN;
       cmdLength = cmdOffset+USB_COMMAND_LEN;
       cmdActual = cmdLength;
-      cmdTimeout = USB_COMMAND_TIME;
-
-      /* change timeout */
-      if(shortTime)
-        cmdTimeout/=60;
-      sanei_usb_set_timeout(cmdTimeout);
 
       /* build buffer */
       cmdBuffer = calloc(cmdLength,1);
@@ -7467,7 +7560,7 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
       memcpy(cmdBuffer+cmdOffset,cmdBuff,cmdLen);
 
       /* write the command out */
-      DBG(25, "cmd: writing %d bytes, timeout %d\n", (int)cmdLength, cmdTimeout);
+      DBG(25, "cmd: writing %d bytes, timeout %d\n", (int)cmdLength, actTimeout);
       hexdump(30, "cmd: >>", cmdBuffer, cmdLength);
       ret = sanei_usb_write_bulk(s->fd, cmdBuffer, &cmdActual);
       DBG(25, "cmd: wrote %d bytes, retVal %d\n", (int)cmdActual, ret);
@@ -7490,7 +7583,7 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
     /* this is like the regular status block, with an additional    */
     /* length component at the end */
     if(s->extra_status){
-      ret2 = do_usb_status(s,runRS,shortTime,&extraLength);
+      ret2 = do_usb_status(s,runRS,timeout,&extraLength);
 
       /* bail out on bad RS status */
       if(ret2){
@@ -7506,12 +7599,6 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
       outOffset = USB_HEADER_LEN;
       outLength = outOffset+outLen;
       outActual = outLength;
-      outTimeout = USB_DATA_TIME;
-
-      /* change timeout */
-      if(shortTime)
-        outTimeout/=60;
-      sanei_usb_set_timeout(outTimeout);
 
       /* build outBuffer */
       outBuffer = calloc(outLength,1);
@@ -7527,7 +7614,7 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
       memcpy(outBuffer+outOffset,outBuff,outLen);
 
       /* write the command out */
-      DBG(25, "out: writing %d bytes, timeout %d\n", (int)outLength, outTimeout);
+      DBG(25, "out: writing %d bytes, timeout %d\n", (int)outLength, actTimeout);
       hexdump(30, "out: >>", outBuffer, outLength);
       ret = sanei_usb_write_bulk(s->fd, outBuffer, &outActual);
       DBG(25, "out: wrote %d bytes, retVal %d\n", (int)outActual, ret);
@@ -7565,13 +7652,6 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
       /*blast caller's copy in case we error out*/
       *inLen = 0;
 
-      inTimeout = USB_DATA_TIME;
-
-      /* change timeout */
-      if(shortTime)
-        inTimeout/=60;
-      sanei_usb_set_timeout(inTimeout);
-
       /* build inBuffer */
       inBuffer = calloc(inActual,1);
       if(!inBuffer){
@@ -7579,7 +7659,7 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
         return SANE_STATUS_NO_MEM;
       }
 
-      DBG(25, "in: reading %d bytes, timeout %d\n", (int)inActual, inTimeout);
+      DBG(25, "in: reading %d bytes, timeout %d\n", (int)inActual, actTimeout);
       ret = sanei_usb_read_bulk(s->fd, inBuffer, &inActual);
       DBG(25, "in: read %d bytes, retval %d\n", (int)inActual, ret);
       hexdump(31, "in: <<", inBuffer, inActual);
@@ -7605,7 +7685,7 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
 
     /****************************************************************/
     /* the normal status stage */
-    ret2 = do_usb_status(s,runRS,shortTime,&extraLength);
+    ret2 = do_usb_status(s,runRS,timeout,&extraLength);
 
     /* if status said EOF, adjust input with remainder count */
     if(ret2 == SANE_STATUS_EOF && inBuffer){
@@ -7653,7 +7733,7 @@ do_usb_cmd(struct scanner *s, int runRS, int shortTime,
 }
 
 static SANE_Status
-do_usb_status(struct scanner *s, int runRS, int shortTime, size_t * extraLength)
+do_usb_status(struct scanner *s, int runRS, int timeout, size_t * extraLength)
 {
 
 #define EXTRA_READ_len 4
@@ -7663,7 +7743,8 @@ do_usb_status(struct scanner *s, int runRS, int shortTime, size_t * extraLength)
     size_t statLength = 0;
     size_t statActual = 0;
     unsigned char * statBuffer = NULL;
-    int statTimeout = 0;
+
+    int actTimeout = timeout ? timeout : USB_PACKET_TIMEOUT;
 
     int ret = 0;
 
@@ -7677,12 +7758,9 @@ do_usb_status(struct scanner *s, int runRS, int shortTime, size_t * extraLength)
       statLength += EXTRA_READ_len;
 
     statActual = statLength;
-    statTimeout = USB_STATUS_TIME;
 
     /* change timeout */
-    if(shortTime)
-      statTimeout/=60;
-    sanei_usb_set_timeout(statTimeout);
+    sanei_usb_set_timeout(timeout ? timeout : USB_PACKET_TIMEOUT);
 
     /* build statBuffer */
     statBuffer = calloc(statLength,1);
@@ -7691,7 +7769,7 @@ do_usb_status(struct scanner *s, int runRS, int shortTime, size_t * extraLength)
       return SANE_STATUS_NO_MEM;
     }
 
-    DBG(25, "stat: reading %d bytes, timeout %d\n", (int)statLength, statTimeout);
+    DBG(25, "stat: reading %d bytes, timeout %d\n", (int)statLength, actTimeout);
     ret = sanei_usb_read_bulk(s->fd, statBuffer, &statActual);
     DBG(25, "stat: read %d bytes, retval %d\n", (int)statActual, ret);
     hexdump(30, "stat: <<", statBuffer, statActual);
@@ -7756,7 +7834,7 @@ do_usb_clear(struct scanner *s, int clear, int runRS)
 
         DBG(25,"rs sub call >>\n");
         ret2 = do_cmd(
-          s,0,0,
+          s, 0, 0,
           rs_cmd, rs_cmdLen,
           NULL,0,
           rs_in, &rs_inLen
@@ -7798,7 +7876,7 @@ wait_scanner(struct scanner *s)
   set_SCSI_opcode(cmd,TEST_UNIT_READY_code);
 
   ret = do_cmd (
-    s, 0, 1,
+    s, 0, s->tur_timeout,
     cmd, cmdLen,
     NULL, 0,
     NULL, NULL
@@ -7807,7 +7885,7 @@ wait_scanner(struct scanner *s)
   if (ret != SANE_STATUS_GOOD) {
     DBG(5,"WARNING: Brain-dead scanner. Hitting with stick.\n");
     ret = do_cmd (
-      s, 0, 1,
+      s, 0, s->tur_timeout,
       cmd, cmdLen,
       NULL, 0,
       NULL, NULL
@@ -7816,7 +7894,7 @@ wait_scanner(struct scanner *s)
   if (ret != SANE_STATUS_GOOD) {
     DBG(5,"WARNING: Brain-dead scanner. Hitting with stick again.\n");
     ret = do_cmd (
-      s, 0, 1,
+      s, 0, s->tur_timeout,
       cmd, cmdLen,
       NULL, 0,
       NULL, NULL
@@ -7825,18 +7903,9 @@ wait_scanner(struct scanner *s)
   // some scanners (such as DR-F120) are OK but will not respond to commands
   // when in sleep mode. By checking the sense it wakes them up.
   if (ret != SANE_STATUS_GOOD) {
-    DBG(5,"WARNING: Brain-dead scanner. Hitting with request sense.\n");
+    DBG(5,"WARNING: Brain-dead scanner. Hitting with stick and request sense.\n");
     ret = do_cmd (
-      s, 1, 1,
-      cmd, cmdLen,
-      NULL, 0,
-      NULL, NULL
-    );
-  }
-  if (ret != SANE_STATUS_GOOD) {
-    DBG(5,"WARNING: Brain-dead scanner. Hitting with stick a third time.\n");
-    ret = do_cmd (
-      s, 0, 1,
+      s, 1, s->tur_timeout,
       cmd, cmdLen,
       NULL, 0,
       NULL, NULL
@@ -7845,7 +7914,7 @@ wait_scanner(struct scanner *s)
   if (ret != SANE_STATUS_GOOD) {
     DBG(5,"WARNING: Brain-dead scanner. Hitting with stick a fourth time.\n");
     ret = do_cmd (
-      s, 0, 1,
+      s, 0, s->tur_timeout,
       cmd, cmdLen,
       NULL, 0,
       NULL, NULL

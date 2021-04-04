@@ -24,7 +24,9 @@ sanei_usb instead of libusb by m. allan noah.
 The backend was tested on KV-S1025C and 1045C by Tiago Zaniquelli.
 
 .SH "SEE ALSO"
-sane(7), sane\-usb(5)
+.BR sane (7) ,
+.BR sane\-usb (5)
 
 .SH AUTHOR
-m. allan noah: <kitno455 a t gmail d o t com>
+m. allan noah:
+.RI < "kitno455 a t gmail d o t com" >

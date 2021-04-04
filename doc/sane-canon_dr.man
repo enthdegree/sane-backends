@@ -1,4 +1,4 @@
-.TH sane\-canon_dr 5 "31 Aug 2015" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
+.TH sane\-canon_dr 5 "13 Feb 2021" "@PACKAGEVERSION@" "SANE Scanner Access Now Easy"
 .IX sane\-canon_dr
 
 .SH NAME
@@ -10,12 +10,12 @@ The
 library implements a SANE (Scanner Access Now Easy) backend which
 provides access to some Canon DR-series scanners.
 
-This document describes backend version 57, which shipped with SANE 1.0.28.
+This document describes backend version 60, which shipped with SANE 1.0.32.
 
 .SH SUPPORTED HARDWARE
 This version has only been tested with a few scanner models. Please see
-http://www.sane\-project.org/sane\-supported\-devices.html for the most recent
-list.
+.I http://www.sane\-project.org/sane\-supported\-devices.html
+for the most recent list.
 
 This backend may support other Canon scanners. The best
 way to determine level of support is to test the scanner directly,
@@ -31,35 +31,32 @@ no way to detect if they are required, so they must be hard-coded.
 
 .SH OPTIONS
 Effort has been made to expose most hardware options, including:
-.PP
-source s
-.RS
-Selects the source for the scan. Options
-may include "Flatbed", "ADF Front", "ADF Back", "ADF Duplex".
-.RE
-.PP
-mode m
-.RS
-Selects the mode for the scan. Options
-may include "Lineart", "Halftone", "Gray", and "Color".
-.RE
-.PP
-resolution
-.RS
+.TP
+.B \-\-source Flatbed|ADF Front|ADF Back|ADF Duplex
+Selects the source for the scan.
+
+.TP
+.B \-\-mode Lineart|Halftone|Gray|Color
+Selects the mode for the scan.
+
+.TP
+.B \-\-resolution
 Controls scan resolution.
-.RE
-.PP
-tl\-x, tl\-y, br\-x, br\-y
-.RS
+
+.TP
+.B \-\-tl\-x, \-\-tl\-y, \-\-br\-x, \-\-br\-y
 Sets scan area upper left and lower right coordinates. These are renamed
-t, l, x, y by some frontends.
-.RE
-.PP
-page\-width, page\-height
-.RS
+.BR -t ,
+.BR -l ,
+.BR -x ,
+.B -y
+by some frontends.
+
+.TP
+.B \-\-page\-width, \-\-page\-height
 Sets paper size. Used by scanner to determine centering of scan
 coordinates when using ADF and to detect double feed errors.
-.RE
+
 .PP
 Other options will be available based on the capabilities of the scanner:
 enhancement, compression, buttons and sensors, etc.
@@ -71,35 +68,34 @@ capabilities. Please note that these features are somewhat simplistic, and
 may not perform as well as the native implementations. Note also that these
 features all require that the driver cache the entire image in memory. This
 will almost certainly result in a reduction of scanning speed.
-.PP
-swcrop
-.RS
+
+.TP
+.B \-\-swcrop
 Requests the driver to detect the extremities of the paper within the larger
 image, and crop the empty edges.
-.RE
-.PP
-swdeskew
-.RS
+
+.TP
+.B \-\-swdeskew
 Requests the driver to detect the rotation of the paper within the larger
 image, and counter the rotation.
-.RE
-.PP
-swdespeck X
-.RS
+
+.TP
+.B \-\-swdespeck X
 Requests the driver to find and remove dots of X diameter or smaller from the
 image, and fill the space with the average surrounding color.
-.RE
 
 Use 'scanimage \-\-help' to get a list, but be aware that some options may
 be settable only when another option has been set, and that advanced options
 may be hidden by some frontend programs.
-.PP
+
 .SH CONFIGURATION FILE
-The configuration file "canon_dr.conf" is used to tell the backend how to look
-for scanners, and provide options controlling the operation of the backend.
-This file is read each time the frontend asks the backend for a list
-of scanners, generally only when the frontend starts. If the configuration
-file is missing, the backend will fail to run.
+The configuration file
+.I canon_dr.conf
+is used to tell the backend how to look for scanners, and provide options
+controlling the operation of the backend. This file is read each time the
+frontend asks the backend for a list of scanners, generally only when the
+frontend starts. If the configuration file is missing, the backend will
+fail to run.
 .PP
 Scanners can be specified in the configuration file in 4 ways:
 .PP
@@ -164,13 +160,15 @@ Some scanners prepend all data transmitted to host with 12 bytes. Enable this op
 Some scanners pad the upper edge of one side of a duplex scan. There is some variation in the amount of padding. Modify this option if your unit shows an unwanted band of image data on only one side.
 .RE
 .PP
-Note: 'option' lines may appear multiple times in the configuration file.
+.BR NOTE :
+"option" lines may appear multiple times in the configuration file.
 They only apply to scanners discovered by the next 'scsi/usb' line.
 .PP
 
 .SH ENVIRONMENT
-The backend uses a single environment variable, SANE_DEBUG_CANON_DR, which
-enables debugging output to stderr. Valid values are:
+The backend uses a single environment variable,
+.BR SANE_DEBUG_CANON_DR ,
+which enables debugging output to stderr. Valid values are:
 .PP
 .RS
 5  Errors
@@ -195,26 +193,39 @@ machines have not been tested. Their protocol is unknown.
 
 .SH CREDITS
 
-The various authors of the sane\-fujitsu backend provided useful code
+The various authors of the
+.BR sane\-fujitsu (5)
+backend provided useful code.
 .br
-Yabarana Corp. www.yabarana.com provided significant funding
+Yabarana Corp.
+.I www.yabarana.com
+provided significant funding.
 .br
-EvriChart, Inc. www.evrichart.com provided funding and loaned equipment
+EvriChart, Inc.
+.I www.evrichart.com
+provided funding and loaned equipment.
 .br
-Canon, USA. www.usa.canon.com loaned equipment
+Canon, USA.
+.I www.usa.canon.com
+loaned equipment.
 .br
-HPrint hprint.com.br provided funding and testing for DR-2510 support
+HPrint
+.I hprint.com.br
+provided funding and testing for DR-2510 support.
 .br
-Stone-IT www.stone-it.com provided funding for DR-2010 and DR-2050 support
+Stone-IT
+.I www.stone-it.com
+provided funding for DR-2010 and DR-2050 support.
 .br
-Gerhard Pfeffer provided access and testing for P-208 and P-215
+Gerhard Pfeffer provided access and testing for P-208 and P-215.
 .br
 Special thanks to: Alejandro Imass, Andre Shimakawa, Martijn van Brummelen, Thanos Diacakis and Junren Shi for testing and feedback.
 
 .SH "SEE ALSO"
-sane(7),
-sane\-scsi(5),
-sane\-usb(5)
+.BR sane (7),
+.BR sane\-scsi (5),
+.BR sane\-usb(5)
 
 .SH AUTHOR
-m. allan noah: <kitno455 a t gmail d o t com>
+m. allan noah:
+.IR "<kitno455 a t gmail d o t com>" .

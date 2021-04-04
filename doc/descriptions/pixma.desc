@@ -204,7 +204,7 @@
 
 :model "PIXMA GM4080"
 :interface "USB"
-:usbid "0x04a9" "0x186A"
+:usbid "0x04a9" "0x186a"
 :status :untested
 :comment "Testers needed!"
 

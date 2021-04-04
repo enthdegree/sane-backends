@@ -7,11 +7,7 @@ sane\-config \- get information about the installed version of libsane
 .PP
 .B sane\-config
 is a tool that is used to determine the compiler and linker
-flags that should be used to compile and link
-.B SANE
-frontends to a
-.B SANE
-backend library (libsane).
+flags that should be used to compile and link SANE frontends to a SANE backend library (libsane).
 .
 .SH OPTIONS
 .B sane\-config
@@ -21,31 +17,31 @@ accepts the following options (you can't use more than one option at the same ti
 Print the currently installed version of libsane on the standard output.
 .TP 8
 .B  \-\-help OPTION
-Print a short usage message. If OPTION is specified, help for that option
-(e.g. \-\-libs) is printed (if available).
+Print a short usage message. If
+.I OPTION
+is specified, help for that option (e.g.
+.BR \-\-libs )
+is printed (if available).
 .TP 8
 .B  \-\-libs
-Print the additional libraries that are necessary to link a
-.B SANE
-frontend to libsane.
+Print the additional libraries that are necessary to link a SANE frontend to libsane.
 .TP 8
 .B  \-\-ldflags
-Print the linker flags that are necessary to link a
-.B  SANE
-frontend to libsane.
+Print the linker flags that are necessary to link a SANE frontend to libsane.
 .TP 8
 .B  \-\-cflags
-Print the compiler flags that are necessary to compile a
-.B SANE
-frontend.
+Print the compiler flags that are necessary to compile a SANE frontend.
 .TP 8
 .B  \-\-prefix
 Print the prefix used during compilation of libsane.
 .TP 8
 .B  \-\-exec\-prefix
 Print the exec\-prefix used during compilation of libsane.
+
 .SH "SEE ALSO"
 .BR sane (7)
+
 .SH AUTHOR
-This manual page was written by Julien BLACHE <jblache@debian.org>, for the
-Debian GNU/Linux system (but may be used by others).
+This manual page was written by Julien BLACHE
+.RI < jblache@debian.org > ,
+for the Debian GNU/Linux system (but may be used by others).

@@ -232,8 +232,8 @@
 :model "CanoScan 4400F"
 :interface "USB"
 :usbid "0x04a9" "0x2228"
-:status :complete
-:comment "300, 600, 1200 dpi resolutions are supported in flatbed mode; 1200, 2400, 4800 dpi resolutions are supported in transparency scanning mode"
+:status :untested
+:comment "Physical damage due to overheating reported.  Enable in genesys.conf at your own risk.  See https://gitlab.com/sane-project/backends/-/issues/436.  300, 600, 1200 dpi resolutions are supported in flatbed mode; 1200, 2400, 4800 dpi resolutions are supported in transparency scanning mode"
 
 :model "CanoScan 5600F"
 :interface "USB"

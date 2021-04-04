@@ -76,14 +76,14 @@ debian-10-full:
     - doc/sanei-html
     expire_in: 1 day
 
-fedora-32-clang:
-  image: $REGISTRY_HUB:fedora-32-clang
+fedora-33-clang:
+  image: $REGISTRY_HUB:fedora-33-clang
   variables:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
   <<: *compile_definition
 
-alpine-3.12-musl:
-  image: $REGISTRY_HUB:alpine-3.12-musl
+alpine-3.13-musl:
+  image: $REGISTRY_HUB:alpine-3.13-musl
   variables:
     CONFIGURE_OPTS: "$CONFIGURE_MINI $CONFIGURE_FULL"
   <<: *compile_definition

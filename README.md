@@ -10,6 +10,9 @@ No real code is needed. Only two files have changed:
  
 # Instructions
 
+Debian package dependencies: `gcc make autoconf autoconf-archive autopoint python libusb-dev libusb-1.0.0-dev libjpeg-dev libpng-dev libcurl4-gnutls-dev libxml2-dev libsnmp-dev libpoppler-glib-dev`
+
+    ulimit -n 100000
     ./autogen.sh    
     ./configure --prefix="$HOME/local_sane/" BACKENDS="genesys"
     make
